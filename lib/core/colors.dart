@@ -33,4 +33,10 @@ class Colors {
   static const Color red = const Color(0XFFE94444);
   static const Color modalRed = const Color(0XFFEF5454);
   static const Color darkRed = const Color(0XFFBE3B3B);
+
+
+
+  static const Color solidGreen = const Color(0XFF1EB12D);
+
+
 }

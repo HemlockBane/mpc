@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' hide Colors;
 import 'package:moniepoint_flutter/app/login/views/login_view.dart';
 import 'package:moniepoint_flutter/app/onboarding/introduction_view.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/existing/existing_account_view.dart';
+import 'package:moniepoint_flutter/app/onboarding/views/new/new_account_view.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/onboarding_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/di/service_module.dart';
@@ -35,6 +36,7 @@ class MoniepointApp extends StatelessWidget {
         '/login': (BuildContext context) => Scaffold(body: LoginScreen()),
         '/sign-up': (BuildContext context) => Scaffold(body: OnBoardingScreen()),
         Routes.REGISTER_EXISTING_ACCOUNT: (BuildContext context) => Scaffold(body: ExistingAccountView()),
+        Routes.REGISTER_NEW_ACCOUNT: (BuildContext context) => Scaffold(body: NewAccountScreen()),
       },
     );
   }

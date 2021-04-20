@@ -6,10 +6,10 @@ part 'security_answer.g.dart';
 class SecurityAnswer {
 
   @JsonKey(name:"questionId")
-  final String questionId;
+  final String? questionId;
 
   @JsonKey(name:"answer")
-  final String answer;
+  final String? answer;
 
   SecurityAnswer(this.questionId, this.answer);
 

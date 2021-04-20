@@ -6,23 +6,22 @@ import 'package:moniepoint_flutter/core/styles.dart';
 /// @author Paul Okeke
 class PinEntry extends StatefulWidget {
   late final int numEntries;
+  late final ValueChanged<String>? onChange;
 
-  PinEntry({this.numEntries = 4});
+  PinEntry({this.numEntries = 4, this.onChange});
 
   @override
   State<StatefulWidget> createState() {
-    return _PinEntryState(numEntries);
+    return _PinEntryState(numEntries, onChange);
   }
 }
 
 class _PinEntryState extends State<PinEntry> {
   final int _numEntries;
+  final ValueChanged<String>? onChange;
+  var _pin = "";
 
-  // final List<Widget> indicators = <Widget>[];
-
-  var pin = "";
-
-  _PinEntryState(this._numEntries);
+  _PinEntryState(this._numEntries, this.onChange);
 
   //We are simply going to create a stack with a container and a text field
   // beneath
@@ -49,7 +48,7 @@ class _PinEntryState extends State<PinEntry> {
 
     for (int i = 0; i < this._numEntries; i++) {
       //first we add an indicator
-      if (i + 1 > pin.length) {
+      if (i + 1 > _pin.length) {
         color = Colors.deepGrey.withOpacity(0.4);
       } else {
         color = Colors.primaryColor;
@@ -72,8 +71,9 @@ class _PinEntryState extends State<PinEntry> {
 
   void updatePin(String pin) {
     setState(() {
-      this.pin = pin;
+      this._pin = pin;
     });
+    onChange?.call(pin);
   }
 
   @override
@@ -87,7 +87,8 @@ class _PinEntryState extends State<PinEntry> {
         alignment: AlignmentDirectional.bottomCenter,
         children: [
           Positioned(
-              top: 0, bottom: 0, right: 0, left: 0, child: buildPinBoxes()),
+              top: 0, bottom: 0, right: 0, left: 0, child: buildPinBoxes()
+          ),
           Positioned(
               child: Opacity(
                   opacity: 0,
@@ -98,7 +99,8 @@ class _PinEntryState extends State<PinEntry> {
                       padding: EdgeInsets.only(top: 20, bottom: 20),
                       inputType: TextInputType.number,
                       hint: '',
-                      onChanged: (value) => {updatePin(value)})
+                      onChanged: updatePin
+                  )
               )
           )
         ],

@@ -4,9 +4,10 @@ part 'account_info_request.g.dart';
 
 @JsonSerializable()
 class AccountInfoRequestBody {
+
   AccountInfoRequestBody({this.accountNumber, this.customerId});
 
-  final String? accountNumber;
+  String? accountNumber;
   final String? customerId;
 
   Map<String, dynamic> toJson() => _$AccountInfoRequestBodyToJson(this);

@@ -1,24 +1,147 @@
+import 'dart:io';
+
+import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/transfer_beneficiary.dart';
+import 'package:moniepoint_flutter/app/onboarding/model/ExistingAccountOTP.dart';
+import 'package:moniepoint_flutter/app/onboarding/model/NewAccountOTP.dart';
+import 'package:moniepoint_flutter/app/onboarding/model/account_form.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/account_info_request.dart';
+import 'package:moniepoint_flutter/app/onboarding/model/data/account_profile_result.dart';
+import 'package:moniepoint_flutter/app/onboarding/model/data/bvn_otp_result.dart';
+import 'package:moniepoint_flutter/app/onboarding/model/data/bvn_otp_validation_request.dart';
+import 'package:moniepoint_flutter/app/onboarding/model/data/bvn_otp_validation_result.dart';
+import 'package:moniepoint_flutter/app/onboarding/model/data/bvn_validation_request.dart';
+import 'package:moniepoint_flutter/app/onboarding/model/data/validation_key.dart';
+import 'package:moniepoint_flutter/app/onboarding/model/data/validation_otp_request.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/onboarding_service_delegate.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/profile_form.dart';
+import 'package:moniepoint_flutter/app/securityquestion/model/data/security_question.dart';
+import 'package:moniepoint_flutter/app/securityquestion/model/security_question_delegate.dart';
+import 'package:moniepoint_flutter/core/models/security_answer.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/app/onboarding/model/data/otp.dart';
+
 
 /// @author Paul Okeke
 class OnBoardingViewModel extends ChangeNotifier {
 
   final profileForm = ProfileForm();
+  final accountForm = AccountForm();
+
+  BVNValidationRequest? _bvnValidationRequest;
 
   late OnBoardingServiceDelegate _delegate;
+  late SecurityQuestionDelegate _questionDelegate;
+  DeviceInfoPlugin? _deviceManager;
+
+  AndroidDeviceInfo? _androidDeviceInfo;
+  IosDeviceInfo? _iosDeviceInfo;
+
+  final List<SecurityQuestion> _securityQuestions = [];
 
   TransferBeneficiary? _transferBeneficiary;
-
   TransferBeneficiary? get transferBeneficiary => _transferBeneficiary;
+  List<SecurityQuestion> get questions => _securityQuestions;
 
-  OnBoardingViewModel({OnBoardingServiceDelegate? delegate}) {
+  OTP? _accountOtp;
+
+  bool _isNewAccount = false;
+  bool get isNewAccount => _isNewAccount;
+
+  OnBoardingViewModel({
+    OnBoardingServiceDelegate? delegate,
+    SecurityQuestionDelegate? questionDelegate,
+    DeviceInfoPlugin? deviceManager}) {
     this._delegate = delegate ?? GetIt.I<OnBoardingServiceDelegate>();
+    this._questionDelegate = questionDelegate ?? GetIt.I<SecurityQuestionDelegate>();
+    this._deviceManager = deviceManager ?? GetIt.I<DeviceInfoPlugin>();
+
+    if(Platform.isAndroid) {
+      _deviceManager?.androidInfo.then((value) {
+        _androidDeviceInfo = value;
+      });
+    } else if(Platform.isIOS) {
+      _deviceManager?.iosInfo.then((value) {
+        _iosDeviceInfo = value;
+      });
+    }
+  }
+
+  void setIsNewAccount(bool isNewAccount) {
+    this._isNewAccount = isNewAccount;
+  }
+
+  Stream<Resource<OTP>> requestForExistingAccountOtp() {
+    final request = AccountInfoRequestBody()
+      ..accountNumber = transferBeneficiary?.accountNumber;
+
+    return ExistingAccountOTP(this._delegate, request).responseStream.map((event) {
+      if(event is Success) _accountOtp = event.data;
+      return event;
+    });
+  }
+
+  Stream<Resource<ValidationKey>> validateAccountOtp(String? otp) {
+    final request = ValidateOtpRequestBody()
+      ..accountNumber = transferBeneficiary?.accountNumber
+      ..userCode = _accountOtp?.response?.userCode
+      ..otp = otp;
+
+    return _delegate.validateAccountOTP(request).map((event) {
+      if(event is Success) {
+        profileForm.profile.onboardingKey = event.data?.onboardingKey;
+      }
+      return event;
+    });
+  }
+
+
+  Stream<Resource<BVNOTPResult>> requestOtpForNewAccount() {
+    final request = BVNOTPValidationRequest()
+      ..bvn = accountForm.account.bvn
+      ..phoneNumber = accountForm.account.phoneNumber
+      ..dob = accountForm.account.dateOfBirth;
+
+    return NewAccountOTP(this._delegate, request).responseStream.map((event) {
+      return event;
+    });
+  }
+
+  Stream<Resource<BVNOTPValidationResult>> validateBVNOTP(String? otp) {
+    final request = BVNOTPValidationRequest()
+      ..bvn = accountForm.account.bvn
+      ..phoneNumber = accountForm.account.phoneNumber
+      ..dob = accountForm.account.dateOfBirth
+      ..otp = otp;
+
+    return _delegate.validateBVNOTP(request).map((event) {
+      if(event is Success) {
+        accountForm.account.onboardingKey = event.data?.onBoardingKey;
+      }
+      return event;
+    });
+  }
+
+  Stream<Resource<BVNValidationRequest?>> validateBVN() {
+    this._bvnValidationRequest = BVNValidationRequest()
+      ..gender = accountForm.account.gender
+      ..emailAddress = accountForm.account.emailAddress
+      ..phoneNumber = accountForm.account.phoneNumber
+      ..dob = accountForm.account.dateOfBirth
+      ..bvn = accountForm.account.bvn;
+
+    return _delegate.validateBVN(_bvnValidationRequest!).map((event) {
+      final data = event.data;
+      if (event is Success && data != null) {
+        accountForm.account
+            ..firstName = data.firstName
+            ..surname = data.lastName
+            ..otherName = data.middleName;
+      }
+      return event;
+    });
   }
 
   Stream<Resource<TransferBeneficiary?>> getAccount(AccountInfoRequestBody requestBody) {
@@ -28,4 +151,37 @@ class OnBoardingViewModel extends ChangeNotifier {
     });
   }
 
+  Stream<Resource<List<SecurityQuestion>>> getSecurityQuestions() {
+    if(_securityQuestions.isNotEmpty) return Stream.fromIterable([Resource.success(_securityQuestions)]);
+    return _questionDelegate.getAllQuestions().map((event) {
+      if(event is Success)_securityQuestions.addAll(event.data ?? []);
+      return event;
+    });
+  }
+
+  List<SecurityAnswer> getSecurityQuestionAnswers() {
+    return [
+      SecurityAnswer(profileForm.securityQuestionOne?.id.toString(),  profileForm.answerOne),
+      SecurityAnswer(profileForm.securityQuestionTwo?.id.toString(),  profileForm.answerTwo),
+      SecurityAnswer(profileForm.securityQuestionThree?.id.toString(),  profileForm.answerThree),
+    ];
+  }
+
+  Stream<Resource<bool>> createUser() {
+    profileForm.profile
+    ..accountNumber = transferBeneficiary?.accountNumber
+    ..deviceId = (_androidDeviceInfo != null) ? _androidDeviceInfo?.androidId : _iosDeviceInfo?.identifierForVendor
+    ..deviceName = (_androidDeviceInfo != null) ? _androidDeviceInfo?.device : _iosDeviceInfo?.name
+    ..securityAnwsers = getSecurityQuestionAnswers();
+    return _delegate.createUser(profileForm.profile);
+  }
+
+  //TODO don't repeat yourself
+  Stream<Resource<AccountProfile>> createAccount() {
+    accountForm.account
+      ..deviceId = (_androidDeviceInfo != null) ? _androidDeviceInfo?.androidId : _iosDeviceInfo?.identifierForVendor
+      ..deviceName = (_androidDeviceInfo != null) ? _androidDeviceInfo?.device : _iosDeviceInfo?.name
+      ..securityAnwsers = getSecurityQuestionAnswers();
+    return _delegate.createAccount(accountForm.account);
+  }
 }

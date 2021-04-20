@@ -103,4 +103,57 @@ class BottomSheets {
         )
     );
   }
+
+  static Widget displaySuccessModal(BuildContext context,
+      {String title = "Oops", String? message = "", VoidCallback? onClick}) {
+    return makeAppBottomSheet(
+        curveBackgroundColor: Colors.solidGreen,
+        centerImageBackgroundColor: Colors.white,
+        contentBackgroundColor: Colors.solidGreen,
+        centerImageRes: 'res/drawables/success_modal_check.svg',
+        content: Wrap(
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              child: Column(
+                children: [
+                  Text(title,
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white)),
+                  SizedBox(height: 16),
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(8)),
+                        color: Colors.solidGreen),
+                    child: Text(message ?? "",
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.normal,
+                            color: Colors.white),
+                        textAlign: TextAlign.center),
+                  ),
+                  SizedBox(height: 21),
+                  SizedBox(
+                      width: double.infinity,
+                      child: Styles.appButton(
+                          onClick:
+                          onClick ?? () => Navigator.of(context).pop(),
+                          text: 'Continue',
+                          buttonStyle: Styles.whiteButtonStyle.copyWith(
+                              foregroundColor: MaterialStateProperty.all(
+                                  Colors.solidGreen)))),
+                  SizedBox(height: 64)
+                ],
+              ),
+            )
+          ],
+        )
+    );
+  }
 }

@@ -8,8 +8,8 @@ part of 'security_answer.dart';
 
 SecurityAnswer _$SecurityAnswerFromJson(Map<String, dynamic> json) {
   return SecurityAnswer(
-    json['questionId'] as String,
-    json['answer'] as String,
+    json['questionId'] as String?,
+    json['answer'] as String?,
   );
 }
 

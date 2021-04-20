@@ -68,7 +68,7 @@ class OnBoardingScreen extends StatelessWidget {
                       child: _buildButton(
                           title: 'I don’t have a\nMoniepoint Account',
                           imageRes: 'res/drawables/ic_has_no_account.svg',
-                          onClick: () => Navigator.of(context).pushNamed(Routes.REGISTER_EXISTING_ACCOUNT)
+                          onClick: () => Navigator.of(context).pushNamed(Routes.REGISTER_NEW_ACCOUNT)
                       ),
                     flex: 1,
                     fit: FlexFit.tight,

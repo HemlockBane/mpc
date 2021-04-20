@@ -25,4 +25,31 @@ mixin Validators {
     }
     return Tuple(isValid, passwordError);
   }
+
+  bool isBVNValid(String? text) {
+    if(text == null) return false;
+    if(text.isEmpty || text.length < 11) return false;
+    return true;
+  }
+
+  bool isPhoneNumberValid(String? text) {
+    if(text == null) return false;
+    if (text.length < 10) return false;
+    final code = text.substring(0, 4);
+    if(code.contains("+234") && text.length >= 14){
+      return true;
+    }
+    else if(code.contains("234") && text.length >= 13){
+      return true;
+    }
+    else if(!code.contains("234") && text.length == 11) {
+      return true;
+    }
+    return false;
+  }
+
+  bool isEmailValid(String? text) {
+    if(text == null) return false;
+    return RegExp(r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$").hasMatch(text);
+  }
 }

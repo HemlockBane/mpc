@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' hide Colors;
 import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/existing/account_number_view.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/existing/confirm_account_view.dart';
+import 'package:moniepoint_flutter/app/onboarding/views/existing/existing_account_otp_view.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/profile_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:provider/provider.dart';
@@ -21,6 +22,9 @@ class ExistingAccountView extends StatelessWidget {
         break;
       case "confirm-account":
         page = ConfirmAccountNumberScreen(_scaffoldKey);
+        break;
+      case "otp-screen":
+        page = ExistingAccountOTPScreen(_scaffoldKey);
         break;
       case "profile":
         page = ProfileScreen(_scaffoldKey);

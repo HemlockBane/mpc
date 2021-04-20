@@ -56,6 +56,7 @@ mixin NetworkResource {
 
         }
       } catch(e) {
+        print(e);
         _exception = e as Exception;
 
         ServiceResult<K?>? result;

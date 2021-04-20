@@ -53,7 +53,7 @@ class Styles {
       shape: MaterialStateProperty.all(
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))));
 
-  static final String defaultFont = "CircularStd";
+  static const String defaultFont = "CircularStd";
 
   /// A Generic Primary Button
   static ElevatedButton appButton(
@@ -110,6 +110,8 @@ class Styles {
     TextEditingController? controller,
     Function(bool)? focusListener,
     EdgeInsets? padding,
+    VoidCallback? onClick,
+    bool enabled = true
   }) {
     String? labelText = (animateHint) ? hint : null;
 
@@ -122,6 +124,9 @@ class Styles {
       maxLength: maxLength,
       controller: controller,
       onChanged: onChanged,
+      onTap: onClick,
+      enableInteractiveSelection: enabled,
+      focusNode: (!enabled) ? AlwaysDisabledFocusNode() : null,
       // focusNode: mFocusNode,
       style: TextStyle(
           fontFamily: Styles.defaultFont,
@@ -134,10 +139,10 @@ class Styles {
       autocorrect: (isPassword) ? false : true,
       decoration: InputDecoration(
           errorText: errorText,
-          // hintText: hint,
+          hintText: (!animateHint) ? hint : null,
           labelText: labelText,
           contentPadding: padding,
-          // hintStyle: TextStyle(fontFamily: Styles.defaultFont, fontSize: fontSize ?? 16, color: Colors.textHintColor.withOpacity(0.29)),
+          hintStyle: TextStyle(fontFamily: Styles.defaultFont, fontSize : fontSize ?? 16, color: Colors.textHintColor.withOpacity(0.29)),
           labelStyle: TextStyle(
               fontFamily: Styles.defaultFont,
               fontSize: fontSize ?? 16,
@@ -166,4 +171,9 @@ class Styles {
       ),
     );
   }
+}
+
+class AlwaysDisabledFocusNode extends FocusNode {
+  @override
+  bool get hasFocus => false;
 }

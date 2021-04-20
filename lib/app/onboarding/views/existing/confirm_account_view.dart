@@ -96,7 +96,7 @@ class ConfirmAccountNumberScreen extends StatelessWidget {
               ),
             ),
             Spacer(),
-            Styles.appButton(onClick: ()=> Navigator.of(context).pushNamed('profile'), text: 'Continue'),
+            Styles.appButton(onClick: ()=> Navigator.of(context).pushNamed('otp-screen'), text: 'Continue'),
             SizedBox(height: 66,)
           ],
         ),

@@ -1,6 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/profile_request.dart';
 import 'package:moniepoint_flutter/core/models/gender.dart';
+import 'package:moniepoint_flutter/core/models/security_answer.dart';
 
 part 'account_request.g.dart';
 
@@ -44,6 +45,11 @@ class AccountCreationRequestBody extends ProfileCreationRequestBody {
 
   @JsonKey(name: "signatureUUID")
   String? signatureUUID;
+
+  AccountCreationRequestBody():super();
+
+  factory AccountCreationRequestBody.fromJson(Map<String, dynamic> data) => _$AccountCreationRequestBodyFromJson(data);
+  Map<String, dynamic> toJson() => _$AccountCreationRequestBodyToJson(this);
 
   AccountCreationRequestBody withSelfieUUID(String selfieImage) {
     this.selfieImageUUID = selfieImage;

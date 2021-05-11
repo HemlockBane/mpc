@@ -10,6 +10,11 @@ class BottomSheets {
       Color centerImageBackgroundColor = Colors.primaryColor,
       Color contentBackgroundColor = Colors.white,
       String centerImageRes = 'res/drawables/ic_key.svg',
+      double paddingLeft = 0,
+      double paddingRight = 0,
+      double paddingBottom = 0,
+      double centerImageWidth = 33,
+      double centerImageHeight = 33,
       Widget? content}) {
     return Container(
         height: height,
@@ -26,12 +31,14 @@ class BottomSheets {
             Container(
               width: double.infinity,
               margin: EdgeInsets.only(top: 42.5),
-              padding: EdgeInsets.only(top: 43),
+              padding: EdgeInsets.only(top: 43, left: paddingLeft, right: paddingRight, bottom: paddingBottom),
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(16),
-                      topRight: Radius.circular(16)),
-                  color: contentBackgroundColor),
+                      topRight: Radius.circular(16)
+                  ),
+                  color: contentBackgroundColor
+              ),
               child: content,
             ),
             Positioned(
@@ -40,7 +47,7 @@ class BottomSheets {
                   color: centerImageBackgroundColor,
                   shape: BoxShape.circle,
                 ),
-                child: SvgPicture.asset(centerImageRes, width: 33, height: 33),
+                child: SvgPicture.asset(centerImageRes, width: centerImageWidth, height: centerImageHeight),
                 padding: EdgeInsets.all(20),
                 margin: EdgeInsets.only(top: 10),
               ),
@@ -128,7 +135,7 @@ class BottomSheets {
                     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 24),
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(Radius.circular(8)),
-                        color: Colors.solidGreen),
+                        color: Colors.solidDarkGreen),
                     child: Text(message ?? "",
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,

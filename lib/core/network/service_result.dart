@@ -12,7 +12,7 @@ part 'service_result.g.dart';
 class ServiceResult<ResultType> {
   ServiceResult(this.success, this.result, this.errors);
 
-  bool success;
+  bool? success;
   @JsonKey(includeIfNull: false)
   final ResultType? result;
   final List<ServiceError>? errors;

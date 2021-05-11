@@ -1,12 +1,23 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' hide Colors;
+import 'package:flutter/material.dart' hide Colors, ScrollView;
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:moniepoint_flutter/app/login/model/data/security_flag.dart';
+import 'package:moniepoint_flutter/app/login/model/data/user.dart';
+import 'package:moniepoint_flutter/app/login/viewmodels/login_view_model.dart';
 import 'package:moniepoint_flutter/app/login/views/dialogs/recover_credentials.dart';
+import 'package:moniepoint_flutter/app/login/views/dialogs/unrecognized_device_dialog.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
+import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/utils/preference_util.dart';
+import 'package:moniepoint_flutter/core/views/scroll_view.dart';
+import 'package:provider/provider.dart';
+
+import 'recovery/recovery_controller_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -16,11 +27,30 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginState extends State<LoginScreen> {
+
+  TextEditingController _usernameController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+
+  bool _isLoading = false;
   bool _isPasswordVisible = false;
+  bool _isFormValid = false;
 
   @override
   void initState() {
+    _usernameController.addListener(() {
+      validateForm();
+    });
+
+    _passwordController.addListener(() {
+      validateForm();
+    });
     super.initState();
+  }
+
+  void validateForm() {
+    setState(() {
+      _isFormValid = _usernameController.text.isNotEmpty && _passwordController.text.isNotEmpty;
+    });
   }
 
   Widget makeTextWithIcon(
@@ -83,6 +113,51 @@ class _LoginState extends State<LoginScreen> {
     );
   }
 
+  void _subscribeUiToLogin(BuildContext context) {
+    final viewModel = Provider.of<LoginViewModel>(context, listen: false);
+    String username = _usernameController.text;
+    String password = _passwordController.text;
+
+    viewModel.loginWithPassword(username, password).listen((event) {
+      if(event is Loading) setState(() => _isLoading = true);
+      if (event is Error<User>) {
+        setState(() => _isLoading = false);
+        showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (context) {
+              return BottomSheets.displayErrorModal(context, message: event.message);
+            });
+      }
+      if(event is Success<User>) {
+        setState(() => _isLoading = false);
+        PreferenceUtil.saveLoggedInUser(event.data!);
+        PreferenceUtil.saveUsername(event.data?.username ?? "");
+        checkSecurityFlags();
+      }
+    });
+  }
+
+  void loginSuccessfully() {
+      Navigator.popAndPushNamed(context, Routes.DASHBOARD);
+  }
+
+  void checkSecurityFlags() {
+    final viewModel = Provider.of<LoginViewModel>(context, listen: false);
+    var flag = viewModel.securityFlagQueue;
+    if(flag?.isEmpty == true) return loginSuccessfully();
+    var queue = flag?.removeFirst();
+
+    if (queue == SecurityFlag.ADD_DEVICE) {
+      showModalBottomSheet(
+          context: context,
+          backgroundColor: Colors.transparent,
+          builder: (b) => UnRecognizedDeviceDialog(()=> checkSecurityFlags())
+      );
+    }
+  }
+
   Widget _buildLoginBox(BuildContext context) {
     return Card(
       elevation: 30,
@@ -97,12 +172,14 @@ class _LoginState extends State<LoginScreen> {
           children: [
             Styles.appEditText(
                 hint: 'Username',
+                controller: _usernameController,
                 animateHint: true,
                 drawablePadding: 4,
                 startIcon: Icon(CustomFont.username_icon, color: Colors.colorFaded),
                 focusListener: (bool) => this.setState(() {})),
             SizedBox(height: 16),
             Styles.appEditText(
+                controller: _passwordController,
                 hint: 'Password',
                 animateHint: true,
                 drawablePadding: 4,
@@ -110,12 +187,29 @@ class _LoginState extends State<LoginScreen> {
                 focusListener: (bool) => this.setState(() {}),
                 isPassword: true),
             SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: Styles.appButton(
-                paddingTop: 20,
-                paddingBottom: 20,
-                  onClick: () => {}, text: 'Login', elevation: 8),
+            Stack(
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: Styles.appButton(
+                        paddingTop: 20,
+                        paddingBottom: 20,
+                        onClick: _isFormValid && !_isLoading
+                            ? ()=> _subscribeUiToLogin(context)
+                            : null,
+                        text: 'Login', elevation: _isFormValid && !_isLoading ? 8 : 0),
+                  ),
+                ),
+                Positioned(
+                    right: 16,
+                    top: 16,
+                    bottom: 16,
+                    child: _isLoading
+                        ? SpinKitThreeBounce(size: 20.0, color: Colors.white.withOpacity(0.5))
+                        : SizedBox())
+              ],
             ),
             SizedBox(height: 24),
             Divider(color: Colors.colorFaded.withOpacity(0.9), height: 3),
@@ -133,7 +227,9 @@ class _LoginState extends State<LoginScreen> {
                         builder: (context) {
                           return BottomSheets.makeAppBottomSheet(
                               height: MediaQuery.of(context).size.height * 0.45,//this is like our guideline
-                              content: RecoverCredentialsDialogLayout.getLayout()
+                              centerImageRes: 'res/drawables/ic_key.svg',
+                              centerImageBackgroundColor: Colors.primaryColor.withOpacity(0.1),
+                              content: RecoverCredentialsDialogLayout.getLayout(context)
                           );
                         });
                   },
@@ -215,9 +311,12 @@ class _LoginState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final top = MediaQuery.of(context).padding.top;
     final minHeight = MediaQuery.of(context).size.height - (top + 34);
+
+    Provider.of<LoginViewModel>(context, listen: false);
+
     return Scaffold(
         body: SafeArea(
-            child: SingleChildScrollView(
+            child: ScrollView(
                 child: Container(
                   color: Colors.backgroundWhite,
                   padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 0),

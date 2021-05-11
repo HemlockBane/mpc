@@ -28,7 +28,7 @@ class IntroductionScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     SizedBox(height: 300),
-                    SvgPicture.asset('res/drawables/app_icon.svg'),
+                    SvgPicture.asset('res/drawables/ic_moniepoint_cube.svg', width: 55, height: 55,),
                     SizedBox(height: 16),
                     SvgPicture.asset('res/drawables/app_name.svg'),
                     Spacer(flex: 1),

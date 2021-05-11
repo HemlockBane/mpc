@@ -19,6 +19,7 @@ import 'package:moniepoint_flutter/app/onboarding/model/onboarding_service_deleg
 import 'package:moniepoint_flutter/app/onboarding/model/profile_form.dart';
 import 'package:moniepoint_flutter/app/securityquestion/model/data/security_question.dart';
 import 'package:moniepoint_flutter/app/securityquestion/model/security_question_delegate.dart';
+import 'package:moniepoint_flutter/core/models/file_uuid.dart';
 import 'package:moniepoint_flutter/core/models/security_answer.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/otp.dart';
@@ -27,8 +28,8 @@ import 'package:moniepoint_flutter/app/onboarding/model/data/otp.dart';
 /// @author Paul Okeke
 class OnBoardingViewModel extends ChangeNotifier {
 
-  final profileForm = ProfileForm();
   final accountForm = AccountForm();
+  final profileForm = ProfileForm();
 
   BVNValidationRequest? _bvnValidationRequest;
 
@@ -44,6 +45,9 @@ class OnBoardingViewModel extends ChangeNotifier {
   TransferBeneficiary? _transferBeneficiary;
   TransferBeneficiary? get transferBeneficiary => _transferBeneficiary;
   List<SecurityQuestion> get questions => _securityQuestions;
+
+  String? selfieImageUUID;
+  String? signatureImageUUID;
 
   OTP? _accountOtp;
 
@@ -71,12 +75,12 @@ class OnBoardingViewModel extends ChangeNotifier {
 
   void setIsNewAccount(bool isNewAccount) {
     this._isNewAccount = isNewAccount;
+    profileForm.setRequestBody(accountForm.account);
   }
 
   Stream<Resource<OTP>> requestForExistingAccountOtp() {
     final request = AccountInfoRequestBody()
       ..accountNumber = transferBeneficiary?.accountNumber;
-
     return ExistingAccountOTP(this._delegate, request).responseStream.map((event) {
       if(event is Success) _accountOtp = event.data;
       return event;
@@ -179,9 +183,26 @@ class OnBoardingViewModel extends ChangeNotifier {
   //TODO don't repeat yourself
   Stream<Resource<AccountProfile>> createAccount() {
     accountForm.account
+      ..withSelfieUUID(selfieImageUUID ?? "")
+      ..withSignatureUUID(signatureImageUUID ?? "")
+      ..withTransactionPin(accountForm.account.pin ?? "")
       ..deviceId = (_androidDeviceInfo != null) ? _androidDeviceInfo?.androidId : _iosDeviceInfo?.identifierForVendor
       ..deviceName = (_androidDeviceInfo != null) ? _androidDeviceInfo?.device : _iosDeviceInfo?.name
       ..securityAnwsers = getSecurityQuestionAnswers();
     return _delegate.createAccount(accountForm.account);
+  }
+
+  Stream<Resource<FileUUID>> uploadSelfieImage(String filePath) {
+    return _delegate.uploadFileForUUID(filePath).map((event) {
+      if(event is Success) selfieImageUUID = event.data?.uuid;
+      return event;
+    });
+  }
+
+  Stream<Resource<FileUUID>> uploadSignature(String filePath) {
+    return _delegate.uploadFileForUUID(filePath).map((event) {
+      if(event is Success) signatureImageUUID = event.data?.uuid;
+      return event;
+    });
   }
 }

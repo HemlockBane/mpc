@@ -43,6 +43,60 @@ class _SecurityQuestionService implements SecurityQuestionService {
     return value;
   }
 
+  @override
+  Future<ServiceResult<SecurityQuestion>> getQuestionByUsername(
+      requestBody) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(requestBody.toJson());
+    final _result = await _dio.fetch<Map<String, dynamic>>(
+        _setStreamType<ServiceResult<SecurityQuestion>>(Options(
+                method: 'POST',
+                headers: <String, dynamic>{
+                  r'Content-Type': 'application/json',
+                  r'client-id': 'ANDROID',
+                  r'appVersion': '0.0.1'
+                },
+                extra: _extra,
+                contentType: 'application/json')
+            .compose(_dio.options, '/by_username',
+                queryParameters: queryParameters, data: _data)
+            .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = ServiceResult<SecurityQuestion>.fromJson(
+      _result.data!,
+      (json) => SecurityQuestion.fromJson(json as Map<String, dynamic>),
+    );
+    return value;
+  }
+
+  @override
+  Future<ServiceResult<SecurityQuestion>> getQuestionByAccountNumber(
+      requestBody) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(requestBody.toJson());
+    final _result = await _dio.fetch<Map<String, dynamic>>(
+        _setStreamType<ServiceResult<SecurityQuestion>>(Options(
+                method: 'POST',
+                headers: <String, dynamic>{
+                  r'Content-Type': 'application/json',
+                  r'client-id': 'ANDROID',
+                  r'appVersion': '0.0.1'
+                },
+                extra: _extra,
+                contentType: 'application/json')
+            .compose(_dio.options, '/by_account_number',
+                queryParameters: queryParameters, data: _data)
+            .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = ServiceResult<SecurityQuestion>.fromJson(
+      _result.data!,
+      (json) => SecurityQuestion.fromJson(json as Map<String, dynamic>),
+    );
+    return value;
+  }
+
   RequestOptions _setStreamType<T>(RequestOptions requestOptions) {
     if (T != dynamic &&
         !(requestOptions.responseType == ResponseType.bytes ||

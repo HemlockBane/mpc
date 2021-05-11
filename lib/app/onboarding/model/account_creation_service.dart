@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart' hide Headers;
 import 'package:moniepoint_flutter/app/onboarding/model/data/bvn_validation_request.dart';
 import 'package:moniepoint_flutter/core/config/build_config.dart';
 import 'package:moniepoint_flutter/core/config/service_config.dart';
+import 'package:moniepoint_flutter/core/models/file_uuid.dart';
 import 'package:moniepoint_flutter/core/network/service_result.dart';
 import 'package:retrofit/retrofit.dart';
 import 'data/bvn_otp_result.dart';
@@ -32,15 +35,14 @@ abstract class AccountCreationService {
   Future<ServiceResult<BVNOTPResult>> requestBVNOTP(
       @Body() BVNOTPValidationRequest otpRequest);
 
-// @MultiPart()
-// @Headers(<String, dynamic>{
-//   "Content-Type": "application/json",
-//   "client-id": BuildConfig.CLIENT_ID,
-//   "appVersion": BuildConfig.APP_VERSION
-// })
-// @POST("/upload")
-// Future<ServiceResult<>> uploadImageForUUID(@Part() selfieImage: MultipartBody.Part? = null) : FileUUIDServiceResult
-//
+  @Headers(<String, dynamic>{
+    "Content-Type": "application/json",
+    "client-id": BuildConfig.CLIENT_ID,
+    "appVersion": BuildConfig.APP_VERSION
+  })
+  @POST("/upload")
+  Future<ServiceResult<FileUUID>> uploadImageForUUID(@Part(value: "file") File selfieImage);
+
   @Headers(<String, dynamic>{
     "Content-Type": "application/json",
     "client-id": BuildConfig.CLIENT_ID,

@@ -11,7 +11,7 @@ ServiceResult<ResultType> _$ServiceResultFromJson<ResultType>(
   ResultType Function(Object? json) fromJsonResultType,
 ) {
   return ServiceResult<ResultType>(
-    json['success'] as bool,
+    json['success'] as bool?,
     _$nullableGenericFromJson(json['result'], fromJsonResultType),
     (json['errors'] as List<dynamic>?)
         ?.map((e) => ServiceError.fromJson(e as Map<String, dynamic>))

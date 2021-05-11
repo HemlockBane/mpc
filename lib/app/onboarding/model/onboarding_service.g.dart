@@ -37,7 +37,7 @@ class _OnBoardingService implements OnBoardingService {
             .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = ServiceResult<TransferBeneficiary>.fromJson(
       _result.data!,
-      (json) => TransferBeneficiary.fromJson(json),
+      (json) => TransferBeneficiary.fromJson(json as Map<String, dynamic>),
     );
     return value;
   }
@@ -64,7 +64,7 @@ class _OnBoardingService implements OnBoardingService {
             .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = ServiceResult<OTP>.fromJson(
       _result.data!,
-      (json) => OTP.fromJson(json),
+      (json) => OTP.fromJson(json as Map<String, dynamic>),
     );
     return value;
   }
@@ -91,7 +91,7 @@ class _OnBoardingService implements OnBoardingService {
             .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = ServiceResult<ValidationKey>.fromJson(
       _result.data!,
-      (json) => ValidationKey.fromJson(json),
+      (json) => ValidationKey.fromJson(json as Map<String, dynamic>),
     );
     return value;
   }
@@ -128,22 +128,23 @@ class _OnBoardingService implements OnBoardingService {
     final queryParameters = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(body.toJson());
-    final _result = await _dio.fetch<Map<String, dynamic>>(
-        _setStreamType<ServiceResult<AccountProfile>>(Options(
-                method: 'POST',
-                headers: <String, dynamic>{
-                  r'Content-Type': 'application/json',
-                  r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
-                },
-                extra: _extra,
-                contentType: 'application/json')
-            .compose(_dio.options, '/api/v1/account_creation',
-                queryParameters: queryParameters, data: _data)
-            .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final _result = await _dio.fetch<Map<String, dynamic>>(_setStreamType<
+        ServiceResult<AccountProfile>>(Options(
+            method: 'POST',
+            headers: <String, dynamic>{
+              r'Content-Type': 'application/json',
+              r'client-id': 'ANDROID',
+              r'appVersion': '0.0.1'
+            },
+            extra: _extra,
+            contentType: 'application/json')
+        .compose(_dio.options,
+            'https://core-root.monnify.development.teamapt.com/api/v1/account_creation',
+            queryParameters: queryParameters, data: _data)
+        .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = ServiceResult<AccountProfile>.fromJson(
       _result.data!,
-      (json) => AccountProfile.fromJson(json),
+      (json) => AccountProfile.fromJson(json as Map<String, dynamic>),
     );
     return value;
   }

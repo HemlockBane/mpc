@@ -11,7 +11,7 @@ class ProfileForm with ChangeNotifier, Validators {
   late final Stream<bool> _isValid;
   var isUsernameVerified = false;
 
-  final ProfileCreationRequestBody _requestBody = ProfileCreationRequestBody();
+  ProfileCreationRequestBody _requestBody = ProfileCreationRequestBody();
 
   ProfileCreationRequestBody get profile => _requestBody;
 
@@ -62,6 +62,10 @@ class ProfileForm with ChangeNotifier, Validators {
 
   ProfileForm() {
     _initState();
+  }
+
+  void setRequestBody(ProfileCreationRequestBody requestBody) {
+    this._requestBody = requestBody;
   }
 
   /// Initializes the state of the profile form

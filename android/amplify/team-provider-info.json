@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-moniepoint-dev-140405-authRole",
+      "UnauthRoleArn": "arn:aws:iam::392826902414:role/amplify-moniepoint-dev-140405-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::392826902414:role/amplify-moniepoint-dev-140405-authRole",
+      "Region": "us-east-2",
+      "DeploymentBucketName": "amplify-moniepoint-dev-140405-deployment",
+      "UnauthRoleName": "amplify-moniepoint-dev-140405-unauthRole",
+      "StackName": "amplify-moniepoint-dev-140405",
+      "StackId": "arn:aws:cloudformation:us-east-2:392826902414:stack/amplify-moniepoint-dev-140405/8d3ab260-ae6b-11eb-8463-06b72adbfdfe",
+      "AmplifyAppId": "d57q1gvj2uyo2"
+    },
+    "categories": {
+      "auth": {
+        "moniepoint90d9d9f3": {}
+      }
+    }
+  }
+}

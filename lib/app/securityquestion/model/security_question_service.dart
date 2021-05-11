@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart' hide Headers;
 import 'package:moniepoint_flutter/app/securityquestion/model/data/security_question.dart';
+import 'package:moniepoint_flutter/app/securityquestion/model/data/security_question_request.dart';
 import 'package:moniepoint_flutter/core/config/build_config.dart';
 import 'package:moniepoint_flutter/core/config/service_config.dart';
 import 'package:moniepoint_flutter/core/network/service_result.dart';
@@ -19,5 +20,21 @@ abstract class SecurityQuestionService  {
     "appVersion": BuildConfig.APP_VERSION
   })
   Future<ServiceResult<List<SecurityQuestion>>> getAllQuestions();
+
+  @POST("/by_username")
+  @Headers(<String, dynamic>{
+    "Content-Type": "application/json",
+    "client-id": BuildConfig.CLIENT_ID,
+    "appVersion": BuildConfig.APP_VERSION
+  })
+  Future<ServiceResult<SecurityQuestion>> getQuestionByUsername(@Body() SecurityQuestionRequestBody requestBody);
+
+  @POST("/by_account_number")
+  @Headers(<String, dynamic>{
+    "Content-Type": "application/json",
+    "client-id": BuildConfig.CLIENT_ID,
+    "appVersion": BuildConfig.APP_VERSION
+  })
+  Future<ServiceResult<SecurityQuestion>> getQuestionByAccountNumber(@Body() SecurityQuestionRequestBody requestBody);
 
 }

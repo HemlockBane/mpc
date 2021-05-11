@@ -43,19 +43,39 @@ dependencies:
   intl: ^0.17.0
   shared_preferences: ^2.0.5
   device_info: ^2.0.0
-
+  signature: ^4.0.2
+  permission_handler: ^7.0.0
+  flutter_inner_drawer: ^1.0.0+1
+  lottie: ^1.0.1
+  shimmer: ^2.0.0
+  share: ^2.0.1
+  floor: ^1.1.0
+  dotted_border: ^2.0.0
+  flutter_image_compress: ^1.0.0
 
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
 
+dependency_overrides:
+  retrofit:
+    git:
+      url: https://github.com/trevorwang/retrofit.dart.git
+      path: annotation
+      ref: master
+
 dev_dependencies:
   test: ^1.16.8
 #  flutter_test:
 #    sdk: flutter
-  retrofit_generator: ^2.0.0-beta3
+  retrofit_generator:
+    git:
+      url: https://github.com/trevorwang/retrofit.dart.git
+      path: generator
+      ref: master
   build_runner: any
+  floor_generator: ^1.1.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -112,3 +132,6 @@ flutter:
     - family: CustomFont
       fonts:
         - asset: res/fonts/custom_icons.ttf
+    - family: Ocra
+      fonts:
+        - asset: res/fonts/ocraextended.ttf

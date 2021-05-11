@@ -38,7 +38,7 @@ class _AccountCreationService implements AccountCreationService {
             .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = ServiceResult<BVNValidationRequest>.fromJson(
       _result.data!,
-      (json) => BVNValidationRequest.fromJson(json),
+      (json) => BVNValidationRequest.fromJson(json as Map<String, dynamic>),
     );
     return value;
   }
@@ -64,7 +64,36 @@ class _AccountCreationService implements AccountCreationService {
             .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = ServiceResult<BVNOTPResult>.fromJson(
       _result.data!,
-      (json) => BVNOTPResult.fromJson(json),
+      (json) => BVNOTPResult.fromJson(json as Map<String, dynamic>),
+    );
+    return value;
+  }
+
+  @override
+  Future<ServiceResult<FileUUID>> uploadImageForUUID(selfieImage) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _data = FormData();
+    _data.files.add(MapEntry(
+        'file',
+        MultipartFile.fromFileSync(selfieImage.path,
+            filename: selfieImage.path.split(Platform.pathSeparator).last)));
+    final _result = await _dio.fetch<Map<String, dynamic>>(
+        _setStreamType<ServiceResult<FileUUID>>(Options(
+                method: 'POST',
+                headers: <String, dynamic>{
+                  r'Content-Type': 'application/json',
+                  r'client-id': 'ANDROID',
+                  r'appVersion': '0.0.1'
+                },
+                extra: _extra,
+                contentType: 'application/json')
+            .compose(_dio.options, '/upload',
+                queryParameters: queryParameters, data: _data)
+            .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = ServiceResult<FileUUID>.fromJson(
+      _result.data!,
+      (json) => FileUUID.fromJson(json as Map<String, dynamic>),
     );
     return value;
   }
@@ -91,7 +120,7 @@ class _AccountCreationService implements AccountCreationService {
             .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = ServiceResult<BVNOTPValidationResult>.fromJson(
       _result.data!,
-      (json) => BVNOTPValidationResult.fromJson(json),
+      (json) => BVNOTPValidationResult.fromJson(json as Map<String, dynamic>),
     );
     return value;
   }

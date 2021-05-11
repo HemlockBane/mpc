@@ -32,6 +32,7 @@ class BVNValidationScreen extends StatefulWidget {
 
 class _BVNValidationScreenState extends State<BVNValidationScreen> {
   late final GlobalKey<ScaffoldState> _scaffoldKey;
+  final _dummyFocus = FocusNode();
 
   final TextEditingController _genderController = TextEditingController();
   final TextEditingController _dateOfBirthController = TextEditingController();
@@ -92,10 +93,13 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
   @override
   void dispose() {
     _genderController.dispose();
+    _dummyFocus.dispose();
     super.dispose();
   }
 
   void displayDateOfBirthDialog(BuildContext mContext) {
+    FocusScope.of(context).requestFocus(_dummyFocus);
+
     final viewModel = Provider.of<OnBoardingViewModel>(mContext, listen: false);
     showModalBottomSheet(
         context: _scaffoldKey.currentContext ?? mContext,
@@ -193,7 +197,7 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
                     fontWeight: FontWeight.w400,
                     fontSize: 12
                 ))
-                .colorText({'*565*0#': Tuple(Colors.primaryColor, () => dialNumber("tel:*565*0#"))}, underline: false),
+                .colorText({'*565*0#': Tuple(Colors.primaryColor, () => dialNumber("tel:565"))}, underline: false),
           ),
         ),
         SizedBox(height: 30),
@@ -226,7 +230,7 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
         SizedBox(height: 16),
         StreamBuilder(
           stream: viewModel.accountForm.emailStream,
-            builder: (context, snapshot){
+            builder: (context, snapshot) {
           return Styles.appEditText(
             errorText: snapshot.hasError ? snapshot.error.toString() : null,
             onChanged: viewModel.accountForm.onEmailChanged,
@@ -247,7 +251,7 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
               endIcon: Icon(CustomFont.dropDown, color: Colors.primaryColor, size: 6),
               animateHint: true,
               enabled: false,
-              onClick: () => showDialog(context: context, builder: (BuildContext context) {
+              onClick: () => showDialog(context: context, builder: (BuildContext mContext) {
                 return SimpleDialog(
                   title: const Text('Select your Gender'),
                   children: Gender.values.map<Widget>((e) => SimpleDialogOption(
@@ -256,6 +260,7 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
                       _genderController.text = describeEnum(e);
                       Navigator.pop(context);
                       viewModel.accountForm.onGenderChanged(describeEnum(e));
+                      // FocusScope.of(context).requestFocus(_dummyFocus);
                     }
                   )).toList(),
                 );
@@ -263,6 +268,7 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
           );
         }),
         Spacer(),
+        SizedBox(height: 24),
         StreamBuilder(
           stream: viewModel.accountForm.isValid,
           initialData: false,

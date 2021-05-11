@@ -12,6 +12,7 @@ import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/call_utils.dart';
 import 'package:moniepoint_flutter/core/utils/text_utils.dart';
+import 'package:moniepoint_flutter/core/views/otp_ussd_info_view.dart';
 import 'package:provider/provider.dart';
 
 import 'new_account_view.dart';
@@ -124,29 +125,7 @@ class _NewAccountOTPScreen extends State<NewAccountOTPScreen> {
                 controller: otpController,
                 maxLength: 6),
             SizedBox(height: 20),
-            Container(
-              padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                  shape: BoxShape.rectangle,
-                  color: Colors.primaryColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8)),
-              child: Row(
-                children: [
-                  SvgPicture.asset('res/drawables/ic_info.svg'),
-                  SizedBox(width: 14),
-                  Text('Didn’t get a code? Dial $ussd to get an OTP',
-                          style: TextStyle(
-                              fontFamily: Styles.defaultFont,
-                              color: Colors.darkBlue,
-                              fontWeight: FontWeight.normal,
-                              fontSize: 14))
-                      .colorText({
-                    ussd: Tuple(
-                        Colors.primaryColor, () => dialNumber("tel:$ussd"))
-                  })
-                ],
-              ),
-            ),
+            OtpUssdInfoView(""),
             Spacer(),
             Stack(
               children: [

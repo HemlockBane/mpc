@@ -3,6 +3,7 @@
 import 'package:url_launcher/url_launcher.dart';
 
 void dialNumber(String url) async {
+  print(url);
   if(await canLaunch(url)) {
       await launch(url);
   }else {

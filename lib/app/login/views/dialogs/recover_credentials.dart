@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:moniepoint_flutter/app/login/views/recovery/recovery_controller_screen.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 
 class RecoverCredentialsDialogLayout {
-  static Widget getLayout() {
+  static Widget getLayout(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -19,7 +21,9 @@ class RecoverCredentialsDialogLayout {
         SizedBox(height: 29),
         TextButton.icon(
             style: ButtonStyle(alignment: Alignment.centerLeft),
-            onPressed: () => {},
+            onPressed: () => {
+              Navigator.of(context).pushNamed(Routes.ACCOUNT_RECOVERY, arguments: RecoveryMode.USERNAME_RECOVERY)
+            },
             icon: Container(
               margin: EdgeInsets.only(left: 20, right: 22),
               //since there's already a padding on the button
@@ -43,7 +47,9 @@ class RecoverCredentialsDialogLayout {
         ),
         TextButton.icon(
             style: ButtonStyle(alignment: Alignment.centerLeft),
-            onPressed: () => {},
+            onPressed: () => {
+              Navigator.of(context).pushNamed(Routes.ACCOUNT_RECOVERY, arguments: RecoveryMode.PASSWORD_RECOVERY)
+            },
             icon: Container(
               margin: EdgeInsets.only(left: 20, right: 22),
               //since there's already a padding on the button

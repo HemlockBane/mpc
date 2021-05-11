@@ -18,7 +18,7 @@ part 'onboarding_service.g.dart';
 @RestApi(baseUrl: "${ServiceConfig.ROOT_SERVICE}api/v1/onboarding")
 abstract class OnBoardingService {
 
-  factory OnBoardingService (Dio dio) = _OnBoardingService;
+  factory OnBoardingService (Dio dio, {String baseUrl}) = _OnBoardingService;
 
   @Headers(<String, dynamic>{
     "Content-Type": "application/json",
@@ -58,7 +58,7 @@ abstract class OnBoardingService {
     "client-id": BuildConfig.CLIENT_ID,
     "appVersion": BuildConfig.APP_VERSION
   })
-  @POST("/api/v1/account_creation")
+  @POST("${ServiceConfig.ROOT_SERVICE}api/v1/account_creation")
   Future<ServiceResult<AccountProfile>> createAccount(@Body() AccountCreationRequestBody body);
 
   // @Headers(

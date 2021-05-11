@@ -13,7 +13,6 @@ class Colors {
   static const Color black = const Color(0XFF000000);
 
 
-
   static const Color textColorDeem = const Color(0XFF063A4F);
   static const Color textColorBlack = const Color(0XFF1A0C2F);
   static const Color textHintColor = const Color(0XFF4A4A4A);
@@ -28,15 +27,20 @@ class Colors {
   static const Color deepGrey = const Color(0XFF9DA1AB);
 
   static const Color darkBlue = const Color(0XFF0A2240);
+  static const Color darkLightBlue = const Color(0XFF0D2043);
 
 
   static const Color red = const Color(0XFFE94444);
   static const Color modalRed = const Color(0XFFEF5454);
   static const Color darkRed = const Color(0XFFBE3B3B);
 
-
-
   static const Color solidGreen = const Color(0XFF1EB12D);
+  static const Color solidDarkGreen = const Color(0XFF178022);
+  static const Color greyTextColor = const Color(0XFF002331);
 
+
+  static const Color solidYellow = const Color(0XFFF08922);
+  static const Color solidDarkYellow = const Color(0XFFBB6C20);
+  static const Color dashboardTopBar = const Color(0XFFECAB03);
 
 }

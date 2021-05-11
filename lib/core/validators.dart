@@ -32,6 +32,12 @@ mixin Validators {
     return true;
   }
 
+  bool isAccountNumberValid(String? text) {
+    if(text == null) return false;
+    if(text.isEmpty || text.length < 10) return false;
+    return true;
+  }
+
   bool isPhoneNumberValid(String? text) {
     if(text == null) return false;
     if (text.length < 10) return false;

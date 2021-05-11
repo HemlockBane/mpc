@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/account_creation_service.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/account_info_request.dart';
@@ -11,6 +13,7 @@ import 'package:moniepoint_flutter/app/onboarding/model/data/profile_request.dar
 import 'package:moniepoint_flutter/app/onboarding/model/data/validation_key.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/validation_otp_request.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/onboarding_service.dart';
+import 'package:moniepoint_flutter/core/models/file_uuid.dart';
 import 'package:moniepoint_flutter/core/network/network_bound_resource.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/otp.dart';
@@ -81,4 +84,12 @@ class OnBoardingServiceDelegate with NetworkResource {
     );
   }
 
+
+  Stream<Resource<FileUUID>> uploadFileForUUID(String filePath) {
+    return networkBoundResource(
+        fetchFromLocal: () => Future.value(null),
+        fetchFromRemote: () async {
+          return this._accountCreationService.uploadImageForUUID(File(filePath));
+        });
+  }
 }

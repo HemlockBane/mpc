@@ -2,12 +2,14 @@ import 'package:flutter/material.dart' hide Colors;
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 
 /// The Introduction Screen where users decide either to login or sign-up
 /// @author Paul Okeke
 class IntroductionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    PreferenceUtil.deleteLoggedInUser();
     return Scaffold(
       body: Stack(
         children: [

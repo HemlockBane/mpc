@@ -53,7 +53,7 @@ class MoniepointApp extends StatelessWidget {
       title: 'Moniepoint Customers',
       theme: defaultAppTheme,
       home: Scaffold(
-        body: IntroductionScreen(),
+        body: OnBoardingScreen(),
       ),
       //TODO consider moving this to a separate file
       routes: <String, WidgetBuilder>{

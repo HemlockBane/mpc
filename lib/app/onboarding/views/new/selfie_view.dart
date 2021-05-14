@@ -35,10 +35,6 @@ class _SelfieView extends State<SelfieView> with WidgetsBindingObserver, Automat
     super.dispose();
   }
 
-  void displayGuidLines() {
-
-  }
-
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -53,23 +49,25 @@ class _SelfieView extends State<SelfieView> with WidgetsBindingObserver, Automat
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            SizedBox(height: 32),
             Text(
               'Liveliness Test',
               textAlign: TextAlign.center,
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
             ),
             SizedBox(height: 32),
-            Align(
+            Padding(padding: EdgeInsets.only(left: 16, right: 16), child: Align(
               alignment: Alignment.center,
               child:  Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.all(Radius.circular(8)),
                 ),
-                child: Lottie.asset('res/drawables/camera_lottie.json', repeat: true, width: 200, height: 200),
+                child: Lottie.asset('res/drawables/camera_lottie.json', repeat: true),
               ),
-            ),
+            ),),
             SizedBox(height: 32),
-            Container(
+            Padding(padding: EdgeInsets.only(left: 16, right: 16), child: Container(
               padding: EdgeInsets.all(12),
               decoration: BoxDecoration(
                   shape: BoxShape.rectangle,
@@ -87,7 +85,7 @@ class _SelfieView extends State<SelfieView> with WidgetsBindingObserver, Automat
                           fontSize: 14)))
                 ],
               ),
-            ),
+            ),),
             SizedBox(height: 12),
             Spacer(),
             SizedBox(
@@ -95,11 +93,12 @@ class _SelfieView extends State<SelfieView> with WidgetsBindingObserver, Automat
               child: Styles.appButton(
                   elevation: 1,
                   text: 'Start Liveliness Test', onClick: () async {
-                    dynamic reference = await Navigator.pushNamed(widget._scaffoldKey.currentContext!, Routes.LIVELINESS, arguments: {
+                    Map? result = await Navigator.pushNamed(widget._scaffoldKey.currentContext!, Routes.LIVELINESS, arguments: {
                       "bvn": viewModel.accountForm.account.bvn
-                    });
-                    if(reference != null) {
-                      viewModel.selfieImageUUID = reference as String;
+                    }) as Map?;
+                    if(result != null) {
+                      viewModel.selfieImageUUID = result["reference"] as String;
+                      viewModel.accountForm.account.livelinessCheck = result["livelinessCheck"] as String;
                       widget.onCompleted?.call();
                     }
                   }),

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/data/customer_detail_info.dart';
@@ -12,6 +13,13 @@ class AdditionalInfoForm with ChangeNotifier {
   }
 
   CustomerDetailInfo _info = CustomerDetailInfo();
+
+  final List<StateOfOrigin> _states =  [];
+  List<StateOfOrigin> get states => List.unmodifiable(_states);
+
+  final List<LocalGovernmentArea> _localGovt = [];
+  List<LocalGovernmentArea> get localGovt => List.unmodifiable(_localGovt);
+
 
   late final Stream<bool> _isValid;
   Stream<bool> get isValid => _isValid;
@@ -28,11 +36,11 @@ class AdditionalInfoForm with ChangeNotifier {
   final _nationalityController = StreamController<Nationality>.broadcast();
   Stream<Nationality> get nationalityStream => _nationalityController.stream;
 
-  final _stateOfOriginController = StreamController<StateOfOrigin>.broadcast();
-  Stream<StateOfOrigin> get stateOfOriginStream => _stateOfOriginController.stream;
+  final _stateOfOriginController = StreamController<StateOfOrigin?>.broadcast();
+  Stream<StateOfOrigin?> get stateOfOriginStream => _stateOfOriginController.stream;
 
-  final _localGovtAreaController = StreamController<LocalGovernmentArea>.broadcast();
-  Stream<LocalGovernmentArea> get localGovtAreaStream => _localGovtAreaController.stream;
+  final _localGovtAreaController = StreamController<LocalGovernmentArea?>.broadcast();
+  Stream<LocalGovernmentArea?> get localGovtAreaStream => _localGovtAreaController.stream;
 
   final _employmentStatusController = StreamController<EmploymentStatus>.broadcast();
   Stream<EmploymentStatus> get employmentStatusStream => _employmentStatusController.stream;
@@ -93,43 +101,47 @@ class AdditionalInfoForm with ChangeNotifier {
     final isValid = _info.religion != null && _info.religion?.isNotEmpty == true;
     if (displayError && !isValid) {
       _religionController.sink.addError("Religion is required");
-      print('religion');
     }
     return isValid;
   }
 
   void onNationalityChange(Nationality? mNationality) {
+    if(_info.nationality == mNationality?.nationality) return;
     _info.nationality = mNationality?.nationality;
     _nationalityController.sink.add(mNationality!);
     _isNationalityValid(displayError: true);
+
+    _states.clear();
+    _states.addAll(mNationality.states ?? []);
+    onStateOfOriginChange(null);
   }
 
   bool _isNationalityValid({bool displayError = false}) {
     final isValid = _info.nationality != null && _info.nationality?.isNotEmpty == true;
     if (displayError && !isValid) {
       _nationalityController.sink.addError("Nationality is required");
-      print('nationality');
     }
     return isValid;
   }
 
   void onStateOfOriginChange(StateOfOrigin? mStateOfOrigin) {
-    // _info.st = mNationality?.nationality;
-    _stateOfOriginController.sink.add(mStateOfOrigin!);
-    // _isLocalGovtValid(displayError: true);
+    _stateOfOriginController.sink.add(mStateOfOrigin);
+
+    _localGovt.clear();
+    _localGovt.addAll(mStateOfOrigin?.localGovernmentAreas ?? []);
+    onLocalGovtChange(null);
   }
 
   void onLocalGovtChange(LocalGovernmentArea? localGovernmentArea) {
     _info.localGovernmentAreaOfOriginId = localGovernmentArea?.id;
-    if(localGovernmentArea != null) _localGovtAreaController.sink.add(localGovernmentArea);
+    _localGovtAreaController.sink.add(localGovernmentArea);
     _isLocalGovtValid(displayError: true);
   }
 
   bool _isLocalGovtValid({bool displayError = false}) {
     final isValid = _info.localGovernmentAreaOfOriginId != null && _info.localGovernmentAreaOfOriginId != 0;
     if (displayError && !isValid) {
-      print('local');
-      _nationalityController.sink.addError("Local Govt is required");
+      _localGovtAreaController.sink.addError("Local Govt is required");
     }
 
     return isValid;
@@ -144,7 +156,6 @@ class AdditionalInfoForm with ChangeNotifier {
   bool _isEmploymentStatusValid({bool displayError = false}) {
     final isValid = _info.employmentStatus != null && _info.employmentStatus?.isNotEmpty == true;
     if (displayError && !isValid) {
-      print('Employment');
       _employmentStatusController.sink.addError("Employment status is required");
     }
     return isValid;

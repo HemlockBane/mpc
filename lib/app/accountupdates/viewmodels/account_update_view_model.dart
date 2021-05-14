@@ -16,9 +16,16 @@ class AccountUpdateViewModel extends BaseViewModel {
   }
 
   late final LocationServiceDelegate _locationServiceDelegate;
+  final List<Nationality> nationalities = [];
 
   Stream<Resource<List<Nationality>>> fetchCountries() {
     return _locationServiceDelegate.getCountries().map((event) {
+      if(event is Success || event is Loading) {
+        if(nationalities.isNotEmpty) return event;
+        nationalities.clear();
+        nationalities.addAll(event.data ?? []);
+        notifyListeners();
+      }
       return event;
     });
   }

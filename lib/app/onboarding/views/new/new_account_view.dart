@@ -20,7 +20,7 @@ class NewAccountScreen extends StatelessWidget  {
 
     switch (settings.name) {
       case "bvn-screen":
-        page = DetailCollectionScreen(_scaffoldKey);
+        page = BVNValidationScreen(_scaffoldKey);
         break;
       case OTP_SCREEN:
         page = NewAccountOTPScreen(_scaffoldKey);

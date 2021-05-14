@@ -241,32 +241,49 @@ class Styles {
 
   static Widget buildDropDown<T extends DropDownItem>(
       List<T> items,
-      AsyncSnapshot<T> snapShot,
+      AsyncSnapshot<T?> snapShot,
       OnItemClickListener<T?, int> valueChanged, {String? hint}) {
-    return InputDecorator(
-      decoration: InputDecoration(
-        border: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.colorFaded),
-            borderRadius: BorderRadius.circular(2)),
-        enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.colorFaded)),
-        contentPadding: EdgeInsets.only(left: 16, right: 21, top: 5, bottom: 5),
-      ),
-      child: DropdownButton<T>(
-          underline: Container(),
-          hint: (hint != null) ? Text(hint, style: TextStyle(color: Colors.colorFaded),) : null,
-          icon: Icon(CustomFont.dropDown, color: Colors.primaryColor, size: 6),
-          isExpanded: true,
-          value: snapShot.data,
-          onChanged: (v) => valueChanged.call(v, (v != null) ? items.indexOf(v) : -1),
-          style: const TextStyle(
-              color: Colors.darkBlue,
-              fontFamily: Styles.defaultFont,
-              fontSize: 14
+
+    Widget errorLayout = (snapShot.hasError)
+        ? Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+            snapShot.error as String,
+            textAlign: TextAlign.start,
+            style: TextStyle(color: Colors.red, fontSize: 12)
+        )
+    ) : SizedBox();
+
+    return Column(
+      children: [
+        InputDecorator(
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.colorFaded),
+                borderRadius: BorderRadius.circular(2)),
+            enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.colorFaded)),
+            contentPadding: EdgeInsets.only(left: 16, right: 21, top: 5, bottom: 5),
           ),
-          items: items.map((T item) {
-            return DropdownMenuItem(value: item, child: Text(item.getTitle()));
-          }).toList()),
+          child: DropdownButton<T>(
+              underline: Container(),
+              hint: (hint != null) ? Text(hint, style: TextStyle(color: Colors.colorFaded),) : null,
+              icon: Icon(CustomFont.dropDown, color: Colors.primaryColor, size: 6),
+              isExpanded: true,
+              value: snapShot.data,
+              onChanged: (v) => valueChanged.call(v, (v != null) ? items.indexOf(v) : -1),
+              style: const TextStyle(
+                  color: Colors.darkBlue,
+                  fontFamily: Styles.defaultFont,
+                  fontSize: 14
+              ),
+              items: items.map((T item) {
+                return DropdownMenuItem(value: item, child: Text(item.getTitle()));
+              }).toList()),
+        ),
+        SizedBox(height: 4),
+        errorLayout
+      ],
     );
   }
 }

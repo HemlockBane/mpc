@@ -71,7 +71,7 @@ class _UssdPinDialog extends State<UssdPinDialog> {
                       width: double.infinity,
                       child: Styles.appButton(
                           elevation: 0,
-                          onClick: pin.isNotEmpty
+                          onClick: pin.isNotEmpty && pin.length == 4
                               ? () => widget.onComplete.call(pin)
                               : null,
                           text: 'Set PIN')),

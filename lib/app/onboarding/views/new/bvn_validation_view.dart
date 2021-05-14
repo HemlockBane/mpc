@@ -99,8 +99,9 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
 
   void displayDateOfBirthDialog(BuildContext mContext) {
     FocusScope.of(context).requestFocus(_dummyFocus);
-
     final viewModel = Provider.of<OnBoardingViewModel>(mContext, listen: false);
+    _dateOfBirthController.text = "";
+
     showModalBottomSheet(
         context: _scaffoldKey.currentContext ?? mContext,
         isScrollControlled: true,
@@ -258,9 +259,9 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
                     child: Text(describeEnum(e)),
                     onPressed: () {
                       _genderController.text = describeEnum(e);
-                      Navigator.pop(context);
+                      FocusManager.instance.primaryFocus?.unfocus();
+                      Navigator.pop(mContext);
                       viewModel.accountForm.onGenderChanged(describeEnum(e));
-                      // FocusScope.of(context).requestFocus(_dummyFocus);
                     }
                   )).toList(),
                 );
@@ -278,6 +279,7 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: Styles.appButton(
+                      elevation: 1,
                       onClick: (snapshot.hasData && snapshot.data == true) && !_isLoading
                           ? () => displayDateOfBirthDialog(context)
                           : null,

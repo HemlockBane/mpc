@@ -32,7 +32,8 @@ AccountCreationRequestBody _$AccountCreationRequestBodyFromJson(
     ..transactionPin = json['transactionPin'] as String?
     ..createUssdPin = json['createUssd'] as bool
     ..selfieImageUUID = json['userImageUUID'] as String?
-    ..signatureUUID = json['signatureUUID'] as String?;
+    ..signatureUUID = json['signatureUUID'] as String?
+    ..livelinessCheck = json['livelinessCheck'] as String?;
 }
 
 Map<String, dynamic> _$AccountCreationRequestBodyToJson(
@@ -60,6 +61,7 @@ Map<String, dynamic> _$AccountCreationRequestBodyToJson(
       'createUssd': instance.createUssdPin,
       'userImageUUID': instance.selfieImageUUID,
       'signatureUUID': instance.signatureUUID,
+      'livelinessCheck': instance.livelinessCheck,
     };
 
 K _$enumDecode<K, V>(

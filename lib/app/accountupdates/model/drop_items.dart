@@ -265,6 +265,7 @@ class Relationship extends DropDownItem {
 const relationship = [
   const Relationship("Husband"),
   const Relationship("Wife"),
+  const Relationship("Daughter"),
   const Relationship("Sister"),
   const Relationship("Brother"),
   const Relationship("Son"),

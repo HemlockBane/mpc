@@ -114,6 +114,8 @@ class _LoginState extends State<LoginScreen> {
   }
 
   void _subscribeUiToLogin(BuildContext context) {
+    FocusManager.instance.primaryFocus?.unfocus();
+
     final viewModel = Provider.of<LoginViewModel>(context, listen: false);
     String username = _usernameController.text;
     String password = _passwordController.text;

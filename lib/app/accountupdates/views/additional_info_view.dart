@@ -15,15 +15,12 @@ class AdditionalInfoScreen extends StatefulWidget {
 }
 
 class _AdditionalInfoScreen extends State<AdditionalInfoScreen> with AutomaticKeepAliveClientMixin {
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
 
     final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
-
-    final nationality = List.generate(1, (index) =>  Nationality.fromJson({"name":"Nigeria","nationality":"Nigerian"}));
-    final states =  List.generate(1, (index) => StateOfOrigin.fromJson({"name":"Lagos"}));
-    final localGovt =  List.generate(1, (index) => LocalGovernmentArea.fromJson({"name":"Eti Osa", "id":1}));
 
     return ScrollView(
       child: Container(
@@ -56,26 +53,30 @@ class _AdditionalInfoScreen extends State<AdditionalInfoScreen> with AutomaticKe
                   },hint: 'Religion');
                 }, ),
             SizedBox(height: 16,),
-            StreamBuilder(
-                stream: viewModel.additionalInfoForm.nationalityStream,
-                builder: (BuildContext context, AsyncSnapshot<Nationality> snapshot) {
-                  return Styles.buildDropDown(nationality, snapshot, (value, i) {
-                    viewModel.additionalInfoForm.onNationalityChange(value as Nationality);
-                  },hint: 'Nationality');
-                }),
+            Consumer<AccountUpdateViewModel>(builder: (context, vm , _) {
+              return StreamBuilder(
+                  stream: viewModel.additionalInfoForm.nationalityStream,
+                  builder: (BuildContext context, AsyncSnapshot<Nationality> snapshot) {
+                    return Styles.buildDropDown(vm.nationalities, snapshot, (value, i) {
+                      viewModel.additionalInfoForm.onNationalityChange(value as Nationality);
+                      setState(() {});
+                    },hint: 'Nationality');
+                  });
+            }),
             SizedBox(height: 16),
             StreamBuilder(
                 stream: viewModel.additionalInfoForm.stateOfOriginStream,
-                builder: (BuildContext context, AsyncSnapshot<StateOfOrigin> snapshot) {
-                  return Styles.buildDropDown(states, snapshot, (value, i) {
+                builder: (BuildContext context, AsyncSnapshot<StateOfOrigin?> snapshot) {
+                  return Styles.buildDropDown(viewModel.additionalInfoForm.states, snapshot, (value, i) {
                     viewModel.additionalInfoForm.onStateOfOriginChange(value as StateOfOrigin);
+                    setState(() {});
                   }, hint: 'State of Origin');
                 }),
             SizedBox(height: 16,),
             StreamBuilder(
                 stream: viewModel.additionalInfoForm.localGovtAreaStream,
-                builder: (BuildContext context, AsyncSnapshot<LocalGovernmentArea> snapshot) {
-                  return Styles.buildDropDown(localGovt, snapshot, (value, i) {
+                builder: (BuildContext context, AsyncSnapshot<LocalGovernmentArea?> snapshot) {
+                  return Styles.buildDropDown(viewModel.additionalInfoForm.localGovt, snapshot, (value, i) {
                     viewModel.additionalInfoForm.onLocalGovtChange(value as LocalGovernmentArea);
                   }, hint: 'Local Govt. Area Origin');
                 }),

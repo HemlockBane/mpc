@@ -60,12 +60,18 @@ class _EnterAccountNumberState extends State<EnterAccountNumberScreen> {
     if (event is Loading) setState(() => isLoading = true);
     if (event is Error<TransferBeneficiary>) {
       setState(() => isLoading = false);
+      final bottomSheetView = (event.message?.contains("already") == true)
+          ? BottomSheets.displayWarningDialog(
+              "Profile Detected!", event.message ?? "",
+              () => Navigator.of(_scaffoldKey.currentContext!).popAndPushNamed('/login'),
+              buttonText: "Proceed to Login")
+          : BottomSheets.displayErrorModal(context, message: event.message);
       showModalBottomSheet(
           context: _scaffoldKey.currentContext ?? context,
           isScrollControlled: true,
           backgroundColor: Colors.transparent,
           builder: (context) {
-            return BottomSheets.displayErrorModal(context, message: event.message);
+            return bottomSheetView;
           });
     }
     if(event is Success<TransferBeneficiary>) {
@@ -75,6 +81,8 @@ class _EnterAccountNumberState extends State<EnterAccountNumberScreen> {
   }
 
   void verifyAccount(BuildContext context) {
+    FocusManager.instance.primaryFocus?.unfocus();
+
     var requestBody = AccountInfoRequestBody(
         accountNumber: this.mAccountNumberController.text
     );

@@ -7,14 +7,19 @@ part 'customer_detail_info.g.dart';
 class CustomerDetailInfo {
   String? title;
   String? maritalStatus;
+  @JsonKey(name: "mothersMaidenName", includeIfNull: false)
   String? mothersMaidenName;
   String? nationality;
   String? religion;
   int? localGovernmentAreaOfOriginId;
+  @JsonKey(name: "gender", includeIfNull: false)
   String? gender;
+  @JsonKey(name: "accountOpeningFormRef", includeIfNull: false)
   String? accountOpeningFormRef;
   String? employmentStatus;
+  @JsonKey(name: "natureOfBusiness", includeIfNull: false)
   String? natureOfBusiness;
+  @JsonKey(name: "addressInfo", includeIfNull: false)
   AddressInfo? addressInfo;
 
   CustomerDetailInfo({this.title,
@@ -29,6 +34,10 @@ class CustomerDetailInfo {
     this.natureOfBusiness,
     this.addressInfo
   });
+
+  void setAddressInfo() {
+
+  }
 
   factory CustomerDetailInfo.fromJson(Object? data) => _$CustomerDetailInfoFromJson(data as Map<String, dynamic>);
   Map<String, dynamic> toJson() => _$CustomerDetailInfoToJson(this);

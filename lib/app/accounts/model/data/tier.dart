@@ -18,11 +18,11 @@ class Tier {
   final bool? allowNegativeBalance;
   final bool? allowLien;
   final bool? enableInstantBalanceUpdate;
-  final int? maximumCumulativeBalance;
-  final int? maximumSingleDebit;
-  final int? maximumSingleCredit;
-  final int? maximumDailyDebit;
-  final int? maximumDailyCredit;
+  final double? maximumCumulativeBalance;
+  final double? maximumSingleDebit;
+  final double? maximumSingleCredit;
+  final double? maximumDailyDebit;
+  final double? maximumDailyCredit;
   final SchemeRequirement? schemeRequirement;
   @JsonKey(name:"alternateSchemeRequirement")
   final AlternateSchemeRequirement? alternateSchemeRequirement;

@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 
 ///@author Paul Okeke
 class OnBoardingScreen extends StatelessWidget {
@@ -34,9 +35,10 @@ class OnBoardingScreen extends StatelessWidget {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
+    PreferenceUtil.deleteLoggedInUser();
+
     return Scaffold(
       appBar: AppBar(elevation: 0),
       body: Container(

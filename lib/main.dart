@@ -13,6 +13,7 @@ import 'package:moniepoint_flutter/app/onboarding/views/existing/existing_accoun
 import 'package:moniepoint_flutter/app/onboarding/views/new/liveliness_view.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/new/new_account_view.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/onboarding_view.dart';
+import 'package:moniepoint_flutter/app/transfers/views/transfer_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/di/service_module.dart';
 import 'package:moniepoint_flutter/core/di/db_module.dart';
@@ -65,6 +66,7 @@ class MoniepointApp extends StatelessWidget {
         Routes.DASHBOARD: (BuildContext context) => Scaffold(body: DashboardScreen()),
         Routes.ACCOUNT_UPDATE: (BuildContext context) => Scaffold(body: AccountUpdateScreen()),
         Routes.LIVELINESS: (BuildContext context) => Scaffold(body: LivelinessScreen()),
+        Routes.TRANSFER: (BuildContext context) => TransferScreen(),
       },
     );
   }

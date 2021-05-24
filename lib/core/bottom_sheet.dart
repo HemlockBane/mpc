@@ -15,7 +15,12 @@ class BottomSheets {
       double paddingBottom = 0,
       double centerImageWidth = 33,
       double centerImageHeight = 33,
-      Widget? content}) {
+      double? centerBackgroundHeight,
+      double? centerBackgroundWidth,
+      double centerBackgroundPadding = 20,
+      Widget? content,
+      Color? centerImageColor
+      }) {
     return Container(
         height: height,
         child: Stack(
@@ -43,12 +48,14 @@ class BottomSheets {
             ),
             Positioned(
               child: Container(
+                width: centerBackgroundWidth,
+                height: centerBackgroundHeight,
                 decoration: BoxDecoration(
                   color: centerImageBackgroundColor,
                   shape: BoxShape.circle,
                 ),
-                child: SvgPicture.asset(centerImageRes, width: centerImageWidth, height: centerImageHeight),
-                padding: EdgeInsets.all(20),
+                child: SvgPicture.asset(centerImageRes, width: centerImageWidth, height: centerImageHeight, color: centerImageColor),
+                padding: EdgeInsets.all(centerBackgroundPadding),
                 margin: EdgeInsets.only(top: 10),
               ),
               left: 0,
@@ -96,8 +103,8 @@ class BottomSheets {
                   SizedBox(
                       width: double.infinity,
                       child: Styles.appButton(
-                          onClick:
-                          onClick ?? () => Navigator.of(context).pop(),
+                          elevation: 0.5,
+                          onClick: onClick ?? () => Navigator.of(context).pop(),
                           text: 'Continue',
                           buttonStyle: Styles.whiteButtonStyle.copyWith(
                               foregroundColor: MaterialStateProperty.all(

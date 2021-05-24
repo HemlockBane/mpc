@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/transfer_beneficiary.dart';
+import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/account_creation_service.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/account_info_request.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/onboarding_service.dart';

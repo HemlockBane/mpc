@@ -15,7 +15,7 @@ class LocationServiceDelegate with NetworkResource {
   Stream<Resource<List<Nationality>>> getCountries() {
     return networkBoundResource(
         shouldFetchLocal: true,
-        fetchFromLocal: () => _nationalityDao.getNationalities(),
+        fetchFromLocal: () => Stream.fromFuture(_nationalityDao.getNationalities()),
         fetchFromRemote: () => _locationService.getCountries(),
         processRemoteResponse: (v) {
           _nationalityDao.insertItems(v.data!.result!);

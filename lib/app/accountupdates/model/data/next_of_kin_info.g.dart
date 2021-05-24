@@ -22,15 +22,24 @@ NextOfKinInfo _$NextOfKinInfoFromJson(Map<String, dynamic> json) {
   );
 }
 
-Map<String, dynamic> _$NextOfKinInfoToJson(NextOfKinInfo instance) =>
-    <String, dynamic>{
-      'nextOfKinFirstName': instance.nextOfKinFirstName,
-      'nextOfKinLastName': instance.nextOfKinLastName,
-      'nextOfKinMiddleName': instance.nextOfKinMiddleName,
-      'nextOfKinRelationship': instance.nextOfKinRelationship,
-      'nextOfKinPhoneNumber': instance.nextOfKinPhoneNumber,
-      'nextOfKinEmail': instance.nextOfKinEmail,
-      'nextOfKinCity': instance.nextOfKinCity,
-      'nextOfKinDOB': instance.nextOfKinDOB,
-      'addressInfo': instance.addressInfo,
-    };
+Map<String, dynamic> _$NextOfKinInfoToJson(NextOfKinInfo instance) {
+  final val = <String, dynamic>{
+    'nextOfKinFirstName': instance.nextOfKinFirstName,
+    'nextOfKinLastName': instance.nextOfKinLastName,
+    'nextOfKinMiddleName': instance.nextOfKinMiddleName,
+    'nextOfKinRelationship': instance.nextOfKinRelationship,
+    'nextOfKinPhoneNumber': instance.nextOfKinPhoneNumber,
+    'nextOfKinEmail': instance.nextOfKinEmail,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('nextOfKinCity', instance.nextOfKinCity);
+  val['nextOfKinDOB'] = instance.nextOfKinDOB;
+  val['addressInfo'] = instance.addressInfo;
+  return val;
+}

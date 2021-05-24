@@ -102,7 +102,7 @@ class _CustomerService implements CustomerService {
     final queryParameters = <String, dynamic>{};
     final _data = FormData();
     _data.files.add(MapEntry(
-        'file',
+        'multipartFile',
         MultipartFile.fromFileSync(selfieImage.path,
             filename: selfieImage.path.split(Platform.pathSeparator).last)));
     final _result = await _dio.fetch<Map<String, dynamic>>(

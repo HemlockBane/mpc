@@ -17,7 +17,7 @@ class LoginServiceDelegate with NetworkResource{
 
   Stream<Resource<User>> loginWithPassword(LoginRequestBody requestBody) {
     return networkBoundResource(
-        fetchFromLocal: () => Future.value(null),
+        fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => this._service.loginWithPassword(requestBody as LoginWithPasswordRequestBody),
         processRemoteResponse: (v) {
           UserInstance().setUser(v.data!.result!);
@@ -27,7 +27,7 @@ class LoginServiceDelegate with NetworkResource{
 
   Stream<Resource<User>> loginWithFingerprint(LoginRequestBody requestBody) {
     return networkBoundResource(
-        fetchFromLocal: () => Future.value(null),
+        fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => this._service.loginWithFingerprint(requestBody as LoginWithFingerprintRequestBody)
     );
   }

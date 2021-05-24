@@ -5,5 +5,6 @@ class Routes {
   static const DASHBOARD  = "DASHBOARD";
   static const ACCOUNT_UPDATE  = "ACCOUNT_UPDATE";
   static const LIVELINESS  = "LIVELINESS";
+  static const TRANSFER  = "TRANSFER";
 
 }

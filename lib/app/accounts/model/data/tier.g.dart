@@ -20,11 +20,12 @@ Tier _$TierFromJson(Map<String, dynamic> json) {
     allowNegativeBalance: json['allowNegativeBalance'] as bool?,
     allowLien: json['allowLien'] as bool?,
     enableInstantBalanceUpdate: json['enableInstantBalanceUpdate'] as bool?,
-    maximumCumulativeBalance: json['maximumCumulativeBalance'] as int?,
-    maximumSingleDebit: json['maximumSingleDebit'] as int?,
-    maximumSingleCredit: json['maximumSingleCredit'] as int?,
-    maximumDailyDebit: json['maximumDailyDebit'] as int?,
-    maximumDailyCredit: json['maximumDailyCredit'] as int?,
+    maximumCumulativeBalance:
+        (json['maximumCumulativeBalance'] as num?)?.toDouble(),
+    maximumSingleDebit: (json['maximumSingleDebit'] as num?)?.toDouble(),
+    maximumSingleCredit: (json['maximumSingleCredit'] as num?)?.toDouble(),
+    maximumDailyDebit: (json['maximumDailyDebit'] as num?)?.toDouble(),
+    maximumDailyCredit: (json['maximumDailyCredit'] as num?)?.toDouble(),
     schemeRequirement: json['schemeRequirement'] == null
         ? null
         : SchemeRequirement.fromJson(json['schemeRequirement'] as Object),

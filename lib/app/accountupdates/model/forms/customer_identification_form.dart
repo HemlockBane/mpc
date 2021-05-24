@@ -107,9 +107,11 @@ class CustomerIdentificationForm with ChangeNotifier {
 
   bool _isImageReferenceValid({bool displayError = false}) {
     final isValid = _info.scannedImageRef != null && _info.scannedImageRef?.isNotEmpty == true;
-    if (displayError && !isValid) _idImageReferenceController.sink.addError("Expiry date is required");
+    if (displayError && !isValid) _idImageReferenceController.sink.addError("An uploaded document is required");
     return isValid;
   }
+
+  CustomerIdentificationInfo get identificationInfo => _info;
   
   @override
   void dispose() {

@@ -16,14 +16,14 @@ class LivelinessServiceDelegate with NetworkResource{
 
   Stream<Resource<LivelinessChecks>> getLivelinessChecks() {
     return networkBoundResource(
-        fetchFromLocal: () => Future.value(null),
+        fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => this._service.getLivelinessChecks()
     );
   }
 
   Stream<Resource<LivelinessCompareResponse>> compareAndGetImageReference(String path, String bvn) {
     return networkBoundResource(
-        fetchFromLocal: () => Future.value(null),
+        fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => this._service.compareAndGetImageReference(File(path), bvn)
     );
   }

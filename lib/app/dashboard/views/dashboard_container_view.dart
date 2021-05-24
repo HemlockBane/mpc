@@ -166,11 +166,7 @@ class _DashboardContainerView extends State<DashboardContainerView> with Widgets
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    _lifecycleState = state;
-    if(state == AppLifecycleState.resumed) {
-      loadAccountBalance();
-    }
-    print(state);
+
   }
 
   @override

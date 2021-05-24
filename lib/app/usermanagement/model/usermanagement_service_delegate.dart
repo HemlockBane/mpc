@@ -15,28 +15,28 @@ class UserManagementServiceDelegate with NetworkResource {
 
   Stream<Resource<RecoveryResponse>> forgotUsername(ForgotPasswordRequest requestBody) {
     return networkBoundResource(
-        fetchFromLocal: () => Future.value(null),
+        fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => this._service.forgotUsername(requestBody)
     );
   }
 
   Stream<Resource<RecoveryResponse>> forgotPassword(ForgotPasswordRequest requestBody) {
     return networkBoundResource(
-        fetchFromLocal: () => Future.value(null),
+        fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => this._service.forgotPassword(requestBody)
     );
   }
 
   Stream<Resource<OTP>> sendForgotUsernameOtp(ForgotPasswordRequest requestBody) {
     return networkBoundResource(
-        fetchFromLocal: () => Future.value(null),
+        fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => this._service.sendForgotUsernameOtp(requestBody)
     );
   }
 
   Stream<Resource<OTP>> sendForgotPasswordOtp(ForgotPasswordRequest requestBody) {
     return networkBoundResource(
-        fetchFromLocal: () => Future.value(null),
+        fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => this._service.sendForgotPasswordOtp(requestBody)
     );
   }

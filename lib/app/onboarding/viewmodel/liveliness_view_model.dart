@@ -13,6 +13,7 @@ enum CheckState {
   SUCCESS, FAIL, INFO
 }
 
+/// @author Paul Okeke
 class LivelinessViewModel with ChangeNotifier {
   late LivelinessServiceDelegate _delegate;
 
@@ -85,10 +86,10 @@ class LivelinessViewModel with ChangeNotifier {
   }
 
   void _updateProgress() {
-    var progressLength = _liveliness.length + ((profilePictureCriteria != null) ? 1 : 0);
+    var progressLength = _liveliness.length;
     double progressiveValue  = (1 / progressLength);
     _previousProgressValue = _progressValue;
-    _progressValue = _imageMap.length * progressiveValue;
+    _progressValue = _progressValue + progressiveValue;
     _progressController.sink.add(_progressValue);
   }
 

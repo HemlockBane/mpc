@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart' hide Headers;
-import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/transfer_beneficiary.dart';
+import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/account_profile_result.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/account_request.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/otp.dart';

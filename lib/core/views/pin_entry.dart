@@ -54,7 +54,7 @@ class _PinEntryState extends State<PinEntry> {
         color = Colors.primaryColor;
       }
 
-      //check there's text
+      //check if there's text
       final entryView = makePinEntryView(color: color);
       children.add(entryView);
 
@@ -78,11 +78,22 @@ class _PinEntryState extends State<PinEntry> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Colors.white,
-      elevation: 8,
-      shadowColor: Colors.black.withOpacity(0.2),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    return Container(
+      // color: Colors.white,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+              color: Colors.grey.withOpacity(0.16),
+              offset: Offset(0, 3.5),
+              blurRadius: 7
+          )
+        ]
+      ),
+      // elevation: 8,
+      // shadowColor: Colors.black.withOpacity(0.2),
+      // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Stack(
         alignment: AlignmentDirectional.bottomCenter,
         children: [

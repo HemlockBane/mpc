@@ -15,14 +15,14 @@ class SecurityQuestionDelegate with NetworkResource {
 
   Stream<Resource<List<SecurityQuestion>>> getAllQuestions() {
     return networkBoundResource(
-        fetchFromLocal: () => Future.value(null),
+        fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => this._service.getAllQuestions()
     );
   }
 
   Stream<Resource<SecurityQuestion>> getSecurityQuestionByUsername() {
     return networkBoundResource(
-        fetchFromLocal: () => Future.value(null),
+        fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () {
           String username = UserInstance().getUser()?.username ?? "";
           return this._service.getQuestionByUsername(SecurityQuestionRequestBody().withUsername(username));
@@ -32,7 +32,7 @@ class SecurityQuestionDelegate with NetworkResource {
 
   Stream<Resource<SecurityQuestion>> getSecurityQuestionByAccountNumber(String accountNumber) {
     return networkBoundResource(
-        fetchFromLocal: () => Future.value(null),
+        fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () {
           return this._service.getQuestionByUsername(SecurityQuestionRequestBody().withAccountNumber(accountNumber));
         }

@@ -1,4 +1,5 @@
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
@@ -23,7 +24,7 @@ mixin NetworkResource {
   Exception? _exception;
 
   Stream<Resource<K>> networkBoundResource<K>({
-    required Future<K?> Function() fetchFromLocal,
+    required Stream<K?> Function() fetchFromLocal,
     bool Function(K?)? shouldFetchFromRemote,
     bool shouldFetchLocal = false,
     required Future<ServiceResult<K>?> Function() fetchFromRemote,
@@ -37,7 +38,25 @@ mixin NetworkResource {
     if(shouldFetchLocal) yield Resource.loading(null);
 
     //let's fetch from local storage
-    final localData = (shouldFetchLocal) ? await fetchFromLocal() : null;
+    K? localData; //= //(shouldFetchLocal) ? await fetchFromLocal() : null;
+    if(shouldFetchLocal) {
+
+      // final localStream = fetchFromLocal().listen((event) {
+      //   print('Starting');
+      // });
+      // localStream.cancel();
+      // yield* fetchFromLocal().map((event) {
+      //   print('Mapping');
+      //   return Resource.loading(event);
+      // });
+      // print('LaLaLaLa-Too');
+      // final localStream = fetchFromLocal();
+      await for (var value in fetchFromLocal()) {
+        localData = value;
+        yield Resource.loading(localData);
+        break;
+      }
+    }
 
     if(shouldFetchFromRemote(localData)) {
       //if we are fetching from remote let's emit
@@ -52,9 +71,12 @@ mixin NetworkResource {
         if(response.errors == null || response.errors?.isEmpty == true) {
           response.success = true;
           processRemoteResponse(Resource.success(response) as Success<ServiceResult<K>>);
-          yield Resource.success(shouldFetchLocal ? await fetchFromLocal() : response.result);
+          if(shouldFetchLocal) {
+            await for (final value in fetchFromLocal()) yield Resource.success(value);
+          }
+          else yield Resource.success(response.result);
         } else {
-
+          //TODO
         }
       } catch(e) {
         print(e);
@@ -105,7 +127,8 @@ mixin NetworkResource {
       _errorString = _exception.toString().replaceAll('Exception', '');
     } else if(_exception is DioError) {
       var e = _exception as DioError;
-      _errorString = "${e.response?.statusCode.toString()}  ${e.response?.statusMessage}";
+      print(e.message);
+      _errorString = e.message.replaceAll('Exception', '');
     }
 
     _formatErrorMessage();
@@ -118,6 +141,7 @@ mixin NetworkResource {
     } else {
       if (_errorString!.contains("resolve host")
           || _errorString!.toLowerCase().contains("failed to connect")
+          || _errorString!.toLowerCase().contains("host lookup")
           || _errorString!.toLowerCase().contains("connecttimeout")) {
         _errorString =
         "We are unable to reach the server at this time. Please confirm your internet connection and try again later.";

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/transfer_beneficiary.dart';
+import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/ExistingAccountOTP.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/NewAccountOTP.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/account_form.dart';

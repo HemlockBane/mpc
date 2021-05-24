@@ -1,7 +1,8 @@
-import 'dart:async';
+  import 'dart:async';
 import 'dart:ffi';
 
 import 'package:flutter/material.dart';
+import 'package:moniepoint_flutter/app/accountupdates/model/data/address_info.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/data/customer_detail_info.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
 import 'package:rxdart/rxdart.dart';
@@ -19,7 +20,6 @@ class AdditionalInfoForm with ChangeNotifier {
 
   final List<LocalGovernmentArea> _localGovt = [];
   List<LocalGovernmentArea> get localGovt => List.unmodifiable(_localGovt);
-
 
   late final Stream<bool> _isValid;
   Stream<bool> get isValid => _isValid;
@@ -81,7 +81,7 @@ class AdditionalInfoForm with ChangeNotifier {
 
   void onMaritalStatusChange(MaritalStatus? mStatus) {
     _info.maritalStatus = mStatus?.maritalStatus;
-    _maritalStatusController.sink.add(mStatus ?? maritalStatus.first);
+    _maritalStatusController.sink.add(mStatus ?? maritalStatuses.first);
     _isMaritalStatusValid(displayError: true);
   }
 
@@ -93,7 +93,7 @@ class AdditionalInfoForm with ChangeNotifier {
 
   void onReligionChange(Religion? mReligion) {
     _info.religion = mReligion?.religion;
-    _religionController.sink.add(mReligion ?? religion.first);
+    _religionController.sink.add(mReligion ?? religions.first);
     _isReligionValid(displayError: true);
   }
 
@@ -148,7 +148,7 @@ class AdditionalInfoForm with ChangeNotifier {
   }
 
   void onEmploymentStatusChange(EmploymentStatus? mEmploymentStatus) {
-    _info.employmentStatus = mEmploymentStatus?.employmentStatus;
+    _info.employmentStatus = mEmploymentStatus?.empStatus;
     if(mEmploymentStatus != null) _employmentStatusController.sink.add(mEmploymentStatus);
     _isEmploymentStatusValid(displayError: true);
   }
@@ -160,6 +160,12 @@ class AdditionalInfoForm with ChangeNotifier {
     }
     return isValid;
   }
+
+  void setAddressInfo(AddressInfo addressInfo) {
+    this._info.addressInfo = addressInfo;
+  }
+
+  CustomerDetailInfo get customerInfo => _info;
 
   @override
   void dispose() {

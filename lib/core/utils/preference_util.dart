@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:moniepoint_flutter/app/login/model/data/user.dart';
+import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PreferenceUtil {
@@ -21,6 +22,7 @@ class PreferenceUtil {
 
   static void deleteLoggedInUser()  {
     _preferences?.remove(LOGGED_IN_USER_KEY);
+    UserInstance().getUser()?.withAccessToken(null);
   }
 
   static User? getLoggedInUser()  {
@@ -37,5 +39,35 @@ class PreferenceUtil {
   static String? getSavedUsername()  {
     String? savedUsername = _preferences?.getString(LOGGED_IN_USER_NAME);
     return savedUsername;
+  }
+
+  static void saveDataForLoggedInUser(String appendKey, Object? object) {
+    final username = getSavedUsername();
+    String data = jsonEncode(object);
+    _preferences?.setString("$username-$appendKey", data);
+  }
+
+  static dynamic getDataForLoggedInUser<T>(String appendKey) {
+    final username = getSavedUsername();
+    String? data = _preferences?.getString("$username-$appendKey");
+    return jsonDecode(data ?? "{}");
+  }
+
+  static void saveValueForLoggedInUser<T>(String appendKey, T value) {
+    final username = getSavedUsername();
+
+    if(T.toString() == "bool") {
+      _preferences?.setBool("$username-$appendKey", value as bool);
+      return;
+    }
+    _preferences?.setString("$username-$appendKey", "$value");
+  }
+
+  static T? getValueForLoggedInUser<T>(String appendKey) {
+    final username = getSavedUsername();
+    print(T.toString());
+    if(T.toString() == "bool") return _preferences?.getBool("$username-$appendKey") as T?;
+    String? data = _preferences?.getString("$username-$appendKey");
+    return data as T?;
   }
 }

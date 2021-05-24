@@ -6,7 +6,7 @@ import 'dart:async' as _i4;
 import 'dart:io' as _i18;
 
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/transfer_beneficiary.dart'
+import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart'
     as _i5;
 import 'package:moniepoint_flutter/app/onboarding/model/account_creation_service.dart'
     as _i13;
@@ -170,7 +170,7 @@ class MockSecurityQuestionDelegate extends _i1.Mock
               as _i4.Stream<_i21.Resource<_i22.SecurityQuestion>>);
   @override
   _i4.Stream<_i21.Resource<K>> networkBoundResource<K>(
-          {_i4.Future<K?> Function()? fetchFromLocal,
+          {_i4.Stream<K?> Function()? fetchFromLocal,
           bool Function(K?)? shouldFetchFromRemote,
           bool? shouldFetchLocal = false,
           _i4.Future<_i2.ServiceResult<K>?> Function()? fetchFromRemote,

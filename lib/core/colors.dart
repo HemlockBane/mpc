@@ -10,6 +10,9 @@ class Colors {
   static const Color backgroundWhite = const Color(0XFFF9FBFD);
 
 
+  static const Color solidOrange = const Color(0XFFF08922);
+
+
   static const Color black = const Color(0XFF000000);
 
 
@@ -26,6 +29,7 @@ class Colors {
   static const Color grey = const Color(0XFF888888);
   static const Color deepGrey = const Color(0XFF9DA1AB);
 
+  static const Color solidDarkBlue = const Color(0XFF0B3275);
   static const Color darkBlue = const Color(0XFF0A2240);
   static const Color darkLightBlue = const Color(0XFF0D2043);
 
@@ -42,5 +46,11 @@ class Colors {
   static const Color solidYellow = const Color(0XFFF08922);
   static const Color solidDarkYellow = const Color(0XFFBB6C20);
   static const Color dashboardTopBar = const Color(0XFFECAB03);
+
+  static const Color tabTextColor = const Color(0XFF30424C);
+  static const Color tabBackground = const Color(0XFF8C8D8F);
+
+
+
 
 }

@@ -48,13 +48,15 @@ class _LivelinessScreen extends State<LivelinessScreen> {
 
   bool _isLoading = false;
 
+  String imageInfo = "";
+
   Future<void> _initCamera() async {
     final cameras = await availableCameras();
     _numberOfCameras = cameras.length;
     final _camera = (_numberOfCameras > 1)
         ? cameras.firstWhere((element) => element.lensDirection == CameraLensDirection.front)
         : cameras.first;
-    _controller = CameraController(_camera, ResolutionPreset.max);
+    _controller = CameraController(_camera, ResolutionPreset.medium);
     _initializeControllerFuture = _controller?.initialize();
     setState(() {
       _isCameraReady = true;
@@ -89,19 +91,29 @@ class _LivelinessScreen extends State<LivelinessScreen> {
   void startImageCapturing() async {
     await _initializeControllerFuture;
     setState(() {
+      _viewModel.nextCheck();
       _isCapturingCompleted = false;
       _enableRetry = false;
       _updateImageProcessStatus(false);
     });
 
-    _cameraTimer = Timer.periodic(Duration(seconds: 2), (timer) async {
+    _cameraTimer = Timer.periodic(Duration(seconds: 1), (timer) async {
       if(_isProcessingImage || _isCapturingCompleted) return;
       _updateImageProcessStatus(true);
+
       _lastImageCaptured = await _controller?.takePicture();
       final imageBytes = await FlutterImageCompress.compressWithFile(_lastImageCaptured!.path, quality: 30);
 
+      setState(() {
+        imageInfo = "Sending Image: ${imageBytes!.lengthInBytes / 1024} KB";
+      });
+
       final result = await platform.invokeMethod('analyzeImage', {
         "imageByte": imageBytes
+      });
+
+      setState(() {
+        imageInfo = "";
       });
 
       print("Completed $result");
@@ -134,6 +146,9 @@ class _LivelinessScreen extends State<LivelinessScreen> {
     }
 
     /// let's check if the general problems are solved
+    setState(() {
+      imageInfo = "Validating General Problems";
+    });
     final passesGeneralProblems = validateGeneralProblems(result);
     if (!passesGeneralProblems) {
       _updateImageProcessStatus(false);
@@ -143,6 +158,9 @@ class _LivelinessScreen extends State<LivelinessScreen> {
     final challenge = _viewModel.nextCheck();
 
     if(challenge != null) {
+      setState(() {
+        imageInfo = "Validating Challenge ${challenge.name}";
+      });
       final isChallengeValid = validateChallenge(challenge, result);
 
       if(isChallengeValid) {
@@ -194,6 +212,9 @@ class _LivelinessScreen extends State<LivelinessScreen> {
     } else {
       isValid = item['value'];
     }
+    setState(() {
+      imageInfo = "Challenge for ${challenge.name} ended with status $isValid";
+    });
     return isValid;
   }
 
@@ -216,8 +237,17 @@ class _LivelinessScreen extends State<LivelinessScreen> {
       final criteria = element.criteria;
       final keyName = criteria.name.toLowerCase();
 
+      setState(() {
+        imageInfo = "validating criteria $keyName against current check on $currentCriteriaName";
+      });
+
       /// We skip the check if the current challenge is requesting a criteria in general problems
       if (!result.containsKey(keyName) || currentCriteriaName == keyName) continue;
+
+      if((currentCriteriaName == "smile" || currentCriteriaName == "mouthopen") && (keyName == "smile" || keyName == "mouthopen")) {
+        print('continue');
+        continue;
+      }
 
       final facialFeature = result[keyName];
 
@@ -226,18 +256,27 @@ class _LivelinessScreen extends State<LivelinessScreen> {
       final value = facialFeature["value"] as bool;
       final confidence = (facialFeature["confidence"] as double?) ?? 100;
 
-      if((value == true && criteria.value == false) || (value == false && criteria.value == true)) {
+      if(value != criteria.value) {
         if(criteria.confidence != null && confidence < criteria.confidence!.positive!) continue;
         _viewModel.updateCurrentCheckState(CheckState.FAIL, message: element.description ?? "");
+        _countDownTimer?.cancel();
         isValid = false;
+        setState(() {
+          imageInfo = "General Problems Check Failed.";
+        });
         break;
       }
     }
 
     if(isValid && result.containsKey("pose") && _viewModel.profilePicturePath == null) {
+      setState(() {
+        imageInfo = "Finding Profile Picture match";
+      });
       findProfilePictureMatch(result["pose"]);
     }
-
+    setState(() {
+      imageInfo = "General Problems Check completed successfully";
+    });
     return isValid;
   }
 
@@ -450,9 +489,6 @@ class _LivelinessScreen extends State<LivelinessScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // SizedBox(
-              //   height: 64,
-              // ),
               Center(
                   child: FutureBuilder(
                       future: _initializeControllerFuture,
@@ -469,7 +505,7 @@ class _LivelinessScreen extends State<LivelinessScreen> {
               ),
               Center(
                 child: StreamBuilder(
-                    initialData: Tuple(CheckState.INFO, 'Analyzing Image...'),
+                    initialData: Tuple(CheckState.INFO, ''),
                     stream: _viewModel.checkStateStream,
                     builder: (BuildContext mContext, AsyncSnapshot<Tuple<CheckState, String>> a)  {
                       return (a.hasData)
@@ -482,13 +518,16 @@ class _LivelinessScreen extends State<LivelinessScreen> {
               ),
               // Spacer(),
               if(_enableRetry) SizedBox(
-                width: double.infinity,
+                  width: double.infinity,
                   child: Styles.appButton(
                   elevation: 0,
-                  buttonStyle: Styles.greyButtonStyle,
                   text: 'Retry',
                   onClick: (_isLoading) ? null : () => startImageCapturing()
               )),
+              SizedBox(
+                height: 4,
+              ),
+              Text(imageInfo, style: TextStyle(color: Colors.deepGrey, fontWeight: FontWeight.bold),),
               SizedBox(
                 height: 32,
               )

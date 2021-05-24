@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/DropDownItem.dart';
@@ -15,7 +16,7 @@ class Styles {
       textStyle: MaterialStateProperty.all(TextStyle(
           fontSize: 16,
           color: Colors.white,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w600,
           fontFamily: Styles.defaultFont)),
       foregroundColor: MaterialStateProperty.all(Colors.white),
       backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
@@ -145,12 +146,14 @@ class Styles {
     );
   }
 
+  /// Default EditText
   static TextFormField appEditText({
     String? hint,
     double borderRadius = 4,
     Color? borderColor,
     double? drawablePadding,
     double? fontSize,
+    double? hintSize,
     ValueChanged<String>? onChanged,
     TextInputType inputType = TextInputType.text,
     List<TextInputFormatter>? inputFormats,
@@ -165,18 +168,21 @@ class Styles {
     EdgeInsets? padding,
     VoidCallback? onClick,
     bool enabled = true,
-    bool readOnly = false
+    bool readOnly = false,
+    Color? fillColor = Colors.white,
+    int? maxLines = 1,
+    int? minLines,
+    String? value,
   }) {
     String? labelText = (animateHint) ? hint : null;
 
-    //TODO how do we dispose this
-    // FocusNode mFocusNode = new FocusNode();
-    // mFocusNode.addListener(() => focusListener?.call(mFocusNode.hasFocus));
-
     return TextFormField(
+      initialValue: value,
       readOnly: readOnly,
       inputFormatters: inputFormats,
       maxLength: maxLength,
+      maxLines: maxLines,
+      minLines: minLines,
       controller: controller,
       onChanged: onChanged,
       onTap: onClick,
@@ -193,11 +199,13 @@ class Styles {
       enableSuggestions: (isPassword) ? false : true,
       autocorrect: (isPassword) ? false : true,
       decoration: InputDecoration(
+          filled: fillColor != null,
+          fillColor: fillColor ?? null,
           errorText: errorText,
           hintText: (!animateHint) ? hint : null,
           labelText: labelText,
           contentPadding: padding,
-          hintStyle: TextStyle(fontFamily: Styles.defaultFont, fontSize : fontSize ?? 16, color: Colors.textHintColor.withOpacity(0.29)),
+          hintStyle: TextStyle(fontFamily: Styles.defaultFont, fontSize : hintSize ?? fontSize ?? 16, color: Colors.textHintColor.withOpacity(0.29)),
           labelStyle: TextStyle(
               fontFamily: Styles.defaultFont,
               fontSize: fontSize ?? 16,
@@ -227,7 +235,7 @@ class Styles {
     );
   }
 
-
+  /// Default Image Button
   static Widget imageButton({
     String? srcCompat, String? src, double? width, double? height,
     VoidCallback? onClick
@@ -239,10 +247,11 @@ class Styles {
     );
   }
 
+  /// Default App DropDown
   static Widget buildDropDown<T extends DropDownItem>(
       List<T> items,
       AsyncSnapshot<T?> snapShot,
-      OnItemClickListener<T?, int> valueChanged, {String? hint}) {
+      OnItemClickListener<T?, int> valueChanged, {String? hint, Color? fillColor = Colors.white}) {
 
     Widget errorLayout = (snapShot.hasError)
         ? Align(
@@ -258,6 +267,8 @@ class Styles {
       children: [
         InputDecorator(
           decoration: InputDecoration(
+            filled: fillColor != null,
+            fillColor: fillColor ?? null,
             border: OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.colorFaded),
                 borderRadius: BorderRadius.circular(2)),
@@ -271,6 +282,7 @@ class Styles {
               icon: Icon(CustomFont.dropDown, color: Colors.primaryColor, size: 6),
               isExpanded: true,
               value: snapShot.data,
+              onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
               onChanged: (v) => valueChanged.call(v, (v != null) ? items.indexOf(v) : -1),
               style: const TextStyle(
                   color: Colors.darkBlue,
@@ -286,6 +298,78 @@ class Styles {
       ],
     );
   }
+
+
+  static Widget statefulButton({
+    required Stream<bool>? stream,
+    required VoidCallback onClick,
+    required String text,
+    bool isLoading = false,
+    ButtonStyle? buttonStyle,
+    Color? textColor,
+    double? elevation = 0,
+  }) {
+    return Stack(
+      children: [
+        SizedBox(
+          width: double.infinity,
+          child: StreamBuilder(
+              stream: stream,
+              builder: (BuildContext mContext, AsyncSnapshot<bool> snapshot) {
+                final enableButton = snapshot.hasData && snapshot.data == true;
+                return Styles.appButton(
+                    elevation: elevation,
+                    onClick: enableButton ? onClick: null,
+                    text: text,
+                    buttonStyle: buttonStyle,
+                    textColor: textColor
+                );
+              }),
+        ),
+        Positioned(
+            right: 16,
+            top: 16,
+            bottom: 16,
+            child: isLoading
+                ? SpinKitThreeBounce(size: 20.0, color: Colors.white.withOpacity(0.5))
+                : SizedBox())
+      ],
+    );
+  }
+
+  static Widget statefulButton2({
+    required VoidCallback onClick,
+    required String text,
+    bool isValid = false,
+    bool isLoading = false,
+    ButtonStyle? buttonStyle,
+    Color? textColor,
+    double? elevation = 0,
+  }) {
+    return Stack(
+      children: [
+        SizedBox(
+          width: double.infinity,
+          child: Styles.appButton(
+                    elevation: elevation,
+                    onClick: isValid && !isLoading ? onClick: null,
+                    text: text,
+                    buttonStyle: buttonStyle,
+                    textColor: textColor
+                )
+          ),
+        Positioned(
+            right: 16,
+            top: 16,
+            bottom: 16,
+            child: isLoading
+                ? SpinKitThreeBounce(size: 20.0, color: Colors.white.withOpacity(0.5))
+                : SizedBox())
+      ],
+    );
+  }
+
+
 }
 
 

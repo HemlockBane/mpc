@@ -15,10 +15,19 @@ AddressInfo _$AddressInfoFromJson(Map<String, dynamic> json) {
   );
 }
 
-Map<String, dynamic> _$AddressInfoToJson(AddressInfo instance) =>
-    <String, dynamic>{
-      'addressLine': instance.addressLine,
-      'addressCity': instance.addressCity,
-      'addressLocalGovernmentAreaId': instance.addressLocalGovernmentAreaId,
-      'utilityBillUUID': instance.utilityBillUUID,
-    };
+Map<String, dynamic> _$AddressInfoToJson(AddressInfo instance) {
+  final val = <String, dynamic>{
+    'addressLine': instance.addressLine,
+    'addressCity': instance.addressCity,
+    'addressLocalGovernmentAreaId': instance.addressLocalGovernmentAreaId,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('utilityBillUUID', instance.utilityBillUUID);
+  return val;
+}

@@ -7,6 +7,7 @@ class AddressInfo {
   String? addressLine;
   String? addressCity;
   int? addressLocalGovernmentAreaId;
+  @JsonKey(name: "utilityBillUUID", includeIfNull: false)
   String? utilityBillUUID;
 
   AddressInfo({this.addressLine,

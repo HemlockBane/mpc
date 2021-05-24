@@ -33,6 +33,7 @@ abstract class BaseViewModel with ChangeNotifier {
 
   String get accountName => UserInstance().getUser()?.customers?.first.customerAccountUsers?.first.customerAccount?.accountName ?? "";
   String get accountNumber => UserInstance().getUser()?.customers?.first.customerAccountUsers?.first.customerAccount?.accountNumber ?? "";
+  String get accountProviderCode => UserInstance().getUser()?.customers?.first.accountProvider?.centralBankCode ?? "";
 
   @override
   void dispose() {

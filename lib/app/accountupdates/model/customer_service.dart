@@ -55,6 +55,6 @@ abstract class CustomerService {
     "appVersion": BuildConfig.APP_VERSION
   })
   @POST("upload")
-  Future<ServiceResult<FileUUID>> uploadDocument(@Part(value: "file") File selfieImage);
+  Future<ServiceResult<FileUUID>> uploadDocument(@Part(value: "multipartFile") File selfieImage);
 
 }

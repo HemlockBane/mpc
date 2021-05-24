@@ -1,20 +1,58 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart' hide ScrollView, Colors;
+import 'package:moniepoint_flutter/app/accountupdates/model/data/customer_detail_info.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
 import 'package:moniepoint_flutter/app/accountupdates/viewmodels/account_update_view_model.dart';
+import 'package:moniepoint_flutter/app/accountupdates/views/account_update_form_view.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:provider/provider.dart';
 
-class AdditionalInfoScreen extends StatefulWidget {
-
+class AdditionalInfoScreen extends PagedForm {
   @override
-  State<StatefulWidget> createState() {
-    return _AdditionalInfoScreen();
-  }
-
+  State<StatefulWidget> createState() => _AdditionalInfoScreen();
 }
 
 class _AdditionalInfoScreen extends State<AdditionalInfoScreen> with AutomaticKeepAliveClientMixin {
+
+  void saveForm() {
+    final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
+    final info = viewModel.additionalInfoForm.customerInfo;
+    PreferenceUtil.saveDataForLoggedInUser("account-update-additional-info", info);
+  }
+
+  void onRestoreForm() {
+    final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
+    final savedInfo = PreferenceUtil.getDataForLoggedInUser("account-update-additional-info");
+    final info = CustomerDetailInfo.fromJson(savedInfo);
+
+    viewModel.additionalInfoForm.onTitleChange(Titles.fromTitle(info.title));
+    viewModel.additionalInfoForm.onMaritalStatusChange(MaritalStatus.fromString(info.maritalStatus));
+    viewModel.additionalInfoForm.onReligionChange(Religion.fromString(info.religion));
+    viewModel.additionalInfoForm.onEmploymentStatusChange(EmploymentStatus.fromString(info.employmentStatus));
+
+    final nationality = Nationality.fromNationalityName(info.nationality, viewModel.nationalities);
+    viewModel.additionalInfoForm.onNationalityChange(nationality);
+
+    final state = StateOfOrigin.fromLocalGovtId(info.localGovernmentAreaOfOriginId, nationality?.states ?? []);
+    viewModel.additionalInfoForm.onStateOfOriginChange(state);
+
+    viewModel.additionalInfoForm.onLocalGovtChange(
+        LocalGovernmentArea.fromId(info.localGovernmentAreaOfOriginId, state?.localGovernmentAreas ?? [])
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+      Future.delayed(Duration(milliseconds: 200),() {
+        onRestoreForm();
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +78,7 @@ class _AdditionalInfoScreen extends State<AdditionalInfoScreen> with AutomaticKe
             StreamBuilder(
                 stream: viewModel.additionalInfoForm.maritalStatusStream,
                 builder: (BuildContext context, AsyncSnapshot<MaritalStatus> snapshot) {
-                  return Styles.buildDropDown(maritalStatus, snapshot, (value, i) {
+                  return Styles.buildDropDown(maritalStatuses, snapshot, (value, i) {
                     viewModel.additionalInfoForm.onMaritalStatusChange(value as MaritalStatus);
                   },hint: 'Marital Status');
                 }),
@@ -48,7 +86,7 @@ class _AdditionalInfoScreen extends State<AdditionalInfoScreen> with AutomaticKe
             StreamBuilder(
                 stream: viewModel.additionalInfoForm.religionStream,
                 builder: (BuildContext context, AsyncSnapshot<Religion> snapshot) {
-                  return Styles.buildDropDown(religion, snapshot, (value, i) {
+                  return Styles.buildDropDown(religions, snapshot, (value, i) {
                     viewModel.additionalInfoForm.onReligionChange(value as Religion);
                   },hint: 'Religion');
                 }, ),
@@ -91,22 +129,21 @@ class _AdditionalInfoScreen extends State<AdditionalInfoScreen> with AutomaticKe
             SizedBox(height: 32),
             Expanded(child: Row(
               children: [
-                Flexible(child: Container()),
+                (widget.isLast()) ? SizedBox() : Flexible(child: Container()),
                 Flexible(
                     flex: 1,
                     child: Align(
                       alignment: Alignment.bottomRight,
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: StreamBuilder(
-                            stream: viewModel.additionalInfoForm.isValid,
-                            builder: (BuildContext mContext, AsyncSnapshot<bool> snapshot) {
-                          final enableButton = snapshot.hasData && snapshot.data == true;
-                          return Styles.appButton(onClick: enableButton ? ()=> null :  null, text: 'Next');
-                        }),
+                      child: Styles.statefulButton(
+                          stream: viewModel.additionalInfoForm.isValid,
+                          onClick: () {
+                            saveForm();
+                            viewModel.moveToNext(widget.position);
+                            },
+                          text: widget.isLast() ? 'Proceed' : 'Next',
+                          isLoading: false
                       ),
-                    )
-                )
+                    ))
               ],
             )),
             SizedBox(height: 100),

@@ -9,20 +9,17 @@ part of 'airtime_purchase_request_body.dart';
 AirtimePurchaseRequestBody _$AirtimePurchaseRequestBodyFromJson(
     Map<String, dynamic> json) {
   return AirtimePurchaseRequestBody()
-    ..paymentType =
-        _$enumDecodeNullable(_$PaymentTypeEnumMap, json['paymentType'])
+    ..paymentType = _$enumDecode(_$PaymentTypeEnumMap, json['paymentType'])
     ..sourceAccountProviderCode = json['sourceAccountProviderCode'] as String?
     ..sourceAccountNumber = json['sourceAccountNumber'] as String?
     ..tracked = json['tracked'] as bool?
     ..saveBeneficiary = json['saveBeneficiary'] as bool?
     ..airtimeRequest = json['airtimeRequest'] == null
         ? null
-        : AirtimeDataRequest.fromJson(
-            json['airtimeRequest'] as Map<String, dynamic>)
+        : AirtimeDataRequest.fromJson(json['airtimeRequest'] as Object)
     ..dataTopUpRequest = json['dataTopUpRequest'] == null
         ? null
-        : DataTopUpRequest.fromJson(
-            json['dataTopUpRequest'] as Map<String, dynamic>)
+        : DataTopUpRequest.fromJson(json['dataTopUpRequest'] as Object)
     ..pin = json['pin'] as String?
     ..otp = json['otp'] as String?
     ..fingerprintKey = json['fingerprintKey'] as String?
@@ -34,7 +31,9 @@ AirtimePurchaseRequestBody _$AirtimePurchaseRequestBodyFromJson(
 
 Map<String, dynamic> _$AirtimePurchaseRequestBodyToJson(
     AirtimePurchaseRequestBody instance) {
-  final val = <String, dynamic>{};
+  final val = <String, dynamic>{
+    'paymentType': _$PaymentTypeEnumMap[instance.paymentType],
+  };
 
   void writeNotNull(String key, dynamic value) {
     if (value != null) {
@@ -42,7 +41,6 @@ Map<String, dynamic> _$AirtimePurchaseRequestBodyToJson(
     }
   }
 
-  writeNotNull('paymentType', _$PaymentTypeEnumMap[instance.paymentType]);
   writeNotNull('sourceAccountProviderCode', instance.sourceAccountProviderCode);
   writeNotNull('sourceAccountNumber', instance.sourceAccountNumber);
   writeNotNull('tracked', instance.tracked);
@@ -85,6 +83,10 @@ K _$enumDecode<K, V>(
   ).key;
 }
 
+const _$PaymentTypeEnumMap = {
+  PaymentType.ONE_TIME: 'ONE_TIME',
+};
+
 K? _$enumDecodeNullable<K, V>(
   Map<K, V> enumValues,
   dynamic source, {
@@ -95,10 +97,6 @@ K? _$enumDecodeNullable<K, V>(
   }
   return _$enumDecode<K, V>(enumValues, source, unknownValue: unknownValue);
 }
-
-const _$PaymentTypeEnumMap = {
-  PaymentType.ONE_TIME: 'ONE_TIME',
-};
 
 const _$AuthenticationMethodEnumMap = {
   AuthenticationMethod.FINGERPRINT: 'FINGERPRINT',

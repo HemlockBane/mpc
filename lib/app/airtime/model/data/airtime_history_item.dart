@@ -7,6 +7,10 @@ part 'airtime_history_item.g.dart';
 
 @JsonSerializable()
 class AirtimeHistoryItem extends HistoryItem {
+
+  @JsonKey(name:"id")
+  int? id;
+
   @JsonKey(name:"serviceProvider")
   AirtimeServiceProvider? serviceProvider;
 
@@ -19,7 +23,5 @@ class AirtimeHistoryItem extends HistoryItem {
   Map<String, dynamic> toJson() => _$AirtimeHistoryItemToJson(this);
 
   @override
-  String getRecipient() {
-    return "$phoneNumber, ${serviceProvider?.name}";
-  }
+  String getRecipient() => "$phoneNumber, ${serviceProvider?.name}";
 }

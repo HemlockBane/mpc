@@ -1,5 +1,5 @@
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart' hide Colors;
+import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
@@ -10,6 +10,7 @@ import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:provider/provider.dart';
 
 /// Screen that request for the customer account number before
@@ -93,7 +94,8 @@ class _EnterAccountNumberState extends State<EnterAccountNumberScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return ScrollView(
+      child: Container(
         height: double.infinity,
         width: double.infinity,
         color: Colors.backgroundWhite,
@@ -102,13 +104,14 @@ class _EnterAccountNumberState extends State<EnterAccountNumberScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text('Sign Up to Moniepoint',
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.darkBlue,
-                    fontSize: 21,
-                ),
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: Colors.colorPrimaryDark,
+                fontSize: 24,
+              ),
               textAlign: TextAlign.start,
             ),
+            SizedBox(height: 6),
             Text('Enter your account number to get started.',
                 style: TextStyle(
                     fontWeight: FontWeight.normal,
@@ -126,12 +129,14 @@ class _EnterAccountNumberState extends State<EnterAccountNumberScreen> {
                 maxLength: 10,
                 controller: mAccountNumberController
             ),
+            SizedBox(height: 18),
             Spacer(),
             Stack(
               children: [
                 SizedBox(
                   width: double.infinity,
                   child: Styles.appButton(
+                      elevation: isAccountNumberValid && !isLoading ? 0.5 : 0,
                       onClick: isAccountNumberValid && !isLoading ? ()=> verifyAccount(context) : null,
                       text: 'Continue'
                   ),
@@ -149,7 +154,7 @@ class _EnterAccountNumberState extends State<EnterAccountNumberScreen> {
                 textAlign: TextAlign.center,
                 text: TextSpan(
                     text: 'Already have a profile? ',
-                    style: TextStyle(fontFamily: Styles.defaultFont, fontSize: 15, color: Colors.textColorBlack),
+                    style: TextStyle(fontFamily: Styles.defaultFont, fontSize: 16, color: Colors.textColorBlack),
                     children: [
                       TextSpan(
                           text: 'Login',
@@ -162,7 +167,8 @@ class _EnterAccountNumberState extends State<EnterAccountNumberScreen> {
             SizedBox(height: 24),
           ],
         ),
-      );
+      ),
+    );
   }
 
 }

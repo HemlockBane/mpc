@@ -92,7 +92,7 @@ class TransactionBatch {
   final bool? tracked;
 
   @JsonKey(name: "rechargeDate")
-  final String? rechargeDate;
+  final int? rechargeDate;
 
   @JsonKey(name: "creationTimeStamp")
   final int? creationTimeStamp;

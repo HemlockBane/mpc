@@ -2,8 +2,8 @@ import 'package:flutter/material.dart' hide ScrollView, Colors;
 import 'package:flutter/services.dart';
 import 'package:moniepoint_flutter/app/customer/account_provider.dart';
 import 'package:moniepoint_flutter/app/institutions/institution_view_model.dart';
-import 'package:moniepoint_flutter/app/managebeneficiaries/beneficiary.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_list_item.dart';
+import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_shimmer_view.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/app/transfers/viewmodels/account_enquiry_view_model.dart';
 import 'package:moniepoint_flutter/app/transfers/viewmodels/transfer_view_model.dart';
@@ -53,6 +53,7 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
   }
 
   void displayInstitutionsDialog() async {
+    FocusManager.instance.primaryFocus?.unfocus();
     AccountProvider? provider = await showModalBottomSheet(
         context: widget._scaffoldKey.currentContext ?? context,
         isScrollControlled: true,
@@ -98,7 +99,8 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
 
   Widget makeListView(BuildContext context, AsyncSnapshot<Resource<List<TransferBeneficiary>?>> a) {
     return ListViewUtil.makeListViewWithState(
-        context: context, 
+        context: context,
+        loadingView: BeneficiaryShimmer(),
         snapshot: a,
         animationController: _animationController,
         currentList: _currentItems,
@@ -149,12 +151,13 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
                   padding : EdgeInsets.only(left: 16, right: 16),
                   child: Styles.appEditText(
                       hint: 'Enter Account Number',
+                      padding: EdgeInsets.only(top: 17, bottom: 17),
                       animateHint: false,
                       controller: _accountNumberController,
                       inputFormats: [FilteringTextInputFormatter.digitsOnly],
                       fontSize: 13,
                       onChanged: (t) => (t.length == 10) ? displayInstitutionsDialog(): null,
-                      startIcon: Icon(CustomFont.bankIcon, size: 16, color: Colors.colorFaded,)
+                      startIcon: Icon(CustomFont.bankIcon, size: 20, color: Colors.colorFaded,)
                   ),
                 )
             ),
@@ -166,11 +169,11 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Expanded(child: Divider(color: Colors.deepGrey.withOpacity(0.2), thickness: 1)),
+                      Expanded(child: Divider(height: 1, color: Colors.deepGrey.withOpacity(0.2), thickness: 1)),
                       SizedBox(width: 8),
                       Text('Or', style: TextStyle(color: Colors.deepGrey),),
                       SizedBox(width: 8),
-                      Expanded(child: Divider(color: Colors.deepGrey.withOpacity(0.2), thickness: 1)),
+                      Expanded(child: Divider(height: 1, color: Colors.deepGrey.withOpacity(0.2), thickness: 1)),
                     ],
                   ),
                 )

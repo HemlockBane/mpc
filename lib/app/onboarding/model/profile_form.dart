@@ -137,24 +137,24 @@ class ProfileForm with ChangeNotifier, Validators {
   }
 
   void onSecurityQuestionChange(int questionNumber, SecurityQuestion question) {
-    if (question.isEnabled) return;
+    if (!question.isEnabled) return;
 
     if (questionNumber == 1) {
       //get the previous selected question disable it
+      _securityOne?.isEnabled = true;
+      _securityOne = question;
       _securityOne?.isEnabled = false;
       _questionOneController.sink.add(question);
-      _securityOne = question;
-      _securityOne?.isEnabled = true;
     } else if (questionNumber == 2) {
+      _securityTwo?.isEnabled = true;
+      _securityTwo = question;
       _securityTwo?.isEnabled = false;
       _questionTwoController.sink.add(question);
-      _securityTwo = question;
-      _securityTwo?.isEnabled = true;
     } else if (questionNumber == 3) {
+      _securityThree?.isEnabled = true;
+      _securityThree = question;
       _securityThree?.isEnabled = false;
       _questionThreeController.sink.add(question);
-      _securityThree = question;
-      _securityThree?.isEnabled = true;
     }
   }
 

@@ -6,6 +6,7 @@ import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
+import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:share/share.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:moniepoint_flutter/core/utils/text_utils.dart';
@@ -53,22 +54,30 @@ class _DashboardContainerView extends State<DashboardContainerView> with Widgets
   }
 
   Widget displayAccountBalance () {
+    final bool hideAccountBalance = PreferenceUtil.getValueForLoggedInUser(PreferenceUtil.HIDE_ACCOUNT_BAL) ?? true;
     return StreamBuilder(
         stream: widget.viewModel.balanceStream,
         builder: (BuildContext ctx, AsyncSnapshot<AccountBalance?> snapshot) {
           if(snapshot.hasData && (!isLoadingBalance && !isLoadingBalanceError)) {
-            return Text("N ${snapshot.data?.availableBalance!.formatCurrencyWithoutSymbolAndDividing}",
+            final balance = hideAccountBalance ? "****" : "N ${snapshot.data?.availableBalance!.formatCurrencyWithoutSymbolAndDividing}";
+            return Text("$balance",
                 textAlign: TextAlign.start,
                 style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 28, fontFamily: Styles.defaultFont)
             ).colorText({"N": Tuple(Colors.white.withOpacity(0.3), null)}, underline: false);
           }
-          if(isLoadingBalanceError) {
+          if(isLoadingBalanceError && !hideAccountBalance) {
             return Padding(
                 padding: EdgeInsets.only(right: 8, bottom: 8),
                 child: Text("Error loading balance\nplease, try again",
                     textAlign: TextAlign.start,
                     style: TextStyle(fontWeight: FontWeight.bold, color: Colors.darkBlue, fontSize: 21, fontFamily: Styles.defaultFont)
                 ).colorText({"try again": Tuple(Colors.white, loadAccountBalance)}, underline: false)
+            );
+          }
+          if(hideAccountBalance) {
+            return Text("* ***",
+                textAlign: TextAlign.start,
+                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 28, fontFamily: Styles.defaultFont)
             );
           }
           return Shimmer.fromColors(

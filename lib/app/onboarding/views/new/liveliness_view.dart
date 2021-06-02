@@ -19,9 +19,7 @@ import 'package:provider/provider.dart';
 class LivelinessScreen extends StatefulWidget {
 
   @override
-  State<StatefulWidget> createState() {
-    return _LivelinessScreen();
-  }
+  State<StatefulWidget> createState() => _LivelinessScreen();
 
 }
 
@@ -80,7 +78,7 @@ class _LivelinessScreen extends State<LivelinessScreen> {
         //We have waited for more than 10seconds
         setState(() {
           _enableRetry = true;
-          _viewModel.updateCurrentCheckState(CheckState.FAIL, message: "Not very sure what you are doing!\nPlease follow the instructions :)");
+          _viewModel.updateCurrentCheckState(CheckState.FAIL, message: "Failed validating $startingGesture");
           _cameraTimer?.cancel();
           _countDownTimer?.cancel();
         });
@@ -99,24 +97,31 @@ class _LivelinessScreen extends State<LivelinessScreen> {
 
     _cameraTimer = Timer.periodic(Duration(seconds: 1), (timer) async {
       if(_isProcessingImage || _isCapturingCompleted) return;
+
       _updateImageProcessStatus(true);
 
       _lastImageCaptured = await _controller?.takePicture();
+
+      if(_lastImageCaptured == null) return _updateImageProcessStatus(false);
+
       final imageBytes = await FlutterImageCompress.compressWithFile(_lastImageCaptured!.path, quality: 30);
 
       setState(() {
         imageInfo = "Sending Image: ${imageBytes!.lengthInBytes / 1024} KB";
       });
 
+      final startTime = DateTime.now();
+
       final result = await platform.invokeMethod('analyzeImage', {
         "imageByte": imageBytes
       });
 
+      print(DateTime.now().difference(startTime).inMilliseconds);
       setState(() {
         imageInfo = "";
       });
 
-      print("Completed $result");
+      // print("Completed $result");
       if(result is Map && result.containsKey("error")) {
         _updateImageProcessStatus(false);
         return;

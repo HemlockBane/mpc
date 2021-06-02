@@ -1,15 +1,13 @@
 import 'package:dio/dio.dart' hide Headers;
+import 'package:moniepoint_flutter/app/airtime/model/data/airtime_history_collection.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_purchase_request_body.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_service_provider.dart';
 import 'package:moniepoint_flutter/core/config/build_config.dart';
 import 'package:moniepoint_flutter/core/config/service_config.dart';
-import 'package:moniepoint_flutter/core/models/data_collection.dart';
 import 'package:moniepoint_flutter/core/models/history_request_body.dart';
 import 'package:moniepoint_flutter/core/models/transaction_status.dart';
 import 'package:moniepoint_flutter/core/network/service_result.dart';
 import 'package:retrofit/retrofit.dart';
-
-import 'data/airtime_transaction.dart';
 
 part 'airtime_service.g.dart';
 
@@ -32,7 +30,7 @@ abstract class AirtimeService {
     "appVersion": BuildConfig.APP_VERSION
   })
   @POST("history")
-  Future<ServiceResult<DataCollection<AirtimeTransaction>>> getSingleAirtimeHistory(@Body() HistoryRequestBody? airtimeHistoryRequestBody);
+  Future<ServiceResult<AirtimeHistoryCollection>> getSingleAirtimeHistory(@Body() HistoryRequestBody? airtimeHistoryRequestBody);
 
   @Headers(<String, dynamic>{
     "Content-Type": "application/json",
@@ -41,15 +39,5 @@ abstract class AirtimeService {
   })
   @GET("providers")
   Future<ServiceResult<List<AirtimeServiceProvider>>> getServiceProviders();
-
-//
-// @Streaming
-// @Headers("Content-Type: application/json", "client-id: " + BuildConfig.CLIENT_ID)
-// @GET("receipt/{customerId}/{batchId}")
-// suspend fun downloadAirtimeReceipt(
-// @Header(HeaderKeys.AUTHORIZATION) user: User?,
-// @Path("customerId") customerId: String?,
-// @Path("batchId") batchId: Long
-// ): ResponseBody?
 
 }

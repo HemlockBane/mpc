@@ -10,8 +10,8 @@ abstract class TransferBeneficiaryDao extends MoniepointDao<TransferBeneficiary>
   @Query("SELECT * FROM transfer_beneficiaries ORDER BY frequency DESC LIMIT :limit")
   Stream<List<TransferBeneficiary>> getFrequentBeneficiaries(int limit);
 
-  @Query("SELECT * FROM transfer_beneficiaries ORDER BY frequency DESC")
-  Stream<List<TransferBeneficiary>> getPagedTransferBeneficiary();
+  @Query("SELECT * FROM transfer_beneficiaries ORDER BY frequency DESC LIMIT :limit OFFSET :offset")
+  Stream<List<TransferBeneficiary>> getPagedTransferBeneficiary(int offset, int limit);
 
   // @Query("SELECT * FROM transferbeneficiary ORDER BY frequency DESC")
   // abstract fun getPagedTransferBeneficiary(): PagingSource<Int, TransferBeneficiary>

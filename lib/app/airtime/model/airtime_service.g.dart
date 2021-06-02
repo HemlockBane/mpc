@@ -45,30 +45,29 @@ class _AirtimeService implements AirtimeService {
   }
 
   @override
-  Future<ServiceResult<DataCollection<AirtimeTransaction>>>
-      getSingleAirtimeHistory(airtimeHistoryRequestBody) async {
+  Future<ServiceResult<AirtimeHistoryCollection>> getSingleAirtimeHistory(
+      airtimeHistoryRequestBody) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     queryParameters.removeWhere((k, v) => v == null);
     final _data = <String, dynamic>{};
     _data.addAll(airtimeHistoryRequestBody?.toJson() ?? <String, dynamic>{});
     final _result = await _dio.fetch<Map<String, dynamic>>(
-        _setStreamType<ServiceResult<DataCollection<AirtimeTransaction>>>(
-            Options(
-                    method: 'POST',
-                    headers: <String, dynamic>{
-                      r'Content-Type': 'application/json',
-                      r'client-id': 'ANDROID',
-                      r'appVersion': '0.0.1'
-                    },
-                    extra: _extra,
-                    contentType: 'application/json')
-                .compose(_dio.options, 'history',
-                    queryParameters: queryParameters, data: _data)
-                .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
-    final value = ServiceResult<DataCollection<AirtimeTransaction>>.fromJson(
+        _setStreamType<ServiceResult<AirtimeHistoryCollection>>(Options(
+                method: 'POST',
+                headers: <String, dynamic>{
+                  r'Content-Type': 'application/json',
+                  r'client-id': 'ANDROID',
+                  r'appVersion': '0.0.1'
+                },
+                extra: _extra,
+                contentType: 'application/json')
+            .compose(_dio.options, 'history',
+                queryParameters: queryParameters, data: _data)
+            .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = ServiceResult<AirtimeHistoryCollection>.fromJson(
       _result.data!,
-      (json) => DataCollection<AirtimeTransaction>.fromJson(json),
+      (json) => AirtimeHistoryCollection.fromJson(json as Map<String, dynamic>),
     );
     return value;
   }

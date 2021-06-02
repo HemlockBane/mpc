@@ -1,0 +1,12 @@
+import 'package:json_annotation/json_annotation.dart';
+import 'package:moniepoint_flutter/app/billpayments/model/data/bill_transaction.dart';
+import 'package:moniepoint_flutter/app/billpayments/model/data/biller.dart';
+import 'package:moniepoint_flutter/core/models/data_collection.dart';
+part 'biller_collection.g.dart';
+
+@JsonSerializable()
+class BillerCollection extends DataCollection<Biller> {
+  BillerCollection();
+  factory BillerCollection.fromJson(Object? data) => _$BillerCollectionFromJson(data as Map<String, dynamic>);
+  Map<String, dynamic> toJson() => _$BillerCollectionToJson(this);
+}

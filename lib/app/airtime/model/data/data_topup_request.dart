@@ -32,6 +32,7 @@ class DataTopUpRequest  {
       this.metaData
   });
 
+  factory DataTopUpRequest.fromJson(Object? data) => _$DataTopUpRequestFromJson(data as Map<String, dynamic>);
   Map<String, dynamic> toJson() => _$DataTopUpRequestToJson(this);
 
 
@@ -50,12 +51,12 @@ class DataTopUpRequest  {
     return this;
   }
 
-  DataTopUpRequest withDataProviderName(String providerName){
+  DataTopUpRequest withDataProviderName(String providerName) {
     this.dataProviderName = providerName;
     return this;
   }
 
-  DataTopUpRequest withName(String name){
+  DataTopUpRequest withName(String name) {
     this.name = name;
     return this;
   }

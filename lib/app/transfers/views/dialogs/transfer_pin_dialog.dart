@@ -45,6 +45,7 @@ class _TransferPinDialog extends TransactionPinDialogState<TransferPinDialog> {
           Container(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 SizedBox(height: 22),
                 Center(
@@ -56,7 +57,7 @@ class _TransferPinDialog extends TransactionPinDialogState<TransferPinDialog> {
                 ),
                 SizedBox(height: 24),
                 Container(
-                  color: Colors.solidDarkBlue.withOpacity(0.05),
+                  color: Colors.colorPrimaryDark.withOpacity(0.05),
                   padding: EdgeInsets.all(18),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -126,7 +127,7 @@ class _TransferPinDialog extends TransactionPinDialogState<TransferPinDialog> {
                 ),
                 SizedBox(height: 8),
                 Padding(
-                  padding: EdgeInsets.only(left: 50, right: 50),
+                  padding: EdgeInsets.only(left: 50, right: 50, bottom: MediaQuery.of(context).viewInsets.bottom * 0.7),
                   child: PinEntry(onChange: (value) {
                     setState(() {
                       viewModel.setPin(value);
@@ -170,11 +171,8 @@ class _TransferPinDialog extends TransactionPinDialogState<TransferPinDialog> {
         });
       }
       else if(event is Error<TransactionStatus>) {
-        setState(() {
-          _isLoading = false;
-          //display the error dialog
-          //Navigator.of(context).pop(event);
-        });
+        setState(() {_isLoading = false;});
+        Navigator.of(context).pop(event);
       }
     });
   }

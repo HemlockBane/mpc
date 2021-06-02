@@ -174,7 +174,7 @@ class MockSecurityQuestionDelegate extends _i1.Mock
           bool Function(K?)? shouldFetchFromRemote,
           bool? shouldFetchLocal = false,
           _i4.Future<_i2.ServiceResult<K>?> Function()? fetchFromRemote,
-          dynamic Function(_i21.Success<_i2.ServiceResult<K>>)?
+          K? Function(_i21.Success<_i2.ServiceResult<K>>)?
               processRemoteResponse,
           _i4.Future<dynamic> Function(K)? saveRemoteData}) =>
       (super.noSuchMethod(

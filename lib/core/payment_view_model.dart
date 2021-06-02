@@ -15,7 +15,7 @@ mixin PaymentViewModel {
   double? _amount;
 
   bool? get saveBeneficiary => _saveBeneficiary;
-  bool? _saveBeneficiary;
+  bool? _saveBeneficiary = false;
 
   String get pin => _pin;
   String _pin = "";
@@ -30,7 +30,6 @@ mixin PaymentViewModel {
   }
 
   bool validityCheck();
-
 
   void dispose() {
     _isValidController.close();

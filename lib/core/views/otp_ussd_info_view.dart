@@ -34,7 +34,7 @@ class OtpUssdInfoView extends StatelessWidget{
           Expanded(child: Text('Didn’t get a code? Dial $ussd to get an OTP',
               style: TextStyle(
                   fontFamily: Styles.defaultFont,
-                  color: Colors.darkBlue,
+                  color: Colors.colorPrimaryDark,
                   fontWeight: FontWeight.normal,
                   fontSize: 14))
               .colorText({

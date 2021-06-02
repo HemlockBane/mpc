@@ -28,16 +28,17 @@ abstract class AbstractDataCollectionMediator<K, V> extends RemoteMediator<K, V>
       }
       final response = await serviceCall(_page);
       if(loadType == LoadType.REFRESH) {
-        clearDB(response.result?.content ?? []);
-        saveToDB(response.result?.content ?? []);
+        await clearDB(response.result?.content ?? []);
+        await saveToDB(response.result?.content ?? []);
       }
 
       if(response.result?.content?.isNotEmpty == true && loadType != LoadType.REFRESH)  {
-        saveToDB(response.result?.content ?? []);
+        await saveToDB(response.result?.content ?? []);
       }
 
       return MediatorResult.success(endOfPaginationReached : response.result?.content?.isEmpty == true);
-    }catch(e) {
+    } catch(e) {
+      print(e);
       return MediatorResult.error(exception: e as Exception);
     }
   }

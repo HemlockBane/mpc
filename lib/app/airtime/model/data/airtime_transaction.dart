@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:floor/floor.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/transfer_request_body.dart';
+import 'package:moniepoint_flutter/core/database/type_converters.dart';
+import 'package:moniepoint_flutter/core/models/list_item.dart';
 import 'package:moniepoint_flutter/core/models/transaction.dart';
 import 'package:moniepoint_flutter/core/models/transaction_batch.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -7,45 +11,72 @@ import 'airtime_history_item.dart';
 
 part 'airtime_transaction.g.dart';
 
-@Entity(tableName: "airtime_transactions", primaryKeys: ['batch_id'])
+@Entity(tableName: "airtime_transactions", primaryKeys: ['batch_id', 'history_id'])
 @JsonSerializable()
 class AirtimeTransaction implements Transaction {
 
   String? username = "";
 
+  @ColumnInfo(name : "batch_id")
+  @JsonKey(name: "batch_id")
+  final int batchId;
+
+  @ColumnInfo(name : "history_id")
+  @JsonKey(name: "history_id")
+  final int historyId;
+
   @JsonKey(name:"institutionAirtime")
-  @ColumnInfo(name: "batch_")
-  TransactionBatch institutionAirtime = new TransactionBatch();
+  @ColumnInfo(name: "batch")
+  @TypeConverters([TransactionBatchConverter])
+  final TransactionBatch? institutionAirtime;
 
   @JsonKey(name:"request")
-  @ColumnInfo(name: "history_")
-  AirtimeHistoryItem request = new AirtimeHistoryItem();
+  @ColumnInfo(name: "history")
+  @TypeConverters([AirtimeHistoryItemConverter])
+  final AirtimeHistoryItem? request;
 
-  String? historyType;
+  final String? historyType;
 
-  AirtimeTransaction();
+  @ColumnInfo(name : "creationTimeStamp")
+  @JsonKey(name: "creationTimeStamp")
+  final int? creationTimeStamp;
 
-  factory AirtimeTransaction.fromJson(Object? data) => _$AirtimeTransactionFromJson(data as Map<String, dynamic>);
+  AirtimeTransaction({
+    required this.batchId,
+    required this.historyId,
+    required this.request,
+    this.username,
+    this.institutionAirtime,
+    this.historyType,
+    this.creationTimeStamp
+  });
+
+  factory AirtimeTransaction.fromJson(Object? data) {
+    final mapData = data as Map<String, dynamic>;
+    if(mapData["institutionAirtime"] != null){
+      mapData["batch_id"] = mapData["institutionAirtime"]["id"];
+      mapData["creationTimeStamp"] = mapData["institutionAirtime"]["creationTimeStamp"];
+    }
+    mapData["history_id"] = mapData["request"]["id"];
+    final transaction = _$AirtimeTransactionFromJson(mapData);
+    return transaction;
+  }
   Map<String, dynamic> toJson() => _$AirtimeTransactionToJson(this);
-
 
 
   @override
   double getAmount() {
-    // TODO: implement getAmount
-    throw UnimplementedError();
+    return (request?.minorAmount ?? 0) / 100;
   }
 
   @override
   String getBatchKey() {
-    // TODO: implement getBatchKey
-    throw UnimplementedError();
+    return institutionAirtime?.batchKey ?? "";
   }
 
   @override
   String getComment() {
-    // TODO: implement getComment
-    throw UnimplementedError();
+    return institutionAirtime?.transactionName ?? "";
   }
 
   @override
@@ -56,32 +87,27 @@ class AirtimeTransaction implements Transaction {
 
   @override
   String getDescription() {
-    // TODO: implement getDescription
-    throw UnimplementedError();
+    return request?.phoneNumber ?? "";
   }
 
   @override
   int getId() {
-    // TODO: implement getId
-    throw UnimplementedError();
+    return institutionAirtime?.id ?? 0;
   }
 
   @override
   int getInitiatedDate() {
-    // TODO: implement getInitiatedDate
-    throw UnimplementedError();
+    return 0;
   }
 
   @override
   String getInitiatorName() {
-    // TODO: implement getInitiatorName
-    throw UnimplementedError();
+    return "";
   }
 
   @override
   int getListItemType() {
-    // TODO: implement getListItemType
-    throw UnimplementedError();
+    return ListItem.TYPE_GENERAL;
   }
 
   @override
@@ -104,32 +130,27 @@ class AirtimeTransaction implements Transaction {
 
   @override
   String getSinkAccountName() {
-    // TODO: implement getSinkAccountName
-    throw UnimplementedError();
+    return request?.phoneNumber ?? "";
   }
 
   @override
   String getSinkAccountNumber() {
-    // TODO: implement getSinkAccountNumber
-    throw UnimplementedError();
+    return "";
   }
 
   @override
   String getSourceAccountBank() {
-    // TODO: implement getSourceAccountBank
-    throw UnimplementedError();
+    return "";
   }
 
   @override
   String getSourceAccountNumber() {
-    // TODO: implement getSourceAccountNumber
-    throw UnimplementedError();
+    return institutionAirtime?.sourceAccountNumber ?? "";
   }
 
   @override
   num getTransactionDate() {
-    // TODO: implement getTransactionDate
-    throw UnimplementedError();
+    return institutionAirtime?.creationTimeStamp ?? 0;
   }
 
   @override

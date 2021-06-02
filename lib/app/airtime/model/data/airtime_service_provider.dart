@@ -3,7 +3,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'airtime_service_provider.g.dart';
 
-@Entity(tableName: "airtime_service_providers", primaryKeys: ["code"])
+@Entity(tableName: "service_providers", primaryKeys: ["code"])
 @JsonSerializable()
 class AirtimeServiceProvider {
   @JsonKey(name: "code")
@@ -23,6 +23,9 @@ class AirtimeServiceProvider {
 
   @JsonKey(name: "svgImage")
   final String? svgImage;
+
+  @ignore
+  bool? isSelected;
 
   AirtimeServiceProvider({required this.code,
       this.name,

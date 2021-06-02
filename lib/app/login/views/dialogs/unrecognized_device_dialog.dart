@@ -53,7 +53,7 @@ class UnRecognizedDeviceDialog extends StatelessWidget {
                           onClick: () async {
                             final r = await Navigator.of(context).pushNamed(Routes.ACCOUNT_RECOVERY, arguments: RecoveryMode.DEVICE);
                             _callback.call();
-                            },
+                          },
                           text: 'Register Device',
                           buttonStyle: Styles.whiteButtonStyle.copyWith(foregroundColor: MaterialStateProperty.all(Colors.solidYellow))
                       )),

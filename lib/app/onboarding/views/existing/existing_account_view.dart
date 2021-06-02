@@ -46,6 +46,7 @@ class ExistingAccountView extends StatelessWidget {
           onWillPop: _onBackPressed,
           child: Scaffold(
             key: _scaffoldKey,
+            resizeToAvoidBottomInset: false,
             appBar: AppBar(
                 elevation: 0,
                 backgroundColor: Colors.backgroundWhite,

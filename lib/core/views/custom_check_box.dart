@@ -6,26 +6,22 @@ import 'package:meta/meta.dart';
 import '../colors.dart';
 
 class CustomCheckBox extends StatefulWidget {
-  const CustomCheckBox(this.icon,this.label,
+  const CustomCheckBox(
       {Key? key,
         required this.onSelect,
         required this.isSelected,
-        this.selectedBackgroundColor,
-        this.notSelectedBackgroundColor,
-        this.selectedTextColor,
-        this.notSelectedTextColor,
         this.height,
         this.width,
+        this.selectedStateImageRes
       }) : super(key: key);
 
-  final IconData icon;
-  final String label;
   final ValueChanged<bool> onSelect;
   final bool isSelected;
-  final Color? selectedBackgroundColor;
-  final Color? selectedTextColor;
-  final Color? notSelectedBackgroundColor;
-  final Color? notSelectedTextColor;
+  final String? selectedStateImageRes;
+  // final Color? selectedBackgroundColor;
+  // final Color? selectedTextColor;
+  // final Color? notSelectedBackgroundColor;
+  // final Color? notSelectedTextColor;
   final double? height;
   final double? width;
 
@@ -34,33 +30,37 @@ class CustomCheckBox extends StatefulWidget {
 }
 
 class _CustomCheckBoxState extends State<CustomCheckBox> {
-
   Widget selectedState() {
     return Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: (widget.isSelected)
-                ? null
-                : Border.all(color: Colors.colorFaded, width: 1,  style: BorderStyle.solid),
-        ),
-        child: Center(
-          child: (widget.isSelected)
-              ? SvgPicture.asset('res/drawables/ic_circular_check_mark.svg', color: Colors.primaryColor, width: 44, height: 44,)
-              : null,
-        ),
+      width: double.infinity,
+      height: double.infinity,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: (widget.isSelected)
+            ? null
+            : Border.all(
+                color: Colors.colorFaded, width: 1, style: BorderStyle.solid),
+      ),
+      child: Center(
+        child: (widget.isSelected)
+            ? SvgPicture.asset(
+                widget.selectedStateImageRes ?? 'res/drawables/ic_circular_check_mark.svg',
+                color: Colors.primaryColor,
+                width: widget.width ?? 44,
+                height: widget.height ?? 44,
+              )
+            : null,
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData _theme = Theme.of(context);
     return ClipRRect(
       borderRadius: BorderRadius.all(Radius.circular(100)),
       child: SizedBox(
-        width: widget.width ?? 44,
-        height: widget.height ?? 44,
+        width: widget.width ?? 40,
+        height: widget.height ?? 40,
         child: TextButton(
           onPressed: () {
             widget.onSelect(true);

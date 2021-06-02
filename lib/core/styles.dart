@@ -35,7 +35,7 @@ class Styles {
   static final ButtonStyle whiteButtonStyle = ButtonStyle(
       textStyle: MaterialStateProperty.all(TextStyle(
           color: Colors.primaryColor,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.bold,
           fontSize: 16,
           fontFamily: Styles.defaultFont)),
       foregroundColor: MaterialStateProperty.all(Colors.primaryColor),
@@ -108,11 +108,11 @@ class Styles {
       {required VoidCallback? onClick,
       required String text,
       Color? textColor,
-      double? paddingStart,
-      double? paddingTop,
-      double? paddingBottom,
-      double? paddingEnd,
-      double? padding,
+      double? paddingStart = 20,
+      double? paddingTop = 16,
+      double? paddingBottom = 16,
+      double? paddingEnd = 20,
+      double? padding = 18,
       ButtonStyle? buttonStyle,
       double? elevation,
       double? borderRadius,
@@ -128,10 +128,10 @@ class Styles {
         paddingTop != null) {
       mButtonStyle = mButtonStyle.copyWith(
         padding: MaterialStateProperty.all(EdgeInsets.only(
-            left: paddingStart ?? 0,
-            top: paddingTop ?? 0,
-            right: paddingEnd ?? 0,
-            bottom: paddingBottom ?? 0)),
+            left: paddingStart ?? 20,
+            top: paddingTop ?? 20,
+            right: paddingEnd ?? 20,
+            bottom: paddingBottom ?? 20)),
       );
     }
     if (elevation != null) {
@@ -173,6 +173,8 @@ class Styles {
     int? maxLines = 1,
     int? minLines,
     String? value,
+    Color? textColor,
+    TextInputAction? textInputAction
   }) {
     String? labelText = (animateHint) ? hint : null;
 
@@ -187,12 +189,13 @@ class Styles {
       onChanged: onChanged,
       onTap: onClick,
       enableInteractiveSelection: enabled,
+      textInputAction: textInputAction,
       focusNode: (!enabled) ? AlwaysDisabledFocusNode() : null,
       // focusNode: mFocusNode,
       style: TextStyle(
           fontFamily: Styles.defaultFont,
           fontSize: fontSize ?? 16,
-          color: Colors.textColorBlack
+          color: textColor ?? Colors.textColorPrimary
       ),
       keyboardType: inputType,
       obscureText: isPassword,
@@ -221,29 +224,45 @@ class Styles {
           suffixIcon: (endIcon == null) ? null : endIcon,
           enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
-              borderSide: BorderSide(color: Colors.colorFaded, width: 0.6)
+              borderSide: BorderSide(color: Colors.colorFaded, width: 0.8)
           ),
           focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
-              borderSide: BorderSide(color: Colors.primaryColor, width: 1.4)
+              borderSide: BorderSide(color: Colors.primaryColor, width: 1.8)
           ),
           border: OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
               borderSide: BorderSide(color: Colors.colorFaded, width: 1.5)
-          )
+          ),
       ),
     );
   }
 
   /// Default Image Button
   static Widget imageButton({
-    String? srcCompat, String? src, double? width, double? height,
-    VoidCallback? onClick
+    required Widget image,
+    VoidCallback? onClick,
+    BorderRadius? borderRadius,
+    Color? color,
+    Color? disabledColor,
+    EdgeInsets? padding
   }){
-    assert(srcCompat != null || src != null);
-    return GestureDetector(
-      onTap: onClick,
-      child: (srcCompat != null) ? SvgPicture.asset(srcCompat, height: height, width: width) : Image.asset(src!),
+    return Container(
+      decoration: BoxDecoration(
+        color: (onClick != null) ? color ?? Colors.primaryColor : disabledColor ?? Colors.deepGrey.withOpacity(0.5),
+        borderRadius: borderRadius ??  BorderRadius.all(Radius.circular(4)),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onClick,
+          borderRadius: borderRadius ??  BorderRadius.all(Radius.circular(4)),
+          child: Container(
+            padding: padding ?? EdgeInsets.all(18.5),
+            child: image,
+          ),
+        ),
+      ),
     );
   }
 
@@ -251,7 +270,13 @@ class Styles {
   static Widget buildDropDown<T extends DropDownItem>(
       List<T> items,
       AsyncSnapshot<T?> snapShot,
-      OnItemClickListener<T?, int> valueChanged, {String? hint, Color? fillColor = Colors.white}) {
+      OnItemClickListener<T?, int> valueChanged,
+      {
+        String? hint,
+        Color? fillColor = Colors.white,
+        TextStyle? itemStyle,
+        TextStyle? buttonStyle
+      }) {
 
     Widget errorLayout = (snapShot.hasError)
         ? Align(
@@ -284,13 +309,13 @@ class Styles {
               value: snapShot.data,
               onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
               onChanged: (v) => valueChanged.call(v, (v != null) ? items.indexOf(v) : -1),
-              style: const TextStyle(
-                  color: Colors.darkBlue,
-                  fontFamily: Styles.defaultFont,
-                  fontSize: 14
-              ),
+              style: buttonStyle ?? const TextStyle(color: Colors.darkBlue, fontFamily: Styles.defaultFont, fontSize: 14),
               items: items.map((T item) {
-                return DropdownMenuItem(value: item, child: Text(item.getTitle()));
+                print("${item.getEnabled()} ${item.getTitle()}");
+                return DropdownMenuItem(
+                    value: item,
+                    child: Text(item.getTitle(), style: itemStyle,)
+                );
               }).toList()),
         ),
         SizedBox(height: 4),
@@ -316,7 +341,7 @@ class Styles {
           child: StreamBuilder(
               stream: stream,
               builder: (BuildContext mContext, AsyncSnapshot<bool> snapshot) {
-                final enableButton = snapshot.hasData && snapshot.data == true;
+                final enableButton = (snapshot.hasData && snapshot.data == true) && !isLoading;
                 return Styles.appButton(
                     elevation: elevation,
                     onClick: enableButton ? onClick: null,
@@ -345,6 +370,7 @@ class Styles {
     ButtonStyle? buttonStyle,
     Color? textColor,
     double? elevation = 0,
+    double? padding
   }) {
     return Stack(
       children: [
@@ -355,7 +381,8 @@ class Styles {
                     onClick: isValid && !isLoading ? onClick: null,
                     text: text,
                     buttonStyle: buttonStyle,
-                    textColor: textColor
+                    textColor: textColor,
+                    padding: padding
                 )
           ),
         Positioned(

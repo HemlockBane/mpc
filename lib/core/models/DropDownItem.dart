@@ -3,4 +3,8 @@ abstract class DropDownItem {
 
   String getTitle();
 
+  bool getEnabled() {
+    return true;
+  }
+
 }

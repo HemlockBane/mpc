@@ -2,9 +2,14 @@ import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
 import 'package:moniepoint_flutter/app/transfers/viewmodels/transfer_view_model.dart';
+import 'package:moniepoint_flutter/app/transfers/views/transfer_view.dart';
 import 'package:moniepoint_flutter/core/amount_pill.dart';
+import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/constants.dart';
 import 'package:moniepoint_flutter/core/models/list_item.dart';
+import 'package:moniepoint_flutter/core/models/transaction_status.dart';
+import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/payment_view_model.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
@@ -226,9 +231,16 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
   }
 
 
+  void _displayPaymentError(String message) {
+    showModalBottomSheet(
+        backgroundColor: Colors.transparent,
+        context: widget._scaffoldKey.currentContext ?? context,
+        builder: (context) => BottomSheets.displayErrorModal(context, title: "Oops", message: message));
+  }
+
   void subscribeUiToPin() async {
     final viewModel = Provider.of<TransferViewModel>(context, listen: false);
-    dynamic? result = await showModalBottomSheet(
+    dynamic result = await showModalBottomSheet(
         context: widget._scaffoldKey.currentContext ?? context,
         isScrollControlled: true,
         backgroundColor: Colors.transparent,
@@ -236,6 +248,36 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
           value: viewModel,
           child: TransferPinDialog(),
         ));
+
+    if(result is TransactionStatus) {
+        final isSuccessful = result.operationStatus == Constants.APPROVED
+            || result.operationStatus == Constants.COMPLETED
+            || result.operationStatus == Constants.PENDING
+            || result.operationStatus == Constants.SUCCESSFUL;
+
+        if(isSuccessful) {
+          showModalBottomSheet(
+              context: widget._scaffoldKey.currentContext ?? context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              builder: (mContext) => BottomSheets.displaySuccessModal(
+                  widget._scaffoldKey.currentContext ?? mContext,
+                  title: "Transfer Successful",
+                  message: "Your transfer was successful",
+                  onClick: () {
+                    Navigator.of(widget._scaffoldKey.currentContext!).pop();
+                    Navigator.of(context)
+                        .pushNamedAndRemoveUntil(TransferScreen.BENEFICIARY_SCREEN, (route) => false);
+                  }
+              )
+          );
+        } else {
+          _displayPaymentError(result.message ?? "Unable to complete transaction at this time. Please try again later.");
+        }
+
+    } else if(result is Error<TransactionStatus>) {
+      _displayPaymentError(result.message ?? "");
+    }
   }
 
   @override
@@ -243,59 +285,64 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
     super.build(context);
     final viewModel = Provider.of<TransferViewModel>(context, listen: false);
 
-    return ScrollView(
-      child: Container(
-        padding: EdgeInsets.only(top: 37, left: 16, right: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            makeLabel('Transfer Recipient'),
-            SizedBox(height: 8,),
-            transferRecipient(viewModel),
-            SizedBox(height: 24,),
-            makeLabel('Transfer From'),
-            SizedBox(height: 8,),
-            transferSource(viewModel),
-            SizedBox(height: 24,),
-            makeLabel('How much would you like to send ? '),
-            SizedBox(height: 8,),
-            amountWidget(),
-            SizedBox(height: 16,),
-            Expanded(flex:0,child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: generateAmountPillsWidget()
-            )),
-            SizedBox(height: 24,),
-            makeLabel('Enter Narration'),
-            SizedBox(height: 8,),
-            Expanded(
-                flex: 1,
-                child: Styles.appEditText(
+    return Scaffold(
+      resizeToAvoidBottomInset: true,
+      body: ScrollView(
+        child: Container(
+          color: Colors.backgroundWhite,
+          padding: EdgeInsets.only(top: 37, left: 16, right: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              makeLabel('Transfer Recipient'),
+              SizedBox(height: 8,),
+              transferRecipient(viewModel),
+              SizedBox(height: 24,),
+              makeLabel('Transfer From'),
+              SizedBox(height: 8,),
+              transferSource(viewModel),
+              SizedBox(height: 24,),
+              makeLabel('How much would you like to send ? '),
+              SizedBox(height: 8,),
+              amountWidget(),
+              SizedBox(height: 16,),
+              Expanded(flex:0,child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: generateAmountPillsWidget()
+              )),
+              SizedBox(height: 24,),
+              makeLabel('Enter Narration'),
+              SizedBox(height: 8,),
+              Expanded(
+                  flex: 1,
+                  child: Styles.appEditText(
                       hint: 'Not more than 50 Characters',
                       animateHint: false,
                       hintSize: 13,
+                      textInputAction: TextInputAction.done,
                       inputType: TextInputType.multiline,
                       maxLength: 50,
                       maxLines: null,
                       minLines: 3,
                       onChanged: (v) => viewModel.setNarration(v)
-                )
-            ),
-            SizedBox(height: 16,),
-            // Spacer(),
-            Expanded(
-                flex: 1,
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Styles.statefulButton(
-                      stream: viewModel.isValid,
-                      onClick: subscribeUiToPin,
-                      text: 'Continue'
-                  ),
-                )
-            ),
-            SizedBox(height: 32,),
-          ],
+                  )
+              ),
+              SizedBox(height: 16),
+              // Spacer(),
+              Expanded(
+                  flex: 1,
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Styles.statefulButton(
+                        stream: viewModel.isValid,
+                        onClick: subscribeUiToPin,
+                        text: 'Continue'
+                    ),
+                  )
+              ),
+              SizedBox(height: 32,),
+            ],
+          ),
         ),
       ),
     );

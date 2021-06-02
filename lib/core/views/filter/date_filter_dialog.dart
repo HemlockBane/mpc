@@ -84,7 +84,7 @@ class _DateFilterDialog extends State<DateFilterDialog> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                          item.title ?? "",
+                          item.title,
                           style: TextStyle(fontSize: 16, color: Colors.colorPrimaryDark,
                               fontFamily: Styles.defaultFont,
                               fontWeight: FontWeight.normal
@@ -97,7 +97,7 @@ class _DateFilterDialog extends State<DateFilterDialog> {
                   )
               ),
               SizedBox(width: 8),
-              CustomCheckBox(CustomFont.question_mark, 'label',  onSelect: (bool a) {
+              CustomCheckBox(onSelect: (bool a) {
                 itemClickListener.call(item, position);
               }, isSelected: item.isSelected == true),
               SizedBox(width: 8),
@@ -120,7 +120,7 @@ class _DateFilterDialog extends State<DateFilterDialog> {
       centerImageWidth: 18,
       centerBackgroundHeight: 74,
       centerBackgroundWidth: 74,
-      centerBackgroundPadding: 25,
+      centerBackgroundPadding: 20,
       content: Container(
             padding: EdgeInsets.only(bottom: 36),
             child: Column(
@@ -241,9 +241,9 @@ class _DateFilterItem {
   final int endDate;
   bool isSelected = false;
 
-  _DateFilterItem(this.title,
+  _DateFilterItem(
+      this.title,
       this.dateString,
       this.startDate,
-      this.endDate,
-      { this.isSelected = false});
+      this.endDate, { this.isSelected = false});
 }

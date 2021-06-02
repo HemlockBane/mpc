@@ -26,6 +26,9 @@ class TransactionStatus {
   @JsonKey(name:"customerBillId")
   final int? customerBillId;
 
+  @JsonKey(name:"message")
+  final String? message;
+
   TransactionStatus({
     this.workflowStatus,
     this.operationStatus,
@@ -33,7 +36,8 @@ class TransactionStatus {
     this.transferBatchId,
     this.customerAirtimeId,
     this.customerDataTopUpId,
-    this.customerBillId
+    this.customerBillId,
+    this.message
   });
 
   factory TransactionStatus.fromJson(Object? data) => _$TransactionStatusFromJson(data as Map<String, dynamic>);

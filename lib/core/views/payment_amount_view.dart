@@ -46,7 +46,7 @@ class _PaymentAmountView extends State<PaymentAmountView> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        SvgPicture.asset('res/drawables/ic_naira.svg', width: 30, height: 30,),
+        SvgPicture.asset('res/drawables/ic_naira.svg', width: 30, height: 30, color: (widget.isAmountFixed == true) ? Colors.deepGrey : null,),
         SizedBox(width: 8),
         Expanded(
             child: TextFormField(
@@ -54,6 +54,7 @@ class _PaymentAmountView extends State<PaymentAmountView> {
               cursorColor: Colors.darkBlue,
               cursorRadius: Radius.circular(28),
               maxLines: 1,
+              enabled: widget.isAmountFixed != true,
               onChanged: (v) => widget._valueChanged.call(int.parse(MoneyInputFormatter.clearCurrencyToNumberString(v))),
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
@@ -62,11 +63,12 @@ class _PaymentAmountView extends State<PaymentAmountView> {
               style: TextStyle(
                   fontFamily: Styles.defaultFont,
                   fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                  color: Colors.solidDarkBlue
+                  fontWeight: FontWeight.bold,
+                  color: (widget.isAmountFixed == true) ? Colors.deepGrey :Colors.solidDarkBlue
               ),
               decoration: InputDecoration(
                   isCollapsed: true,
+                  disabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.transparent)),
                   enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.transparent)),
                   focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.transparent)),
                   border: OutlineInputBorder(borderSide: BorderSide(color: Colors.transparent))

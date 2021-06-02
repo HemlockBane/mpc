@@ -11,7 +11,7 @@ part 'airtime_purchase_request_body.g.dart';
 class AirtimePurchaseRequestBody {
 
   @JsonKey(name:"paymentType")
-  PaymentType? paymentType;
+  PaymentType paymentType = PaymentType.ONE_TIME;
   
   @JsonKey(name:"sourceAccountProviderCode")
   String? sourceAccountProviderCode;
@@ -51,6 +51,7 @@ class AirtimePurchaseRequestBody {
 
   AirtimePurchaseRequestBody();
 
+  factory AirtimePurchaseRequestBody.fromJson(Object? data) => _$AirtimePurchaseRequestBodyFromJson(data as Map<String, dynamic>);
   Map<String, dynamic> toJson() => _$AirtimePurchaseRequestBodyToJson(this);
 
   AirtimePurchaseRequestBody withSourceAccountProviderCode(String sourceAccountProviderCode) {

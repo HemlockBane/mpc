@@ -37,8 +37,9 @@ class _AccountEnquiryDialog extends State<AccountEnquiryDialog> {
       height: double.infinity,
       child: Center(
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(height: 50),
+            // SizedBox(height: 50),
             SizedBox(
               height: 25,
               width: 25,

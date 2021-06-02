@@ -28,11 +28,11 @@ mixin NetworkResource {
     bool Function(K?)? shouldFetchFromRemote,
     bool shouldFetchLocal = false,
     required Future<ServiceResult<K>?> Function() fetchFromRemote,
-    Function(Success<ServiceResult<K>> response)? processRemoteResponse,
+    K? Function(Success<ServiceResult<K>> response)? processRemoteResponse,
     Future Function(K)? saveRemoteData,
   }) async* {
     shouldFetchFromRemote ??= (T) => true;
-    processRemoteResponse ??= (T) => {};
+    processRemoteResponse ??= (T) => null;
 
     //We first declare that we are loading the state
     if(shouldFetchLocal) yield Resource.loading(null);
@@ -53,6 +53,7 @@ mixin NetworkResource {
       // final localStream = fetchFromLocal();
       await for (var value in fetchFromLocal()) {
         localData = value;
+        print(localData);
         yield Resource.loading(localData);
         break;
       }
@@ -70,11 +71,14 @@ mixin NetworkResource {
 
         if(response.errors == null || response.errors?.isEmpty == true) {
           response.success = true;
-          processRemoteResponse(Resource.success(response) as Success<ServiceResult<K>>);
+          K? result = processRemoteResponse(Resource.success(response) as Success<ServiceResult<K>>);
+          if((result != null || response.result != null) && saveRemoteData != null) {
+            await saveRemoteData(result ?? response.result!);
+          }
           if(shouldFetchLocal) {
             await for (final value in fetchFromLocal()) yield Resource.success(value);
           }
-          else yield Resource.success(response.result);
+          else yield Resource.success(result ?? response.result);
         } else {
           //TODO
         }

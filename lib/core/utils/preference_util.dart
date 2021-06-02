@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class PreferenceUtil {
   static const String LOGGED_IN_USER_KEY = "logged_in_user";
   static const String LOGGED_IN_USER_NAME = "logged_in_user_name";
+  static const String HIDE_ACCOUNT_BAL = "hide_account_balance";
   static SharedPreferences? _preferences;
 
   PreferenceUtil.init() {

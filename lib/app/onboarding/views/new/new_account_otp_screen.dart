@@ -98,8 +98,8 @@ class _NewAccountOTPScreen extends State<NewAccountOTPScreen> {
             Text(
               'Enter 6-Digit Code',
               style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.darkBlue,
+                fontWeight: FontWeight.w600,
+                color: Colors.colorPrimaryDark,
                 fontSize: 21,
               ),
               textAlign: TextAlign.start,

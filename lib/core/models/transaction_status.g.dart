@@ -15,6 +15,7 @@ TransactionStatus _$TransactionStatusFromJson(Map<String, dynamic> json) {
     customerAirtimeId: json['customerAirtimeId'] as int?,
     customerDataTopUpId: json['customerDataTopUpId'] as int?,
     customerBillId: json['customerBillId'] as int?,
+    message: json['message'] as String?,
   );
 }
 
@@ -27,4 +28,5 @@ Map<String, dynamic> _$TransactionStatusToJson(TransactionStatus instance) =>
       'customerAirtimeId': instance.customerAirtimeId,
       'customerDataTopUpId': instance.customerDataTopUpId,
       'customerBillId': instance.customerBillId,
+      'message': instance.message,
     };

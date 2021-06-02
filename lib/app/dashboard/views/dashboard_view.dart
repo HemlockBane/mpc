@@ -136,6 +136,15 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
       drawerScrimColor: Colors.transparent,
       drawer: Drawer(
         elevation: 0,
+        child: Column(
+          children: [
+            SizedBox(height: 100,),
+            ListTile(
+              title: Text('Settings'),
+              onTap: () => Navigator.of(context).pushNamed(Routes.SETTINGS),
+            )
+          ],
+        ),
       ),
       body: Container(
         width: double.infinity,
@@ -165,7 +174,7 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
                         borderRadius: BorderRadius.circular(16),
                         child: InkWell(
                             customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            onTap: () => null,
+                            onTap: () => Navigator.of(context).pushNamed(Routes.ACCOUNT_TRANSACTIONS).then((_) => subscribeUiToAccountStatus()),
                             child: DashboardContainerView(viewModel)
                         ),
                       ),

@@ -18,9 +18,9 @@ class BeneficiaryListItem extends Container {
 
   Widget initialView() {
     return Container(
-      width: 40,
-      height: 40,
-      padding: EdgeInsets.all(8),
+      width: 38,
+      height: 38,
+      padding: EdgeInsets.all(0),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: Colors.darkBlue.withOpacity(0.1)
@@ -28,7 +28,7 @@ class BeneficiaryListItem extends Container {
       child: Center(
         child: Text(
           _beneficiary.getAccountName().abbreviate(2, true),
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.darkBlue, fontSize: 14)
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.darkBlue, fontSize: 13)
         ),
       ),
     );
@@ -44,7 +44,7 @@ class BeneficiaryListItem extends Container {
         child: Row(
           children: [
             initialView(),
-            SizedBox(width: 8),
+            SizedBox(width: 16),
             Expanded(
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,11 +56,11 @@ class BeneficiaryListItem extends Container {
                       SizedBox(height: 2),
                       Text(
                           "${_beneficiary.getBeneficiaryProviderName()} - ${_beneficiary.getBeneficiaryDigits()}",
-                          style: TextStyle(fontSize: 12, color: Colors.deepGrey, fontWeight: FontWeight.w500)
+                          style: TextStyle(fontSize: 12, color: Colors.deepGrey, fontWeight: FontWeight.normal, fontFamily: Styles.defaultFont)
                       ).colorText({"${_beneficiary.getBeneficiaryDigits()}": Tuple(Colors.deepGrey, null)}, underline: false)
                     ]
                 )),
-            SvgPicture.asset('res/drawables/ic_forward_anchor.svg', width: 13.5, height: 13.5,),
+            SvgPicture.asset('res/drawables/ic_forward_anchor.svg', width: 13.5, height: 13.5, color: Colors.darkBlue.withOpacity(0.3),),
             SizedBox(width: 2),
           ],
         ),

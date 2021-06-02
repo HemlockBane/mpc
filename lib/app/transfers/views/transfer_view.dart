@@ -37,6 +37,7 @@ class _TransferScreen extends State<TransferScreen> {
       child: DefaultTabController(
         length: 2,
         child: Scaffold(
+          resizeToAvoidBottomInset: false,
           key: widget._scaffoldKey,
           backgroundColor: Colors.backgroundWhite,
           appBar: AppBar(
@@ -63,7 +64,7 @@ class _TransferScreen extends State<TransferScreen> {
                         borderRadius: BorderRadius.circular(50),
                         color: Colors.primaryColor
                     ),
-                    unselectedLabelColor: Colors.tabTextColor,
+                    unselectedLabelColor: Color(0XFF8030424C),
                     tabs: [
                       Tab(
                         text: "Transfer",
@@ -73,7 +74,8 @@ class _TransferScreen extends State<TransferScreen> {
                       )
                     ],
                   ),
-                  Colors.tabBackground.withOpacity(0.16)),
+                  Colors.tabBackground.withOpacity(0.16)
+              ),
               Expanded(
                   child: TabBarView(
                       children: [

@@ -13,6 +13,7 @@ class TransactionTab extends Container implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) => Container(
     margin: EdgeInsets.only(right: 16, left: 16),
+    height: 40,
     decoration: BoxDecoration(
       color: _color,
       borderRadius: BorderRadius.circular(50)

@@ -37,4 +37,15 @@ abstract class TransferBeneficiaryService {
   @GET("")
   Future<ServiceResult<List<TransferBeneficiary>>> getFrequentBeneficiaries();
 
+  @Headers(<String, dynamic>{
+    "Content-Type": "application/json",
+    "client-id": BuildConfig.CLIENT_ID,
+    "appVersion": BuildConfig.APP_VERSION
+  })
+  @POST("delete")
+  Future<ServiceResult<bool>> deleteBeneficiary(
+    @Query("id") int id,
+    @Query("customerId") int customerId,
+    @Query("pin") int pin,
+  );
 }

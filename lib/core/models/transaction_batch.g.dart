@@ -44,7 +44,7 @@ TransactionBatch _$TransactionBatchFromJson(Map<String, dynamic> json) {
     completedOn:
         (json['completedOn'] as List<dynamic>?)?.map((e) => e as int).toList(),
     tracked: json['tracked'] as bool?,
-    rechargeDate: json['rechargeDate'] as String?,
+    rechargeDate: json['rechargeDate'] as int?,
     creationTimeStamp: json['creationTimeStamp'] as int?,
     token: json['token'] as String?,
   );

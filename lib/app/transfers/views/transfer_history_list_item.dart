@@ -22,7 +22,7 @@ class TransferHistoryListItem extends Container {
       padding: EdgeInsets.all(5),
       decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: Colors.darkBlue.withOpacity(0.1)
+          color: Colors.darkBlue.withOpacity(0.09)
       ),
       child: Center(
         child: SvgPicture.asset('res/drawables/ic_list_transaction_time.svg', width: 19, height: 19,),

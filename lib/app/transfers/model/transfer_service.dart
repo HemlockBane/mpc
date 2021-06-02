@@ -2,10 +2,10 @@ import 'package:dio/dio.dart' hide Headers;
 import 'package:moniepoint_flutter/app/transfers/model/data/fee_vat.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/fee_vat_config.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/single_transfer_transaction.dart';
-import 'package:moniepoint_flutter/app/transfers/model/data/transfer_history_request_body.dart';
 import 'package:moniepoint_flutter/core/config/build_config.dart';
 import 'package:moniepoint_flutter/core/config/service_config.dart';
 import 'package:moniepoint_flutter/core/models/data_collection.dart';
+import 'package:moniepoint_flutter/core/models/history_request_body.dart';
 import 'package:moniepoint_flutter/core/models/transaction_status.dart';
 import 'package:moniepoint_flutter/core/network/service_result.dart';
 import 'package:retrofit/retrofit.dart';
@@ -72,7 +72,7 @@ abstract class TransferService {
   @PUT("{customerId}")
   Future<ServiceResult<TransferHistoryCollection>> getSingleTransferHistory(
     @Path("customerId") String customerId,
-    @Body() TransferHistoryRequestBody? requestBody
+    @Body() HistoryRequestBody? requestBody
   );
 //
 //   @Headers(

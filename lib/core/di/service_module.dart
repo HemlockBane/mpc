@@ -3,14 +3,32 @@ import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moniepoint_flutter/app/accounts/model/account_service.dart';
 import 'package:moniepoint_flutter/app/accounts/model/account_service_delegate.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/transaction_dao.dart';
+import 'package:moniepoint_flutter/app/accounts/model/transaction_service.dart';
+import 'package:moniepoint_flutter/app/accounts/model/transaction_service_delegate.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/customer_service.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/customer_service_delegate.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/data/nationality_dao.dart';
+import 'package:moniepoint_flutter/app/airtime/model/airtime_service.dart';
+import 'package:moniepoint_flutter/app/airtime/model/airtime_service_delegate.dart';
+import 'package:moniepoint_flutter/app/airtime/model/data/airtime_dao.dart';
+import 'package:moniepoint_flutter/app/airtime/model/data/airtime_service_provider_dao.dart';
+import 'package:moniepoint_flutter/app/airtime/model/data/airtime_service_provider_item_dao.dart';
+import 'package:moniepoint_flutter/app/airtime/model/data_top_up_service.dart';
+import 'package:moniepoint_flutter/app/billpayments/model/bill_service.dart';
+import 'package:moniepoint_flutter/app/billpayments/model/bill_service_delegate.dart';
+import 'package:moniepoint_flutter/app/billpayments/model/data/bill_dao.dart';
 import 'package:moniepoint_flutter/app/institutions/institution_dao.dart';
 import 'package:moniepoint_flutter/app/institutions/institution_repository.dart';
 import 'package:moniepoint_flutter/app/institutions/institution_service.dart';
 import 'package:moniepoint_flutter/app/login/model/login_service.dart';
 import 'package:moniepoint_flutter/app/login/model/login_service_delegate.dart';
+import 'package:moniepoint_flutter/app/managebeneficiaries/airtime/model/airtime_beneficiary_delegate.dart';
+import 'package:moniepoint_flutter/app/managebeneficiaries/airtime/model/airtime_beneficiary_service.dart';
+import 'package:moniepoint_flutter/app/managebeneficiaries/airtime/model/data/airtime_beneficiary_dao.dart';
+import 'package:moniepoint_flutter/app/managebeneficiaries/bills/model/bill_beneficiary_service.dart';
+import 'package:moniepoint_flutter/app/managebeneficiaries/bills/model/data/bill_beneficiary_dao.dart';
+import 'package:moniepoint_flutter/app/managebeneficiaries/bills/model/data/bill_beneficiary_delegate.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary_dao.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/transfer_beneficiary_delegate.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/transfer_beneficiary_service.dart';
@@ -32,6 +50,8 @@ import 'package:moniepoint_flutter/app/validation/model/validation_service_deleg
 import 'package:moniepoint_flutter/core/device_manager.dart';
 import 'package:moniepoint_flutter/core/models/services/location_service.dart';
 import 'package:moniepoint_flutter/core/models/services/location_service_delegate.dart';
+import 'package:moniepoint_flutter/core/models/services/system_configuration_service.dart';
+import 'package:moniepoint_flutter/core/models/services/system_configuration_service_delegate.dart';
 import 'package:moniepoint_flutter/core/network/auth_interceptor.dart';
 import 'package:moniepoint_flutter/core/network/http_logging_interceptor.dart';
 
@@ -110,6 +130,58 @@ class ServiceModule {
       return TransferBeneficiaryServiceDelegate(
           TransferBeneficiaryService(dio),
           GetIt.I<TransferBeneficiaryDao>(),
+      );
+    });
+
+    /// Airtime Service Delegate checks
+    GetIt.I.registerLazySingleton<AirtimeServiceDelegate>(() {
+      return AirtimeServiceDelegate(
+        AirtimeService(dio),
+        DataTopUpService(dio),
+        GetIt.I<AirtimeDao>(),
+        GetIt.I<AirtimeServiceProviderDao>(),
+        GetIt.I<AirtimeServiceProviderItemDao>(),
+      );
+    });
+
+    /// Airtime Beneficiary checks
+    GetIt.I.registerLazySingleton<AirtimeBeneficiaryServiceDelegate>(() {
+      return AirtimeBeneficiaryServiceDelegate(
+        AirtimeBeneficiaryService(dio),
+        GetIt.I<AirtimeBeneficiaryDao>(),
+      );
+    });
+
+    /// Bill Service Delegate checks
+    GetIt.I.registerLazySingleton<BillServiceDelegate>(() {
+      return BillServiceDelegate(
+        BillService(dio),
+        GetIt.I<BillsDao>(),
+        GetIt.I<BillerDao>(),
+        GetIt.I<BillerCategoryDao>(),
+        GetIt.I<BillerProductDao>(),
+      );
+    });
+
+    GetIt.I.registerLazySingleton<BillBeneficiaryServiceDelegate>(() {
+      return BillBeneficiaryServiceDelegate(
+        BillBeneficiaryService(dio),
+        GetIt.I<BillBeneficiaryDao>()
+      );
+    });
+
+    /// Transaction Service Delegate checks
+    GetIt.I.registerLazySingleton<TransactionServiceDelegate>(() {
+      return TransactionServiceDelegate(
+        TransactionService(dio),
+        GetIt.I<TransactionDao>(),
+      );
+    });
+
+    /// Transaction Service Delegate checks
+    GetIt.I.registerLazySingleton<SystemConfigurationServiceDelegate>(() {
+      return SystemConfigurationServiceDelegate(
+        SystemConfigurationService(dio)
       );
     });
 

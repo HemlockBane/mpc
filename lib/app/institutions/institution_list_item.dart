@@ -59,7 +59,7 @@ class _InstitutionItem extends State<InstitutionListItem> {
                     ))
             ),
             SizedBox(width: 8),
-            CustomCheckBox(CustomFont.question_mark, 'label',  onSelect: (bool a) {
+            CustomCheckBox(onSelect: (bool a) {
               _onSelected();
             }, isSelected: widget._provider.isSelected == true),
             SizedBox(width: 8),

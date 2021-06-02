@@ -8,7 +8,6 @@ part of 'airtime_history_item.dart';
 
 AirtimeHistoryItem _$AirtimeHistoryItemFromJson(Map<String, dynamic> json) {
   return AirtimeHistoryItem()
-    ..id = json['id'] as int?
     ..transactionBatchId = json['transactionBatchId'] as int?
     ..minorAmount = (json['minorAmount'] as num?)?.toDouble()
     ..status = json['status'] as String?
@@ -18,6 +17,7 @@ AirtimeHistoryItem _$AirtimeHistoryItemFromJson(Map<String, dynamic> json) {
     ..channel = json['channel'] as String?
     ..responseCode = json['responseCode'] as String?
     ..comment = json['comment'] as String?
+    ..id = json['id'] as int?
     ..serviceProvider = json['serviceProvider'] == null
         ? null
         : AirtimeServiceProvider.fromJson(json['serviceProvider'] as Object)
@@ -26,7 +26,6 @@ AirtimeHistoryItem _$AirtimeHistoryItemFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$AirtimeHistoryItemToJson(AirtimeHistoryItem instance) =>
     <String, dynamic>{
-      'id': instance.id,
       'transactionBatchId': instance.transactionBatchId,
       'minorAmount': instance.minorAmount,
       'status': instance.status,
@@ -35,6 +34,7 @@ Map<String, dynamic> _$AirtimeHistoryItemToJson(AirtimeHistoryItem instance) =>
       'channel': instance.channel,
       'responseCode': instance.responseCode,
       'comment': instance.comment,
+      'id': instance.id,
       'serviceProvider': instance.serviceProvider,
       'phoneNumber': instance.phoneNumber,
     };

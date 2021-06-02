@@ -73,6 +73,9 @@ class _PinEntryState extends State<PinEntry> {
     setState(() {
       this._pin = pin;
     });
+    if(_pin.length >= _numEntries) {
+      FocusManager.instance.primaryFocus?.unfocus();
+    }
     onChange?.call(pin);
   }
 

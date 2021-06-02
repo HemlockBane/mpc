@@ -1,11 +1,10 @@
-
 import 'package:moniepoint_flutter/app/transfers/model/data/fee_vat_config.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/fee_vat_config_dao.dart';
-import 'package:moniepoint_flutter/app/transfers/model/data/transfer_history_request_body.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/transfer_request_body.dart';
 import 'package:moniepoint_flutter/app/transfers/model/transfer_service.dart';
 import 'package:moniepoint_flutter/core/models/data_collection.dart';
 import 'package:moniepoint_flutter/core/models/filter_results.dart';
+import 'package:moniepoint_flutter/core/models/history_request_body.dart';
 import 'package:moniepoint_flutter/core/models/transaction_status.dart';
 import 'package:moniepoint_flutter/core/network/network_bound_resource.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -16,6 +15,7 @@ import 'package:moniepoint_flutter/core/paging/paging_source.dart';
 
 import 'data/single_transfer_transaction.dart';
 import 'data/transfer_dao.dart';
+import 'package:collection/collection.dart';
 
 class TransferServiceDelegate with NetworkResource {
   late final TransferService _service;
@@ -23,7 +23,6 @@ class TransferServiceDelegate with NetworkResource {
   late final TransferDao _transferDao;
 
   late final _TransferMediator remoteMediator;
-
 
   TransferServiceDelegate(
       TransferService service,
@@ -34,7 +33,10 @@ class TransferServiceDelegate with NetworkResource {
     this._feeVatConfigDao = feeVatConfigDao;
 
     remoteMediator = _TransferMediator(_service, _transferDao);
+  }
 
+  Future<SingleTransferTransaction?> getSingleTransactionById(int id) {
+    return _transferDao.getSingleTransferTransactionById(id);
   }
 
   Stream<Resource<FeeVatConfig>> getAllFeeAndVatConfigByType () {
@@ -55,12 +57,14 @@ class TransferServiceDelegate with NetworkResource {
     );
   }
 
-
   PagingSource<int, SingleTransferTransaction> getTransferHistory(int customerId, FilterResults filterResult) {
     return PagingSource(
-        localSource: () => _transferDao.getSingleTransferTransactions(
-            filterResult.startDate, filterResult.endDate
-        ).map((event) => Page(event, null, null)),
+        localSource: (LoadParams params) {
+          final offset = params.key ?? 0;
+          return _transferDao.getSingleTransferTransactions(
+              filterResult.startDate, filterResult.endDate, 0, params.loadSize
+          ).map((event) => Page(event, params.key, event.length == params.loadSize ? offset + 1 : null));
+        },
         remoteMediator: remoteMediator..filterResult = filterResult..customerId = customerId
     );
   }
@@ -91,10 +95,10 @@ class _TransferMediator extends AbstractDataCollectionMediator<int, SingleTransf
   Future<ServiceResult<DataCollection<SingleTransferTransaction>>> serviceCall(page) {
     return _service.getSingleTransferHistory(
         customerId.toString(),
-        TransferHistoryRequestBody()
+        HistoryRequestBody()
           ..startDate = filterResult.startDate
           ..endDate = filterResult.endDate
-          ..page = page ?? 0
+          ..page = page
           ..pageSize = 20
     );
   }

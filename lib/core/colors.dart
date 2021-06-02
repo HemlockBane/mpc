@@ -20,11 +20,14 @@ class Colors {
   static const Color textColorBlack = const Color(0XFF1A0C2F);
   static const Color textHintColor = const Color(0XFF4A4A4A);
   static const Color textSubColor = const Color(0XFF4F4F4F);
+  static const Color textColorMainBlack = const Color(0XFF1E2E3F);
+  static const Color textColorPrimary = const Color(0XFF0B3275);
 
 
   static const Color cardBorder = const Color(0XFF063A4F);
   static const Color dividerColor = const Color(0XFF055072);
   static const Color dividerColor2 = const Color(0XFFA9A5AF);
+  static const Color dashboardDivider = const Color(0XFF135D75);
 
   static const Color grey = const Color(0XFF888888);
   static const Color deepGrey = const Color(0XFF9DA1AB);
@@ -32,6 +35,7 @@ class Colors {
   static const Color solidDarkBlue = const Color(0XFF0B3275);
   static const Color darkBlue = const Color(0XFF0A2240);
   static const Color darkLightBlue = const Color(0XFF0D2043);
+  static const Color comboDividerColor  = const Color(0XFF4D2F7FAC);
 
 
   static const Color red = const Color(0XFFE94444);

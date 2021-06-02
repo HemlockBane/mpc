@@ -20,6 +20,8 @@ class AirtimeDataRequest {
   @JsonKey(name:"metaData")
   String? metaData;
 
+  AirtimeDataRequest();
+
   AirtimeDataRequest withPhoneNumber(String phoneNumber) {
     this.phoneNumber = phoneNumber;
     return this;
@@ -35,6 +37,7 @@ class AirtimeDataRequest {
     return this;
   }
 
+  factory AirtimeDataRequest.fromJson(Object? data) => _$AirtimeDataRequestFromJson(data as Map<String, dynamic>);
   Map<String, dynamic> toJson() => _$AirtimeDataRequestToJson(this);
 
 }

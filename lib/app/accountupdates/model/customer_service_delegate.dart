@@ -16,21 +16,29 @@ class CustomerServiceDelegate with NetworkResource {
 
   Stream<Resource<List<Tier>>> getSchemes() {
     return networkBoundResource(
-        fetchFromLocal: () => Future.value(null),
+        fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => this._service.getAllOnboardingSchemes()
     );
   }
 
   Stream<Resource<AccountUpdate>> updateCustomerInfo(int customerId, AccountUpdate accountUpdate) {
     return networkBoundResource(
-        fetchFromLocal: () => Future.value(null),
+        fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => this._service.updateCustomerInfo(customerId, accountUpdate)
     );
   }
 
-  Stream<Resource<FileUUID>> uploadDocument(File file) {
+  Stream<Resource<Tier>> checkCustomerEligibility(int customerId, AccountUpdate accountUpdate) {
     return networkBoundResource(
-        fetchFromLocal: () => Future.value(null),
+        fetchFromLocal: () => Stream.value(null),
+        fetchFromRemote: () => this._service.checkCustomerEligibility(customerId, accountUpdate)
+    );
+  }
+
+  Stream<Resource<FileUUID>> uploadDocument(File file) {
+    print("Uploading the document $file");
+    return networkBoundResource(
+        fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => this._service.uploadDocument(file)
     );
   }

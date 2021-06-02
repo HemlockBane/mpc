@@ -2,6 +2,7 @@ import 'package:floor/floor.dart';
 import 'package:moniepoint_flutter/core/database/type_converters.dart';
 import 'package:moniepoint_flutter/core/models/DropDownItem.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:moniepoint_flutter/core/strings.dart';
 
 part 'drop_items.g.dart';
 
@@ -9,6 +10,13 @@ class IdentificationType extends DropDownItem {
   final String idType;
 
   const IdentificationType(this.idType);
+
+  factory IdentificationType.fromString(String? id) {
+    return identificationTypes.firstWhere(
+            (element) => element.idType == id,
+        orElse: () => identificationTypes.first
+    );
+  }
 
   @override
   String getTitle() {
@@ -28,6 +36,13 @@ class MaritalStatus extends DropDownItem {
   final String maritalStatus;
 
   const MaritalStatus(this.maritalStatus);
+  
+  factory MaritalStatus.fromString(String? status) {
+    return maritalStatuses.firstWhere(
+            (element) => element.maritalStatus == status,
+        orElse:() => maritalStatuses.first
+    );
+  }
 
   @override
   String getTitle() {
@@ -35,7 +50,7 @@ class MaritalStatus extends DropDownItem {
   }
 }
 
-const maritalStatus = [
+const maritalStatuses = [
   const MaritalStatus("SINGLE"),
   const MaritalStatus("MARRIED"),
   const MaritalStatus("WIDOWED"),
@@ -48,13 +63,17 @@ class Religion extends DropDownItem {
 
   const Religion(this.religion);
 
+  factory Religion.fromString(String? religion) {
+    return religions.firstWhere((element) => element.religion == religion, orElse: () => religions.first);
+  }
+
   @override
   String getTitle() {
-    return this.religion;
+    return this.religion.toLowerCase().capitalizeFirstOfEach;
   }
 }
 
-const religion = [
+const religions = [
   const Religion("Christianity"),
   const Religion("Islam"),
   const Religion("Other: please specify"),
@@ -89,7 +108,7 @@ class Nationality extends DropDownItem {
   @JsonKey(name:"timeAdded")
   final String? timeAdded;
 
-  @TypeConverters([ListConverter])
+  @TypeConverters([ListStateConverter])
   @JsonKey(name:"states")
   final List<StateOfOrigin>? states;
 
@@ -113,6 +132,11 @@ class Nationality extends DropDownItem {
   factory Nationality.fromJson(Object? data) => _$NationalityFromJson(data as Map<String, dynamic>);
   Map<String, dynamic> toJson() => _$NationalityToJson(this);
 
+  static Nationality? fromNationalityName(String? nationality, List<Nationality> nationalities) {
+    final nationalityList = nationalities.where((element) => element.nationality == nationality);
+    return (nationalityList.isNotEmpty) ? nationalityList.first : null;
+  }
+
   @override
   String getTitle() {
     return this.name;
@@ -134,6 +158,18 @@ class StateOfOrigin extends DropDownItem {
   factory StateOfOrigin.fromJson(Map<String, dynamic> data) => _$StateOfOriginFromJson(data);
   Map<String, dynamic> toJson() => _$StateOfOriginToJson(this);
 
+  factory StateOfOrigin.fromName(String? name, List<StateOfOrigin> states) {
+    return states.firstWhere((element) => element.name == name,
+        orElse: () => states.first);
+  }
+
+  static StateOfOrigin? fromLocalGovtId(int? localGovtId, List<StateOfOrigin> states) {
+    print(states.length);
+    final stateList = states.where((element) {
+      return element.localGovernmentAreas?.any((element) => element.id == localGovtId) ?? false;
+    });
+    return (stateList.isNotEmpty) ? stateList.first : null;
+  }
 
   @override
   String getTitle() {
@@ -156,6 +192,11 @@ class LocalGovernmentArea extends DropDownItem {
   factory LocalGovernmentArea.fromJson(Map<String, dynamic> data) => _$LocalGovernmentAreaFromJson(data);
   Map<String, dynamic> toJson() => _$LocalGovernmentAreaToJson(this);
 
+  static LocalGovernmentArea? fromId(int? id, List<LocalGovernmentArea> localGovernments) {
+    final localGovtList = localGovernments.where((element) => element.id == id);
+    return (localGovtList.isNotEmpty) ? localGovtList.first : null;
+  }
+
   @override
   String getTitle() {
     return this.name ?? "";
@@ -164,26 +205,34 @@ class LocalGovernmentArea extends DropDownItem {
 }
 
 class EmploymentStatus extends DropDownItem {
-  final String employmentStatus;
+  final String empStatus;
 
-  const EmploymentStatus(this.employmentStatus);
+  const EmploymentStatus(this.empStatus);
+  
+  factory EmploymentStatus.fromString(String? employment) {
+    return employmentStatus.firstWhere((element) => element.empStatus == employment, orElse: () => employmentStatus.first);
+  }
 
   @override
   String getTitle() {
-    return this.employmentStatus.replaceAll("_", " ");
+    return this.empStatus.replaceAll("_", " ").capitalizeFirstOfEach;
   }
 }
 
 const employmentStatus = [
-  const EmploymentStatus("Unemployed"),
-  const EmploymentStatus("Employed"),
-  const EmploymentStatus("Self_Employed"),
+  const EmploymentStatus("UNEMPLOYED"),
+  const EmploymentStatus("EMPLOYED"),
+  const EmploymentStatus("SELF_EMPLOYED"),
 ];
 
 class Titles extends DropDownItem {
   final String title;
 
   const Titles(this.title);
+
+  factory Titles.fromTitle(String? title) {
+    return titles.firstWhere((element) => element.title == title, orElse: () => titles.first);
+  }
 
   @override
   String getTitle() {
@@ -256,15 +305,21 @@ class Relationship extends DropDownItem {
 
   const Relationship(this.relationship);
 
+  static Relationship? fromString(String? title) {
+    final mRelationships = relationships.where((element) => element.relationship == title);
+    return (mRelationships.isNotEmpty) ? mRelationships.first : null;
+  }
+
   @override
   String getTitle() {
     return this.relationship;
   }
 }
 
-const relationship = [
+const relationships = [
   const Relationship("Husband"),
   const Relationship("Wife"),
+  const Relationship("Daughter"),
   const Relationship("Sister"),
   const Relationship("Brother"),
   const Relationship("Son"),

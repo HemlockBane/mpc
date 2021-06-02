@@ -19,21 +19,21 @@ class ValidationServiceDelegate with NetworkResource {
 
   Stream<Resource<ValidateAnswerResponse>> validateSecurityQuestionAnswer(SecurityQuestionRequestBody requestBody) {
     return networkBoundResource(
-        fetchFromLocal: () => Future.value(null),
+        fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => this._service.validateUsernameSecurityAnswer(requestBody)
     );
   }
 
   Stream<Resource<OTP>> triggerOtpForEditDevice(TriggerOtpRequestBody requestBody) {
     return networkBoundResource(
-        fetchFromLocal: () => Future.value(null),
+        fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => this._service.triggerOTP(requestBody)
     );
   }
 
   Stream<Resource<ValidateAnswerResponse>> validateEditDeviceOtp(ValidateDeviceSwitchRequestBody requestBody) {
     return networkBoundResource(
-        fetchFromLocal: () => Future.value(null),
+        fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => this._service.validateOtp(requestBody),
         processRemoteResponse: (resp) {
           String? accessToken = resp.data?.result?.accessToken;
@@ -45,7 +45,7 @@ class ValidationServiceDelegate with NetworkResource {
 
   Stream<Resource<bool>> editDevice(EditDeviceRequestBody requestBody) {
     return networkBoundResource(
-        fetchFromLocal: () => Future.value(null),
+        fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => this._service.editDevice(requestBody)
     );
   }

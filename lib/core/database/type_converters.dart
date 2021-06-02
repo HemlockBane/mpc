@@ -1,9 +1,54 @@
 import 'dart:convert';
 
 import 'package:floor/floor.dart';
+import 'package:flutter/foundation.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
+import 'package:moniepoint_flutter/app/airtime/model/data/airtime_history_item.dart';
+import 'package:moniepoint_flutter/app/airtime/model/data/airtime_service_provider.dart';
+import 'package:moniepoint_flutter/app/billpayments/model/data/bill_history_item.dart';
+import 'package:moniepoint_flutter/app/billpayments/model/data/biller.dart';
+import 'package:moniepoint_flutter/app/billpayments/model/data/biller_product.dart';
+import 'package:moniepoint_flutter/app/transfers/model/data/fee_vat_config.dart';
+import 'package:moniepoint_flutter/app/transfers/model/data/transfer_batch.dart';
+import 'package:moniepoint_flutter/app/transfers/model/data/transfer_history_item.dart';
+import 'package:moniepoint_flutter/core/models/transaction.dart';
+import 'package:moniepoint_flutter/core/models/transaction_batch.dart';
+import 'package:moniepoint_flutter/core/strings.dart';
 
-class ListConverter extends TypeConverter<List<StateOfOrigin>?, String?>{
+class ListStringConverter extends TypeConverter<List<String>?, String?>{
+  @override
+  List<String>? decode(String? databaseValue) {
+    if(databaseValue == null || databaseValue.isEmpty) return null;
+    final List<dynamic> list = jsonDecode(databaseValue);
+    return list.map((e) => e.toString()).toList();
+  }
+
+  @override
+  String? encode(List<String>? value) {
+    if(value == null) return null;
+    return jsonEncode(value);
+  }
+
+}
+
+class ListIntConverter extends TypeConverter<List<int>?, String?>{
+  @override
+  List<int>? decode(String? databaseValue) {
+    if(databaseValue == null || databaseValue.isEmpty) return null;
+    final List<dynamic> list = jsonDecode(databaseValue);
+    return list.map((e) => e as int).toList();
+  }
+
+  @override
+  String? encode(List<int>? value) {
+    if(value == null) return null;
+    return jsonEncode(value);
+  }
+
+}
+
+class ListStateConverter extends TypeConverter<List<StateOfOrigin>?, String?>{
   @override
   List<StateOfOrigin>? decode(String? databaseValue) {
     final List<dynamic> list = jsonDecode(databaseValue!);
@@ -16,3 +61,189 @@ class ListConverter extends TypeConverter<List<StateOfOrigin>?, String?>{
   }
 
 }
+
+class TransactionBatchConverter extends TypeConverter<TransactionBatch?, String?>{
+  @override
+  TransactionBatch? decode(String? databaseValue) {
+    final dynamic list = jsonDecode(databaseValue!);
+    return TransactionBatch.fromJson(list);
+  }
+
+  @override
+  String? encode(TransactionBatch? value) {
+    return jsonEncode(value);
+  }
+}
+
+class TransferBatchConverter extends TypeConverter<TransferBatch?, String?>{
+  @override
+  TransferBatch? decode(String? databaseValue) {
+    if(databaseValue == null) return null;
+    final dynamic list = jsonDecode(databaseValue);
+    return TransferBatch.fromJson(list);
+  }
+
+  @override
+  String? encode(TransferBatch? value) {
+    return (value != null)  ? jsonEncode(value) : null;
+  }
+}
+
+class TransferHistoryItemConverter extends TypeConverter<TransferHistoryItem?, String?>{
+  @override
+  TransferHistoryItem? decode(String? databaseValue) {
+    if(databaseValue == null) return null;
+    final dynamic list = jsonDecode(databaseValue);
+    return TransferHistoryItem.fromJson(list);
+  }
+
+  @override
+  String? encode(TransferHistoryItem? value) {
+    return (value != null)  ? jsonEncode(value) : null;
+  }
+}
+
+class AirtimeHistoryItemConverter extends TypeConverter<AirtimeHistoryItem?, String?>{
+  @override
+  AirtimeHistoryItem? decode(String? databaseValue) {
+    if(databaseValue == null) return null;
+    final dynamic list = jsonDecode(databaseValue);
+    return AirtimeHistoryItem.fromJson(list);
+  }
+
+  @override
+  String? encode(AirtimeHistoryItem? value) {
+    return (value != null)  ? jsonEncode(value) : null;
+  }
+}
+
+class AirtimeServiceProviderConverter extends TypeConverter<AirtimeServiceProvider?, String?>{
+  @override
+  AirtimeServiceProvider? decode(String? databaseValue) {
+    if(databaseValue == null) return null;
+    final dynamic list = jsonDecode(databaseValue);
+    return AirtimeServiceProvider.fromJson(list);
+  }
+
+  @override
+  String? encode(AirtimeServiceProvider? value) {
+    return (value != null)  ? jsonEncode(value) : null;
+  }
+}
+
+class BillHistoryItemConverter extends TypeConverter<BillHistoryItem?, String?>{
+  @override
+  BillHistoryItem? decode(String? databaseValue) {
+    if(databaseValue == null) return null;
+    final dynamic list = jsonDecode(databaseValue);
+    return BillHistoryItem.fromJson(list);
+  }
+
+  @override
+  String? encode(BillHistoryItem? value) {
+    return (value != null)  ? jsonEncode(value) : null;
+  }
+}
+
+class ListBoundedChargesConverter extends TypeConverter<List<BoundedCharges>?, String?>{
+  @override
+  List<BoundedCharges>? decode(String? databaseValue) {
+    if(databaseValue == null) return null;
+    final List<dynamic> list = jsonDecode(databaseValue);
+    return list.map((e) => BoundedCharges.fromJson(e)).toList();
+  }
+
+  @override
+  String? encode(List<BoundedCharges>? value) {
+    return (value != null)  ? jsonEncode(value) : null;
+  }
+}
+
+class AdditionalFieldsConverter extends TypeConverter<Map<String, InputField>?, String?>{
+  @override
+  Map<String, InputField>? decode(String? databaseValue) {
+    if(databaseValue == null) return null;
+    final Map<dynamic, dynamic> data = jsonDecode(databaseValue);
+    return data.map((key, value) => MapEntry(key, InputField.fromJson(value)));
+  }
+
+  @override
+  String? encode(Map<String, InputField>? value) {
+    return (value != null)  ? jsonEncode(value) : null;
+  }
+}
+
+
+
+class BillerConverter extends TypeConverter<Biller?, String?>{
+  @override
+  Biller? decode(String? databaseValue) {
+    if(databaseValue == null) return null;
+    final dynamic list = jsonDecode(databaseValue);
+    return Biller.fromJson(list);
+  }
+
+  @override
+  String? encode(Biller? value) {
+    return (value != null)  ? jsonEncode(value) : null;
+  }
+}
+
+class ListBillerProductConverter extends TypeConverter<List<BillerProduct>?, String?>{
+  @override
+  List<BillerProduct>? decode(String? databaseValue) {
+    if(databaseValue == null) return null;
+    final List<dynamic> list = jsonDecode(databaseValue);
+    return list.map((e) => BillerProduct.fromJson(e)).toList();
+  }
+
+  @override
+  String? encode(List<BillerProduct>? value) {
+    return (value != null)  ? jsonEncode(value) : null;
+  }
+}
+
+
+class TransactionTypeConverter extends TypeConverter<TransactionType?, String?>{
+  @override
+  TransactionType? decode(String? databaseValue) {
+    if(databaseValue == null) return null;
+    final TransactionType type = enumFromString<TransactionType>(TransactionType.values, databaseValue);
+    return type;
+  }
+
+  @override
+  String? encode(TransactionType? value) {
+    return (value != null)  ? describeEnum(value) : null;
+  }
+}
+
+class TransactionChannelConverter extends TypeConverter<TransactionChannel?, String?>{
+  @override
+  TransactionChannel? decode(String? databaseValue) {
+    if(databaseValue == null) return null;
+    final TransactionChannel type = enumFromString<TransactionChannel>(TransactionChannel.values, databaseValue);
+    return type;
+  }
+
+  @override
+  String? encode(TransactionChannel? value) {
+    return (value != null)  ? describeEnum(value) : null;
+  }
+}
+
+
+
+// class DateListTypeConverter extends TypeConverter<List<int>?, int?>{
+//   @override
+//   List<int>? decode(int? databaseValue) {
+//     if(databaseValue == null) return null;
+//     final List<dynamic> list = jsonDecode(databaseValue);
+//     return list.map((e) => BoundedCharges.fromJson(e)).toList();
+//   }
+//
+//   @override
+//   int? encode(List<int>? value) {
+//     return (value != null)  ? jsonEncode(value) : null;
+//   }
+// }

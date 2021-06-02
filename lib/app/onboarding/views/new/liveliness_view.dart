@@ -19,9 +19,7 @@ import 'package:provider/provider.dart';
 class LivelinessScreen extends StatefulWidget {
 
   @override
-  State<StatefulWidget> createState() {
-    return _LivelinessScreen();
-  }
+  State<StatefulWidget> createState() => _LivelinessScreen();
 
 }
 
@@ -48,10 +46,14 @@ class _LivelinessScreen extends State<LivelinessScreen> {
 
   bool _isLoading = false;
 
+  String imageInfo = "";
+
   Future<void> _initCamera() async {
     final cameras = await availableCameras();
     _numberOfCameras = cameras.length;
-    final _camera = (1 == _numberOfCameras) ? cameras.first : cameras.last;
+    final _camera = (_numberOfCameras > 1)
+        ? cameras.firstWhere((element) => element.lensDirection == CameraLensDirection.front)
+        : cameras.first;
     _controller = CameraController(_camera, ResolutionPreset.medium);
     _initializeControllerFuture = _controller?.initialize();
     setState(() {
@@ -70,16 +72,16 @@ class _LivelinessScreen extends State<LivelinessScreen> {
     if(_countDownTimer?.isActive == true) return;
     _countDownTimer?.cancel();
     var startingGesture = _viewModel.currentCheck?.name;
-    _countDownTimer = Timer(Duration(seconds: 15), () {
+    _countDownTimer = Timer(Duration(seconds: 10), () {
       var currentGesture = _viewModel.currentCheck?.name;
       if(currentGesture == startingGesture && !_isCapturingCompleted) {
         //We have waited for more than 10seconds
-        _cameraTimer?.cancel();
-        _countDownTimer?.cancel();
         setState(() {
           _enableRetry = true;
+          _viewModel.updateCurrentCheckState(CheckState.FAIL, message: "Failed validating $startingGesture");
+          _cameraTimer?.cancel();
+          _countDownTimer?.cancel();
         });
-        _viewModel.updateCurrentCheckState(CheckState.FAIL, message: "Not very sure what you are doing!\nPlease follow the instructions :)");
       }
     });
   }
@@ -87,29 +89,49 @@ class _LivelinessScreen extends State<LivelinessScreen> {
   void startImageCapturing() async {
     await _initializeControllerFuture;
     setState(() {
+      _viewModel.nextCheck();
       _isCapturingCompleted = false;
       _enableRetry = false;
+      _updateImageProcessStatus(false);
     });
 
-    _cameraTimer = Timer.periodic(Duration(seconds: 4), (timer) async {
-      if(_isProcessingImage) return;
+    _cameraTimer = Timer.periodic(Duration(seconds: 1), (timer) async {
+      if(_isProcessingImage || _isCapturingCompleted) return;
+
       _updateImageProcessStatus(true);
+
       _lastImageCaptured = await _controller?.takePicture();
+
+      if(_lastImageCaptured == null) return _updateImageProcessStatus(false);
+
       final imageBytes = await FlutterImageCompress.compressWithFile(_lastImageCaptured!.path, quality: 30);
+
+      setState(() {
+        imageInfo = "Sending Image: ${imageBytes!.lengthInBytes / 1024} KB";
+      });
+
+      final startTime = DateTime.now();
 
       final result = await platform.invokeMethod('analyzeImage', {
         "imageByte": imageBytes
       });
 
-      print("Completed $result");
+      print(DateTime.now().difference(startTime).inMilliseconds);
+      setState(() {
+        imageInfo = "";
+      });
+
+      // print("Completed $result");
       if(result is Map && result.containsKey("error")) {
-        //TODO properly handle the error for the client
         _updateImageProcessStatus(false);
         return;
       }
 
-      validateCallbackResult(result, _lastImageCaptured);
-      startCountDownTimer();
+      /// There's no point validating when already in retry mode
+      if(!_enableRetry) {
+        validateCallbackResult(result, _lastImageCaptured);
+        startCountDownTimer();
+      }
     });
   }
   
@@ -118,7 +140,7 @@ class _LivelinessScreen extends State<LivelinessScreen> {
   }
 
   void validateCallbackResult(dynamic result, XFile? image) {
-    if (result == null || result is! Map) {
+    if (result == null || result is! Map || _isCapturingCompleted) {
       _updateImageProcessStatus(false);
       return;
     }
@@ -128,7 +150,10 @@ class _LivelinessScreen extends State<LivelinessScreen> {
       return _viewModel.updateCurrentCheckState(CheckState.FAIL, message: "No face detected");
     }
 
-    //let's check if the general problems are solved
+    /// let's check if the general problems are solved
+    setState(() {
+      imageInfo = "Validating General Problems";
+    });
     final passesGeneralProblems = validateGeneralProblems(result);
     if (!passesGeneralProblems) {
       _updateImageProcessStatus(false);
@@ -138,6 +163,9 @@ class _LivelinessScreen extends State<LivelinessScreen> {
     final challenge = _viewModel.nextCheck();
 
     if(challenge != null) {
+      setState(() {
+        imageInfo = "Validating Challenge ${challenge.name}";
+      });
       final isChallengeValid = validateChallenge(challenge, result);
 
       if(isChallengeValid) {
@@ -147,21 +175,21 @@ class _LivelinessScreen extends State<LivelinessScreen> {
 
       /// We are waiting a bit here so we can give room to display the success message
       Future.delayed(Duration(seconds: 2), () {
-        _viewModel.nextCheck();
+        if (!_enableRetry) _viewModel.nextCheck();
         _updateImageProcessStatus(false);
       });
       return;
     } else {
-      print('Challenge Completed');
-      //TODO check if we have a perfect profile picture
+      /// Do we have a good profile picture now?
       if(!_viewModel.hasProfilePicture) {
-        //let's revert and force a profile look straight
-
+        _updateImageProcessStatus(false);
+        _viewModel.addMoreChecks(_viewModel.profilePictureCriteria!);
         return;
       }
+      print('Challenge Completed');
+      uploadImage();
       _cameraTimer?.cancel();
       _countDownTimer?.cancel();
-      /// meaning capturing is complete
       setState(() {
         _isCapturingCompleted = true;
       });
@@ -182,14 +210,16 @@ class _LivelinessScreen extends State<LivelinessScreen> {
       } else if (challengeName == "LookRight") {
         isValid = item['yaw'] <= criteria.yaw?.negative;
       } else {
-        print(challengeName);
-        isValid = (item['pitch'] <= criteria.pitch?.positive && item['pitch'] >= criteria.pitch?.positive) &&
-            (item['yaw'] <= criteria.yaw?.positive && item['yaw'] >= criteria.yaw?.positive)&&
-            (item['roll'] <= criteria.roll?.positive && item['roll'] >= criteria.roll?.positive);
+        if(challengeName == _viewModel.profilePictureCriteria?.name?.replaceAll(" ", "")) {
+          isValid = isLookingStraight(item, criteria);
+        }
       }
     } else {
       isValid = item['value'];
     }
+    setState(() {
+      imageInfo = "Challenge for ${challenge.name} ended with status $isValid";
+    });
     return isValid;
   }
 
@@ -198,44 +228,79 @@ class _LivelinessScreen extends State<LivelinessScreen> {
 
     var generalProblems = _viewModel.generalProblems;
 
+    //check the number of faces present
+    if(result.containsKey("numberOfFaces") && result["numberOfFaces"] > 1) {
+      _viewModel.updateCurrentCheckState(CheckState.FAIL, message: "Please, Take a selfie of yourself only.");
+      return false;
+    }
+
+    final currentCheck = _viewModel.currentCheck;
+    final currentCriteriaName = currentCheck?.criteria.name.toLowerCase();
+
     for(int i = 0; i < generalProblems.length; i++) {
       final element = generalProblems[i];
-      final keyName = element.criteria.name.toLowerCase();
+      final criteria = element.criteria;
+      final keyName = criteria.name.toLowerCase();
 
-      if (!result.containsKey(keyName)) continue;
+      setState(() {
+        imageInfo = "validating criteria $keyName against current check on $currentCriteriaName";
+      });
+
+      /// We skip the check if the current challenge is requesting a criteria in general problems
+      if (!result.containsKey(keyName) || currentCriteriaName == keyName) continue;
+
+      if((currentCriteriaName == "smile" || currentCriteriaName == "mouthopen") && (keyName == "smile" || keyName == "mouthopen")) {
+        print('continue');
+        continue;
+      }
 
       final facialFeature = result[keyName];
 
       if (!facialFeature.containsKey("value")) continue;
 
       final value = facialFeature["value"] as bool;
+      final confidence = (facialFeature["confidence"] as double?) ?? 100;
 
-      if(value == true && element.criteria.value == false) {
+      if(value != criteria.value) {
+        if(criteria.confidence != null && confidence < criteria.confidence!.positive!) continue;
         _viewModel.updateCurrentCheckState(CheckState.FAIL, message: element.description ?? "");
+        _countDownTimer?.cancel();
         isValid = false;
+        setState(() {
+          imageInfo = "General Problems Check Failed.";
+        });
         break;
       }
     }
 
-    //check if it matches
-    if(result.containsKey("pose")) findProfilePictureMatch(result["pose"]);
-
+    if(isValid && result.containsKey("pose") && _viewModel.profilePicturePath == null) {
+      setState(() {
+        imageInfo = "Finding Profile Picture match";
+      });
+      findProfilePictureMatch(result["pose"]);
+    }
+    setState(() {
+      imageInfo = "General Problems Check completed successfully";
+    });
     return isValid;
+  }
+
+  bool isLookingStraight(Map<dynamic, dynamic> pose, Criteria criteria) {
+    // print("cPitch ${pose['pitch']} -> criteriaPos ${criteria.pitch?.positive} -> criteriaNegative ${criteria.pitch?.negative}");
+    // print("cYaw ${pose['yaw']} -> criteriaPos ${criteria.yaw?.positive} -> criteriaNegative ${criteria.yaw?.negative}");
+    // print("cRoll ${pose['roll']} -> criteriaPos ${criteria.roll?.positive} -> criteriaNegative ${criteria.roll?.negative}");
+    return (pose['pitch'] <= criteria.pitch?.positive && pose['pitch'] >= criteria.pitch?.negative) &&
+        (pose['yaw'] <= criteria.yaw?.positive && pose['yaw'] >= criteria.yaw?.negative) &&
+        (pose['roll'] <= criteria.roll?.positive && pose['roll'] >= criteria.roll?.negative);
   }
 
   void findProfilePictureMatch(Map<dynamic, dynamic> pose) {
     final criteria = _viewModel.profilePictureCriteria!.criteria;
-    print("cPitch ${pose['pitch']} -> criteriaPos ${criteria.pitch?.positive} -> criteriaNegative ${criteria.pitch?.negative}");
-    print("cYaw ${pose['yaw']} -> criteriaPos ${criteria.yaw?.positive} -> criteriaNegative ${criteria.yaw?.negative}");
-    print("cRoll ${pose['roll']} -> criteriaPos ${criteria.roll?.positive} -> criteriaNegative ${criteria.roll?.negative}");
-    var isValid = (pose['pitch'] <= criteria.pitch?.positive && pose['pitch'] >= criteria.pitch?.negative) &&
-        (pose['yaw'] <= criteria.yaw?.positive && pose['yaw'] >= criteria.yaw?.negative) &&
-        (pose['roll'] <= criteria.roll?.positive && pose['roll'] >= criteria.roll?.negative);
+    var isValid = isLookingStraight(pose, criteria);
 
-    print('Profile Picture $isValid');
     if(isValid) {
       _viewModel.addSuccessfulChallenge(
-          _viewModel.profilePictureCriteria!.name!,
+          _viewModel.profilePictureCriteria!.name!.replaceAll(" ", ""),
           _lastImageCaptured?.path,
           updateState: false
       );
@@ -243,7 +308,8 @@ class _LivelinessScreen extends State<LivelinessScreen> {
   }
 
   void uploadImage() {
-    _viewModel.compareAndGetImageReference("LookRight", this.bvn??"").listen((event) {
+    _viewModel.compareAndGetImageReference(this.bvn ?? "").listen((event) {
+      if(!mounted) return;
       if(event is Loading) setState(() => _isLoading = true);
       if (event is Error<LivelinessCompareResponse>) {
         setState(() => _isLoading = false);
@@ -255,9 +321,35 @@ class _LivelinessScreen extends State<LivelinessScreen> {
               return BottomSheets.displayErrorModal(context, message: event.message);
             });
       }
-      if(event is Success<LivelinessCompareResponse>) {
+      if (event is Success<LivelinessCompareResponse>) {
         setState(() => _isLoading = false);
-        Navigator.of(context).pop(event.data!.reference);
+
+        final Widget bottomSheetView;
+
+        if (event.data?.status == "FAILED") {
+          bottomSheetView = BottomSheets.displayWarningDialog("Unmatched Image", event.data!.errorMessage ?? "", () {
+            Navigator.of(context).pop();
+            Navigator.of(context).pop({
+              "reference": event.data!.reference,
+              "livelinessCheck": event.data?.status
+            });
+          });
+        } else {
+          bottomSheetView = BottomSheets.displaySuccessModal(context, title: "Success", message: "BVN Image successfully matched", onClick: () {
+            Navigator.of(context).pop();
+            Navigator.of(context).pop({
+              "reference": event.data!.reference,
+              "livelinessCheck": event.data?.status
+            });
+          });
+        }
+
+        showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (context) => bottomSheetView
+        );
       }
     });
   }
@@ -270,9 +362,15 @@ class _LivelinessScreen extends State<LivelinessScreen> {
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
       _viewModel.getLivelinessChecks().listen((event) {
         if(event is Success) startImageCapturing();
+        if(event is Error) {}
       });
       _initCamera();
     });
+  }
+
+  Color _getProgressColor(bool hasError) {
+    if(_isCapturingCompleted) return Colors.solidGreen;
+    return hasError ? Colors.red.withOpacity(0.7) : Colors.primaryColor;
   }
 
   Widget _progressiveView() {
@@ -287,13 +385,10 @@ class _LivelinessScreen extends State<LivelinessScreen> {
                 duration: const Duration(milliseconds: 1000),
                 builder: (BuildContext c, double value, _) {
                   return CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation(
-                        a.hasError
-                            ? Colors.red.withOpacity(0.5)
-                            : Colors.primaryColor
-                    ),
+                    strokeWidth: 6,
+                    valueColor: AlwaysStoppedAnimation(_getProgressColor(a.hasError)),
                     backgroundColor: Colors.deepGrey.withOpacity(0.5),
-                    value: a.hasError ? 1 :value,
+                    value: a.hasError ? 1 : value,
                   );
                 });
           }),
@@ -301,25 +396,47 @@ class _LivelinessScreen extends State<LivelinessScreen> {
   }
 
   Widget cameraView() {
-    final size = 300.0;
+    final size = MediaQuery.of(context).size.width - 60;
     return SizedBox(
       width: size,
       height: size,
       child:  Stack(
         children: [
           _progressiveView(),
-          Container(
-            padding: EdgeInsets.all(4),
-            width: double.infinity,
-            height: double.infinity,//_controller!.value.aspectRatio,
-            decoration: BoxDecoration(
-                shape: BoxShape.circle
+          Transform.scale(
+            scale: 1,
+            child: Container(
+              width: size,
+              height: size,
+              padding: EdgeInsets.all(8),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(size * 2),
+                child: OverflowBox(
+                  alignment: Alignment.center,
+                  child: FittedBox(
+                    fit: BoxFit.fitWidth,
+                    child: Container(
+                      width: size / _controller!.value.aspectRatio,
+                      height: size /_controller!.value.aspectRatio,
+                      child: (!_isCapturingCompleted) ? CameraPreview(_controller!) : _lastCaptureImage(),
+                    ),
+                  ),
+                ),
+              ),
             ),
-            child: ClipRRect(
-                borderRadius: BorderRadius.circular(size / 2),
-                child: (_isCapturingCompleted)
-                    ? _lastCaptureImage()
-                    : AspectRatio(aspectRatio: 1, child: CameraPreview(_controller!))
+          ),
+          if(_isCapturingCompleted) SizedBox(
+            width: size,
+            height: size,
+            child: Container(
+              margin: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.solidGreen.withOpacity(0.6),
+              ),
+              child: Center(
+                child: SvgPicture.asset ('res/drawables/ic_check_mark.svg' ,color: Colors.white.withOpacity(0.6),),
+              ),
             ),
           )
         ],
@@ -343,18 +460,18 @@ class _LivelinessScreen extends State<LivelinessScreen> {
 
   Widget showDisplayableMessage(CheckState state, String message) {
     if(state == CheckState.FAIL) {
-      return Text(message, textAlign: TextAlign.center, style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold));
+      return Text(message, textAlign: TextAlign.center, style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 18));
     } else if(state == CheckState.SUCCESS) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SvgPicture.asset('res/drawables/liveliness_passed_icon.svg'),
           SizedBox(width: 8),
-          Text(message, textAlign: TextAlign.center, style: TextStyle(color: Colors.solidGreen, fontWeight: FontWeight.bold),)
+          Text(message, textAlign: TextAlign.center, style: TextStyle(color: Colors.solidGreen, fontWeight: FontWeight.bold,fontSize: 18),)
         ],
       );
     }
-    return Text(message, textAlign: TextAlign.center, style: TextStyle(color: Colors.textColorBlack, fontWeight: FontWeight.bold));
+    return Text(message, textAlign: TextAlign.center, style: TextStyle(color: Colors.textColorBlack, fontWeight: FontWeight.bold, fontSize: 18));
   }
 
   @override
@@ -373,11 +490,10 @@ class _LivelinessScreen extends State<LivelinessScreen> {
         ),
         body: Container(
           color: Colors.backgroundWhite,
+          padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(
-                height: 64,
-              ),
               Center(
                   child: FutureBuilder(
                       future: _initializeControllerFuture,
@@ -394,7 +510,7 @@ class _LivelinessScreen extends State<LivelinessScreen> {
               ),
               Center(
                 child: StreamBuilder(
-                    initialData: Tuple(CheckState.INFO, 'Analyzing Image...'),
+                    initialData: Tuple(CheckState.INFO, ''),
                     stream: _viewModel.checkStateStream,
                     builder: (BuildContext mContext, AsyncSnapshot<Tuple<CheckState, String>> a)  {
                       return (a.hasData)
@@ -405,13 +521,18 @@ class _LivelinessScreen extends State<LivelinessScreen> {
               SizedBox(
                 height: 32,
               ),
-              Spacer(),
-              if(_enableRetry) Styles.appButton(
+              // Spacer(),
+              if(_enableRetry) SizedBox(
+                  width: double.infinity,
+                  child: Styles.appButton(
                   elevation: 0,
-                  buttonStyle: Styles.greyButtonStyle,
                   text: 'Retry',
                   onClick: (_isLoading) ? null : () => startImageCapturing()
+              )),
+              SizedBox(
+                height: 4,
               ),
+              Text(imageInfo, style: TextStyle(color: Colors.deepGrey, fontWeight: FontWeight.bold),),
               SizedBox(
                 height: 32,
               )

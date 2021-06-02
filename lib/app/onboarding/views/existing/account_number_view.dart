@@ -1,8 +1,8 @@
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart' hide Colors;
+import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/transfer_beneficiary.dart';
+import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/account_info_request.dart';
 import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
@@ -10,6 +10,7 @@ import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:provider/provider.dart';
 
 /// Screen that request for the customer account number before
@@ -60,12 +61,18 @@ class _EnterAccountNumberState extends State<EnterAccountNumberScreen> {
     if (event is Loading) setState(() => isLoading = true);
     if (event is Error<TransferBeneficiary>) {
       setState(() => isLoading = false);
+      final bottomSheetView = (event.message?.contains("already") == true)
+          ? BottomSheets.displayWarningDialog(
+              "Profile Detected!", event.message ?? "",
+              () => Navigator.of(_scaffoldKey.currentContext!).popAndPushNamed('/login'),
+              buttonText: "Proceed to Login")
+          : BottomSheets.displayErrorModal(context, message: event.message);
       showModalBottomSheet(
           context: _scaffoldKey.currentContext ?? context,
           isScrollControlled: true,
           backgroundColor: Colors.transparent,
           builder: (context) {
-            return BottomSheets.displayErrorModal(context, message: event.message);
+            return bottomSheetView;
           });
     }
     if(event is Success<TransferBeneficiary>) {
@@ -75,6 +82,8 @@ class _EnterAccountNumberState extends State<EnterAccountNumberScreen> {
   }
 
   void verifyAccount(BuildContext context) {
+    FocusManager.instance.primaryFocus?.unfocus();
+
     var requestBody = AccountInfoRequestBody(
         accountNumber: this.mAccountNumberController.text
     );
@@ -85,7 +94,8 @@ class _EnterAccountNumberState extends State<EnterAccountNumberScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return ScrollView(
+      child: Container(
         height: double.infinity,
         width: double.infinity,
         color: Colors.backgroundWhite,
@@ -94,13 +104,14 @@ class _EnterAccountNumberState extends State<EnterAccountNumberScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text('Sign Up to Moniepoint',
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.darkBlue,
-                    fontSize: 21,
-                ),
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: Colors.colorPrimaryDark,
+                fontSize: 24,
+              ),
               textAlign: TextAlign.start,
             ),
+            SizedBox(height: 6),
             Text('Enter your account number to get started.',
                 style: TextStyle(
                     fontWeight: FontWeight.normal,
@@ -118,12 +129,14 @@ class _EnterAccountNumberState extends State<EnterAccountNumberScreen> {
                 maxLength: 10,
                 controller: mAccountNumberController
             ),
+            SizedBox(height: 18),
             Spacer(),
             Stack(
               children: [
                 SizedBox(
                   width: double.infinity,
                   child: Styles.appButton(
+                      elevation: isAccountNumberValid && !isLoading ? 0.5 : 0,
                       onClick: isAccountNumberValid && !isLoading ? ()=> verifyAccount(context) : null,
                       text: 'Continue'
                   ),
@@ -141,7 +154,7 @@ class _EnterAccountNumberState extends State<EnterAccountNumberScreen> {
                 textAlign: TextAlign.center,
                 text: TextSpan(
                     text: 'Already have a profile? ',
-                    style: TextStyle(fontFamily: Styles.defaultFont, fontSize: 15, color: Colors.textColorBlack),
+                    style: TextStyle(fontFamily: Styles.defaultFont, fontSize: 16, color: Colors.textColorBlack),
                     children: [
                       TextSpan(
                           text: 'Login',
@@ -154,7 +167,8 @@ class _EnterAccountNumberState extends State<EnterAccountNumberScreen> {
             SizedBox(height: 24),
           ],
         ),
-      );
+      ),
+    );
   }
 
 }

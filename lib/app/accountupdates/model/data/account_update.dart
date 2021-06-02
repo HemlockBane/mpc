@@ -8,13 +8,13 @@ part 'account_update.g.dart';
 
 @JsonSerializable()
 class AccountUpdate {
-  @JsonKey(name: "customerDetailInfo")
+  @JsonKey(name: "customerDetailInfo", includeIfNull: false)
   CustomerDetailInfo? customerDetailInfo;
-  @JsonKey(name: "nextOfKinInfo")
+  @JsonKey(name: "nextOfKinInfo", includeIfNull: false)
   NextOfKinInfo? nextOfKinInfo;
-  @JsonKey(name: "mailingAddressInfo")
+  @JsonKey(name: "mailingAddressInfo", includeIfNull: false)
   AddressInfo? mailingAddressInfo;
-  @JsonKey(name: "customerIdentificationInfo")
+  @JsonKey(name: "customerIdentificationInfo", includeIfNull: false)
   CustomerIdentificationInfo? identificationInfo;
 
   AccountUpdate({

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 
 class DashboardBottomMenu extends StatelessWidget {
   @override
@@ -19,9 +20,9 @@ class DashboardBottomMenu extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Expanded(child: _menuItem('Airtime', 'res/drawables/ic_menu_airtime.svg', ()=> null)),
-          Expanded(child: _menuItem('Transfer', 'res/drawables/ic_menu_transfer.svg', ()=> null)),
-          Expanded(child: _menuItem('Pay Bills', 'res/drawables/ic_menu_bills.svg', ()=> null)),
+          Expanded(child: _menuItem('Airtime', 'res/drawables/ic_menu_airtime.svg', () => Navigator.of(context).pushNamed(Routes.AIRTIME))),
+          Expanded(child: _menuItem('Transfer', 'res/drawables/ic_menu_transfer.svg', () => Navigator.of(context).pushNamed(Routes.TRANSFER))),
+          Expanded(child: _menuItem('Pay Bills', 'res/drawables/ic_menu_bills.svg', ()=> Navigator.of(context).pushNamed(Routes.BILL))),
           Expanded(child: _menuItem('More', 'res/drawables/ic_menu_more.svg', () => Scaffold.of(context).openDrawer())),
         ],
       ),

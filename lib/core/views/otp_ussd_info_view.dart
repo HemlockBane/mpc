@@ -31,10 +31,10 @@ class OtpUssdInfoView extends StatelessWidget{
         children: [
           SvgPicture.asset('res/drawables/ic_info.svg'),
           SizedBox(width: 14),
-          Expanded(child: Text('Didn’t get a code? Dial $ussd to get an OTP sdfsdf sdf sdf ds fds fds fsdf ds fds fsdf sf sf sf',
+          Expanded(child: Text('Didn’t get a code? Dial $ussd to get an OTP',
               style: TextStyle(
                   fontFamily: Styles.defaultFont,
-                  color: Colors.darkBlue,
+                  color: Colors.colorPrimaryDark,
                   fontWeight: FontWeight.normal,
                   fontSize: 14))
               .colorText({

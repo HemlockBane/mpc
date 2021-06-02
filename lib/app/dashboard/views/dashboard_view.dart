@@ -34,7 +34,7 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: InkWell(
           customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          onTap: () => Navigator.of(context).pushNamed(Routes.ACCOUNT_UPDATE),
+          onTap: () => Navigator.of(context).pushNamed(Routes.ACCOUNT_UPDATE).then((_) => subscribeUiToAccountStatus()),
           child: Container(
             padding: EdgeInsets.only(left: 0, right: 16, top: 0, bottom: 0),
             child: Row(
@@ -72,8 +72,7 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
         margin: EdgeInsets.only(left: 58, right: 58, bottom: 8, top: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: InkWell(
-          customBorder:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           onTap: () => null,
           child: Container(
               padding: EdgeInsets.only(left: 0, right: 16, top: 0, bottom: 0),
@@ -137,6 +136,15 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
       drawerScrimColor: Colors.transparent,
       drawer: Drawer(
         elevation: 0,
+        child: Column(
+          children: [
+            SizedBox(height: 100,),
+            ListTile(
+              title: Text('Settings'),
+              onTap: () => Navigator.of(context).pushNamed(Routes.SETTINGS),
+            )
+          ],
+        ),
       ),
       body: Container(
         width: double.infinity,
@@ -166,7 +174,7 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
                         borderRadius: BorderRadius.circular(16),
                         child: InkWell(
                             customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            onTap: () => null,
+                            onTap: () => Navigator.of(context).pushNamed(Routes.ACCOUNT_TRANSACTIONS).then((_) => subscribeUiToAccountStatus()),
                             child: DashboardContainerView(viewModel)
                         ),
                       ),
@@ -200,9 +208,9 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // _lifecycleState = state;
-    if(state == AppLifecycleState.resumed) {
-      subscribeUiToAccountStatus();
-    }
+    // if(state == AppLifecycleState.resumed) {
+    //   subscribeUiToAccountStatus();
+    // }
   }
 
   @override

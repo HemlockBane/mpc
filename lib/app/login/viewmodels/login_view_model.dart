@@ -14,6 +14,7 @@ import 'package:moniepoint_flutter/app/login/model/login_service_delegate.dart';
 import 'package:moniepoint_flutter/core/config/build_config.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 
 class LoginViewModel with ChangeNotifier {
 
@@ -32,6 +33,8 @@ class LoginViewModel with ChangeNotifier {
     this._delegate = delegate ?? GetIt.I<LoginServiceDelegate>();
     this._deviceManager = deviceManager ?? GetIt.I<DeviceInfoPlugin>();
     _initDeviceManager();
+
+    PreferenceUtil.deleteLoggedInUser();
     UserInstance().getUser()?.withAccessToken(null);
   }
 
@@ -55,7 +58,7 @@ class LoginViewModel with ChangeNotifier {
       ..withUsername(username)
       ..withPassword(password)
       ..withVersion(BuildConfig.APP_VERSION)
-      ..withDeviceId((_androidDeviceInfo != null) ? _androidDeviceInfo?.androidId : _iosDeviceInfo?.identifierForVendor)
+      ..withDeviceId((_androidDeviceInfo != null) ? _androidDeviceInfo?.androidId : "334FD601-3E95-457E-B890-70BCD77B6F76")
       ..withDeviceName((_androidDeviceInfo != null) ? _androidDeviceInfo?.device : _iosDeviceInfo?.name);
 
     return doLogin(requestBody);

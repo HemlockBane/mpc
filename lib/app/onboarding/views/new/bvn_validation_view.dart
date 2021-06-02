@@ -54,8 +54,15 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
 
   void displayDatePicker(BuildContext context) async {
     final selectedDate = await showDatePicker(
-      helpText: 'Select Date of Birth',
-        context: context,
+        builder: (BuildContext context, Widget? child) {
+          return Theme(
+            data: ThemeData.from(colorScheme: ColorScheme.light(primary: Colors.primaryColor)),
+            child: child!
+          );
+          },
+        // locale: Locale("en-GB"),
+        helpText: 'Select Date of Birth',
+        context: this.context,
         initialDate: DateTime(1980, 1, 1).add(Duration(days: 1)),
         firstDate: DateTime(1900, 1, 1).add(Duration(days: 1)),
         lastDate: DateTime.now().subtract(Duration(days: 365 * 2))
@@ -99,8 +106,9 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
 
   void displayDateOfBirthDialog(BuildContext mContext) {
     FocusScope.of(context).requestFocus(_dummyFocus);
-
     final viewModel = Provider.of<OnBoardingViewModel>(mContext, listen: false);
+    _dateOfBirthController.text = "";
+
     showModalBottomSheet(
         context: _scaffoldKey.currentContext ?? mContext,
         isScrollControlled: true,
@@ -113,14 +121,14 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
                 children: [
                   Container(
                     width: double.infinity,
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    padding: EdgeInsets.only(left: 16, right: 16, top: 30, bottom: 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text('Date of Birth',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                                fontSize: 20,
+                                fontSize: 22,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.darkBlue)),
                         SizedBox(height: 12),
@@ -128,7 +136,7 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
                             'Please provide the date of birth for the supplied BVN',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                                fontSize: 14,
+                                fontSize: 15,
                                 fontWeight: FontWeight.normal,
                                 color: Colors.deepGrey)),
                         SizedBox(height: 24),
@@ -140,8 +148,8 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
                               color: Colors.colorFaded,
                             ),
                             enabled: false,
-                            onClick: () => displayDatePicker(context)),
-                        SizedBox(height: 36),
+                            onClick: () => displayDatePicker(mContext)),
+                        SizedBox(height: 45),
                         StreamBuilder(
                             stream: viewModel.accountForm.dobStream,
                             builder: (_, AsyncSnapshot<bool> snapshot) {
@@ -168,39 +176,41 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text('Sign Up to Moniepoint',
             style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.darkBlue,
-                fontSize: 21),
+                fontWeight: FontWeight.w600,
+                color: Colors.colorPrimaryDark,
+                fontSize: 24),
             textAlign: TextAlign.start),
+        SizedBox(height: 6),
         Text('Enter your details to get started.',
             style: TextStyle(
                 fontWeight: FontWeight.normal,
                 color: Colors.textColorBlack,
                 fontSize: 14)),
-        SizedBox(height: 30),
+        SizedBox(height: 45),
         Container(
-          padding: EdgeInsets.all(12),
+          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
           decoration: BoxDecoration(
               shape: BoxShape.rectangle,
               color: Colors.primaryColor.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(8)),
+              borderRadius: BorderRadius.circular(4)),
           child: Center(
             child: Text(
-                'Dial *565*0# on your registered mobile number to get your BVN!',
+                'Dial *565*0# on your registered mobile number to get your \nBVN!',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     fontFamily: Styles.defaultFont,
-                    color: Colors.darkBlue,
+                    color: Color(0XFF0B3275),
                     fontWeight: FontWeight.w400,
                     fontSize: 12
                 ))
                 .colorText({'*565*0#': Tuple(Colors.primaryColor, () => dialNumber("tel:565"))}, underline: false),
           ),
         ),
-        SizedBox(height: 30),
+        SizedBox(height: 20),
         StreamBuilder(
             stream: viewModel.accountForm.bvnStream,
             builder: (context, snapshot) {
@@ -209,7 +219,7 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
               hint: 'BVN',
               inputFormats: [FilteringTextInputFormatter.digitsOnly],
               onChanged: viewModel.accountForm.onBVNChanged,
-              startIcon: Icon(CustomFont.bankIcon, color: Colors.colorFaded, size: 18),
+              startIcon: Icon(CustomFont.bankIcon, color: Colors.colorFaded, size: 22),
               animateHint: true,
               maxLength: 11
           );
@@ -247,7 +257,7 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
               controller: _genderController,
               hint: 'Gender',
               errorText: snapshot.hasError ? snapshot.error.toString() : null,
-              startIcon: Icon(CustomFont.gender, color: Colors.colorFaded, size: 18),
+              startIcon: Icon(CustomFont.gender, color: Colors.colorFaded, size: 22),
               endIcon: Icon(CustomFont.dropDown, color: Colors.primaryColor, size: 6),
               animateHint: true,
               enabled: false,
@@ -258,9 +268,9 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
                     child: Text(describeEnum(e)),
                     onPressed: () {
                       _genderController.text = describeEnum(e);
-                      Navigator.pop(context);
+                      FocusManager.instance.primaryFocus?.unfocus();
+                      Navigator.pop(mContext);
                       viewModel.accountForm.onGenderChanged(describeEnum(e));
-                      // FocusScope.of(context).requestFocus(_dummyFocus);
                     }
                   )).toList(),
                 );
@@ -278,6 +288,7 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: Styles.appButton(
+                      elevation: 0,
                       onClick: (snapshot.hasData && snapshot.data == true) && !_isLoading
                           ? () => displayDateOfBirthDialog(context)
                           : null,
@@ -297,7 +308,7 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
         SizedBox(height: 32),
         Center(
           child: Text('Already have a profile? Login',
-              style: TextStyle(color: Colors.textColorBlack, fontFamily: Styles.defaultFont, fontSize: 16)
+              style: TextStyle(color: Color(0XFF002331), fontFamily: Styles.defaultFont, fontSize: 16)
           ).colorText({
             "Login": Tuple(Colors.primaryColor, () => Navigator.of(_scaffoldKey.currentContext!).popAndPushNamed('/login'))
           }, underline: false)
@@ -311,8 +322,7 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         resizeToAvoidBottomInset: false,
-        body: LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints constraints) {
+        body: LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
           return SingleChildScrollView(
             child: ConstrainedBox(
               constraints: BoxConstraints(minHeight: constraints.maxHeight),

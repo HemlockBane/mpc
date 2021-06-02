@@ -7,7 +7,7 @@ import '../tuple.dart';
 
 /// @author Paul Okeke
 extension ColoredText on Text {
-  RichText colorText(Map<String, Tuple<Color, VoidCallback?>> pair, {bool underline = true, bool bold = true}) {
+  RichText colorText(Map<String, Tuple<Color, VoidCallback?>> pair, {bool underline = true, bool bold = true, int boldType = 2}) {
     //we need to get the text and for there decide how many spans we need to create
     var originalText = this.data;
     final List<TextSpan> children = [];
@@ -44,7 +44,7 @@ extension ColoredText on Text {
               text: originalText?.substring(mStartIndex, mBoundary),
               style: this.style?.copyWith(
                   color: e.value.first,
-                  fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+                  fontWeight: bold ? (boldType == 2 ) ? FontWeight.bold: FontWeight.w600 : FontWeight.normal,
                   decoration: (underline) ? TextDecoration.underline : TextDecoration.none,
               ),
             recognizer: TapGestureRecognizer()..onTap = e.value.second

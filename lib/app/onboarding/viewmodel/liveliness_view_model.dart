@@ -13,6 +13,7 @@ enum CheckState {
   SUCCESS, FAIL, INFO
 }
 
+/// @author Paul Okeke
 class LivelinessViewModel with ChangeNotifier {
   late LivelinessServiceDelegate _delegate;
 
@@ -64,6 +65,13 @@ class LivelinessViewModel with ChangeNotifier {
     return null;
   }
 
+  void addMoreChecks(Liveliness liveliness) {
+    var checkList = _internalChecks ?? _livelinessChecks;
+    checkList.add(liveliness);
+    nextCheck();
+    _updateProgress();
+  }
+
   void updateCurrentCheckState(CheckState state, {String message = ""}) {
     if(state == CheckState.INFO) {
       _progressController.sink.add(_progressValue); //clear errors if any
@@ -77,10 +85,12 @@ class LivelinessViewModel with ChangeNotifier {
     _checkStateController.sink.add(Tuple(state, message));
   }
 
-  void _updateProgress({double? value}) {
-    double progressiveValue  = value ?? (1 / _liveliness.length);
+  void _updateProgress() {
+    var progressLength = _liveliness.length;
+    double progressiveValue  = (1 / progressLength);
     _previousProgressValue = _progressValue;
-    _progressController.sink.add(_progressValue += progressiveValue);
+    _progressValue = _progressValue + progressiveValue;
+    _progressController.sink.add(_progressValue);
   }
 
   void addSuccessfulChallenge(String criteriaName, String? filePath, {bool updateState = true}) {
@@ -107,10 +117,10 @@ class LivelinessViewModel with ChangeNotifier {
     });
   }
 
-  Stream<Resource<LivelinessCompareResponse>> compareAndGetImageReference(String key, String bvn) {
-    if(!_imageMap.containsKey(key)) return Stream.empty();
-
-    final imagePath = _imageMap[key]!;
+  Stream<Resource<LivelinessCompareResponse>> compareAndGetImageReference(String bvn) {
+    final profilePictureName = _profilePictureCriteria?.name?.replaceAll(" ", "");
+    if(!_imageMap.containsKey(profilePictureName)) return Stream.empty();
+    final imagePath = _imageMap[profilePictureName]!;
 
     return _delegate.compareAndGetImageReference(imagePath, bvn).map((event) {
       if (event is Success) {

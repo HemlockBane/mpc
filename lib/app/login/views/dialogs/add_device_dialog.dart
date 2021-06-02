@@ -90,6 +90,7 @@ class _AddDeviceDialog extends State<AddDeviceDialog> {
                       SizedBox(
                           width: double.infinity,
                           child: Styles.appButton(
+                            elevation: 0.5,
                             onClick: _isLoading ? null :_subscribeToAddDevice,
                             text: isAddDevice ? 'Yes, add device' : 'Yes, change device',
                           )),

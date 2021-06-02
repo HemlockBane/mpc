@@ -23,12 +23,13 @@ class ConfirmAccountNumberScreen extends StatelessWidget {
           children: [
             Text('We’ve found you!',
               style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.darkBlue,
-                fontSize: 21,
+                fontWeight: FontWeight.w600,
+                color: Colors.colorPrimaryDark,
+                fontSize: 24,
               ),
               textAlign: TextAlign.start,
             ),
+            SizedBox(height: 6,),
             Text('Ensure this number and name are correct.',
                 style: TextStyle(
                     fontWeight: FontWeight.normal,
@@ -38,6 +39,7 @@ class ConfirmAccountNumberScreen extends StatelessWidget {
             SizedBox(height: 30,),
             Card(
               clipBehavior: Clip.hardEdge,
+              elevation: 1.4,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(3.5))
               ),
@@ -63,16 +65,16 @@ class ConfirmAccountNumberScreen extends StatelessWidget {
                         children: [
                           Text(viewModel.transferBeneficiary?.accountName ?? "",
                             style: TextStyle(
-                                  fontSize: 16,
+                                  fontSize: 18,
                                   color: Colors.darkBlue,
-                                  fontWeight: FontWeight.bold
+                                  fontWeight: FontWeight.w600
                               )
                           ),
                           SizedBox(height: 4),
                           Text(
                               viewModel.transferBeneficiary?.accountNumber ?? "",
                               style: TextStyle(
-                                  fontSize: 16,
+                                  fontSize: 18,
                                   color: Colors.textColorBlack,
                                   fontWeight: FontWeight.normal
                               )
@@ -85,10 +87,10 @@ class ConfirmAccountNumberScreen extends StatelessWidget {
                         child: Text('Not you?'),
                         style: ButtonStyle(
                           foregroundColor: MaterialStateProperty.all(Colors.primaryColor),
-                          textStyle: MaterialStateProperty.all(TextStyle(fontSize: 15, color: Colors.primaryColor, fontWeight: FontWeight.bold, fontFamily: Styles.defaultFont))
+                          textStyle: MaterialStateProperty.all(TextStyle(fontSize: 16, color: Colors.primaryColor, fontWeight: FontWeight.w600, fontFamily: Styles.defaultFont))
                         ),
                       ),
-                      SizedBox(width: 32),
+                      SizedBox(width: 8),
                     ],
                   ),
                   SizedBox(height: 20),
@@ -96,7 +98,10 @@ class ConfirmAccountNumberScreen extends StatelessWidget {
               ),
             ),
             Spacer(),
-            Styles.appButton(onClick: ()=> Navigator.of(context).pushNamed('otp-screen'), text: 'Continue'),
+            Styles.appButton(
+                elevation: 0.5,
+                onClick: ()=> Navigator.of(context).pushNamed('otp-screen'), text: 'Continue'
+            ),
             SizedBox(height: 66,)
           ],
         ),

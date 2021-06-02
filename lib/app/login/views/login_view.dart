@@ -57,6 +57,8 @@ class _LoginState extends State<LoginScreen> {
       {required String src,
       required String text,
       VoidCallback? onClick,
+      required double width,
+      required double height,
       double spacing = 4}) {
     return GestureDetector(
       child: Column(
@@ -66,13 +68,16 @@ class _LoginState extends State<LoginScreen> {
           SvgPicture.asset(
             src,
             fit: BoxFit.contain,
+            width: width,
+            height: height,
           ),
           SizedBox(height: spacing),
           Text(text,
               style: TextStyle(
                   fontFamily: 'CircularStd',
-                  fontSize: 16,
-                  color: Colors.textColorDeem))
+                  fontSize: 12,
+                  color: Colors.textColorDeem
+              ))
         ],
       ),
       onTap: onClick,
@@ -87,11 +92,16 @@ class _LoginState extends State<LoginScreen> {
             text: "Support",
             src: "res/drawables/support_icon.svg",
             spacing: 5,
-            onClick: () => {print('Support')}),
+            width: 27,
+            height: 24,
+            onClick: () => Navigator.of(context).pushNamed(Routes.SUPPORT)
+        ),
         SizedBox(width: 18),
         makeTextWithIcon(
             text: "Branches",
             spacing: 0.2,
+            width: 24,
+            height: 28,
             src: "res/drawables/double_location_icon.svg",
             onClick: () => {})
       ],
@@ -102,18 +112,25 @@ class _LoginState extends State<LoginScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Welcome Back',
-            style: TextStyle(
-                color: Colors.textColorBlack,
-                fontWeight: FontWeight.w700,
-                fontSize: 23)),
-        SizedBox(height: 25),
+        Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8),
+            child: Text('Welcome Back',
+                style: TextStyle(
+                    color: Colors.textColorBlack,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24
+                )
+            ),
+        ),
+        SizedBox(height: 24),
         _buildLoginBox(context)
       ],
     );
   }
 
   void _subscribeUiToLogin(BuildContext context) {
+    FocusManager.instance.primaryFocus?.unfocus();
+
     final viewModel = Provider.of<LoginViewModel>(context, listen: false);
     String username = _usernameController.text;
     String password = _passwordController.text;
@@ -160,14 +177,14 @@ class _LoginState extends State<LoginScreen> {
 
   Widget _buildLoginBox(BuildContext context) {
     return Card(
-      elevation: 30,
-      shadowColor: Colors.cardBorder.withOpacity(0.09),
+      elevation: 8,
+      shadowColor: Colors.cardBorder.withOpacity(0.15),
       shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-          side:
-              BorderSide(color: Colors.cardBorder.withOpacity(0.05), width: 1)),
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: Colors.cardBorder.withOpacity(0.05), width: 1),
+      ),
       child: Padding(
-        padding: EdgeInsets.only(top: 25, left: 16, right: 16, bottom: 18),
+        padding: EdgeInsets.only(top: 28, left: 16, right: 16, bottom: 18),
         child: Column(
           children: [
             Styles.appEditText(
@@ -175,44 +192,41 @@ class _LoginState extends State<LoginScreen> {
                 controller: _usernameController,
                 animateHint: true,
                 drawablePadding: 4,
-                startIcon: Icon(CustomFont.username_icon, color: Colors.colorFaded),
+                fontSize: 16,
+                padding: EdgeInsets.only(top: 22, bottom: 22),
+                startIcon: Icon(CustomFont.username_icon, color: Colors.colorFaded, size: 28,),
                 focusListener: (bool) => this.setState(() {})),
-            SizedBox(height: 16),
+            SizedBox(height: 22),
             Styles.appEditText(
                 controller: _passwordController,
                 hint: 'Password',
                 animateHint: true,
                 drawablePadding: 4,
-                startIcon: Icon(CustomFont.password, color: Colors.colorFaded),
-                focusListener: (bool) => this.setState(() {}),
-                isPassword: true),
-            SizedBox(height: 20),
-            Stack(
-              children: [
-                SizedBox(
-                  width: double.infinity,
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: Styles.appButton(
-                        paddingTop: 20,
-                        paddingBottom: 20,
-                        onClick: _isFormValid && !_isLoading
-                            ? ()=> _subscribeUiToLogin(context)
-                            : null,
-                        text: 'Login', elevation: _isFormValid && !_isLoading ? 8 : 0),
-                  ),
+                fontSize: 16,
+                padding: EdgeInsets.only(top: 22, bottom: 22),
+                endIcon: IconButton(
+                    icon: Icon(this._isPasswordVisible ? Icons.visibility : Icons.visibility_off, color: Colors.colorFaded),
+                    onPressed: () {
+                      setState(() {
+                        this._isPasswordVisible = !_isPasswordVisible;
+                      });
+                    }
                 ),
-                Positioned(
-                    right: 16,
-                    top: 16,
-                    bottom: 16,
-                    child: _isLoading
-                        ? SpinKitThreeBounce(size: 20.0, color: Colors.white.withOpacity(0.5))
-                        : SizedBox())
-              ],
+                startIcon: Icon(CustomFont.password, color: Colors.colorFaded, size: 25,),
+                focusListener: (bool) => this.setState(() {}),
+                isPassword: !_isPasswordVisible
             ),
-            SizedBox(height: 24),
-            Divider(color: Colors.colorFaded.withOpacity(0.9), height: 3),
+            SizedBox(height: 22),
+            Styles.statefulButton2(
+                isValid: _isFormValid,
+                padding: 20,
+                elevation: _isFormValid && !_isLoading ? 4 : 0,
+                onClick: () => _subscribeUiToLogin(context),
+                text: "Login",
+                isLoading: _isLoading
+            ),
+            SizedBox(height: 28),
+            Divider(color: Colors.colorFaded.withOpacity(0.9), height: 1, thickness: 0.4,),
             SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -236,8 +250,7 @@ class _LoginState extends State<LoginScreen> {
                   child: Text('Recover Credentials'),
                   style: ButtonStyle(
                       padding: MaterialStateProperty.all(EdgeInsets.all(0)),
-                      foregroundColor:
-                          MaterialStateProperty.all(Colors.primaryColor),
+                      foregroundColor: MaterialStateProperty.all(Colors.primaryColor),
                       textStyle: MaterialStateProperty.all(TextStyle(
                           fontFamily: Styles.defaultFont,
                           fontSize: 16,
@@ -265,19 +278,26 @@ class _LoginState extends State<LoginScreen> {
   }
 
   Widget _bottomUSSDWidget() {
-    return Card(
-      elevation: 0,
-      shadowColor: Colors.cardBorder.withOpacity(0.09),
-      shape: RoundedRectangleBorder(
+    return Container(
+      decoration: BoxDecoration(
+          color: Colors.white,
           borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
-          side: BorderSide(color: Colors.cardBorder.withOpacity(0.05), width: 1)),
+          border: Border.all(color: Colors.cardBorder.withOpacity(0.05), width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.cardBorder.withOpacity(0.2),
+              offset: Offset(0, 8),
+              blurRadius: 6
+            )
+          ]
+      ),
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Column(
+            Flexible(child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
@@ -288,18 +308,21 @@ class _LoginState extends State<LoginScreen> {
                       fontWeight: FontWeight.w400,
                       fontSize: 16),
                 ),
+                SizedBox(height: 5,),
                 Text('Transfer, Airtime & Pay Bills Offline!',
                     style: TextStyle(
                         fontFamily: Styles.defaultFont,
                         color: Colors.textSubColor.withOpacity(0.6))),
               ],
-            ),
+            )),
+            SizedBox(width: 8,),
             Text('*7849#',
                 style: TextStyle(
                     fontFamily: Styles.defaultFont,
-                    fontSize: 25,
+                    fontSize: 32,
                     color: Colors.primaryColor,
-                    fontWeight: FontWeight.bold)
+                    fontWeight: FontWeight.w600
+                )
             )
           ],
         ),
@@ -315,30 +338,30 @@ class _LoginState extends State<LoginScreen> {
     Provider.of<LoginViewModel>(context, listen: false);
 
     return Scaffold(
-        body: SafeArea(
-            child: ScrollView(
-                child: Container(
-                  color: Colors.backgroundWhite,
-                  padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 0),
-                  height: minHeight,
-                  child: Column(children: [
-                    Flexible(
-                      child: _buildTopMenu(),
-                      fit: FlexFit.loose,
-                      flex: 1,
-                    ),
-                    Flexible(
-                      child: _buildCenterBox(context),
-                      fit: FlexFit.tight,
-                      flex: 3,
-                    ),
-                    Flexible(
-                      child: _bottomUSSDWidget(),
-                      fit: FlexFit.loose,
-                      flex: 0,
-                    ),
-                  ]),
-                )
+        body: ScrollView(
+            child: Container(
+              color: Colors.backgroundWhite,
+              padding: EdgeInsets.only(left: 16, right: 16, top: 64, bottom: 0),
+              height: minHeight,
+              child: Column(children: [
+                Flexible(
+                  child: _buildTopMenu(),
+                  fit: FlexFit.loose,
+                  flex: 1,
+                ),
+                Flexible(
+                  child: _buildCenterBox(context),
+                  fit: FlexFit.tight,
+                  flex: 3,
+                ),
+                Expanded(
+                  flex: 0,
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: _bottomUSSDWidget(),
+                  ),
+                ),
+              ]),
             )
         )
     );

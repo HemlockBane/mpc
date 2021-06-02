@@ -8,6 +8,9 @@ import 'package:moniepoint_flutter/core/network/service_result.dart';
 import 'package:retrofit/http.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/otp.dart';
 
+import 'data/change_password_request_body.dart';
+import 'data/change_pin_request_body.dart';
+
 
 part 'usermanagement_service.g.dart';
 
@@ -15,7 +18,7 @@ part 'usermanagement_service.g.dart';
 @RestApi(baseUrl: "${ServiceConfig.OPERATION_SERVICE}api/v1/user")
 abstract class UserManagementService {
 
-    factory UserManagementService(Dio dio) = _UserManagementService;
+  factory UserManagementService(Dio dio) = _UserManagementService;
 
   @Headers(<String, dynamic>{
     "Content-Type": "application/json",
@@ -49,67 +52,24 @@ abstract class UserManagementService {
   @POST("/forgot_username/send_otp")
   Future<ServiceResult<OTP>> sendForgotUsernameOtp(@Body() ForgotPasswordRequest request);
 
+  @Headers(<String, dynamic>{
+    "Content-Type": "application/json",
+    "client-id": BuildConfig.CLIENT_ID,
+    "appVersion": BuildConfig.APP_VERSION
+  })
+  @PUT("/change_transaction_pin")
+  Future<ServiceResult<bool>> changeTransactionPin(
+    @Body() ChangePinRequestBody requestBody
+  );
 
-// @Headers("Content-Type: application/json")
-// @GET("check_username")
-// suspend fun
-// checkIfUsernameAvailable
-// (
-// @Query("username")
-// username: String?):
-// BooleanServiceResult
-//
-// @Headers("Content-Type: application/json")
-// @PUT("set_password_with_key")
-// suspend fun
-// setPasswordWithKey
-// (
-// @Body
-// requestBody: SetPasswordWithKeyRequestBody?):
-// CredentialsUpdateServiceResult
-//
-// @Headers("Content-Type: application/json")
-// @PUT("change_transaction_pin")
-// suspend fun
-// changeTransactionPin
-// (
-// @Header(HeaderKeys.AUTHORIZATION)
-// user: User?,@Body
-// requestBody: ChangePinRequestBody?,)
-// :
-// CredentialsUpdateServiceResult
-//
-// @Headers("Content-Type: application/json")
-// @PUT("change_password")
-// suspend fun
-// changePassword
-// (
-// @Header(HeaderKeys.AUTHORIZATION)
-// user: User?,@Body
-// requestBody: ChangePasswordRequestBody?,)
-// :
-// CredentialsUpdateServiceResult
-//
-// @Headers("Content-Type: application/json")
-// @PUT("set_transaction_pin_with_key")
-// suspend fun
-// setTransactionPin
-// (
-// @Header(HeaderKeys.AUTHORIZATION)
-// user: User?,@Body
-// requestBody: SetPinRequestBody?,)
-// :
-// CredentialsUpdateServiceResult
-//
-// @Headers("Content-Type: application/json")
-// @PUT("set_fingerprint")
-// suspend fun
-// setFingerprint
-// (
-// @Header(HeaderKeys.AUTHORIZATION)
-// user: User?,@Body
-// requestBody: FingerPrintAuthRequestBody?,)
-// :
-// CredentialsUpdateServiceResult?
+  @Headers(<String, dynamic>{
+    "Content-Type": "application/json",
+    "client-id": BuildConfig.CLIENT_ID,
+    "appVersion": BuildConfig.APP_VERSION
+  })
+  @PUT("/change_password")
+  Future<ServiceResult<bool>> changePassword(
+    @Body() ChangePasswordRequestBody requestBody
+  );
 
 }

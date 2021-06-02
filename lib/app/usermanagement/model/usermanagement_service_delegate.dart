@@ -1,3 +1,5 @@
+import 'package:moniepoint_flutter/app/usermanagement/model/data/change_password_request_body.dart';
+import 'package:moniepoint_flutter/app/usermanagement/model/data/change_pin_request_body.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/data/forgot_password_request.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/data/recovery_response.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/usermanagement_service.dart';
@@ -15,29 +17,43 @@ class UserManagementServiceDelegate with NetworkResource {
 
   Stream<Resource<RecoveryResponse>> forgotUsername(ForgotPasswordRequest requestBody) {
     return networkBoundResource(
-        fetchFromLocal: () => Future.value(null),
+        fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => this._service.forgotUsername(requestBody)
     );
   }
 
   Stream<Resource<RecoveryResponse>> forgotPassword(ForgotPasswordRequest requestBody) {
     return networkBoundResource(
-        fetchFromLocal: () => Future.value(null),
+        fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => this._service.forgotPassword(requestBody)
     );
   }
 
   Stream<Resource<OTP>> sendForgotUsernameOtp(ForgotPasswordRequest requestBody) {
     return networkBoundResource(
-        fetchFromLocal: () => Future.value(null),
+        fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => this._service.sendForgotUsernameOtp(requestBody)
     );
   }
 
   Stream<Resource<OTP>> sendForgotPasswordOtp(ForgotPasswordRequest requestBody) {
     return networkBoundResource(
-        fetchFromLocal: () => Future.value(null),
+        fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => this._service.sendForgotPasswordOtp(requestBody)
+    );
+  }
+
+  Stream<Resource<bool>> changePassword(ChangePasswordRequestBody requestBody) {
+    return networkBoundResource(
+        fetchFromLocal: () => Stream.value(null),
+        fetchFromRemote: () => this._service.changePassword(requestBody)
+    );
+  }
+
+  Stream<Resource<bool>> changePin(ChangePinRequestBody requestBody) {
+    return networkBoundResource(
+        fetchFromLocal: () => Stream.value(null),
+        fetchFromRemote: () => this._service.changeTransactionPin(requestBody)
     );
   }
 }

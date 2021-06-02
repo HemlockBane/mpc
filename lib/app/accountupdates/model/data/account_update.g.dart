@@ -24,10 +24,18 @@ AccountUpdate _$AccountUpdateFromJson(Map<String, dynamic> json) {
   );
 }
 
-Map<String, dynamic> _$AccountUpdateToJson(AccountUpdate instance) =>
-    <String, dynamic>{
-      'customerDetailInfo': instance.customerDetailInfo,
-      'nextOfKinInfo': instance.nextOfKinInfo,
-      'mailingAddressInfo': instance.mailingAddressInfo,
-      'customerIdentificationInfo': instance.identificationInfo,
-    };
+Map<String, dynamic> _$AccountUpdateToJson(AccountUpdate instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('customerDetailInfo', instance.customerDetailInfo);
+  writeNotNull('nextOfKinInfo', instance.nextOfKinInfo);
+  writeNotNull('mailingAddressInfo', instance.mailingAddressInfo);
+  writeNotNull('customerIdentificationInfo', instance.identificationInfo);
+  return val;
+}

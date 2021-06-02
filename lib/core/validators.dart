@@ -41,17 +41,8 @@ mixin Validators {
   bool isPhoneNumberValid(String? text) {
     if(text == null) return false;
     if (text.length < 10) return false;
-    final code = text.substring(0, 4);
-    if(code.contains("+234") && text.length >= 14){
-      return true;
-    }
-    else if(code.contains("234") && text.length >= 13){
-      return true;
-    }
-    else if(!code.contains("234") && text.length == 11) {
-      return true;
-    }
-    return false;
+    final reg = RegExp("^(\\+234[7-9]|234[7-9]|08|09|07)\\d{9}\$");
+    return reg.hasMatch(text.replaceAll(RegExp("\\s"), "").trim());
   }
 
   bool isEmailValid(String? text) {

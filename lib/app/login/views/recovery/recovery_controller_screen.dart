@@ -14,6 +14,8 @@ enum RecoveryMode {
 
 class RecoveryControllerScreen extends StatefulWidget {
 
+  static const String USERNAME_SCREEN = "username";
+
   final _navigatorKey = GlobalKey<NavigatorState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -33,7 +35,7 @@ class _RecoveryControllerScreen extends State<RecoveryControllerScreen> {
     late Widget page;
 
     switch (settings.name) {
-      case "username":
+      case RecoveryControllerScreen.USERNAME_SCREEN:
         page = RecoverUsernameScreen(widget._scaffoldKey);
         break;
       case "password":

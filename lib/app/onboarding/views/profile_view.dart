@@ -90,53 +90,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
         backgroundColor: Colors.transparent,
         builder: (context) {
           return BottomSheets.makeAppBottomSheet(
-            centerImageRes: 'res/drawables/ic_terms_and_condition.svg',
-            content: Stack(
-              children: [
-                Positioned(
-                    top: 20,
-                    right: 0,
-                    left: 0,
-                    child: Text('Terms & Conditions',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.darkBlue,
-                    )
-                )),
-                Positioned(
-                  top: 66,
-                  right: 16,
-                  left: 16,
-                  child: Divider(
-                    height: 4,
-                    color: Colors.colorFaded,
-                )),
-                Positioned(
-                    top: 70,
-                    bottom: 40,
-                    right: 0.0,
-                    left: 0.0,
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-                      child: Container(
-                        child: Text(Strings.terms_and_condition),
-                      ),
-                    )
-                ),
-                Positioned(
-                    bottom: 32,
-                    right: 16,
-                    left: 16,
-                    child: Divider(
-                      height: 4,
-                      color: Colors.colorFaded,
-                    )
-                ),
-              ],
-            )
-          );
+              centerImageBackgroundColor: Colors.primaryColor.withOpacity(0.1),
+              centerImageRes: 'res/drawables/ic_terms_and_condition.svg',
+              contentBackgroundColor: Colors.white,
+              content: Stack(
+                children: [
+                  Positioned(
+                      top: 20,
+                      right: 0,
+                      left: 0,
+                      child: Text('Terms & Conditions',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.textColorPrimary,
+                          ))),
+                  Positioned(
+                      top: 66,
+                      right: 16,
+                      left: 16,
+                      child: Divider(
+                        height: 4,
+                        color: Colors.colorFaded,
+                      )),
+                  Positioned(
+                      top: 70,
+                      bottom: 40,
+                      right: 0.0,
+                      left: 0.0,
+                      child: SingleChildScrollView(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                        child: Container(
+                          child: Text(Strings.terms_and_condition),
+                        ),
+                      )),
+                  Positioned(
+                      bottom: 32,
+                      right: 16,
+                      left: 16,
+                      child: Divider(
+                        height: 4,
+                        color: Colors.colorFaded,
+                      )),
+                ],
+              ));
         });
   }
 
@@ -150,52 +149,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
           borderRadius: BorderRadius.circular(8)),
       child: Text(
           txt,
-          style: TextStyle(color: Colors.darkBlue, fontFamily: Styles.defaultFont, fontSize: 16)
+          style: TextStyle(color: Colors.textColorPrimary, fontFamily: Styles.defaultFont, fontSize: 18)
       ).colorText({
-        "Terms & Conditions": Tuple(Colors.darkBlue, _showTermsAndConditionModal),
-        "Privacy Policy": Tuple(Colors.darkBlue, _showTermsAndConditionModal),
-      }, bold: false),
-    );
-  }
-
-  /// Returns each security drop down button
-  Widget buildDropDownItem(
-      int questionNumber,
-      List<SecurityQuestion> items,
-      AsyncSnapshot<SecurityQuestion> snapShot) {
-
-    final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
-
-    return InputDecorator(
-        decoration: InputDecoration(
-          border: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.colorFaded),
-            borderRadius: BorderRadius.circular(2)
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.colorFaded)
-          ),
-          contentPadding: EdgeInsets.only(left: 16, right: 21, top: 5, bottom: 5),
-        ),
-        child: DropdownButton(
-            underline: Container(),
-            icon: Icon(CustomFont.dropDown, color: Colors.primaryColor, size: 6),
-            isExpanded: true,
-            value: snapShot.data,
-            onChanged: (v) => viewModel.profileForm.onSecurityQuestionChange(questionNumber, v as SecurityQuestion),
-            style: const TextStyle(color: Colors.darkBlue, fontFamily: Styles.defaultFont, fontSize: 14),
-            items: items.map((SecurityQuestion securityQuestion) {
-              return DropdownMenuItem(
-                  value: securityQuestion,
-                  child: Text(securityQuestion.question)
-              );
-            }).toList()),
+        "Terms & Conditions": Tuple(Colors.textColorPrimary, _showTermsAndConditionModal),
+        "Privacy Policy": Tuple(Colors.textColorPrimary, _showTermsAndConditionModal),
+      }, bold: true, boldType: 1),
     );
   }
 
   /// Builds layout that holds all security questions
   Widget getSecurityQuestionLayout(BuildContext context, List<SecurityQuestion> items) {
     final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
+    final itemStyle = TextStyle(fontWeight: FontWeight.w600, color: Colors.deepGrey);
+    final selectedItemStyle = TextStyle(fontWeight: FontWeight.w600, color: Colors.deepGrey, backgroundColor: Colors.grey);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(
         'Security Question 1',
@@ -209,7 +175,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           initialData: (items.isNotEmpty) ? items.first : null,
           stream: viewModel.profileForm.questionOneStream,
           builder: (context, AsyncSnapshot<SecurityQuestion> snapShot) {
-            return buildDropDownItem(1, items, snapShot);
+            return Styles.buildDropDown(items, snapShot, (item, index) {
+              viewModel.profileForm.onSecurityQuestionChange(1, item as SecurityQuestion);
+            }, itemStyle: itemStyle);
           }),
       SizedBox(height: 16),
       StreamBuilder(
@@ -217,6 +185,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           builder: (context, snapshot) {
             return Styles.appEditText(
               hint: 'Answer 1',
+              fontSize: 13,
               onChanged: (v) => viewModel.profileForm.onAnswerChanged(1, v),
               errorText: snapshot.hasError ? snapshot.error.toString() : null,
             );
@@ -234,7 +203,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           initialData: (items.isNotEmpty && items.length > 1) ? items[1] : null,
           stream: viewModel.profileForm.questionTwoStream,
           builder: (context, AsyncSnapshot<SecurityQuestion> snapShot) {
-            return buildDropDownItem(2, items, snapShot);
+            return Styles.buildDropDown(items, snapShot, (item, index) {
+              viewModel.profileForm.onSecurityQuestionChange(2, item as SecurityQuestion);
+            }, itemStyle: itemStyle);
           }),
       SizedBox(height: 16),
       StreamBuilder(
@@ -242,6 +213,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           builder: (context, snapshot) {
             return Styles.appEditText(
               hint: 'Answer 2',
+              fontSize: 13,
               onChanged: (v) => viewModel.profileForm.onAnswerChanged(2, v),
               errorText: snapshot.hasError ? snapshot.error.toString() : null,
             );
@@ -259,7 +231,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           initialData: (items.isNotEmpty && items.length > 2) ? items[2] : null,
           stream: viewModel.profileForm.questionThreeStream,
           builder: (context, AsyncSnapshot<SecurityQuestion> snapShot) {
-            return buildDropDownItem(3, items, snapShot);
+            return Styles.buildDropDown(items, snapShot, (item, index) {
+              viewModel.profileForm.onSecurityQuestionChange(3, item as SecurityQuestion);
+            }, itemStyle: itemStyle);
           }),
       SizedBox(height: 16),
       StreamBuilder(
@@ -267,6 +241,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           builder: (context, snapshot) {
             return Styles.appEditText(
               hint: 'Answer 3',
+              fontSize: 13,
               onChanged: (v) => viewModel.profileForm.onAnswerChanged(3, v),
               errorText: snapshot.hasError ? snapshot.error.toString() : null,
             );
@@ -284,9 +259,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Text(
           'Create Your Profile',
           style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.darkBlue,
-            fontSize: 21,
+            fontWeight: FontWeight.w600,
+            color: Colors.colorPrimaryDark,
+            fontSize: 24,
           ),
           textAlign: TextAlign.start,
         ),
@@ -325,7 +300,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               Text(
                 ' Setup Mobile Transaction PIN',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.darkBlue),
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18, color: Colors.colorPrimaryDark),
               ),
               SizedBox(height: 16),
               StreamBuilder(
@@ -339,7 +314,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         SizedBox(height: 46),
         Text(
             'Security Questions',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Colors.darkBlue),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Colors.colorPrimaryDark),
         ),
         SizedBox(height: 16),
         StreamBuilder(
@@ -353,33 +328,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _buildTermsLayout(),
         SizedBox(height: 44),
         Spacer(),
-        StreamBuilder(
-          stream: viewModel.profileForm.isValid,
-          initialData: false,
-          builder: (context, AsyncSnapshot<bool> snapshot) {
-            return Stack(
-              children: [
-                SizedBox(
-                  width: double.infinity,
-                  child: Styles.appButton(
-                      onClick: (snapshot.hasData && snapshot.data == true) && !_isLoading
-                          ? () => subscribeUiToOnBoard()
-                          : null,
-                      text: 'Continue'
-                  ),
-                ),
-                Positioned(
-                    right: 16,
-                    top: 16,
-                    bottom: 16,
-                    child: _isLoading
-                        ? SpinKitThreeBounce(size: 20.0, color: Colors.white.withOpacity(0.5))
-                        : SizedBox()
-                )
-              ],
-            );
-          },
-        ),
+        Styles.statefulButton(
+            stream: viewModel.profileForm.isValid,
+            onClick: () => subscribeUiToOnBoard(),
+            text: "Continue",
+            isLoading: _isLoading
+        )
       ],
     );
   }

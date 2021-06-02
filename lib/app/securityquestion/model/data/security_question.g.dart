@@ -10,7 +10,7 @@ SecurityQuestion _$SecurityQuestionFromJson(Map<String, dynamic> json) {
   return SecurityQuestion(
     json['id'] as int,
     json['question'] as String,
-  )..isEnabled = json['isEnabled'] as bool? ?? false;
+  )..isEnabled = json['isEnabled'] as bool? ?? true;
 }
 
 Map<String, dynamic> _$SecurityQuestionToJson(SecurityQuestion instance) =>

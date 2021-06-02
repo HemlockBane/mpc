@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/transfer_beneficiary.dart';
+import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/account_creation_service.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/account_info_request.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/onboarding_service.dart';
@@ -64,6 +64,25 @@ void main() {
           emitsDone
         ]));
   });
+
+  test('test Service Errors',
+          () {
+        final onBoardingService = MockOnBoardingService();
+        final delegate = OnBoardingServiceDelegate(onBoardingService, MockAccountCreationService());
+        final requestBody = AccountInfoRequestBody(accountNumber: "5000028934");
+
+        when(onBoardingService.getAccount(requestBody)).thenThrow(
+            DioError(requestOptions: RequestOptions(data: "", path: ''))
+        );
+
+        expect(
+            delegate.getAccount(requestBody),
+            emitsInOrder([
+              isA<Loading>().having((e) => null, 'data', isNull),
+              isA<Error>().having((e) => e.message, 'message', equals('An unknown error occurred')),
+              emitsDone
+            ]));
+      });
 
   group('OnBoardingViewModelTest', () {
     //The rationale behind this is to avoid rebuilding the page

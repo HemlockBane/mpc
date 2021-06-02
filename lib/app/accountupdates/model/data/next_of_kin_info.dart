@@ -11,6 +11,7 @@ class NextOfKinInfo {
   String? nextOfKinRelationship;
   String? nextOfKinPhoneNumber;
   String? nextOfKinEmail;
+  @JsonKey(name: "nextOfKinCity", includeIfNull: false)
   String? nextOfKinCity;
   String? nextOfKinDOB;
   AddressInfo? addressInfo;

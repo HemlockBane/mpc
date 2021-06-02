@@ -1,7 +1,6 @@
-import 'package:flutter/material.dart' hide Colors;
+import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/bvn_otp_validation_result.dart';
 import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
@@ -9,10 +8,8 @@ import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
-import 'package:moniepoint_flutter/core/tuple.dart';
-import 'package:moniepoint_flutter/core/utils/call_utils.dart';
-import 'package:moniepoint_flutter/core/utils/text_utils.dart';
 import 'package:moniepoint_flutter/core/views/otp_ussd_info_view.dart';
+import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:provider/provider.dart';
 
 import 'new_account_view.dart';
@@ -89,8 +86,8 @@ class _NewAccountOTPScreen extends State<NewAccountOTPScreen> {
   @override
   Widget build(BuildContext context) {
     final ussd = getUSSD();
-    return Scaffold(
-      body: Container(
+    return ScrollView(
+      child: Container(
         height: double.infinity,
         width: double.infinity,
         padding: EdgeInsets.only(left: 16, right: 16, top: 41, bottom: 44),
@@ -101,8 +98,8 @@ class _NewAccountOTPScreen extends State<NewAccountOTPScreen> {
             Text(
               'Enter 6-Digit Code',
               style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.darkBlue,
+                fontWeight: FontWeight.w600,
+                color: Colors.colorPrimaryDark,
                 fontSize: 21,
               ),
               textAlign: TextAlign.start,
@@ -127,6 +124,7 @@ class _NewAccountOTPScreen extends State<NewAccountOTPScreen> {
             SizedBox(height: 20),
             OtpUssdInfoView(""),
             Spacer(),
+            SizedBox(height: 20),
             Stack(
               children: [
                 SizedBox(

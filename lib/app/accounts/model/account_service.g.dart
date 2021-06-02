@@ -72,6 +72,35 @@ class _AccountService implements AccountService {
     return value;
   }
 
+  @override
+  Future<ServiceResult<TransferBeneficiary>> getBeneficiaryDetails(
+      accountProviderCode, accountNumber) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'accountProviderCode': accountProviderCode,
+      r'accountNumber': accountNumber
+    };
+    final _data = <String, dynamic>{};
+    final _result = await _dio.fetch<Map<String, dynamic>>(
+        _setStreamType<ServiceResult<TransferBeneficiary>>(Options(
+                method: 'GET',
+                headers: <String, dynamic>{
+                  r'Content-Type': 'application/json',
+                  r'client-id': 'ANDROID',
+                  r'appVersion': '0.0.1'
+                },
+                extra: _extra,
+                contentType: 'application/json')
+            .compose(_dio.options, 'account-name',
+                queryParameters: queryParameters, data: _data)
+            .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = ServiceResult<TransferBeneficiary>.fromJson(
+      _result.data!,
+      (json) => TransferBeneficiary.fromJson(json as Map<String, dynamic>),
+    );
+    return value;
+  }
+
   RequestOptions _setStreamType<T>(RequestOptions requestOptions) {
     if (T != dynamic &&
         !(requestOptions.responseType == ResponseType.bytes ||

@@ -26,10 +26,12 @@ class MainActivity: FlutterActivity() {
                         val identifyResult = mResult as IdentifyEntitiesResult
 
                         if(identifyResult.entities.isNullOrEmpty()) {
-                            mapResult["facenotdetected"] = mapOf("value" to true)
+                            mapResult["facenotdetected"] = mapOf("value" to true, "confidence" to 100.0)
                             this.runOnUiThread { reply.success(mapResult) }
                             return@identify;
                         }
+
+                        mapResult["numberOfFaces"] = identifyResult.entities.size
 
                         identifyResult.entities.forEach {
                             val pose = it.pose

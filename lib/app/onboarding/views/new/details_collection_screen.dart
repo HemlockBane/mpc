@@ -59,9 +59,18 @@ class _CreateNewAccountState extends State<DetailCollectionScreen> {
     return Scaffold(
       body: Column(
         children: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-            child: PieProgressBar(),
+          FutureBuilder(
+            future: Future.value(true),
+            builder: (BuildContext mContext, AsyncSnapshot<void> snap) {
+              return (snap.hasData) ? Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                child: PieProgressBar(
+                    viewPager: _pageController,
+                    totalItemCount: pages.length,
+                    pageTitles: ["Selfie", "Signature", "USSD", "Profile"],
+                ),
+              ) : SizedBox();
+            },
           ),
           Expanded(child: PageView(
             physics: NeverScrollableScrollPhysics(),

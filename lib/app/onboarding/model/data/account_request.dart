@@ -46,6 +46,9 @@ class AccountCreationRequestBody extends ProfileCreationRequestBody {
   @JsonKey(name: "signatureUUID")
   String? signatureUUID;
 
+  @JsonKey(name: "livelinessCheck")
+  String? livelinessCheck;
+
   AccountCreationRequestBody():super();
 
   factory AccountCreationRequestBody.fromJson(Map<String, dynamic> data) => _$AccountCreationRequestBodyFromJson(data);

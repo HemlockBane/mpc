@@ -25,17 +25,26 @@ CustomerDetailInfo _$CustomerDetailInfoFromJson(Map<String, dynamic> json) {
   );
 }
 
-Map<String, dynamic> _$CustomerDetailInfoToJson(CustomerDetailInfo instance) =>
-    <String, dynamic>{
-      'title': instance.title,
-      'maritalStatus': instance.maritalStatus,
-      'mothersMaidenName': instance.mothersMaidenName,
-      'nationality': instance.nationality,
-      'religion': instance.religion,
-      'localGovernmentAreaOfOriginId': instance.localGovernmentAreaOfOriginId,
-      'gender': instance.gender,
-      'accountOpeningFormRef': instance.accountOpeningFormRef,
-      'employmentStatus': instance.employmentStatus,
-      'natureOfBusiness': instance.natureOfBusiness,
-      'addressInfo': instance.addressInfo,
-    };
+Map<String, dynamic> _$CustomerDetailInfoToJson(CustomerDetailInfo instance) {
+  final val = <String, dynamic>{
+    'title': instance.title,
+    'maritalStatus': instance.maritalStatus,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('mothersMaidenName', instance.mothersMaidenName);
+  val['nationality'] = instance.nationality;
+  val['religion'] = instance.religion;
+  val['localGovernmentAreaOfOriginId'] = instance.localGovernmentAreaOfOriginId;
+  writeNotNull('gender', instance.gender);
+  writeNotNull('accountOpeningFormRef', instance.accountOpeningFormRef);
+  val['employmentStatus'] = instance.employmentStatus;
+  writeNotNull('natureOfBusiness', instance.natureOfBusiness);
+  writeNotNull('addressInfo', instance.addressInfo);
+  return val;
+}

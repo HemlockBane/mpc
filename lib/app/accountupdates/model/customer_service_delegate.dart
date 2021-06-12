@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:moniepoint_flutter/app/accounts/model/data/scheme_dao.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/customer_service.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/data/account_update.dart';
@@ -9,15 +10,22 @@ import 'package:moniepoint_flutter/core/network/resource.dart';
 
 class CustomerServiceDelegate with NetworkResource {
   late final CustomerService _service;
+  late final SchemeDao _schemeDao;
 
-  CustomerServiceDelegate(CustomerService service) {
+  CustomerServiceDelegate(CustomerService service, SchemeDao schemeDao) {
     this._service = service;
+    this._schemeDao = schemeDao;
   }
 
-  Stream<Resource<List<Tier>>> getSchemes() {
+  Stream<Resource<List<Tier>>> getSchemes({bool fetchFromRemote = true}) {
     return networkBoundResource(
-        fetchFromLocal: () => Stream.value(null),
-        fetchFromRemote: () => this._service.getAllOnboardingSchemes()
+        shouldFetchLocal: true,
+        shouldFetchFromRemote: (localData) => localData?.isEmpty == true || fetchFromRemote,
+        fetchFromLocal: () => _schemeDao.getSchemes(),
+        fetchFromRemote: () => this._service.getAllOnboardingSchemes(),
+        saveRemoteData: (data) async {
+          await _schemeDao.insertItems(data);
+        }
     );
   }
 

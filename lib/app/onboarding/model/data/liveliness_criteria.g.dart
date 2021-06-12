@@ -81,12 +81,63 @@ Map<String, dynamic> _$CriteriaToJson(Criteria instance) => <String, dynamic>{
 
 PoseValue _$PoseValueFromJson(Map<String, dynamic> json) {
   return PoseValue(
-    positive: (json['positive'] as num?)?.toDouble(),
-    negative: (json['negative'] as num?)?.toDouble(),
+    start: (json['start'] as num?)?.toDouble(),
+    end: (json['end'] as num?)?.toDouble(),
+    singleValue: (json['singleValue'] as num?)?.toDouble(),
+    livelinessComparator:
+        _$enumDecodeNullable(_$OperatorEnumMap, json['livelinessComparator']),
   );
 }
 
 Map<String, dynamic> _$PoseValueToJson(PoseValue instance) => <String, dynamic>{
-      'positive': instance.positive,
-      'negative': instance.negative,
+      'start': instance.start,
+      'end': instance.end,
+      'singleValue': instance.singleValue,
+      'livelinessComparator': _$OperatorEnumMap[instance.livelinessComparator],
     };
+
+K _$enumDecode<K, V>(
+  Map<K, V> enumValues,
+  Object? source, {
+  K? unknownValue,
+}) {
+  if (source == null) {
+    throw ArgumentError(
+      'A value must be provided. Supported values: '
+      '${enumValues.values.join(', ')}',
+    );
+  }
+
+  return enumValues.entries.singleWhere(
+    (e) => e.value == source,
+    orElse: () {
+      if (unknownValue == null) {
+        throw ArgumentError(
+          '`$source` is not one of the supported values: '
+          '${enumValues.values.join(', ')}',
+        );
+      }
+      return MapEntry(unknownValue, enumValues.values.first);
+    },
+  ).key;
+}
+
+K? _$enumDecodeNullable<K, V>(
+  Map<K, V> enumValues,
+  dynamic source, {
+  K? unknownValue,
+}) {
+  if (source == null) {
+    return null;
+  }
+  return _$enumDecode<K, V>(enumValues, source, unknownValue: unknownValue);
+}
+
+const _$OperatorEnumMap = {
+  Operator.LESS_THAN: 'LESS_THAN',
+  Operator.GREATER_THAN: 'GREATER_THAN',
+  Operator.LESS_THAN_OR_EQUAL_TO: 'LESS_THAN_OR_EQUAL_TO',
+  Operator.GREATER_THAN_OR_EQUAL_TO: 'GREATER_THAN_OR_EQUAL_TO',
+  Operator.EQUAL_TO: 'EQUAL_TO',
+  Operator.RANGE: 'RANGE',
+};

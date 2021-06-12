@@ -23,7 +23,7 @@ Customer _$CustomerFromJson(Map<String, dynamic> json) {
     (json['customerAccountUsers'] as List<dynamic>?)
         ?.map((e) => CustomerAccountUsers.fromJson(e as Object))
         .toList(),
-    (json['timeAdded'] as List<dynamic>?)?.map((e) => e as int).toList(),
+    json['timeAdded'] as String?,
     json['additionalInfoFlag'] == null
         ? null
         : AccountUpdateFlag.fromJson(json['additionalInfoFlag'] as Object),

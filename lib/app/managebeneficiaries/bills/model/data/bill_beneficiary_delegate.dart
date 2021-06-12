@@ -15,15 +15,11 @@ class BillBeneficiaryServiceDelegate with NetworkResource {
   late final BillBeneficiaryService _service;
   late final BillBeneficiaryDao _beneficiaryDao;
 
-  late final _BillBeneficiaryMediator _billBeneficiaryMediator;
-
   BillBeneficiaryServiceDelegate(
       BillBeneficiaryService service,
       BillBeneficiaryDao beneficiaryDao) {
     this._service = service;
     this._beneficiaryDao = beneficiaryDao;
-
-    _billBeneficiaryMediator = _BillBeneficiaryMediator(_service, _beneficiaryDao);
   }
 
   PagingSource<int, BillBeneficiary> getBillBeneficiaries(int customerId) {
@@ -34,7 +30,19 @@ class BillBeneficiaryServiceDelegate with NetworkResource {
               .map((event) => Page(event, params.key, event.length == params.loadSize ? offset + 1 : null)
           );
         },
-      remoteMediator: _billBeneficiaryMediator..customerId = customerId
+      remoteMediator: _BillBeneficiaryMediator(_service, _beneficiaryDao)..customerId = customerId
+    );
+  }
+
+  PagingSource<int, BillBeneficiary> searchBillBeneficiaries(int customerId, String search) {
+    return PagingSource(
+        localSource: (LoadParams params) {
+          final offset = params.key ?? 0;
+          return _beneficiaryDao.searchPagedBillBeneficiary(search, offset * params.loadSize, params.loadSize)
+              .map((event) => Page(event, params.key, event.length == params.loadSize ? offset + 1 : null)
+          );
+        },
+        remoteMediator: _BillBeneficiaryMediator(_service, _beneficiaryDao)..customerId = customerId
     );
   }
 
@@ -42,10 +50,17 @@ class BillBeneficiaryServiceDelegate with NetworkResource {
     return networkBoundResource(
         shouldFetchLocal: true,
         fetchFromLocal: () => _beneficiaryDao.getFrequentBeneficiariesByBiller(limit, billerCode),
-        fetchFromRemote: () => this._service.getFrequentBeneficiaries(limit),
+        fetchFromRemote: () => this._service.getFrequentBeneficiaries(100),
         processRemoteResponse: (v) {
           _beneficiaryDao.insertItems(v.data!.result!);
         }
+    );
+  }
+
+  Stream<Resource<bool>> deleteBillBeneficiary(int beneficiaryId, int pin, int customerId) {
+    return networkBoundResource(
+        fetchFromLocal: () => Stream.value(null),
+        fetchFromRemote: () => _service.deleteBeneficiary(beneficiaryId, customerId, pin)
     );
   }
 

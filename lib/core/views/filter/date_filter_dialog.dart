@@ -11,6 +11,10 @@ import '../custom_check_box.dart';
 
 class DateFilterDialog extends StatefulWidget {
 
+  final String dialogTitle;
+
+  DateFilterDialog({this.dialogTitle = "Filter by Date"});
+
   @override
   State<StatefulWidget> createState() => _DateFilterDialog();
 
@@ -129,7 +133,7 @@ class _DateFilterDialog extends State<DateFilterDialog> {
               children: [
                 SizedBox(height: 22),
                 Center(
-                  child: Text('Filter by Date',
+                  child: Text(widget.dialogTitle,
                       style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w600,

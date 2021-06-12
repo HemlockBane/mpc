@@ -8,10 +8,21 @@ class PreferenceUtil {
   static const String LOGGED_IN_USER_KEY = "logged_in_user";
   static const String LOGGED_IN_USER_NAME = "logged_in_user_name";
   static const String HIDE_ACCOUNT_BAL = "hide_account_balance";
+  static const String SYSTEM_CONFIG = "system-configuration";
+  static const String USSD_CONFIG = "ussd-configuration";
+  static const String LIVELINESS_CONFIG = "liveliness-configuration";
+  static const String FINGER_PRINT_ENABLED = "is_finger_print_enabled";
+  static const String FINGER_PRINT_USERNAME = "finger_print_username";
+  static const String FINGER_PRINT_REQUEST_COUNTER = "finger_request_counter";
   static SharedPreferences? _preferences;
+
+  static initAsync() async  {
+    _preferences = await SharedPreferences.getInstance();
+  }
 
   PreferenceUtil.init() {
     SharedPreferences.getInstance().then((value) {
+      print("Initialized Preference");
       _preferences = value;
     });
   }
@@ -64,11 +75,54 @@ class PreferenceUtil {
     _preferences?.setString("$username-$appendKey", "$value");
   }
 
+  static T? getValue<T>(String appendKey) {
+    if(T.toString() == "bool") return _preferences?.getBool("$appendKey") as T?;
+    String? data = _preferences?.getString("$appendKey");
+    return data as T?;
+  }
+
+  static void saveValue<T>(String appendKey, T value) {
+    if(T.toString() == "bool") {
+      _preferences?.setBool("$appendKey", value as bool);
+      return;
+    }
+    _preferences?.setString("$appendKey", "$value");
+  }
+
   static T? getValueForLoggedInUser<T>(String appendKey) {
     final username = getSavedUsername();
-    print(T.toString());
     if(T.toString() == "bool") return _preferences?.getBool("$username-$appendKey") as T?;
     String? data = _preferences?.getString("$username-$appendKey");
     return data as T?;
+  }
+
+  static void setAuthFingerprintUsername() {
+    final username = getSavedUsername();
+    if(username == null) return;
+    _preferences?.setString(FINGER_PRINT_USERNAME, username);
+  }
+
+  static String? getAuthFingerprintUsername() {
+    return _preferences?.getString(FINGER_PRINT_USERNAME);
+  }
+
+  static void setFingerPrintEnabled(bool isEnabled) {
+    final username = getSavedUsername();
+    _preferences?.setBool("$username-$FINGER_PRINT_ENABLED", isEnabled);
+  }
+
+  static bool getFingerPrintEnabled() {
+    final username = getSavedUsername();
+    return _preferences?.getBool("$username-$FINGER_PRINT_ENABLED") ?? false;
+  }
+
+  static void setFingerprintRequestCounter(int numOfRequest) {
+    final username = getSavedUsername();
+    _preferences?.setInt("$username-$FINGER_PRINT_REQUEST_COUNTER", numOfRequest);
+  }
+
+  static int getFingerprintRequestCounter() {
+    final username = getSavedUsername();
+    return _preferences?.getInt("$username-$FINGER_PRINT_REQUEST_COUNTER") ?? 0;
   }
 }

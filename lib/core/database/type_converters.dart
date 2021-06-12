@@ -2,7 +2,10 @@ import 'dart:convert';
 
 import 'package:floor/floor.dart';
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/alternate_scheme_requirement.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/scheme_requirement.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_history_item.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_service_provider.dart';
@@ -228,12 +231,57 @@ class TransactionChannelConverter extends TypeConverter<TransactionChannel?, Str
 
   @override
   String? encode(TransactionChannel? value) {
-    return (value != null)  ? describeEnum(value) : null;
+    return (value != null) ? describeEnum(value) : null;
   }
 }
 
 
+class SchemeRequirementConverter extends TypeConverter<SchemeRequirement?, String?>{
+  @override
+  SchemeRequirement? decode(String? databaseValue) {
+    if(databaseValue == null) return null;
+    final dynamic list = jsonDecode(databaseValue);
+    return SchemeRequirement.fromJson(list);
+  }
 
+  @override
+  String? encode(SchemeRequirement? value) {
+    return (value != null)  ? jsonEncode(value) : null;
+  }
+}
+
+class AlternateSchemeRequirementConverter extends TypeConverter<AlternateSchemeRequirement?, String?>{
+  @override
+  AlternateSchemeRequirement? decode(String? databaseValue) {
+    if(databaseValue == null) return null;
+    final dynamic list = jsonDecode(databaseValue);
+    return AlternateSchemeRequirement.fromJson(list);
+  }
+
+  @override
+  String? encode(AlternateSchemeRequirement? value) {
+    return (value != null)  ? jsonEncode(value) : null;
+  }
+}
+
+class DateStringToLongConverter extends TypeConverter<String?, int?>{
+  @override
+  String? decode(int? databaseValue) {
+    if(databaseValue == null) return null;
+    final DateTime list = DateTime.fromMillisecondsSinceEpoch(databaseValue);
+    return DateFormat().format(list);
+  }
+
+  @override
+  int? encode(String? value) {
+    return (value != null)  ? DateTime.parse(value).millisecondsSinceEpoch : null;
+  }
+}
+
+
+int stringDateTime(String a) {
+  return DateTime.parse(a).millisecondsSinceEpoch;
+}
 // class DateListTypeConverter extends TypeConverter<List<int>?, int?>{
 //   @override
 //   List<int>? decode(int? databaseValue) {

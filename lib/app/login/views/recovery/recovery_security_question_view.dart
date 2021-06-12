@@ -128,6 +128,7 @@ class _SecurityQuestionScreen extends State<SecurityQuestionScreen> {
     if(viewModel.recoveryMode == null) viewModel.setRecoveryMode(widget.mode);
 
     return ScrollView(
+      maxHeight: MediaQuery.of(context).size.height,
       child: Stack(
         children: [
           Container(
@@ -144,18 +145,18 @@ class _SecurityQuestionScreen extends State<SecurityQuestionScreen> {
                             'Security Question',
                             textAlign: TextAlign.start,
                             style: TextStyle(
-                                color: Colors.darkBlue,
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold),
+                                color: Colors.colorPrimaryDark,
+                                fontSize: 25,
+                                fontWeight: FontWeight.w600),
                           ),
                           SizedBox(height: 24),
                           Text(
                             'QUESTION',
                             textAlign: TextAlign.start,
                             style: TextStyle(
-                                color: Colors.greyTextColor.withOpacity(0.3),
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold),
+                                color: Colors.textColorDeem.withOpacity(0.3),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600),
                           ),
                           SizedBox(height: 8),
                           Flexible(child: Text(
@@ -175,7 +176,7 @@ class _SecurityQuestionScreen extends State<SecurityQuestionScreen> {
                                 icon: Icon(CustomFont.refresh_question, color: Colors.primaryColor, size: 16),
                                 label: Text('   Ask me another question',
                                     style: TextStyle(
-                                        color: Colors.darkBlue,
+                                        color: Colors.colorPrimaryDark,
                                         fontSize: 14, fontWeight: FontWeight.normal,
                                         fontFamily: Styles.defaultFont
                                     ))
@@ -186,9 +187,9 @@ class _SecurityQuestionScreen extends State<SecurityQuestionScreen> {
                             'ANSWER',
                             textAlign: TextAlign.start,
                             style: TextStyle(
-                                color: Colors.greyTextColor.withOpacity(0.3),
+                                color: Colors.textColorDeem.withOpacity(0.3),
                                 fontSize: 13,
-                                fontWeight: FontWeight.bold),
+                                fontWeight: FontWeight.w600),
                           ),
                           SizedBox(height: 8),
                           Styles.appEditText(
@@ -201,27 +202,12 @@ class _SecurityQuestionScreen extends State<SecurityQuestionScreen> {
                       ),
                     )
                 ),
-                Stack(
-                  children: [
-                    SizedBox(
-                      width: double.infinity,
-                      child: Styles.appButton(
-                          elevation: 0,
-                          onClick: !_isLoading && _hasAnswer
-                              ? () => subscribeUiToAnswerSecurityQuestion()
-                              : null,
-                          text: 'Continue'),
-                    ),
-                    Positioned(
-                        right: 16,
-                        top: 16,
-                        bottom: 16,
-                        child: _isLoading
-                            ? SpinKitThreeBounce(
-                            size: 20.0,
-                            color: Colors.white.withOpacity(0.5))
-                            : SizedBox())
-                  ],
+                Styles.statefulButton2(
+                    elevation: 0,
+                    isValid: !_isLoading && _hasAnswer,
+                    onClick: subscribeUiToAnswerSecurityQuestion,
+                    text: 'Continue',
+                    isLoading: _isLoading
                 ),
                 SizedBox(height: 16),
               ],

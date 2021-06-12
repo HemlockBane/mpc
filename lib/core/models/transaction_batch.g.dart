@@ -22,27 +22,10 @@ TransactionBatch _$TransactionBatchFromJson(Map<String, dynamic> json) {
     responseCode: json['responseCode'] as String?,
     comment: json['comment'] as String?,
     count: json['count'] as int?,
-    createdOn:
-        (json['createdOn'] as List<dynamic>?)?.map((e) => e as int).toList(),
     minorTotalAmount: (json['minorTotalAmount'] as num?)?.toDouble(),
     transactionStatus: json['transactionStatus'] as String?,
     paymentMethod: json['paymentMethod'] as String?,
-    paymentStartDate: (json['paymentStartDate'] as List<dynamic>?)
-        ?.map((e) => e as int)
-        .toList(),
-    nextPaymentDate: (json['nextPaymentDate'] as List<dynamic>?)
-        ?.map((e) => e as int)
-        .toList(),
-    paymentEndDate: (json['paymentEndDate'] as List<dynamic>?)
-        ?.map((e) => e as int)
-        .toList(),
-    startPayDate: json['startPayDate'] as int?,
-    nextPayDate: json['nextPayDate'] as int?,
-    endPayDate: json['endPayDate'] as int?,
-    creationDate: json['creationDate'] as int?,
     transactionName: json['transactionName'] as String?,
-    completedOn:
-        (json['completedOn'] as List<dynamic>?)?.map((e) => e as int).toList(),
     tracked: json['tracked'] as bool?,
     rechargeDate: json['rechargeDate'] as int?,
     creationTimeStamp: json['creationTimeStamp'] as int?,
@@ -65,19 +48,10 @@ Map<String, dynamic> _$TransactionBatchToJson(TransactionBatch instance) =>
       'responseCode': instance.responseCode,
       'comment': instance.comment,
       'count': instance.count,
-      'createdOn': instance.createdOn,
       'minorTotalAmount': instance.minorTotalAmount,
       'transactionStatus': instance.transactionStatus,
       'paymentMethod': instance.paymentMethod,
-      'paymentStartDate': instance.paymentStartDate,
-      'nextPaymentDate': instance.nextPaymentDate,
-      'paymentEndDate': instance.paymentEndDate,
-      'startPayDate': instance.startPayDate,
-      'nextPayDate': instance.nextPayDate,
-      'endPayDate': instance.endPayDate,
-      'creationDate': instance.creationDate,
       'transactionName': instance.transactionName,
-      'completedOn': instance.completedOn,
       'tracked': instance.tracked,
       'rechargeDate': instance.rechargeDate,
       'creationTimeStamp': instance.creationTimeStamp,

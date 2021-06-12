@@ -14,6 +14,7 @@ import 'package:moniepoint_flutter/app/billpayments/views/bill_payment_view.dart
 import 'package:moniepoint_flutter/app/transfers/views/transfer_beneficiary_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:moniepoint_flutter/core/views/transaction_tab.dart';
 import 'package:provider/provider.dart';
 
@@ -65,35 +66,38 @@ class _BillScreen extends State<BillScreen> {
               backgroundColor: Colors.backgroundWhite,
               elevation: 0
           ),
-          body: Column(
-            children: [
-              SizedBox(height: 16),
-              TransactionTab(
-                  TabBar(
-                    indicator: BoxDecoration(
-                        borderRadius: BorderRadius.circular(50),
-                        color: Colors.primaryColor
-                    ),
-                    unselectedLabelColor: Color(0XFF8030424C),
-                    tabs: [
-                      Tab(
-                        text: "Bill Payment",
+          body: SessionedWidget(
+              context: context,
+              child: Column(
+                children: [
+                  SizedBox(height: 16),
+                  TransactionTab(
+                      TabBar(
+                        indicator: BoxDecoration(
+                            borderRadius: BorderRadius.circular(50),
+                            color: Colors.primaryColor
+                        ),
+                        unselectedLabelColor: Color(0XFF8030424C),
+                        tabs: [
+                          Tab(
+                            text: "Bill Payment",
+                          ),
+                          Tab(
+                            text: "History",
+                          )
+                        ],
                       ),
-                      Tab(
-                        text: "History",
+                      Colors.tabBackground.withOpacity(0.1)),
+                  Expanded(
+                      child: TabBarView(
+                          children: [
+                            _BillViewNavigator(widget._scaffoldKey, widget._navigatorKey),
+                            BillHistoryScreen(widget._scaffoldKey),
+                          ]
                       )
-                    ],
-                  ),
-                  Colors.tabBackground.withOpacity(0.1)),
-              Expanded(
-                  child: TabBarView(
-                      children: [
-                        _BillViewNavigator(widget._scaffoldKey, widget._navigatorKey),
-                        BillHistoryScreen(widget._scaffoldKey),
-                      ]
                   )
-              )
-            ],
+                ],
+              ),
           ),
         ),
       ),

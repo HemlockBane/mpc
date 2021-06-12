@@ -51,6 +51,25 @@ class AirtimeBeneficiaryServiceDelegate with NetworkResource {
     );
   }
 
+  PagingSource<int, AirtimeBeneficiary> searchAirtimeBeneficiaries(String search) {
+    return PagingSource(
+        localSource: (LoadParams params) {
+          final offset = params.key ?? 0;
+          return _beneficiaryDao.searchPagedAirtimeBeneficiary(search, offset * params.loadSize, params.loadSize)
+              .map((event) => Page(event, params.key, event.length == params.loadSize ? offset + 1 : null)
+          );
+        },
+        remoteMediator: _airtimeBeneficiaryMediator
+    );
+  }
+
+  Stream<Resource<bool>> deleteAirtimeBeneficiary(int beneficiaryId, int pin, int customerId) {
+    return networkBoundResource(
+        fetchFromLocal: () => Stream.value(null),
+        fetchFromRemote: () => _service.deleteBeneficiary(beneficiaryId, customerId, pin)
+    );
+  }
+
 }
 
 class _AirtimeBeneficiaryMediator extends AbstractDataCollectionMediator<int, AirtimeBeneficiary> {

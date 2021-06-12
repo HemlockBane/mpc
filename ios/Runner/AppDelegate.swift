@@ -11,7 +11,7 @@ import GoogleMaps
   ) -> Bool {
     GeneratedPluginRegistrant.register(with: self)
     FlutterDownloaderPlugin.setPluginRegistrantCallback(registerPlugins)
-    GMSServices.provideAPIKey("AIzaSyBaWvpAZu9ODUJqNMpJ_ycud2BBh-D2HGE")
+    GMSServices.provideAPIKey("AIzaSyAZ4YHxMdQYIzvEepEUVYdFUILdCN3LxA8")
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 }

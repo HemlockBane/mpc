@@ -1,4 +1,7 @@
 abstract class Beneficiary {
+
+  int getRecordId();
+
   String getEntityId();
 
   String getAccountName();

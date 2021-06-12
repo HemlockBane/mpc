@@ -19,8 +19,7 @@ SchemeCode _$SchemeCodeFromJson(Map<String, dynamic> json) {
         ?.map((e) => e as String)
         .toList(),
     customerType: json['customerType'] as String?,
-    timeAdded:
-        (json['timeAdded'] as List<dynamic>?)?.map((e) => e as int).toList(),
+    timeAdded: json['timeAdded'] as String?,
     defaultAccountRole: json['defaultAccountRole'] as String?,
   );
 }

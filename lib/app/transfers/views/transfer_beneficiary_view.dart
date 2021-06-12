@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide ScrollView, Colors;
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/app/customer/account_provider.dart';
 import 'package:moniepoint_flutter/app/institutions/institution_view_model.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_list_item.dart';
@@ -14,9 +15,11 @@ import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/list_view_util.dart';
+import 'package:moniepoint_flutter/core/views/generic_list_placeholder.dart';
 import 'package:provider/provider.dart';
 
 class TransferBeneficiaryScreen extends StatefulWidget {
@@ -66,7 +69,7 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
     if(provider != null) {
       doNameEnquiry(
           provider,
-          TransferBeneficiary(accountName: "", accountNumber: _accountNumberController.text)
+          TransferBeneficiary(id:0, accountName: "", accountNumber: _accountNumberController.text)
       );
     }
   }
@@ -103,6 +106,10 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
         loadingView: BeneficiaryShimmer(),
         snapshot: a,
         animationController: _animationController,
+        emptyPlaceholder: GenericListPlaceholder(
+            SvgPicture.asset('res/drawables/ic_empty_beneficiary.svg'),
+            'You have no saved transfer \nbeneficiaries yet.'
+        ),
         currentList: _currentItems,
         listView: (List<TransferBeneficiary>? items) {
           return ListView.separated(
@@ -122,6 +129,16 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
               });
         }
     );
+  }
+
+  void _selectBeneficiary() async {
+    final beneficiary = await Navigator.of(widget._scaffoldKey.currentContext!).pushNamed(Routes.SELECT_TRANSFER_BENEFICIARY);
+    if(beneficiary is TransferBeneficiary) {
+      final provider = AccountProvider()
+        ..bankCode = beneficiary.getBeneficiaryProviderCode()
+        ..name = beneficiary.getBeneficiaryProviderName();
+      doNameEnquiry(provider, beneficiary, saveBeneficiary: false);
+    }
   }
 
   @override
@@ -151,7 +168,7 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
                   padding : EdgeInsets.only(left: 16, right: 16),
                   child: Styles.appEditText(
                       hint: 'Enter Account Number',
-                      padding: EdgeInsets.only(top: 17, bottom: 17),
+                      padding: EdgeInsets.only(top: 19, bottom: 19),
                       animateHint: false,
                       controller: _accountNumberController,
                       inputFormats: [FilteringTextInputFormatter.digitsOnly],
@@ -211,7 +228,8 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
               child: Center(
                 child: TextButton(
                   child:Text('View all Beneficiaries', style: TextStyle(color: Colors.solidOrange, fontWeight: FontWeight.bold)),
-                  onPressed: ()=>null),
+                  onPressed: _selectBeneficiary
+                ),
               ),
             )
           ],
@@ -224,6 +242,7 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
   @override
   void dispose() {
     _accountNumberController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 

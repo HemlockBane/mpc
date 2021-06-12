@@ -29,7 +29,6 @@ class AirtimeServiceDelegate with NetworkResource {
   late final AirtimeServiceProviderDao _serviceProviderDao;
   late final AirtimeServiceProviderItemDao _serviceProviderItemDao;
 
-  late final _AirtimeMediator remoteMediator;
 
   AirtimeServiceDelegate(
       AirtimeService service,
@@ -44,7 +43,6 @@ class AirtimeServiceDelegate with NetworkResource {
     this._serviceProviderItemDao = serviceProviderItemDao;
     this._dataTopUpService = dataTopUpService;
 
-    remoteMediator = _AirtimeMediator(_service, _airtimeDao);
   }
 
   Stream<Resource<TransactionStatus>> makePurchase(AirtimePurchaseRequestBody requestBody) {
@@ -63,7 +61,7 @@ class AirtimeServiceDelegate with NetworkResource {
               filterResult.startDate, filterResult.endDate, 0, params.loadSize
           ).map((event) => Page(event, params.key, event.length == params.loadSize ? offset + 1 : null));
         },
-        remoteMediator: remoteMediator..filterResult = filterResult
+        remoteMediator: _AirtimeMediator(_service, _airtimeDao)..filterResult = filterResult
     );
   }
 
@@ -104,6 +102,10 @@ class AirtimeServiceDelegate with NetworkResource {
           _serviceProviderItemDao.insertItems(response.data?.result ?? []);
         }
     );
+  }
+
+  Future<AirtimeTransaction?> getSingleTransactionById(int id) {
+    return _airtimeDao.getAirtimeTransactionById(id);
   }
 
 }

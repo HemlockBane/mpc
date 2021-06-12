@@ -54,103 +54,92 @@ class _RecoverPasswordScreen extends State<RecoverPasswordScreen> {
     final viewModel = Provider.of<RecoveryViewModel>(context, listen: false);
     viewModel.setRecoveryMode(RecoveryMode.PASSWORD_RECOVERY);
 
-    return ScrollView(
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 32, horizontal: 16),
-        child: Column(
-          children: [
-            Expanded(
-                child: Center(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Recover Password',
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                            color: Colors.darkBlue,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold),
+    return SingleChildScrollView(
+      physics: NeverScrollableScrollPhysics(),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          minHeight: MediaQuery.of(context).size.height,
+          minWidth: MediaQuery.of(context).size.width
+        ),
+        child: IntrinsicHeight(
+          child:  Container(
+            padding: EdgeInsets.symmetric(vertical: 32, horizontal: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                    fit: FlexFit.loose,
+                    child: Center(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Recover Password',
+                            textAlign: TextAlign.start,
+                            style: TextStyle(
+                                color: Colors.colorPrimaryDark,
+                                fontSize: 25,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                              'Please enter the account number and username linked to your account. ',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.textColorBlack,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.normal)),
+                          SizedBox(height: 44),
+                          StreamBuilder(
+                            stream: viewModel.passwordRecoveryForm.accountNumberStream,
+                            builder: (context, snapshot) {
+                              return Styles.appEditText(
+                                  hint: 'Account Number',
+                                  inputFormats: [
+                                    LengthLimitingTextInputFormatter(10),
+                                    FilteringTextInputFormatter.digitsOnly
+                                  ],
+                                  animateHint: true,
+                                  onChanged: viewModel.passwordRecoveryForm.onAccountNumberChanged,
+                                  errorText: snapshot.hasError
+                                      ? snapshot.error.toString()
+                                      : null,
+                                  startIcon: Icon(CustomFont.bankIcon, color: Colors.colorFaded)
+                              );
+                            },
+                          ),
+                          SizedBox(height: 16),
+                          StreamBuilder(
+                            stream: viewModel.passwordRecoveryForm.usernameStream,
+                            builder: (context, snapshot) {
+                              return Styles.appEditText(
+                                  hint: 'Username',
+                                  inputFormats: [LengthLimitingTextInputFormatter(11)],
+                                  animateHint: true,
+                                  onChanged: viewModel.passwordRecoveryForm.onUsernameChanged,
+                                  errorText: snapshot.hasError
+                                      ? snapshot.error.toString()
+                                      : null,
+                                  startIcon: Icon(CustomFont.username_icon, color: Colors.colorFaded)
+                              );
+                            },
+                          ),
+                          SizedBox(height: 100),
+                        ],
                       ),
-                      SizedBox(height: 8),
-                      Text(
-                          'Please enter the account number and username linked to your account. ',
-                          textAlign: TextAlign.start,
-                          style: TextStyle(
-                              color: Colors.textColorBlack,
-                              fontSize: 16,
-                              fontWeight: FontWeight.normal)),
-                      SizedBox(height: 44),
-                      StreamBuilder(
-                        stream: viewModel.passwordRecoveryForm.accountNumberStream,
-                        builder: (context, snapshot) {
-                          return Styles.appEditText(
-                              hint: 'Account Number',
-                              inputFormats: [
-                                LengthLimitingTextInputFormatter(10),
-                                FilteringTextInputFormatter.digitsOnly
-                              ],
-                              animateHint: true,
-                              onChanged: viewModel.passwordRecoveryForm.onAccountNumberChanged,
-                              errorText: snapshot.hasError
-                                  ? snapshot.error.toString()
-                                  : null,
-                              startIcon: Icon(CustomFont.bankIcon, color: Colors.colorFaded)
-                          );
-                        },
-                      ),
-                      SizedBox(height: 16),
-                      StreamBuilder(
-                        stream: viewModel.passwordRecoveryForm.usernameStream,
-                        builder: (context, snapshot) {
-                          return Styles.appEditText(
-                              hint: 'Username',
-                              inputFormats: [LengthLimitingTextInputFormatter(11)],
-                              animateHint: true,
-                              onChanged: viewModel.passwordRecoveryForm.onUsernameChanged,
-                              errorText: snapshot.hasError
-                                  ? snapshot.error.toString()
-                                  : null,
-                              startIcon: Icon(CustomFont.username_icon, color: Colors.colorFaded)
-                          );
-                        },
-                      ),
-                      SizedBox(height: 100),
-                    ],
-                  ),
-                )),
-            StreamBuilder(
-              stream: viewModel.passwordRecoveryForm.isValid,
-              initialData: false,
-              builder: (context, AsyncSnapshot<bool> snapshot) {
-                return Stack(
-                  children: [
-                    SizedBox(
-                      width: double.infinity,
-                      child: Styles.appButton(
-                          elevation: 0,
-                          onClick:
-                          (snapshot.hasData && snapshot.data == true) && !_isLoading
-                              ? _subscribeUiToPasswordRecovery
-                              : null,
-                          text: 'Submit'),
-                    ),
-                    Positioned(
-                        right: 16,
-                        top: 16,
-                        bottom: 16,
-                        child: _isLoading
-                            ? SpinKitThreeBounce(
-                            size: 20.0,
-                            color: Colors.white.withOpacity(0.5))
-                            : SizedBox())
-                  ],
-                );
-              },
+                    )),
+                Styles.statefulButton(
+                    elevation: 0,
+                    stream: viewModel.passwordRecoveryForm.isValid,
+                    onClick: _subscribeUiToPasswordRecovery,
+                    text: 'Submit',
+                    isLoading: _isLoading
+                ),
+                SizedBox(height: 16)
+              ],
             ),
-            SizedBox(height: 16)
-          ],
+          ),
         ),
       ),
     );

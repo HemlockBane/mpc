@@ -16,7 +16,7 @@ class Styles {
       textStyle: MaterialStateProperty.all(TextStyle(
           fontSize: 16,
           color: Colors.white,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.bold,
           fontFamily: Styles.defaultFont)),
       foregroundColor: MaterialStateProperty.all(Colors.white),
       backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
@@ -59,6 +59,26 @@ class Styles {
           EdgeInsets.symmetric(horizontal: 16, vertical: 16)),
       shape: MaterialStateProperty.all(
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))));
+
+  static final ButtonStyle redButtonStyle2 = ButtonStyle(
+      textStyle: MaterialStateProperty.all(TextStyle(
+          fontSize: 16,
+          color: Colors.white,
+          fontWeight: FontWeight.w500,
+          fontFamily: Styles.defaultFont)),
+      foregroundColor: MaterialStateProperty.all(Colors.white),
+      backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
+        if (states.contains(MaterialState.disabled))
+          return Colors.red.withOpacity(0.5);
+        else if (states.contains(MaterialState.pressed))
+          return Colors.red.withOpacity(0.8);
+        else
+          return Colors.red.withOpacity(1);
+      }),
+      padding: MaterialStateProperty.all(
+          EdgeInsets.symmetric(horizontal: 16, vertical: 16)),
+      shape: MaterialStateProperty.all(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))));
 
   static final ButtonStyle redButtonStyle = ButtonStyle(
       textStyle: MaterialStateProperty.all(TextStyle(
@@ -151,7 +171,8 @@ class Styles {
     String? hint,
     double borderRadius = 4,
     Color? borderColor,
-    double? drawablePadding,
+    Color? focusedBorderColor,
+    EdgeInsets? drawablePadding,
     double? fontSize,
     double? hintSize,
     ValueChanged<String>? onChanged,
@@ -174,6 +195,7 @@ class Styles {
     int? minLines,
     String? value,
     Color? textColor,
+    FontWeight? fontWeight,
     TextInputAction? textInputAction
   }) {
     String? labelText = (animateHint) ? hint : null;
@@ -193,6 +215,7 @@ class Styles {
       focusNode: (!enabled) ? AlwaysDisabledFocusNode() : null,
       // focusNode: mFocusNode,
       style: TextStyle(
+          fontWeight: fontWeight ?? FontWeight.normal,
           fontFamily: Styles.defaultFont,
           fontSize: fontSize ?? 16,
           color: textColor ?? Colors.textColorPrimary
@@ -217,22 +240,20 @@ class Styles {
           prefixIcon: (startIcon == null)
               ? null
               : Padding(
-                  padding: EdgeInsets.only(
-                      right: drawablePadding ?? 16,
-                      left: drawablePadding ?? 16),
+                  padding: drawablePadding ?? EdgeInsets.only(right:16, left: 16),
                   child: startIcon),
           suffixIcon: (endIcon == null) ? null : endIcon,
           enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
-              borderSide: BorderSide(color: Colors.colorFaded, width: 0.8)
+              borderSide: BorderSide(color: borderColor ?? Colors.colorFaded, width: 0.8)
           ),
           focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
-              borderSide: BorderSide(color: Colors.primaryColor, width: 1.8)
+              borderSide: BorderSide(color: focusedBorderColor ?? Colors.primaryColor, width: 1.8)
           ),
           border: OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
-              borderSide: BorderSide(color: Colors.colorFaded, width: 1.5)
+              borderSide: BorderSide(color: borderColor ?? Colors.colorFaded, width: 1.5)
           ),
       ),
     );
@@ -356,7 +377,7 @@ class Styles {
             top: 16,
             bottom: 16,
             child: isLoading
-                ? SpinKitThreeBounce(size: 20.0, color: Colors.white.withOpacity(0.5))
+                ? SpinKitThreeBounce(size: 20.0, color: Colors.primaryColor.withOpacity(0.5))
                 : SizedBox())
       ],
     );
@@ -370,7 +391,8 @@ class Styles {
     ButtonStyle? buttonStyle,
     Color? textColor,
     double? elevation = 0,
-    double? padding
+    double? padding,
+    Color? loadingColor,
   }) {
     return Stack(
       children: [
@@ -390,7 +412,7 @@ class Styles {
             top: 16,
             bottom: 16,
             child: isLoading
-                ? SpinKitThreeBounce(size: 20.0, color: Colors.white.withOpacity(0.5))
+                ? SpinKitThreeBounce(size: 20.0, color: loadingColor ?? Colors.primaryColor.withOpacity(0.5))
                 : SizedBox())
       ],
     );

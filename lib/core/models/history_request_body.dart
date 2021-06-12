@@ -14,8 +14,11 @@ class HistoryRequestBody {
   int? startDate;
   @JsonKey(name:"endDate")
   int? endDate;
-  @JsonKey(name:"statuses")
+  @JsonKey(name:"statuses", includeIfNull: false)
   List<String>? statuses;
+
+  @JsonKey(name:"paymentTypeListMap", includeIfNull: false)
+  Map<String, List<String>>? paymentListMap;
 
   HistoryRequestBody();
 

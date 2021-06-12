@@ -10,6 +10,10 @@ class PagingSource<Key, Value> {
 
   final Stream<Page<Key, Value>> Function(LoadParams<Key> loadParams) localSource;
   final RemoteMediator<Key, Value>? remoteMediator;
+
+  factory PagingSource.empty() {
+    return PagingSource<Key, Value>(localSource: (a) => Stream.value(Page([], null, null)));
+  }
 }
 
 class LoadParams<K> {

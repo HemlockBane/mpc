@@ -17,7 +17,7 @@ class CustomerAccount {
   String? phoneNumber;
   String? email;
   String? address;
-  List<int>? openingDate;
+  // List<int>? openingDate;
   String? alternateAccountNumber;
   String? accountType;
   String? bvn;
@@ -41,7 +41,7 @@ class CustomerAccount {
         this.phoneNumber,
         this.email,
         this.address,
-        this.openingDate,
+        // this.openingDate,
         this.alternateAccountNumber,
         this.accountType,
         this.bvn,

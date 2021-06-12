@@ -14,11 +14,11 @@ class RecoverCredentialsDialogLayout {
             child: Text(
           'What would you like to do?',
           style: TextStyle(
-              color: Colors.darkBlue,
-              fontWeight: FontWeight.bold,
-              fontSize: 20),
+              color: Colors.colorPrimaryDark,
+              fontWeight: FontWeight.w600,
+              fontSize: 22),
         )),
-        SizedBox(height: 29),
+        SizedBox(height: 30),
         TextButton.icon(
             style: ButtonStyle(alignment: Alignment.centerLeft),
             onPressed: () => {
@@ -27,23 +27,23 @@ class RecoverCredentialsDialogLayout {
             icon: Container(
               margin: EdgeInsets.only(left: 20, right: 22),
               //since there's already a padding on the button
-              padding: EdgeInsets.all(10),
+              padding: EdgeInsets.all(12),
               decoration: BoxDecoration(
                   color: Colors.primaryColor.withOpacity(0.1),
                   shape: BoxShape.circle),
-              child: SvgPicture.asset('res/drawables/ic_circular_user.svg', width: 30, height: 30,),
+              child: SvgPicture.asset('res/drawables/ic_circular_user.svg', width: 38, height: 38,),
             ),
             label: Text('Recover Username',
                 style: TextStyle(
-                    color: Colors.darkBlue,
-                    fontSize: 16,
+                    color: Colors.colorPrimaryDark,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold))
         ),
         Container(
           height: 0.8,
-          color: Colors.dividerColor.withOpacity(0.1),
+          color: Color(0XFF055072).withOpacity(0.1),
           width: double.infinity,
-          margin: EdgeInsets.only(left: 38, right: 38, top: 4, bottom: 4),
+          margin: EdgeInsets.only(left: 24, right: 24, top: 6, bottom: 6),
         ),
         TextButton.icon(
             style: ButtonStyle(alignment: Alignment.centerLeft),
@@ -53,16 +53,17 @@ class RecoverCredentialsDialogLayout {
             icon: Container(
               margin: EdgeInsets.only(left: 20, right: 22),
               //since there's already a padding on the button
-              padding: EdgeInsets.all(13),
+              padding: EdgeInsets.all(18),
               decoration: BoxDecoration(
                   color: Colors.primaryColor.withOpacity(0.1),
-                  shape: BoxShape.circle),
-              child: SvgPicture.asset('res/drawables/ic_password_lock.svg', width: 30, height: 30,),
+                  shape: BoxShape.circle
+              ),
+              child: SvgPicture.asset('res/drawables/ic_password_lock.svg', width: 27, height: 32,),
             ),
             label: Text('Recover Password',
                 style: TextStyle(
-                    color: Colors.darkBlue,
-                    fontSize: 16,
+                    color: Colors.colorPrimaryDark,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold))),
       ],
     );

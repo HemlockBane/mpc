@@ -44,9 +44,9 @@ class TransactionBatch {
   @JsonKey(name: "count")
   final int? count;
 
-  @JsonKey(name: "createdOn")
+  // @JsonKey(name: "createdOn")
   // @TypeConverters(DateListTypeConverter.class)
-  final List<int>? createdOn;
+  // final String? createdOn;
 
   @JsonKey(name: "minorTotalAmount")
   final double? minorTotalAmount;
@@ -57,36 +57,36 @@ class TransactionBatch {
   @JsonKey(name: "paymentMethod")
   final String? paymentMethod;
 
-  @JsonKey(name: "paymentStartDate")
-  // @TypeConverters(DateListTypeConverter.class)
-  final List<int>? paymentStartDate;
+  // @JsonKey(name: "paymentStartDate")
+  // // @TypeConverters(DateListTypeConverter.class)
+  // final String? paymentStartDate;
+  //
+  // @JsonKey(name: "nextPaymentDate")
+  // // @TypeConverters(DateListTypeConverter.class)
+  // final String? nextPaymentDate;
+  //
+  // @JsonKey(name: "paymentEndDate")
+  // // @TypeConverters(DateListTypeConverter.class)
+  // final String? paymentEndDate;
 
-  @JsonKey(name: "nextPaymentDate")
-  // @TypeConverters(DateListTypeConverter.class)
-  final List<int>? nextPaymentDate;
-
-  @JsonKey(name: "paymentEndDate")
-  // @TypeConverters(DateListTypeConverter.class)
-  final List<int>? paymentEndDate;
-
-  @JsonKey(name: "startPayDate")
-  final int? startPayDate;
-
-  @JsonKey(name: "nextPayDate")
-  final int? nextPayDate;
-
-  @JsonKey(name: "endPayDate")
-  final int? endPayDate;
-
-  @JsonKey(name: "creationDate")
-  final int? creationDate;
+  // @JsonKey(name: "startPayDate")
+  // final int? startPayDate;
+  //
+  // @JsonKey(name: "nextPayDate")
+  // final int? nextPayDate;
+  //
+  // @JsonKey(name: "endPayDate")
+  // final int? endPayDate;
+  //
+  // @JsonKey(name: "creationDate")
+  // final int? creationDate;
 
   @JsonKey(name: "transactionName")
   final String? transactionName;
 
-  @JsonKey(name: "completedOn")
-  // @TypeConverters(DateListTypeConverter.class)
-  final List<int>? completedOn;
+  // @JsonKey(name: "completedOn")
+  // // @TypeConverters(DateListTypeConverter.class)
+  // final String? completedOn;
 
   @JsonKey(name: "tracked")
   final bool? tracked;
@@ -118,19 +118,19 @@ class TransactionBatch {
     this.responseCode,
     this.comment,
     this.count,
-    this.createdOn,
+    // this.createdOn,
     this.minorTotalAmount,
     this.transactionStatus,
     this.paymentMethod,
-    this.paymentStartDate,
-    this.nextPaymentDate,
-    this.paymentEndDate,
-    this.startPayDate,
-    this.nextPayDate,
-    this.endPayDate,
-    this.creationDate,
+    // this.paymentStartDate,
+    // this.nextPaymentDate,
+    // this.paymentEndDate,
+    // this.startPayDate,
+    // this.nextPayDate,
+    // this.endPayDate,
+    // this.creationDate,
     this.transactionName,
-    this.completedOn,
+    // this.completedOn,
     this.tracked,
     this.rechargeDate,
     this.creationTimeStamp,

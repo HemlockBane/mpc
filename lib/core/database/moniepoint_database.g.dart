@@ -90,6 +90,8 @@ class _$AppDatabase extends AppDatabase {
 
   TransactionDao? _transactionDaoInstance;
 
+  SchemeDao? _schemeDaoInstance;
+
   Future<sqflite.Database> open(String path, List<Migration> migrations,
       [Callback? callback]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
@@ -111,7 +113,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `nationalities` (`id` INTEGER, `code` TEXT, `name` TEXT NOT NULL, `postCode` TEXT, `isoCode` TEXT, `base64Icon` TEXT, `active` INTEGER, `timeAdded` TEXT, `states` TEXT, `nationality` TEXT, PRIMARY KEY (`id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `transfer_beneficiaries` (`accountName` TEXT NOT NULL, `accountNumber` TEXT NOT NULL, `bvn` TEXT, `nameEnquiryReference` TEXT, `accountProviderName` TEXT, `accountProviderCode` TEXT, `frequency` INTEGER, `lastUpdated` INTEGER, PRIMARY KEY (`accountName`, `accountNumber`, `accountProviderCode`))');
+            'CREATE TABLE IF NOT EXISTS `transfer_beneficiaries` (`id` INTEGER, `accountName` TEXT NOT NULL, `accountNumber` TEXT NOT NULL, `bvn` TEXT, `nameEnquiryReference` TEXT, `accountProviderName` TEXT, `accountProviderCode` TEXT, `frequency` INTEGER, `lastUpdated` INTEGER, PRIMARY KEY (`accountName`, `accountNumber`, `accountProviderCode`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `account_providers` (`id` INTEGER, `name` TEXT, `bankCode` TEXT, `bankShortName` TEXT, `centralBankCode` TEXT, `aptentRoutingKey` TEXT, `customerRMNodeType` TEXT, `customerAccountRMNodeType` TEXT, `unsupportedFeatures` TEXT, `categoryId` TEXT, PRIMARY KEY (`bankCode`))');
         await database.execute(
@@ -138,6 +140,8 @@ class _$AppDatabase extends AppDatabase {
             'CREATE TABLE IF NOT EXISTS `biller_products` (`billerCode` TEXT, `id` INTEGER NOT NULL, `name` TEXT, `code` TEXT, `amount` REAL, `fee` REAL, `paymentCode` TEXT, `currencySymbol` TEXT, `active` INTEGER, `priceFixed` INTEGER, `minimumAmount` REAL, `maximumAmount` REAL, `identifierName` TEXT, `additionalFieldsMap` TEXT, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `account_transactions` (`id` INTEGER, `accountNumber` TEXT, `status` INTEGER, `transactionRef` TEXT NOT NULL, `amount` REAL, `type` TEXT, `channel` TEXT, `transactionChannel` TEXT, `tags` TEXT, `narration` TEXT, `transactionDate` INTEGER NOT NULL, `runningBalance` TEXT, `balanceBefore` TEXT, `balanceAfter` TEXT, PRIMARY KEY (`transactionRef`))');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `tiers` (`id` INTEGER NOT NULL, `status` TEXT, `createdOn` TEXT, `lastModifiedOn` TEXT, `code` TEXT, `name` TEXT, `classification` TEXT, `accountNumberPrefix` TEXT, `accountNumberLength` INTEGER, `allowNegativeBalance` INTEGER, `allowLien` INTEGER, `enableInstantBalanceUpdate` INTEGER, `maximumCumulativeBalance` REAL, `maximumSingleDebit` REAL, `maximumSingleCredit` REAL, `maximumDailyDebit` REAL, `maximumDailyCredit` REAL, `schemeRequirement` TEXT, `alternateSchemeRequirement` TEXT, `supportsAccountGeneration` INTEGER, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -229,6 +233,11 @@ class _$AppDatabase extends AppDatabase {
   TransactionDao get transactionDao {
     return _transactionDaoInstance ??=
         _$TransactionDao(database, changeListener);
+  }
+
+  @override
+  SchemeDao get schemeDao {
+    return _schemeDaoInstance ??= _$SchemeDao(database, changeListener);
   }
 }
 
@@ -322,6 +331,7 @@ class _$TransferBeneficiaryDao extends TransferBeneficiaryDao {
             database,
             'transfer_beneficiaries',
             (TransferBeneficiary item) => <String, Object?>{
+                  'id': item.id,
                   'accountName': item.accountName,
                   'accountNumber': item.accountNumber,
                   'bvn': item.bvn,
@@ -337,6 +347,7 @@ class _$TransferBeneficiaryDao extends TransferBeneficiaryDao {
             'transfer_beneficiaries',
             ['accountName', 'accountNumber', 'accountProviderCode'],
             (TransferBeneficiary item) => <String, Object?>{
+                  'id': item.id,
                   'accountName': item.accountName,
                   'accountNumber': item.accountNumber,
                   'bvn': item.bvn,
@@ -365,6 +376,7 @@ class _$TransferBeneficiaryDao extends TransferBeneficiaryDao {
     return _queryAdapter.queryListStream(
         'SELECT * FROM transfer_beneficiaries ORDER BY frequency DESC LIMIT ?1',
         mapper: (Map<String, Object?> row) => TransferBeneficiary(
+            id: row['id'] as int?,
             accountName: row['accountName'] as String,
             accountNumber: row['accountNumber'] as String,
             bvn: row['bvn'] as String?,
@@ -380,10 +392,11 @@ class _$TransferBeneficiaryDao extends TransferBeneficiaryDao {
 
   @override
   Stream<List<TransferBeneficiary>> getPagedTransferBeneficiary(
-      int offset, int limit) {
+      int myOffset, int limit) {
     return _queryAdapter.queryListStream(
         'SELECT * FROM transfer_beneficiaries ORDER BY frequency DESC LIMIT ?2 OFFSET ?1',
         mapper: (Map<String, Object?> row) => TransferBeneficiary(
+            id: row['id'] as int?,
             accountName: row['accountName'] as String,
             accountNumber: row['accountNumber'] as String,
             bvn: row['bvn'] as String?,
@@ -392,7 +405,27 @@ class _$TransferBeneficiaryDao extends TransferBeneficiaryDao {
             accountProviderCode: row['accountProviderCode'] as String?,
             frequency: row['frequency'] as int?,
             lastUpdated: row['lastUpdated'] as int?),
-        arguments: [offset, limit],
+        arguments: [myOffset, limit],
+        queryableName: 'transfer_beneficiaries',
+        isView: false);
+  }
+
+  @override
+  Stream<List<TransferBeneficiary>> searchPagedTransferBeneficiary(
+      String search, int myOffset, int limit) {
+    return _queryAdapter.queryListStream(
+        'SELECT * FROM transfer_beneficiaries WHERE accountName LIKE ?1 OR accountNumber LIKE ?1 ORDER BY accountName ASC LIMIT ?3 OFFSET ?2',
+        mapper: (Map<String, Object?> row) => TransferBeneficiary(
+            id: row['id'] as int?,
+            accountName: row['accountName'] as String,
+            accountNumber: row['accountNumber'] as String,
+            bvn: row['bvn'] as String?,
+            nameEnquiryReference: row['nameEnquiryReference'] as String?,
+            accountProviderName: row['accountProviderName'] as String?,
+            accountProviderCode: row['accountProviderCode'] as String?,
+            frequency: row['frequency'] as int?,
+            lastUpdated: row['lastUpdated'] as int?),
+        arguments: [search, myOffset, limit],
         queryableName: 'transfer_beneficiaries',
         isView: false);
   }
@@ -837,7 +870,7 @@ class _$AirtimeDao extends AirtimeDao {
   }
 
   @override
-  Future<AirtimeTransaction?> getAirtimeTransactionById(String id) async {
+  Future<AirtimeTransaction?> getAirtimeTransactionById(int id) async {
     return _queryAdapter.query(
         'SELECT * FROM airtime_transactions WHERE history_id =?1',
         mapper: (Map<String, Object?> row) => AirtimeTransaction(
@@ -942,7 +975,7 @@ class _$AirtimeBeneficiaryDao extends AirtimeBeneficiaryDao {
 
   @override
   Stream<List<AirtimeBeneficiary>> getPagedAirtimeBeneficiary(
-      int offset, int limit) {
+      int myOffset, int limit) {
     return _queryAdapter.queryListStream(
         'SELECT * FROM airtime_beneficiaries ORDER BY frequency DESC LIMIT ?2 OFFSET ?1',
         mapper: (Map<String, Object?> row) => AirtimeBeneficiary(
@@ -953,7 +986,25 @@ class _$AirtimeBeneficiaryDao extends AirtimeBeneficiaryDao {
                 .decode(row['serviceProvider'] as String?),
             frequency: row['frequency'] as int?,
             lastUpdated: row['lastUpdated'] as int?),
-        arguments: [offset, limit],
+        arguments: [myOffset, limit],
+        queryableName: 'airtime_beneficiaries',
+        isView: false);
+  }
+
+  @override
+  Stream<List<AirtimeBeneficiary>> searchPagedAirtimeBeneficiary(
+      String search, int myOffset, int limit) {
+    return _queryAdapter.queryListStream(
+        'SELECT * FROM airtime_beneficiaries WHERE name LIKE ?1 OR phoneNumber LIKE ?1 ORDER BY name ASC LIMIT ?3 OFFSET ?2',
+        mapper: (Map<String, Object?> row) => AirtimeBeneficiary(
+            id: row['id'] as int,
+            name: row['name'] as String?,
+            phoneNumber: row['phoneNumber'] as String?,
+            serviceProvider: _airtimeServiceProviderConverter
+                .decode(row['serviceProvider'] as String?),
+            frequency: row['frequency'] as int?,
+            lastUpdated: row['lastUpdated'] as int?),
+        arguments: [search, myOffset, limit],
         queryableName: 'airtime_beneficiaries',
         isView: false);
   }
@@ -1252,7 +1303,7 @@ class _$BillsDao extends BillsDao {
   }
 
   @override
-  Future<BillTransaction?> getBillTransactionById(String id) async {
+  Future<BillTransaction?> getBillTransactionById(int id) async {
     return _queryAdapter.query(
         'SELECT * FROM bill_transactions WHERE history_id = ?1',
         mapper: (Map<String, Object?> row) => BillTransaction(
@@ -1367,7 +1418,8 @@ class _$BillBeneficiaryDao extends BillBeneficiaryDao {
   }
 
   @override
-  Stream<List<BillBeneficiary>> getPagedBillBeneficiary(int offset, int limit) {
+  Stream<List<BillBeneficiary>> getPagedBillBeneficiary(
+      int myOffset, int limit) {
     return _queryAdapter.queryListStream(
         'SELECT * FROM bill_beneficiaries ORDER BY frequency DESC LIMIT ?2 OFFSET ?1',
         mapper: (Map<String, Object?> row) => BillBeneficiary(
@@ -1382,7 +1434,7 @@ class _$BillBeneficiaryDao extends BillBeneficiaryDao {
             customerIdentity: row['customerIdentity'] as String?,
             frequency: row['frequency'] as int?,
             lastUpdated: row['lastUpdated'] as int?),
-        arguments: [offset, limit],
+        arguments: [myOffset, limit],
         queryableName: 'bill_beneficiaries',
         isView: false);
   }
@@ -1405,6 +1457,28 @@ class _$BillBeneficiaryDao extends BillBeneficiaryDao {
             frequency: row['frequency'] as int?,
             lastUpdated: row['lastUpdated'] as int?),
         arguments: [limit, billerCode],
+        queryableName: 'bill_beneficiaries',
+        isView: false);
+  }
+
+  @override
+  Stream<List<BillBeneficiary>> searchPagedBillBeneficiary(
+      String search, int myOffset, int limit) {
+    return _queryAdapter.queryListStream(
+        'SELECT * FROM bill_beneficiaries WHERE name LIKE ?1 OR customerIdentity LIKE ?1 ORDER BY name ASC LIMIT ?3 OFFSET ?2',
+        mapper: (Map<String, Object?> row) => BillBeneficiary(
+            id: row['id'] as int,
+            name: row['name'] as String?,
+            billerCategoryLogo: row['billerCategoryLogo'] as String?,
+            billerCode: row['billerCode'] as String?,
+            biller: _billerConverter.decode(row['biller'] as String?),
+            billerProducts: _listBillerProductConverter
+                .decode(row['billerProducts'] as String?),
+            billerName: row['billerName'] as String?,
+            customerIdentity: row['customerIdentity'] as String?,
+            frequency: row['frequency'] as int?,
+            lastUpdated: row['lastUpdated'] as int?),
+        arguments: [search, myOffset, limit],
         queryableName: 'bill_beneficiaries',
         isView: false);
   }
@@ -1831,8 +1905,8 @@ class _$TransactionDao extends TransactionDao {
       int endDate,
       List<String> channels,
       List<String> transactionTypes,
-      int offset,
-      int limit) {
+      int limit,
+      int myOffset) {
     int offset = 5;
     final _sqliteVariablesForChannels =
         Iterable<String>.generate(channels.length, (i) => '?${i + offset}')
@@ -1845,7 +1919,7 @@ class _$TransactionDao extends TransactionDao {
             _sqliteVariablesForChannels +
             ') OR transactionChannel is null) AND type IN (' +
             _sqliteVariablesForTransactionTypes +
-            ') ORDER BY transactionDate DESC LIMIT ?4 OFFSET ?3',
+            ') ORDER BY transactionDate DESC LIMIT ?3 OFFSET ?4',
         mapper: (Map<String, Object?> row) => AccountTransaction(
             id: row['id'] as int?,
             transactionDate: row['transactionDate'] as int,
@@ -1864,8 +1938,8 @@ class _$TransactionDao extends TransactionDao {
         arguments: [
           startDate,
           endDate,
-          offset,
           limit,
+          myOffset,
           ...channels,
           ...transactionTypes
         ],
@@ -1945,6 +2019,158 @@ class _$TransactionDao extends TransactionDao {
   }
 }
 
+class _$SchemeDao extends SchemeDao {
+  _$SchemeDao(this.database, this.changeListener)
+      : _queryAdapter = QueryAdapter(database, changeListener),
+        _tierInsertionAdapter = InsertionAdapter(
+            database,
+            'tiers',
+            (Tier item) => <String, Object?>{
+                  'id': item.id,
+                  'status': item.status,
+                  'createdOn': item.createdOn,
+                  'lastModifiedOn': item.lastModifiedOn,
+                  'code': item.code,
+                  'name': item.name,
+                  'classification': item.classification,
+                  'accountNumberPrefix': item.accountNumberPrefix,
+                  'accountNumberLength': item.accountNumberLength,
+                  'allowNegativeBalance': item.allowNegativeBalance == null
+                      ? null
+                      : (item.allowNegativeBalance! ? 1 : 0),
+                  'allowLien':
+                      item.allowLien == null ? null : (item.allowLien! ? 1 : 0),
+                  'enableInstantBalanceUpdate':
+                      item.enableInstantBalanceUpdate == null
+                          ? null
+                          : (item.enableInstantBalanceUpdate! ? 1 : 0),
+                  'maximumCumulativeBalance': item.maximumCumulativeBalance,
+                  'maximumSingleDebit': item.maximumSingleDebit,
+                  'maximumSingleCredit': item.maximumSingleCredit,
+                  'maximumDailyDebit': item.maximumDailyDebit,
+                  'maximumDailyCredit': item.maximumDailyCredit,
+                  'schemeRequirement': _schemeRequirementConverter
+                      .encode(item.schemeRequirement),
+                  'alternateSchemeRequirement':
+                      _alternateSchemeRequirementConverter
+                          .encode(item.alternateSchemeRequirement),
+                  'supportsAccountGeneration':
+                      item.supportsAccountGeneration == null
+                          ? null
+                          : (item.supportsAccountGeneration! ? 1 : 0)
+                },
+            changeListener),
+        _tierDeletionAdapter = DeletionAdapter(
+            database,
+            'tiers',
+            ['id'],
+            (Tier item) => <String, Object?>{
+                  'id': item.id,
+                  'status': item.status,
+                  'createdOn': item.createdOn,
+                  'lastModifiedOn': item.lastModifiedOn,
+                  'code': item.code,
+                  'name': item.name,
+                  'classification': item.classification,
+                  'accountNumberPrefix': item.accountNumberPrefix,
+                  'accountNumberLength': item.accountNumberLength,
+                  'allowNegativeBalance': item.allowNegativeBalance == null
+                      ? null
+                      : (item.allowNegativeBalance! ? 1 : 0),
+                  'allowLien':
+                      item.allowLien == null ? null : (item.allowLien! ? 1 : 0),
+                  'enableInstantBalanceUpdate':
+                      item.enableInstantBalanceUpdate == null
+                          ? null
+                          : (item.enableInstantBalanceUpdate! ? 1 : 0),
+                  'maximumCumulativeBalance': item.maximumCumulativeBalance,
+                  'maximumSingleDebit': item.maximumSingleDebit,
+                  'maximumSingleCredit': item.maximumSingleCredit,
+                  'maximumDailyDebit': item.maximumDailyDebit,
+                  'maximumDailyCredit': item.maximumDailyCredit,
+                  'schemeRequirement': _schemeRequirementConverter
+                      .encode(item.schemeRequirement),
+                  'alternateSchemeRequirement':
+                      _alternateSchemeRequirementConverter
+                          .encode(item.alternateSchemeRequirement),
+                  'supportsAccountGeneration':
+                      item.supportsAccountGeneration == null
+                          ? null
+                          : (item.supportsAccountGeneration! ? 1 : 0)
+                },
+            changeListener);
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<Tier> _tierInsertionAdapter;
+
+  final DeletionAdapter<Tier> _tierDeletionAdapter;
+
+  @override
+  Stream<List<Tier>> getSchemes() {
+    return _queryAdapter.queryListStream('SELECT * FROM tiers ORDER BY id',
+        mapper: (Map<String, Object?> row) => Tier(
+            id: row['id'] as int,
+            status: row['status'] as String?,
+            createdOn: row['createdOn'] as String?,
+            lastModifiedOn: row['lastModifiedOn'] as String?,
+            code: row['code'] as String?,
+            name: row['name'] as String?,
+            classification: row['classification'] as String?,
+            accountNumberPrefix: row['accountNumberPrefix'] as String?,
+            accountNumberLength: row['accountNumberLength'] as int?,
+            allowNegativeBalance: row['allowNegativeBalance'] == null
+                ? null
+                : (row['allowNegativeBalance'] as int) != 0,
+            allowLien: row['allowLien'] == null
+                ? null
+                : (row['allowLien'] as int) != 0,
+            enableInstantBalanceUpdate:
+                row['enableInstantBalanceUpdate'] == null
+                    ? null
+                    : (row['enableInstantBalanceUpdate'] as int) != 0,
+            maximumCumulativeBalance:
+                row['maximumCumulativeBalance'] as double?,
+            maximumSingleDebit: row['maximumSingleDebit'] as double?,
+            maximumSingleCredit: row['maximumSingleCredit'] as double?,
+            maximumDailyDebit: row['maximumDailyDebit'] as double?,
+            maximumDailyCredit: row['maximumDailyCredit'] as double?,
+            schemeRequirement: _schemeRequirementConverter
+                .decode(row['schemeRequirement'] as String?),
+            alternateSchemeRequirement: _alternateSchemeRequirementConverter
+                .decode(row['alternateSchemeRequirement'] as String?),
+            supportsAccountGeneration: row['supportsAccountGeneration'] == null
+                ? null
+                : (row['supportsAccountGeneration'] as int) != 0),
+        queryableName: 'tiers',
+        isView: false);
+  }
+
+  @override
+  Future<void> insertItem(Tier item) async {
+    await _tierInsertionAdapter.insert(item, OnConflictStrategy.replace);
+  }
+
+  @override
+  Future<void> insertItems(List<Tier> item) async {
+    await _tierInsertionAdapter.insertList(item, OnConflictStrategy.replace);
+  }
+
+  @override
+  Future<void> deleteItems(List<Tier> item) async {
+    await _tierDeletionAdapter.deleteList(item);
+  }
+
+  @override
+  Future<void> deleteItem(Tier item) async {
+    await _tierDeletionAdapter.delete(item);
+  }
+}
+
 // ignore_for_file: unused_element
 final _listStateConverter = ListStateConverter();
 final _listStringConverter = ListStringConverter();
@@ -1960,3 +2186,6 @@ final _listBillerProductConverter = ListBillerProductConverter();
 final _additionalFieldsConverter = AdditionalFieldsConverter();
 final _transactionTypeConverter = TransactionTypeConverter();
 final _transactionChannelConverter = TransactionChannelConverter();
+final _schemeRequirementConverter = SchemeRequirementConverter();
+final _alternateSchemeRequirementConverter =
+    AlternateSchemeRequirementConverter();

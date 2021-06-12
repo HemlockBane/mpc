@@ -17,8 +17,7 @@ TransferBatch _$TransferBatchFromJson(Map<String, dynamic> json) {
     minorTotalAmount: (json['totalMinorAmount'] as num?)?.toDouble(),
     totalMinorFeeAmount: (json['totalMinorFeeAmount'] as num?)?.toDouble(),
     totalMinorVatAmount: (json['totalMinorVatAmount'] as num?)?.toDouble(),
-    authorizedOn:
-        (json['authorizedOn'] as List<dynamic>?)?.map((e) => e as int).toList(),
+    authorizedOn: json['authorizedOn'] as String?,
     aptentBatchKey: json['aptentBatchKey'] as String?,
   );
 }

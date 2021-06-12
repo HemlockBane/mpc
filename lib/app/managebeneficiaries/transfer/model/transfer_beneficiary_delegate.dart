@@ -1,5 +1,6 @@
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary_dao.dart';
@@ -19,15 +20,12 @@ class TransferBeneficiaryServiceDelegate with NetworkResource {
   late final TransferBeneficiaryService _service;
   late final TransferBeneficiaryDao _beneficiaryDao;
 
-  late final _TransferBeneficiaryMediator __transferBeneficiaryMediator;
 
   TransferBeneficiaryServiceDelegate(
       TransferBeneficiaryService service,
       TransferBeneficiaryDao beneficiaryDao) {
     this._service = service;
     this._beneficiaryDao = beneficiaryDao;
-
-    __transferBeneficiaryMediator = _TransferBeneficiaryMediator(_service, _beneficiaryDao);
   }
 
   Stream<Resource<List<TransferBeneficiary>>> getFrequentBeneficiaries() {
@@ -45,11 +43,33 @@ class TransferBeneficiaryServiceDelegate with NetworkResource {
     return PagingSource(
         localSource: (LoadParams params) {
           final offset = params.key ?? 0;
-          return _beneficiaryDao.getPagedTransferBeneficiary(0, params.loadSize)
+          return _beneficiaryDao.getPagedTransferBeneficiary(offset * params.loadSize, params.loadSize)
               .map((event) => Page(event, params.key, event.length == params.loadSize ? offset + 1 : null)
           );
         },
-        remoteMediator: __transferBeneficiaryMediator
+        remoteMediator: _TransferBeneficiaryMediator(_service, _beneficiaryDao)
+    );
+  }
+
+  PagingSource<int, TransferBeneficiary> searchTransferBeneficiaries(String search) {
+    return PagingSource(
+        localSource: (LoadParams params) {
+          final offset = params.key ?? 0;
+          return _beneficiaryDao.searchPagedTransferBeneficiary(search,offset * params.loadSize, params.loadSize)
+              .map((event) {
+                print(jsonEncode(event));
+                return Page(event, params.key, event.length == params.loadSize ? offset + 1 : null);
+              }
+          );
+        },
+        remoteMediator: _TransferBeneficiaryMediator(_service, _beneficiaryDao)
+    );
+  }
+
+  Stream<Resource<bool>> deleteTransferBeneficiary(int beneficiaryId, int pin, int customerId) {
+    return networkBoundResource(
+        fetchFromLocal: () => Stream.value(null),
+        fetchFromRemote: () => _service.deleteBeneficiary(beneficiaryId, customerId, pin)
     );
   }
 

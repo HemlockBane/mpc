@@ -124,8 +124,7 @@ class AirtimeTransaction implements Transaction {
 
   @override
   PaymentType getPaymentType() {
-    // TODO: implement getPaymentType
-    throw UnimplementedError();
+    return institutionAirtime?.paymentType ?? PaymentType.ONE_TIME;
   }
 
   @override
@@ -155,8 +154,7 @@ class AirtimeTransaction implements Transaction {
 
   @override
   TransactionType getType() {
-    // TODO: implement getType
-    throw UnimplementedError();
+    return TransactionType.DEBIT;
   }
 
 }

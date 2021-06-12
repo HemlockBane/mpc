@@ -20,7 +20,7 @@ abstract class HistoryItem {
   String? transactionStatus;
 
   @JsonKey(name:"dateCreated")
-  List<int>? dateCreated;
+  String? dateCreated;
 
   @JsonKey(name:"channel")
   String? channel;

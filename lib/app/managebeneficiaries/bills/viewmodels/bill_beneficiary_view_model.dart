@@ -13,6 +13,7 @@ class BillBeneficiaryViewModel extends BaseViewModel {
   }
 
   PagingSource<int, BillBeneficiary> getBillBeneficiaries() => _delegate.getBillBeneficiaries(customerId);
+  PagingSource<int, BillBeneficiary> searchBillBeneficiaries(String search) => _delegate.searchBillBeneficiaries(customerId, "%$search%");
 
 
 }

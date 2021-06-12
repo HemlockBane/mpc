@@ -9,7 +9,7 @@ abstract class AirtimeDao extends MoniepointDao<AirtimeTransaction> {
   Stream<List<AirtimeTransaction>> getAirtimeTransactions(int startDate, int endDate, int offset, int limit);
 
   @Query("SELECT * FROM airtime_transactions WHERE history_id =:id")
-  Future<AirtimeTransaction?> getAirtimeTransactionById(String id);
+  Future<AirtimeTransaction?> getAirtimeTransactionById(int id);
 
   @Query("DELETE FROM airtime_transactions")
   Future<void> deleteAll();

@@ -14,6 +14,6 @@ class PagingConfig {
   const PagingConfig.fromDefault({
     this.pageSize = 10,
     this.preFetchDistance = 60,
-    this.initialPageSize = 2
+    this.initialPageSize = 30
   });
 }

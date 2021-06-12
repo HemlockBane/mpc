@@ -108,7 +108,7 @@ class _BillHistoryScreen extends State<BillHistoryScreen> with AutomaticKeepAliv
                       ),
                       itemBuilder: (context, index) {
                         return BillHistoryListItem(items.data[index], index, (item, i) {
-                          //Navigator.of(context).pushNamed(Routes.TRANSFER_DETAIL, arguments: item.historyId);
+                          Navigator.of(context).pushNamed(Routes.BILL_DETAIL, arguments: item.historyId);
                         });
                       });
                 },

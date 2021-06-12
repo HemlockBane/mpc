@@ -8,6 +8,7 @@ part of 'transfer_beneficiary.dart';
 
 TransferBeneficiary _$TransferBeneficiaryFromJson(Map<String, dynamic> json) {
   return TransferBeneficiary(
+    id: json['id'] as int?,
     accountName: json['accountName'] as String,
     accountNumber: json['accountNumber'] as String,
     bvn: json['bvn'] as String?,
@@ -22,6 +23,7 @@ TransferBeneficiary _$TransferBeneficiaryFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$TransferBeneficiaryToJson(
         TransferBeneficiary instance) =>
     <String, dynamic>{
+      'id': instance.id,
       'accountName': instance.accountName,
       'accountNumber': instance.accountNumber,
       'bvn': instance.bvn,

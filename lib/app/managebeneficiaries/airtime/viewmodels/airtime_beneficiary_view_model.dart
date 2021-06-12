@@ -15,5 +15,6 @@ class AirtimeBeneficiaryViewModel extends BaseViewModel {
   }
 
   PagingSource<int, AirtimeBeneficiary> getAirtimeBeneficiaries() => _delegate.getAirtimeBeneficiaries();
+  PagingSource<int, AirtimeBeneficiary> searchAirtimeBeneficiaries(String search) => _delegate.searchAirtimeBeneficiaries("%$search%");
 
 }

@@ -9,7 +9,7 @@ part of 'account_transaction.dart';
 AccountTransaction _$AccountTransactionFromJson(Map<String, dynamic> json) {
   return AccountTransaction(
     id: json['id'] as int?,
-    transactionDate: json['transactionDate'] as int,
+    transactionDate: stringDateTime(json['transactionDate'] as String),
     transactionRef: json['transactionRef'] as String,
     status: json['status'] as bool?,
     amount: (json['amount'] as num?)?.toDouble(),
@@ -83,6 +83,7 @@ K? _$enumDecodeNullable<K, V>(
 const _$TransactionTypeEnumMap = {
   TransactionType.DEBIT: 'DEBIT',
   TransactionType.CREDIT: 'CREDIT',
+  TransactionType.UNKNOWN: 'UNKNOWN',
 };
 
 const _$TransactionChannelEnumMap = {

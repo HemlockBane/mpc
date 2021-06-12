@@ -36,7 +36,7 @@ class ListViewUtil {
     required List<T> currentList,
     bool displayLocalData = true,
     Widget? loadingView,
-    String? emptyMessage,
+    Widget? emptyPlaceholder,
     String? moduleName}) {
     
     if(!snapshot.hasData) return Container();
@@ -56,6 +56,10 @@ class ListViewUtil {
 
     if(resource == null  || resource is Loading && resource.data?.isEmpty == true) {
       return Container(child: Text('Empty'),);
+    }
+
+    if(resource != null && resource is Success && resource.data?.isEmpty == true){
+      return emptyPlaceholder ?? Text('Empty Data');
     }
 
     if(resource is !Success) return Container(child: Text('Empty'),);

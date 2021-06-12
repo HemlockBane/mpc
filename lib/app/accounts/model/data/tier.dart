@@ -1,9 +1,12 @@
+import 'package:floor/floor.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/alternate_scheme_requirement.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/scheme_requirement.dart';
+import 'package:moniepoint_flutter/core/database/type_converters.dart';
 
 part 'tier.g.dart';
 
+@Entity(tableName: "tiers", primaryKeys: ["id"])
 @JsonSerializable()
 class Tier {
   int id;
@@ -23,8 +26,10 @@ class Tier {
   final double? maximumSingleCredit;
   final double? maximumDailyDebit;
   final double? maximumDailyCredit;
+  @TypeConverters([SchemeRequirementConverter])
   final SchemeRequirement? schemeRequirement;
   @JsonKey(name:"alternateSchemeRequirement")
+  @TypeConverters([AlternateSchemeRequirementConverter])
   final AlternateSchemeRequirement? alternateSchemeRequirement;
   final bool? supportsAccountGeneration;
 

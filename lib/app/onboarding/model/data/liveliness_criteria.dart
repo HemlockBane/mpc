@@ -50,14 +50,27 @@ class Criteria {
   Map<String, dynamic> toJson() => _$CriteriaToJson(this);
 }
 
+enum Operator {
+  LESS_THAN,
+  GREATER_THAN,
+  LESS_THAN_OR_EQUAL_TO,
+  GREATER_THAN_OR_EQUAL_TO,
+  EQUAL_TO,
+  RANGE
+}
+
 @JsonSerializable()
 class PoseValue {
-  final double? positive;
-  final double? negative;
+  final double? start;
+  final double? end;
+  final double? singleValue;
+  final Operator? livelinessComparator;
 
   PoseValue({
-    this.positive,
-    this.negative,
+    this.start,
+    this.end,
+    this.singleValue,
+    this.livelinessComparator
 });
 
   factory PoseValue.fromJson(Map<String, dynamic> data) => _$PoseValueFromJson(data);

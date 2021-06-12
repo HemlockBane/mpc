@@ -2,6 +2,7 @@ import 'package:moniepoint_flutter/app/transfers/model/data/fee_vat_config.dart'
 import 'package:moniepoint_flutter/app/transfers/model/data/fee_vat_config_dao.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/transfer_request_body.dart';
 import 'package:moniepoint_flutter/app/transfers/model/transfer_service.dart';
+import 'package:moniepoint_flutter/core/constants.dart';
 import 'package:moniepoint_flutter/core/models/data_collection.dart';
 import 'package:moniepoint_flutter/core/models/filter_results.dart';
 import 'package:moniepoint_flutter/core/models/history_request_body.dart';
@@ -96,6 +97,11 @@ class _TransferMediator extends AbstractDataCollectionMediator<int, SingleTransf
     return _service.getSingleTransferHistory(
         customerId.toString(),
         HistoryRequestBody()
+          ..paymentListMap = {
+            "ONE_TIME": [Constants.SUCCESSFUL],
+            "SCHEDULED": [Constants.SUCCESSFUL],
+            "SUBSCRIPTION": [Constants.COMPLETED],
+          }
           ..startDate = filterResult.startDate
           ..endDate = filterResult.endDate
           ..page = page

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/biller_product.dart';
 import 'package:moniepoint_flutter/app/billpayments/viewmodels/bill_purchase_view_model.dart';
@@ -11,6 +12,7 @@ import 'package:moniepoint_flutter/app/billpayments/views/dialogs/bill_pin_dialo
 import 'package:moniepoint_flutter/core/amount_pill.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/config/service_config.dart';
 import 'package:moniepoint_flutter/core/constants.dart';
 import 'package:moniepoint_flutter/core/models/list_item.dart';
 import 'package:moniepoint_flutter/core/models/transaction_status.dart';
@@ -21,12 +23,12 @@ import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
+import 'package:moniepoint_flutter/core/views/transaction_success_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:moniepoint_flutter/core/utils/text_utils.dart';
 import 'package:moniepoint_flutter/core/strings.dart';
 import 'package:collection/collection.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
-
 
 
 class BillPaymentScreen extends StatefulWidget {
@@ -188,7 +190,7 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
                   return Text(
                     'Balance - $balance',
                     textAlign: TextAlign.left,
-                    style: TextStyle(color: Colors.deepGrey, fontSize: 13, fontFamily: Styles.defaultFont),)
+                    style: TextStyle(color: Colors.deepGrey, fontSize: 13, fontFamily: Styles.defaultFont, fontFamilyFallback: ["Roboto"]),)
                       .colorText({"$balance" : Tuple(Colors.deepGrey, null)}, underline: false);
                 })
               ],
@@ -261,27 +263,30 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
             || result.operationStatus == Constants.SUCCESSFUL;
 
         if(isSuccessful) {
+          final downloadUrl = (result.transferBatchId != null)
+              ? "${ServiceConfig.VAS_SERVICE}api/v1/bill/receipt/${viewModel.customerId}/${result.customerBillId}"
+              : null;
+
+          final payload = SuccessPayload("Payment Successful",
+              "Your payment was successful",
+              downloadUrl: downloadUrl,
+              fileName: "Bill_Receipt_${viewModel.accountName}_${DateFormat("dd MM yyyy").format(DateTime.now())}.pdf"
+          );
+
           showModalBottomSheet(
               context: widget._scaffoldKey.currentContext ?? context,
               isScrollControlled: true,
               backgroundColor: Colors.transparent,
-              builder: (mContext) => BottomSheets.displaySuccessModal(
-                  widget._scaffoldKey.currentContext ?? mContext,
-                  title: "Transfer Successful",
-                  message: "Your transfer was successful",
-                  onClick: () {
-                    Navigator.of(widget._scaffoldKey.currentContext!).pop();
-                    Navigator.of(context)
-                        .pushNamedAndRemoveUntil(BillScreen.BENEFICIARY_SCREEN, (route) => false);
-                  }
-              )
+              builder: (mContext) => TransactionSuccessDialog(
+                  payload, onClick: () {
+                Navigator.of(context).pushNamedAndRemoveUntil(BillScreen.BENEFICIARY_SCREEN, (route) => false);
+              })
           );
         } else {
           _displayPaymentError(result.message ?? "Unable to complete transaction at this time. Please try again later.");
         }
 
     } else if(result is Error<TransactionStatus>) {
-      print("Error Displaying here");
       _displayPaymentError(result.message ?? "");
     }
   }
@@ -293,7 +298,6 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
 
     additionalFields.forEach((key, value) {
       value.key = key;
-      print(key.split(RegExp(r'(?:[A-Z]+|^)[a-z]*')));
       value.fieldLabel = key.split(RegExp(r"(?=(?!^)[A-Z])")).map((e) => e.capitalizeFirstOfEach).join(" ");
       if(!value.required) value.fieldLabel = "${value.fieldLabel} (Optional)";
       fieldList.add(value);
@@ -362,9 +366,6 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
   Widget build(BuildContext context) {
     super.build(context);
     final viewModel = Provider.of<BillPurchaseViewModel>(context, listen: false);
-
-    print(jsonEncode(viewModel.billerProduct));
-    // final inputFields = _buildAdditionalFields(viewModel);
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: ScrollView(

@@ -62,6 +62,7 @@ class _AccountEnquiryDialog extends State<AccountEnquiryDialog> {
 
   void onConfirm(TransferBeneficiary beneficiary) {
     final mBeneficiary = TransferBeneficiary(
+        id: 0,
         accountName: beneficiary.accountName,
         accountNumber: beneficiary.accountNumber,
         accountProviderName: widget._accountProvider.name,

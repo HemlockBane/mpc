@@ -10,6 +10,7 @@ import 'package:moniepoint_flutter/app/onboarding/model/data/otp.dart';
 
 import 'data/change_password_request_body.dart';
 import 'data/change_pin_request_body.dart';
+import 'data/finger_print_auth_request_body.dart';
 
 
 part 'usermanagement_service.g.dart';
@@ -70,6 +71,16 @@ abstract class UserManagementService {
   @PUT("/change_password")
   Future<ServiceResult<bool>> changePassword(
     @Body() ChangePasswordRequestBody requestBody
+  );
+
+  @Headers(<String, dynamic>{
+    "Content-Type": "application/json",
+    "client-id": BuildConfig.CLIENT_ID,
+    "appVersion": BuildConfig.APP_VERSION
+  })
+  @PUT("/set_fingerprint")
+  Future<ServiceResult<bool>> setFingerprint(
+    @Body() FingerPrintAuthRequestBody? requestBody,
   );
 
 }

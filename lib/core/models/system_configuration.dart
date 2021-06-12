@@ -22,8 +22,8 @@ class SystemConfiguration {
   String? value;
   String? type;
   String? description;
-  List<int>? createdAt;
-  List<int>? lastModifiedAt;
+  String? createdAt;
+  String? lastModifiedAt;
 
   factory SystemConfiguration.fromJson(Map<String, dynamic> json) => _$SystemConfigurationFromJson(json);
   Map<String, dynamic> toJson() => _$SystemConfigurationToJson(this);

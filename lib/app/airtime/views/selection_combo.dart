@@ -37,8 +37,6 @@ class _SelectionCombo<T> extends State<SelectionCombo<T>> {
   static const PADDING_LEFT = 16.0;
   static const PADDING_RIGHT = 16.0;
 
-
-
   Widget listItem(ComboItem<T> comboItem, int index) {
     return GestureDetector(
       onTap: () => _itemSelected(comboItem, index),
@@ -267,5 +265,5 @@ class ComboItem<T> {
   final T value;
   final String title;
   final Widget? icon;
-  ComboItem(this.value, this.title, {this.icon});
+  ComboItem(this.value, this.title, {this.icon, this.isSelected = false});
 }

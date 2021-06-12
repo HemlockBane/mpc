@@ -29,6 +29,22 @@ class LoadStates {
     }
   }
 
+  LoadStates combineStates(LoadStates localState, LoadStates remoteState){
+    LoadState aRefresh = LoadState(false);
+    LoadState aAppend = LoadState(false);
+
+    if(localState.refresh is Loading || remoteState.refresh is Loading) {
+      aRefresh = Loading(endOfPaginationReached: remoteState.refresh.endOfPaginationReached);
+    }
+    if(localState.append is Loading || remoteState.refresh is Loading) {
+      aAppend = Loading(endOfPaginationReached: remoteState.refresh.endOfPaginationReached);
+    }
+    if(localState.refresh is NotLoading || remoteState.refresh is NotLoading) {
+      aAppend = NotLoading(remoteState.refresh.endOfPaginationReached);
+    }
+    return LoadStates(aRefresh, aAppend, prepend);
+  }
+
   factory LoadStates.idle() => LoadStates(
       NotLoading(false),
       NotLoading(false),

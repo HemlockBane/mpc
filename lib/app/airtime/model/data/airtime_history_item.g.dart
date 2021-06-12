@@ -12,8 +12,7 @@ AirtimeHistoryItem _$AirtimeHistoryItemFromJson(Map<String, dynamic> json) {
     ..minorAmount = (json['minorAmount'] as num?)?.toDouble()
     ..status = json['status'] as String?
     ..transactionStatus = json['transactionStatus'] as String?
-    ..dateCreated =
-        (json['dateCreated'] as List<dynamic>?)?.map((e) => e as int).toList()
+    ..dateCreated = json['dateCreated'] as String?
     ..channel = json['channel'] as String?
     ..responseCode = json['responseCode'] as String?
     ..comment = json['comment'] as String?

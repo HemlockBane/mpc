@@ -108,7 +108,7 @@ class LivelinessViewModel with ChangeNotifier {
 
   Stream<Resource<LivelinessChecks>> getLivelinessChecks() {
     return _delegate.getLivelinessChecks().map((event) {
-      if (event is Success) {
+      if (((event is Success || event is Loading) && event.data != null) && this._liveliness.isEmpty) {
         this.generalProblems.addAll(event.data?.generalProblems ?? []);
         this._liveliness.addAll(event.data?.challenges ?? []);
         this._profilePictureCriteria = event.data?.profilePictureCriteria;

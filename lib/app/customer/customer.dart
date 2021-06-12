@@ -19,7 +19,7 @@ class Customer {
   final String? relationshipManagerUserId;
   final String? relationshipManagerNodeGuid;
   final List<CustomerAccountUsers>? customerAccountUsers;
-  final List<int>? timeAdded;
+  final String? timeAdded;
 
   @JsonKey(name:"additionalInfoFlag")
   final AccountUpdateFlag? additionalInfoFlag;

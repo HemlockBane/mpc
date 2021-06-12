@@ -270,12 +270,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             stream: viewModel.profileForm.usernameStream,
             builder: (context, snapshot) {
               return Styles.appEditText(
-                  hint: 'Enter Username',
-                  animateHint: true,
-                  onChanged: viewModel.profileForm.onUsernameChanged,
-                  errorText: snapshot.hasError ? snapshot.error.toString() : null,
-                  startIcon: Icon(CustomFont.username_icon, color: Colors.colorFaded),
-                  drawablePadding: 8);
+                hint: 'Enter Username',
+                animateHint: true,
+                onChanged: viewModel.profileForm.onUsernameChanged,
+                errorText: snapshot.hasError ? snapshot.error.toString() : null,
+                startIcon: Icon(CustomFont.username_icon, color: Colors.colorFaded),
+                drawablePadding: EdgeInsets.only(left: 8, right: 8),
+              );
             }),
         SizedBox(height: 16),
         StreamBuilder(
@@ -286,7 +287,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onChanged: viewModel.profileForm.onPasswordChanged,
                   errorText: snapshot.hasError ? snapshot.error.toString() : null,
                   animateHint: true,
-                  drawablePadding: 4,
+                  drawablePadding: EdgeInsets.only(left: 4, right: 4),
                   startIcon: Icon(CustomFont.password, color: Colors.colorFaded),
                   endIcon: getPasswordToggleIcon(context),
                   isPassword: !_isPasswordVisible

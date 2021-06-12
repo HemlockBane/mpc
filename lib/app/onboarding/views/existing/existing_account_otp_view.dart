@@ -121,11 +121,11 @@ class _ExistingAccountOTPScreen extends State<ExistingAccountOTPScreen> {
                 inputType: TextInputType.number,
                 inputFormats: [FilteringTextInputFormatter.digitsOnly],
                 startIcon: Icon(CustomFont.bankIcon, color: Colors.colorFaded),
-                drawablePadding: 4,
+                drawablePadding: EdgeInsets.only(left: 4, right: 4),
                 controller: otpController,
                 maxLength: 6),
             SizedBox(height: 20),
-            OtpUssdInfoView(""),
+            OtpUssdInfoView("Onboarding Phone Number Validation OTP Mobile"),
             Spacer(),
             Styles.statefulButton2(
                 onClick: () => _subscribeUiToOtpValidation(context),
@@ -133,25 +133,6 @@ class _ExistingAccountOTPScreen extends State<ExistingAccountOTPScreen> {
                 isValid: _isOtpValid,
                 isLoading: _isLoading
             ),
-            // Stack(
-            //   children: [
-            //     SizedBox(
-            //       width: double.infinity,
-            //       child: Styles.appButton(
-            //           onClick: _isOtpValid && !_isLoading
-            //               ? () => _subscribeUiToOtpValidation(context)
-            //               : null,
-            //           text: 'Continue'),
-            //     ),
-            //     Positioned(
-            //         right: 16,
-            //         top: 16,
-            //         bottom: 16,
-            //         child: _isLoading
-            //             ? SpinKitThreeBounce(size: 20.0, color: Colors.white.withOpacity(0.5))
-            //             : SizedBox())
-            //   ],
-            // ),
             SizedBox(
               height: 66,
             )

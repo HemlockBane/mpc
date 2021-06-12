@@ -39,11 +39,6 @@ class BillTransaction implements Transaction {
   @JsonKey(name: "creationTimeStamp")
   final int? creationTimeStamp;
 
-  // @ColumnInfo(name : "nextPaymentDate")
-  // @JsonKey(name: "nextPaymentDate")
-  // @TypeConverters([BillHistoryItemConverter])
-  // final List<int>? nextPaymentDate;
-
   @ColumnInfo(name : "batch_status")
   @JsonKey(name: "status")
   final String? batchStatus;
@@ -65,7 +60,6 @@ class BillTransaction implements Transaction {
     mapData["status"] = mapData["institutionBill"]["status"];
     mapData["history_id"] = mapData["bill"]["id"];
     mapData["creationTimeStamp"] = mapData["institutionBill"]["creationTimeStamp"];
-    // mapData["nextPaymentDate"] = mapData["institutionBill"]["nextPaymentDate"];
     final transaction = _$BillTransactionFromJson(mapData);
     return transaction;
   }
@@ -105,7 +99,7 @@ class BillTransaction implements Transaction {
 
   @override
   int getInitiatedDate() {
-    return 0;
+    return creationTimeStamp ?? 0;
   }
 
   @override
@@ -132,8 +126,7 @@ class BillTransaction implements Transaction {
 
   @override
   PaymentType getPaymentType() {
-    // TODO: implement getPaymentType
-    throw UnimplementedError();
+    return PaymentType.ONE_TIME;
   }
 
   @override
@@ -143,7 +136,7 @@ class BillTransaction implements Transaction {
 
   @override
   String getSinkAccountNumber() {
-    return "";
+    return bill?.identifier ?? "";
   }
 
   @override
@@ -163,7 +156,7 @@ class BillTransaction implements Transaction {
 
   @override
   TransactionType getType() {
-    throw UnimplementedError();
+    return TransactionType.DEBIT;
   }
 
 }

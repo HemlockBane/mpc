@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moniepoint_flutter/app/accounts/model/account_service.dart';
 import 'package:moniepoint_flutter/app/accounts/model/account_service_delegate.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/scheme_dao.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/transaction_dao.dart';
 import 'package:moniepoint_flutter/app/accounts/model/transaction_service.dart';
 import 'package:moniepoint_flutter/app/accounts/model/transaction_service_delegate.dart';
@@ -18,6 +19,10 @@ import 'package:moniepoint_flutter/app/airtime/model/data_top_up_service.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/bill_service.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/bill_service_delegate.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/bill_dao.dart';
+import 'package:moniepoint_flutter/app/branches/model/branch_service.dart';
+import 'package:moniepoint_flutter/app/branches/model/branch_service_delegate.dart';
+import 'package:moniepoint_flutter/app/cards/model/card_service.dart';
+import 'package:moniepoint_flutter/app/cards/model/card_service_delegate.dart';
 import 'package:moniepoint_flutter/app/institutions/institution_dao.dart';
 import 'package:moniepoint_flutter/app/institutions/institution_repository.dart';
 import 'package:moniepoint_flutter/app/institutions/institution_service.dart';
@@ -52,6 +57,8 @@ import 'package:moniepoint_flutter/core/models/services/location_service.dart';
 import 'package:moniepoint_flutter/core/models/services/location_service_delegate.dart';
 import 'package:moniepoint_flutter/core/models/services/system_configuration_service.dart';
 import 'package:moniepoint_flutter/core/models/services/system_configuration_service_delegate.dart';
+import 'package:moniepoint_flutter/core/models/services/ussd_service.dart';
+import 'package:moniepoint_flutter/core/models/services/ussd_service_delegate.dart';
 import 'package:moniepoint_flutter/core/network/auth_interceptor.dart';
 import 'package:moniepoint_flutter/core/network/http_logging_interceptor.dart';
 
@@ -117,7 +124,7 @@ class ServiceModule {
 
     /// Customer checks
     GetIt.I.registerLazySingleton<CustomerServiceDelegate>(() {
-      return CustomerServiceDelegate(CustomerService(dio));
+      return CustomerServiceDelegate(CustomerService(dio), GetIt.I<SchemeDao>());
     });
 
     /// Transfer checks
@@ -188,6 +195,21 @@ class ServiceModule {
     /// Institution checks
     GetIt.I.registerLazySingleton<InstitutionRepository>(() {
       return InstitutionRepository(InstitutionService(dio), GetIt.I<InstitutionDao>());
+    });
+
+    /// Branch checks
+    GetIt.I.registerLazySingleton<BranchServiceDelegate>(() {
+      return BranchServiceDelegate(BranchService(dio));
+    });
+
+    /// Cards checks
+    GetIt.I.registerLazySingleton<CardServiceDelegate>(() {
+      return CardServiceDelegate(CardService(dio));
+    });
+
+    /// USSD Service checks
+    GetIt.I.registerLazySingleton<USSDServiceDelegate>(() {
+      return USSDServiceDelegate(USSDService(dio));
     });
 
     GetIt.I.registerLazySingleton<DeviceInfoPlugin>(() {

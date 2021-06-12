@@ -109,9 +109,9 @@ class _SetPasswordRecoveryView extends State<SetPasswordRecoveryView> with Valid
                     'Update Password',
                     textAlign: TextAlign.start,
                     style: TextStyle(
-                        color: Colors.darkBlue,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold),
+                        color: Colors.colorPrimaryDark,
+                        fontSize: 25,
+                        fontWeight: FontWeight.w600),
                   ),
                   SizedBox(height: 8),
                   SizedBox(height: 44),
@@ -128,27 +128,12 @@ class _SetPasswordRecoveryView extends State<SetPasswordRecoveryView> with Valid
                 ],
               ),
             )),
-            Stack(
-              children: [
-                SizedBox(
-                  width: double.infinity,
-                  child: Styles.appButton(
-                      elevation: 0,
-                      onClick:
-                          !_isLoading && _isPasswordValid
-                              ? _subscribeToUpdatePassword 
-                              : null,
-                      text: 'Submit'),
-                ),
-                Positioned(
-                    right: 16,
-                    top: 16,
-                    bottom: 16,
-                    child: _isLoading
-                        ? SpinKitThreeBounce(
-                            size: 20.0, color: Colors.white.withOpacity(0.5))
-                        : SizedBox())
-              ],
+            Styles.statefulButton2(
+                elevation: 0,
+                isValid: !_isLoading && _isPasswordValid,
+                onClick: _subscribeToUpdatePassword,
+                text: 'Continue',
+                isLoading: _isLoading
             ),
             SizedBox(height: 16)
           ],

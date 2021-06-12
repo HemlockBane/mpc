@@ -146,7 +146,7 @@ class _AdditionalInfoScreen extends State<AdditionalInfoScreen> with AutomaticKe
                     ))
               ],
             )),
-            SizedBox(height: 100),
+            // SizedBox(height: 100),
           ],
         ),
       ),

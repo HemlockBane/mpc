@@ -23,10 +23,8 @@ TransferHistoryItem _$TransferHistoryItemFromJson(Map<String, dynamic> json) {
     narration: json['narration'] as String?,
     extraInformation: json['extraInformation'] as String?,
     currencyCode: json['currencyCode'] as String?,
-    dateCreated:
-        (json['timeAdded'] as List<dynamic>?)?.map((e) => e as int).toList(),
-    timeExecuted:
-        (json['timeExecuted'] as List<dynamic>?)?.map((e) => e as int).toList(),
+    dateCreated: json['timeAdded'] as String?,
+    timeExecuted: json['timeExecuted'] as String?,
     transferBatchKey: json['transferBatchKey'] as String?,
     transferType: json['transferType'] as String?,
     dateAdded: json['dateAdded'] as int?,

@@ -54,12 +54,11 @@ class TransferHistoryItem extends HistoryItem {
   final String? currencyCode;
 
   @JsonKey(name:"timeAdded")
-  @TypeConverters([ListIntConverter])
-  final List<int>? dateCreated;
+  final String? dateCreated;
 
   @JsonKey(name:"timeExecuted")
   @TypeConverters([ListIntConverter])
-  final List<int>? timeExecuted;
+  final String? timeExecuted;
 
   @JsonKey(name:"transferBatchKey")
   final String? transferBatchKey;

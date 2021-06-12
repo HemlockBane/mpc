@@ -1,4 +1,5 @@
 import 'package:floor/floor.dart';
+import 'package:flutter/foundation.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/transfer_request_body.dart';
 import 'package:moniepoint_flutter/core/database/type_converters.dart';
 import 'package:moniepoint_flutter/core/models/list_item.dart';
@@ -48,7 +49,7 @@ class AccountTransaction implements ListItem, Transaction {
   @JsonKey(name:"narration")
   final String? narration;
 
-  @JsonKey(name:"transactionDate")
+  @JsonKey(name:"transactionDate", fromJson: stringDateTime)
   final int transactionDate;
 
   @JsonKey(name:"runningBalance")
@@ -78,6 +79,11 @@ class AccountTransaction implements ListItem, Transaction {
   factory AccountTransaction.fromJson(Object? data) => _$AccountTransactionFromJson(data as Map<String, dynamic>);
   Map<String, dynamic> toJson() => _$AccountTransactionToJson(this);
 
+
+  String getTransactionChannelValue() {
+    final channel = this.transactionChannel;
+    return channel == null ? "" : describeEnum(channel);
+  }
 
   @override
   double getAmount() {
@@ -174,13 +180,11 @@ class AccountTransaction implements ListItem, Transaction {
 
   @override
   num getTransactionDate() {
-    // TODO: implement getTransactionDate
-    return this.transactionDate;
+    return 00;
   }
 
   @override
   TransactionType getType() {
-    // TODO: implement getType
     return this.type ??  TransactionType.CREDIT;
   }
 

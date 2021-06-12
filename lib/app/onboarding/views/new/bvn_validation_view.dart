@@ -207,7 +207,7 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
                     fontWeight: FontWeight.w400,
                     fontSize: 12
                 ))
-                .colorText({'*565*0#': Tuple(Colors.primaryColor, () => dialNumber("tel:565"))}, underline: false),
+                .colorText({'*565*0#': Tuple(Colors.primaryColor, () => dialNumber("tel:${Uri.encodeComponent("*565*0#")}"))}, underline: false),
           ),
         ),
         SizedBox(height: 20),
@@ -279,31 +279,12 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
         }),
         Spacer(),
         SizedBox(height: 24),
-        StreamBuilder(
-          stream: viewModel.accountForm.isValid,
-          initialData: false,
-          builder: (context, AsyncSnapshot<bool> snapshot) {
-            return Stack(
-              children: [
-                SizedBox(
-                  width: double.infinity,
-                  child: Styles.appButton(
-                      elevation: 0,
-                      onClick: (snapshot.hasData && snapshot.data == true) && !_isLoading
-                          ? () => displayDateOfBirthDialog(context)
-                          : null,
-                      text: 'Continue'
-                  ),
-                ),
-                Positioned(
-                    right: 16,
-                    top: 16,
-                    bottom: 16,
-                    child: _isLoading ? SpinKitThreeBounce(size: 20.0, color: Colors.white.withOpacity(0.5)) : SizedBox()
-                )
-              ],
-            );
-          },
+        Styles.statefulButton(
+            elevation: 0,
+            stream: viewModel.accountForm.isValid,
+            onClick: () => displayDateOfBirthDialog(context),
+            text: 'Continue',
+            isLoading: _isLoading
         ),
         SizedBox(height: 32),
         Center(
@@ -313,14 +294,13 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
             "Login": Tuple(Colors.primaryColor, () => Navigator.of(_scaffoldKey.currentContext!).popAndPushNamed('/login'))
           }, underline: false)
         ),
-        SizedBox(height: 44),
       ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SafeArea(child: Scaffold(
         resizeToAvoidBottomInset: false,
         body: LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
           return SingleChildScrollView(
@@ -330,13 +310,13 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
                 child: Container(
                     color: Colors.backgroundWhite,
                     padding: EdgeInsets.only(
-                        left: 16, right: 16, top: 41, bottom: 42
+                        left: 16, right: 16, top: 41, bottom: 44*2
                     ),
                     child: _buildMain(context)
                 ),
               ),
             ),
           );
-        }));
+        })));
   }
 }

@@ -40,8 +40,7 @@ class TransferBatch extends TransactionBatch {
   final double? totalMinorVatAmount;
 
   @JsonKey(name: "authorizedOn")
-  @TypeConverters([ListIntConverter])
-  final List<int>? authorizedOn;
+  final String? authorizedOn;
 
   @JsonKey(name: "aptentBatchKey")
   final String? aptentBatchKey;

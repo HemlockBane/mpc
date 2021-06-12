@@ -10,9 +10,7 @@ AccountUpdateFlag _$AccountUpdateFlagFromJson(Map<String, dynamic> json) {
   return AccountUpdateFlag(
     json['status'] as bool,
     json['weight'] as int,
-    (json['verificationEndTime'] as List<dynamic>?)
-        ?.map((e) => e as int)
-        .toList(),
+    json['verificationEndTime'] as String?,
     _$enumDecodeNullable(
         _$VerificationStateEnumMap, json['verificationStates']),
   );

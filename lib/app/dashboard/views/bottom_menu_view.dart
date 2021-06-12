@@ -5,6 +5,11 @@ import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 
 class DashboardBottomMenu extends StatelessWidget {
+
+  final Function _refreshTrigger;
+
+  DashboardBottomMenu(this._refreshTrigger);
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -12,18 +17,37 @@ class DashboardBottomMenu extends StatelessWidget {
           color: Colors.white,
           border: Border.all(color: Colors.colorFaded.withOpacity(0.2), width: 1),
           borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(16),
-            topRight: Radius.circular(16)
-        )
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16)
+          )
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Expanded(child: _menuItem('Airtime', 'res/drawables/ic_menu_airtime.svg', () => Navigator.of(context).pushNamed(Routes.AIRTIME))),
-          Expanded(child: _menuItem('Transfer', 'res/drawables/ic_menu_transfer.svg', () => Navigator.of(context).pushNamed(Routes.TRANSFER))),
-          Expanded(child: _menuItem('Pay Bills', 'res/drawables/ic_menu_bills.svg', ()=> Navigator.of(context).pushNamed(Routes.BILL))),
-          Expanded(child: _menuItem('More', 'res/drawables/ic_menu_more.svg', () => Scaffold.of(context).openDrawer())),
+          Expanded(
+              child: _menuItem(
+                  'Airtime',
+                  'res/drawables/ic_menu_airtime.svg',
+                      () => Navigator.of(context).pushNamed(Routes.AIRTIME).then((value) => _refreshTrigger.call())
+              )),
+          Expanded(
+              child: _menuItem(
+                  'Transfer',
+                  'res/drawables/ic_menu_transfer.svg',
+                      () => Navigator.of(context).pushNamed(Routes.TRANSFER).then((value) => _refreshTrigger.call())
+              )),
+          Expanded(
+              child: _menuItem(
+                  'Pay Bills',
+                  'res/drawables/ic_menu_bills.svg',
+                      ()=> Navigator.of(context).pushNamed(Routes.BILL).then((value) => _refreshTrigger.call())
+              )),
+          Expanded(child: _menuItem(
+              'More',
+              'res/drawables/ic_menu_more.svg',
+                  () => Scaffold.of(context).openDrawer()
+          )),
         ],
       ),
     );
@@ -37,7 +61,7 @@ class DashboardBottomMenu extends StatelessWidget {
         onTap: onClick,
         // borderRadius: BorderRadius.all(Radius.circular(120)),
         child: Container(
-          padding: EdgeInsets.only(top: 24, bottom: 32),
+          padding: EdgeInsets.only(top: 24, bottom: 28),
           decoration: BoxDecoration(shape: BoxShape.circle),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

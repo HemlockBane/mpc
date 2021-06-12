@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart' hide Colors;
-import 'package:moniepoint_flutter/app/usermanagement/viewmodels/change_password_view_model.dart';
 import 'package:moniepoint_flutter/app/usermanagement/viewmodels/change_pin_view_model.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
-import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/views/pin_entry.dart';
@@ -60,7 +58,7 @@ class _ChangePinDialog extends State<ChangePinDialog> {
                       style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w600,
-                          color: Colors.solidDarkBlue)),
+                          color: Colors.colorPrimaryDark)),
                 ),
                 SizedBox(height: 24),
                 Container(
@@ -68,7 +66,7 @@ class _ChangePinDialog extends State<ChangePinDialog> {
                   child: Text('Enter Current PIN',
                       textAlign: TextAlign.start,
                       style: TextStyle(
-                          color: Colors.solidDarkBlue,
+                          color: Colors.colorPrimaryDark,
                           fontWeight: FontWeight.w600, fontSize: 15)),
                 ),
                 SizedBox(height: 8),
@@ -86,7 +84,7 @@ class _ChangePinDialog extends State<ChangePinDialog> {
                   child: Text('Enter New PIN',
                       textAlign: TextAlign.start,
                       style: TextStyle(
-                          color: Colors.solidDarkBlue,
+                          color: Colors.colorPrimaryDark,
                           fontWeight: FontWeight.w600, fontSize: 15)),
                 ),
                 SizedBox(height: 8),

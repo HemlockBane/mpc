@@ -73,7 +73,7 @@ class _ChangePasswordDialog extends State<ChangePasswordDialog> {
                               onChanged: viewModel.onOldPasswordChanged,
                               errorText: snapshot.hasError ? snapshot.error.toString() : null,
                               animateHint: false,
-                              drawablePadding: 4,
+                              drawablePadding: EdgeInsets.only(left: 4, right: 4),
                               startIcon: Icon(CustomFont.password, color: Colors.colorFaded),
                               endIcon: IconButton(
                                   icon: Icon(this._isOldPasswordVisible ? Icons.visibility : Icons.visibility_off, color: Colors.colorFaded),
@@ -98,7 +98,7 @@ class _ChangePasswordDialog extends State<ChangePasswordDialog> {
                               onChanged: viewModel.onNewPasswordChanged,
                               errorText: snapshot.hasError ? snapshot.error.toString() : null,
                               animateHint: false,
-                              drawablePadding: 4,
+                              drawablePadding: EdgeInsets.only(left: 4, right: 4),
                               startIcon: Icon(CustomFont.password, color: Colors.colorFaded),
                               endIcon: IconButton(
                                   icon: Icon(this._isNewPasswordVisible ? Icons.visibility : Icons.visibility_off, color: Colors.colorFaded),

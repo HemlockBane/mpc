@@ -76,7 +76,14 @@ class _SupportScreen extends State<SupportScreen> {
         final emailItem = supportItem(
             "Send us an Email", 'res/drawables/ic_support_message.svg',
             Text(e.value ?? "", style: textStyle).colorText(
-                _makeSupportLinks(e.value ?? "", (value) => null),
+                _makeSupportLinks(e.value ?? "", (value) => dialNumber(Uri(
+                  scheme: "mailto",
+                  path: "$value",
+                    queryParameters: {
+                      'subject': 'Hello Moniepoint',
+                      'body':"Good day"
+                    }
+                ).toString())),
                 bold: false
             ));
         widgets.add(emailItem);
@@ -85,7 +92,7 @@ class _SupportScreen extends State<SupportScreen> {
         final phoneItem = supportItem(
             "Call us on:", 'res/drawables/ic_support_phone.svg',
             Text(e.value ?? "", style: textStyle).colorText(
-                _makeSupportLinks(e.value ?? "", (value) => dialNumber(value)),
+                _makeSupportLinks(e.value ?? "", (value) => dialNumber("tel:$value")),
                 bold: false
             ));
         widgets.add(phoneItem);
@@ -210,7 +217,6 @@ class _SupportScreen extends State<SupportScreen> {
                     if(!a.hasData) return Container();
                     if(a.hasData && (a.data is Loading && a.data?.data?.isEmpty == true)) return Container();
                     if(a.hasData && (a.data is Error && a.data?.data?.isEmpty == true || a.data?.data == null)) return Container();
-                    print("Printing ${a.data?.data}");
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: a.data!.data!.map((e) {

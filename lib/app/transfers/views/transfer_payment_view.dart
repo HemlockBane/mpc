@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
 import 'package:moniepoint_flutter/app/transfers/viewmodels/transfer_view_model.dart';
 import 'package:moniepoint_flutter/app/transfers/views/transfer_view.dart';
 import 'package:moniepoint_flutter/core/amount_pill.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/config/build_config.dart';
+import 'package:moniepoint_flutter/core/config/service_config.dart';
 import 'package:moniepoint_flutter/core/constants.dart';
 import 'package:moniepoint_flutter/core/models/list_item.dart';
 import 'package:moniepoint_flutter/core/models/transaction_status.dart';
@@ -16,6 +19,7 @@ import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
+import 'package:moniepoint_flutter/core/views/transaction_success_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:moniepoint_flutter/core/utils/text_utils.dart';
 import 'package:moniepoint_flutter/core/strings.dart';
@@ -184,7 +188,7 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
                   return Text(
                     'Balance - $balance',
                     textAlign: TextAlign.left,
-                    style: TextStyle(color: Colors.deepGrey, fontSize: 13, fontFamily: Styles.defaultFont),)
+                    style: TextStyle(color: Colors.deepGrey, fontSize: 13, fontFamily: Styles.defaultFont, fontFamilyFallback: ["Roboto"]),)
                       .colorText({"$balance" : Tuple(Colors.deepGrey, null)}, underline: false);
                 })
               ],
@@ -256,25 +260,30 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
             || result.operationStatus == Constants.SUCCESSFUL;
 
         if(isSuccessful) {
+          final downloadUrl = (result.transferBatchId != null)
+              ? "${ServiceConfig.TRANSFER_SERVICE}api/v1/transfer/receipt/${viewModel.customerId}/${result.transferBatchId}"
+              : null;
+
+          final payload = SuccessPayload(
+              "Transfer Successful",
+              "Your transfer was successful",
+              downloadUrl: downloadUrl,
+              fileName: "Transaction_Receipt_${viewModel.accountName}_${DateFormat("dd_MM_yyyy_h_m_s").format(DateTime.now())}.pdf"
+          );
+
           showModalBottomSheet(
               context: widget._scaffoldKey.currentContext ?? context,
               isScrollControlled: true,
               backgroundColor: Colors.transparent,
-              builder: (mContext) => BottomSheets.displaySuccessModal(
-                  widget._scaffoldKey.currentContext ?? mContext,
-                  title: "Transfer Successful",
-                  message: "Your transfer was successful",
-                  onClick: () {
-                    Navigator.of(widget._scaffoldKey.currentContext!).pop();
-                    Navigator.of(context)
-                        .pushNamedAndRemoveUntil(TransferScreen.BENEFICIARY_SCREEN, (route) => false);
-                  }
-              )
+              builder: (mContext) => TransactionSuccessDialog(
+                payload, onClick: () {
+                  Navigator.of(mContext).pop();
+                  Navigator.of(context).pushNamedAndRemoveUntil(TransferScreen.BENEFICIARY_SCREEN, (route) => false);
+                })
           );
         } else {
           _displayPaymentError(result.message ?? "Unable to complete transaction at this time. Please try again later.");
         }
-
     } else if(result is Error<TransactionStatus>) {
       _displayPaymentError(result.message ?? "");
     }

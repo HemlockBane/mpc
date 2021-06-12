@@ -13,7 +13,7 @@ abstract class BillsDao extends MoniepointDao<BillTransaction> {
   Stream<List<BillTransaction>> getBillTransactions(int startDate, int endDate, int limit, int offset);
 
   @Query("SELECT * FROM bill_transactions WHERE history_id = :id")
-  Future<BillTransaction?> getBillTransactionById(String id);
+  Future<BillTransaction?> getBillTransactionById(int id);
 
   @Query('DELETE FROM bill_transactions')
   Future<void> deleteAll();

@@ -74,7 +74,7 @@ class TransactionOptionsView extends StatelessWidget {
                 child: makeItem('Share Receipt', 'res/drawables/ic_share_receipt.svg')
             )),
         Visibility(
-            visible: this.displayShareReceipt,
+            visible: this.displayDownloadReceipt,
             child: Padding(
               padding: EdgeInsets.only(left: padding, right: padding),
               child: Divider(height: 1, color: Colors.dashboardDivider.withOpacity(0.15),),
@@ -86,14 +86,14 @@ class TransactionOptionsView extends StatelessWidget {
                 child: makeItem('Download Receipt', 'res/drawables/ic_download_receipt.svg')
             )),
         Visibility(
-            visible: this.displayDownloadReceipt,
+            visible: this.displayReplayTransaction,
             child: Padding(
               padding: EdgeInsets.only(left: padding, right: padding),
               child: Divider(height: 1, color: Colors.dashboardDivider.withOpacity(0.15),),
             )
         ),
         Visibility(
-            visible: this.displayDownloadReceipt,
+            visible: this.displayReplayTransaction,
             child: Expanded(
                 child: makeItem('Replay this Transaction', 'res/drawables/ic_replay_transaction.svg')
             )),

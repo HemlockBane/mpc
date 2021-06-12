@@ -6,6 +6,7 @@ import 'package:moniepoint_flutter/app/transfers/views/transfer_history_view.dar
 import 'package:moniepoint_flutter/app/transfers/views/transfer_payment_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:moniepoint_flutter/core/views/transaction_tab.dart';
 import 'package:provider/provider.dart';
 
@@ -55,36 +56,34 @@ class _TransferScreen extends State<TransferScreen> {
               backgroundColor: Colors.backgroundWhite,
               elevation: 0
           ),
-          body: Column(
-            children: [
-              SizedBox(height: 16),
-              TransactionTab(
-                  TabBar(
-                    indicator: BoxDecoration(
-                        borderRadius: BorderRadius.circular(50),
-                        color: Colors.primaryColor
+          body: SessionedWidget(
+            context: context,
+            child: Column(
+              children: [
+                SizedBox(height: 16),
+                TransactionTab(
+                    TabBar(
+                      indicator: BoxDecoration(
+                          borderRadius: BorderRadius.circular(50),
+                          color: Colors.primaryColor),
+                      unselectedLabelColor: Color(0XFF8030424C),
+                      tabs: [
+                        Tab(
+                          text: "Transfer",
+                        ),
+                        Tab(
+                          text: "History",
+                        )
+                      ],
                     ),
-                    unselectedLabelColor: Color(0XFF8030424C),
-                    tabs: [
-                      Tab(
-                        text: "Transfer",
-                      ),
-                      Tab(
-                        text: "History",
-                      )
-                    ],
-                  ),
-                  Colors.tabBackground.withOpacity(0.16)
-              ),
-              Expanded(
-                  child: TabBarView(
-                      children: [
-                        _TransferViewNavigator(widget._scaffoldKey, widget._navigatorKey),
-                        TransferHistoryScreen(widget._scaffoldKey),
-                      ]
-                  )
-              )
-            ],
+                    Colors.tabBackground.withOpacity(0.16)),
+                Expanded(
+                    child: TabBarView(children: [
+                      _TransferViewNavigator(widget._scaffoldKey, widget._navigatorKey),
+                      TransferHistoryScreen(widget._scaffoldKey),
+                ]))
+              ],
+            ),
           ),
         ),
       ),

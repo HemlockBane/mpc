@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:convert';
 
 import 'package:get_it/get_it.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/bill_service_delegate.dart';
@@ -58,12 +59,18 @@ class BillPurchaseViewModel extends BaseViewModel with PaymentViewModel {
     this._additionalFieldsMap.clear();
     this._fieldErrorMap.clear();
     _billerProduct?.additionalFieldsMap?.forEach((key, value) {
-      if(value.required) _fieldErrorMap[key] = "";
+      if(value.required && key != "amount") _fieldErrorMap[key] = "";
     });
   }
 
   void setValidationReference(String validationReference) {
     this.validationReference = validationReference;
+  }
+
+  @override
+  void setAmount(double amount) {
+    super.setAmount(amount);
+    this.checkValidity();
   }
 
   void setAdditionalFieldData(String key, String value) {
@@ -117,7 +124,7 @@ class BillPurchaseViewModel extends BaseViewModel with PaymentViewModel {
     final isAmountFixed = this._billerProduct?.priceFixed == true;
     final productAmount = this._billerProduct?.amount ?? 0;
     final isAmountValid = (isAmountFixed) ? this.amount == (productAmount /100): this.amount != null && this.amount! > 0;
-    final isFormValid = _fieldErrorMap.values.every((element) => element == null);
+    final isFormValid = _fieldErrorMap.values.every((element) => element == null || element.isEmpty);
     return isAmountValid && isFormValid;
   }
 

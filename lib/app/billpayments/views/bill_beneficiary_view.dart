@@ -13,9 +13,11 @@ import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/list_view_util.dart';
+import 'package:moniepoint_flutter/core/views/generic_list_placeholder.dart';
 import 'package:provider/provider.dart';
 
 import 'dialogs/bill_customer_enquiry_dialog.dart';
@@ -55,6 +57,10 @@ class _BillBeneficiaryScreen extends State<BillBeneficiaryScreen> with TickerPro
         snapshot: a,
         animationController: _animationController,
         currentList: _currentItems,
+        emptyPlaceholder: GenericListPlaceholder(
+            SvgPicture.asset('res/drawables/ic_empty_beneficiary.svg'),
+            'You have no saved biller \nbeneficiaries yet.'
+        ),
         listView: (List<BillBeneficiary>? items) {
           return ListView.separated(
               physics: NeverScrollableScrollPhysics(),
@@ -132,6 +138,18 @@ class _BillBeneficiaryScreen extends State<BillBeneficiaryScreen> with TickerPro
   }
 
   bool get isFormValid => viewModel!.billerProduct != null && _customerIdController.text.isNotEmpty;
+
+  void _selectBeneficiary() async {
+    final beneficiary = await Navigator.of(widget._scaffoldKey.currentContext!).pushNamed(Routes.SELECT_BILL_BENEFICIARY);
+    if(beneficiary is BillBeneficiary) {
+      if (viewModel?.billerProduct != null) {
+        _validateCustomerId(beneficiary.customerIdentity ?? "", false);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Oops! No Bill Product Selected.')));
+      }
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -264,7 +282,7 @@ class _BillBeneficiaryScreen extends State<BillBeneficiaryScreen> with TickerPro
                               color: Colors.solidOrange,
                               fontWeight: FontWeight.bold
                           )),
-                      onPressed: () => null
+                      onPressed: _selectBeneficiary
                   ),
                 ),
               ))

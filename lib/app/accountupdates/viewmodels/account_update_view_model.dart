@@ -34,6 +34,9 @@ class AccountUpdateViewModel extends BaseViewModel {
   final _nextOfKinForm = lazy(() => NextOfKinForm());
   NextOfKinForm get nextOfKinForm => _nextOfKinForm.value;
 
+  final StreamController<bool> _loadingStateController = StreamController.broadcast();
+  Stream<bool> get loadingState => _loadingStateController.stream;
+
   AccountUpdateViewModel({CustomerServiceDelegate? customerServiceDelegate, LocationServiceDelegate? locationServiceDelegate}) {
     this._locationServiceDelegate = locationServiceDelegate ?? GetIt.I<LocationServiceDelegate>();
     this._customerServiceDelegate = customerServiceDelegate ?? GetIt.I<CustomerServiceDelegate>();
@@ -64,12 +67,22 @@ class AccountUpdateViewModel extends BaseViewModel {
     });
   }
 
+  Stream<Resource<List<Tier>>> getOnBoardingSchemes() {
+    return _customerServiceDelegate.getSchemes().map((event) {
+      if(event is Success) {
+        this.tiers.clear();
+        this.tiers.addAll(event.data ?? []);
+      }
+      return event;
+    });
+  }
+
   AccountUpdate _buildAccountUpdateRequest() {
     var customerDetailInfo = (_additionalInfoForm.isInitialized) ? additionalInfoForm.customerInfo : null;
 
     if(customerDetailInfo != null && _addressForm.isInitialized) {
       customerDetailInfo..addressInfo = addressForm.getAddressInfo;
-    }else if(_addressForm.isInitialized && !_additionalInfoForm.isInitialized) {
+    } else if(_addressForm.isInitialized && !_additionalInfoForm.isInitialized) {
       customerDetailInfo = CustomerDetailInfo(addressInfo: addressForm.getAddressInfo);
     }
 
@@ -87,6 +100,10 @@ class AccountUpdateViewModel extends BaseViewModel {
           ? nextOfKinForm.nextOfKinInfo
           : null
     );
+  }
+
+  void setIsLoading(bool isLoading) {
+    this._loadingStateController.sink.add(isLoading);
   }
 
   Stream<Resource<Tier>> checkCustomerEligibility({AccountUpdate? accountUpdate}) {
@@ -118,6 +135,7 @@ class AccountUpdateViewModel extends BaseViewModel {
 
   @override
   void dispose() {
+    _loadingStateController.close();
     _pageFormController.close();
     super.dispose();
   }

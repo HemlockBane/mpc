@@ -1,5 +1,7 @@
 import 'package:floor/floor.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/scheme_dao.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/transaction_dao.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/data/nationality_dao.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
@@ -48,7 +50,8 @@ part 'moniepoint_database.g.dart';
   Biller,
   BillerCategory,
   BillerProduct,
-  AccountTransaction
+  AccountTransaction,
+  Tier
 ])
 abstract class AppDatabase extends FloorDatabase {
   NationalityDao get nationalityDao;
@@ -80,4 +83,6 @@ abstract class AppDatabase extends FloorDatabase {
   BillerProductDao get billerProductDao;
 
   TransactionDao get transactionDao;
+
+  SchemeDao get schemeDao;
 }

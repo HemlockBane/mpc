@@ -14,11 +14,8 @@ SystemConfiguration _$SystemConfigurationFromJson(Map<String, dynamic> json) {
     value: json['value'] as String?,
     type: json['type'] as String?,
     description: json['description'] as String?,
-    createdAt:
-        (json['createdAt'] as List<dynamic>?)?.map((e) => e as int).toList(),
-    lastModifiedAt: (json['lastModifiedAt'] as List<dynamic>?)
-        ?.map((e) => e as int)
-        .toList(),
+    createdAt: json['createdAt'] as String?,
+    lastModifiedAt: json['lastModifiedAt'] as String?,
   );
 }
 

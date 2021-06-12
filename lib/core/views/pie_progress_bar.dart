@@ -61,7 +61,7 @@ class PieProgressBar extends AnimatedWidget {
   @override
   Widget build(BuildContext context) {
     int destinationPage = viewPager.page?.round() ?? 0;
-    double scaleFactor = 1 / totalItemCount;
+    double scaleFactor = (totalItemCount > 0) ? 1 / totalItemCount : 1;
     double endValue = scaleFactor + (scaleFactor * destinationPage).toDouble();
 
     return TweenAnimationBuilder(
@@ -85,7 +85,7 @@ class PieProgressBar extends AnimatedWidget {
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.textColorBlack,
-                          fontSize: 20)),
+                          fontSize: 22)),
                 )
               ],
             ),

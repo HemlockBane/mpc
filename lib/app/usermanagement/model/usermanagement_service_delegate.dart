@@ -1,5 +1,6 @@
 import 'package:moniepoint_flutter/app/usermanagement/model/data/change_password_request_body.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/data/change_pin_request_body.dart';
+import 'package:moniepoint_flutter/app/usermanagement/model/data/finger_print_auth_request_body.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/data/forgot_password_request.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/data/recovery_response.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/usermanagement_service.dart';
@@ -54,6 +55,13 @@ class UserManagementServiceDelegate with NetworkResource {
     return networkBoundResource(
         fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => this._service.changeTransactionPin(requestBody)
+    );
+  }
+
+  Stream<Resource<bool>> setFingerPrint(FingerPrintAuthRequestBody requestBody) {
+    return networkBoundResource(
+        fetchFromLocal: () => Stream.value(null),
+        fetchFromRemote: () => this._service.setFingerprint(requestBody)
     );
   }
 }

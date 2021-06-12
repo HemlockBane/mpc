@@ -1,7 +1,9 @@
 import 'dart:ffi';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_purchase_type.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_service_provider_item.dart';
@@ -10,8 +12,12 @@ import 'package:moniepoint_flutter/app/airtime/views/dialogs/airtime_pin_dialog.
 import 'package:moniepoint_flutter/app/airtime/views/selection_combo.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/airtime/model/data/airtime_beneficiary.dart';
 import 'package:moniepoint_flutter/core/amount_pill.dart';
+import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/config/service_config.dart';
+import 'package:moniepoint_flutter/core/constants.dart';
 import 'package:moniepoint_flutter/core/models/list_item.dart';
+import 'package:moniepoint_flutter/core/models/transaction_status.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/payment_view_model.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
@@ -19,11 +25,14 @@ import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
+import 'package:moniepoint_flutter/core/views/transaction_success_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:moniepoint_flutter/core/utils/text_utils.dart';
 import 'package:moniepoint_flutter/core/strings.dart';
 import 'package:collection/collection.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
+
+import 'airtime_view.dart';
 
 
 
@@ -218,7 +227,7 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
                   return Text(
                     'Balance - $balance',
                     textAlign: TextAlign.left,
-                    style: TextStyle(color: Colors.deepGrey, fontSize: 13, fontFamily: Styles.defaultFont),)
+                    style: TextStyle(color: Colors.deepGrey, fontSize: 13, fontFamily: Styles.defaultFont, fontFamilyFallback: ["Roboto"]),)
                       .colorText({"$balance" : Tuple(Colors.deepGrey, null)}, underline: false);
                 })
               ],
@@ -267,6 +276,12 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
     return pills;
   }
 
+  void _displayPaymentError(String message) {
+    showModalBottomSheet(
+        backgroundColor: Colors.transparent,
+        context: widget._scaffoldKey.currentContext ?? context,
+        builder: (context) => BottomSheets.displayErrorModal(context, title: "Oops", message: message));
+  }
 
   void subscribeUiToPin() async {
     final viewModel = Provider.of<AirtimeViewModel>(context, listen: false);
@@ -279,6 +294,41 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
           child: AirtimePinDialog(),
         ));
 
+    if(result is TransactionStatus) {
+      final isSuccessful = result.operationStatus == Constants.APPROVED
+          || result.operationStatus == Constants.COMPLETED
+          || result.operationStatus == Constants.PENDING
+          || result.operationStatus == Constants.SUCCESSFUL;
+
+      if(isSuccessful) {
+        final batchId = (viewModel.purchaseType == PurchaseType.DATA) ? result.customerDataTopUpId : result.customerAirtimeId;
+        final downloadUrl = (result.transferBatchId != null)
+            ? "${ServiceConfig.VAS_SERVICE}api/v1/airtime/receipt/${viewModel.customerId}/$batchId"
+            : null;
+
+        final payload = SuccessPayload("Airtime Purchase Successful",
+            "Your ${describeEnum(viewModel.purchaseType).toLowerCase()} purchase was successful",
+            downloadUrl: downloadUrl,
+            fileName: "Airtime_Receipt_${viewModel.accountName}_${DateFormat("dd MM yyyy").format(DateTime.now())}.pdf"
+        );
+
+        showModalBottomSheet(
+            context: widget._scaffoldKey.currentContext ?? context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (mContext) => TransactionSuccessDialog(
+              payload, onClick: () {
+              Navigator.of(context).pushNamedAndRemoveUntil(AirtimeScreen.BENEFICIARY_SCREEN, (route) => false);
+            })
+        );
+      } else {
+        print("I'm here for error");
+        _displayPaymentError(result.message ?? "Unable to complete transaction at this time. Please try again later.");
+      }
+    } else if(result is Error<TransactionStatus>) {
+      print("I'm here for error 33333");
+      _displayPaymentError(result.message ?? "");
+    }
   }
 
   @override

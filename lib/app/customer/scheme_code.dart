@@ -13,7 +13,7 @@ class SchemeCode {
   AccountProvider? accountProvider;
   List<String>? unsupportedFeatures;
   String? customerType;
-  List<int>? timeAdded;
+  String? timeAdded;
   String? defaultAccountRole;
 
   SchemeCode({required this.id,

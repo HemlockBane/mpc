@@ -22,13 +22,18 @@ class OnBoardingScreen extends StatelessWidget {
           child: Column(
             children: [
               SvgPicture.asset(imageRes, width: 110, height: 110,),
-              SizedBox(height: 15,),
-              Text(title, style: TextStyle(
-                  color: Colors.colorPrimaryDark,
-                  fontWeight: FontWeight.normal,
-                  fontSize: 14,
-                height: 1.4
-              ), textAlign: TextAlign.center),
+              SizedBox(height: 15),
+              Text(
+                  title,
+                  maxLines: 2,
+                  style: TextStyle(
+                    color: Colors.colorPrimaryDark,
+                    fontWeight: FontWeight.normal,
+                    fontSize: 14,
+                    height: 1.4
+                  ),
+                  textAlign: TextAlign.center
+              ),
               SizedBox(height: 6,),
             ],
           ),
@@ -52,7 +57,7 @@ class OnBoardingScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.max,
           children: [
             SizedBox(
-              height: 95,
+              height: 60,
             ),
             Flexible(flex:0,child: Text(
               'Getting started \nwith Moniepoint',
@@ -66,6 +71,7 @@ class OnBoardingScreen extends StatelessWidget {
             SizedBox(height: 67 +40),
             Expanded(flex:0,child: Row(
               // mainAxisAlignment: MainAxisAlignment.s,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Flexible(
                     child: _buildButton(
@@ -78,7 +84,7 @@ class OnBoardingScreen extends StatelessWidget {
                     flex: 1,
                     fit: FlexFit.tight,
                   ),
-                  SizedBox(width: 20),
+                  SizedBox(width: 18),
                   Flexible(
                     child: _buildButton(
                         title: 'I have a Moniepoint\nAccount',
@@ -110,7 +116,7 @@ class OnBoardingScreen extends StatelessWidget {
                   )
               ),
             ),
-            SizedBox(height: 48),
+            SizedBox(height: 12),
           ],
         ),
       ),

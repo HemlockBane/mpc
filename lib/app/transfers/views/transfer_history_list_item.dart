@@ -14,7 +14,6 @@ class TransferHistoryListItem extends Container {
 
   TransferHistoryListItem(this._transaction, this.position, this._onItemClickListener);
 
-
   Widget initialView() {
     return Container(
       width: 36,

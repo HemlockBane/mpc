@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:meta/meta.dart';
 
 import '../colors.dart';
 
@@ -18,10 +17,7 @@ class CustomCheckBox extends StatefulWidget {
   final ValueChanged<bool> onSelect;
   final bool isSelected;
   final String? selectedStateImageRes;
-  // final Color? selectedBackgroundColor;
-  // final Color? selectedTextColor;
-  // final Color? notSelectedBackgroundColor;
-  // final Color? notSelectedTextColor;
+
   final double? height;
   final double? width;
 

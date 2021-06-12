@@ -3,6 +3,7 @@ import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/settings/dialogs/change_password_dialog.dart';
 import 'package:moniepoint_flutter/app/settings/dialogs/change_pin_dialog.dart';
+import 'package:moniepoint_flutter/app/settings/dialogs/login_methods_dialog.dart';
 import 'package:moniepoint_flutter/app/usermanagement/viewmodels/change_password_view_model.dart';
 import 'package:moniepoint_flutter/app/usermanagement/viewmodels/change_pin_view_model.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
@@ -12,6 +13,9 @@ import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
+import 'package:moniepoint_flutter/core/viewmodels/finger_print_alert_view_model.dart';
+import 'package:moniepoint_flutter/core/views/finger_print_alert_dialog.dart';
+import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:provider/provider.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -65,6 +69,38 @@ class _SettingsScreen extends State<SettingsScreen> {
     }
   }
 
+  void _openLoginMethods() async {
+    dynamic result = await showModalBottomSheet(
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        context: _scaffoldKey.currentContext ?? context,
+        builder: (mContext) => LoginMethodsDialog()
+    );
+
+    if(result is bool && result){
+      final fingerprintResult = await showModalBottomSheet(
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          context: _scaffoldKey.currentContext ?? context,
+          builder: (mContext) => ChangeNotifierProvider(
+              create: (_) => FingerPrintAlertViewModel(),
+              child: FingerPrintAlertDialog(),
+          )
+      );
+      if (fingerprintResult != null && fingerprintResult is bool) {
+        showModalBottomSheet(
+            backgroundColor: Colors.transparent,
+            context: context,
+            builder: (mContext) => BottomSheets.displaySuccessModal(
+                mContext,
+                title: "Fingerprint setup",
+                message: "Fingerprint Setup successfully"
+            )
+        );
+      }
+    }
+  }
+
   void _displaySuccessMessage(String title, String message) {
     showModalBottomSheet(
         context: _scaffoldKey.currentContext ?? context,
@@ -82,6 +118,7 @@ class _SettingsScreen extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final bool hideAccountBal = PreferenceUtil.getValueForLoggedInUser(PreferenceUtil.HIDE_ACCOUNT_BAL) ?? false;
+    final bool isFingerPrintEnabled = PreferenceUtil.getFingerPrintEnabled();
 
     return Scaffold(
       key: _scaffoldKey,
@@ -101,148 +138,151 @@ class _SettingsScreen extends State<SettingsScreen> {
           backgroundColor: Colors.backgroundWhite,
           elevation: 0
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(height: 16),
-            ListTile(
-                title: Text('Login Methods',
-                    style: TextStyle(
-                        color: Colors.textColorMainBlack,
-                        fontSize: 16,
-                        fontWeight: FontWeight.normal)),
-                onTap: () => "",
-                trailing:
+      body: SessionedWidget(
+          context: context,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(height: 16),
+                ListTile(
+                    title: Text('Login Methods',
+                        style: TextStyle(
+                            color: Colors.textColorMainBlack,
+                            fontSize: 16,
+                            fontWeight: FontWeight.normal)),
+                    onTap: _openLoginMethods,
+                    trailing:
                     SvgPicture.asset('res/drawables/ic_forward_anchor.svg'),
-                subtitle: Text('Password Enabled, Fingerprint Disabled',
-                    style: TextStyle(
-                        color: Colors.deepGrey,
-                        fontSize: 14,
-                        fontWeight: FontWeight.normal))),
-            Padding(
-              padding: EdgeInsets.only(left: 16, right: 16),
-              child: Divider(
-                height: 1,
-                color: Colors.dashboardDivider.withOpacity(0.2),
-              ),
-            ),
-            ListTile(
-              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 7),
-              title: Text('Change Password',
-                  style: TextStyle(
-                      color: Colors.textColorMainBlack,
-                      fontSize: 16,
-                      fontWeight: FontWeight.normal)),
-              onTap: _onChangePassword,
-              trailing: SvgPicture.asset('res/drawables/ic_forward_anchor.svg'),
-            ),
-            Padding(
-              padding: EdgeInsets.only(left: 16, right: 16),
-              child: Divider(
-                height: 1,
-                color: Colors.dashboardDivider.withOpacity(0.2),
-              ),
-            ),
-            ListTile(
-              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 7),
-              title: Text('Change Transaction PIN',
-                  style: TextStyle(
-                      color: Colors.textColorMainBlack,
-                      fontSize: 16,
-                      fontWeight: FontWeight.normal)),
-              onTap: _onChangePin,
-              trailing: SvgPicture.asset('res/drawables/ic_forward_anchor.svg'),
-            ),
-            Padding(
-              padding: EdgeInsets.only(left: 16, right: 16),
-              child: Divider(
-                height: 1,
-                color: Colors.dashboardDivider.withOpacity(0.2),
-              ),
-            ),
-            ListTile(
-              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 7),
-              title: Text('Manage Beneficiaries',
-                  style: TextStyle(
-                      color: Colors.textColorMainBlack,
-                      fontSize: 16,
-                      fontWeight: FontWeight.normal)),
-              onTap: () => Navigator.of(context).pushNamed(Routes.MANAGED_BENEFICIARIES),
-              trailing: SvgPicture.asset('res/drawables/ic_forward_anchor.svg'),
-            ),
-            Padding(
-              padding: EdgeInsets.only(left: 16, right: 16),
-              child: Divider(
-                height: 1,
-                color: Colors.dashboardDivider.withOpacity(0.2),
-              ),
-            ),
-            SwitchListTile(
-              activeColor: Colors.solidOrange,
-              activeTrackColor: Colors.solidOrange.withOpacity(0.5),
-              inactiveTrackColor: Colors.grey.withOpacity(0.5),
-              inactiveThumbColor: Colors.white.withOpacity(0.5),
-              title: Text('Hide Account Balance',
-                  style: TextStyle(
-                      color: Colors.textColorMainBlack,
-                      fontSize: 16,
-                      fontWeight: FontWeight.normal)),
-              subtitle: Text(hideAccountBal ? 'Hiding all dashboard account balance' : 'Showing all dashboard account balance',
-                  style: TextStyle(
-                      color: Colors.deepGrey,
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal)
-              ),
-              value: hideAccountBal,
-              onChanged: (v) {
-                PreferenceUtil.saveValueForLoggedInUser(PreferenceUtil.HIDE_ACCOUNT_BAL, v);
-                setState(() {
+                    subtitle: Text('Password Enabled, Fingerprint ${(isFingerPrintEnabled) ? "Enabled" : "Disabled"}',
+                        style: TextStyle(
+                            color: Colors.deepGrey,
+                            fontSize: 14,
+                            fontWeight: FontWeight.normal))),
+                Padding(
+                  padding: EdgeInsets.only(left: 16, right: 16),
+                  child: Divider(
+                    height: 1,
+                    color: Colors.dashboardDivider.withOpacity(0.2),
+                  ),
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+                  title: Text('Change Password',
+                      style: TextStyle(
+                          color: Colors.textColorMainBlack,
+                          fontSize: 16,
+                          fontWeight: FontWeight.normal)),
+                  onTap: _onChangePassword,
+                  trailing: SvgPicture.asset('res/drawables/ic_forward_anchor.svg'),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 16, right: 16),
+                  child: Divider(
+                    height: 1,
+                    color: Colors.dashboardDivider.withOpacity(0.2),
+                  ),
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+                  title: Text('Change Transaction PIN',
+                      style: TextStyle(
+                          color: Colors.textColorMainBlack,
+                          fontSize: 16,
+                          fontWeight: FontWeight.normal)),
+                  onTap: _onChangePin,
+                  trailing: SvgPicture.asset('res/drawables/ic_forward_anchor.svg'),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 16, right: 16),
+                  child: Divider(
+                    height: 1,
+                    color: Colors.dashboardDivider.withOpacity(0.2),
+                  ),
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+                  title: Text('Manage Beneficiaries',
+                      style: TextStyle(
+                          color: Colors.textColorMainBlack,
+                          fontSize: 16,
+                          fontWeight: FontWeight.normal)),
+                  onTap: () => Navigator.of(context).pushNamed(Routes.MANAGED_BENEFICIARIES),
+                  trailing: SvgPicture.asset('res/drawables/ic_forward_anchor.svg'),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 16, right: 16),
+                  child: Divider(
+                    height: 1,
+                    color: Colors.dashboardDivider.withOpacity(0.2),
+                  ),
+                ),
+                SwitchListTile(
+                  activeColor: Colors.solidOrange,
+                  activeTrackColor: Colors.solidOrange.withOpacity(0.5),
+                  inactiveTrackColor: Colors.grey.withOpacity(0.5),
+                  inactiveThumbColor: Colors.white.withOpacity(0.5),
+                  title: Text('Hide Account Balance',
+                      style: TextStyle(
+                          color: Colors.textColorMainBlack,
+                          fontSize: 16,
+                          fontWeight: FontWeight.normal)),
+                  subtitle: Text(hideAccountBal ? 'Hiding all dashboard account balance' : 'Showing all dashboard account balance',
+                      style: TextStyle(
+                          color: Colors.deepGrey,
+                          fontSize: 14,
+                          fontWeight: FontWeight.normal)
+                  ),
+                  value: hideAccountBal,
+                  onChanged: (v) {
+                    PreferenceUtil.saveValueForLoggedInUser(PreferenceUtil.HIDE_ACCOUNT_BAL, v);
+                    setState(() {
 
-                });
-              },
+                    });
+                  },
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 16, right: 16),
+                  child: Divider(
+                    height: 1,
+                    color: Colors.dashboardDivider.withOpacity(0.2),
+                  ),
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+                  title: Text('Registered Devices',
+                      style: TextStyle(
+                          color: Colors.textColorMainBlack,
+                          fontSize: 16,
+                          fontWeight: FontWeight.normal)),
+                  onTap: () => "",
+                  trailing: SvgPicture.asset('res/drawables/ic_forward_anchor.svg'),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 16, right: 16),
+                  child: Divider(
+                    height: 1,
+                    color: Colors.dashboardDivider.withOpacity(0.2),
+                  ),
+                ),
+                ListTile(
+                    title: Text('App Version',
+                        style: TextStyle(
+                            color: Colors.textColorMainBlack,
+                            fontSize: 16,
+                            fontWeight: FontWeight.normal
+                        )),
+                    trailing: SvgPicture.asset('res/drawables/ic_forward_anchor.svg'),
+                    subtitle: Text("v ${BuildConfig.APP_VERSION}",
+                        style: TextStyle(
+                            color: Colors.deepGrey,
+                            fontSize: 14,
+                            fontWeight: FontWeight.normal
+                        )
+                    )
+                ),
+              ],
             ),
-            Padding(
-              padding: EdgeInsets.only(left: 16, right: 16),
-              child: Divider(
-                height: 1,
-                color: Colors.dashboardDivider.withOpacity(0.2),
-              ),
-            ),
-            ListTile(
-              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 7),
-              title: Text('Registered Devices',
-                  style: TextStyle(
-                      color: Colors.textColorMainBlack,
-                      fontSize: 16,
-                      fontWeight: FontWeight.normal)),
-              onTap: () => "",
-              trailing: SvgPicture.asset('res/drawables/ic_forward_anchor.svg'),
-            ),
-            Padding(
-              padding: EdgeInsets.only(left: 16, right: 16),
-              child: Divider(
-                height: 1,
-                color: Colors.dashboardDivider.withOpacity(0.2),
-              ),
-            ),
-            ListTile(
-              title: Text('App Version',
-                  style: TextStyle(
-                      color: Colors.textColorMainBlack,
-                      fontSize: 16,
-                      fontWeight: FontWeight.normal
-                  )),
-              trailing: SvgPicture.asset('res/drawables/ic_forward_anchor.svg'),
-              subtitle: Text("v ${BuildConfig.APP_VERSION}",
-                  style: TextStyle(
-                      color: Colors.deepGrey,
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal
-                  )
-              )
-            ),
-          ],
-        ),
+          ),
       ),
     );
   }

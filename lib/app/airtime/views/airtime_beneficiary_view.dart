@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/material.dart' hide ScrollView, Colors;
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -8,6 +9,7 @@ import 'package:moniepoint_flutter/app/airtime/model/data/airtime_service_provid
 import 'package:moniepoint_flutter/app/airtime/viewmodels/airtime_view_model.dart';
 import 'package:moniepoint_flutter/app/airtime/viewmodels/service_provider_view_model.dart';
 import 'package:moniepoint_flutter/app/airtime/views/airtime_view.dart';
+import 'package:moniepoint_flutter/app/airtime/views/dialogs/contact_list_dialog.dart';
 import 'package:moniepoint_flutter/app/airtime/views/dialogs/service_providers_bottom_sheet.dart';
 import 'package:moniepoint_flutter/app/airtime/views/selection_combo.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/airtime/model/data/airtime_beneficiary.dart';
@@ -16,10 +18,13 @@ import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_s
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/list_view_util.dart';
 import 'package:moniepoint_flutter/core/validators.dart';
+import 'package:moniepoint_flutter/core/views/generic_list_placeholder.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 class AirtimeBeneficiaryScreen extends StatefulWidget {
@@ -99,6 +104,10 @@ class _AirtimeBeneficiaryScreen extends State<AirtimeBeneficiaryScreen> with Aut
         loadingView: BeneficiaryShimmer(),
         animationController: _animationController,
         currentList: _currentItems,
+        emptyPlaceholder: GenericListPlaceholder(
+            SvgPicture.asset('res/drawables/ic_empty_beneficiary.svg'),
+            'You have no airtime or data beneficiary yet.'
+        ),
         listView: (List<AirtimeBeneficiary>? items) {
           return ListView.separated(
               shrinkWrap: true,
@@ -128,6 +137,35 @@ class _AirtimeBeneficiaryScreen extends State<AirtimeBeneficiaryScreen> with Aut
           phoneNumber: _phoneNumberController.text
       );
       displayServiceProvidersDialog(beneficiary);
+    }
+  }
+
+  void _openContact() async {
+    if(await Permission.contacts.request().isGranted) {
+      final contact = await Navigator.of(widget._scaffoldKey.currentContext ?? context).pushNamed(Routes.CONTACTS);
+      if(contact is! Contact) return;
+
+      final phones = contact.phones;//?.where((element) => isPhoneNumberValid(element.value));
+
+      if(phones == null || phones.isEmpty) {
+
+        return;
+      }
+
+      if(phones.length > 1) {
+        final item = await showModalBottomSheet(
+            backgroundColor: Colors.transparent,
+            isScrollControlled: true,
+            context: widget._scaffoldKey.currentContext ?? context,
+            builder: (context) => ContactListDialog(contact.displayName ?? "", phones.toList())
+        );
+        if(item != null && item is Item) {
+          displayServiceProvidersDialog(AirtimeBeneficiary(id: 0, phoneNumber: item.value, name: contact.displayName));
+        }
+      } else {
+        final item = phones.first;
+        displayServiceProvidersDialog(AirtimeBeneficiary(id: 0, phoneNumber: item.value, name: contact.displayName));
+      }
     }
   }
 
@@ -173,14 +211,27 @@ class _AirtimeBeneficiaryScreen extends State<AirtimeBeneficiaryScreen> with Aut
                 flex: 0,
                 child: Padding(
                   padding : EdgeInsets.only(left: 16, right: 16),
-                  child: Styles.appEditText(
-                      hint: 'Enter Phone Number',
-                      animateHint: false,
-                      controller: _phoneNumberController,
-                      inputFormats: [FilteringTextInputFormatter.digitsOnly],
-                      fontSize: 13,
-                      onChanged: _onMobileNumberChanged,
-                      startIcon: Icon(CustomFont.call, size: 20, color: Colors.colorFaded,)
+                  child: Stack(
+                    children: [
+                      Styles.appEditText(
+                          hint: 'Enter Phone Number',
+                          animateHint: false,
+                          controller: _phoneNumberController,
+                          inputFormats: [FilteringTextInputFormatter.digitsOnly],
+                          fontSize: 13,
+                          onChanged: _onMobileNumberChanged,
+                          startIcon: Icon(CustomFont.call, size: 20, color: Colors.colorFaded,)
+                      ),
+                      Positioned(
+                          right: 0,
+                          child: Styles.imageButton(
+                            borderRadius: BorderRadius.only(topRight: Radius.circular(4), bottomRight:Radius.circular(4)),
+                            padding: EdgeInsets.all(12),
+                            image: SvgPicture.asset('res/drawables/ic_phone_book.svg', color: Colors.white, width: 32, height: 32,),
+                            onClick: _openContact
+                          )
+                      )
+                    ],
                   ),
                 )
             ),
@@ -234,12 +285,20 @@ class _AirtimeBeneficiaryScreen extends State<AirtimeBeneficiaryScreen> with Aut
               child: Center(
                 child: TextButton(
                   child:Text('View all Beneficiaries', style: TextStyle(color: Colors.solidOrange, fontWeight: FontWeight.bold)),
-                  onPressed: () => null),
+                  onPressed: () async {
+                    final beneficiary = await Navigator.of(widget._scaffoldKey.currentContext!)
+                        .pushNamed(Routes.SELECT_AIRTIME_BENEFICIARY);
+                    if(beneficiary is AirtimeBeneficiary) {
+                      Future.delayed(Duration(milliseconds: 500), (){
+                        displayServiceProvidersDialog(beneficiary);
+                      });
+                    }
+                  }
+                ),
               ),
             )
           ],
         ),
-
     );
   }
   

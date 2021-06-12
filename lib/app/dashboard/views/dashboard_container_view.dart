@@ -16,56 +16,56 @@ class DashboardContainerView extends StatefulWidget{
 
   final DashboardViewModel viewModel;
 
-  DashboardContainerView(this.viewModel);
+  DashboardContainerView(Key key, this.viewModel):super(key: key);
 
   @override
   State<StatefulWidget> createState() {
-    return _DashboardContainerView();
+    return DashboardContainerViewState();
   }
 
 }
 
-class _DashboardContainerView extends State<DashboardContainerView> with WidgetsBindingObserver {
+class DashboardContainerViewState extends State<DashboardContainerView> with WidgetsBindingObserver {
 
   AppLifecycleState? _lifecycleState;
-  bool isLoadingBalance = true;
-  bool isLoadingBalanceError = false;
+  bool _isLoadingBalance = true;
+  bool _isLoadingBalanceError = false;
 
   void loadAccountBalance() {
     final viewModel = widget.viewModel;
     viewModel.getCustomerAccountBalance().listen((event) {
       if(event is Loading) setState(() {
-        isLoadingBalance = true;
-        isLoadingBalanceError = false;
+        _isLoadingBalance = true;
+        _isLoadingBalanceError = false;
       });
       if (event is Error<AccountBalance>) {
         setState(() {
-          isLoadingBalance = false;
-          isLoadingBalanceError = true;
+          _isLoadingBalance = false;
+          _isLoadingBalanceError = true;
         });
       }
       if(event is Success<AccountBalance>) {
         setState(() {
-          isLoadingBalance = false;
-          isLoadingBalanceError = false;
+          _isLoadingBalance = false;
+          _isLoadingBalanceError = false;
         });
       }
     });
   }
 
-  Widget displayAccountBalance () {
-    final bool hideAccountBalance = PreferenceUtil.getValueForLoggedInUser(PreferenceUtil.HIDE_ACCOUNT_BAL) ?? true;
+  Widget _displayAccountBalance () {
+    final bool hideAccountBalance = PreferenceUtil.getValueForLoggedInUser(PreferenceUtil.HIDE_ACCOUNT_BAL) ?? false;
     return StreamBuilder(
         stream: widget.viewModel.balanceStream,
         builder: (BuildContext ctx, AsyncSnapshot<AccountBalance?> snapshot) {
-          if(snapshot.hasData && (!isLoadingBalance && !isLoadingBalanceError)) {
+          if(snapshot.hasData && (!_isLoadingBalance && !_isLoadingBalanceError)) {
             final balance = hideAccountBalance ? "****" : "N ${snapshot.data?.availableBalance!.formatCurrencyWithoutSymbolAndDividing}";
             return Text("$balance",
                 textAlign: TextAlign.start,
                 style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 28, fontFamily: Styles.defaultFont)
             ).colorText({"N": Tuple(Colors.white.withOpacity(0.3), null)}, underline: false);
           }
-          if(isLoadingBalanceError && !hideAccountBalance) {
+          if(_isLoadingBalanceError && !hideAccountBalance) {
             return Padding(
                 padding: EdgeInsets.only(right: 8, bottom: 8),
                 child: Text("Error loading balance\nplease, try again",
@@ -130,7 +130,7 @@ class _DashboardContainerView extends State<DashboardContainerView> with Widgets
           ),
           SizedBox(height: 12,),
           //Amount
-          displayAccountBalance(),
+          _displayAccountBalance(),
           Spacer(),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -174,7 +174,9 @@ class _DashboardContainerView extends State<DashboardContainerView> with Widgets
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  void didUpdateWidget(covariant DashboardContainerView oldWidget) {
+    // TODO: implement didUpdateWidget
+    super.didUpdateWidget(oldWidget);
 
   }
 

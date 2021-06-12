@@ -43,4 +43,4 @@ abstract class Transaction extends ListItem {
   // void setWorkFlowType(WorkFlowType type);
 }
 
-enum TransactionType { DEBIT, CREDIT }
+enum TransactionType { DEBIT, CREDIT, UNKNOWN }

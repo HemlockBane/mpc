@@ -7,7 +7,7 @@ class AccountUpdateFlag {
   final bool status;
   final int weight;
 
-  List<int>? verificationEndTime;
+  String? verificationEndTime;
   VerificationState? verificationStates;
 
   //For internal usage

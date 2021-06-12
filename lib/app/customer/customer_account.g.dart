@@ -20,8 +20,6 @@ CustomerAccount _$CustomerAccountFromJson(Map<String, dynamic> json) {
     phoneNumber: json['phoneNumber'] as String?,
     email: json['email'] as String?,
     address: json['address'] as String?,
-    openingDate:
-        (json['openingDate'] as List<dynamic>?)?.map((e) => e as int).toList(),
     alternateAccountNumber: json['alternateAccountNumber'] as String?,
     accountType: json['accountType'] as String?,
     bvn: json['bvn'] as String?,
@@ -52,7 +50,6 @@ Map<String, dynamic> _$CustomerAccountToJson(CustomerAccount instance) =>
       'phoneNumber': instance.phoneNumber,
       'email': instance.email,
       'address': instance.address,
-      'openingDate': instance.openingDate,
       'alternateAccountNumber': instance.alternateAccountNumber,
       'accountType': instance.accountType,
       'bvn': instance.bvn,

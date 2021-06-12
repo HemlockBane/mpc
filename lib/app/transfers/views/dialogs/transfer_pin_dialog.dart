@@ -53,7 +53,7 @@ class _TransferPinDialog extends TransactionPinDialogState<TransferPinDialog> {
                       style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w600,
-                          color: Colors.solidDarkBlue)),
+                          color: Colors.colorPrimaryDark)),
                 ),
                 SizedBox(height: 24),
                 Container(
@@ -66,7 +66,7 @@ class _TransferPinDialog extends TransactionPinDialogState<TransferPinDialog> {
                       Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Amount', style: TextStyle(color: Colors.solidDarkBlue, fontSize: 15)),
+                              Text('Amount', style: TextStyle(color: Colors.colorPrimaryDark, fontSize: 15)),
                               SizedBox(height: 2,),
                               Text(
                                   viewModel.amount!.formatCurrency,
@@ -77,12 +77,12 @@ class _TransferPinDialog extends TransactionPinDialogState<TransferPinDialog> {
                                   )
                               ),
                               SizedBox(height: 14,),
-                              Text('Beneficiary', style: TextStyle(color: Colors.solidDarkBlue, fontSize: 15)),
+                              Text('Beneficiary', style: TextStyle(color: Colors.colorPrimaryDark, fontSize: 15)),
                               SizedBox(height: 2,),
                               Text(
                                   viewModel.beneficiary!.getAccountName(),
                                   style: TextStyle(
-                                      color: Colors.solidDarkBlue,
+                                      color: Colors.colorPrimaryDark,
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold
                                   )
@@ -92,13 +92,13 @@ class _TransferPinDialog extends TransactionPinDialogState<TransferPinDialog> {
                       Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Text('Fee + VAT', style: TextStyle(color: Colors.solidDarkBlue, fontSize: 15)),
+                              Text('Fee + VAT', style: TextStyle(color: Colors.colorPrimaryDark, fontSize: 15)),
                               SizedBox(height: 2),
                               Container(
                                 padding: EdgeInsets.symmetric(vertical: 3, horizontal: 9),
                                 decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(5),
-                                    color: Colors.solidDarkBlue
+                                    color: Colors.colorPrimaryDark
                                 ),
                                 child: Center(
                                   child: Text(

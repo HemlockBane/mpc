@@ -24,7 +24,7 @@ extension ColoredText on Text {
         children.add(
             TextSpan(
                 text: originalText?.substring(mStartIndex + 1),
-                style: this.style
+                style: this.style,
             )
         );
         break;
@@ -61,8 +61,9 @@ extension ColoredText on Text {
         );
       }
     }
-    return RichText(text: TextSpan(
-      children: children
-    ));
+    return RichText(
+        textAlign: this.textAlign ?? TextAlign.start,
+        text: TextSpan(children: children)
+    );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:floor/floor.dart';
 import 'package:get_it/get_it.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/scheme_dao.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/transaction_dao.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/data/nationality_dao.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_dao.dart';
@@ -106,6 +107,11 @@ class DatabaseModule {
     GetIt.I.registerSingletonAsync<TransactionDao>(() async {
       final db = await GetIt.I.getAsync<AppDatabase>();
       return db.transactionDao;
+    });
+
+    GetIt.I.registerSingletonAsync<SchemeDao>(() async {
+      final db = await GetIt.I.getAsync<AppDatabase>();
+      return db.schemeDao;
     });
   }
 }

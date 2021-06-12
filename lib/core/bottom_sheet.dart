@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
@@ -80,8 +82,8 @@ class BottomSheets {
                 children: [
                   Text(title,
                       style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
                           color: Colors.white)),
                   SizedBox(height: 16),
                   Container(
@@ -91,10 +93,10 @@ class BottomSheets {
                         borderRadius: BorderRadius.all(Radius.circular(8)),
                         color: Colors.darkRed),
                     child: Text(message ?? "",
-                        maxLines: 3,
+                        maxLines: 4,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                            fontSize: 15,
+                            fontSize: 16,
                             fontWeight: FontWeight.normal,
                             color: Colors.white),
                         textAlign: TextAlign.center),
@@ -107,8 +109,12 @@ class BottomSheets {
                           onClick: onClick ?? () => Navigator.of(context).pop(),
                           text: 'Continue',
                           buttonStyle: Styles.whiteButtonStyle.copyWith(
-                              foregroundColor: MaterialStateProperty.all(
-                                  Colors.modalRed)))),
+                              textStyle: MaterialStateProperty.all(TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: Styles.defaultFont)),
+                              foregroundColor: MaterialStateProperty.all(Colors.modalRed)))),
                   SizedBox(height: 64)
                 ],
               ),
@@ -133,8 +139,8 @@ class BottomSheets {
                 children: [
                   Text(title,
                       style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
                           color: Colors.white)),
                   SizedBox(height: 16),
                   Container(
@@ -147,7 +153,7 @@ class BottomSheets {
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                            fontSize: 15,
+                            fontSize: 16,
                             fontWeight: FontWeight.normal,
                             color: Colors.white),
                         textAlign: TextAlign.center),
@@ -156,10 +162,15 @@ class BottomSheets {
                   SizedBox(
                       width: double.infinity,
                       child: Styles.appButton(
-                          onClick:
-                          onClick ?? () => Navigator.of(context).pop(),
+                          onClick: onClick ?? () => Navigator.of(context).pop(),
                           text: 'Continue',
                           buttonStyle: Styles.whiteButtonStyle.copyWith(
+                              textStyle: MaterialStateProperty.all(TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: Styles.defaultFont)
+                              ),
                               foregroundColor: MaterialStateProperty.all(
                                   Colors.solidGreen)))),
                   SizedBox(height: 64)
@@ -194,7 +205,8 @@ class BottomSheets {
                     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 24),
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(Radius.circular(8)),
-                        color: Colors.solidDarkYellow),
+                        color: Colors.solidDarkYellow
+                    ),
                     child: Text(description,
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
@@ -208,6 +220,7 @@ class BottomSheets {
                   SizedBox(
                       width: double.infinity,
                       child: Styles.appButton(
+                          elevation: 0.5,
                           onClick: onContinue,
                           text: buttonText,
                           buttonStyle: Styles.whiteButtonStyle.copyWith(foregroundColor: MaterialStateProperty.all(Colors.solidYellow))

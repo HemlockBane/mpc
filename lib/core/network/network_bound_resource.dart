@@ -84,11 +84,8 @@ mixin NetworkResource {
         }
       } catch(e) {
         print(e);
-        _exception = e as Exception;
-
         ServiceResult<K?>? result;
         Response? response;
-        //
         if (e is DioError) {
           response = e.response;
           final errorBody = e.response?.data;
@@ -96,19 +93,23 @@ mixin NetworkResource {
 
           if (errorBody != null) {
             try {
-              result = ServiceResult.fromJson(jsonDecode(jsonEncode(errorBody)), (a) => null);
+              result = ServiceResult.fromJson(
+                  jsonDecode(jsonEncode(errorBody)), (a) => null);
             } catch (e) {
               if (e is FormatException) _errorString = errorString;
               print(e);
             }
           } else {
             var error = e.error;
+            // _errorString = error;
+            print('In the else branch of error type: ${error.runtimeType}');
             print('In the else branch of error: $error');
             print('In the else branch of error: ${e.response?.statusMessage}');
           }
         }
-        // }
-
+        else if (e is Exception) {
+          _exception = e;
+        }
         _onFailed<K>(response, result);
         print('Error ${this._serviceError?.message}');
         yield Resource.error(err: this._serviceError);
@@ -133,6 +134,9 @@ mixin NetworkResource {
       var e = _exception as DioError;
       print(e.message);
       _errorString = e.message.replaceAll('Exception', '');
+    } else if(_exception != null) {
+      print(_exception.runtimeType);
+      _errorString = _exception?.toString();
     }
 
     _formatErrorMessage();

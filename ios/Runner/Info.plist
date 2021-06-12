@@ -50,5 +50,9 @@
 	<false/>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Moniepoint requires location permission</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Moniepoint requires location permission</string>
+	<key>NSContactsUsageDescription</key>
+    <string>This app requires contacts access to function properly.</string>
 </dict>
 </plist>

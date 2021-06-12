@@ -106,7 +106,7 @@ class SingleTransferTransaction implements Transaction {
 
   @override
   num getNextPayDate() {
-    return transferBatch?.nextPayDate ?? 0;
+    return  0;
   }
 
   @override

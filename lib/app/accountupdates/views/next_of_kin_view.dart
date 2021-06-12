@@ -26,6 +26,8 @@ class _NextOfKinScreen extends State<NextOfKinScreen> with AutomaticKeepAliveCli
 
   NextOfKinForm? _nextOfKinForm;
 
+  bool _isLoading = false;
+
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _middleNameController = TextEditingController();
@@ -117,6 +119,19 @@ class _NextOfKinScreen extends State<NextOfKinScreen> with AutomaticKeepAliveCli
     }
   }
 
+
+  void _startListeningToLoadingState() {
+    final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
+    if(widget.isLast()) {
+      viewModel.loadingState.listen((event) {
+        setState(() {
+          _isLoading = event;
+        });
+      });
+    }
+  }
+
+
   @override
   void initState() {
     super.initState();
@@ -125,6 +140,7 @@ class _NextOfKinScreen extends State<NextOfKinScreen> with AutomaticKeepAliveCli
         onRestoreForm();
       });
     });
+    _startListeningToLoadingState();
   }
 
   @override
@@ -288,12 +304,12 @@ class _NextOfKinScreen extends State<NextOfKinScreen> with AutomaticKeepAliveCli
                             viewModel.moveToNext(widget.position);
                           },
                         text: widget.isLast() ? 'Proceed' : 'Next',
-                        isLoading: false
+                        isLoading: _isLoading
                       ),
                     ))
               ],
             )),
-            SizedBox(height: 100),
+            // SizedBox(height: 100),
           ],
         ),
       ),

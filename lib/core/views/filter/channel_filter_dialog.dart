@@ -50,17 +50,25 @@ class _ChannelFilterDialog extends State<ChannelFilterDialog> {
                   shape: BoxShape.circle,
                 ),
                 child: Center(
-                  child: SvgPicture.asset(item.imageRes, color: item.isSelected ? Colors.primaryColor : null),
+                  child: SvgPicture.asset(
+                      item.imageRes,
+                      color: item.isSelected ? Colors.primaryColor : Color(0XFF9DA1AB),
+                      width: 40,
+                      height: 40,
+                  ),
                 ),
               ),
-              SizedBox(width: 12,),
+              SizedBox(width: 12),
               Expanded(
                   child: Text(
                       item.title,
-                      style: TextStyle(fontSize: 16, color: item.isSelected ? Colors.colorPrimaryDark : Colors.deepGrey,
+                      style: TextStyle(
+                          fontSize: 16,
+                          color: item.isSelected ? Colors.colorPrimaryDark : Colors.deepGrey,
                           fontFamily: Styles.defaultFont,
                           fontWeight: FontWeight.normal
-                      ))
+                      )
+                  )
               ),
               SizedBox(width: 8),
               CustomCheckBox(onSelect: (bool a) {
@@ -99,7 +107,8 @@ class _ChannelFilterDialog extends State<ChannelFilterDialog> {
                   style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
-                      color: Colors.colorPrimaryDark)),
+                      color: Colors.colorPrimaryDark)
+              ),
             ),
             SizedBox(height: 20),
             Expanded(
@@ -141,7 +150,6 @@ class _ChannelFilterDialog extends State<ChannelFilterDialog> {
   bool _canApplyFilter() {
     return _selectedChannels.isNotEmpty;
   }
-
 
   void _itemClickHandler (_ChannelFilterItem item, int position) {
     setState(() {

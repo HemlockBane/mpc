@@ -57,7 +57,11 @@ class TransactionHistoryListItem extends Container {
                       Text(
                           _transaction.getAmount().formatCurrency,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontSize: 18.5, color: Colors.darkBlue, fontWeight: FontWeight.bold)
+                          style: TextStyle(
+                              fontSize: 18.5,
+                              color: Colors.darkBlue,
+                              fontWeight: FontWeight.bold,
+                          )
                       ),
                       SizedBox(height: 0),
                       Text(

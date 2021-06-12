@@ -95,8 +95,9 @@ class _EnterAccountNumberState extends State<EnterAccountNumberScreen> {
   @override
   Widget build(BuildContext context) {
     return ScrollView(
+      maxHeight: MediaQuery.of(context).size.height - (44 + 24),
       child: Container(
-        height: double.infinity,
+        // height: double.infinity,
         width: double.infinity,
         color: Colors.backgroundWhite,
         padding: EdgeInsets.only(left: 16, right: 16, top: 41, bottom: 44),
@@ -125,29 +126,23 @@ class _EnterAccountNumberState extends State<EnterAccountNumberScreen> {
                 inputFormats: [FilteringTextInputFormatter.digitsOnly],
                 animateHint: true,
                 startIcon: Icon(CustomFont.bankIcon, color: Colors.colorFaded),
-                drawablePadding: 4,
+                drawablePadding: EdgeInsets.only(left: 4, right: 4),
                 maxLength: 10,
                 controller: mAccountNumberController
             ),
             SizedBox(height: 18),
-            Spacer(),
-            Stack(
-              children: [
-                SizedBox(
-                  width: double.infinity,
-                  child: Styles.appButton(
-                      elevation: isAccountNumberValid && !isLoading ? 0.5 : 0,
-                      onClick: isAccountNumberValid && !isLoading ? ()=> verifyAccount(context) : null,
-                      text: 'Continue'
+            // Spacer(),
+            Expanded(
+                child: Align(
+                  alignment: FractionalOffset.bottomCenter,
+                  child: Styles.statefulButton2(
+                      elevation: 0.01,
+                      isValid: isAccountNumberValid && !isLoading,
+                      onClick: ()=> verifyAccount(context),
+                      text: 'Continue',
+                      isLoading: isLoading
                   ),
-                ),
-                Positioned(
-                    right: 16,
-                    top: 16,
-                    bottom: 16,
-                    child: isLoading ? SpinKitThreeBounce(size: 20.0, color: Colors.white) : SizedBox()
                 )
-              ],
             ),
             SizedBox(height: 32),
             RichText(

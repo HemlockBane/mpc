@@ -16,7 +16,7 @@ class LoginWithFingerprintRequestBody extends LoginRequestBody {
 
   Map<String, dynamic> toJson() => _$LoginWithFingerprintRequestBodyToJson(this);
 
-  LoginWithFingerprintRequestBody withPassword(String fingerprintKey) {
+  LoginWithFingerprintRequestBody withFingerprintKey(String fingerprintKey) {
     this.fingerprintKey = fingerprintKey;
     return this;
   }

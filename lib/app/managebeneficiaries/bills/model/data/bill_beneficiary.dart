@@ -69,6 +69,10 @@ class BillBeneficiary implements Beneficiary {
   }
   Map<String, dynamic> toJson() => _$BillBeneficiaryToJson(this);
 
+  @override
+  int getRecordId() {
+    return this.id;
+  }
 
   @override
   String getAccountName() => this.name ?? "";

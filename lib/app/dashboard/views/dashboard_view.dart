@@ -6,11 +6,18 @@ import 'package:moniepoint_flutter/app/customer/customer.dart';
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/bottom_menu_view.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_container_view.dart';
+import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
+import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
+import 'package:moniepoint_flutter/core/utils/biometric_helper.dart';
+import 'package:moniepoint_flutter/core/utils/preference_util.dart';
+import 'package:moniepoint_flutter/core/viewmodels/finger_print_alert_view_model.dart';
 import 'package:moniepoint_flutter/core/views/dots_indicator.dart';
+import 'package:moniepoint_flutter/core/views/finger_print_alert_dialog.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
+import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:provider/provider.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -23,14 +30,16 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserver{
 
   PageController _pageController = PageController(viewportFraction: 1);
+  GlobalKey<DashboardContainerViewState> _dashboardContainerState = GlobalKey();
   final pages = [];
 
   Widget dashboardUpdateItem() {
+    final width = MediaQuery.of(context).size.width * 0.13;
     return Material(
       child: Card(
         shadowColor: Colors.primaryColor.withOpacity(0.1),
         elevation: 4,
-        margin: EdgeInsets.only(left: 58, right: 58, bottom: 8, top: 8),
+        margin: EdgeInsets.only(left: width, right: width, bottom: 8, top: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: InkWell(
           customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -64,12 +73,13 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
 
   Widget greetingItem() {
     final viewModel = Provider.of<DashboardViewModel>(context, listen: false);
+    final width = MediaQuery.of(context).size.width * 0.13;
 
     return Material(
       child: Card(
         shadowColor: Colors.primaryColor.withOpacity(0.1),
         elevation: 4,
-        margin: EdgeInsets.only(left: 58, right: 58, bottom: 8, top: 8),
+        margin: EdgeInsets.only(left: width, right: width, bottom: 8, top: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: InkWell(
           customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -104,6 +114,12 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
     return flags.where((element) => element?.status != true).isEmpty;
   }
 
+  void refreshDashboard() {
+    setState(() {});
+    _dashboardContainerState.currentState?.loadAccountBalance();
+    subscribeUiToAccountStatus();
+  }
+
   void subscribeUiToAccountStatus() {
     final viewModel = Provider.of<DashboardViewModel>(context, listen: false);
     viewModel.fetchAccountStatus().listen((event) => null);
@@ -129,6 +145,7 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<DashboardViewModel>(context, listen: false);
+    final width = MediaQuery.of(context).size.width * 0.13;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -141,57 +158,64 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
             SizedBox(height: 100,),
             ListTile(
               title: Text('Settings'),
-              onTap: () => Navigator.of(context).pushNamed(Routes.SETTINGS),
+              onTap: () => Navigator.of(context).pushNamed(Routes.SETTINGS).then((value) => refreshDashboard()),
+            ),
+            ListTile(
+              title: Text('Cards'),
+              onTap: () => Navigator.of(context).pushNamed(Routes.CARDS).then((value) => refreshDashboard()),
             )
           ],
         ),
       ),
-      body: Container(
-        width: double.infinity,
-        color: Colors.backgroundWhite,
-        child: Stack(
-          children: [
-            ScrollView(
-              child: Column(
-                children: [
-                  Divider(color: Colors.dashboardTopBar, height: 4),
-                  SizedBox(height: MediaQuery.of(context).padding.top + 32),
-                  Text('OVERVIEW', style: TextStyle(color: Colors.textColorBlack, fontWeight: FontWeight.w400),),
-                  SizedBox(height: 32),
-                  SizedBox(
-                    height: 108,
-                    child: _buildDashboardSlider()
-                  ),
-                  SizedBox(height: 8),
-                  DotIndicator(controller: _pageController, itemCount: pages.length),
-                  SizedBox(height: 16),
-                  AspectRatio(
-                    aspectRatio: 3 / 3.1,
-                    child: Container(
-                      margin: EdgeInsets.only(left: 58, right: 58),
-                      child: Material(
-                        color: Colors.primaryColor,
-                        borderRadius: BorderRadius.circular(16),
-                        child: InkWell(
-                            customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            onTap: () => Navigator.of(context).pushNamed(Routes.ACCOUNT_TRANSACTIONS).then((_) => subscribeUiToAccountStatus()),
-                            child: DashboardContainerView(viewModel)
+      body: SessionedWidget(
+        context: context,
+        child: Container(
+          width: double.infinity,
+          color: Colors.backgroundWhite,
+          child: Stack(
+            children: [
+              ScrollView(
+                child: Column(
+                  children: [
+                    Divider(color: Colors.dashboardTopBar, height: 4),
+                    SizedBox(height: MediaQuery.of(context).padding.top + 32),
+                    Text('OVERVIEW', style: TextStyle(color: Colors.textColorBlack, fontWeight: FontWeight.w400),),
+                    SizedBox(height: 32),
+                    SizedBox(
+                        height: 108,
+                        child: _buildDashboardSlider()
+                    ),
+                    SizedBox(height: 8),
+                    DotIndicator(controller: _pageController, itemCount: pages.length),
+                    SizedBox(height: 16),
+                    AspectRatio(
+                      aspectRatio: 3 / 3.1,
+                      child: Container(
+                        margin: EdgeInsets.only(left: width, right: width),
+                        child: Material(
+                          color: Colors.primaryColor,
+                          borderRadius: BorderRadius.circular(16),
+                          child: InkWell(
+                              customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              onTap: () => Navigator.of(context).pushNamed(Routes.ACCOUNT_TRANSACTIONS).then((_) => refreshDashboard()),
+                              child: DashboardContainerView(_dashboardContainerState, viewModel)
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 110),
-                ],
+                    SizedBox(height: 110),
+                  ],
+                ),
               ),
-            ),
-            Positioned(
-                right: 20,
-                left: 20,
-                bottom: 0,
-                child: DashboardBottomMenu()
-            )
-          ],
-        ),
+              Positioned(
+                  right: 20,
+                  left: 20,
+                  bottom: 0,
+                  child: DashboardBottomMenu(() => refreshDashboard())
+              )
+            ],
+          ),
+        )
       ),
     );
   }
@@ -203,6 +227,50 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
       subscribeUiToAccountStatus();
     });
+    //let check if the user should set up finger print
+    Future.delayed(Duration(milliseconds: 1400), () => _setupFingerprint());
+  }
+
+  void _setupFingerprint() async {
+    final fingerprintRequestCount = PreferenceUtil.getFingerprintRequestCounter();
+
+    //We should only request 3 times from the dashboard
+
+    if (fingerprintRequestCount >= 2) return;
+    final biometricHelper = BiometricHelper.getInstance();
+
+    final isFingerPrintAvailable = await biometricHelper.isFingerPrintAvailable();
+    final hasFingerprintPassword = (await biometricHelper.getFingerprintPassword()) != null;
+
+    if (isFingerPrintAvailable.first && !hasFingerprintPassword) {
+      PreferenceUtil.setFingerprintRequestCounter(fingerprintRequestCount + 1);
+      final result = await showModalBottomSheet(
+          backgroundColor: Colors.transparent,
+          isScrollControlled: true,
+          context: context,
+          builder: (mContext) {
+            return ChangeNotifierProvider(
+                create: (_) => FingerPrintAlertViewModel(),
+                child: FingerPrintAlertDialog());
+          });
+
+      if (result != null && result is bool) {
+        showModalBottomSheet(
+            backgroundColor: Colors.transparent,
+            context: context,
+            builder: (mContext) => BottomSheets.displaySuccessModal(mContext,
+                title: "Fingerprint setup",
+                message: "Fingerprint Setup successfully"
+            )
+        );
+      } else if (result is Error<bool>) {
+        showModalBottomSheet(
+            backgroundColor: Colors.transparent,
+            context: context,
+            builder: (mContext) => BottomSheets.displayErrorModal(mContext,
+                message: result.message));
+      }
+    }
   }
 
   @override

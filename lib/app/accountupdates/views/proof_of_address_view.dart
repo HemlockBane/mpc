@@ -26,15 +26,24 @@ class _ProofOfAddressScreen extends State<ProofOfAddressScreen> with AutomaticKe
 
   UploadState _fileUploadState = UploadState.NONE;
   String uploadedFileName = "Upload International Passport";
+  bool _isLoading = false;
 
-  void saveForm() {
+  void _saveForm() {
     final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
     final info = viewModel.addressForm.getAddressInfo.utilityBillUUID;
     PreferenceUtil.saveValueForLoggedInUser("account-update-address-proof-uuid", info);
     PreferenceUtil.saveValueForLoggedInUser("account-update-address-proof-filename", uploadedFileName);
   }
 
-  void onRestoreForm() {
+  void _resetForm() {
+    final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
+    viewModel.addressForm.onUtilityBillChange(null);
+    setState(() {
+      uploadedFileName = "Upload Proof of Address";
+    });
+  }
+
+  void _onRestoreForm() {
     final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
     final addressProofUUID = PreferenceUtil.getValueForLoggedInUser<String>("account-update-address-proof-uuid");
     final fileName = PreferenceUtil.getValueForLoggedInUser<String>("account-update-address-proof-filename");
@@ -101,14 +110,26 @@ class _ProofOfAddressScreen extends State<ProofOfAddressScreen> with AutomaticKe
     });
   }
 
+  void _startListeningToLoadingState() {
+    final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
+    if(widget.isLast()) {
+      viewModel.loadingState.listen((event) {
+        setState(() {
+          _isLoading = event;
+        });
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
       Future.delayed(Duration(milliseconds: 200),() {
-        onRestoreForm();
+        _onRestoreForm();
       });
     });
+    _startListeningToLoadingState();
   }
 
   @override
@@ -187,14 +208,36 @@ class _ProofOfAddressScreen extends State<ProofOfAddressScreen> with AutomaticKe
                   SizedBox(width: 9),
                   Text(
                     'Acceptable documents include:\n\u2022\t\tUtility Bills (e.g. electricity bills)\n\u2022\t\tTenancy Agreements\n\u2022\t\tResident Permits',
-                    style: TextStyle(color: Colors.darkBlue, fontSize: 15, fontWeight: FontWeight.normal),
+                    style: TextStyle(color: Colors.solidDarkBlue, fontSize: 15, fontWeight: FontWeight.normal),
                   )
                 ],
               ),
             ),
             Expanded(child: Row(
               children: [
-                (widget.isLast()) ? SizedBox() : Flexible(child: Container()),
+                Visibility(
+                    visible: !widget.isLast(),
+                    child: Flexible(
+                      flex: 1,
+                      child: Align(
+                        alignment: Alignment.bottomLeft,
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: Styles.appButton(
+                              elevation: 0,
+                              buttonStyle: Styles.greyButtonStyle,
+                              onClick: () {
+                                _resetForm();
+                                _saveForm();
+                                viewModel.moveToNext(widget.position);
+                              },
+                              text: 'Skip for Now'
+                          ),
+                        ),
+                      ),
+                    )
+                ),
+                SizedBox(width: (!widget.isLast()) ? 32 : 0,),
                 Flexible(
                     flex: 1,
                     child: Align(
@@ -202,16 +245,17 @@ class _ProofOfAddressScreen extends State<ProofOfAddressScreen> with AutomaticKe
                       child: Styles.statefulButton(
                           stream: viewModel.addressForm.utilityBillStream.map((event) => event.isNotEmpty),
                           onClick: () {
-                            saveForm();
+                            _saveForm();
                             viewModel.moveToNext(widget.position);
                           },
                           text: widget.isLast() ? 'Proceed' : 'Next',
-                          isLoading: false
+                          isLoading: _isLoading
                       ),
-                    )),
+                    )
+                ),
               ],
             )),
-            SizedBox(height: 100),
+            // SizedBox(height: 100),
           ],
         ),
       ),

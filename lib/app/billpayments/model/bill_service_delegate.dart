@@ -119,6 +119,11 @@ class BillServiceDelegate with NetworkResource {
     );
   }
 
+  Future<BillTransaction?> getSingleTransactionById(int id) {
+    return _billsDao.getBillTransactionById(id);
+  }
+
+
 }
 
 class _BillHistoryMediator extends AbstractDataCollectionMediator<int, BillTransaction> {

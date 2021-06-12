@@ -86,6 +86,16 @@ class _RecoveryOtpView extends State<RecoveryOtpView> {
     }
   }
 
+  String getUSSDKeyName(RecoveryViewModel viewModel) {
+    if (viewModel.recoveryMode == RecoveryMode.USERNAME_RECOVERY) {
+      return "Forgot Username Phone Number Validation OTP Mobile";
+    } else if (viewModel.recoveryMode == RecoveryMode.PASSWORD_RECOVERY) {
+      return "Forgot Password Phone Number Validation OTP Mobile";
+    } else {
+      return "Add Device OTP Mobile";
+    }
+  }
+
   void _handleValidateOtpResponse<T>(Resource<T> event) {
     if(event is Loading) setState(() => _isLoading = true);
     if (event is Error<T>) {
@@ -148,6 +158,7 @@ class _RecoveryOtpView extends State<RecoveryOtpView> {
     final viewModel = Provider.of<RecoveryViewModel>(context, listen: false);
 
     return ScrollView(
+      maxHeight: MediaQuery.of(context).size.height,
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 32, horizontal: 16),
         child: Column(
@@ -162,11 +173,11 @@ class _RecoveryOtpView extends State<RecoveryOtpView> {
                         'Enter 6-Digit Code',
                         textAlign: TextAlign.start,
                         style: TextStyle(
-                            color: Colors.darkBlue,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold),
+                            color: Colors.colorPrimaryDark,
+                            fontSize: 25,
+                            fontWeight: FontWeight.w600),
                       ),
-                      SizedBox(height: 8),
+                      SizedBox(height: 6),
                       Text(
                           'We’ve just sent a 6-digit code to your registered phone number. Enter the code to proceed.',
                           textAlign: TextAlign.start,
@@ -185,32 +196,19 @@ class _RecoveryOtpView extends State<RecoveryOtpView> {
                           animateHint: true,
                           startIcon: Icon(CustomFont.password, color: Colors.colorFaded)
                       ),
-                      SizedBox(height: 16),
-                      OtpUssdInfoView('ussdKey'),
+                      SizedBox(height: 32),
+                      OtpUssdInfoView(getUSSDKeyName(viewModel)),
                       SizedBox(height: 100),
                     ],
                   ),
                 )),
-              Stack(
-                  children: [
-                    SizedBox(
-                      width: double.infinity,
-                      child: Styles.appButton(
-                          elevation: 0,
-                          onClick: !_isLoading && _hasOtp
-                              ? _subscribeToValidateOtp
-                              : null,
-                          text: 'Submit'),
-                    ),
-                    Positioned(
-                        right: 16,
-                        top: 16,
-                        bottom: 16,
-                        child: _isLoading
-                            ? SpinKitThreeBounce(size: 20.0, color: Colors.white.withOpacity(0.5))
-                            : SizedBox())
-                  ],
-                ),
+            Styles.statefulButton2(
+                elevation: 0,
+                isValid: !_isLoading && _hasOtp,
+                onClick: _subscribeToValidateOtp,
+                text: 'Continue',
+                isLoading: _isLoading
+            ),
             SizedBox(height: 16)
           ],
         ),

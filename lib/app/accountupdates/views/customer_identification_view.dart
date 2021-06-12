@@ -49,6 +49,21 @@ class _CustomerIdentificationScreen extends State<CustomerIdentificationScreen> 
     };
   }
 
+  void _resetForm() {
+    _registrationNumberController.text = "";
+    _issueDateController.text = "";
+    _expiryDateController.text = "";
+    _identificationForm.onIdentificationTypeChange(null);
+    _identificationForm.onIssueDateChange(null);
+    _identificationForm.onExpiryDateChange(null);
+    _identificationForm.onIdentificationNumberChange(null);
+    _identificationForm.onImageReferenceChanged(null);
+    setState(() {
+      uploadedFileName = "Upload Valid ID";
+    });
+  }
+
+
   void saveForm() {
     final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
     final info = viewModel.identificationForm.identificationInfo;
@@ -307,8 +322,31 @@ class _CustomerIdentificationScreen extends State<CustomerIdentificationScreen> 
             )),
             SizedBox(height: 32),
             Expanded(child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                (widget.isLast()) ? SizedBox() : Flexible(child: Container()),
+                Visibility(
+                    visible: !widget.isLast(),
+                    child: Flexible(
+                      flex: 1,
+                      child: Align(
+                        alignment: Alignment.bottomLeft,
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: Styles.appButton(
+                              elevation: 0,
+                              buttonStyle: Styles.greyButtonStyle,
+                              onClick: () {
+                                _resetForm();
+                                saveForm();
+                                viewModel.moveToNext(widget.position);
+                              },
+                              text: 'Skip for Now'
+                          ),
+                        ),
+                      ),
+                    )
+                ),
+                SizedBox(width: (!widget.isLast()) ? 32 : 0,),
                 Flexible(
                     flex: 1,
                     child: Align(
@@ -325,7 +363,7 @@ class _CustomerIdentificationScreen extends State<CustomerIdentificationScreen> 
                     ))
               ],
             )),
-            SizedBox(height: 100),
+            // SizedBox(height: 100),
           ],
         ),
       ),

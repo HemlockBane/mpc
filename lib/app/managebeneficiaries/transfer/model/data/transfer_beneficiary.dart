@@ -9,6 +9,7 @@ part 'transfer_beneficiary.g.dart';
 class TransferBeneficiary implements Beneficiary {
 
   TransferBeneficiary({
+    this.id,
     required this.accountName,
     required this.accountNumber,
     this.bvn,
@@ -18,6 +19,8 @@ class TransferBeneficiary implements Beneficiary {
     this.frequency,
     this.lastUpdated
   });
+
+  final int? id;
 
   final String accountName;
 
@@ -38,6 +41,10 @@ class TransferBeneficiary implements Beneficiary {
   factory TransferBeneficiary.fromJson(Object? data) => _$TransferBeneficiaryFromJson(data as Map<String, dynamic>);
   Map<String, dynamic> toJson() => _$TransferBeneficiaryToJson(this);
 
+  @override
+  int getRecordId() {
+    return this.id ?? 0;
+  }
   @override
   String getAccountName() {
     return this.accountName;

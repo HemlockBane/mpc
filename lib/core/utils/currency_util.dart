@@ -5,8 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 extension CurrencyUtil on num {
-  static final f = new NumberFormat("###,###,###,###,###,###,##0.00", "en_US");
-  static final _f2 = new NumberFormat("#,##0", "en_US");
+  static final f = new NumberFormat("###,###,###,###,###,###,##0.00", "en_NG");
+  static final _f2 = new NumberFormat("#,##0", "en_NG");
 
   String get formatCurrencyWithoutSymbolAndDividing => f.format(this);
   String get formatCurrency => "₦ ${f.format(this)}";

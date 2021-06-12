@@ -7,6 +7,7 @@ import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/filter_item.dart';
 import 'package:moniepoint_flutter/core/paging/page_config.dart';
 import 'package:moniepoint_flutter/core/paging/pager.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/views/filter_view.dart';
 import 'package:provider/provider.dart';
 
@@ -52,8 +53,6 @@ class _AirtimeHistoryScreen extends State<AirtimeHistoryScreen> with AutomaticKe
     );
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -80,7 +79,7 @@ class _AirtimeHistoryScreen extends State<AirtimeHistoryScreen> with AutomaticKe
             visible: isInFilterMode,
             child: Flexible(
               flex: 0,
-              child: FilterLayout(widget._scaffoldKey, [FilterItem(title: "Date")], onCancel: (){
+              child: FilterLayout(widget._scaffoldKey, viewModel.filterableItems, onCancel: (){
                 setState(() { isInFilterMode = false; });
               }),
             ),
@@ -108,7 +107,7 @@ class _AirtimeHistoryScreen extends State<AirtimeHistoryScreen> with AutomaticKe
                       ),
                       itemBuilder: (context, index) {
                         return AirtimeHistoryListItem(items.data[index], index, (item, i) {
-                          //Navigator.of(context).pushNamed(Routes.TRANSFER_DETAIL, arguments: item.historyId);
+                          Navigator.of(context).pushNamed(Routes.AIRTIME_DETAIL, arguments: item.historyId);
                         });
                       });
                 },

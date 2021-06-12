@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 abstract class PagedForm extends StatefulWidget {
-  late final int totalItem;
-  late final int position;
+  int totalItem = 0;
+  int position = 0;
 
   void bind(int totalItem, int position) {
     this.totalItem = totalItem;

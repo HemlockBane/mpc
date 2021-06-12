@@ -10,15 +10,12 @@ abstract class AirtimeBeneficiaryDao extends MoniepointDao<AirtimeBeneficiary>{
   @Query("SELECT * FROM airtime_beneficiaries ORDER BY frequency DESC LIMIT :limit")
   Stream<List<AirtimeBeneficiary>> getFrequentBeneficiaries(int limit);
 
-  @Query("SELECT * FROM airtime_beneficiaries ORDER BY frequency DESC LIMIT :limit OFFSET :offset")
-  Stream<List<AirtimeBeneficiary>> getPagedAirtimeBeneficiary(int offset, int limit);
+  @Query("SELECT * FROM airtime_beneficiaries ORDER BY frequency DESC LIMIT :limit OFFSET :myOffset")
+  Stream<List<AirtimeBeneficiary>> getPagedAirtimeBeneficiary(int myOffset, int limit);
 
-  // @Query("SELECT * FROM airtimebeneficiary ORDER BY frequency DESC")
-  // abstract fun getPagedAirtimeBeneficiary(): PagingSource<Int, TransferBeneficiary>
-  //
-  // @Query("SELECT * FROM airtimebeneficiary WHERE accountName LIKE :search OR accountNumber LIKE :search  ORDER BY accountName ASC")
-  // abstract fun searchPagedTransferBeneficiary(search:String?): PagingSource<Int, TransferBeneficiary>
-  //
+  @Query("SELECT * FROM airtime_beneficiaries WHERE name LIKE :search OR phoneNumber LIKE :search ORDER BY name ASC LIMIT :limit OFFSET :myOffset")
+  Stream<List<AirtimeBeneficiary>> searchPagedAirtimeBeneficiary(String search, int myOffset, int limit);
+
   @Query("DELETE FROM airtime_beneficiaries WHERE phoneNumber NOT IN(:phoneNumbers)")
   Future<void> deleteAll(List<String> phoneNumbers);
 

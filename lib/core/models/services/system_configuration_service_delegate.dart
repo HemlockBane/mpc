@@ -17,13 +17,13 @@ class SystemConfigurationServiceDelegate with NetworkResource{
     return networkBoundResource(
         shouldFetchLocal: true,
         fetchFromLocal: () {
-          String? value = PreferenceUtil.getValueForLoggedInUser("system-configuration");
+          String? value = PreferenceUtil.getValueForLoggedInUser(PreferenceUtil.SYSTEM_CONFIG);
           List<dynamic> configs = (value != null) ? jsonDecode(value) : [];
           return Stream.value(configs.map((e) => SystemConfiguration.fromJson(e)).toList());
         },
         fetchFromRemote: () => _service.getAllSystemConfigs(),
         saveRemoteData: (data) async {
-          PreferenceUtil.saveValueForLoggedInUser("system-configuration", jsonEncode(data));
+          PreferenceUtil.saveValueForLoggedInUser(PreferenceUtil.SYSTEM_CONFIG, jsonEncode(data));
         }
     );
   }

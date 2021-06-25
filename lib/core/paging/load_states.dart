@@ -33,15 +33,13 @@ class LoadStates {
     LoadState aRefresh = LoadState(false);
     LoadState aAppend = LoadState(false);
 
-    if(localState.refresh is Loading || remoteState.refresh is Loading) {
-      aRefresh = Loading(endOfPaginationReached: remoteState.refresh.endOfPaginationReached);
+    aRefresh = (remoteState.refresh is Loading) ? remoteState.refresh : localState.refresh;
+    aAppend = (remoteState.append is Loading) ? remoteState.append : localState.append;
+
+    if(remoteState.refresh is Error || localState.refresh is Error) {
+      aRefresh = remoteState.refresh;
     }
-    if(localState.append is Loading || remoteState.refresh is Loading) {
-      aAppend = Loading(endOfPaginationReached: remoteState.refresh.endOfPaginationReached);
-    }
-    if(localState.refresh is NotLoading || remoteState.refresh is NotLoading) {
-      aAppend = NotLoading(remoteState.refresh.endOfPaginationReached);
-    }
+
     return LoadStates(aRefresh, aAppend, prepend);
   }
 

@@ -23,8 +23,7 @@ class ManagedBeneficiaryScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _ManagedBeneficiaryScreen();
 
-  static void handleDeleteBeneficiary(BuildContext context,
-      Beneficiary beneficiary, BeneficiaryType type) async {
+  static Future<bool> handleDeleteBeneficiary(BuildContext context, Beneficiary beneficiary, BeneficiaryType type) async {
     final result = await showModalBottomSheet(
         backgroundColor: Colors.transparent,
         isScrollControlled: true,
@@ -51,20 +50,23 @@ class ManagedBeneficiaryScreen extends StatefulWidget {
           message = "Transfer beneficiary has been removed successfully.";
           break;
       }
-      showModalBottomSheet(
+      await showModalBottomSheet(
           backgroundColor: Colors.transparent,
           isScrollControlled: true,
           context: context,
           builder: (mContext) => BottomSheets.displaySuccessModal(mContext,
               title: title, message: message));
+      return true;
     } else if(result is Error) {
-      showModalBottomSheet(
+      await showModalBottomSheet(
           backgroundColor: Colors.transparent,
           isScrollControlled: true,
           context: context,
           builder: (mContext) => BottomSheets.displayErrorModal(mContext, message: result.message)
       );
+      return false;
     }
+    return false;
   }
 }
 

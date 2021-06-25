@@ -16,8 +16,12 @@ class AccountServiceDelegate with NetworkResource {
 
   Stream<Resource<AccountBalance>> getCustomerAccountBalance(int customerId) {
     return networkBoundResource(
-        fetchFromLocal: () => Stream.value(null),
-        fetchFromRemote: () => this._service.getCustomerAccountBalance(customerId)
+        shouldFetchLocal: true,
+        fetchFromLocal: () => Stream.value(UserInstance().accountBalance),
+        fetchFromRemote: () => this._service.getCustomerAccountBalance(customerId),
+        saveRemoteData: (balance) async {
+          UserInstance().setAccountBalance(balance);
+        }
     );
   }
 

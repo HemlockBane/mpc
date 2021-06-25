@@ -31,7 +31,7 @@ class RecoverCredentialsDialogLayout {
               decoration: BoxDecoration(
                   color: Colors.primaryColor.withOpacity(0.1),
                   shape: BoxShape.circle),
-              child: SvgPicture.asset('res/drawables/ic_circular_user.svg', width: 38, height: 38,),
+              child: SvgPicture.asset('res/drawables/ic_circular_user.svg', width: 34, height: 34,),
             ),
             label: Text('Recover Username',
                 style: TextStyle(
@@ -58,7 +58,7 @@ class RecoverCredentialsDialogLayout {
                   color: Colors.primaryColor.withOpacity(0.1),
                   shape: BoxShape.circle
               ),
-              child: SvgPicture.asset('res/drawables/ic_password_lock.svg', width: 27, height: 32,),
+              child: SvgPicture.asset('res/drawables/ic_password_lock.svg', width: 23, height: 28,),
             ),
             label: Text('Recover Password',
                 style: TextStyle(

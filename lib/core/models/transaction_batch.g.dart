@@ -7,30 +7,32 @@ part of 'transaction_batch.dart';
 // **************************************************************************
 
 TransactionBatch _$TransactionBatchFromJson(Map<String, dynamic> json) {
-  return TransactionBatch(
-    id: json['id'] as int?,
-    batchKey: json['batchKey'] as String?,
-    sourceAccountProviderCode: json['sourceAccountProviderCode'] as String?,
-    sourceAccountProviderName: json['sourceAccountProviderName'] as String?,
-    sourceAccountNumber: json['sourceAccountNumber'] as String?,
-    currencyCode: json['currencyCode'] as String?,
-    initiator: json['initiator'] as String?,
-    status: json['status'] as String?,
-    paymentType:
-        _$enumDecodeNullable(_$PaymentTypeEnumMap, json['paymentType']),
-    paymentInterval: json['paymentInterval'] as String?,
-    responseCode: json['responseCode'] as String?,
-    comment: json['comment'] as String?,
-    count: json['count'] as int?,
-    minorTotalAmount: (json['minorTotalAmount'] as num?)?.toDouble(),
-    transactionStatus: json['transactionStatus'] as String?,
-    paymentMethod: json['paymentMethod'] as String?,
-    transactionName: json['transactionName'] as String?,
-    tracked: json['tracked'] as bool?,
-    rechargeDate: json['rechargeDate'] as int?,
-    creationTimeStamp: json['creationTimeStamp'] as int?,
-    token: json['token'] as String?,
-  );
+  return TransactionBatch()
+    ..id = json['id'] as int?
+    ..batchKey = json['batchKey'] as String?
+    ..sourceAccountProviderCode = json['sourceAccountProviderCode'] as String?
+    ..sourceAccountProviderName = json['sourceAccountProviderName'] as String?
+    ..sourceAccountNumber = json['sourceAccountNumber'] as String?
+    ..currencyCode = json['currencyCode'] as String?
+    ..initiator = json['initiator'] as String?
+    ..status = json['status'] as String?
+    ..paymentType =
+        _$enumDecodeNullable(_$PaymentTypeEnumMap, json['paymentType'])
+    ..paymentInterval = json['paymentInterval'] as String?
+    ..responseCode = json['responseCode'] as String?
+    ..comment = json['comment'] as String?
+    ..count = json['count'] as int?
+    ..minorTotalAmount = (json['minorTotalAmount'] as num?)?.toDouble()
+    ..transactionStatus = json['transactionStatus'] as String?
+    ..paymentMethod = json['paymentMethod'] as String?
+    ..transactionName = json['transactionName'] as String?
+    ..tracked = json['tracked'] as bool?
+    ..rechargeDate = json['rechargeDate'] as int?
+    ..creationTimeStamp = json['creationTimeStamp'] as int?
+    ..metaData = json['metaDataObj'] == null
+        ? null
+        : TransactionMetaData.fromJson(json['metaDataObj'] as Object)
+    ..token = json['token'] as String?;
 }
 
 Map<String, dynamic> _$TransactionBatchToJson(TransactionBatch instance) =>
@@ -55,6 +57,7 @@ Map<String, dynamic> _$TransactionBatchToJson(TransactionBatch instance) =>
       'tracked': instance.tracked,
       'rechargeDate': instance.rechargeDate,
       'creationTimeStamp': instance.creationTimeStamp,
+      'metaDataObj': instance.metaData,
       'token': instance.token,
     };
 

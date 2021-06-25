@@ -1,13 +1,18 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Colors, ScrollView;
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_transaction.dart';
 import 'package:moniepoint_flutter/app/airtime/viewmodels/airtime_history_detail_view_model.dart';
+import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/transaction.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/tuple.dart';
+import 'package:moniepoint_flutter/core/utils/download_util.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
+import 'package:moniepoint_flutter/core/views/transaction_location_view.dart';
 import 'package:moniepoint_flutter/core/views/transaction_options_view.dart';
 import 'package:provider/provider.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
@@ -24,6 +29,16 @@ class AirtimeHistoryDetailedView extends StatefulWidget {
 class _AirtimeHistoryDetailedView extends State<AirtimeHistoryDetailedView> {
 
   int? _historyId;
+
+  LatLng? _transactionLocation(AirtimeTransaction transaction) {
+    print(transaction.institutionAirtime?.metaData?.location);
+    return (transaction.institutionAirtime?.metaData?.location != null)
+        ? LatLng(double.tryParse(
+        transaction.institutionAirtime?.metaData?.location?.latitude ?? "0.0") ?? 0.0,
+        double.tryParse(transaction.institutionAirtime?.metaData?.location?.longitude ?? "0.0") ?? 0.0
+    )
+        : null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,12 +65,16 @@ class _AirtimeHistoryDetailedView extends State<AirtimeHistoryDetailedView> {
       body: SessionedWidget(
           context: context,
           child: ScrollView(
+            maxHeight: MediaQuery.of(context).size.height,
             child: FutureBuilder(
               future: viewModel.getSingleTransactionById(this._historyId ?? 0),
               builder: (BuildContext context, AsyncSnapshot<AirtimeTransaction?> snapshot) {
                 if(!snapshot.hasData || snapshot.data == null) return Container();
                 final transaction = snapshot.data!;
                 final transactionDate = DateFormat("d MMMM yyyy | h:mm a").format(DateTime.fromMillisecondsSinceEpoch(transaction.getInitiatedDate()));
+                final downloadTask = Tuple(() => viewModel.downloadReceipt(transaction.batchId),  "AirtimeTransaction_Receipt_${viewModel.accountName}_${DateFormat("dd_MM_yyyy_h_m_s").format(DateTime.now())}.pdf");
+                final transactionLocation = _transactionLocation(transaction);
+
                 return Container(
                   color: Colors.backgroundWhite,
                   padding: EdgeInsets.only(top: 24, bottom: 24),
@@ -132,7 +151,7 @@ class _AirtimeHistoryDetailedView extends State<AirtimeHistoryDetailedView> {
                                               color: Color(0XFFF2F2F2),
                                               borderRadius: BorderRadius.circular(4)
                                           ),
-                                          child: Text(transaction.request?.channel ?? "", style: TextStyle(color: Colors.primaryColor, fontSize: 16)),
+                                          child: Text(transaction.request?.channel ?? "", style: TextStyle(color: Colors.primaryColor, fontWeight: FontWeight.w600, fontSize: 13)),
                                         )
                                     )
                                   ],
@@ -174,10 +193,31 @@ class _AirtimeHistoryDetailedView extends State<AirtimeHistoryDetailedView> {
                               )
                           )
                       ),
+                      Visibility(
+                          visible: transactionLocation != null,
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 24, right: 24),
+                            child: Divider(height: 1, color: Colors.dashboardDivider.withOpacity(0.1),),
+                          )
+                      ),
+                      Visibility(
+                        visible: transactionLocation != null,
+                        child: Expanded(
+                          flex: 0,
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 20, bottom: 20, left: 24, right: 24),
+                            child: TransactionLocationView(transactionLocation, transaction.getInitiatorName()),
+                          ),
+                        ),
+                      ),
                       SizedBox(height: 18),
                       Divider(height: 1, color: Colors.dashboardDivider.withOpacity(0.15)),
                       SizedBox(height: 24),
-                      Expanded(child:  TransactionOptionsView(displayReplayTransaction: false))
+                      Expanded(child:  TransactionOptionsView(
+                        displayShareReceipt: downloadTask,
+                        displayDownloadReceipt: downloadTask,
+                        displayReplayTransaction: false,
+                      ))
                     ],
                   ),
                 );

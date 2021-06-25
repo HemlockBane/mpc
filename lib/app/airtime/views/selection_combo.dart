@@ -76,6 +76,11 @@ class _SelectionCombo<T> extends State<SelectionCombo<T>> {
   initState() {
     this.copiedList = List.from(widget.comboItems);
     super.initState();
+    final defaultItem = this.copiedList.where((element) => element.isSelected).firstOrNull;
+    if (defaultItem != null) {
+      defaultItem.isSelected = false;
+      _itemSelected(defaultItem, 0);
+    }
   }
 
   @override
@@ -98,7 +103,7 @@ class _SelectionCombo<T> extends State<SelectionCombo<T>> {
   List<Widget> generateItems() {
     List<Widget> widgets = [];
     Iterable<ComboItem<T>> maxDisplayableItems = copiedList
-        .skip(widget.useFirstItemAsTitle ? 1 :0)
+        .skip(widget.useFirstItemAsTitle ? 1 : 0)
         .take(showMore ? copiedList.length : widget.maxDisplayValue);
 
     maxDisplayableItems.forEachIndexed((index, element) {
@@ -136,7 +141,7 @@ class _SelectionCombo<T> extends State<SelectionCombo<T>> {
                 visible: firstCombo.icon != null,
                 child: (firstCombo.icon != null) ? SizedBox(width: 14,) : SizedBox()
             ),
-            Text(firstCombo.title, style: TextStyle(color: Colors.colorPrimaryDark, fontWeight: FontWeight.bold, fontSize: 14))
+            Text(firstCombo.title, style: TextStyle(color: Colors.colorPrimaryDark, fontWeight: FontWeight.bold, fontSize: 14, fontFamily: Styles.defaultFont))
           ],
         ),
       );
@@ -209,8 +214,12 @@ class _SelectionCombo<T> extends State<SelectionCombo<T>> {
                   child: TextButton(
                       onPressed: () => setState(() => showMore = !showMore),
                       child: Center(
-                        child: Text((showMore) ? "Show Less" : "Show More", style: TextStyle(
-                            color: Color(0XFF3272E1), fontSize: 16, fontWeight: FontWeight.w600),
+                        child: Text((showMore) ? "Show Less" : "Show More",
+                          style: TextStyle(
+                              color: Color(0XFF3272E1),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600
+                          ),
                         ),
                       )
                   ),

@@ -44,7 +44,7 @@ extension ColoredText on Text {
               text: originalText?.substring(mStartIndex, mBoundary),
               style: this.style?.copyWith(
                   color: e.value.first,
-                  fontWeight: bold ? (boldType == 2 ) ? FontWeight.bold: FontWeight.w600 : FontWeight.normal,
+                  fontWeight: bold ? (boldType == 2 ) ? FontWeight.bold : FontWeight.w600 : FontWeight.normal,
                   decoration: (underline) ? TextDecoration.underline : TextDecoration.none,
               ),
             recognizer: TapGestureRecognizer()..onTap = e.value.second

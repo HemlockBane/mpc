@@ -13,22 +13,17 @@ import 'package:moniepoint_flutter/app/managebeneficiaries/bills/model/data/bill
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary_dao.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/fee_vat_config_dao.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/transfer_dao.dart';
+import 'package:moniepoint_flutter/core/database/migrations/app_migrations.dart';
 import 'package:moniepoint_flutter/core/database/moniepoint_database.dart';
 
 class DatabaseModule {
 
   static void inject() async {
-    final migration = Migration(3, 4, (migrate) async {
-
-    });
-    // final migration2 = Migration(2, 3, (migrate) async {
-    //   migrate.execute("DROP DATABASE moniepoint_db");
-    // });
 
     GetIt.I.registerSingletonAsync<AppDatabase>(() async =>
     await $FloorAppDatabase
         .databaseBuilder('moniepoint_db.db')
-        .addMigrations([migration])
+        .addMigrations(AppMigration().getMigrations())
         .build()
     );
 

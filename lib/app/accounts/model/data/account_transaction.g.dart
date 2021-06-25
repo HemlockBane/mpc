@@ -22,6 +22,9 @@ AccountTransaction _$AccountTransactionFromJson(Map<String, dynamic> json) {
     runningBalance: json['runningBalance'] as String?,
     balanceBefore: json['balanceBefore'] as String?,
     balanceAfter: json['balanceAfter'] as String?,
+    metaData: json['metaDataObj'] == null
+        ? null
+        : TransactionMetaData.fromJson(json['metaDataObj'] as Object),
   );
 }
 
@@ -41,6 +44,7 @@ Map<String, dynamic> _$AccountTransactionToJson(AccountTransaction instance) =>
       'runningBalance': instance.runningBalance,
       'balanceBefore': instance.balanceBefore,
       'balanceAfter': instance.balanceAfter,
+      'metaDataObj': instance.metaData,
     };
 
 K _$enumDecode<K, V>(

@@ -53,6 +53,8 @@ import 'package:moniepoint_flutter/app/usermanagement/model/usermanagement_servi
 import 'package:moniepoint_flutter/app/validation/model/validation_service.dart';
 import 'package:moniepoint_flutter/app/validation/model/validation_service_delegate.dart';
 import 'package:moniepoint_flutter/core/device_manager.dart';
+import 'package:moniepoint_flutter/core/models/services/file_management_service.dart';
+import 'package:moniepoint_flutter/core/models/services/file_management_service_delegate.dart';
 import 'package:moniepoint_flutter/core/models/services/location_service.dart';
 import 'package:moniepoint_flutter/core/models/services/location_service_delegate.dart';
 import 'package:moniepoint_flutter/core/models/services/system_configuration_service.dart';
@@ -200,6 +202,11 @@ class ServiceModule {
     /// Branch checks
     GetIt.I.registerLazySingleton<BranchServiceDelegate>(() {
       return BranchServiceDelegate(BranchService(dio));
+    });
+
+    /// FileManagementService checks
+    GetIt.I.registerLazySingleton<FileManagementServiceDelegate>(() {
+      return FileManagementServiceDelegate(FileManagementService(dio));
     });
 
     /// Cards checks

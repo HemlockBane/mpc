@@ -59,7 +59,7 @@ class _BillCustomerEnquiryDialog extends State<BillCustomerEnquiryDialog> {
   }
 
   void onConfirm(BillValidationStatus validationStatus) {
-    Navigator.of(context).pop(Triple(validationStatus.fullName, validationStatus.validationReference, _saveBeneficiary));
+    Navigator.of(context).pop(Triple(validationStatus.validationData?.customerName, validationStatus.validationReference, _saveBeneficiary));
   }
 
   Widget _saveBeneficiaryWidget() {
@@ -111,7 +111,7 @@ class _BillCustomerEnquiryDialog extends State<BillCustomerEnquiryDialog> {
             children: [
               SvgPicture.asset('res/drawables/ic_beneficiary.svg'),
               SizedBox(width: 12),
-              Text('${beneficiary.fullName}', style: TextStyle(color: Colors.solidDarkBlue, fontSize: 18, fontWeight: FontWeight.w600),)
+              Text('${beneficiary.validationData?.customerName}', style: TextStyle(color: Colors.solidDarkBlue, fontSize: 18, fontWeight: FontWeight.w600),)
             ],
           )),
           SizedBox(height: 2),
@@ -198,6 +198,7 @@ class _BillCustomerEnquiryDialog extends State<BillCustomerEnquiryDialog> {
           final resource = a.data;
           if(!a.hasData || resource is Loading) return _displayLoadingState();
           if(a.data is Error || resource == null || resource.data == null) return _handleError(a.data as Error);
+
           return _mainContent(resource.data!);
         },
       )

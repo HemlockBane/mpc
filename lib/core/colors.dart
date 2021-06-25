@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 class Colors {
-  static const Color primaryColor = const Color(0XFF0361F0);
+    static const Color primaryColor = const Color(0XFF0361F0);
   static const Color colorPrimaryDark = const Color(0XFF0B3175);
   static const Color colorAccent = const Color(0XFF4183F5);
   static const Color colorFaded = const Color(0XFFB4CBD5);
@@ -53,6 +53,10 @@ class Colors {
 
   static const Color tabTextColor = const Color(0XFF30424C);
   static const Color tabBackground = const Color(0XFF8C8D8F);
+
+
+
+  static const Color postNoDebitColor = const Color(0XFF98A9C5);
 
 
 

@@ -5,6 +5,7 @@ import 'package:moniepoint_flutter/core/database/type_converters.dart';
 import 'package:moniepoint_flutter/core/models/list_item.dart';
 import 'package:moniepoint_flutter/core/models/transaction.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:moniepoint_flutter/core/models/transaction_meta_data.dart';
 
 part 'account_transaction.g.dart';
 
@@ -61,6 +62,10 @@ class AccountTransaction implements ListItem, Transaction {
   @JsonKey(name:"balanceAfter")
   final String? balanceAfter;
 
+  @JsonKey(name:"metaDataObj")
+  @TypeConverters([TransactionMetaDataConverter])
+  final TransactionMetaData? metaData;
+
   AccountTransaction(
       {this.id,
       required this.transactionDate,
@@ -74,7 +79,9 @@ class AccountTransaction implements ListItem, Transaction {
       this.narration,
       this.runningBalance,
       this.balanceBefore,
-      this.balanceAfter});
+      this.balanceAfter,
+      this.metaData
+      });
 
   factory AccountTransaction.fromJson(Object? data) => _$AccountTransactionFromJson(data as Map<String, dynamic>);
   Map<String, dynamic> toJson() => _$AccountTransactionToJson(this);

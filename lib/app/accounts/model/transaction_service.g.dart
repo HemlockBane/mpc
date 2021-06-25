@@ -9,7 +9,7 @@ part of 'transaction_service.dart';
 class _TransactionService implements TransactionService {
   _TransactionService(this._dio, {this.baseUrl}) {
     baseUrl ??=
-        'https://core-root.monnify.development.teamapt.com/api/v1/transactions/';
+        'https://moniepoint-customer-root-v2.console.teamapt.com/api/v1/transactions/';
   }
 
   final Dio _dio;
@@ -43,7 +43,7 @@ class _TransactionService implements TransactionService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.4'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -55,6 +55,48 @@ class _TransactionService implements TransactionService {
       (json) =>
           TransactionHistoryCollection.fromJson(json as Map<String, dynamic>),
     );
+    return value;
+  }
+
+  @override
+  Future<dynamic> exportStatement(requestBody) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(requestBody.toJson());
+    final _result = await _dio.fetch(_setStreamType<dynamic>(Options(
+            method: 'POST',
+            headers: <String, dynamic>{
+              r'client-id': 'ANDROID',
+              r'appVersion': '1.0.4'
+            },
+            extra: _extra,
+            responseType: ResponseType.stream)
+        .compose(_dio.options, 'statement/export',
+            queryParameters: queryParameters, data: _data)
+        .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = _result.data!;
+    return value;
+  }
+
+  @override
+  Future<dynamic> downloadTransactionReceipt(requestBody) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(requestBody.toJson());
+    final _result = await _dio.fetch(_setStreamType<dynamic>(Options(
+            method: 'POST',
+            headers: <String, dynamic>{
+              r'client-id': 'ANDROID',
+              r'appVersion': '1.0.4'
+            },
+            extra: _extra,
+            responseType: ResponseType.stream)
+        .compose(_dio.options, 'transaction_receipt',
+            queryParameters: queryParameters, data: _data)
+        .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = _result.data!;
     return value;
   }
 

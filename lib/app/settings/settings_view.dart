@@ -271,7 +271,7 @@ class _SettingsScreen extends State<SettingsScreen> {
                             fontSize: 16,
                             fontWeight: FontWeight.normal
                         )),
-                    trailing: SvgPicture.asset('res/drawables/ic_forward_anchor.svg'),
+                    trailing: null,
                     subtitle: Text("v ${BuildConfig.APP_VERSION}",
                         style: TextStyle(
                             color: Colors.deepGrey,

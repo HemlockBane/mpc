@@ -43,6 +43,8 @@ class NextOfKinForm with ChangeNotifier, Validators {
   final _dateOfBirthController = StreamController<String>.broadcast();
   Stream<String> get dateOfBirthStream => _dateOfBirthController.stream;
 
+  bool _isFormValid = false;
+  bool get isFormValid => _isFormValid;
 
   void _initState() {
     final formStreams = [
@@ -57,7 +59,7 @@ class NextOfKinForm with ChangeNotifier, Validators {
     ];
 
     this._isValid = Rx.combineLatest(formStreams, (values) {
-      return _isFirstNameValid(displayError: false)
+      _isFormValid = _isFirstNameValid(displayError: false)
           && _isLastNameValid(displayError: false)
           && _isMiddleNameValid(displayError: false)
           && _isPhoneNumberValid(displayError: false)
@@ -65,6 +67,7 @@ class NextOfKinForm with ChangeNotifier, Validators {
           && _isRelationshipValid(displayError: false)
           && _isDateOfBirthValid(displayError: false)
           && values.last as bool;
+      return _isFormValid;
     }).asBroadcastStream();
   }
 

@@ -3,6 +3,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/network/service_error.dart';
 import 'package:moniepoint_flutter/core/network/service_result.dart';
@@ -87,6 +89,11 @@ mixin NetworkResource {
         ServiceResult<K?>? result;
         Response? response;
         if (e is DioError) {
+
+          if(e.response?.statusCode == 401) {
+            print("Logout since we are in a 401");
+          }
+
           response = e.response;
           final errorBody = e.response?.data;
           final errorString = e.response?.data.toString();
@@ -101,10 +108,10 @@ mixin NetworkResource {
             }
           } else {
             var error = e.error;
-            // _errorString = error;
+            _errorString = error.toString();
             print('In the else branch of error type: ${error.runtimeType}');
             print('In the else branch of error: $error');
-            print('In the else branch of error: ${e.response?.statusMessage}');
+            print('In the else branch of error: ${e.response?.statusCode}');
           }
         }
         else if (e is Exception) {
@@ -120,6 +127,10 @@ mixin NetworkResource {
   void _onFailed<K>(Response? response, ServiceResult<K?>? result) {
     //constructErrorMessage
     //we need to be able to use a single form
+    final httpStatusCode = response?.statusCode;
+    if(httpStatusCode != null && httpStatusCode >= 502 && httpStatusCode <= 504) {
+
+    }
     if(result?.errors != null && result!.errors!.length > 0) {
         _errorString = result.errors!.first.message;
         _errorCode = result.errors!.first.code;
@@ -150,11 +161,13 @@ mixin NetworkResource {
       if (_errorString!.contains("resolve host")
           || _errorString!.toLowerCase().contains("failed to connect")
           || _errorString!.toLowerCase().contains("host lookup")
+          || _errorString!.toLowerCase().contains("network is unreachable")
           || _errorString!.toLowerCase().contains("connecttimeout")) {
         _errorString =
         "We are unable to reach the server at this time. Please confirm your internet connection and try again later.";
       }
       if (_errorString!.toLowerCase().contains("exception")) {
+        FirebaseCrashlytics.instance.recordError(Exception(_errorString), null);
         _errorString = "System Error";
       }
       if (_errorString!.toLowerCase().contains("database error")) {
@@ -166,51 +179,62 @@ mixin NetworkResource {
       if (_errorString!.toLowerCase().contains("org.springframework")) {
         _errorString = "An unknown error occurred";
       }
+      if (_errorString != null &&
+          (_errorString!.toLowerCase().contains("502") ||
+              _errorString!.toLowerCase().contains("503") ||
+              _errorString!.toLowerCase().contains("504"))) {
+        _errorString = "We are unable to reach the service at this time. Please, Try again";
+      }
     }
     print('Error String : $_errorString');
   }
 
-  static Tuple<String, String> formatError(String? errorMessage, String moduleName) {
-    String? errorTitle = "";
-    String? errorDescription = "";
-
-    if (errorMessage != null && (errorMessage.contains("resolve host")
-        || errorMessage.toLowerCase().contains("failed to connect")
-        || errorMessage.toLowerCase().contains("an unknown error occurred")
-    )) {
-      errorTitle = "No Network Connection";
-      errorDescription =
-      "We are unable to reach the server at this time. Please confirm your internet connection and try again.";
-    }
-    else if (errorMessage != null && (errorMessage.toLowerCase().contains("exception")
-        || errorMessage.toLowerCase().contains("database error")
-        || errorMessage.toLowerCase().contains("org.springframework"))) {
-      errorTitle = "Oops, Something is broken!";
-      errorDescription =
-      "We encountered an error loading your $moduleName. Please try again later.";
-    }
-    else if (errorMessage != null && (errorMessage.toLowerCase().contains("ssl")
-        || errorMessage.toLowerCase().contains("redis")
-        || errorMessage.toLowerCase().contains("502")
-        || errorMessage.toLowerCase().contains("503")
-        || errorMessage.toLowerCase().contains("504"))) {
-      errorTitle = "Oops, Something went wrong!";
-      errorDescription =
-      "We are unable to reach the service at this time. Please, Try again";
-    }
-    else if (errorMessage == null || errorMessage.isEmpty) {
-      errorTitle = "Oops, Something is broken!";
-      errorDescription =
-      "We encountered an error loading your $moduleName. Please try again later.";
-    } else {
-      errorTitle = "Oops";
-      errorDescription = errorMessage;
-    }
-    return Tuple(errorTitle, errorDescription);
-  }
 
   void _makeServiceError() {
     _serviceError = ServiceError(message: this._errorString??"", code: _errorCode);
   }
 
+}
+
+Tuple<String, String> formatError(String? errorMessage, String moduleName) {
+  String? errorTitle = "";
+  String? errorDescription = "";
+  print("The error message is $errorMessage");
+  if (errorMessage != null &&
+      (errorMessage.contains("resolve host") ||
+          errorMessage.toLowerCase().contains("failed to connect") ||
+          errorMessage.toLowerCase().contains("failed host lookup") ||
+          errorMessage.toLowerCase().contains("network is unreachable") ||
+          errorMessage.toLowerCase().contains("an unknown error occurred"))) {
+    errorTitle = "No Network Connection";
+    errorDescription =
+        "We are unable to reach the server at this time. Please confirm your internet connection and try again.";
+  } else if (errorMessage != null &&
+      (errorMessage.toLowerCase().contains("exception") ||
+          errorMessage.toLowerCase().contains("database error") ||
+          errorMessage.toLowerCase().contains("org.springframework"))) {
+    errorTitle = "Oops, Something is broken!";
+    errorDescription =
+        "We encountered an error loading your $moduleName. Please try again later.";
+  } else if (errorMessage != null &&
+      (errorMessage.toLowerCase().contains("ssl") ||
+          errorMessage.toLowerCase().contains("redis") ||
+          errorMessage.toLowerCase().contains("502") ||
+          errorMessage.toLowerCase().contains("503") ||
+          errorMessage.toLowerCase().contains("504"))) {
+    errorTitle = "Oops, Something went wrong!";
+    errorDescription =
+        "We are unable to reach the service at this time. Please, Try again";
+  } else if (errorMessage == null || errorMessage.isEmpty) {
+    errorTitle = "Oops, Something is broken!";
+    errorDescription =
+        "We encountered an error loading your $moduleName. Please try again later.";
+  } else if(errorMessage.contains("401")){
+    errorTitle = "Oops, Something is broken!";
+    errorDescription = "We encountered an error loading your $moduleName. Please try again later.";
+  } else {
+    errorTitle = "Oops";
+    errorDescription = errorMessage;
+  }
+  return Tuple(errorTitle, errorDescription);
 }

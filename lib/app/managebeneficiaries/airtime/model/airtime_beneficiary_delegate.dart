@@ -16,16 +16,12 @@ import 'data/airtime_beneficiary_dao.dart';
 class AirtimeBeneficiaryServiceDelegate with NetworkResource {
   late final AirtimeBeneficiaryService _service;
   late final AirtimeBeneficiaryDao _beneficiaryDao;
-  
-  late final _AirtimeBeneficiaryMediator _airtimeBeneficiaryMediator;
 
   AirtimeBeneficiaryServiceDelegate(
       AirtimeBeneficiaryService service,
       AirtimeBeneficiaryDao beneficiaryDao) {
     this._service = service;
     this._beneficiaryDao = beneficiaryDao;
-
-    _airtimeBeneficiaryMediator = _AirtimeBeneficiaryMediator(_service, _beneficiaryDao);
   }
 
   Stream<Resource<List<AirtimeBeneficiary>>> getFrequentBeneficiaries() {
@@ -47,7 +43,7 @@ class AirtimeBeneficiaryServiceDelegate with NetworkResource {
               .map((event) => Page(event, params.key, event.length == params.loadSize ? offset + 1 : null)
           );
         },
-        remoteMediator: _airtimeBeneficiaryMediator
+        remoteMediator: _AirtimeBeneficiaryMediator(_service, _beneficiaryDao)
     );
   }
 
@@ -59,7 +55,7 @@ class AirtimeBeneficiaryServiceDelegate with NetworkResource {
               .map((event) => Page(event, params.key, event.length == params.loadSize ? offset + 1 : null)
           );
         },
-        remoteMediator: _airtimeBeneficiaryMediator
+        remoteMediator: _AirtimeBeneficiaryMediator(_service, _beneficiaryDao)
     );
   }
 
@@ -75,18 +71,18 @@ class AirtimeBeneficiaryServiceDelegate with NetworkResource {
 class _AirtimeBeneficiaryMediator extends AbstractDataCollectionMediator<int, AirtimeBeneficiary> {
 
   final AirtimeBeneficiaryService _service;
-  final AirtimeBeneficiaryDao _transferBeneficiaryDao;
+  final AirtimeBeneficiaryDao _airtimeBeneficiaryDao;
 
-  _AirtimeBeneficiaryMediator(this._service, this._transferBeneficiaryDao);
+  _AirtimeBeneficiaryMediator(this._service, this._airtimeBeneficiaryDao);
 
   @override
   Future<void> clearDB(List<AirtimeBeneficiary> items) async {
-    return this._transferBeneficiaryDao.deleteAll(items.map((e) => e.phoneNumber ?? "").toList());
+    return this._airtimeBeneficiaryDao.deleteAll(items.map((e) => e.phoneNumber ?? "").toList());
   }
 
   @override
   Future<void> saveToDB(List<AirtimeBeneficiary> value) async {
-    return this._transferBeneficiaryDao.insertItems(value);
+    return this._airtimeBeneficiaryDao.insertItems(value);
   }
 
   @override

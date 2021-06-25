@@ -12,7 +12,9 @@ AirtimeDataRequest _$AirtimeDataRequestFromJson(Map<String, dynamic> json) {
     ..serviceProviderCode = json['serviceProviderCode'] as String?
     ..minorCreditAmount = (json['minorCreditAmount'] as num?)?.toDouble()
     ..name = json['name'] as String?
-    ..metaData = json['metaData'] as String?;
+    ..metaData = json['metaDataObj'] == null
+        ? null
+        : TransactionMetaData.fromJson(json['metaDataObj'] as Object);
 }
 
 Map<String, dynamic> _$AirtimeDataRequestToJson(AirtimeDataRequest instance) {
@@ -28,6 +30,6 @@ Map<String, dynamic> _$AirtimeDataRequestToJson(AirtimeDataRequest instance) {
   writeNotNull('serviceProviderCode', instance.serviceProviderCode);
   writeNotNull('minorCreditAmount', instance.minorCreditAmount);
   writeNotNull('name', instance.name);
-  writeNotNull('metaData', instance.metaData);
+  writeNotNull('metaDataObj', instance.metaData);
   return val;
 }

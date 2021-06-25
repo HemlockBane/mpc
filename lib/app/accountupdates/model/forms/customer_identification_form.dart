@@ -33,6 +33,9 @@ class CustomerIdentificationForm with ChangeNotifier {
   final _idImageReferenceController = StreamController<String>.broadcast();
   Stream<String> get idImageReferenceStream => _idImageReferenceController.stream;
 
+  bool _isFormValid = false;
+  bool get isFormValid => _isFormValid;
+
   void _initState() {
     final formStreams = [
       idTypeStream,

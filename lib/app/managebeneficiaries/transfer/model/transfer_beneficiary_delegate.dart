@@ -31,7 +31,7 @@ class TransferBeneficiaryServiceDelegate with NetworkResource {
   Stream<Resource<List<TransferBeneficiary>>> getFrequentBeneficiaries() {
     return networkBoundResource(
         shouldFetchLocal: true,
-        fetchFromLocal: () => _beneficiaryDao.getFrequentBeneficiaries(5),
+        fetchFromLocal: () => _beneficiaryDao.getFrequentBeneficiaries(999),
         fetchFromRemote: () => this._service.getFrequentBeneficiaries(),
         processRemoteResponse: (v) {
           _beneficiaryDao.insertItems(v.data!.result!);

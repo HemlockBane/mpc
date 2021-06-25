@@ -5,6 +5,7 @@ import 'package:moniepoint_flutter/app/customer/account_provider.dart';
 import 'package:moniepoint_flutter/app/institutions/institution_view_model.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_list_item.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_shimmer_view.dart';
+import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_utils.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/app/transfers/viewmodels/account_enquiry_view_model.dart';
 import 'package:moniepoint_flutter/app/transfers/viewmodels/transfer_view_model.dart';
@@ -25,8 +26,9 @@ import 'package:provider/provider.dart';
 class TransferBeneficiaryScreen extends StatefulWidget {
 
   late final GlobalKey<ScaffoldState> _scaffoldKey;
+  final Object? arguments;
 
-  TransferBeneficiaryScreen(this._scaffoldKey);
+  TransferBeneficiaryScreen(this._scaffoldKey, {this.arguments});
 
   @override
   State<StatefulWidget> createState() {
@@ -53,6 +55,7 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
     final viewModel = Provider.of<TransferViewModel>(context, listen: false);
     frequentBeneficiaries = viewModel.getFrequentBeneficiaries();
     super.initState();
+    _extraArguments(widget.arguments);
   }
 
   void displayInstitutionsDialog() async {
@@ -75,7 +78,7 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
   }
 
   void doNameEnquiry(AccountProvider accountProvider, TransferBeneficiary beneficiary,
-      {bool saveBeneficiary = true}) async {
+      {bool saveBeneficiary = true, double withDefaultAmount = 0.0}) async {
 
     final viewModel = Provider.of<TransferViewModel>(context, listen: false);
     dynamic result = await showModalBottomSheet(
@@ -91,7 +94,7 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
       viewModel
         ..setBeneficiary(result.first)
         ..setSaveBeneficiary(result.second);
-      Navigator.of(context).pushNamed(TransferScreen.PAYMENT_SCREEN);
+      Navigator.of(context).pushNamed(TransferScreen.PAYMENT_SCREEN, arguments: withDefaultAmount);
     } else if (result != null && result is Error<TransferBeneficiary>) {
       showModalBottomSheet(
           backgroundColor: Colors.transparent,
@@ -106,21 +109,26 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
         loadingView: BeneficiaryShimmer(),
         snapshot: a,
         animationController: _animationController,
+        errorLayoutView: GenericListPlaceholder(
+            SvgPicture.asset('res/drawables/ic_empty_beneficiary.svg'),
+            'You have no saved transfer \nbeneficiaries yet.'
+        ),
         emptyPlaceholder: GenericListPlaceholder(
             SvgPicture.asset('res/drawables/ic_empty_beneficiary.svg'),
             'You have no saved transfer \nbeneficiaries yet.'
         ),
         currentList: _currentItems,
         listView: (List<TransferBeneficiary>? items) {
+          final sortedItems = BeneficiaryUtils.sortByFrequentlyUsed(items).take(5).toList();
           return ListView.separated(
               shrinkWrap: true,
-              itemCount: items?.length ?? 0,
+              itemCount: sortedItems.length,
               separatorBuilder: (context, index) => Padding(
                 padding: EdgeInsets.only(left: 16, right: 16),
                 child: Divider(color: Color(0XFFE0E0E0), height: 1,),
               ),
               itemBuilder: (context, index) {
-                return BeneficiaryListItem(items![index], index, (beneficiary, int i) {
+                return BeneficiaryListItem(sortedItems[index], index, (beneficiary, int i) {
                   final provider = AccountProvider()
                     ..bankCode = beneficiary.getBeneficiaryProviderCode()
                     ..name = beneficiary.getBeneficiaryProviderName();
@@ -141,12 +149,25 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
     }
   }
 
+  void _extraArguments(Object? obj){
+    //TODO use enums to represent the key names
+    if(obj == null || obj is! Map) return;
+
+    final replay = obj["replay"];
+    if(replay != null && replay is Map) {
+      final provider = AccountProvider()
+        ..bankCode = replay["bankCode"]
+        ..name = replay["bankName"];
+      final beneficiary = TransferBeneficiary(id:0, accountName: "", accountNumber: replay["accountNumber"]);
+      Future.delayed(Duration(milliseconds: 200), (){
+        doNameEnquiry(provider, beneficiary, withDefaultAmount: replay["amount"]);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
-
-    final viewModel = Provider.of<TransferViewModel>(context, listen: false);
-
     return  Container(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

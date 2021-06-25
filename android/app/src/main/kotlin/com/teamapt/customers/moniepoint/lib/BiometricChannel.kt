@@ -1,4 +1,4 @@
-package com.teamapt.moniepoint_flutter.lib
+package com.teamapt.customers.moniepoint.lib
 
 import android.annotation.SuppressLint
 import android.content.Context

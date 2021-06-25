@@ -4,10 +4,12 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:moniepoint_flutter/app/login/viewmodels/recovery_view_model.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/login_mode.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:provider/provider.dart';
 
 class AddDeviceDialog extends StatefulWidget {
@@ -42,8 +44,7 @@ class _AddDeviceDialog extends State<AddDeviceDialog> {
       if(event is Success<bool>) {
         setState(() => _isLoading = false);
         Navigator.pop(context);
-        Navigator.of(widget._scaffoldKey.currentContext ?? context)
-            .pop();
+        Navigator.of(widget._scaffoldKey.currentContext ?? context).pop();
       }
     });
   }
@@ -106,9 +107,9 @@ class _AddDeviceDialog extends State<AddDeviceDialog> {
                   SizedBox(height: 32),
                   TextButton(
                       onPressed: () {
+                        PreferenceUtil.setLoginMode(LoginMode.ONE_TIME);
                         Navigator.pop(context);
-                        Navigator.of(widget._scaffoldKey.currentContext ?? context)
-                            .pop(Routes.DASHBOARD);
+                        Navigator.of(widget._scaffoldKey.currentContext ?? context).pop(Routes.DASHBOARD);
                       },
                       child: Text(
                         'No, one-time login',

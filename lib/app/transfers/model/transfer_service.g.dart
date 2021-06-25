@@ -9,7 +9,7 @@ part of 'transfer_service.dart';
 class _TransferService implements TransferService {
   _TransferService(this._dio, {this.baseUrl}) {
     baseUrl ??=
-        'https://core-transfer.monnify.development.teamapt.com/api/v1/transfer/';
+        'https://moniepoint-customer-transfer-v2.console.teamapt.com/api/v1/transfer/';
   }
 
   final Dio _dio;
@@ -31,7 +31,7 @@ class _TransferService implements TransferService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.4'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -56,7 +56,7 @@ class _TransferService implements TransferService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.4'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -84,7 +84,7 @@ class _TransferService implements TransferService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.4'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -112,7 +112,7 @@ class _TransferService implements TransferService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.4'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -124,6 +124,27 @@ class _TransferService implements TransferService {
       (json) =>
           TransferHistoryCollection.fromJson(json as Map<String, dynamic>),
     );
+    return value;
+  }
+
+  @override
+  Future<dynamic> downloadTransferReceipt(customerId, batchId) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _data = <String, dynamic>{};
+    final _result = await _dio.fetch(_setStreamType<dynamic>(Options(
+            method: 'GET',
+            headers: <String, dynamic>{
+              r'client-id': 'ANDROID',
+              r'appVersion': '1.0.4'
+            },
+            extra: _extra,
+            responseType: ResponseType.stream)
+        .compose(_dio.options, 'receipt/$customerId/$batchId',
+            queryParameters: queryParameters, data: _data)
+        .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = _result.data!;
     return value;
   }
 

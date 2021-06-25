@@ -12,8 +12,9 @@ import '../custom_check_box.dart';
 class DateFilterDialog extends StatefulWidget {
 
   final String dialogTitle;
+  final String? dialogIcon;
 
-  DateFilterDialog({this.dialogTitle = "Filter by Date"});
+  DateFilterDialog({this.dialogTitle = "Filter by Date", this.dialogIcon});
 
   @override
   State<StatefulWidget> createState() => _DateFilterDialog();
@@ -119,7 +120,7 @@ class _DateFilterDialog extends State<DateFilterDialog> {
       curveBackgroundColor: Colors.white,
       centerImageBackgroundColor: Colors.primaryColor.withOpacity(0.1),
       contentBackgroundColor: Colors.white,
-      centerImageRes: 'res/drawables/ic_date_dialog_calendar.svg',
+      centerImageRes: widget.dialogIcon ?? 'res/drawables/ic_date_dialog_calendar.svg',
       centerImageHeight: 18,
       centerImageWidth: 18,
       centerBackgroundHeight: 74,
@@ -199,7 +200,7 @@ class _DateFilterDialog extends State<DateFilterDialog> {
     if(selectedDate != null ) {
       setState(() {
         selectedStartDate = selectedDate.start.millisecondsSinceEpoch;
-        selectedEndDate = selectedDate.end.millisecondsSinceEpoch;
+        selectedEndDate = selectedDate.end.add(Duration(hours: 23)).millisecondsSinceEpoch;
         _startAndEndDateController.text =
             getDateString(selectedStartDate ?? 0, selectedEndDate ?? 0);
       });

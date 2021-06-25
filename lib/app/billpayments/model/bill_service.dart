@@ -73,4 +73,15 @@ abstract class BillService {
       @Query("customerId") String customerId,
       @Query("productCode") String paymentCode
       );
+
+  @Headers(<String, dynamic>{
+    "client-id": BuildConfig.CLIENT_ID,
+    "appVersion": BuildConfig.APP_VERSION
+  })
+  @GET("receipt/{customerId}/{batchId}")
+  @DioResponseType(ResponseType.stream)
+  Future<dynamic> downloadTransferReceipt(
+      @Path("customerId") String? customerId,
+      @Path("batchId") int batchId
+  );
 }

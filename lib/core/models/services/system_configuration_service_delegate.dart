@@ -13,8 +13,9 @@ class SystemConfigurationServiceDelegate with NetworkResource{
 
   SystemConfigurationServiceDelegate(this._service);
 
-  Stream<Resource<List<SystemConfiguration>>> getSystemConfigurations() {
+  Stream<Resource<List<SystemConfiguration>>> getSystemConfigurations({bool forceRemote = true}) {
     return networkBoundResource(
+        shouldFetchFromRemote: (data) => data?.isEmpty == true || forceRemote,
         shouldFetchLocal: true,
         fetchFromLocal: () {
           String? value = PreferenceUtil.getValueForLoggedInUser(PreferenceUtil.SYSTEM_CONFIG);

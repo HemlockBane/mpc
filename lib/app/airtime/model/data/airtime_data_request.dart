@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:moniepoint_flutter/core/models/transaction_meta_data.dart';
 
 part 'airtime_data_request.g.dart';
 
@@ -17,8 +18,8 @@ class AirtimeDataRequest {
   @JsonKey(name:"name")
   String? name;
 
-  @JsonKey(name:"metaData")
-  String? metaData;
+  @JsonKey(name:"metaDataObj")
+  TransactionMetaData? metaData;
 
   AirtimeDataRequest();
 
@@ -34,6 +35,11 @@ class AirtimeDataRequest {
 
   AirtimeDataRequest withMinorCreditAmount(double minorCreditAmount) {
     this.minorCreditAmount = minorCreditAmount;
+    return this;
+  }
+
+  AirtimeDataRequest withMetaData(TransactionMetaData metaData) {
+    this.metaData = metaData;
     return this;
   }
 

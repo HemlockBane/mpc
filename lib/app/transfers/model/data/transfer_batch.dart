@@ -2,6 +2,8 @@ import 'package:floor/floor.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:moniepoint_flutter/core/database/type_converters.dart';
 import 'package:moniepoint_flutter/core/models/transaction_batch.dart';
+import 'package:moniepoint_flutter/core/models/transaction_meta_data.dart';
+import 'package:moniepoint_flutter/app/transfers/model/data/transfer_request_body.dart';
 
 part 'transfer_batch.g.dart';
 
@@ -57,7 +59,7 @@ class TransferBatch extends TransactionBatch {
     this.totalMinorVatAmount,
     this.authorizedOn,
     this.aptentBatchKey
-});
+  }): super();
 
   factory TransferBatch.fromJson(Object? data) => _$TransferBatchFromJson(data as Map<String, dynamic>);
   Map<String, dynamic> toJson() => _$TransferBatchToJson(this);

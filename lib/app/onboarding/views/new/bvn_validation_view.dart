@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter/services.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/bvn_validation_request.dart';
 import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/new/new_account_view.dart';
@@ -16,7 +15,6 @@ import 'package:moniepoint_flutter/core/utils/call_utils.dart';
 import 'package:moniepoint_flutter/core/utils/text_utils.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-
 
 class BVNValidationScreen extends StatefulWidget {
   /// We are simply using this key to reference our parent context
@@ -160,7 +158,8 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
                                           Navigator.pop(context);
                                           subscribeToBVNValidation(mContext);
                                         },
-                                  text: 'Continue');
+                                  text: 'Continue'
+                              );
                             }),
                         SizedBox(height: 42),
                       ],
@@ -182,7 +181,8 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
             style: TextStyle(
                 fontWeight: FontWeight.w600,
                 color: Colors.colorPrimaryDark,
-                fontSize: 24),
+                fontSize: 24
+            ),
             textAlign: TextAlign.start),
         SizedBox(height: 6),
         Text('Enter your details to get started.',
@@ -235,6 +235,7 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
             errorText: snapshot.hasError ? snapshot.error.toString() : null,
             startIcon: Icon(CustomFont.call, color: Colors.colorFaded, size: 18),
             animateHint: true,
+            maxLength: 13
           );
         }),
         SizedBox(height: 16),

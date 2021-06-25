@@ -1,19 +1,21 @@
-import 'dart:io';
-import 'dart:isolate';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart' hide Colors, Page;
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/accounts/viewmodels/transaction_list_view_model.dart';
+import 'package:moniepoint_flutter/app/accounts/views/accounts_shimmer_view.dart';
+import 'package:moniepoint_flutter/app/accounts/views/dialogs/account_settings_dialog.dart';
 import 'package:moniepoint_flutter/app/accounts/views/transaction_history_list_item.dart';
+import 'package:moniepoint_flutter/app/cards/views/empty_list_layout_view.dart';
+import 'package:moniepoint_flutter/app/cards/views/error_layout_view.dart';
+import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
-import 'package:moniepoint_flutter/core/config/build_config.dart';
-import 'package:moniepoint_flutter/core/config/service_config.dart';
 import 'package:moniepoint_flutter/core/models/transaction.dart';
-import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/paging/page_config.dart';
 import 'package:moniepoint_flutter/core/paging/pager.dart';
 import 'package:moniepoint_flutter/core/paging/paging_data.dart';
@@ -21,12 +23,11 @@ import 'package:moniepoint_flutter/core/paging/paging_source.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
+import 'package:moniepoint_flutter/core/utils/download_util.dart';
+import 'package:moniepoint_flutter/core/utils/list_view_util.dart';
 import 'package:moniepoint_flutter/core/views/filter/date_filter_dialog.dart';
 import 'package:moniepoint_flutter/core/views/filter_view.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
-import 'package:open_file/open_file.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 import 'package:moniepoint_flutter/core/utils/text_utils.dart';
@@ -38,32 +39,73 @@ class AccountTransactionScreen extends StatefulWidget {
 
 }
 
-class _AccountTransactionScreen extends State<AccountTransactionScreen> {
+class _AccountTransactionScreen extends State<AccountTransactionScreen> with TickerProviderStateMixin{
 
-  ReceivePort _receivePort = ReceivePort();
   ScrollController _scrollController = ScrollController();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
+  bool _isDownloading = false;
   bool isInFilterMode = false;
+  bool _isFilterOpened = false;
   String accountStatementFileName = "MoniepointAccountStatement.pdf";
   String? accountStatementDownloadDir;
+
+  late final AnimationController _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1000)
+  );
+  late final AnimationController _pageAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 3000)
+  );
   PagingSource<int, AccountTransaction> _pagingSource = PagingSource(localSource: (a) => Stream.value(Page([], null, null)));
 
   initState() {
     final viewModel = Provider.of<TransactionHistoryViewModel>(context, listen: false);
-    _pagingSource = viewModel.getPagedHistoryTransaction();
     viewModel.getCustomerAccountBalance().listen((event) { });
+    _pagingSource = viewModel.getPagedHistoryTransaction();
+    _animationController.forward();
+    _scrollController.addListener(_onScroll);
     super.initState();
-
-    IsolateNameServer.registerPortWithName(_receivePort.sendPort, "download_statement");
-    _receivePort.listen((a) => _onDownloadStatementCallback(a as List<dynamic>));
-    FlutterDownloader.registerCallback(downloadReceiptCallback);
+    viewModel.getTiers().listen((event) { });
   }
 
-  Widget balanceView(TransactionHistoryViewModel viewModel) {
+  void _displaySettingsDialog() async {
+    final viewModel = Provider.of<TransactionHistoryViewModel>(context, listen: false);
+    final tiers = viewModel.tiers;
+    final qualifiedTierIndex = Tier.getQualifiedTierIndex(tiers);
+    if(tiers.isEmpty) return;
+
+    final result =  await showModalBottomSheet(
+        backgroundColor: Colors.transparent,
+        context: context,
+        builder: (mContext) => AccountSettingsDialog(tiers[qualifiedTierIndex])
+    );
+
+    if(result != null && result is String) {
+      if(result == "block") {
+        showModalBottomSheet(
+            backgroundColor: Colors.transparent,
+            context: context,
+            builder: (mContext) => BottomSheets.displayWarningDialog(
+                'Warning!!!',
+                'You will have to visit a branch to unblock your account if needed! Proceed to block?', () {
+                  Navigator.of(mContext).pop();
+                  Navigator.of(mContext).pushNamed(Routes.BLOCK_ACCOUNT);
+                }, buttonText: 'Yes, Proceed')
+        );
+      }
+    }
+  }
+
+  Widget balanceView(TransactionHistoryViewModel viewModel, double yOffset) {
+    double cardRadius = min(20, 20 - min(20, (yOffset - 1) * 0.1));
+    double borderTop = min(26, 26 - min(26, (yOffset - 1) * 0.1));
+    double opacityValue = min(100, 100 - min(100, (yOffset - 1) * 0.4)) / 100;
+
     return Container(
-      padding: EdgeInsets.only(top: 26, bottom: 26, left: 16, right: 16),
+      padding: EdgeInsets.only(top: borderTop, bottom: 26, left: 16, right: 16),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(cardRadius),
         color: Colors.primaryColor,
         boxShadow: [
           BoxShadow(
@@ -129,7 +171,8 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> {
                         color: Colors.colorFaded,
                         fontSize: 12,
                         fontFamily: Styles.defaultFont,
-                        fontWeight: FontWeight.normal
+                        fontWeight: FontWeight.normal,
+                        fontFamilyFallback: ["Roboto"]
                     ),
                   ).colorText({accountBalance : Tuple(Colors.white, null)}, bold: false, underline: false);
                 },
@@ -137,117 +180,72 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> {
           ),
           SizedBox(height: 2,),
           Flexible(
-            child: Row(
-              children: [
-                Expanded(child: Divider(color: Colors.white.withOpacity(0.2), height: 1,)),
-                SizedBox(width: 6,),
-                Styles.imageButton(
-                    onClick: () => "",
-                    color: Colors.white.withOpacity(0.2),
-                    padding: EdgeInsets.symmetric(horizontal: 5.2, vertical: 4),
-                    borderRadius: BorderRadius.circular(4),
-                    image: SvgPicture.asset('res/drawables/ic_settings.svg', width: 20, height: 20,)
-                )
-              ],
+            child: Opacity(
+                opacity: opacityValue,
+                child: Row(
+                  children: [
+                    Expanded(child: Divider(color: Colors.white.withOpacity(0.2), height: 1,)),
+                    SizedBox(width: 6,),
+                    Styles.imageButton(
+                        onClick: _displaySettingsDialog,
+                        color: Colors.white.withOpacity(0.2),
+                        padding: EdgeInsets.symmetric(horizontal: 5.2, vertical: 4),
+                        borderRadius: BorderRadius.circular(4),
+                        image: SvgPicture.asset('res/drawables/ic_settings.svg', width: 20, height: 20,)
+                    )
+                  ],
+                ),
             ),
           ),
           SizedBox(height: 6,),
           Flexible(
-              child: Row(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'A/C No.',
-                        style: TextStyle(color: Colors.colorFaded, fontSize: 13)
-                      ),
+              child: Opacity(
+                opacity: opacityValue,
+                child: Row(
+                  children: [
+                    Flexible(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                                'A/C No.',
+                                style: TextStyle(color: Colors.colorFaded, fontSize: 13)
+                            ),
 
-                      Text(
-                        viewModel.accountNumber,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: Colors.white, fontSize: 14)
-                      )
-                    ],
-                  ),
-                  SizedBox(width: 32,),
-                  Flexible(child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                            'Account Name',
-                            style: TextStyle(color: Colors.colorFaded, fontSize: 13)
-                        ),
-                        Text(
-                            viewModel.accountName,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            style: TextStyle(color: Colors.white, fontSize: 14)
+                            Text(
+                                viewModel.accountNumber,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(color: Colors.white, fontSize: 14)
+                            )
+                          ],
                         )
-                      ]
-                  )),
-                ],
+                    ),
+                    SizedBox(width: 32,),
+                    Flexible(child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                              'Account Name',
+                              style: TextStyle(color: Colors.colorFaded, fontSize: 13)
+                          ),
+                          Text(
+                              viewModel.accountName,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: TextStyle(color: Colors.white, fontSize: 14)
+                          )
+                        ]
+                    )),
+                  ],
+                ),
               )
           )
         ],
       ),
     );
   }
-
-  static void downloadReceiptCallback (String id, DownloadTaskStatus status, int progress) {
-    final SendPort? send = IsolateNameServer.lookupPortByName('download_statement');
-    send?.send([id, status, progress]);
-  }
-
-  void _onDownloadStatementCallback(List<dynamic> data) {
-    final downloadTaskStatus = data[1] as DownloadTaskStatus;
-    print(downloadTaskStatus);
-    if(downloadTaskStatus == DownloadTaskStatus.complete) {
-      // Navigator.of(context).pop();
-      OpenFile.open(
-          "$accountStatementDownloadDir/$accountStatementFileName", type: "application/pdf"
-      );
-      // Share.shareFiles(["$androidDownloadPath/${widget.successPayload.fileName}"], text: 'Receipt');
-    }
-    if(downloadTaskStatus == DownloadTaskStatus.running || downloadTaskStatus == DownloadTaskStatus.enqueued) {
-      print("running");
-    }
-  }
-
-  void _downloadStatement() async {
-    final result = await showModalBottomSheet(
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        context: context,
-        builder: (context) => DateFilterDialog(dialogTitle: "Download Statement",)
-    );
-    if(result is Tuple<int?, int?>) {
-        _startDownload(result.first!, result.second!);
-    }
-  }
-
-  void _startDownload(int startDate, int endDate) async {
-    if(await Permission.storage.request().isGranted) {
-      final viewModel = Provider.of<TransactionHistoryViewModel>(context, listen: false);
-      accountStatementFileName =  "Moniepoint_${viewModel.accountName}(${DateTime.now().millisecondsSinceEpoch}).pdf";
-      accountStatementDownloadDir = (Platform.isAndroid) ? "/storage/emulated/0/Download/" : (await getApplicationDocumentsDirectory()).path;
-      FlutterDownloader.enqueue(
-        url: "${ServiceConfig.ROOT_SERVICE}api/v1/transactions/statement/export?customerAccountId=${viewModel.customerAccountId}&fileType=PDF&startDate=$startDate&endDate=$endDate",
-        savedDir: accountStatementDownloadDir!,
-        showNotification: true,
-        fileName: accountStatementFileName,
-        headers: {
-          "client-id": BuildConfig.CLIENT_ID,
-          "appVersion": BuildConfig.APP_VERSION,
-          "Authorization": "bearer ${UserInstance().getUser()!.accessToken}"
-        },
-        // show download progress in status bar (for Android)
-        openFileFromNotification: true,
-      );
-    }
-  }
-
 
   Widget filterMenu() {
     return Flexible(
@@ -273,13 +271,26 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> {
                     backgroundColor: MaterialStateProperty.all(Colors.solidDarkBlue.withOpacity(0.05))
                 ),
               ),
-
               TextButton.icon(
-                  onPressed: _downloadStatement,
-                  icon: SvgPicture.asset('res/drawables/ic_account_download.svg'),
+                  onPressed: (!_isDownloading) ? _downloadAccountStatement : null,
+                  icon: (!_isDownloading)
+                      ? SvgPicture.asset('res/drawables/ic_account_download.svg')
+                      : SizedBox(
+                        width: 12,
+                        height: 12,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation(Colors.solidGreen.withOpacity(0.8)),
+                          backgroundColor: Colors.grey.withOpacity(0.1),
+                        ),
+                      ),
                   label: Text(
                     'Download Statement',
-                    style: TextStyle(color: Colors.primaryColor, fontSize: 13, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        color: (!_isDownloading) ? Colors.primaryColor : Colors.grey.withOpacity(0.5),
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold
+                    ),
                   ),
                   style: ButtonStyle(
                     minimumSize: MaterialStateProperty.all(Size(40, 0)),
@@ -294,9 +305,11 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> {
     );
   }
 
-  Widget _listContainer(TransactionHistoryViewModel viewModel, {Widget? child}) {
+  Widget _listContainer(TransactionHistoryViewModel viewModel, double yOffset, {Widget? child}) {
+    final double topPadding = min(100, 100 - min(76, (yOffset - 1) * 0.2));
+
     return Container(
-      padding: EdgeInsets.only(top: 100),
+      padding: EdgeInsets.only(top: topPadding),
       height: double.infinity,
       decoration: BoxDecoration(
         color: Colors.white,
@@ -342,9 +355,93 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> {
     final viewModel = Provider.of<TransactionHistoryViewModel>(context, listen: false);
     setState(() {
       isInFilterMode = false;
+      _isFilterOpened = false;
       viewModel.resetFilter();
+      //check if what we had before and now is the same
       _pagingSource = viewModel.getPagedHistoryTransaction();
     });
+  }
+
+  void _retry(){
+    final viewModel = Provider.of<TransactionHistoryViewModel>(context, listen: false);
+    setState((){
+      _pagingSource = viewModel.getPagedHistoryTransaction();
+    });
+  }
+
+  Widget _mainPageContent(PagingData value, TransactionHistoryViewModel viewModel, bool isEmpty, Tuple<String, String>? error) {
+    return Column(
+      children: [
+        Visibility(
+          visible: isInFilterMode && error == null,
+          child: Flexible(
+            flex: 0,
+            child: FilterLayout(
+              _scaffoldKey,
+              viewModel.filterableItems,
+              dateFilterCallback: _dateFilterDateChanged,
+              typeFilterCallback: _typeFilterChanged,
+              channelFilterCallback: _channelFilterChanged,
+              onCancel: _onCancelFilter,
+              isPreviouslyOpened: _isFilterOpened,
+              onOpen: () {
+                _isFilterOpened = true;
+              },
+            ),
+          ),
+        ),
+        Visibility(visible: !isInFilterMode && error == null, child: filterMenu()),
+        SizedBox(
+          height: 12,
+        ),
+        Visibility(
+            visible: isEmpty,
+            child: Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  EmptyLayoutView(viewModel.isFilteredList()
+                      ? "You have no transactions with these search criteria"
+                      : "You have no transaction history yet.")
+                ],
+              ),
+            )),
+        Visibility(
+            visible: error != null,
+            child: Flexible(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ErrorLayoutView(error?.first ?? "", error?.second ?? "", _retry),
+                  SizedBox(height: 50,)
+                ],
+              ),
+            )
+        ),
+        Visibility(
+          visible: !isEmpty && error == null,
+          child: Expanded(child: ListView.separated(
+            controller: _scrollController,
+            itemCount: value.data.length,
+            separatorBuilder: (context, index) => Padding(
+              padding: EdgeInsets.only(left: 24, right: 24),
+              child: Divider(
+                height: 1,
+              ),
+            ),
+            itemBuilder: (context, index) {
+              return TransactionHistoryListItem(value.data[index], index,
+                  (item, i) {
+                Navigator.of(context).pushNamed(
+                    Routes.ACCOUNT_TRANSACTIONS_DETAIL,
+                    arguments: item.transactionRef);
+              });
+            },
+          )),
+        )
+      ],
+    );
   }
 
   Widget _pagingView(TransactionHistoryViewModel viewModel) {
@@ -353,94 +450,151 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> {
         source: _pagingSource,
         scrollController: _scrollController,
         builder: (context, value, _) {
-          return Column(
-            children: [
-              Visibility(
-                visible: isInFilterMode,
-                child: Flexible(
-                  flex: 0,
-                  child: FilterLayout(
-                      _scaffoldKey,
-                      viewModel.filterableItems,
-                      dateFilterCallback: _dateFilterDateChanged,
-                      typeFilterCallback: _typeFilterChanged,
-                      channelFilterCallback: _channelFilterChanged,
-                      onCancel: _onCancelFilter
-                  ),
-                ),
-              ),
-              Visibility(
-                  visible: !isInFilterMode,
-                  child: filterMenu()
-                  ),
-              SizedBox(height: 12,),
-              Expanded(child: ListView.separated(
-                controller: _scrollController,
-                itemCount: value.data.length,
-                separatorBuilder: (context, index) => Padding(
-                    padding: EdgeInsets.only(left: 24, right: 24),
-                    child: Divider(height: 1,),
-                ),
-                itemBuilder: (context, index) {
-                  return TransactionHistoryListItem(value.data[index], index, (item, i) {
-                    Navigator.of(context).pushNamed(Routes.ACCOUNT_TRANSACTIONS_DETAIL, arguments: item.transactionRef);
-                  });
-                },
-              ))
-            ],
-          );
+          return ListViewUtil.handleLoadStates(
+              animationController:_animationController,
+              pagingData: value,
+              shimmer: AccountListShimmer(),
+              listCallback: (PagingData data, bool isEmpty, error) {
+                return _mainPageContent(value, viewModel, isEmpty, error);
+              });
         }
     );
+  }
+
+  var yOffset = 0.0;
+  void _onScroll() {
+    yOffset = _scrollController.offset;
+    if(yOffset >= 0 && yOffset <= 1000) {
+      setState(() {});
+    }
+  }
+
+  // final _listItems = <Widget>[];
+  List<Widget> _positionalWidgets(TransactionHistoryViewModel viewModel, Offset value) {
+    final double listTop = min(170, 170 - min(60, (value.dy - 1) * 0.2));
+    final double balanceViewSides = min(42, 42 - min(42, (value.dy - 1) * 0.2));
+
+    final listPagePosition = Positioned(
+        key: Key("list-view-0"),
+        top: listTop,//min(170, 170 - min(42, (value.dy - 1) * 0.2)),
+        bottom: 0,
+        right: 0,
+        left: 0,
+        child: _listContainer(viewModel, value.dy, child: _pagingView(viewModel))
+    );
+
+    final balanceContainerPosition = Positioned(
+        key: Key("dashboard-balance-1"),
+        right: balanceViewSides,
+        left: balanceViewSides,
+        top: balanceViewSides,
+        child: Hero(
+          tag: "dashboard-balance-view",
+          child: balanceView(viewModel, value.dy),
+        )
+    );
+
+    final _listItems = <Widget>[];
+    _listItems.insert(0, (balanceViewSides != 0) ? listPagePosition : balanceContainerPosition);
+    _listItems.insert(1, (balanceViewSides != 0) ? balanceContainerPosition : listPagePosition);
+
+    return _listItems;
   }
 
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<TransactionHistoryViewModel>(context, listen: false);
-
-    return Scaffold(
-      key: _scaffoldKey,
-      backgroundColor: Color(0XFFEAF4FF),
-      appBar: AppBar(
-          centerTitle: false,
-          titleSpacing: -12,
-          iconTheme: IconThemeData(color: Colors.primaryColor),
-          title: Text('Account',
-              textAlign: TextAlign.start,
-              style: TextStyle(
-                  color: Colors.darkBlue,
-                  fontFamily: Styles.defaultFont,
-                  fontSize: 17
-              )
-          ),
-          backgroundColor: Color(0XFFEAF4FF),
-          elevation: 0
-      ),
-      body: SessionedWidget(
+    return SessionedWidget(
         context: context,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            Positioned(
-                top: 170,
-                bottom: 0,
-                right: 0,
-                left: 0,
-                child: _listContainer(viewModel, child: _pagingView(viewModel))
-            ),
-            Positioned(
-                right: 42,
-                left: 42,
-                top: 42,
-                child: balanceView(viewModel)
-            ),
-          ],
+        child: TweenAnimationBuilder(
+            duration: Duration(milliseconds: 430),
+            tween: Tween<Offset>(begin: Offset(0, 0), end: Offset(0, yOffset)),
+            builder: (mContext, Offset value, _) {
+
+              final appBarColorTween = ColorTween(
+                  begin: Colors.primaryColor,
+                  end: Colors.transparent
+              ).evaluate(AlwaysStoppedAnimation(min(100, 100 - min(100, (value.dy - 1) * 0.5))/100));
+
+              final appBarIconTween = ColorTween(
+                  begin: Colors.white,
+                  end: Colors.primaryColor
+              ).evaluate(AlwaysStoppedAnimation(min(100, 100 - min(100, (value.dy - 1) * 0.5))/100));
+
+              final appBarTextTween = ColorTween(
+                  begin: Colors.white,
+                  end: Colors.darkBlue
+              ).evaluate(AlwaysStoppedAnimation(min(100, 100 - min(100, (value.dy - 1) * 0.5))/100));
+
+              return Scaffold(
+                key: _scaffoldKey,
+                backgroundColor: Color(0XFFEAF4FF),
+                appBar: AppBar(
+                    centerTitle: false,
+                    titleSpacing: -12,
+                    iconTheme: IconThemeData(color: appBarIconTween),
+                    title: Text('Account',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                            color: appBarTextTween,
+                            fontFamily: Styles.defaultFont,
+                            fontSize: 17
+                        )
+                    ),
+                    backgroundColor: appBarColorTween,
+                    elevation: 0
+                ),
+                body: SessionedWidget(
+                  context: context,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: _positionalWidgets(viewModel, value),
+                  ),
+                ),
+              );
+            }
         ),
-      ),
     );
   }
+
+  void _downloadAccountStatement() async {
+    final viewModel = Provider.of<TransactionHistoryViewModel>(context, listen: false);
+    final selectedDate = await showModalBottomSheet(
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        context: context,
+        builder: (mContext) => DateFilterDialog(
+          dialogTitle: "Download Statement",
+          dialogIcon: "res/drawables/ic_download_statement.svg"
+        )
+    );
+
+    if(selectedDate != null && selectedDate is Tuple<int?, int?>) {
+      try {
+        final fileName = "AccountTransaction_Export_${viewModel.accountName}_${DateFormat("dd_MM_yyyy_h_m_s").format(DateTime.now())}.pdf";
+        final downloadTask = () => viewModel.exportStatement(selectedDate.first ?? 0, selectedDate.second ?? DateTime.now().millisecondsSinceEpoch);
+        await DownloadUtil.downloadTransactionReceipt(downloadTask, fileName, isShare: false, onProgress: (int progress, isComplete) {
+          if(!_isDownloading  && !isComplete) setState(() { _isDownloading = true;});
+          else if(_isDownloading && isComplete) setState(() { _isDownloading = false; });
+        });
+      } catch(e) {
+        setState(() { _isDownloading = false; });
+        showModalBottomSheet(
+            backgroundColor: Colors.transparent,
+            context: context,
+            builder: (context) => BottomSheets.displayErrorModal(
+                context,
+                title: "Oops",
+                message: "Failed to download account statement receipt"
+            )
+        );
+      }
+    }
+  }
+
   @override
   void dispose() {
-    IsolateNameServer.removePortNameMapping('download_statement');
+    _animationController.dispose();
     super.dispose();
   }
 }

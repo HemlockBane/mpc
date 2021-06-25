@@ -23,6 +23,7 @@ Biller _$BillerFromJson(Map<String, dynamic> json) {
     collectionAccountProviderName:
         json['collectionAccountProviderName'] as String?,
     svgImage: json['svgImage'] as String?,
+    logoImageUUID: json['logoImageUUID'] as String?,
   );
 }
 
@@ -40,4 +41,5 @@ Map<String, dynamic> _$BillerToJson(Biller instance) => <String, dynamic>{
       'collectionAccountProviderCode': instance.collectionAccountProviderCode,
       'collectionAccountProviderName': instance.collectionAccountProviderName,
       'svgImage': instance.svgImage,
+      'logoImageUUID': instance.logoImageUUID,
     };

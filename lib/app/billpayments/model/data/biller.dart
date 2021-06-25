@@ -49,6 +49,9 @@ class Biller {
   @JsonKey(name:"svgImage")
   final String? svgImage;
 
+  @JsonKey(name: "logoImageUUID")
+  final String? logoImageUUID;
+
   Biller(
       {this.billerCategoryId,
       this.billerCategoryCode,
@@ -62,7 +65,8 @@ class Biller {
       this.collectionAccountName,
       this.collectionAccountProviderCode,
       this.collectionAccountProviderName,
-      this.svgImage});
+      this.svgImage,
+      this.logoImageUUID});
 
   factory Biller.fromJson(Object? data) => _$BillerFromJson(data as Map<String, dynamic>);
   Map<String, dynamic> toJson() => _$BillerToJson(this);

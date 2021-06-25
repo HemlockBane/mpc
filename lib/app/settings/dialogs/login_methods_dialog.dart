@@ -17,6 +17,7 @@ class _LoginMethodDialog extends State<LoginMethodsDialog> {
   bool _isFingerprintSetup = false;
 
   void _onFingerprintSwitched(bool value) async {
+    if(!_isFingerprintAvailable) return;
     final biometricHelper = BiometricHelper.getInstance();
     final fingerprintPassword = await biometricHelper.getFingerprintPassword();
     if(value && fingerprintPassword == null) {

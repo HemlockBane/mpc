@@ -81,7 +81,7 @@ class _PagerState<K, T> extends State<Pager<K, T>> {
     _remoteMediator = _pagingSource?.remoteMediator;
     _remoteMediator?.addListener(_remoteValueChanged);
     super.initState();
-    requestRemoteLoad(LoadType.REFRESH).then((value) => _doInitialLoad());
+    requestRemoteLoad(LoadType.REFRESH).then((value) => "");
     _doInitialLoad();
   }
 
@@ -101,7 +101,7 @@ class _PagerState<K, T> extends State<Pager<K, T>> {
 
   void updateState() {
     _states = _states.combineStates(sourceStates!, mediatorStates!);
-
+    print("Updating State $sourceStates");
     _localValueChanged(PagingData(transformPages(), loadStates: CombinedLoadStates(
       _states.refresh, _states.append, _states.prepend,
         source: sourceStates, mediator:  mediatorStates
@@ -115,13 +115,34 @@ class _PagerState<K, T> extends State<Pager<K, T>> {
   }
 
   Future<void> requestRemoteLoad(LoadType loadType) async {
+    if(mediatorStates?.append.endOfPaginationReached == true) return;
+
     mediatorStates = mediatorStates?.modifyState(loadType, Loading());
     updateState();
     final result = await _remoteMediator?.load(loadType, PagingState(_pages, widget.pagingConfig));
+
     if(result is MediatorSuccess && result.endOfPaginationReached == true) {
       mediatorStates = mediatorStates?.modifyState(loadType, NotLoading(true));
       updateState();
-      //We are forcing an update here
+      return;
+    }
+    if(result is MediatorSuccess  && loadType == LoadType.REFRESH) {
+      mediatorStates = mediatorStates?.modifyState(loadType, NotLoading(result.endOfPaginationReached));
+      print("Successful and clearing");
+      _pages.clear();
+      _doInitialLoad();
+    }
+    if(result is MediatorSuccess && loadType == LoadType.APPEND) {
+      mediatorStates = mediatorStates?.modifyState(loadType, NotLoading(result.endOfPaginationReached));
+      //check if the lastKey is null
+      if(_pages.length > 0 && _pages.last.nextKey == null) {
+        //we should invalidate for a reload
+        _doLoad(LoadType.APPEND, invalidate: true);
+      }
+    }
+    if(result is MediatorError) {
+      mediatorStates = mediatorStates?.modifyState(loadType, Error(result.exception));
+      updateState();
     }
   }
 
@@ -132,11 +153,10 @@ class _PagerState<K, T> extends State<Pager<K, T>> {
     _pages.clear();
     await for (Page<K, T> page in  widget.source.localSource(params)) {
       final insertApplied = insert(loadId++, LoadType.REFRESH, page);
-      if(page.nextKey == null) {
-        sourceStates = sourceStates?.modifyState(LoadType.REFRESH, Loading(endOfPaginationReached: true))
-            .modifyState(LoadType.APPEND, NotLoading(true))
-            .modifyState(LoadType.PREPEND, NotLoading(true));
-      }
+
+      sourceStates = sourceStates?.modifyState(LoadType.REFRESH, NotLoading(page.nextKey == null))
+          .modifyState(LoadType.APPEND, NotLoading(page.nextKey == null))
+          .modifyState(LoadType.PREPEND, NotLoading(page.nextKey == null));
 
       if(insertApplied) updateState();
 
@@ -149,16 +169,15 @@ class _PagerState<K, T> extends State<Pager<K, T>> {
     }
   }
 
-  void _doLoad(LoadType type) async {
+  void _doLoad(LoadType type, {bool invalidate = false}) async {
     switch(type) {
       case LoadType.APPEND : {
         await lock.synchronized(() async {
 
           final lastPage = (_pages.isNotEmpty) ? _pages.last : null;
-          final nextKey = lastPage?.nextKey;
+          final nextKey = invalidate ? lastPage?.prevKey : lastPage?.nextKey;
           final params = loadParams(LoadType.APPEND, nextKey);
 
-          bool loaded = false;
           int mLoadId = loadId + 1;
 
           if(sourceStates?.append.endOfPaginationReached == true
@@ -167,13 +186,20 @@ class _PagerState<K, T> extends State<Pager<K, T>> {
             return;
           }
 
-          print("Next Key $nextKey");
-          if(nextKey != null) {
-            await for (Page<K, T> nextPage in widget.source.localSource(params)) {
-              final insertApplied = (loaded == false) ? insert(mLoadId, LoadType.APPEND, nextPage) : true;
+          print("Previous Key is ${lastPage?.prevKey}, Next Key $nextKey");
+          if(nextKey != null ) {
+            //update the state
+            sourceStates = sourceStates?.modifyState(LoadType.REFRESH, NotLoading(true))
+                .modifyState(LoadType.APPEND, Loading(endOfPaginationReached: true))
+                .modifyState(LoadType.PREPEND, NotLoading(true));
 
+            updateState();
+
+            await for (Page<K, T> nextPage in widget.source.localSource(params)) {
+              final insertApplied = (nextPage.nextKey != nextKey) ? insert(mLoadId, LoadType.APPEND, nextPage) : true;
+              print("Page says nextKey is ${nextPage.nextKey} PageSize ${nextPage.data.length} is it inserted $insertApplied");
               if (nextPage.nextKey == null) {
-                sourceStates = sourceStates?.modifyState(LoadType.REFRESH, Loading(endOfPaginationReached: true))
+                sourceStates = sourceStates?.modifyState(LoadType.REFRESH, NotLoading(true))
                     .modifyState(LoadType.APPEND, NotLoading(true))
                     .modifyState(LoadType.PREPEND, NotLoading(true));
               }
@@ -182,11 +208,9 @@ class _PagerState<K, T> extends State<Pager<K, T>> {
               break;
             }
           }
-          if(_remoteMediator != null && loaded == false && mediatorStates?.append.endOfPaginationReached == false) {
-            loaded = true;
+          if(_remoteMediator != null && mediatorStates?.append.endOfPaginationReached == false && !invalidate) {
+            //check if this has been loaded
             await requestRemoteLoad(LoadType.APPEND);
-          } else {
-            loaded = true;
           }
         });
         break;
@@ -213,8 +237,13 @@ class _PagerState<K, T> extends State<Pager<K, T>> {
       case LoadType.APPEND:
         if(_pages.isEmpty) return false;
         if(loadId == 0) return false;
-        _pages.add(page);
-        _initialPageIndex++;
+        if(_pages.last.data.length < widget.pagingConfig.pageSize) {
+          _pages.removeLast();
+          _pages.add(page);
+        } else {
+          _pages.add(page);
+          _initialPageIndex++;
+        }
         break;
       case LoadType.PREPEND:
         break;
@@ -243,6 +272,7 @@ class _PagerState<K, T> extends State<Pager<K, T>> {
       preFetchedCounter = 0;
       _remoteMediator = _pagingSource?.remoteMediator;
       _doInitialLoad();
+      requestRemoteLoad(LoadType.REFRESH);
     }
   }
 
@@ -251,6 +281,8 @@ class _PagerState<K, T> extends State<Pager<K, T>> {
     if(mounted) {
       setState(() { value = event; });
       snapShot = event;
+    }else {
+      print("Not mounted $_states");
     }
   }
   

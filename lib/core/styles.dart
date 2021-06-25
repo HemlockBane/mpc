@@ -332,7 +332,6 @@ class Styles {
               onChanged: (v) => valueChanged.call(v, (v != null) ? items.indexOf(v) : -1),
               style: buttonStyle ?? const TextStyle(color: Colors.darkBlue, fontFamily: Styles.defaultFont, fontSize: 14),
               items: items.map((T item) {
-                print("${item.getEnabled()} ${item.getTitle()}");
                 return DropdownMenuItem(
                     value: item,
                     child: Text(item.getTitle(), style: itemStyle,)

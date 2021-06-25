@@ -29,7 +29,7 @@ class OtpUssdInfoView extends StatelessWidget{
       final configuration = configs.first;
       final baseCode = configuration.baseCode;
       final body = configuration.body;
-      return "*$baseCode*$body${Uri.encodeComponent("#")}";
+      return "*${baseCode?.baseCode}*$body${Uri.encodeComponent("#")}";
     }
     return "${defaultCode.replaceAll("#", Uri.encodeComponent("#"))}";
   }

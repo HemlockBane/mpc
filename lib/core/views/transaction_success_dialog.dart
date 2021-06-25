@@ -1,17 +1,14 @@
-import 'dart:io';
-import 'dart:isolate';
+
+import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart' hide Colors;
-import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
-import 'package:moniepoint_flutter/core/config/build_config.dart';
-import 'package:moniepoint_flutter/core/models/user_instance.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:share/share.dart';
+import 'package:moniepoint_flutter/core/utils/download_util.dart';
 
 import '../colors.dart';
 import '../styles.dart';
@@ -29,78 +26,89 @@ class TransactionSuccessDialog extends StatefulWidget {
 }
 
 class _TransactionSuccessDialog extends State<TransactionSuccessDialog> {
-  ReceivePort _receivePort = ReceivePort();
-  
+
   final String androidDownloadPath = "/storage/emulated/0/Download/";
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    IsolateNameServer.registerPortWithName(_receivePort.sendPort, "transaction_receipt");
-    _receivePort.listen((a) => _onDownloadCallback(a as List<dynamic>));
-    callMethod();
   }
 
-  void _onDownloadCallback(List<dynamic> data) {
-    final downloadTaskStatus = data[1] as DownloadTaskStatus;
-    if(downloadTaskStatus == DownloadTaskStatus.complete) {
-      setState(() {
-        _isLoading = false;
-      });
-      Navigator.of(context).pop();
-      Share.shareFiles(["$androidDownloadPath/${widget.successPayload.fileName}"], text: 'Receipt');
+  void _startDownload() async {
+    final fileName = widget.successPayload.fileName;
+    final downloadTask = widget.successPayload.downloadTask;
+    if(fileName != null && downloadTask != null) {
+      setState(() { _isLoading = true; });
+      try {
+        final _a = await DownloadUtil.downloadTransactionReceipt(() =>
+            downloadTask.call(), fileName
+        );
+        setState(() { _isLoading = false; });
+      } catch(e) {
+        setState(() { _isLoading = false; });
+        //display Error dialog
+        showModalBottomSheet(
+            backgroundColor: Colors.transparent,
+            context: context,
+            builder: (context) => BottomSheets.displayErrorModal(
+                context,
+                title: "Oops",
+                message: "Failed to download receipt"
+            )
+        );
+      }
     }
-    if(downloadTaskStatus == DownloadTaskStatus.running || downloadTaskStatus == DownloadTaskStatus.enqueued) {
-      setState(() {
-        _isLoading = true;
-      });
-    } else if(downloadTaskStatus == DownloadTaskStatus.failed) {
-      setState(() {
-        _isLoading = false;
-      });
-      print("This is the error $data");
-      Navigator.of(context).pop();
-      showModalBottomSheet(
-          backgroundColor: Colors.transparent,
-          isScrollControlled: true,
-          context: context,
-          builder: (mContext) => BottomSheets.displayErrorModal(mContext, message: "Failed to download receipt")
-      );
-    }
-  }
-
-  void callMethod () async {
-    FlutterDownloader.registerCallback(downloadReceiptCallback);
   }
 
   @override
   void dispose() {
-    IsolateNameServer.removePortNameMapping('transaction_receipt');
     super.dispose();
   }
 
-  void _startDownload() async {
-    if(await Permission.storage.request().isGranted) {
-      FlutterDownloader.enqueue(
-        url: widget.successPayload.downloadUrl ?? "",
-        savedDir: (Platform.isAndroid) ? androidDownloadPath : (await getApplicationDocumentsDirectory()).path,
-        showNotification: true,
-        fileName: widget.successPayload.fileName ?? "Moniepoint_(${DateTime.now().millisecondsSinceEpoch}).pdf",
-        headers: {
-          "client-id": BuildConfig.CLIENT_ID,
-          "appVersion": BuildConfig.APP_VERSION,
-          "Authorization": "bearer ${UserInstance().getUser()!.accessToken}"
-        },
-        // show download progress in status bar (for Android)
-        openFileFromNotification: true,
-      );
-    }
+  Widget _tokenView() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'METER TOKEN:',
+          style: TextStyle(fontSize: 13, fontWeight: FontWeight.normal, color: Colors.white),
+        ),
+        Text(
+          widget.successPayload.token ?? "",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+        )
+      ],
+    );
   }
 
-  static void downloadReceiptCallback (String id, DownloadTaskStatus status, int progress) {
-    final SendPort? send = IsolateNameServer.lookupPortByName('transaction_receipt');
-    send?.send([id, status, progress]);
+  Widget _copyToken() {
+    return Container(
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(4),
+          color: Colors.white.withOpacity(0.01)
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          highlightColor: Colors.white.withOpacity(0.1),
+          overlayColor: MaterialStateProperty.all(Colors.white.withOpacity(0.2)),
+          borderRadius: BorderRadius.circular(4),
+          onTap: () => Clipboard.setData(ClipboardData(text: widget.successPayload.token ?? "")),
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Column(
+              children: [
+                SvgPicture.asset('res/drawables/ic_copy.svg', color: Colors.white,),
+                SizedBox(height: 4,),
+                Text('COPY', style: TextStyle(color: Colors.white, fontWeight: FontWeight.normal, fontSize: 12),)
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -120,22 +128,36 @@ class _TransactionSuccessDialog extends State<TransactionSuccessDialog> {
                       style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white)),
+                          color: Colors.white
+                      )
+                  ),
                   SizedBox(height: 16),
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(8)),
-                        color: Colors.solidDarkGreen),
-                    child: Text(widget.successPayload.message,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.normal,
-                            color: Colors.white
-                        ), textAlign: TextAlign.center),
+                  Row(
+                    children: [
+                      Expanded(child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.all(Radius.circular(8)),
+                              color: Colors.solidDarkGreen
+                          ),
+                          child: widget.successPayload.token == null
+                              ? Text(widget.successPayload.message,
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.white
+                              ), textAlign: TextAlign.center
+                          )
+                              : _tokenView()
+                      )),
+                      SizedBox(width: widget.successPayload.token != null ? 12 : 0,),
+                      Visibility(
+                          visible: widget.successPayload.token != null,
+                          child: _copyToken()
+                      )
+                    ],
                   ),
                   SizedBox(height: 21),
                   SizedBox(
@@ -149,7 +171,7 @@ class _TransactionSuccessDialog extends State<TransactionSuccessDialog> {
                   ),
                   SizedBox(height: 32),
                   Visibility(
-                      visible: !_isLoading,
+                      visible: !_isLoading && widget.successPayload.downloadTask != null,
                       child: GestureDetector(
                         onTap: () => _startDownload(),
                         child: Row(
@@ -185,8 +207,8 @@ class SuccessPayload {
   final String title;
   final String message;
   final String? token;
-  final String? downloadUrl;
   final String? fileName;
+  final Stream<Uint8List> Function()? downloadTask;
 
-  SuccessPayload(this.title, this.message,{this.token,  this.downloadUrl, this.fileName});
+  SuccessPayload(this.title, this.message, {this.token, this.fileName, this.downloadTask});
 }

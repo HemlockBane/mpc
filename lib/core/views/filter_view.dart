@@ -22,12 +22,16 @@ class FilterLayout extends StatefulWidget {
   final void Function(List<TransactionType> items)? typeFilterCallback;
   final void Function(List<TransactionChannel> items)? channelFilterCallback;
   final VoidCallback? onCancel;
+  final VoidCallback? onOpen;
+  final bool isPreviouslyOpened;
 
   FilterLayout(this._scaffoldKey, this.filterableItems, {
     this.dateFilterCallback,
     this.typeFilterCallback,
     this.channelFilterCallback,
-    this.onCancel
+    this.onCancel,
+    this.isPreviouslyOpened = false,
+    this.onOpen
   });
 
   @override
@@ -36,8 +40,7 @@ class FilterLayout extends StatefulWidget {
 }
 
 class _FilterLayout extends State<FilterLayout> with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(duration: const Duration(milliseconds: 800), vsync: this,)
-    ..forward();
+  late final AnimationController _controller = AnimationController(duration: const Duration(milliseconds: 800), vsync: this,);
   late final Animation<Offset> _offsetAnimation = Tween<Offset>(begin: Offset(1.4, 0.0), end: const Offset(0, 0.0),).animate(CurvedAnimation(
     parent: _controller,
     curve: Curves.decelerate,
@@ -53,6 +56,12 @@ class _FilterLayout extends State<FilterLayout> with SingleTickerProviderStateMi
 
   initState() {
     super.initState();
+    if(mounted && !widget.isPreviouslyOpened) {
+      _controller.forward();
+      widget.onOpen?.call();
+    }else {
+      _controller.value = 1;
+    }
   }
 
   Widget filterPills(int index, FilterItem item, OnItemClickListener<FilterItem, int> itemClickListener) {

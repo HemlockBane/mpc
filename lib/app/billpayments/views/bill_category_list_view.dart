@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/billpayments/views/bill_view.dart';
+import 'package:moniepoint_flutter/app/cards/views/empty_list_layout_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/biller_category.dart';
 import 'package:moniepoint_flutter/app/billpayments/viewmodels/bill_category_view_model.dart';
@@ -25,7 +26,8 @@ class _BillCategoryListScreen extends State<BillCategoryListScreen>
 
   _BillCategoryListScreen() {
     this._animationController = AnimationController(
-        vsync: this, duration: Duration(milliseconds: 1000));
+        vsync: this, duration: Duration(milliseconds: 1000)
+    );
   }
 
   @override
@@ -39,17 +41,26 @@ class _BillCategoryListScreen extends State<BillCategoryListScreen>
         snapshot: a,
         animationController: _animationController,
         currentList: _currentItems,
+        emptyPlaceholder: Column(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            EmptyLayoutView(
+                "There are currently no bill category"
+            )
+          ],
+        ),
         listView: (List<BillerCategory>? items) {
           return ListView.separated(
               shrinkWrap: true,
               itemCount: items?.length ?? 0,
               separatorBuilder: (context, index) => Padding(
-                    padding: EdgeInsets.only(left: 16, right: 16),
-                    child: Divider(
-                      color: Colors.transparent,
-                      height: 12,
-                    ),
-                  ),
+                padding: EdgeInsets.only(left: 16, right: 16),
+                child: Divider(
+                  color: Colors.transparent,
+                  height: 12,
+                ),
+              ),
               itemBuilder: (context, index) {
                 return _BillCategoryListItem(items![index], index, (item, selectedIndex) {
                   Navigator.of(context).pushNamed(BillScreen.BILL_BILLER_SCREEN, arguments: item);
@@ -157,11 +168,10 @@ class _BillCategoryListItem extends Container {
                   initialView(_billCategory.svgImage),
                   SizedBox(width: 16),
                   Expanded(
-                      child: Text(_billCategory.name ?? "",
-                          style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.colorPrimaryDark,
-                              fontWeight: FontWeight.bold))
+                      child: Text(
+                          _billCategory.name ?? "",
+                          style: TextStyle(fontSize: 16, color: Colors.colorPrimaryDark, fontWeight: FontWeight.bold)
+                      )
                   ),
                   SvgPicture.asset(
                     'res/drawables/ic_forward_anchor.svg',

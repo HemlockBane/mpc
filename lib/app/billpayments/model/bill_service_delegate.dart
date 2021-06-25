@@ -1,6 +1,8 @@
 
 import 'dart:convert';
+import 'dart:typed_data';
 
+import 'package:dio/dio.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/bill_service.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/bill_dao.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/bill_payment_request_body.dart';
@@ -9,6 +11,7 @@ import 'package:moniepoint_flutter/app/billpayments/model/data/bill_validation_s
 import 'package:moniepoint_flutter/app/billpayments/model/data/biller.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/biller_category.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/biller_product.dart';
+import 'package:moniepoint_flutter/core/constants.dart';
 import 'package:moniepoint_flutter/core/models/data_collection.dart';
 import 'package:moniepoint_flutter/core/models/filter_results.dart';
 import 'package:moniepoint_flutter/core/models/history_request_body.dart';
@@ -112,10 +115,10 @@ class BillServiceDelegate with NetworkResource {
         localSource: (LoadParams params) {
           final offset = params.key ?? 0;
           return _billsDao.getBillTransactions(
-              filterResult.startDate, filterResult.endDate, params.loadSize, 0,
-          ).map((event) => Page(event, params.key, event.length == params.loadSize ? offset + 1 : null));
+              filterResult.startDate, filterResult.endDate, offset * params.loadSize, params.loadSize,
+          ).map((event) => Page(event, params.key ?? 0, event.length == params.loadSize ? offset + 1 : null));
         },
-        remoteMediator: remoteMediator..filterResult = filterResult
+        remoteMediator: _BillHistoryMediator(_service, _billsDao)..filterResult = filterResult
     );
   }
 
@@ -123,6 +126,10 @@ class BillServiceDelegate with NetworkResource {
     return _billsDao.getBillTransactionById(id);
   }
 
+  Stream<Uint8List> downloadReceipt(String customerId, int batchId) async* {
+    final a = (await _service.downloadTransferReceipt(customerId, batchId)) as ResponseBody;
+    yield* a.stream;
+  }
 
 }
 
@@ -132,6 +139,7 @@ class _BillHistoryMediator extends AbstractDataCollectionMediator<int, BillTrans
   final BillsDao _billsDao;
 
   FilterResults filterResult = FilterResults();
+  final List<String> _statusList = [Constants.COMPLETED, Constants.PENDING, Constants.SUCCESSFUL];
 
   _BillHistoryMediator(this._service, this._billsDao);
 
@@ -149,6 +157,7 @@ class _BillHistoryMediator extends AbstractDataCollectionMediator<int, BillTrans
   Future<ServiceResult<DataCollection<BillTransaction>>> serviceCall(page) {
     return _service.getBillHistory(
         HistoryRequestBody()
+          ..statuses = _statusList
           ..startDate = filterResult.startDate
           ..endDate = filterResult.endDate
           ..page = page

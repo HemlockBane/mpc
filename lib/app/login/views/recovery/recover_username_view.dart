@@ -87,8 +87,8 @@ class _RecoverUsernameScreen extends State<RecoverUsernameScreen> {
                     builder: (context, snapshot) {
                       return Styles.appEditText(
                           hint: 'Account Number',
+                          maxLength: 10,
                           inputFormats: [
-                            LengthLimitingTextInputFormatter(10),
                             FilteringTextInputFormatter.digitsOnly
                           ],
                           animateHint: true,
@@ -106,8 +106,8 @@ class _RecoverUsernameScreen extends State<RecoverUsernameScreen> {
                     builder: (context, snapshot) {
                       return Styles.appEditText(
                           hint: 'BVN',
+                          maxLength: 11,
                           inputFormats: [
-                            LengthLimitingTextInputFormatter(11),
                             FilteringTextInputFormatter.digitsOnly
                           ],
                           animateHint: true,

@@ -74,9 +74,7 @@ class _BillBeneficiaryScreen extends State<BillBeneficiaryScreen> with TickerPro
                 return BeneficiaryListItem(items![index], index, (beneficiary, int i) {
                   viewModel?.setBeneficiary(beneficiary);
                   if(viewModel?.billerProduct != null) {
-                    Navigator.of(context).pushNamed(BillScreen.PAYMENT_SCREEN);
-
-                    //_validateCustomerId(beneficiary.getBeneficiaryDigits(), false);
+                    _validateCustomerId(beneficiary.getBeneficiaryDigits(), false);
                   }
                 });
               });
@@ -126,6 +124,7 @@ class _BillBeneficiaryScreen extends State<BillBeneficiaryScreen> with TickerPro
       );
       viewModel?.setBeneficiary(billBeneficiary);
       viewModel?.setSaveBeneficiary(result.third);
+      viewModel?.setValidationReference(result.second ?? "");
       _customerIdController.text = "";
       Navigator.of(context).pushNamed(BillScreen.PAYMENT_SCREEN);
     } else if (result != null && result is Error<BillValidationStatus>) {

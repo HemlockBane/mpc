@@ -1,18 +1,25 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' hide Colors;
+import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:moniepoint_flutter/app/cards/views/error_layout_view.dart';
 import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
+import 'package:moniepoint_flutter/app/onboarding/views/security_question_shimmer.dart';
 import 'package:moniepoint_flutter/app/securityquestion/model/data/security_question.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
+import 'package:moniepoint_flutter/core/network/network_bound_resource.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/strings.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
+import 'package:moniepoint_flutter/core/utils/call_utils.dart';
 import 'package:moniepoint_flutter/core/views/pin_entry.dart';
 import 'package:provider/provider.dart';
 import 'package:moniepoint_flutter/core/utils/text_utils.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+
+import '../username_validation_state.dart';
 
 
 class ProfileScreen extends StatefulWidget {
@@ -32,6 +39,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isPasswordVisible  = false;
   bool _isLoading = false;
   bool _isNewAccount = false;
+
+  Stream<Resource<List<SecurityQuestion>>>? _securityQuestionStream;
 
   _ProfileScreenState(this._scaffoldKey);
   
@@ -83,23 +92,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  void _showTermsAndConditionModal() {
+  @override
+  void initState() {
+    final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
+    _securityQuestionStream = viewModel.getSecurityQuestions();
+    super.initState();
+  }
+
+  void _showTermsAndConditionModal(String title, String content) {
     showModalBottomSheet(
         context: _scaffoldKey.currentContext ?? context,
-        isScrollControlled: false,
+        isScrollControlled: true,
         backgroundColor: Colors.transparent,
         builder: (context) {
           return BottomSheets.makeAppBottomSheet(
               centerImageBackgroundColor: Colors.primaryColor.withOpacity(0.1),
               centerImageRes: 'res/drawables/ic_terms_and_condition.svg',
               contentBackgroundColor: Colors.white,
+              centerImageWidth: 45,
+              centerImageHeight: 45,
+              centerBackgroundPadding: 13,
               content: Stack(
                 children: [
                   Positioned(
                       top: 20,
                       right: 0,
                       left: 0,
-                      child: Text('Terms & Conditions',
+                      child: Text(title,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 24,
@@ -120,10 +139,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       right: 0.0,
                       left: 0.0,
                       child: SingleChildScrollView(
-                        padding:
-                            EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                         child: Container(
-                          child: Text(Strings.terms_and_condition),
+                          child: Html(
+                              data: content,
+                              onLinkTap: (String? url, RenderContext context, Map<String, String> attributes, _){
+                                if(url != null) dialNumber(url);
+                              },
+                          )//Text(Strings.terms_and_condition),
                         ),
                       )),
                   Positioned(
@@ -151,8 +174,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           txt,
           style: TextStyle(color: Colors.textColorPrimary, fontFamily: Styles.defaultFont, fontSize: 18)
       ).colorText({
-        "Terms & Conditions": Tuple(Colors.textColorPrimary, _showTermsAndConditionModal),
-        "Privacy Policy": Tuple(Colors.textColorPrimary, _showTermsAndConditionModal),
+        "Terms & Conditions": Tuple(Colors.textColorPrimary, () => _showTermsAndConditionModal("Terms & Conditions", Strings.terms_and_condition)),
+        "Privacy Policy": Tuple(Colors.textColorPrimary, () => _showTermsAndConditionModal("Privacy Policy", Strings.privacy_policy)),
       }, bold: true, boldType: 1),
     );
   }
@@ -172,12 +195,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       SizedBox(height: 8),
       StreamBuilder(
-          initialData: (items.isNotEmpty) ? items.first : null,
+          initialData: null,
           stream: viewModel.profileForm.questionOneStream,
-          builder: (context, AsyncSnapshot<SecurityQuestion> snapShot) {
-            return Styles.buildDropDown(items, snapShot, (item, index) {
+          builder: (context, AsyncSnapshot<SecurityQuestion?> snapShot) {
+            return Styles.buildDropDown(viewModel.profileForm.securityQuestionOneList, snapShot, (item, index) {
               viewModel.profileForm.onSecurityQuestionChange(1, item as SecurityQuestion);
-            }, itemStyle: itemStyle);
+            }, itemStyle: itemStyle, hint: "Security Question 1");
           }),
       SizedBox(height: 16),
       StreamBuilder(
@@ -200,12 +223,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       SizedBox(height: 8),
       StreamBuilder(
-          initialData: (items.isNotEmpty && items.length > 1) ? items[1] : null,
+          initialData: null,
           stream: viewModel.profileForm.questionTwoStream,
-          builder: (context, AsyncSnapshot<SecurityQuestion> snapShot) {
-            return Styles.buildDropDown(items, snapShot, (item, index) {
+          builder: (context, AsyncSnapshot<SecurityQuestion?> snapShot) {
+            return Styles.buildDropDown(viewModel.profileForm.securityQuestionTwoList, snapShot, (item, index) {
               viewModel.profileForm.onSecurityQuestionChange(2, item as SecurityQuestion);
-            }, itemStyle: itemStyle);
+            }, itemStyle: itemStyle, hint: "Security Question 2");
           }),
       SizedBox(height: 16),
       StreamBuilder(
@@ -228,12 +251,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       SizedBox(height: 8),
       StreamBuilder(
-          initialData: (items.isNotEmpty && items.length > 2) ? items[2] : null,
+          initialData: null,
           stream: viewModel.profileForm.questionThreeStream,
-          builder: (context, AsyncSnapshot<SecurityQuestion> snapShot) {
-            return Styles.buildDropDown(items, snapShot, (item, index) {
+          builder: (context, AsyncSnapshot<SecurityQuestion?> snapShot) {
+            return Styles.buildDropDown(viewModel.profileForm.securityQuestionThreeList, snapShot, (item, index) {
               viewModel.profileForm.onSecurityQuestionChange(3, item as SecurityQuestion);
-            }, itemStyle: itemStyle);
+            }, itemStyle: itemStyle, hint: "Security Question 3");
           }),
       SizedBox(height: 16),
       StreamBuilder(
@@ -268,14 +291,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
         SizedBox(height: 30),
         StreamBuilder(
             stream: viewModel.profileForm.usernameStream,
-            builder: (context, snapshot) {
-              return Styles.appEditText(
-                hint: 'Enter Username',
-                animateHint: true,
-                onChanged: viewModel.profileForm.onUsernameChanged,
-                errorText: snapshot.hasError ? snapshot.error.toString() : null,
-                startIcon: Icon(CustomFont.username_icon, color: Colors.colorFaded),
-                drawablePadding: EdgeInsets.only(left: 8, right: 8),
+            builder: (context, AsyncSnapshot<Tuple<String, UsernameValidationState>> snapshot) {
+              final validationStatus = (snapshot.hasData) ? snapshot.data?.second.status : null;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Focus(
+                    child: Styles.appEditText(
+                      hint: 'Enter Username',
+                      animateHint: true,
+                      endIcon: validationStatus == UsernameValidationStatus.VALIDATING
+                          ? Padding(
+                              padding: EdgeInsets.only(right: 16),
+                              child: SizedBox(
+                                width: 20,
+                                child: SpinKitThreeBounce(size: 20.0, color: Colors.primaryColor.withOpacity(0.8)),),
+                            )
+                          : null,
+                      onChanged: (v) {
+                        viewModel.profileForm.onUsernameChanged(v);
+                      },
+                      errorText: snapshot.hasError ? snapshot.error.toString() : null,
+                      startIcon: Icon(CustomFont.username_icon, color: Colors.colorFaded),
+                      drawablePadding: EdgeInsets.only(left: 8, right: 8),
+                    ),
+                    onFocusChange: (hasFocus) {
+                      final username = viewModel.profileForm.profile.username;
+                      if (!hasFocus && username != null && username.isNotEmpty)
+                        viewModel.checkUsername(username).listen((event) {});
+                    },
+                  ),
+                  Visibility(
+                      visible: validationStatus != null && validationStatus == UsernameValidationStatus.AVAILABLE,
+                      child: Padding(
+                        padding:EdgeInsets.only(left: 16, top: 3),
+                        child: Text(
+                          'Username is available',
+                          style: TextStyle(color: Colors.solidGreen, fontSize: 12),
+                        ),
+                      )
+                  ),
+                ],
               );
             }),
         SizedBox(height: 16),
@@ -319,12 +375,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         SizedBox(height: 16),
         StreamBuilder(
-            stream: viewModel.getSecurityQuestions(),
+            stream: _securityQuestionStream,
             builder: (context, AsyncSnapshot<Resource<List<SecurityQuestion>>> snapshot) {
-              if(snapshot.hasData && snapshot.data is Success) {
+              final responseData = (snapshot.hasData) ? snapshot.data : null;
+              if(responseData is Success) {
+                print(viewModel.profileForm.securityQuestionOneList);
                 return getSecurityQuestionLayout(context, snapshot.data!.data!);
               }
-              return Column();
+              //loading state
+              if(responseData == null || snapshot.data is Loading) {
+                return SecurityQuestionShimmer();
+              }
+              if(responseData is Error<List<SecurityQuestion>>) {
+                final errMessage = formatError(responseData.message, "security questions");
+                return ErrorLayoutView(errMessage.first, errMessage.second, (){
+                  _securityQuestionStream = viewModel.getSecurityQuestions();
+                  setState(() {});
+                });
+              }
+              return Container();
             }),
         _buildTermsLayout(),
         SizedBox(height: 44),

@@ -17,6 +17,7 @@ import 'package:moniepoint_flutter/app/onboarding/model/data/validation_key.dart
 import 'package:moniepoint_flutter/app/onboarding/model/data/validation_otp_request.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/onboarding_service_delegate.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/profile_form.dart';
+import 'package:moniepoint_flutter/app/onboarding/username_validation_state.dart';
 import 'package:moniepoint_flutter/app/securityquestion/model/data/security_question.dart';
 import 'package:moniepoint_flutter/app/securityquestion/model/security_question_delegate.dart';
 import 'package:moniepoint_flutter/core/models/file_uuid.dart';
@@ -158,7 +159,10 @@ class OnBoardingViewModel extends ChangeNotifier {
   Stream<Resource<List<SecurityQuestion>>> getSecurityQuestions() {
     if(_securityQuestions.isNotEmpty) return Stream.fromIterable([Resource.success(_securityQuestions)]);
     return _questionDelegate.getAllQuestions().map((event) {
-      if(event is Success)_securityQuestions.addAll(event.data ?? []);
+      if(event is Success) {
+        _securityQuestions.addAll(event.data ?? []);
+        profileForm.initializeSecurityQuestions(_securityQuestions);
+      }
       return event;
     });
   }
@@ -202,6 +206,37 @@ class OnBoardingViewModel extends ChangeNotifier {
   Stream<Resource<FileUUID>> uploadSignature(String filePath) {
     return _delegate.uploadFileForUUID(filePath).map((event) {
       if(event is Success) signatureImageUUID = event.data?.uuid;
+      return event;
+    });
+  }
+
+  Stream<Resource<bool>> checkUsername(String username) {
+    return _delegate.checkUsername(username).map((event) {
+      if(event is Success) {
+        if(event.data!) {
+          profileForm.updateUsernameValidationState(
+              UsernameValidationState(
+                  UsernameValidationStatus.AVAILABLE, "$username is available")
+          );
+        }else {
+          profileForm.updateUsernameValidationState(
+              UsernameValidationState(
+                  UsernameValidationStatus.ALREADY_TAKEN, "Username is already taken")
+          );
+        }
+      }
+      else if(event is Loading) {
+        profileForm.updateUsernameValidationState(
+            UsernameValidationState(
+                UsernameValidationStatus.VALIDATING, "")
+        );
+      }
+      else if(event is Error<bool>) {
+        profileForm.updateUsernameValidationState(
+            UsernameValidationState(
+                UsernameValidationStatus.FAILED, "An error occurred validating username.")
+        );
+      }
       return event;
     });
   }

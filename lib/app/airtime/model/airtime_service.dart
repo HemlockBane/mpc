@@ -40,4 +40,14 @@ abstract class AirtimeService {
   @GET("providers")
   Future<ServiceResult<List<AirtimeServiceProvider>>> getServiceProviders();
 
+  @Headers(<String, dynamic>{
+    "client-id": BuildConfig.CLIENT_ID,
+    "appVersion": BuildConfig.APP_VERSION
+  })
+  @GET("receipt/{customerId}/{batchId}")
+  @DioResponseType(ResponseType.stream)
+  Future<dynamic> downloadAirtimeReceipt(
+      @Path("customerId") String? customerId,
+      @Path("batchId") int batchId
+  );
 }

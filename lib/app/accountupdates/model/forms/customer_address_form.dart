@@ -54,6 +54,9 @@ class CustomerAddressForm with ChangeNotifier {
   bool _useAddressAsMailingAddress = true;
   bool get useAddressAsMailingAddress => _useAddressAsMailingAddress;
 
+  bool _isFormValid = false;
+  bool get isFormValid => _isFormValid;
+
   void _initState() {
     var formStreams = [addressStream, cityStream, stateStream, localGovtStream];
 

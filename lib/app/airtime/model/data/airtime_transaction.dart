@@ -63,7 +63,6 @@ class AirtimeTransaction implements Transaction {
   }
   Map<String, dynamic> toJson() => _$AirtimeTransactionToJson(this);
 
-
   @override
   double getAmount() {
     return (request?.minorAmount ?? 0) / 100;
@@ -97,7 +96,7 @@ class AirtimeTransaction implements Transaction {
 
   @override
   int getInitiatedDate() {
-    return 0;
+    return creationTimeStamp ?? 0;
   }
 
   @override

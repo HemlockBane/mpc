@@ -8,7 +8,8 @@ part of 'bill_service.dart';
 
 class _BillService implements BillService {
   _BillService(this._dio, {this.baseUrl}) {
-    baseUrl ??= 'https://core-vas.monnify.development.teamapt.com/api/v1/bill/';
+    baseUrl ??=
+        'https://moniepoint-customer-vas-service-v2.console.teamapt.com/api/v1/bill/';
   }
 
   final Dio _dio;
@@ -27,7 +28,7 @@ class _BillService implements BillService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.4'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -54,7 +55,7 @@ class _BillService implements BillService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.4'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -80,7 +81,7 @@ class _BillService implements BillService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.4'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -109,7 +110,7 @@ class _BillService implements BillService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.4'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -137,7 +138,7 @@ class _BillService implements BillService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.4'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -166,7 +167,7 @@ class _BillService implements BillService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.4'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -177,6 +178,27 @@ class _BillService implements BillService {
       _result.data!,
       (json) => BillValidationStatus.fromJson(json as Map<String, dynamic>),
     );
+    return value;
+  }
+
+  @override
+  Future<dynamic> downloadTransferReceipt(customerId, batchId) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _data = <String, dynamic>{};
+    final _result = await _dio.fetch(_setStreamType<dynamic>(Options(
+            method: 'GET',
+            headers: <String, dynamic>{
+              r'client-id': 'ANDROID',
+              r'appVersion': '1.0.4'
+            },
+            extra: _extra,
+            responseType: ResponseType.stream)
+        .compose(_dio.options, 'receipt/$customerId/$batchId',
+            queryParameters: queryParameters, data: _data)
+        .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = _result.data!;
     return value;
   }
 

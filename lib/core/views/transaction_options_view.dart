@@ -1,26 +1,40 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/utils/download_util.dart';
 
+import '../bottom_sheet.dart';
 import '../colors.dart';
+import '../tuple.dart';
 
-class TransactionOptionsView extends StatelessWidget {
-
-  final bool displayShareReceipt;
-  final bool displayDownloadReceipt;
+class TransactionOptionsView extends StatefulWidget {
+  /// A function that returns a tuple for the download stream and the file name
+  final Tuple<Stream<Uint8List> Function(), String>? displayShareReceipt;
+  final Tuple<Stream<Uint8List> Function(), String>? displayDownloadReceipt;
   final bool displayReplayTransaction;
   final bool displayInitiateDispute;
   final double padding;
   final OnItemClickListener<String, int>? onItemClickListener;
 
   TransactionOptionsView({
-    this.displayShareReceipt = true,
-    this.displayDownloadReceipt = true,
+    this.displayShareReceipt,
+    this.displayDownloadReceipt,
     this.displayReplayTransaction = true,
     this.displayInitiateDispute = true,
     this.onItemClickListener,
     this.padding = 24
   });
+  
+  @override
+  State<StatefulWidget> createState() => _TransactionOptionsView();
+}
+
+class _TransactionOptionsView extends State<TransactionOptionsView> {
+
+  bool _isDownloadingShareReceipt = false;
+  bool _isDownloadingReceipt = false;
 
   Widget initialView({Color? backgroundColor, required Widget image}) {
     return Container(
@@ -29,7 +43,7 @@ class TransactionOptionsView extends StatelessWidget {
       padding: EdgeInsets.all(0),
       decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: Colors.primaryColor.withOpacity(0.1)
+          color: backgroundColor ?? Colors.primaryColor.withOpacity(0.1)
       ),
       child: Center(
         child: image,
@@ -37,20 +51,105 @@ class TransactionOptionsView extends StatelessWidget {
     );
   }
 
-  Widget makeItem(String title, String res) {
+  void _downloadProgress(String title, int progress, bool isComplete) {
+    switch(title.toLowerCase()) {
+      case "share receipt":
+        if(!_isDownloadingShareReceipt  && !isComplete) setState(() { _isDownloadingShareReceipt = true;});
+        else if(_isDownloadingShareReceipt && isComplete) setState(() { _isDownloadingShareReceipt = false; });
+        break;
+      case "download receipt":
+        if(!_isDownloadingReceipt  && !isComplete) setState(() { _isDownloadingReceipt = true;});
+        else if(_isDownloadingReceipt && isComplete) setState(() { _isDownloadingReceipt = false; });
+        break;
+    }
+  }
+
+  void _handleDownloads(String title) async {
+    try {
+      switch (title.toLowerCase()) {
+        case "share receipt":
+          await DownloadUtil.downloadTransactionReceipt(
+              widget.displayShareReceipt!.first,
+              widget.displayShareReceipt!.second,
+              onProgress: (progress, isComplete) => _downloadProgress(title, progress, isComplete)
+          );
+          break;
+        case "download receipt":
+          await DownloadUtil.downloadTransactionReceipt(
+              widget.displayDownloadReceipt!.first,
+              widget.displayDownloadReceipt!.second,
+              isShare: false,
+              onProgress: (progress, isComplete) => _downloadProgress(title, progress, isComplete)
+          );
+          break;
+      }
+    } catch (e) {
+      setState(() { _isDownloadingReceipt = false;});
+      setState(() { _isDownloadingShareReceipt = false;});
+      showModalBottomSheet(
+          backgroundColor: Colors.transparent,
+          context: context,
+          builder: (context) => BottomSheets.displayErrorModal(
+              context,
+              title: "Oops",
+              message: "Failed to download receipt"
+          )
+      );
+    }
+  }
+
+  Widget _makeItem(String title, String res) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () => onItemClickListener?.call(title, 0),
+        onTap: () => widget.onItemClickListener?.call(title, 0),
         child: Container(
-          padding: EdgeInsets.only(left: padding, right: padding, top: 10, bottom: 10),
+          padding: EdgeInsets.only(left: widget.padding, right: widget.padding, top: 10, bottom: 10),
           child: Row(
             children: [
-              initialView(
-                  image: SvgPicture.asset(res, color: Colors.primaryColor,)
-              ),
+              initialView(image: SvgPicture.asset(res, color: Colors.primaryColor,)),
               SizedBox(width: 16,),
               Text(title, style: TextStyle(color: Colors.colorPrimaryDark, fontSize: 16),)
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _downloadItem(String title, String res, isDownloading) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: isDownloading ? null : () => _handleDownloads(title),//onItemClickListener?.call(title, 0),
+        child: Container(
+          padding: EdgeInsets.only(left: widget.padding, right: widget.padding, top: 10, bottom: 10),
+          child: Row(
+            children: [
+              Stack(
+                children: [
+                  if(isDownloading) SizedBox(width: 40, height: 40,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation(Colors.colorPrimaryDark.withOpacity(0.5)),
+                      backgroundColor: Colors.grey.withOpacity(0.1),
+                    ),
+                  ),
+                  initialView(
+                      image: SvgPicture.asset(res, color: isDownloading ? Colors.grey.withOpacity(0.5) :Colors.primaryColor,),
+                      backgroundColor: isDownloading ? Colors.grey.withOpacity(0.1) : null
+                  )
+                ],
+              ),
+              SizedBox(width: 16,),
+              Text(
+                title,
+                style: TextStyle(
+                    fontSize: 16,
+                    color: isDownloading
+                        ? Colors.grey.withOpacity(0.5)
+                        : Colors.colorPrimaryDark,
+                ),)
             ],
           ),
         ),
@@ -64,40 +163,45 @@ class TransactionOptionsView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-            padding: EdgeInsets.only(left: padding, right: padding),
-            child: Text('Options', style: TextStyle(fontSize: 14, color: Colors.colorPrimaryDark, fontWeight: FontWeight.bold),),
+          padding: EdgeInsets.only(left: widget.padding, right: widget.padding),
+          child: Text('Options', style: TextStyle(fontSize: 14, color: Colors.colorPrimaryDark, fontWeight: FontWeight.bold),),
         ),
         SizedBox(height: 7,),
         Visibility(
-            visible: this.displayShareReceipt,
+            visible: widget.displayShareReceipt != null,
             child: Expanded(
-                child: makeItem('Share Receipt', 'res/drawables/ic_share_receipt.svg')
+                flex: 0,
+                child: _downloadItem('Share Receipt', 'res/drawables/ic_share_receipt.svg', _isDownloadingShareReceipt)
             )),
         Visibility(
-            visible: this.displayDownloadReceipt,
+            visible: widget.displayDownloadReceipt != null,
             child: Padding(
-              padding: EdgeInsets.only(left: padding, right: padding),
+              padding: EdgeInsets.only(left: widget.padding, right: widget.padding),
               child: Divider(height: 1, color: Colors.dashboardDivider.withOpacity(0.15),),
             )
         ),
         Visibility(
-            visible: this.displayDownloadReceipt,
+            visible: widget.displayDownloadReceipt != null,
             child: Expanded(
-                child: makeItem('Download Receipt', 'res/drawables/ic_download_receipt.svg')
+                flex: 0,
+                child: _downloadItem('Download Receipt', 'res/drawables/ic_download_receipt.svg', _isDownloadingReceipt)
             )),
         Visibility(
-            visible: this.displayReplayTransaction,
+            visible: widget.displayReplayTransaction,
             child: Padding(
-              padding: EdgeInsets.only(left: padding, right: padding),
+              padding: EdgeInsets.only(left: widget.padding, right: widget.padding),
               child: Divider(height: 1, color: Colors.dashboardDivider.withOpacity(0.15),),
             )
         ),
         Visibility(
-            visible: this.displayReplayTransaction,
+            visible: widget.displayReplayTransaction,
             child: Expanded(
-                child: makeItem('Replay this Transaction', 'res/drawables/ic_replay_transaction.svg')
+                flex: 0,
+                child: _makeItem('Replay this Transaction', 'res/drawables/ic_replay_transaction.svg')
             )),
       ],
     );
   }
+
+
 }

@@ -1,4 +1,4 @@
-package com.teamapt.moniepoint_flutter.lib
+package com.teamapt.customers.moniepoint.lib
 
 import android.os.Build
 import androidx.fragment.app.FragmentActivity
@@ -18,15 +18,7 @@ class BiometricMethodHandler(private val mActivity: FragmentActivity) : MethodCh
             "remove_finger_print_password" -> removeFingerprintPassword(call, reply)
         }
     }
-
-//    @Throws(IllegalAccessException::class)
-//    fun getBiometricChannel(): BiometricChannel {
-//        if (!::biometricChannel.isInitialized) {
-//            throw IllegalAccessException("Biometric Channel hasn't been initialized")
-//        }
-//        return this.biometricChannel
-//    }
-
+    
     private fun initialize(call: MethodCall, reply: MethodChannel.Result) {
         val keyFileName = call.argument<String>("keyFileName")
         val keyStoreName = call.argument<String>("keyStoreName")
@@ -40,7 +32,7 @@ class BiometricMethodHandler(private val mActivity: FragmentActivity) : MethodCh
 
     private fun isFingerprintAvailable(call: MethodCall, reply: MethodChannel.Result) {
         val pair = biometricChannel.isFingerPrintAuthAvailable()
-        reply.success(mapOf("availability" to pair.first, "extra_message" to pair.second, ))
+        reply.success(mapOf("availability" to pair.first, "extra_message" to pair.second))
     }
 
     private fun getFingerprintPassword(call: MethodCall, reply: MethodChannel.Result) {

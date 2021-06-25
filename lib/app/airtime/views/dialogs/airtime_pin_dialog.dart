@@ -9,6 +9,7 @@ import 'package:moniepoint_flutter/core/payment_view_model.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/views/pin_entry.dart';
 import 'package:moniepoint_flutter/core/views/transaction_pin_dialog.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 
@@ -171,11 +172,8 @@ class _AirtimePinDialog extends TransactionPinDialogState<AirtimePinDialog> {
         });
       }
       else if(event is Error<TransactionStatus>) {
-        setState(() {
-          _isLoading = false;
-          //display the error dialog
-          //Navigator.of(context).pop(event);
-        });
+        setState(() {_isLoading = false;});
+        Navigator.of(context).pop(event);
       }
     });
   }

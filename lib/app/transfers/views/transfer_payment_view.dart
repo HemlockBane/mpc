@@ -7,8 +7,6 @@ import 'package:moniepoint_flutter/app/transfers/views/transfer_view.dart';
 import 'package:moniepoint_flutter/core/amount_pill.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
-import 'package:moniepoint_flutter/core/config/build_config.dart';
-import 'package:moniepoint_flutter/core/config/service_config.dart';
 import 'package:moniepoint_flutter/core/constants.dart';
 import 'package:moniepoint_flutter/core/models/list_item.dart';
 import 'package:moniepoint_flutter/core/models/transaction_status.dart';
@@ -32,8 +30,9 @@ import 'dialogs/transfer_pin_dialog.dart';
 class TransferPaymentScreen extends StatefulWidget {
 
   late final GlobalKey<ScaffoldState> _scaffoldKey;
+  final double defaultAmount;
 
-  TransferPaymentScreen(this._scaffoldKey);
+  TransferPaymentScreen(this._scaffoldKey, this.defaultAmount);
 
   @override
   State<StatefulWidget> createState() => _TransferPaymentScreen();
@@ -48,9 +47,17 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
 
   @override
   initState() {
+    this._amount = widget.defaultAmount;
     final viewModel = Provider.of<TransferViewModel>(context, listen: false);
     viewModel.getCustomerAccountBalance().listen((event) { });
+    viewModel.setNarration("");
     super.initState();
+
+    if(widget.defaultAmount > 0) {
+      Future.delayed(Duration(milliseconds: 50), () {
+        viewModel.setAmount(this._amount);
+      });
+    }
   }
 
   Widget initialView(PaymentViewModel viewModel) {
@@ -79,7 +86,7 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
     );
   }
 
-  Widget boxContainer(Widget child)  {
+  Widget boxContainer(Widget child) {
     return Container(
       padding: EdgeInsets.only(left: 16, right: 24, top: 12, bottom: 12),
       decoration: BoxDecoration(
@@ -209,6 +216,7 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
 
   Widget amountWidget() {
     final viewModel = Provider.of<TransferViewModel>(context, listen: false);
+    print("Amount Widget with amount ${this._amount}");
     viewModel.setAmount(this._amount);
     return boxContainer(
       PaymentAmountView((_amount * 100).toInt(), (value) {
@@ -247,6 +255,7 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
     dynamic result = await showModalBottomSheet(
         context: widget._scaffoldKey.currentContext ?? context,
         isScrollControlled: true,
+        isDismissible: false,
         backgroundColor: Colors.transparent,
         builder: (context) => ChangeNotifierProvider.value(
           value: viewModel,
@@ -260,15 +269,14 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
             || result.operationStatus == Constants.SUCCESSFUL;
 
         if(isSuccessful) {
-          final downloadUrl = (result.transferBatchId != null)
-              ? "${ServiceConfig.TRANSFER_SERVICE}api/v1/transfer/receipt/${viewModel.customerId}/${result.transferBatchId}"
-              : null;
 
           final payload = SuccessPayload(
               "Transfer Successful",
               "Your transfer was successful",
-              downloadUrl: downloadUrl,
-              fileName: "Transaction_Receipt_${viewModel.accountName}_${DateFormat("dd_MM_yyyy_h_m_s").format(DateTime.now())}.pdf"
+              fileName: "Transaction_Receipt_${viewModel.accountName}_${DateFormat("dd_MM_yyyy_h_m_s").format(DateTime.now())}.pdf",
+              downloadTask: (result.transferBatchId != null && result.operationStatus != Constants.PENDING)
+                  ? () => viewModel.downloadReceipt(result.transferBatchId!)
+                  : null
           );
 
           showModalBottomSheet(
@@ -299,7 +307,7 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
       body: ScrollView(
         child: Container(
           color: Colors.backgroundWhite,
-          padding: EdgeInsets.only(top: 37, left: 16, right: 16),
+          padding: EdgeInsets.only(top: 37, left: 16, right: 16, bottom: 32),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -323,7 +331,7 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
               makeLabel('Enter Narration'),
               SizedBox(height: 8,),
               Expanded(
-                  flex: 1,
+                  flex: 0,
                   child: Styles.appEditText(
                       hint: 'Not more than 50 Characters',
                       animateHint: false,
@@ -349,7 +357,6 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
                     ),
                   )
               ),
-              SizedBox(height: 32,),
             ],
           ),
         ),

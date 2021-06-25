@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter/services.dart';
@@ -12,7 +11,6 @@ import 'package:moniepoint_flutter/app/billpayments/views/dialogs/bill_pin_dialo
 import 'package:moniepoint_flutter/core/amount_pill.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
-import 'package:moniepoint_flutter/core/config/service_config.dart';
 import 'package:moniepoint_flutter/core/constants.dart';
 import 'package:moniepoint_flutter/core/models/list_item.dart';
 import 'package:moniepoint_flutter/core/models/transaction_status.dart';
@@ -263,14 +261,12 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
             || result.operationStatus == Constants.SUCCESSFUL;
 
         if(isSuccessful) {
-          final downloadUrl = (result.transferBatchId != null)
-              ? "${ServiceConfig.VAS_SERVICE}api/v1/bill/receipt/${viewModel.customerId}/${result.customerBillId}"
-              : null;
-
           final payload = SuccessPayload("Payment Successful",
               "Your payment was successful",
-              downloadUrl: downloadUrl,
-              fileName: "Bill_Receipt_${viewModel.accountName}_${DateFormat("dd MM yyyy").format(DateTime.now())}.pdf"
+              fileName: "Bill_Receipt_${viewModel.accountName}_${DateFormat("dd MM yyyy").format(DateTime.now())}.pdf",
+              downloadTask: (result.customerBillId != null && result.operationStatus != Constants.PENDING)
+                  ? () => viewModel.downloadReceipt(result.customerBillId!)
+                  : null
           );
 
           showModalBottomSheet(
@@ -279,6 +275,7 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
               backgroundColor: Colors.transparent,
               builder: (mContext) => TransactionSuccessDialog(
                   payload, onClick: () {
+                Navigator.of(mContext).pop();
                 Navigator.of(context).pushNamedAndRemoveUntil(BillScreen.BENEFICIARY_SCREEN, (route) => false);
               })
           );

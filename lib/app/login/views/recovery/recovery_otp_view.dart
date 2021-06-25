@@ -130,6 +130,7 @@ class _RecoveryOtpView extends State<RecoveryOtpView> {
       setState(() => _isLoading = false);
       //display dialog for add device
       showModalBottomSheet(
+          isScrollControlled: true,
           context: context,
           backgroundColor: Colors.transparent,
           builder: (v) => AddDeviceDialog(widget._scaffoldKey)
@@ -197,7 +198,7 @@ class _RecoveryOtpView extends State<RecoveryOtpView> {
                           startIcon: Icon(CustomFont.password, color: Colors.colorFaded)
                       ),
                       SizedBox(height: 32),
-                      OtpUssdInfoView(getUSSDKeyName(viewModel)),
+                      OtpUssdInfoView(getUSSDKeyName(viewModel), defaultCode: "",),
                       SizedBox(height: 100),
                     ],
                   ),

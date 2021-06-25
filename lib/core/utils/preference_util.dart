@@ -1,6 +1,8 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:moniepoint_flutter/app/login/model/data/user.dart';
+import 'package:moniepoint_flutter/core/login_mode.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,6 +16,7 @@ class PreferenceUtil {
   static const String FINGER_PRINT_ENABLED = "is_finger_print_enabled";
   static const String FINGER_PRINT_USERNAME = "finger_print_username";
   static const String FINGER_PRINT_REQUEST_COUNTER = "finger_request_counter";
+  static const String LOGIN_MODE = "login_mode";
   static SharedPreferences? _preferences;
 
   static initAsync() async  {
@@ -34,6 +37,7 @@ class PreferenceUtil {
 
   static void deleteLoggedInUser()  {
     _preferences?.remove(LOGGED_IN_USER_KEY);
+    UserInstance().setAccountStatus(null);
     UserInstance().getUser()?.withAccessToken(null);
   }
 
@@ -51,6 +55,15 @@ class PreferenceUtil {
   static String? getSavedUsername()  {
     String? savedUsername = _preferences?.getString(LOGGED_IN_USER_NAME);
     return savedUsername;
+  }
+
+  static void setLoginMode(LoginMode loginMode) {
+    _preferences?.setString(LOGIN_MODE, describeEnum(loginMode));
+  }
+
+  static LoginMode getLoginMode()  {
+    String? loginMode = _preferences?.getString(LOGIN_MODE);
+    return (loginMode != null) ? LoginMode.values.firstWhere((element) => describeEnum(element) == loginMode) : LoginMode.FULL_ACCESS;
   }
 
   static void saveDataForLoggedInUser(String appendKey, Object? object) {

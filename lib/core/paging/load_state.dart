@@ -2,6 +2,9 @@
 class LoadState {
   final bool endOfPaginationReached;
   LoadState(this.endOfPaginationReached);
+  String toString() {
+    return "LoadState(endOfPaginationReached=$endOfPaginationReached)";
+  }
 }
 
 class NotLoading extends LoadState {

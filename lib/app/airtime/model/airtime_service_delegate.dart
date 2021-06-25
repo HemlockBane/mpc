@@ -1,14 +1,18 @@
 
 import 'dart:convert';
+import 'dart:typed_data';
 
+import 'package:dio/dio.dart';
 import 'package:moniepoint_flutter/app/airtime/model/airtime_service.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_dao.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_purchase_request_body.dart';
+import 'package:moniepoint_flutter/app/airtime/model/data/airtime_purchase_type.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_service_provider.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_service_provider_dao.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_service_provider_item.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_transaction.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data_top_up_service.dart';
+import 'package:moniepoint_flutter/core/constants.dart';
 import 'package:moniepoint_flutter/core/models/data_collection.dart';
 import 'package:moniepoint_flutter/core/models/filter_results.dart';
 import 'package:moniepoint_flutter/core/models/history_request_body.dart';
@@ -42,14 +46,14 @@ class AirtimeServiceDelegate with NetworkResource {
     this._serviceProviderDao = serviceProviderDao;
     this._serviceProviderItemDao = serviceProviderItemDao;
     this._dataTopUpService = dataTopUpService;
-
   }
 
   Stream<Resource<TransactionStatus>> makePurchase(AirtimePurchaseRequestBody requestBody) {
-    print(jsonEncode(requestBody));
     return networkBoundResource(
         fetchFromLocal: () => Stream.value(null),
-        fetchFromRemote: () => _service.buySingleAirtime(requestBody)
+        fetchFromRemote: () => (requestBody.dataTopUpRequest!=null)
+            ? _dataTopUpService.buySingleData(requestBody)
+            : _service.buySingleAirtime(requestBody)
     );
   }
 
@@ -58,8 +62,8 @@ class AirtimeServiceDelegate with NetworkResource {
         localSource: (LoadParams params) {
           final offset = params.key ?? 0;
           return _airtimeDao.getAirtimeTransactions(
-              filterResult.startDate, filterResult.endDate, 0, params.loadSize
-          ).map((event) => Page(event, params.key, event.length == params.loadSize ? offset + 1 : null));
+              filterResult.startDate, filterResult.endDate, offset * params.loadSize, params.loadSize
+          ).map((event) => Page(event, params.key ?? 0, event.length == params.loadSize ? offset + 1 : null));
         },
         remoteMediator: _AirtimeMediator(_service, _airtimeDao)..filterResult = filterResult
     );
@@ -92,7 +96,7 @@ class AirtimeServiceDelegate with NetworkResource {
         shouldFetchLocal: true,
         fetchFromLocal: () => _serviceProviderItemDao.getServiceProviderItems(billerId),
         fetchFromRemote: () => _dataTopUpService.getServiceProviderItems(billerId),
-        processRemoteResponse: (response)  {
+        processRemoteResponse: (response) {
           final result = response.data?.result;
           _serviceProviderItemDao.deleteProviderItemsByBillerId(
               billerId,
@@ -108,6 +112,14 @@ class AirtimeServiceDelegate with NetworkResource {
     return _airtimeDao.getAirtimeTransactionById(id);
   }
 
+  Stream<Uint8List> downloadReceipt(String customerId, int batchId, PurchaseType purchaseType) async* {
+    final downloadTask = (purchaseType == PurchaseType.DATA)
+        ? _dataTopUpService.downloadAirtimeDataReceipt(customerId, batchId)
+        : _service.downloadAirtimeReceipt(customerId, batchId);
+    final a = (await downloadTask) as ResponseBody;
+    yield* a.stream;
+  }
+
 }
 
 class _AirtimeMediator extends AbstractDataCollectionMediator<int, AirtimeTransaction> {
@@ -116,6 +128,7 @@ class _AirtimeMediator extends AbstractDataCollectionMediator<int, AirtimeTransa
   final AirtimeDao _airtimeDao;
 
   FilterResults filterResult = FilterResults();
+  final List<String> _statusList = [Constants.COMPLETED, Constants.PENDING, Constants.SUCCESSFUL];
 
   _AirtimeMediator(this._service, this._airtimeDao);
 
@@ -133,6 +146,7 @@ class _AirtimeMediator extends AbstractDataCollectionMediator<int, AirtimeTransa
   Future<ServiceResult<DataCollection<AirtimeTransaction>>> serviceCall(page) {
     return _service.getSingleAirtimeHistory(
         HistoryRequestBody()
+          ..statuses = _statusList
           ..startDate = filterResult.startDate
           ..endDate = filterResult.endDate
           ..page = page

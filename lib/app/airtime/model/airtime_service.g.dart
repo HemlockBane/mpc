@@ -9,7 +9,7 @@ part of 'airtime_service.dart';
 class _AirtimeService implements AirtimeService {
   _AirtimeService(this._dio, {this.baseUrl}) {
     baseUrl ??=
-        'https://core-vas.monnify.development.teamapt.com/api/v1/airtime/';
+        'https://moniepoint-customer-vas-service-v2.console.teamapt.com/api/v1/airtime/';
   }
 
   final Dio _dio;
@@ -30,7 +30,7 @@ class _AirtimeService implements AirtimeService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.4'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -58,7 +58,7 @@ class _AirtimeService implements AirtimeService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.4'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -84,7 +84,7 @@ class _AirtimeService implements AirtimeService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.4'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -97,6 +97,27 @@ class _AirtimeService implements AirtimeService {
             .map<AirtimeServiceProvider>((i) =>
                 AirtimeServiceProvider.fromJson(i as Map<String, dynamic>))
             .toList());
+    return value;
+  }
+
+  @override
+  Future<dynamic> downloadAirtimeReceipt(customerId, batchId) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _data = <String, dynamic>{};
+    final _result = await _dio.fetch(_setStreamType<dynamic>(Options(
+            method: 'GET',
+            headers: <String, dynamic>{
+              r'client-id': 'ANDROID',
+              r'appVersion': '1.0.4'
+            },
+            extra: _extra,
+            responseType: ResponseType.stream)
+        .compose(_dio.options, 'receipt/$customerId/$batchId',
+            queryParameters: queryParameters, data: _data)
+        .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = _result.data!;
     return value;
   }
 

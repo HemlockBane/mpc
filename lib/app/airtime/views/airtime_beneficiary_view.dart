@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/material.dart' hide ScrollView, Colors;
@@ -43,7 +42,7 @@ class _AirtimeBeneficiaryScreen extends State<AirtimeBeneficiaryScreen> with Aut
 
   final Iterable<ComboItem<PurchaseType>> purchaseTypes = List.of([
     ComboItem(PurchaseType.DATA, "Data", icon: SvgPicture.asset('res/drawables/ic_data.svg', width: 35, height: 35,)),
-    ComboItem(PurchaseType.AIRTIME, "Airtime", icon: SvgPicture.asset('res/drawables/ic_airtime.svg', width: 35, height: 35,)),
+    ComboItem(PurchaseType.AIRTIME,  "Airtime", isSelected: true, icon: SvgPicture.asset('res/drawables/ic_airtime.svg', width: 35, height: 35,)),
   ]);
 
   final List<AirtimeBeneficiary> _currentItems = [];
@@ -104,6 +103,10 @@ class _AirtimeBeneficiaryScreen extends State<AirtimeBeneficiaryScreen> with Aut
         loadingView: BeneficiaryShimmer(),
         animationController: _animationController,
         currentList: _currentItems,
+        errorLayoutView: GenericListPlaceholder(
+            SvgPicture.asset('res/drawables/ic_empty_beneficiary.svg'),
+            'You have no airtime or data \nbeneficiaries yet.'
+        ),
         emptyPlaceholder: GenericListPlaceholder(
             SvgPicture.asset('res/drawables/ic_empty_beneficiary.svg'),
             'You have no airtime or data beneficiary yet.'
@@ -145,7 +148,7 @@ class _AirtimeBeneficiaryScreen extends State<AirtimeBeneficiaryScreen> with Aut
       final contact = await Navigator.of(widget._scaffoldKey.currentContext ?? context).pushNamed(Routes.CONTACTS);
       if(contact is! Contact) return;
 
-      final phones = contact.phones;//?.where((element) => isPhoneNumberValid(element.value));
+      final phones = contact.phones?.where((element) => isPhoneNumberValid(element.value));
 
       if(phones == null || phones.isEmpty) {
 

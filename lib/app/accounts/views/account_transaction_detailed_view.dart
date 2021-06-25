@@ -1,14 +1,19 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Colors, ScrollView;
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
 import 'package:moniepoint_flutter/app/accounts/viewmodels/account_transaction_detail_view_model.dart';
+import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/transaction.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
+import 'package:moniepoint_flutter/core/utils/download_util.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
+import 'package:moniepoint_flutter/core/views/transaction_location_view.dart';
 import 'package:moniepoint_flutter/core/views/transaction_options_view.dart';
 import 'package:provider/provider.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
@@ -26,6 +31,14 @@ class AccountTransactionDetailedView extends StatefulWidget {
 class _AccountTransactionDetailedView extends State<AccountTransactionDetailedView> {
 
   String? _transactionReference;
+
+
+  LatLng? _transactionLocation(AccountTransaction transaction) {
+    print(transaction.metaData?.location);
+    return (transaction.metaData?.location != null)
+        ? LatLng(double.tryParse(transaction.metaData?.location?.latitude ?? "0.0") ?? 0.0, double.tryParse(transaction.metaData?.location?.longitude ?? "0.0") ?? 0.0)
+        : null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,8 +71,10 @@ class _AccountTransactionDetailedView extends State<AccountTransactionDetailedVi
                 if(!snapshot.hasData || snapshot.data == null) return Container();
                 final transaction = snapshot.data!;
                 final transactionDate = DateFormat("d MMMM yyyy | h:mm a").format(DateTime.fromMillisecondsSinceEpoch(transaction.getInitiatedDate()));
-                final balanceBefore = double.tryParse(transaction.runningBalance ?? "")?.formatCurrency ?? "";
+                final balanceBefore = double.tryParse(transaction.balanceBefore ?? "")?.formatCurrency ?? "";
                 final balanceAfter = double.tryParse(transaction.balanceAfter ?? "")?.formatCurrency ?? "";
+                final downloadTask = Tuple(() => viewModel.downloadTransactionReceipt(transaction),  "AccountTransaction_Receipt_${viewModel.accountName}_${DateFormat("dd_MM_yyyy_h_m_s").format(DateTime.now())}.pdf");
+                final transactionLocation = _transactionLocation(transaction);
 
                 return Container(
                   color: Colors.backgroundWhite,
@@ -113,18 +128,18 @@ class _AccountTransactionDetailedView extends State<AccountTransactionDetailedVi
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text("Balance Before: $balanceBefore",
+                                Flexible(child: Text("Balance Before: $balanceBefore",
                                     overflow: TextOverflow.ellipsis,
                                     maxLines: 1,
                                     style: TextStyle(fontSize: 12, color: Colors.colorPrimaryDark, fontWeight: FontWeight.normal)
-                                ).colorText({balanceBefore: Tuple(Colors.colorPrimaryDark, null)}, underline: false),
+                                ).colorText({balanceBefore: Tuple(Colors.colorPrimaryDark, null)}, underline: false)),
                                 SizedBox(width: 8,),
-                                Text(
+                                Flexible(child: Text(
                                   "Balance After: $balanceAfter",
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(fontSize: 12, color: Colors.colorPrimaryDark, fontWeight: FontWeight.normal),
-                                ).colorText({balanceAfter: Tuple(Colors.colorPrimaryDark, null)}, underline: false),
+                                ).colorText({balanceAfter: Tuple(Colors.colorPrimaryDark, null)}, underline: false)),
                               ],
                             ),
                           )
@@ -164,7 +179,7 @@ class _AccountTransactionDetailedView extends State<AccountTransactionDetailedVi
                                               color: Color(0XFFF2F2F2),
                                               borderRadius: BorderRadius.circular(4)
                                           ),
-                                          child: Text(transaction.getTransactionChannelValue(), style: TextStyle(color: Colors.primaryColor, fontSize: 16)),
+                                          child: Text(transaction.getTransactionChannelValue(), style: TextStyle(color: Colors.primaryColor, fontWeight: FontWeight.w600, fontSize: 13)),
                                         )
                                     )
                                   ],
@@ -260,18 +275,36 @@ class _AccountTransactionDetailedView extends State<AccountTransactionDetailedVi
                                   ],
                                 ),
                               )
-                          )),
-                      // Visibility(
-                      //     visible: transaction.transfer?.narration?.isNotEmpty == true,
-                      //     child: Padding(
-                      //       padding: EdgeInsets.only(left: 24, right: 24),
-                      //       child: Divider(height: 1, color: Colors.dashboardDivider.withOpacity(0.1),),
-                      //     )
-                      // ),
+                          )
+                      ),
+                      Visibility(
+                          visible: transactionLocation != null,
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 24, right: 24),
+                            child: Divider(height: 1, color: Colors.dashboardDivider.withOpacity(0.1),),
+                          )
+                      ),
+                      Visibility(
+                        visible: transactionLocation != null,
+                        child: Expanded(
+                          flex: 0,
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 20, bottom: 20, left: 24, right: 24),
+                            child: TransactionLocationView(transactionLocation, transaction.transactionRef),
+                          ),
+                        ),
+                      ),
                       SizedBox(height: 18),
                       Divider(height: 1, color: Colors.dashboardDivider.withOpacity(0.15)),
                       SizedBox(height: 24),
-                      Expanded(child:  TransactionOptionsView(displayReplayTransaction: false))
+                      Visibility(
+                          visible: transaction.metaData != null && transaction.metaData?.transactionType != null,
+                          child: Expanded(child:  TransactionOptionsView(
+                            displayReplayTransaction: false,
+                            displayDownloadReceipt: transaction.metaData != null ? downloadTask : null,
+                            displayShareReceipt: transaction.metaData != null ? downloadTask : null,
+                          ))
+                      )
                     ],
                   ),
                 );

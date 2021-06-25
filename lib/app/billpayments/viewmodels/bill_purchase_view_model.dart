@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
-import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:get_it/get_it.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/bill_service_delegate.dart';
@@ -10,6 +10,9 @@ import 'package:moniepoint_flutter/app/billpayments/model/data/biller_product.da
 import 'package:moniepoint_flutter/app/login/model/data/authentication_method.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/bills/model/data/bill_beneficiary.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/bills/model/data/bill_beneficiary_delegate.dart';
+import 'package:moniepoint_flutter/core/device_manager.dart';
+import 'package:moniepoint_flutter/core/models/file_result.dart';
+import 'package:moniepoint_flutter/core/models/services/file_management_service_delegate.dart';
 import 'package:moniepoint_flutter/core/models/transaction_status.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/payment_view_model.dart';
@@ -20,6 +23,8 @@ class BillPurchaseViewModel extends BaseViewModel with PaymentViewModel {
 
   late final BillServiceDelegate _delegate;
   late final BillBeneficiaryServiceDelegate _beneficiaryServiceDelegate;
+  late final FileManagementServiceDelegate _fileServiceDelegate;
+  late final DeviceManager _deviceManager;
 
   //<fieldKey, fieldError>
   StreamController<Tuple<String, String?>> _fieldErrorController = StreamController.broadcast();
@@ -36,9 +41,16 @@ class BillPurchaseViewModel extends BaseViewModel with PaymentViewModel {
   Map<String, String> _additionalFieldsMap = HashMap();
   Map<String, String?> _fieldErrorMap = HashMap();
 
-  BillPurchaseViewModel({BillServiceDelegate? delegate,  BillBeneficiaryServiceDelegate? beneficiaryServiceDelegate}) {
+  BillPurchaseViewModel({
+    BillServiceDelegate? delegate,
+    BillBeneficiaryServiceDelegate? beneficiaryServiceDelegate,
+    FileManagementServiceDelegate? fileServiceDelegate,
+    DeviceManager? deviceManager
+  }) {
     this._delegate = delegate ?? GetIt.I<BillServiceDelegate>();
     this._beneficiaryServiceDelegate = beneficiaryServiceDelegate ?? GetIt.I<BillBeneficiaryServiceDelegate>();
+    this._deviceManager = deviceManager ?? GetIt.I<DeviceManager>();
+    this._fileServiceDelegate = fileServiceDelegate ?? GetIt.I<FileManagementServiceDelegate>();
   }
 
   Stream<Resource<List<BillerProduct>>> getBillerProducts() {
@@ -124,7 +136,7 @@ class BillPurchaseViewModel extends BaseViewModel with PaymentViewModel {
     final isAmountFixed = this._billerProduct?.priceFixed == true;
     final productAmount = this._billerProduct?.amount ?? 0;
     final isAmountValid = (isAmountFixed) ? this.amount == (productAmount /100): this.amount != null && this.amount! > 0;
-    final isFormValid = _fieldErrorMap.values.every((element) => element == null || element.isEmpty);
+    final isFormValid = _fieldErrorMap.values.every((element) => element == null);
     return isAmountValid && isFormValid;
   }
 
@@ -140,7 +152,8 @@ class BillPurchaseViewModel extends BaseViewModel with PaymentViewModel {
         .withCustomerValidationReference(validationReference ?? "")
         .withBillerProductCode(billerProduct?.paymentCode ?? "")
         .withCustomerId(beneficiary?.getBeneficiaryDigits() ?? "")
-        .withMinorCost(((amount ?? 0) * 100).toString());
+        .withMetaData(buildTransactionMetaData("BILL"))
+        .withMinorCost(((amount ?? 0) * 100).toInt().toString());
 
     final requestBody = BillPaymentRequestBody()
       .withAuthenticationType(AuthenticationMethod.PIN)
@@ -149,9 +162,18 @@ class BillPurchaseViewModel extends BaseViewModel with PaymentViewModel {
       .withSourceAccountNumber(accountNumber)
       .withSourceAccountProviderCode(accountProviderCode)
       .withRequest(request)
-      .withDeviceId("deviceId");
+      .withDeviceId(_deviceManager.deviceId ?? "");
 
     return _delegate.makePurchase(requestBody);
+  }
+
+  Stream<Uint8List> downloadReceipt(int batchId){
+    return _delegate.downloadReceipt(customerId.toString(), batchId);
+  }
+
+
+  Stream<Resource<FileResult>> getFile(String fileUUID) {
+    return _fileServiceDelegate.getFileByUUID(fileUUID);
   }
 
 }

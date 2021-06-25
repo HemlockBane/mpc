@@ -1,10 +1,8 @@
 import 'package:dio/dio.dart' hide Headers;
 import 'package:moniepoint_flutter/app/transfers/model/data/fee_vat.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/fee_vat_config.dart';
-import 'package:moniepoint_flutter/app/transfers/model/data/single_transfer_transaction.dart';
 import 'package:moniepoint_flutter/core/config/build_config.dart';
 import 'package:moniepoint_flutter/core/config/service_config.dart';
-import 'package:moniepoint_flutter/core/models/data_collection.dart';
 import 'package:moniepoint_flutter/core/models/history_request_body.dart';
 import 'package:moniepoint_flutter/core/models/transaction_status.dart';
 import 'package:moniepoint_flutter/core/network/service_result.dart';
@@ -93,12 +91,14 @@ abstract class TransferService {
 // //            @Query("batchKey") batchKey: String?,
 // //            @Query("paymentType") paymentType: PaymentType?): Flow<ApiResponse<TransactionCancellationServiceResult>>
 //
-//   @Streaming
-//   @Headers("Content-Type: application/json", "client-id: " + BuildConfig.CLIENT_ID)
-//   @GET("receipt/{customerId}/{batchId}")
-//   suspend fun downloadTransferReceipt(
-//   @Header(HeaderKeys.AUTHORIZATION) user: User?,
-//   @Path("customerId") customerId: String?,
-//   @Path("batchId") batchId: Long
-//   ): ResponseBody?
+  @Headers(<String, dynamic>{
+    "client-id": BuildConfig.CLIENT_ID,
+    "appVersion": BuildConfig.APP_VERSION
+  })
+  @GET("receipt/{customerId}/{batchId}")
+  @DioResponseType(ResponseType.stream)
+  Future<dynamic> downloadTransferReceipt(
+    @Path("customerId") String? customerId,
+    @Path("batchId") int batchId
+  );
 }

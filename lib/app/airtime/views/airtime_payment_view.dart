@@ -1,4 +1,3 @@
-import 'dart:ffi';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Colors, ScrollView;
@@ -52,7 +51,12 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
   double _amount = 0.00;
   ListDataItem<String>? _selectedAmountPill;
   Stream<Resource<List<AirtimeServiceProviderItem>>>? dataPlanStream;
-  final List<ListDataItem<String>> amountPills = List.generate(4, (index) => ListDataItem((5000 * (index + 1)).formatCurrencyWithoutLeadingZero));
+  final List<ListDataItem<String>> amountPills = List.of([
+    ListDataItem(100.formatCurrencyWithoutLeadingZero),
+    ListDataItem(200.formatCurrencyWithoutLeadingZero),
+    ListDataItem(500.formatCurrencyWithoutLeadingZero),
+    ListDataItem(1000.formatCurrencyWithoutLeadingZero),
+  ]);
 
   @override
   initState() {
@@ -65,9 +69,9 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
 
   Widget initialView(PaymentViewModel viewModel) {
     return Container(
-      width: 37,
-      height: 37,
-      padding: EdgeInsets.all(6),
+      width: 37.3,
+      height: 37.3,
+      padding: EdgeInsets.all(4),
       decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: Colors.darkBlue.withOpacity(0.1)
@@ -76,7 +80,11 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
         child: Text(
             viewModel.beneficiary?.getAccountName().abbreviate(2, true) ?? "",
             textAlign: TextAlign.center,
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.solidDarkBlue, fontSize: 13)
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.solidDarkBlue,
+                fontSize: 13
+            )
         ),
       ),
     );
@@ -302,14 +310,13 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
 
       if(isSuccessful) {
         final batchId = (viewModel.purchaseType == PurchaseType.DATA) ? result.customerDataTopUpId : result.customerAirtimeId;
-        final downloadUrl = (result.transferBatchId != null)
-            ? "${ServiceConfig.VAS_SERVICE}api/v1/airtime/receipt/${viewModel.customerId}/$batchId"
-            : null;
 
         final payload = SuccessPayload("Airtime Purchase Successful",
             "Your ${describeEnum(viewModel.purchaseType).toLowerCase()} purchase was successful",
-            downloadUrl: downloadUrl,
-            fileName: "Airtime_Receipt_${viewModel.accountName}_${DateFormat("dd MM yyyy").format(DateTime.now())}.pdf"
+            fileName: "Airtime_Receipt_${viewModel.accountName}_${DateFormat("dd MM yyyy").format(DateTime.now())}.pdf",
+            downloadTask: (batchId != null && result.operationStatus != Constants.PENDING && viewModel.purchaseType == PurchaseType.AIRTIME)
+                ? () => viewModel.downloadReceipt(batchId)
+                : null
         );
 
         showModalBottomSheet(
@@ -318,15 +325,14 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
             backgroundColor: Colors.transparent,
             builder: (mContext) => TransactionSuccessDialog(
               payload, onClick: () {
+              Navigator.of(mContext).pop();
               Navigator.of(context).pushNamedAndRemoveUntil(AirtimeScreen.BENEFICIARY_SCREEN, (route) => false);
             })
         );
       } else {
-        print("I'm here for error");
         _displayPaymentError(result.message ?? "Unable to complete transaction at this time. Please try again later.");
       }
     } else if(result is Error<TransactionStatus>) {
-      print("I'm here for error 33333");
       _displayPaymentError(result.message ?? "");
     }
   }

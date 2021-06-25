@@ -9,9 +9,12 @@ import 'package:moniepoint_flutter/app/cards/views/card_view_shimmer.dart';
 import 'package:moniepoint_flutter/app/cards/views/dialogs/card_pin_dialog.dart';
 import 'package:moniepoint_flutter/app/cards/views/dialogs/change_card_pin_dialog.dart';
 import 'package:moniepoint_flutter/app/cards/views/dialogs/manage_card_channels_dialog.dart';
+import 'package:moniepoint_flutter/app/cards/views/error_layout_view.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/network/network_bound_resource.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/list_view_util.dart';
@@ -34,7 +37,6 @@ class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin{
 
   final List<Card> _currentItems = [];
   final PageController _scrollController = PageController();
-
 
   Widget _listContainer(SingleCardViewModel viewModel, {Widget? child}) {
     return Container(
@@ -121,7 +123,7 @@ class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin{
           viewModel,
           value.second
               ? CardAction.UNBLOCK_CARD_CHANNEL
-              :CardAction.BLOCK_CARD_CHANNEL,
+              : CardAction.BLOCK_CARD_CHANNEL,
           CardTransactionRequest()..transactionChannel = value.first
       );
     }
@@ -160,6 +162,8 @@ class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin{
       if(value is bool && value) {
         _openCardTransactionDialog(viewModel, CardAction.BLOCK_CARD, CardTransactionRequest());
       }
+    }else {
+      Navigator.of(context).pushNamed(Routes.UNBLOCK_DEBIT_CARD);
     }
   }
 
@@ -272,10 +276,39 @@ class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin{
                     });
             }
         )),
-        SizedBox(height: 12,),
+        SizedBox(height: 12),
         DotIndicator(controller: _scrollController, itemCount: cards?.length ?? 0)
       ],
     );
+  }
+
+  Widget _displayCardOptions(SingleCardViewModel viewModel, AsyncSnapshot<Resource<List<Card>>> snap) {
+    final data = snap.data;
+    if (data is Success && data?.data?.isEmpty == true) {
+      _animationController.forward();
+      return FadeTransition(
+          opacity: Tween<double>(begin: 0, end: 1).animate(_animationController),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SvgPicture.asset('res/drawables/ic_empty_record_state.svg'),
+              SizedBox(height: 24,),
+              Text('You have no Debit Cards yet.', style: TextStyle(color: Colors.colorPrimaryDark, fontSize: 16),),
+              SizedBox(height: 200,)
+            ],
+          ),
+      );
+    }
+    else if(data is Error<bool>) {
+      Tuple<String, String> error = formatError((data as Error).message,  "Cards");
+      return Column(
+        children: [
+          ErrorLayoutView(error.first, error.second, (){}),
+          SizedBox(height: 200,)
+        ],
+      );
+    }
+    return _pagingView(viewModel);
   }
 
   @override
@@ -316,7 +349,7 @@ class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin{
                     left: 0,
                     child: _listContainer(
                         viewModel,
-                        child: _pagingView(viewModel)
+                        child: _displayCardOptions(viewModel, snap)
                     )
                 ),
                 Positioned(
@@ -325,7 +358,7 @@ class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin{
                     top: 24,
                     child: Container(
                       height: 270,
-                      child: _cardList(context, snap),
+                      child: (snap.data?.data?.isNotEmpty == true) ? _cardList(context, snap) : SizedBox(),
                     )
                 ),
               ],

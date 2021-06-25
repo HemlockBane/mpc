@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart' hide Colors;
+import 'package:moniepoint_flutter/core/network/network_bound_resource.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/paging/paging_data.dart';
+import 'package:moniepoint_flutter/core/paging/load_state.dart' as loadStates;
 
 import '../colors.dart';
+import '../tuple.dart';
 
 
 class ListViewUtil {
@@ -37,46 +41,82 @@ class ListViewUtil {
     bool displayLocalData = true,
     Widget? loadingView,
     Widget? emptyPlaceholder,
+    Widget? errorLayoutView,
     String? moduleName}) {
     
     if(!snapshot.hasData) return Container();
 
     final resource = snapshot.data;
     final hasData = resource?.data?.isNotEmpty == true;
+    bool keepCurrent = false;
 
-    if(resource is Loading) {
+    if(resource is Loading && (displayLocalData && !hasData || !displayLocalData)) {
       animationController.forward(from: 0);
+
       if(loadingView != null) {
         return _fadeLoadingView(animationController, loadingView);
       }
       return defaultLoadingView(animationController);
     }
 
-    if(snapshot.hasError || snapshot.data is Error) return Container(child: Text('Error'),);
-
-    if(resource == null  || resource is Loading && resource.data?.isEmpty == true) {
-      return Container(child: Text('Empty'),);
+    if((snapshot.hasError || snapshot.data is Error) && (!displayLocalData || currentList.isEmpty)) {
+      return errorLayoutView ?? Container(child: Text('Error'),);
     }
 
-    if(resource != null && resource is Success && resource.data?.isEmpty == true){
+    if(resource == null || resource is Loading && resource.data?.isEmpty == true) {
+      return emptyPlaceholder ?? Container(child: Text('Empty'),);
+    }
+
+    if(resource is Success && !hasData) {
       return emptyPlaceholder ?? Text('Empty Data');
     }
 
-    if(resource is !Success) return Container(child: Text('Empty'),);
+    //if(resource is !Success) return Container(child: Text('Empty'),);
 
-    //There are currently items displayed hence we don't need to
+    // There are currently items displayed hence we don't need to
     // start the animation again
     if(currentList.isEmpty) {
       animationController.forward(from: 0);
     }
 
-    currentList.clear();
-    currentList.addAll(resource.data ?? []);
+    keepCurrent = ((currentList.isNotEmpty && displayLocalData) && resource is Error);
+
+    if(!keepCurrent) {
+      currentList.clear();
+      currentList.addAll(resource.data ?? []);
+    }
 
     return FadeTransition(
         opacity: Tween<double>(begin: 0, end: 1).animate(animationController),
-        child: listView.call(resource.data),
+        child: listView.call(keepCurrent ? currentList : resource.data),
     );
   }
-  
+
+  static Widget handleLoadStates({
+    required AnimationController animationController,
+    required PagingData pagingData,
+    required Widget shimmer,
+    required Widget Function(PagingData data, bool isEmpty, Tuple<String, String>? errorMessage) listCallback
+  }) {
+    Tuple<String, String>? error;
+    if(pagingData.loadStates == null || pagingData.loadStates!.refresh is loadStates.Loading) {
+      animationController.forward(from: 0);
+      return shimmer;
+    } else if(pagingData.loadStates?.refresh is loadStates.Error) {
+      animationController.forward(from: 0);
+      final errorState = pagingData.loadStates?.refresh as loadStates.Error;
+      error = formatError(errorState.exception.toString(), "Transactions");
+    }
+
+    bool _isListEmpty = pagingData.loadStates?.refresh is loadStates.NotLoading && pagingData.data.isEmpty;
+
+    animationController.forward();
+
+    return FadeTransition(
+      opacity: Tween<double>(begin: 0, end: 1).animate(animationController),
+      child: listCallback(pagingData, _isListEmpty, error),
+    );
+  }
+
+
 }

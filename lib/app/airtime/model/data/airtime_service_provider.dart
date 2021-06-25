@@ -24,6 +24,9 @@ class AirtimeServiceProvider {
   @JsonKey(name: "svgImage")
   final String? svgImage;
 
+  @JsonKey(name: "logoImageUUID")
+  final String? logoImageUUID;
+
   @ignore
   bool? isSelected;
 
@@ -32,7 +35,8 @@ class AirtimeServiceProvider {
       this.currencySymbol,
       this.billerId,
       this.identifierName,
-      this.svgImage
+      this.svgImage,
+      this.logoImageUUID
   });
 
   factory AirtimeServiceProvider.fromJson(Object? data) => _$AirtimeServiceProviderFromJson(data as Map<String, dynamic>);

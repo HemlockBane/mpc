@@ -4,7 +4,11 @@ import 'package:moniepoint_flutter/core/config/build_config.dart';
 import 'package:moniepoint_flutter/core/config/service_config.dart';
 import 'package:moniepoint_flutter/core/models/transaction.dart';
 import 'package:moniepoint_flutter/core/network/service_result.dart';
+import 'package:retrofit/dio.dart';
 import 'package:retrofit/http.dart';
+
+import 'data/download_transaction_receipt_request_body.dart';
+import 'data/export_statement_request_body.dart';
 
 part 'transaction_service.g.dart';
 
@@ -27,5 +31,25 @@ abstract class TransactionService {
       @Query("endDate") int endDate,
       @Query("page") int page,
       @Query("pageSize") int pageSize);
+
+  @Headers(<String, dynamic>{
+    "client-id": BuildConfig.CLIENT_ID,
+    "appVersion": BuildConfig.APP_VERSION
+  })
+  @POST("statement/export")
+  @DioResponseType(ResponseType.stream)
+  Future<dynamic> exportStatement(
+    @Body() ExportStatementRequestBody requestBody
+  );
+
+  @Headers(<String, dynamic>{
+    "client-id": BuildConfig.CLIENT_ID,
+    "appVersion": BuildConfig.APP_VERSION
+  })
+  @POST("transaction_receipt")
+  @DioResponseType(ResponseType.stream)
+  Future<dynamic> downloadTransactionReceipt(
+    @Body() DownloadTransactionReceiptRequestBody requestBody
+  );
 
 }

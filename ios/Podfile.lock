@@ -1,8 +1,57 @@
 PODS:
+  - Amplify (1.10.0):
+    - Amplify/Default (= 1.10.0)
+  - Amplify/Default (1.10.0)
+  - AmplifyPlugins/AWSCognitoAuthPlugin (1.10.0):
+    - AWSAuthCore (~> 2.24.0)
+    - AWSCognitoIdentityProvider (~> 2.24.0)
+    - AWSCognitoIdentityProviderASF (~> 2.24.0)
+    - AWSCore (~> 2.24.0)
+    - AWSMobileClient (~> 2.24.0)
+    - AWSPluginsCore (= 1.10.0)
+  - AWSAuthCore (2.24.2):
+    - AWSCore (= 2.24.2)
+  - AWSCognitoIdentityProvider (2.24.2):
+    - AWSCognitoIdentityProviderASF (= 2.24.2)
+    - AWSCore (= 2.24.2)
+  - AWSCognitoIdentityProviderASF (2.24.2)
+  - AWSComprehend (2.24.2):
+    - AWSCore (= 2.24.2)
+  - AWSCore (2.24.2)
+  - AWSMobileClient (2.24.2):
+    - AWSAuthCore (= 2.24.2)
+    - AWSCognitoIdentityProvider (= 2.24.2)
+    - AWSCognitoIdentityProviderASF (= 2.24.2)
+    - AWSCore (= 2.24.2)
+  - AWSPluginsCore (1.10.0):
+    - Amplify (= 1.10.0)
+    - AWSCore (~> 2.24.0)
+  - AWSPolly (2.24.2):
+    - AWSCore (= 2.24.2)
+  - AWSPredictionsPlugin (1.10.0):
+    - AWSComprehend (~> 2.24.0)
+    - AWSCore (~> 2.24.0)
+    - AWSPluginsCore (= 1.10.0)
+    - AWSPolly (~> 2.24.0)
+    - AWSRekognition (~> 2.24.0)
+    - AWSTextract (~> 2.24.0)
+    - AWSTranscribeStreaming (~> 2.24.0)
+    - AWSTranslate (~> 2.24.0)
+    - CoreMLPredictionsPlugin (= 1.10.0)
+  - AWSRekognition (2.24.2):
+    - AWSCore (= 2.24.2)
+  - AWSTextract (2.24.2):
+    - AWSCore (= 2.24.2)
+  - AWSTranscribeStreaming (2.24.2):
+    - AWSCore (= 2.24.2)
+  - AWSTranslate (2.24.2):
+    - AWSCore (= 2.24.2)
   - camera (0.0.1):
     - Flutter
   - contacts_service (0.2.2):
     - Flutter
+  - CoreMLPredictionsPlugin (1.10.0):
+    - Amplify (= 1.10.0)
   - device_info (0.0.1):
     - Flutter
   - DKImagePickerController/Core (4.3.2):
@@ -39,6 +88,38 @@ PODS:
   - file_picker (0.0.1):
     - DKImagePickerController/PhotoGallery
     - Flutter
+  - Firebase/CoreOnly (8.0.0):
+    - FirebaseCore (= 8.0.0)
+  - Firebase/Crashlytics (8.0.0):
+    - Firebase/CoreOnly
+    - FirebaseCrashlytics (~> 8.0.0)
+  - firebase_core (1.3.0):
+    - Firebase/CoreOnly (= 8.0.0)
+    - Flutter
+  - firebase_crashlytics (2.0.6):
+    - Firebase/Crashlytics (= 8.0.0)
+    - firebase_core
+    - Flutter
+  - FirebaseCore (8.0.0):
+    - FirebaseCoreDiagnostics (~> 8.0)
+    - GoogleUtilities/Environment (~> 7.4)
+    - GoogleUtilities/Logger (~> 7.4)
+  - FirebaseCoreDiagnostics (8.1.0):
+    - GoogleDataTransport (~> 9.0)
+    - GoogleUtilities/Environment (~> 7.4)
+    - GoogleUtilities/Logger (~> 7.4)
+    - nanopb (~> 2.30908.0)
+  - FirebaseCrashlytics (8.0.0):
+    - FirebaseCore (~> 8.0)
+    - FirebaseInstallations (~> 8.0)
+    - GoogleDataTransport (~> 9.0)
+    - nanopb (~> 2.30908.0)
+    - PromisesObjC (~> 1.2)
+  - FirebaseInstallations (8.1.0):
+    - FirebaseCore (~> 8.0)
+    - GoogleUtilities/Environment (~> 7.4)
+    - GoogleUtilities/UserDefaults (~> 7.4)
+    - PromisesObjC (~> 1.2)
   - Flutter (1.0.0)
   - flutter_downloader (0.0.1):
     - Flutter
@@ -54,11 +135,21 @@ PODS:
   - google_maps_flutter (0.0.1):
     - Flutter
     - GoogleMaps
-  - GoogleMaps (4.1.0):
-    - GoogleMaps/Maps (= 4.1.0)
-  - GoogleMaps/Base (4.1.0)
-  - GoogleMaps/Maps (4.1.0):
+  - GoogleDataTransport (9.0.1):
+    - GoogleUtilities/Environment (~> 7.2)
+    - nanopb (~> 2.30908.0)
+    - PromisesObjC (~> 1.2)
+  - GoogleMaps (5.0.0):
+    - GoogleMaps/Maps (= 5.0.0)
+  - GoogleMaps/Base (5.0.0)
+  - GoogleMaps/Maps (5.0.0):
     - GoogleMaps/Base
+  - GoogleUtilities/Environment (7.4.1):
+    - PromisesObjC (~> 1.2)
+  - GoogleUtilities/Logger (7.4.1):
+    - GoogleUtilities/Environment
+  - GoogleUtilities/UserDefaults (7.4.1):
+    - GoogleUtilities/Logger
   - libwebp (1.2.0):
     - libwebp/demux (= 1.2.0)
     - libwebp/mux (= 1.2.0)
@@ -71,12 +162,18 @@ PODS:
   - Mantle (2.1.6):
     - Mantle/extobjc (= 2.1.6)
   - Mantle/extobjc (2.1.6)
+  - nanopb (2.30908.0):
+    - nanopb/decode (= 2.30908.0)
+    - nanopb/encode (= 2.30908.0)
+  - nanopb/decode (2.30908.0)
+  - nanopb/encode (2.30908.0)
   - open_file (0.0.1):
     - Flutter
   - path_provider (0.0.1):
     - Flutter
   - "permission_handler (5.1.0+2)":
     - Flutter
+  - PromisesObjC (1.2.12)
   - SDWebImage (5.11.1):
     - SDWebImage/Core (= 5.11.1)
   - SDWebImage/Core (5.11.1)
@@ -93,12 +190,24 @@ PODS:
   - SwiftyGif (5.4.0)
   - url_launcher (0.0.1):
     - Flutter
+  - video_player (0.0.1):
+    - Flutter
+  - wakelock (0.0.1):
+    - Flutter
+  - webview_flutter (0.0.1):
+    - Flutter
 
 DEPENDENCIES:
+  - Amplify
+  - AmplifyPlugins/AWSCognitoAuthPlugin
+  - AWSPredictionsPlugin
   - camera (from `.symlinks/plugins/camera/ios`)
   - contacts_service (from `.symlinks/plugins/contacts_service/ios`)
+  - CoreMLPredictionsPlugin
   - device_info (from `.symlinks/plugins/device_info/ios`)
   - file_picker (from `.symlinks/plugins/file_picker/ios`)
+  - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
+  - firebase_crashlytics (from `.symlinks/plugins/firebase_crashlytics/ios`)
   - Flutter (from `Flutter`)
   - flutter_downloader (from `.symlinks/plugins/flutter_downloader/ios`)
   - flutter_image_compress (from `.symlinks/plugins/flutter_image_compress/ios`)
@@ -111,15 +220,43 @@ DEPENDENCIES:
   - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
   - sqflite (from `.symlinks/plugins/sqflite/ios`)
   - url_launcher (from `.symlinks/plugins/url_launcher/ios`)
+  - video_player (from `.symlinks/plugins/video_player/ios`)
+  - wakelock (from `.symlinks/plugins/wakelock/ios`)
+  - webview_flutter (from `.symlinks/plugins/webview_flutter/ios`)
 
 SPEC REPOS:
   trunk:
+    - Amplify
+    - AmplifyPlugins
+    - AWSAuthCore
+    - AWSCognitoIdentityProvider
+    - AWSCognitoIdentityProviderASF
+    - AWSComprehend
+    - AWSCore
+    - AWSMobileClient
+    - AWSPluginsCore
+    - AWSPolly
+    - AWSPredictionsPlugin
+    - AWSRekognition
+    - AWSTextract
+    - AWSTranscribeStreaming
+    - AWSTranslate
+    - CoreMLPredictionsPlugin
     - DKImagePickerController
     - DKPhotoGallery
+    - Firebase
+    - FirebaseCore
+    - FirebaseCoreDiagnostics
+    - FirebaseCrashlytics
+    - FirebaseInstallations
     - FMDB
+    - GoogleDataTransport
     - GoogleMaps
+    - GoogleUtilities
     - libwebp
     - Mantle
+    - nanopb
+    - PromisesObjC
     - SDWebImage
     - SDWebImageWebPCoder
     - SwiftyGif
@@ -133,6 +270,10 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/device_info/ios"
   file_picker:
     :path: ".symlinks/plugins/file_picker/ios"
+  firebase_core:
+    :path: ".symlinks/plugins/firebase_core/ios"
+  firebase_crashlytics:
+    :path: ".symlinks/plugins/firebase_crashlytics/ios"
   Flutter:
     :path: Flutter
   flutter_downloader:
@@ -157,26 +298,59 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/sqflite/ios"
   url_launcher:
     :path: ".symlinks/plugins/url_launcher/ios"
+  video_player:
+    :path: ".symlinks/plugins/video_player/ios"
+  wakelock:
+    :path: ".symlinks/plugins/wakelock/ios"
+  webview_flutter:
+    :path: ".symlinks/plugins/webview_flutter/ios"
 
 SPEC CHECKSUMS:
+  Amplify: 11e56f4e8ae5abc7a3c2e061c5b99265f81cc93a
+  AmplifyPlugins: ff526ead875caa68c7a6b369f4be332df317bf79
+  AWSAuthCore: d2cb921db598ea03d67284977a3c691e9a1aee83
+  AWSCognitoIdentityProvider: f9d68c563718fa5aa76e077752df06c73810efba
+  AWSCognitoIdentityProviderASF: 21681469334e286df6e5470f3cbab3b10edbf818
+  AWSComprehend: 673274c1229afcacfc01538cd98df102b5f680e3
+  AWSCore: 08a61ac2b1d98b2d43f59ee40c4bd68e58dfdea3
+  AWSMobileClient: 6af7fff9e58f8d427acf3381cbbae2f0c34d52ab
+  AWSPluginsCore: 744703798503e07230cc64b67b1f7ff0569e06e9
+  AWSPolly: 9a08d048509d47e477842bce8f8eaa22a641de8f
+  AWSPredictionsPlugin: 716d011cacd4414e70dd3cea7526ad1c49fc6ba4
+  AWSRekognition: 7e7c410235d30e6eeae6b1e4125c9907ceed103c
+  AWSTextract: 59660c5604f486d0be5a475528991793e5dabc3e
+  AWSTranscribeStreaming: 03022666d2287fbde9aae470d71fe2aa6a5f63b3
+  AWSTranslate: 58f33c36edd38916d42365609346ecd7a6160ba6
   camera: a0ca5080336f7af47b88436e5e26da3dee5568f0
   contacts_service: 849e1f84281804c8bfbec1b4c3eedcb23c5d3eca
+  CoreMLPredictionsPlugin: 13e13c45277682a96e7b5e0a39eae474b6e978c9
   device_info: d7d233b645a32c40dfdc212de5cf646ca482f175
   DKImagePickerController: b5eb7f7a388e4643264105d648d01f727110fc3d
   DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179
   file_picker: 3e6c3790de664ccf9b882732d9db5eaf6b8d4eb1
+  Firebase: 73c3e3b216ec1ecbc54d2ffdd4670c65c749edb1
+  firebase_core: cda81ae37eda6df2bc2d16027fda527987c4bd33
+  firebase_crashlytics: 1dad18971e1bac07bbd560c7a344df391a3a833c
+  FirebaseCore: 3f09591d51292843e2a46f18358d60bf4e996255
+  FirebaseCoreDiagnostics: 3e249cee3de5c5f9cfd6cc2a19997231286fec11
+  FirebaseCrashlytics: 69cddb6bfa7656c5346e603bc85b029392252ee6
+  FirebaseInstallations: 7f31798a8198c354eadcb87176d2090b62edc187
   Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
   flutter_downloader: 058b9c41564a90500f67f3e432e3524613a7fd83
   flutter_image_compress: 082f8daaf6c1b0c9fe798251c750ef0ecd98d7ae
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
   geolocator: f5e3de65e241caba7ce3e8a618803387bda73384
   google_maps_flutter: df4e7de95264aa0a2f11aac0fc7e313acb8ffc7e
-  GoogleMaps: 008e2c80e38605b56b560e8deb73d4194ff30bef
+  GoogleDataTransport: 04c3e9a480bbcaa2ec3f5d27f1cdeb6a92f20c8d
+  GoogleMaps: 600e5e69bdf7f4ed7cac4d6aa96c7ec08a5aa254
+  GoogleUtilities: f8a43108b38a68eebe8b3540e1f4f2d28843ce20
   libwebp: e90b9c01d99205d03b6bb8f2c8c415e5a4ef66f0
   Mantle: 4c0ed6ce47c96eccc4dc3bb071deb3def0e2c3be
+  nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   open_file: 02eb5cb6b21264bd3a696876f5afbfb7ca4f4b7d
   path_provider: abfe2b5c733d04e238b0d8691db0cfd63a27a93c
   permission_handler: ccb20a9fad0ee9b1314a52b70b76b473c5f8dab0
+  PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SDWebImageWebPCoder: f93010f3f6c031e2f8fb3081ca4ee6966c539815
   share: 0b2c3e82132f5888bccca3351c504d0003b3b410
@@ -184,7 +358,10 @@ SPEC CHECKSUMS:
   sqflite: 6d358c025f5b867b29ed92fc697fd34924e11904
   SwiftyGif: 5d4af95df24caf1c570dbbcb32a3b8a0763bc6d7
   url_launcher: 6fef411d543ceb26efce54b05a0a40bfd74cbbef
+  video_player: 9cc823b1d9da7e8427ee591e8438bfbcde500e6e
+  wakelock: b0843b2479edbf6504d8d262c2959446f35373aa
+  webview_flutter: 9f491a9b5a66f2573946a389b2677987b0ff8c0b
 
-PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
+PODFILE CHECKSUM: e4351a991a2479f43e4af4b8825d64f713a80fa7
 
 COCOAPODS: 1.10.1

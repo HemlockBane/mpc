@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:moniepoint_flutter/core/models/data_collection.dart';
 import 'package:moniepoint_flutter/core/network/service_result.dart';
 import 'package:moniepoint_flutter/core/paging/paging_state.dart';
@@ -39,6 +40,12 @@ abstract class AbstractDataCollectionMediator<K, V> extends RemoteMediator<K, V>
       return MediatorResult.success(endOfPaginationReached : response.result?.content?.isEmpty == true);
     } catch(e) {
       print(e);
+      if(e is DioError) {
+        print("See status code oo ${e.response?.statusCode}");
+        MediatorResult.error(exception: e);
+      } else if(e is TypeError){
+        MediatorResult.error(exception: Exception(e.toString()));
+      }
       return MediatorResult.error(exception: e as Exception);
     }
   }

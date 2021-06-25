@@ -1,5 +1,6 @@
-import 'dart:convert';
+import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moniepoint_flutter/app/airtime/model/airtime_service_delegate.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_data_request.dart';
@@ -10,6 +11,7 @@ import 'package:moniepoint_flutter/app/airtime/model/data/data_topup_request.dar
 import 'package:moniepoint_flutter/app/login/model/data/authentication_method.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/airtime/model/airtime_beneficiary_delegate.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/airtime/model/data/airtime_beneficiary.dart';
+import 'package:moniepoint_flutter/core/device_manager.dart';
 import 'package:moniepoint_flutter/core/models/transaction_status.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/payment_view_model.dart';
@@ -18,6 +20,7 @@ import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 class AirtimeViewModel extends BaseViewModel with PaymentViewModel {
   late final AirtimeServiceDelegate _delegate;
   late final AirtimeBeneficiaryServiceDelegate _beneficiaryServiceDelegate;
+  late final DeviceManager _deviceManager;
 
   PurchaseType _purchaseType = PurchaseType.AIRTIME;
   PurchaseType get purchaseType => _purchaseType;
@@ -26,9 +29,11 @@ class AirtimeViewModel extends BaseViewModel with PaymentViewModel {
   AirtimeServiceProviderItem? get dataPlan => _dataPlan;
 
   AirtimeViewModel({AirtimeServiceDelegate? delegate,
-    AirtimeBeneficiaryServiceDelegate? beneficiaryServiceDelegate}) {
+    AirtimeBeneficiaryServiceDelegate? beneficiaryServiceDelegate,
+    DeviceManager? deviceManager}) {
     this._delegate = delegate ?? GetIt.I<AirtimeServiceDelegate>();
     this._beneficiaryServiceDelegate = beneficiaryServiceDelegate ?? GetIt.I<AirtimeBeneficiaryServiceDelegate>();
+    this._deviceManager = deviceManager ?? GetIt.I<DeviceManager>();
   }
 
   Stream<Resource<List<AirtimeBeneficiary>>> getFrequentBeneficiaries() {
@@ -77,12 +82,14 @@ class AirtimeViewModel extends BaseViewModel with PaymentViewModel {
             .withPhoneNumber(_cleansePhoneNumber())
             .withServiceProviderCode(beneficiary?.getBeneficiaryProviderCode() ?? "")
             .withMinorCreditAmount((this.amount ?? 0) * 100)
+            .withMetaData(buildTransactionMetaData(describeEnum(_purchaseType)))
             .name = beneficiary?.getAccountName();
         break;
       case PurchaseType.DATA:
         dataTopUpRequest
             .withPhoneNumber(_cleansePhoneNumber())
             .withDataProviderItemCode(_dataPlan?.code ?? "")
+            .withMetaData(buildTransactionMetaData(describeEnum(_purchaseType)))
             .withDataProviderName(beneficiary?.getBeneficiaryProviderName() ?? "")
             .withMinorCreditAmount((this.amount ?? 0) * 100)
             .name = beneficiary?.getAccountName();
@@ -91,7 +98,7 @@ class AirtimeViewModel extends BaseViewModel with PaymentViewModel {
 
     requestBody
         .withAuthenticationType(AuthenticationMethod.PIN)
-        .withDeviceId("334FD601-3E95-457E-B890-70BCD77B6F76")
+        .withDeviceId(_deviceManager.deviceId ?? "")
         .withSaveBeneficiary(saveBeneficiary ?? false)
         .withSourceAccountNumber(accountNumber)
         .withSourceAccountProviderCode(accountProviderCode)
@@ -105,4 +112,9 @@ class AirtimeViewModel extends BaseViewModel with PaymentViewModel {
         return _delegate.makePurchase(requestBody.withDataTopUpRequest(dataTopUpRequest));
     }
   }
+
+  Stream<Uint8List> downloadReceipt(int batchId){
+    return _delegate.downloadReceipt(customerId.toString(), batchId, purchaseType);
+  }
+
 }

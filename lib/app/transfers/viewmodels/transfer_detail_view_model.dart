@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:get_it/get_it.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/single_transfer_transaction.dart';
 import 'package:moniepoint_flutter/app/transfers/model/transfer_service_delegate.dart';
@@ -13,6 +15,10 @@ class TransferDetailViewModel extends BaseViewModel {
 
   Future<SingleTransferTransaction?> getSingleTransactionById(int id) {
     return _delegate.getSingleTransactionById(id);
+  }
+
+  Stream<Uint8List> downloadReceipt(int batchId){
+    return _delegate.downloadReceipt(customerId.toString(), batchId);
   }
 
 }

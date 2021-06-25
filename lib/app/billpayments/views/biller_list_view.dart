@@ -1,12 +1,15 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/biller.dart';
 import 'package:moniepoint_flutter/app/billpayments/viewmodels/bill_purchase_view_model.dart';
 import 'package:moniepoint_flutter/app/billpayments/viewmodels/biller_view_model.dart';
 import 'package:moniepoint_flutter/app/billpayments/views/bill_view.dart';
+import 'package:moniepoint_flutter/app/cards/views/empty_list_layout_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/biller_category.dart';
-import 'package:moniepoint_flutter/app/billpayments/viewmodels/bill_category_view_model.dart';
+import 'package:moniepoint_flutter/core/models/file_result.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/list_view_util.dart';
@@ -21,14 +24,14 @@ class BillerListScreen extends StatefulWidget {
   State<StatefulWidget> createState() => _BillerListScreen();
 }
 
-class _BillerListScreen extends State<BillerListScreen>
-    with AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
+class _BillerListScreen extends State<BillerListScreen> with AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
   late final AnimationController _animationController;
   final List<Biller> _currentItems = [];
 
   _BillerListScreen() {
     this._animationController = AnimationController(
-        vsync: this, duration: Duration(milliseconds: 1000));
+        vsync: this, duration: Duration(milliseconds: 1000)
+    );
   }
 
   @override
@@ -45,7 +48,17 @@ class _BillerListScreen extends State<BillerListScreen>
         context: context,
         snapshot: a,
         animationController: _animationController,
+        displayLocalData: false,
         currentList: _currentItems,
+        emptyPlaceholder: Column(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            EmptyLayoutView(
+                "There are currently no biller for the\nselected bill category"
+            )
+          ],
+        ),
         listView: (List<Biller>? items) {
           return ListView.separated(
               shrinkWrap: true,
@@ -131,21 +144,31 @@ class _BillerListItem extends Container {
       this._onItemClickListener
       );
 
-  Widget initialView(String? svg) {
+  Widget _defaultImage() {
     return Container(
       width: 34,
       height: 34,
       padding: EdgeInsets.all(0),
-      decoration: BoxDecoration(
-          shape: BoxShape.circle, color: Colors.primaryColor.withOpacity(0.1)),
+      decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.primaryColor.withOpacity(0.1)),
       child: Center(
-        child: (svg != null)
-            ? SvgPicture.string(
-                svg,
-                width: 16,
-                height: 16,
-              )
-            : Container(),
+        child: Container(),
+      ),
+    );
+  }
+
+  Widget initialView(BuildContext mContext) {
+    if(_billBiller.logoImageUUID == null) return _defaultImage();
+    return Visibility(
+      visible: _billBiller.logoImageUUID != null,
+      child: StreamBuilder(
+          stream: Provider.of<BillPurchaseViewModel>(mContext, listen: false).getFile(_billBiller.logoImageUUID ?? ""),
+          builder: (mContext, AsyncSnapshot<Resource<FileResult>> snapShot) {
+            if(!snapShot.hasData || snapShot.data == null) return _defaultImage();
+            final base64 = snapShot.data?.data;
+
+            if(base64 == null || base64.base64String == null) return _defaultImage();
+            return Image.memory(base64Decode(base64.base64String!), width: 40, height: 40,);
+          }
       ),
     );
   }
@@ -179,7 +202,7 @@ class _BillerListItem extends Container {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  initialView(_billBiller.svgImage),
+                  initialView(context),
                   SizedBox(width: 16),
                   Expanded(
                       child: Text(_billBiller.name ?? "",

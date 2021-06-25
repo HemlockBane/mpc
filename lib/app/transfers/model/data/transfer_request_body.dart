@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:moniepoint_flutter/app/login/model/data/authentication_method.dart';
+import 'package:moniepoint_flutter/core/models/transaction_meta_data.dart';
 
 part 'transfer_request_body.g.dart';
 
@@ -26,7 +27,8 @@ class TransferRequestBody {
   String? sourceAccountProviderCode;
   String? userCode;
   String? validatedAccountName;
-  String? metaData;
+  @JsonKey(name:"metaDataObj")
+  TransactionMetaData? metaData;
 
   TransferRequestBody({
     this.authenticationType = AuthenticationMethod.PIN,

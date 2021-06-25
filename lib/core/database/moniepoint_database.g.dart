@@ -125,7 +125,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `airtime_beneficiaries` (`id` INTEGER NOT NULL, `name` TEXT, `phoneNumber` TEXT, `serviceProvider` TEXT, `frequency` INTEGER, `lastUpdated` INTEGER, PRIMARY KEY (`id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `service_providers` (`code` TEXT NOT NULL, `name` TEXT, `currencySymbol` TEXT, `billerId` TEXT, `identifierName` TEXT, `svgImage` TEXT, PRIMARY KEY (`code`))');
+            'CREATE TABLE IF NOT EXISTS `service_providers` (`code` TEXT NOT NULL, `name` TEXT, `currencySymbol` TEXT, `billerId` TEXT, `identifierName` TEXT, `svgImage` TEXT, `logoImageUUID` TEXT, PRIMARY KEY (`code`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `service_provider_items` (`id` INTEGER NOT NULL, `active` INTEGER, `amount` INTEGER, `code` TEXT, `currencySymbol` TEXT, `fee` REAL, `name` TEXT, `paymentCode` TEXT, `priceFixed` INTEGER, `billerId` TEXT, PRIMARY KEY (`id`))');
         await database.execute(
@@ -133,13 +133,13 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `bill_beneficiaries` (`id` INTEGER NOT NULL, `name` TEXT, `billerCode` TEXT, `billerCategoryLogo` TEXT, `biller` TEXT, `billerProducts` TEXT, `billerName` TEXT, `customerIdentity` TEXT, `frequency` INTEGER, `lastUpdated` INTEGER, PRIMARY KEY (`id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `billers` (`billerCategoryId` TEXT, `billerCategoryCode` TEXT, `id` INTEGER NOT NULL, `name` TEXT, `code` TEXT, `identifierName` TEXT, `currencySymbol` TEXT, `active` INTEGER, `collectionAccountNumber` TEXT, `collectionAccountName` TEXT, `collectionAccountProviderCode` TEXT, `collectionAccountProviderName` TEXT, `svgImage` TEXT, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `billers` (`billerCategoryId` TEXT, `billerCategoryCode` TEXT, `id` INTEGER NOT NULL, `name` TEXT, `code` TEXT, `identifierName` TEXT, `currencySymbol` TEXT, `active` INTEGER, `collectionAccountNumber` TEXT, `collectionAccountName` TEXT, `collectionAccountProviderCode` TEXT, `collectionAccountProviderName` TEXT, `svgImage` TEXT, `logoImageUUID` TEXT, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `biller_categories` (`id` INTEGER NOT NULL, `name` TEXT, `description` TEXT, `categoryCode` TEXT, `active` INTEGER, `svgImage` TEXT, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `biller_products` (`billerCode` TEXT, `id` INTEGER NOT NULL, `name` TEXT, `code` TEXT, `amount` REAL, `fee` REAL, `paymentCode` TEXT, `currencySymbol` TEXT, `active` INTEGER, `priceFixed` INTEGER, `minimumAmount` REAL, `maximumAmount` REAL, `identifierName` TEXT, `additionalFieldsMap` TEXT, PRIMARY KEY (`id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `account_transactions` (`id` INTEGER, `accountNumber` TEXT, `status` INTEGER, `transactionRef` TEXT NOT NULL, `amount` REAL, `type` TEXT, `channel` TEXT, `transactionChannel` TEXT, `tags` TEXT, `narration` TEXT, `transactionDate` INTEGER NOT NULL, `runningBalance` TEXT, `balanceBefore` TEXT, `balanceAfter` TEXT, PRIMARY KEY (`transactionRef`))');
+            'CREATE TABLE IF NOT EXISTS `account_transactions` (`id` INTEGER, `accountNumber` TEXT, `status` INTEGER, `transactionRef` TEXT NOT NULL, `amount` REAL, `type` TEXT, `channel` TEXT, `transactionChannel` TEXT, `tags` TEXT, `narration` TEXT, `transactionDate` INTEGER NOT NULL, `runningBalance` TEXT, `balanceBefore` TEXT, `balanceAfter` TEXT, `metaData` TEXT, PRIMARY KEY (`transactionRef`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `tiers` (`id` INTEGER NOT NULL, `status` TEXT, `createdOn` TEXT, `lastModifiedOn` TEXT, `code` TEXT, `name` TEXT, `classification` TEXT, `accountNumberPrefix` TEXT, `accountNumberLength` INTEGER, `allowNegativeBalance` INTEGER, `allowLien` INTEGER, `enableInstantBalanceUpdate` INTEGER, `maximumCumulativeBalance` REAL, `maximumSingleDebit` REAL, `maximumSingleCredit` REAL, `maximumDailyDebit` REAL, `maximumDailyCredit` REAL, `schemeRequirement` TEXT, `alternateSchemeRequirement` TEXT, `supportsAccountGeneration` INTEGER, PRIMARY KEY (`id`))');
 
@@ -743,7 +743,7 @@ class _$TransferDao extends TransferDao {
 
   @override
   Stream<List<SingleTransferTransaction>> getSingleTransferTransactions(
-      int startDate, int endDate, int offset, int limit) {
+      int startDate, int endDate, int myOffset, int limit) {
     return _queryAdapter.queryListStream(
         'SELECT * FROM transfer_transactions WHERE (dateAdded BETWEEN ?1 AND ?2) ORDER BY dateAdded DESC LIMIT ?4 OFFSET ?3',
         mapper: (Map<String, Object?> row) => SingleTransferTransaction(
@@ -755,7 +755,7 @@ class _$TransferDao extends TransferDao {
                 _transferHistoryItemConverter.decode(row['history'] as String?),
             historyType: row['historyType'] as String?,
             historyDateAdded: row['dateAdded'] as int?),
-        arguments: [startDate, endDate, offset, limit],
+        arguments: [startDate, endDate, myOffset, limit],
         queryableName: 'transfer_transactions',
         isView: false);
   }
@@ -851,7 +851,7 @@ class _$AirtimeDao extends AirtimeDao {
 
   @override
   Stream<List<AirtimeTransaction>> getAirtimeTransactions(
-      int startDate, int endDate, int offset, int limit) {
+      int startDate, int endDate, int myOffset, int limit) {
     return _queryAdapter.queryListStream(
         'SELECT * FROM airtime_transactions WHERE (creationTimeStamp BETWEEN ?1 AND ?2) ORDER BY creationTimeStamp DESC LIMIT ?4 OFFSET ?3',
         mapper: (Map<String, Object?> row) => AirtimeTransaction(
@@ -864,7 +864,7 @@ class _$AirtimeDao extends AirtimeDao {
                 _transactionBatchConverter.decode(row['batch'] as String?),
             historyType: row['historyType'] as String?,
             creationTimeStamp: row['creationTimeStamp'] as int?),
-        arguments: [startDate, endDate, offset, limit],
+        arguments: [startDate, endDate, myOffset, limit],
         queryableName: 'airtime_transactions',
         isView: false);
   }
@@ -1057,7 +1057,8 @@ class _$AirtimeServiceProviderDao extends AirtimeServiceProviderDao {
                   'currencySymbol': item.currencySymbol,
                   'billerId': item.billerId,
                   'identifierName': item.identifierName,
-                  'svgImage': item.svgImage
+                  'svgImage': item.svgImage,
+                  'logoImageUUID': item.logoImageUUID
                 },
             changeListener),
         _airtimeServiceProviderDeletionAdapter = DeletionAdapter(
@@ -1070,7 +1071,8 @@ class _$AirtimeServiceProviderDao extends AirtimeServiceProviderDao {
                   'currencySymbol': item.currencySymbol,
                   'billerId': item.billerId,
                   'identifierName': item.identifierName,
-                  'svgImage': item.svgImage
+                  'svgImage': item.svgImage,
+                  'logoImageUUID': item.logoImageUUID
                 },
             changeListener);
 
@@ -1096,7 +1098,8 @@ class _$AirtimeServiceProviderDao extends AirtimeServiceProviderDao {
             currencySymbol: row['currencySymbol'] as String?,
             billerId: row['billerId'] as String?,
             identifierName: row['identifierName'] as String?,
-            svgImage: row['svgImage'] as String?),
+            svgImage: row['svgImage'] as String?,
+            logoImageUUID: row['logoImageUUID'] as String?),
         queryableName: 'service_providers',
         isView: false);
   }
@@ -1284,9 +1287,9 @@ class _$BillsDao extends BillsDao {
 
   @override
   Stream<List<BillTransaction>> getBillTransactions(
-      int startDate, int endDate, int limit, int offset) {
+      int startDate, int endDate, int myOffset, int limit) {
     return _queryAdapter.queryListStream(
-        'SELECT * FROM bill_transactions WHERE (creationTimeStamp BETWEEN ?1 AND ?2) AND batch_status != "CANCELLED" ORDER BY creationTimeStamp DESC LIMIT ?3 OFFSET ?4',
+        'SELECT * FROM bill_transactions WHERE (creationTimeStamp BETWEEN ?1 AND ?2) AND batch_status != "CANCELLED" ORDER BY creationTimeStamp DESC LIMIT ?4 OFFSET ?3',
         mapper: (Map<String, Object?> row) => BillTransaction(
             batchId: row['batch_id'] as int,
             historyId: row['history_id'] as int?,
@@ -1297,7 +1300,7 @@ class _$BillsDao extends BillsDao {
                 _transactionBatchConverter.decode(row['batch'] as String?),
             historyType: row['historyType'] as String?,
             creationTimeStamp: row['creationTimeStamp'] as int?),
-        arguments: [startDate, endDate, limit, offset],
+        arguments: [startDate, endDate, myOffset, limit],
         queryableName: 'bill_transactions',
         isView: false);
   }
@@ -1540,7 +1543,8 @@ class _$BillerDao extends BillerDao {
                       item.collectionAccountProviderCode,
                   'collectionAccountProviderName':
                       item.collectionAccountProviderName,
-                  'svgImage': item.svgImage
+                  'svgImage': item.svgImage,
+                  'logoImageUUID': item.logoImageUUID
                 },
             changeListener),
         _billerDeletionAdapter = DeletionAdapter(
@@ -1562,7 +1566,8 @@ class _$BillerDao extends BillerDao {
                       item.collectionAccountProviderCode,
                   'collectionAccountProviderName':
                       item.collectionAccountProviderName,
-                  'svgImage': item.svgImage
+                  'svgImage': item.svgImage,
+                  'logoImageUUID': item.logoImageUUID
                 },
             changeListener);
 
@@ -1595,7 +1600,8 @@ class _$BillerDao extends BillerDao {
                 row['collectionAccountProviderCode'] as String?,
             collectionAccountProviderName:
                 row['collectionAccountProviderName'] as String?,
-            svgImage: row['svgImage'] as String?),
+            svgImage: row['svgImage'] as String?,
+            logoImageUUID: row['logoImageUUID'] as String?),
         arguments: [categoryId],
         queryableName: 'billers',
         isView: false);
@@ -1862,7 +1868,9 @@ class _$TransactionDao extends TransactionDao {
                   'transactionDate': item.transactionDate,
                   'runningBalance': item.runningBalance,
                   'balanceBefore': item.balanceBefore,
-                  'balanceAfter': item.balanceAfter
+                  'balanceAfter': item.balanceAfter,
+                  'metaData':
+                      _transactionMetaDataConverter.encode(item.metaData)
                 },
             changeListener),
         _accountTransactionDeletionAdapter = DeletionAdapter(
@@ -1884,7 +1892,9 @@ class _$TransactionDao extends TransactionDao {
                   'transactionDate': item.transactionDate,
                   'runningBalance': item.runningBalance,
                   'balanceBefore': item.balanceBefore,
-                  'balanceAfter': item.balanceAfter
+                  'balanceAfter': item.balanceAfter,
+                  'metaData':
+                      _transactionMetaDataConverter.encode(item.metaData)
                 },
             changeListener);
 
@@ -1934,7 +1944,9 @@ class _$TransactionDao extends TransactionDao {
             narration: row['narration'] as String?,
             runningBalance: row['runningBalance'] as String?,
             balanceBefore: row['balanceBefore'] as String?,
-            balanceAfter: row['balanceAfter'] as String?),
+            balanceAfter: row['balanceAfter'] as String?,
+            metaData: _transactionMetaDataConverter
+                .decode(row['metaData'] as String?)),
         arguments: [
           startDate,
           endDate,
@@ -1965,7 +1977,9 @@ class _$TransactionDao extends TransactionDao {
             narration: row['narration'] as String?,
             runningBalance: row['runningBalance'] as String?,
             balanceBefore: row['balanceBefore'] as String?,
-            balanceAfter: row['balanceAfter'] as String?),
+            balanceAfter: row['balanceAfter'] as String?,
+            metaData: _transactionMetaDataConverter
+                .decode(row['metaData'] as String?)),
         arguments: [tranRef]);
   }
 
@@ -2186,6 +2200,7 @@ final _listBillerProductConverter = ListBillerProductConverter();
 final _additionalFieldsConverter = AdditionalFieldsConverter();
 final _transactionTypeConverter = TransactionTypeConverter();
 final _transactionChannelConverter = TransactionChannelConverter();
+final _transactionMetaDataConverter = TransactionMetaDataConverter();
 final _schemeRequirementConverter = SchemeRequirementConverter();
 final _alternateSchemeRequirementConverter =
     AlternateSchemeRequirementConverter();

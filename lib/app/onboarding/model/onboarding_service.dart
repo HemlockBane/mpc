@@ -15,6 +15,8 @@ import 'data/validation_otp_request.dart';
 
 part 'onboarding_service.g.dart';
 
+/// @author Paul Okeke
+
 @RestApi(baseUrl: "${ServiceConfig.ROOT_SERVICE}api/v1/onboarding")
 abstract class OnBoardingService {
 
@@ -61,12 +63,12 @@ abstract class OnBoardingService {
   @POST("${ServiceConfig.ROOT_SERVICE}api/v1/account_creation")
   Future<ServiceResult<AccountProfile>> createAccount(@Body() AccountCreationRequestBody body);
 
-  // @Headers(
-  //     "Content-Type: application/json",
-  //     "client-id: " + BuildConfig.CLIENT_ID,
-  //     "appVersion: " + BuildConfig.APP_VERSION
-  // )
-  // @POST("validate_username")
-  // suspend fun validateUsername(@Body body: ValidateUsernameRequestBody?): BooleanServiceResult
+  @Headers(<String, dynamic>{
+    "Content-Type": "application/json",
+    "client-id": BuildConfig.CLIENT_ID,
+    "appVersion": BuildConfig.APP_VERSION
+  })
+  @GET("${ServiceConfig.OPERATION_SERVICE}api/v1/user/check_username")
+  Future<ServiceResult<bool>> checkUsername(@Query("username") String username);
 
 }

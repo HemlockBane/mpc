@@ -3,6 +3,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/alternate_scheme_requirement.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/scheme_requirement.dart';
 import 'package:moniepoint_flutter/core/database/type_converters.dart';
+import 'dart:math';
 
 part 'tier.g.dart';
 
@@ -58,4 +59,48 @@ class Tier {
   factory Tier.fromJson(Object? data) => _$TierFromJson(data as Map<String, dynamic>);
   Map<String, dynamic> toJson() => _$TierToJson(this);
 
+  bool isQualified() {
+    final accountFlags = alternateSchemeRequirement?.toAccountUpdateFlag();
+    final sumOfRequiredWeight = accountFlags?.fold(0, (int previousValue, element) {
+      return (element.required)
+          ? previousValue + element.weight
+          : previousValue;
+    }) ?? 0;
+
+    final weightOfTotalSupplied = accountFlags?.fold(0, (int previousValue, element) {
+      return (element.required && element.status)
+          ? previousValue + element.weight
+          : previousValue;
+    }) ?? 0;
+
+    return (weightOfTotalSupplied > 0) &&
+        weightOfTotalSupplied >= sumOfRequiredWeight;
+  }
+
+  static int getQualifiedTierIndex(List<Tier> tiers) {
+    // We put into cognisance that the number of tiers is likely to be more than three
+    if (tiers.isEmpty) return 0;
+
+    //Wait a little for the viewPager to layout the items
+    final centerTierIndex = tiers.length ~/ 2.abs();
+    final centerTier = tiers[centerTierIndex];
+
+    if (centerTier.isQualified()) {
+      var lastQualifiedIndex = centerTierIndex;
+      //In-case we have more than three tiers,let's get the maximum tier qualified index
+      for (var i = centerTierIndex; i <= tiers.length - 1; i++) {
+        if (tiers[i].isQualified()) lastQualifiedIndex = i;
+      }
+      return lastQualifiedIndex;
+    } else {
+      var lastQualifiedIndex = 0;
+      for (var i = centerTierIndex; i >= 0; i--) {
+        if (tiers[i].isQualified()) {
+          lastQualifiedIndex = i;
+          break;
+        }
+      }
+      return lastQualifiedIndex;
+    }
+  }
 }

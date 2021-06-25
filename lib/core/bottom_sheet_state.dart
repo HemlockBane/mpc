@@ -1,0 +1,3 @@
+enum BottomSheetState {
+  COLLAPSED, EXPANDED
+}

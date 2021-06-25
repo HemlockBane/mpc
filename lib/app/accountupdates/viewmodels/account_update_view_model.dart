@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:get_it/get_it.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/account_update_flag.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/customer_service_delegate.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/data/account_update.dart';
@@ -15,6 +16,7 @@ import 'package:moniepoint_flutter/app/accountupdates/model/forms/next_of_kin_fo
 import 'package:moniepoint_flutter/core/lazy.dart';
 import 'package:moniepoint_flutter/core/models/file_uuid.dart';
 import 'package:moniepoint_flutter/core/models/services/location_service_delegate.dart';
+import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/network/service_error.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
@@ -44,6 +46,15 @@ class AccountUpdateViewModel extends BaseViewModel {
 
   late final LocationServiceDelegate _locationServiceDelegate;
   late final CustomerServiceDelegate _customerServiceDelegate;
+
+  late final Map<String, bool Function()> _flagNameToFormValidity = {
+    Flags.ADDITIONAL_INFO : () =>  _additionalInfoForm.isInitialized && _additionalInfoForm.value.isFormValid ,
+    Flags.IDENTIFICATION_INFO :  () => _identificationForm.isInitialized && identificationForm.isFormValid ,
+    Flags.IDENTIFICATION_PROOF :  () => _identificationForm.isInitialized && identificationForm.isFormValid ,
+    Flags.ADDRESS_INFO :  () => _addressForm.isInitialized && _addressForm.value.isFormValid ,
+    Flags.ADDRESS_PROOF :  () => _addressForm.isInitialized &&  _addressForm.value.getAddressInfo.utilityBillUUID != null,
+    Flags.NEXT_OF_KIN_INFO :  () => _nextOfKinForm.isInitialized && _nextOfKinForm.value.isFormValid ,
+  };
 
   final List<Nationality> nationalities = [];
   final List<Tier> tiers = [];
@@ -131,6 +142,43 @@ class AccountUpdateViewModel extends BaseViewModel {
       }
       return event;
     });
+  }
+
+  double getFormWeightedProgress() {
+    //The Flags in account status should take priority over what's in customer object due to refresh
+    var progress = 0.0;
+
+    final status = UserInstance().accountStatus;
+    final flags =
+        status?.listFlags() ?? customer?.listFlags(); // ?: return progress
+
+    if (flags == null) return progress;
+
+    //We are simply calculating the progress the user has made filling the form for update
+    //Thus: the progress is inclusive of what has earlier been sent/approved and what
+    //the user has currently filled and validated on the device
+    flags.where((element) => element != null).forEach((element) {
+      if (_flagNameToFormValidity.containsKey(element!.flagName)) {
+        final fn = _flagNameToFormValidity[element.flagName];
+        if (fn?.call() == true) {
+          progress += element.weight;
+        } else if (element.status) {
+          progress += element.weight;
+        }
+      } else {
+        if (element.flagName == Flags.BVN_VERIFIED && element.status) {
+          //has the user graced past tier 1? we can get the next tier and confirm if qualified
+          final mTiers = tiers;
+          if ((mTiers.isEmpty || mTiers.length == 1)) {
+          } else {
+            final nextTier = mTiers[1];
+            progress += (nextTier.isQualified()) ? element.weight : 0;
+          }
+        } else
+          (element.status) ? progress += element.weight : progress = progress;
+      }
+    });
+    return progress;
   }
 
   @override

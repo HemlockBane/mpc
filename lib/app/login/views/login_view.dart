@@ -10,6 +10,8 @@ import 'package:moniepoint_flutter/app/login/views/dialogs/unrecognized_device_d
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
+import 'package:moniepoint_flutter/core/login_mode.dart';
+import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
@@ -38,6 +40,7 @@ class _LoginState extends State<LoginScreen> with SingleTickerProviderStateMixin
       vsync: this,
       duration: Duration(milliseconds: 2000)
   );
+
   late final _ussdOffsetAnimation = Tween<Offset>(
     begin: Offset(0, 12),
     end: Offset(0, 0)
@@ -51,6 +54,10 @@ class _LoginState extends State<LoginScreen> with SingleTickerProviderStateMixin
 
   @override
   void initState() {
+    final viewModel = Provider.of<LoginViewModel>(context, listen: false);
+
+    viewModel.getSystemConfigurations().listen((event) { });
+
     _usernameController.addListener(() => validateForm());
     _passwordController.addListener(() => validateForm());
 
@@ -59,12 +66,21 @@ class _LoginState extends State<LoginScreen> with SingleTickerProviderStateMixin
     _initSavedUsername();
     _animController.forward();
 
-    BiometricHelper.initialize(keyFileName: "moniepoint_iv", keyStoreName: "AndroidKeyStore", keyAlias: "teamapt-moniepoint")
-        .then((value) { _biometricHelper = value; });
+    _initializeAndStartBiometric();
+  }
 
-    Future.delayed(Duration(milliseconds: 1400), (){
-      _startFingerPrintLoginProcess();
-    });
+  void _initializeAndStartBiometric() async {
+    _biometricHelper = await BiometricHelper.initialize(
+        keyFileName: "moniepoint_iv",
+        keyStoreName: "AndroidKeyStore",
+        keyAlias: "teamapt-moniepoint"
+    );
+    if(!_alreadyInSessionError) _startFingerPrintLoginProcess();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
   }
 
   void _initSavedUsername() {
@@ -178,12 +194,20 @@ class _LoginState extends State<LoginScreen> with SingleTickerProviderStateMixin
           isScrollControlled: true,
           backgroundColor: Colors.transparent,
           builder: (context) {
+            if(event.message?.contains("version") == true) {
+              return BottomSheets.displayWarningDialog('Update Moniepoint App', event.message ?? "", () {
+                Navigator.of(context).pop();
+                final viewModel = Provider.of<LoginViewModel>(context, listen: false);
+                dialNumber(viewModel.getApplicationPlayStoreUrl());
+              }, buttonText: "Upgrade App");
+            }
             return BottomSheets.displayErrorModal(context, message: event.message);
           });
     }
     if(event is Success<User>) {
       _passwordController.clear();
       setState(() => _isLoading = false);
+      PreferenceUtil.setLoginMode(LoginMode.FULL_ACCESS);
       PreferenceUtil.saveLoggedInUser(event.data!);
       PreferenceUtil.saveUsername(event.data?.username ?? "");
       checkSecurityFlags();
@@ -213,7 +237,7 @@ class _LoginState extends State<LoginScreen> with SingleTickerProviderStateMixin
     final viewModel = Provider.of<LoginViewModel>(context, listen: false);
     final value = await _biometricHelper?.isFingerPrintAvailable();
     final hasFingerPrint = (await _biometricHelper?.getFingerprintPassword()) != null;
-    if(value!.first == true) {
+    if(value?.first == true) {
       if(PreferenceUtil.getFingerPrintEnabled() && hasFingerPrint){
         _biometricHelper?.authenticate(authenticationCallback: (key, msg) {
             if(key != null) {
@@ -224,8 +248,23 @@ class _LoginState extends State<LoginScreen> with SingleTickerProviderStateMixin
         });
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(value.second ?? "")));
+      //ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(value.second ?? "")));
     }
+  }
+
+  void _displayRecoverCredentials() async {
+    showModalBottomSheet(
+        isScrollControlled: true,
+        context: context,
+        backgroundColor: Colors.transparent,
+        builder: (context) {
+          return BottomSheets.makeAppBottomSheet(
+              height: 420,
+              centerImageRes: 'res/drawables/ic_key.svg',
+              centerImageBackgroundColor: Colors.primaryColor.withOpacity(0.1),
+              content: RecoverCredentialsDialogLayout.getLayout(context)
+          );
+        });
   }
 
   void _displayLoginOptions() async {
@@ -241,7 +280,7 @@ class _LoginState extends State<LoginScreen> with SingleTickerProviderStateMixin
         backgroundColor: Colors.transparent,
         builder: (context) {
           return BottomSheets.makeAppBottomSheet(
-              height: MediaQuery.of(context).size.height * 0.54,//this is like our guideline
+              height: 420,//this is like our guideline
               centerImageRes: 'res/drawables/ic_login_options.svg',
               centerBackgroundPadding: 18,
               centerImageBackgroundColor: Colors.primaryColor.withOpacity(0.1),
@@ -316,20 +355,7 @@ class _LoginState extends State<LoginScreen> with SingleTickerProviderStateMixin
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 TextButton(
-                  onPressed: () async {
-                    showModalBottomSheet(
-                      isScrollControlled: false,
-                        context: context,
-                        backgroundColor: Colors.transparent,
-                        builder: (context) {
-                          return BottomSheets.makeAppBottomSheet(
-                              height: MediaQuery.of(context).size.height * 0.54,//this is like our guideline
-                              centerImageRes: 'res/drawables/ic_key.svg',
-                              centerImageBackgroundColor: Colors.primaryColor.withOpacity(0.1),
-                              content: RecoverCredentialsDialogLayout.getLayout(context)
-                          );
-                        });
-                  },
+                  onPressed: _displayRecoverCredentials,
                   child: Text('Recover Credentials'),
                   style: ButtonStyle(
                       padding: MaterialStateProperty.all(EdgeInsets.all(0)),
@@ -431,8 +457,8 @@ class _LoginState extends State<LoginScreen> with SingleTickerProviderStateMixin
     if(reason == null) return;
     if(reason.second == SessionTimeoutReason.INACTIVITY && !_alreadyInSessionError) {
       _alreadyInSessionError = true;
-      PreferenceUtil.deleteLoggedInUser();
-      Future.delayed(Duration(milliseconds: 150), (){
+      UserInstance().resetSession();
+      Future.delayed(Duration(milliseconds: 150), () {
         showModalBottomSheet(
             backgroundColor: Colors.transparent,
             context: context,
@@ -443,6 +469,7 @@ class _LoginState extends State<LoginScreen> with SingleTickerProviderStateMixin
                   message: "your session timed out due to inactivity. Please re-login to continue",
                   onClick: () {
                     Navigator.of(context).pop();
+                    _startFingerPrintLoginProcess();
                   }
               );
             }
@@ -461,11 +488,14 @@ class _LoginState extends State<LoginScreen> with SingleTickerProviderStateMixin
     final sessionReason = ModalRoute.of(context)!.settings.arguments as Tuple<String, SessionTimeoutReason>?;
     _onSessionReason(sessionReason);
 
-    return Scaffold(
-        backgroundColor: Colors.backgroundWhite,
-        body: Stack(
-          children: [
-            ScrollView(
+    return WillPopScope(
+        onWillPop: () async {
+          Navigator.of(context).popAndPushNamed(Routes.SIGN_UP);
+          return true;
+        },
+        child: Scaffold(
+            backgroundColor: Colors.backgroundWhite,
+            body: ScrollView(
                 child: Container(
                   color: Colors.backgroundWhite,
                   padding: EdgeInsets.only(left: 16, right: 16, top: 34, bottom: 0),
@@ -494,13 +524,14 @@ class _LoginState extends State<LoginScreen> with SingleTickerProviderStateMixin
                   ]),
                 )
             )
-          ],
-        )
+        ),
     );
   }
 
   @override
   void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
     _animController.dispose();
     super.dispose();
   }

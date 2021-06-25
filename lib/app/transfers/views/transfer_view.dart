@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide Colors;
+import 'package:moniepoint_flutter/app/transfers/model/data/single_transfer_transaction.dart';
 import 'package:moniepoint_flutter/app/transfers/viewmodels/transfer_history_view_model.dart';
 import 'package:moniepoint_flutter/app/transfers/viewmodels/transfer_view_model.dart';
 import 'package:moniepoint_flutter/app/transfers/views/transfer_beneficiary_view.dart';
@@ -22,12 +23,12 @@ class TransferScreen extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return _TransferScreen();
+    return TransferScreenState();
   }
 
 }
 
-class _TransferScreen extends State<TransferScreen> {
+class TransferScreenState extends State<TransferScreen> {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -37,56 +38,84 @@ class _TransferScreen extends State<TransferScreen> {
       ],
       child: DefaultTabController(
         length: 2,
-        child: Scaffold(
-          resizeToAvoidBottomInset: false,
-          key: widget._scaffoldKey,
-          backgroundColor: Colors.backgroundWhite,
-          appBar: AppBar(
-              centerTitle: false,
-              titleSpacing: -12,
-              iconTheme: IconThemeData(color: Colors.primaryColor),
-              title: Text('Transfers',
-                  textAlign: TextAlign.start,
-                  style: TextStyle(
-                      color: Colors.darkBlue,
-                      fontFamily: Styles.defaultFont,
-                      fontSize: 17
-                  )
-              ),
-              backgroundColor: Colors.backgroundWhite,
-              elevation: 0
-          ),
-          body: SessionedWidget(
-            context: context,
-            child: Column(
-              children: [
-                SizedBox(height: 16),
-                TransactionTab(
-                    TabBar(
-                      indicator: BoxDecoration(
-                          borderRadius: BorderRadius.circular(50),
-                          color: Colors.primaryColor),
-                      unselectedLabelColor: Color(0XFF8030424C),
-                      tabs: [
-                        Tab(
-                          text: "Transfer",
-                        ),
-                        Tab(
-                          text: "History",
+        child: Builder(
+            builder: (mContext) {
+              return Scaffold(
+                resizeToAvoidBottomInset: false,
+                key: widget._scaffoldKey,
+                backgroundColor: Colors.backgroundWhite,
+                appBar: AppBar(
+                    centerTitle: false,
+                    titleSpacing: -12,
+                    iconTheme: IconThemeData(color: Colors.primaryColor),
+                    title: Text('Transfers',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                            color: Colors.darkBlue,
+                            fontFamily: Styles.defaultFont,
+                            fontSize: 17
                         )
-                      ],
                     ),
-                    Colors.tabBackground.withOpacity(0.16)),
-                Expanded(
-                    child: TabBarView(children: [
-                      _TransferViewNavigator(widget._scaffoldKey, widget._navigatorKey),
-                      TransferHistoryScreen(widget._scaffoldKey),
-                ]))
-              ],
-            ),
-          ),
+                    backgroundColor: Colors.backgroundWhite,
+                    elevation: 0
+                ),
+                body: SessionedWidget(
+                  context: context,
+                  child: Column(
+                    children: [
+                      SizedBox(height: 16),
+                      TransactionTab(
+                          TabBar(
+                            indicator: BoxDecoration(
+                                borderRadius: BorderRadius.circular(50),
+                                color: Colors.primaryColor),
+                            unselectedLabelColor: Color(0XFF8030424C),
+                            tabs: [
+                              Tab(
+                                text: "Transfer",
+                              ),
+                              Tab(
+                                text: "History",
+                              )
+                            ],
+                          ),
+                          Colors.tabBackground.withOpacity(0.16)),
+                      Expanded(
+                          child: TabBarView(
+                              controller: DefaultTabController.of(mContext),
+                              children: [
+                                _TransferViewNavigator(widget._scaffoldKey, widget._navigatorKey),
+                                TransferHistoryScreen(
+                                  widget._scaffoldKey,
+                                  replayTransactionCallback: (transaction) {
+                                    DefaultTabController.of(mContext)?.animateTo(0);
+                                    replayTransaction(transaction);
+                                  },
+                                ),
+                              ]
+                          )
+                      )
+                    ],
+                  ),
+                ),
+              );
+            }
         ),
       ),
+    );
+  }
+
+  void replayTransaction(SingleTransferTransaction transaction) {
+    this.widget._navigatorKey.currentState?.restorablePopAndPushNamed(
+        TransferScreen.BENEFICIARY_SCREEN,
+        arguments: {
+          "replay": {
+            "amount" : transaction.getAmount(),
+            "accountNumber": transaction.getSinkAccountNumber(),
+            "bankCode": transaction.transfer?.sinkAccountProviderCode,
+            "bankName": transaction.transfer?.sinkAccountProviderName
+          }
+      }
     );
   }
 }
@@ -100,13 +129,13 @@ class _TransferViewNavigator extends StatelessWidget {
 
   Route _generateRoute(RouteSettings settings) {
     late Widget page;
-
     switch (settings.name) {
       case TransferScreen.BENEFICIARY_SCREEN:
-        page = TransferBeneficiaryScreen(_scaffoldKey);
+        page = TransferBeneficiaryScreen(_scaffoldKey, arguments: settings.arguments,);
         break;
       case TransferScreen.PAYMENT_SCREEN:
-        page = TransferPaymentScreen(_scaffoldKey);
+        final defaultAmount = settings.arguments != null ? settings.arguments as double : 0.0;
+        page = TransferPaymentScreen(_scaffoldKey, defaultAmount);
         break;
     }
 
@@ -120,6 +149,7 @@ class _TransferViewNavigator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("rebuild");
     return WillPopScope(
       onWillPop: _onBackPressed,
       child: Navigator(

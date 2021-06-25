@@ -9,8 +9,8 @@ import 'biller_product.dart';
 @dao
 abstract class BillsDao extends MoniepointDao<BillTransaction> {
 
-  @Query('SELECT * FROM bill_transactions WHERE (creationTimeStamp BETWEEN :startDate AND :endDate) AND batch_status != "CANCELLED" ORDER BY creationTimeStamp DESC LIMIT :limit OFFSET :offset')
-  Stream<List<BillTransaction>> getBillTransactions(int startDate, int endDate, int limit, int offset);
+  @Query('SELECT * FROM bill_transactions WHERE (creationTimeStamp BETWEEN :startDate AND :endDate) AND batch_status != "CANCELLED" ORDER BY creationTimeStamp DESC LIMIT :limit OFFSET :myOffset')
+  Stream<List<BillTransaction>> getBillTransactions(int startDate, int endDate,int myOffset, int limit,);
 
   @Query("SELECT * FROM bill_transactions WHERE history_id = :id")
   Future<BillTransaction?> getBillTransactionById(int id);

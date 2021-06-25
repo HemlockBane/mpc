@@ -1,5 +1,6 @@
 class Routes {
   static const LOGIN  = "/login";
+  static const SIGN_UP  = "/sign-up";
   static const REGISTER_EXISTING_ACCOUNT  = "REGISTER_EXISTING_ACCOUNT";
   static const REGISTER_NEW_ACCOUNT  = "REGISTER_NEW_ACCOUNT";
   static const ACCOUNT_RECOVERY  = "ACCOUNT_RECOVERY";
@@ -24,6 +25,6 @@ class Routes {
   static const SELECT_AIRTIME_BENEFICIARY  = "SELECT_AIRTIME_BENEFICIARY";
   static const SELECT_TRANSFER_BENEFICIARY  = "SELECT_TRANSFER_BENEFICIARY";
   static const SELECT_BILL_BENEFICIARY  = "SELECT_BILL_BENEFICIARY";
-
-
+  static const BLOCK_ACCOUNT  = "BLOCK_ACCOUNT";
+  static const UNBLOCK_DEBIT_CARD = "UNBLOCK_DEBIT_CARD";
 }

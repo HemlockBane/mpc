@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:get_it/get_it.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/bill_service_delegate.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/bill_transaction.dart';
@@ -13,6 +15,10 @@ class BillHistoryDetailViewModel extends BaseViewModel {
 
   Future<BillTransaction?> getSingleTransactionById(int historyId) {
     return _delegate.getSingleTransactionById(historyId);
+  }
+
+  Stream<Uint8List> downloadReceipt(int batchId){
+    return _delegate.downloadReceipt(customerId.toString(), batchId);
   }
 
 }

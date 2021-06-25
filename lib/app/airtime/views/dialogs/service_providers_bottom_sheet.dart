@@ -43,8 +43,6 @@ class _ServiceProviderDialog extends State<ServiceProviderDialog> with SingleTic
   }
 
   Widget makeListView(BuildContext context, AsyncSnapshot<Resource<List<AirtimeServiceProvider>?>> a) {
-    final viewModel = Provider.of<ServiceProviderViewModel>(context, listen: false);
-
     return ListViewUtil.makeListViewWithState(
         context: context,
         snapshot: a,

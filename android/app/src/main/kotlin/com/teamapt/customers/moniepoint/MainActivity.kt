@@ -1,4 +1,4 @@
-package com.teamapt.moniepoint_flutter
+package com.teamapt.customers.moniepoint
 
 import android.graphics.BitmapFactory
 import android.os.Build
@@ -6,7 +6,7 @@ import androidx.annotation.RequiresApi
 import com.amplifyframework.core.Amplify
 import com.amplifyframework.predictions.models.IdentifyActionType
 import com.amplifyframework.predictions.result.IdentifyEntitiesResult
-import com.teamapt.moniepoint_flutter.lib.BiometricMethodHandler
+import com.teamapt.customers.moniepoint.lib.BiometricMethodHandler
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel

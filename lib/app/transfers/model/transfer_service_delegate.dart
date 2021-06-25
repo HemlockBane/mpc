@@ -1,3 +1,6 @@
+import 'dart:typed_data';
+
+import 'package:dio/dio.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/fee_vat_config.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/fee_vat_config_dao.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/transfer_request_body.dart';
@@ -23,8 +26,6 @@ class TransferServiceDelegate with NetworkResource {
   late final FeeVatConfigDao _feeVatConfigDao;
   late final TransferDao _transferDao;
 
-  late final _TransferMediator remoteMediator;
-
   TransferServiceDelegate(
       TransferService service,
       TransferDao transferDao,
@@ -32,8 +33,6 @@ class TransferServiceDelegate with NetworkResource {
     this._transferDao = transferDao;
     this._service = service;
     this._feeVatConfigDao = feeVatConfigDao;
-
-    remoteMediator = _TransferMediator(_service, _transferDao);
   }
 
   Future<SingleTransferTransaction?> getSingleTransactionById(int id) {
@@ -63,11 +62,16 @@ class TransferServiceDelegate with NetworkResource {
         localSource: (LoadParams params) {
           final offset = params.key ?? 0;
           return _transferDao.getSingleTransferTransactions(
-              filterResult.startDate, filterResult.endDate, 0, params.loadSize
-          ).map((event) => Page(event, params.key, event.length == params.loadSize ? offset + 1 : null));
+              filterResult.startDate, filterResult.endDate, offset * params.loadSize, params.loadSize
+          ).map((event) => Page(event, params.key ?? 0, event.length == params.loadSize ? offset + 1 : null));
         },
-        remoteMediator: remoteMediator..filterResult = filterResult..customerId = customerId
+        remoteMediator: _TransferMediator(_service, _transferDao)..filterResult = filterResult..customerId = customerId
     );
+  }
+
+  Stream<Uint8List> downloadReceipt(String customerId, int batchId) async* {
+    final a = (await _service.downloadTransferReceipt(customerId, batchId)) as ResponseBody;
+    yield* a.stream;
   }
 
 }

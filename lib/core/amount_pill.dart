@@ -28,7 +28,7 @@ class _AmountPill extends State<AmountPill> {
     return GestureDetector(
       onTap: () => widget._listener.call(widget._item, widget._position),
       child: Container(
-        padding: EdgeInsets.only(left: 10, right: 10, top: 10, bottom: 10),
+        padding: EdgeInsets.only(left: 9, right: 9, top: 9, bottom: 9),
         decoration: BoxDecoration(
             color: (widget._item.isSelected == true) ? Colors.primaryColor : Colors.white,
             border: Border.all(color: Colors.colorFaded.withOpacity(0.5), width: 1),
@@ -39,7 +39,7 @@ class _AmountPill extends State<AmountPill> {
               widget._item.item,
               textAlign: TextAlign.center,
               style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 13,
                   color: (widget._item.isSelected == true)
                       ? Colors.white
                       : Colors.primaryColor,

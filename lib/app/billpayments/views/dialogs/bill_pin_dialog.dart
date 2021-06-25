@@ -61,7 +61,8 @@ class _BillPinDialog extends TransactionPinDialogState<BillPinDialog> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Column(
+                      Flexible(
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text('Amount', style: TextStyle(color: Colors.solidDarkBlue, fontSize: 15)),
@@ -79,6 +80,7 @@ class _BillPinDialog extends TransactionPinDialogState<BillPinDialog> {
                               SizedBox(height: 2,),
                               Text(
                                   "${viewModel.beneficiary!.getBeneficiaryDigits()} $beneficiaryName",
+                                  overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                       color: Colors.solidDarkBlue,
                                       fontSize: 16,
@@ -86,31 +88,34 @@ class _BillPinDialog extends TransactionPinDialogState<BillPinDialog> {
                                   )
                               ),
                             ],
+                          )
                       ),
-                      Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text('Bill Product', style: TextStyle(color: Colors.solidDarkBlue, fontSize: 15)),
-                              SizedBox(height: 2),
-                              Container(
-                                padding: EdgeInsets.symmetric(vertical: 1, horizontal: 0),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(5),
-                                    color: Colors.transparent
-                                ),
-                                child: Center(
-                                  child: Text(
-                                      "${viewModel.billerProduct?.name}",
-                                      style: TextStyle(
-                                          color: Colors.solidDarkBlue,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold
-                                      )
-                                  ),
-                                ),
+                      SizedBox(width: 4,),
+                      Flexible(child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text('Bill Product', style: TextStyle(color: Colors.solidDarkBlue, fontSize: 15)),
+                          SizedBox(height: 2),
+                          Container(
+                            padding: EdgeInsets.symmetric(vertical: 1, horizontal: 0),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                color: Colors.transparent
+                            ),
+                            child: Center(
+                              child: Text(
+                                  "${viewModel.billerProduct?.name}",
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      color: Colors.solidDarkBlue,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold
+                                  )
                               ),
-                            ],
+                            ),
                           ),
+                        ],
+                      )),
                     ],
                   ),
                 ),
@@ -162,18 +167,12 @@ class _BillPinDialog extends TransactionPinDialogState<BillPinDialog> {
     viewModel.makePayment().listen((event) {
       if(event is Loading) setState(() => _isLoading = true);
       else if(event is Success) {
-        setState(() {
-          _isLoading = false;
-          Navigator.of(context).pop(event.data);
-          //Display SuccessDialog
-        });
+        setState(() {_isLoading = false;});
+        Navigator.of(context).pop(event.data);
       }
       else if(event is Error<TransactionStatus>) {
-        setState(() {
-          _isLoading = false;
-          //display the error dialog
-          Navigator.of(context).pop(event);
-        });
+        setState(() {_isLoading = false;});
+        Navigator.of(context).pop(event);
       }
     });
   }

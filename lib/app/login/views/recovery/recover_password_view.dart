@@ -96,8 +96,8 @@ class _RecoverPasswordScreen extends State<RecoverPasswordScreen> {
                             builder: (context, snapshot) {
                               return Styles.appEditText(
                                   hint: 'Account Number',
+                                  maxLength: 10,
                                   inputFormats: [
-                                    LengthLimitingTextInputFormatter(10),
                                     FilteringTextInputFormatter.digitsOnly
                                   ],
                                   animateHint: true,
@@ -115,7 +115,7 @@ class _RecoverPasswordScreen extends State<RecoverPasswordScreen> {
                             builder: (context, snapshot) {
                               return Styles.appEditText(
                                   hint: 'Username',
-                                  inputFormats: [LengthLimitingTextInputFormatter(11)],
+                                  inputFormats: [LengthLimitingTextInputFormatter(200)],
                                   animateHint: true,
                                   onChanged: viewModel.passwordRecoveryForm.onUsernameChanged,
                                   errorText: snapshot.hasError

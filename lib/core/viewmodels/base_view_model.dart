@@ -19,8 +19,9 @@ abstract class BaseViewModel with ChangeNotifier {
   final StreamController<AccountBalance?> _balanceController = StreamController.broadcast();
   Stream<AccountBalance?> get balanceStream => _balanceController.stream;
 
-  Stream<Resource<AccountBalance>> getCustomerAccountBalance() {
+  Stream<Resource<AccountBalance>> getCustomerAccountBalance({bool useLocal = true}) {
     return accountServiceDelegate!.getCustomerAccountBalance(customerAccountId).map((event) {
+      if ((event is Loading && event.data != null && useLocal) && !_balanceController.isClosed) _balanceController.sink.add(event.data);
       if (event is Success && !_balanceController.isClosed) _balanceController.sink.add(event.data);
       return event;
     });

@@ -22,4 +22,6 @@ class FilterResults {
       TransactionChannel.USSD
     }
     ..types = {TransactionType.CREDIT, TransactionType.DEBIT};
+
+
 }

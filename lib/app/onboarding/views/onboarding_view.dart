@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
@@ -18,11 +19,11 @@ class OnBoardingScreen extends StatelessWidget {
         ),
         onPressed: onClick,
         child: Container(
-          padding: EdgeInsets.only(left: 4, right: 4, top: 16, bottom: 19),
+          padding: EdgeInsets.only(left: 0, right: 0, top: 16, bottom: 19),
           child: Column(
             children: [
               SvgPicture.asset(imageRes, width: 110, height: 110,),
-              SizedBox(height: 15),
+              SizedBox(height: 8),
               Text(
                   title,
                   maxLines: 2,
@@ -43,7 +44,7 @@ class OnBoardingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    PreferenceUtil.deleteLoggedInUser();
+    UserInstance().resetSession();
 
     return Scaffold(
       appBar: AppBar(elevation: 0),
@@ -56,49 +57,55 @@ class OnBoardingScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.max,
           children: [
-            SizedBox(
-              height: 60,
+            Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Flexible(flex:0,child: Text(
+                      'Getting started \nwith Moniepoint',
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 28
+                      ),
+                    )),
+                    SizedBox(height: 100),
+                    Expanded(flex:0,child: Row(
+                      // mainAxisAlignment: MainAxisAlignment.s,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Flexible(
+                            child: _buildButton(
+                                title: 'I don’t have a\nMoniepoint Account',
+                                imageRes: 'res/drawables/ic_has_no_account.svg',
+                                onClick: () => Future.delayed(Duration(milliseconds: 520), () {
+                                  Navigator.of(context).pushNamed(Routes.REGISTER_NEW_ACCOUNT);
+                                })
+                            ),
+                            flex: 1,
+                            fit: FlexFit.tight,
+                          ),
+                          SizedBox(width: 18),
+                          Flexible(
+                            child: _buildButton(
+                                title: 'I have a Moniepoint\nAccount',
+                                imageRes: 'res/drawables/ic_has_account.svg',
+                                onClick: () => Future.delayed(Duration(milliseconds: 520), () {
+                                  Navigator.of(context).pushNamed(Routes.REGISTER_EXISTING_ACCOUNT);
+                                })
+                            ),
+                            flex: 1,
+                            fit: FlexFit.tight,
+                          ),
+                        ]
+                    ))
+                  ],
+                )
             ),
-            Flexible(flex:0,child: Text(
-              'Getting started \nwith Moniepoint',
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 28
-              ),
-            )),
-            SizedBox(height: 67 +40),
-            Expanded(flex:0,child: Row(
-              // mainAxisAlignment: MainAxisAlignment.s,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Flexible(
-                    child: _buildButton(
-                        title: 'I don’t have a\nMoniepoint Account',
-                        imageRes: 'res/drawables/ic_has_no_account.svg',
-                        onClick: () => Future.delayed(Duration(milliseconds: 520), () {
-                          Navigator.of(context).pushNamed(Routes.REGISTER_NEW_ACCOUNT);
-                        })
-                    ),
-                    flex: 1,
-                    fit: FlexFit.tight,
-                  ),
-                  SizedBox(width: 18),
-                  Flexible(
-                    child: _buildButton(
-                        title: 'I have a Moniepoint\nAccount',
-                        imageRes: 'res/drawables/ic_has_account.svg',
-                        onClick: () => Future.delayed(Duration(milliseconds: 520), () {
-                          Navigator.of(context).pushNamed(Routes.REGISTER_EXISTING_ACCOUNT);
-                        })
-                    ),
-                    flex: 1,
-                    fit: FlexFit.tight,
-                  ),
-                ]
-            )),
-            Spacer(),
+            SizedBox(height: 100,),
+            // Spacer(),
             Align(
               alignment: Alignment.bottomCenter,
               child: RichText(

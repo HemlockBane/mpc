@@ -1,6 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:moniepoint_flutter/app/login/model/data/authentication_method.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/transfer_request_body.dart';
+import 'package:moniepoint_flutter/core/models/transaction_meta_data.dart';
 
 part 'bill_payment_request_body.g.dart';
 
@@ -43,8 +44,8 @@ class BillPaymentRequestBody  {
   @JsonKey(name:"authenticationType")
   AuthenticationMethod? authenticationType;
 
-  @JsonKey(name:"metaData")
-  String? metaData;
+  @JsonKey(name:"metaDataObj")
+  TransactionMetaData? metaData;
 
   BillPaymentRequestBody() {
     paymentType = PaymentType.ONE_TIME;
@@ -109,7 +110,7 @@ class BillPaymentRequestBody  {
     return this;
   }
 
-  BillPaymentRequestBody withMetaData(String metaData) {
+  BillPaymentRequestBody withMetaData(TransactionMetaData metaData) {
     this.metaData = metaData;
     return this;
   }
@@ -133,6 +134,9 @@ class Request {
 
   @JsonKey(name:"additionalFieldsMap")
   Map<String, String>? additionalFieldsMap;
+
+  @JsonKey(name:"metaDataObj")
+  TransactionMetaData? metaData;
 
   Request();
 
@@ -165,6 +169,11 @@ class Request {
 
   Request withAdditionalFieldsMap(Map<String, String> additionalFieldsMap) {
     this.additionalFieldsMap = additionalFieldsMap;
+    return this;
+  }
+
+  Request withMetaData(TransactionMetaData metaData) {
+    this.metaData = metaData;
     return this;
   }
 }

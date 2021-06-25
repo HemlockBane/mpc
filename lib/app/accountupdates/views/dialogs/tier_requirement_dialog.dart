@@ -1,16 +1,29 @@
+import 'dart:async';
+import 'dart:math';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart' hide Colors;
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/account_update_flag.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
+import 'package:moniepoint_flutter/app/accountupdates/views/colored_linear_progress_bar.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/tier_requirement_item.dart';
+import 'package:moniepoint_flutter/core/bottom_sheet_state.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:collection/collection.dart';
+import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/views/dots_indicator.dart';
+
+import '../account_progress_view.dart';
 
 class TierRequirementDialog extends StatefulWidget {
   
   final List<Tier> tiers;
+  final double progress;
+  final Tuple<double, BottomSheetState> state;
   
-  TierRequirementDialog(this.tiers);
+  TierRequirementDialog(this.tiers, this.progress, this.state);
 
   @override
   State<StatefulWidget> createState() => _TierRequirementDialog();
@@ -29,8 +42,11 @@ class _TierRequirementDialog extends State<TierRequirementDialog> with SingleTic
   final pageCurve = Curves.linear;
   List<TierRequirementItem> _pages = [];
 
-  double _pageHeight = 300;
-  
+  Timer? _testTimer;
+
+  double _pageHeight = 400;
+  // double _progress = 0;
+
   @override
   void initState() {
     super.initState();
@@ -43,9 +59,9 @@ class _TierRequirementDialog extends State<TierRequirementDialog> with SingleTic
         itemCount: _pages.length,
         controller: _pageController,
         onPageChanged: (index) {
-          if(index == 0) _pageHeight = 300;
-          if(index == 1) _pageHeight = 360;
-          if(index == 2) _pageHeight = 530;
+          if(index == 0) _pageHeight = 400;
+          if(index == 1) _pageHeight = 485;
+          if(index == 2) _pageHeight = 625;
           setState(() {});
         },
         itemBuilder: (BuildContext context, int index) {
@@ -53,6 +69,14 @@ class _TierRequirementDialog extends State<TierRequirementDialog> with SingleTic
         }
     );
     return _pageView;
+  }
+
+
+  Widget _buildProgressBar() {
+    return Padding(
+      padding: EdgeInsets.only(left: 16, right: 16),
+      child: AccountProgressView(widget.progress, widget.tiers),
+    );
   }
 
   @override
@@ -76,8 +100,10 @@ class _TierRequirementDialog extends State<TierRequirementDialog> with SingleTic
         children: [
           RotationTransition(
             turns: Tween(begin: 0.0, end: 1.0).animate(_controller),
-            child: SvgPicture.asset('res/drawables/ic_drop_down.svg', width: 16, height: 12,),
+            child: SvgPicture.asset('res/drawables/ic_drop_down.svg', width: 14, height: 10,),
           ),
+          SizedBox(height: 16,),
+          _buildProgressBar(),
           SizedBox(height: 24,),
           Divider(color: Color(0XFFBFD7E5).withOpacity(0.6),),
           Flexible(fit:FlexFit.tight,child: makePageView()),
@@ -85,5 +111,11 @@ class _TierRequirementDialog extends State<TierRequirementDialog> with SingleTic
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _testTimer?.cancel();
+    super.dispose();
   }
 }

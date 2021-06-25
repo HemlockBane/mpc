@@ -1,3 +1,4 @@
+import 'package:drawerbehavior/drawerbehavior.dart';
 import 'package:flutter/material.dart' hide ScrollView, Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lottie/lottie.dart';
@@ -8,10 +9,13 @@ import 'package:moniepoint_flutter/app/dashboard/views/bottom_menu_view.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_container_view.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/login_mode.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
+import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/biometric_helper.dart';
+import 'package:moniepoint_flutter/core/utils/dashboard_util.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/viewmodels/finger_print_alert_view_model.dart';
 import 'package:moniepoint_flutter/core/views/dots_indicator.dart';
@@ -27,13 +31,20 @@ class DashboardScreen extends StatefulWidget {
   }
 }
 
-class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserver{
+class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserver , TickerProviderStateMixin{
+
+  late final AnimationController _bottomMenuController = AnimationController(
+      duration: Duration(milliseconds: 700),vsync: this
+  );
+  late final AnimationController _dashboardCardController = AnimationController(duration: Duration(milliseconds: 800),vsync: this);
+  late final AnimationController _greetingCardController = AnimationController(duration: Duration(milliseconds: 800), vsync: this);
 
   PageController _pageController = PageController(viewportFraction: 1);
   GlobalKey<DashboardContainerViewState> _dashboardContainerState = GlobalKey();
+  DrawerScaffoldController _drawerScaffoldController = DrawerScaffoldController();
   final pages = [];
 
-  Widget dashboardUpdateItem() {
+  Widget _dashboardUpdateItem() {
     final width = MediaQuery.of(context).size.width * 0.13;
     return Material(
       child: Card(
@@ -43,7 +54,9 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: InkWell(
           customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          onTap: () => Navigator.of(context).pushNamed(Routes.ACCOUNT_UPDATE).then((_) => subscribeUiToAccountStatus()),
+          onTap: () => (!_hasCompletedAccountUpdate())
+              ? Navigator.of(context).pushNamed(Routes.ACCOUNT_UPDATE).then((_) => subscribeUiToAccountStatus())
+              : setState(() => {}),
           child: Container(
             padding: EdgeInsets.only(left: 0, right: 16, top: 0, bottom: 0),
             child: Row(
@@ -71,7 +84,7 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
     );
   }
 
-  Widget greetingItem() {
+  Widget _greetingItem() {
     final viewModel = Provider.of<DashboardViewModel>(context, listen: false);
     final width = MediaQuery.of(context).size.width * 0.13;
 
@@ -85,7 +98,7 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
           customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           onTap: () => null,
           child: Container(
-              padding: EdgeInsets.only(left: 0, right: 16, top: 0, bottom: 0),
+              padding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 4),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -105,16 +118,18 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
     );
   }
 
-  bool hasCompletedAccountUpdate() {
+  bool _hasCompletedAccountUpdate() {
     final viewModel = Provider.of<DashboardViewModel>(context, listen: false);
     Customer? customer = viewModel.customer;
     AccountStatus? accountStatus = UserInstance().accountStatus;
     final flags = accountStatus?.listFlags() ?? customer?.listFlags();
+    print("flags is null $flags");
     if(flags == null) return true;
+    print("print flags $flags");
     return flags.where((element) => element?.status != true).isEmpty;
   }
 
-  void refreshDashboard() {
+  void _refreshDashboard() {
     setState(() {});
     _dashboardContainerState.currentState?.loadAccountBalance();
     subscribeUiToAccountStatus();
@@ -122,16 +137,18 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
 
   void subscribeUiToAccountStatus() {
     final viewModel = Provider.of<DashboardViewModel>(context, listen: false);
-    viewModel.fetchAccountStatus().listen((event) => null);
+    viewModel.fetchAccountStatus().listen((event) {
+      if(event.data is Success) setState(() {});
+    });
   }
 
   Widget _buildDashboardSlider() {
     //Since we have only a single update page for now we can put it in here
     pages.clear();
-    if (hasCompletedAccountUpdate()) {
-      pages.add(greetingItem());
+    if (_hasCompletedAccountUpdate()) {
+      pages.add(_greetingItem());
     } else {
-      pages.add(dashboardUpdateItem());
+      pages.add(_dashboardUpdateItem());
     }
 
     return PageView.builder(
@@ -142,87 +159,301 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
     });
   }
 
+  Widget initialView({Color? backgroundColor, required Widget image}) {
+    return Container(
+      width: 40,
+      height: 40,
+      padding: EdgeInsets.all(0),
+      decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.white.withOpacity(0.1)
+      ),
+      child: Center(
+        child: image,
+      ),
+    );
+  }
+
+  Widget _drawerListItem(String title, Widget res, VoidCallback onClick) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        highlightColor: Colors.white.withOpacity(0.1),
+        overlayColor: MaterialStateProperty.all(Colors.white.withOpacity(0.02)),
+        onTap: onClick,
+        child: Container(
+          padding: EdgeInsets.only(left: 24, right: 0, top: 16, bottom: 16),
+          child: Row(
+            children: [
+              initialView(
+                  image: res
+              ),
+              SizedBox(width: 20,),
+              Text(title, style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600, fontFamily: Styles.defaultFont),)
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _drawerListContent() {
+    return Container(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(height: 24,),
+          Padding(
+            padding: EdgeInsets.only(right: 16),
+            child: _drawerListItem('Account', SvgPicture.asset('res/drawables/ic_drawer_accounts.svg', color: Colors.white, width: 22, height: 22,), (){
+              Navigator.of(context).pushNamed(Routes.ACCOUNT_TRANSACTIONS).then((value) => _refreshDashboard());
+              _closeDrawerWithDelay();
+            }),
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 24, right: 16),
+            child: Divider(height: 1, color: Colors.white.withOpacity(0.09),),
+          ),
+          Padding(
+            padding: EdgeInsets.only(right: 16),
+            child: _drawerListItem('Transfer',  SvgPicture.asset('res/drawables/ic_menu_transfer.svg', color: Colors.white,  width: 20, height: 20,) , (){
+              _closeDrawerWithDelay().then((value) => Navigator.of(context).pushNamed(Routes.TRANSFER).then((value) => _refreshDashboard()));
+            }),
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 24, right: 16),
+            child: Divider(height: 1, color: Colors.white.withOpacity(0.09),),
+          ),
+          Padding(
+            padding: EdgeInsets.only(right: 16),
+            child: _drawerListItem('Airtime & Data', SvgPicture.asset('res/drawables/ic_drawer_airtime_data.svg', color: Colors.white, width: 23, height: 23,), (){
+              Navigator.of(context).pushNamed(Routes.AIRTIME).then((value) => _refreshDashboard());
+              _closeDrawerWithDelay();
+            }),
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 24, right: 16),
+            child: Divider(height: 1, color: Colors.white.withOpacity(0.09),),
+          ),
+          Padding(
+            padding: EdgeInsets.only(right: 16),
+            child: _drawerListItem('Bill Payment',  SvgPicture.asset('res/drawables/ic_menu_bills.svg', color: Colors.white, width: 23, height: 23,), (){
+              Navigator.of(context).pushNamed(Routes.BILL).then((value) => _refreshDashboard());
+              _closeDrawerWithDelay();
+            }),
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 24, right: 16),
+            child: Divider(height: 1, color: Colors.white.withOpacity(0.09),),
+          ),
+          Padding(
+            padding: EdgeInsets.only(right: 16),
+            child: _drawerListItem('Card Management', SvgPicture.asset('res/drawables/ic_drawer_card_management.svg', color: Colors.white,  width: 16, height: 16,), (){
+              Navigator.of(context).pushNamed(Routes.CARDS).then((value) => _refreshDashboard());
+              _closeDrawerWithDelay();
+            }),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+  Future<Null> _closeDrawerWithDelay() {
+    return Future.delayed(Duration(milliseconds: 200), (){
+      _drawerScaffoldController.closeDrawer();
+    });
+  }
+
+  Widget _drawerFooterView(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.only(left: 24, bottom: 55),
+      child: Row(
+        children: [
+          Styles.imageButton(
+              onClick: () {
+                Navigator.of(context).pushNamed(Routes.SETTINGS).then((value) => _refreshDashboard());
+                _closeDrawerWithDelay();
+              },
+              color: Colors.white.withOpacity(0.1),
+              padding: EdgeInsets.only(left: 9, right: 9, top: 8, bottom: 8),
+              image: SvgPicture.asset('res/drawables/ic_dashboard_settings.svg', width: 22, height: 22,),
+              borderRadius: BorderRadius.circular(30)
+          ),
+          SizedBox(width: 8,),
+          Styles.imageButton(
+              onClick: () {
+                UserInstance().resetSession();
+                _closeDrawerWithDelay().then((value) => Navigator.of(context).popAndPushNamed(Routes.LOGIN));
+              },
+              color: Colors.white.withOpacity(0.1),
+              padding: EdgeInsets.only(left: 8, right: 8, top: 8, bottom: 8),
+              image: SvgPicture.asset('res/drawables/ic_logout.svg', width: 22, height: 22,),
+              borderRadius: BorderRadius.circular(30)
+          ),
+          SizedBox(width: 8,)
+        ],
+      ),
+    );
+  }
+
+  Widget _centerDashboardContainer(DashboardViewModel viewModel) {
+    final width = MediaQuery.of(context).size.width * 0.13;
+    return SlideTransition(
+      position: Tween<Offset>(begin: Offset(0, 0.7), end: Offset(0, 0))
+          .animate(CurvedAnimation(parent: _dashboardCardController, curve: Curves.easeInToLinear)),
+      child: Hero(
+          tag: "dashboard-balance-view",
+          child: Container(
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                      color: UserInstance().accountStatus?.postNoDebit != true
+                          ? Colors.primaryColor.withOpacity(0.2)
+                          : Colors.postNoDebitColor,
+                      offset: Offset(0, 4),
+                      blurRadius: 5,
+                      spreadRadius: 1
+                  )
+                ]
+            ),
+            margin: EdgeInsets.only(left: width, right: width),
+            child: Material(
+              borderRadius: BorderRadius.circular(16),
+              child: InkWell(
+                  customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  onTap: () => Navigator.of(context).pushNamed(Routes.ACCOUNT_TRANSACTIONS).then((_) => _refreshDashboard()),
+                  child: DashboardContainerView(_dashboardContainerState, viewModel)
+              ),
+            ),
+          )
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<DashboardViewModel>(context, listen: false);
-    final width = MediaQuery.of(context).size.width * 0.13;
-
-    return Scaffold(
+    return DrawerScaffold(
+      controller: _drawerScaffoldController,
       extendBodyBehindAppBar: true,
       resizeToAvoidBottomInset: false,
-      drawerScrimColor: Colors.transparent,
-      drawer: Drawer(
-        elevation: 0,
-        child: Column(
-          children: [
-            SizedBox(height: 100,),
-            ListTile(
-              title: Text('Settings'),
-              onTap: () => Navigator.of(context).pushNamed(Routes.SETTINGS).then((value) => refreshDashboard()),
-            ),
-            ListTile(
-              title: Text('Cards'),
-              onTap: () => Navigator.of(context).pushNamed(Routes.CARDS).then((value) => refreshDashboard()),
-            )
-          ],
-        ),
-      ),
-      body: SessionedWidget(
-        context: context,
-        child: Container(
-          width: double.infinity,
-          color: Colors.backgroundWhite,
-          child: Stack(
-            children: [
-              ScrollView(
-                child: Column(
+      drawers: [
+        SideDrawer(
+          alignment: Alignment.topLeft,
+          direction: Direction.left, // Drawer position, left or right
+          animation: true,
+          color: Colors.colorPrimaryDark,
+          percentage: 0.54,
+          child: _drawerListContent(),
+          footerView: _drawerFooterView(context),
+          headerView: Container(
+            padding: EdgeInsets.only(left: 24, right: 24, top: 40),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Divider(color: Colors.dashboardTopBar, height: 4),
-                    SizedBox(height: MediaQuery.of(context).padding.top + 32),
-                    Text('OVERVIEW', style: TextStyle(color: Colors.textColorBlack, fontWeight: FontWeight.w400),),
-                    SizedBox(height: 32),
-                    SizedBox(
-                        height: 108,
-                        child: _buildDashboardSlider()
+                    SvgPicture.asset('res/drawables/ic_moniepoint_cube.svg', width: 50, height: 50,),
+                    Styles.imageButton(
+                        color: Colors.transparent,
+                        image: SvgPicture.asset('res/drawables/ic_cancel_dashboard.svg'),
+                        onClick: () => _drawerScaffoldController.closeDrawer()
                     ),
-                    SizedBox(height: 8),
-                    DotIndicator(controller: _pageController, itemCount: pages.length),
-                    SizedBox(height: 16),
-                    AspectRatio(
-                      aspectRatio: 3 / 3.1,
-                      child: Container(
-                        margin: EdgeInsets.only(left: width, right: width),
-                        child: Material(
-                          color: Colors.primaryColor,
-                          borderRadius: BorderRadius.circular(16),
-                          child: InkWell(
-                              customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                              onTap: () => Navigator.of(context).pushNamed(Routes.ACCOUNT_TRANSACTIONS).then((_) => refreshDashboard()),
-                              child: DashboardContainerView(_dashboardContainerState, viewModel)
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 110),
                   ],
                 ),
-              ),
-              Positioned(
-                  right: 20,
-                  left: 20,
-                  bottom: 0,
-                  child: DashboardBottomMenu(() => refreshDashboard())
-              )
-            ],
+                SizedBox(
+                  height: 68,
+                ),
+                Row(
+                  children: [
+                    DashboardUtil.getGreetingIcon(DashboardUtil.getTimeOfDay()),
+                    SizedBox(width: 16,),
+                    Flexible(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                                'Good ${DashboardUtil.getTimeOfDay()}',
+                              style: TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              viewModel.accountName,
+                              style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
+                            )
+                          ],
+                        )
+                    )
+                  ],
+                ),
+                SizedBox(height: 32,),
+                Row(
+                  children: [
+                    Text('NAVIGATION', style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12, letterSpacing: 0.14, fontWeight: FontWeight.w600),),
+                    SizedBox(width: 8,),
+                    Flexible(child: Divider(height:1,color: Colors.white.withOpacity(0.3)))
+                  ],
+                )
+              ],
+            ),
           ),
         )
-      ),
+      ],
+      builder: (mContext, a) {
+        return  SessionedWidget(
+            context: context,
+            child: Container(
+              width: double.infinity,
+              color: Colors.backgroundWhite,
+              child: Stack(
+                children: [
+                  ScrollView(
+                    child: Column(
+                      children: [
+                        Divider(color: Colors.dashboardTopBar, height: 4),
+                        SizedBox(height: MediaQuery.of(context).padding.top + 32),
+                        Text('OVERVIEW', style: TextStyle(color: Colors.textColorBlack, fontWeight: FontWeight.w400),),
+                        SizedBox(height: 32),
+                        SizedBox(
+                            height: 108,
+                            child: _buildDashboardSlider()
+                        ),
+                        SizedBox(height: 8),
+                        DotIndicator(controller: _pageController, itemCount: pages.length),
+                        SizedBox(height: 16),
+                        AspectRatio(
+                          aspectRatio: 3 / 3.1,
+                          child: _centerDashboardContainer(viewModel),
+                        ),
+                        SizedBox(height: 110),
+                      ],
+                    ),
+                  ),
+                  Positioned(
+                      right: 20,
+                      left: 20,
+                      bottom: 0,
+                      child: SlideTransition(
+                          position: Tween<Offset>(begin: Offset(0, 1), end: Offset(0, 0))
+                              .animate(CurvedAnimation(parent: _bottomMenuController, curve: Curves.easeInToLinear)),
+                          child: DashboardBottomMenu(() => _refreshDashboard()),
+                      )
+                  )
+                ],
+              ),
+            )
+        );
+      },
     );
   }
 
   @override
   void initState() {
     super.initState();
+    _bottomMenuController.forward().whenComplete(() => "");
+    _dashboardCardController.forward();
+
     WidgetsBinding.instance?.addObserver(this);
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
       subscribeUiToAccountStatus();
@@ -236,7 +467,7 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
 
     //We should only request 3 times from the dashboard
 
-    if (fingerprintRequestCount >= 2) return;
+    if (fingerprintRequestCount >= 2 || PreferenceUtil.getLoginMode() == LoginMode.ONE_TIME) return;
     final biometricHelper = BiometricHelper.getInstance();
 
     final isFingerPrintAvailable = await biometricHelper.isFingerPrintAvailable();
@@ -283,6 +514,9 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
 
   @override
   void dispose() {
+    _dashboardCardController.dispose();
+    _greetingCardController.dispose();
+    _bottomMenuController.dispose();
     WidgetsBinding.instance?.removeObserver(this);
     super.dispose();
   }

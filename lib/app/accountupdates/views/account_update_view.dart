@@ -14,11 +14,14 @@ import 'package:moniepoint_flutter/app/accountupdates/views/dialogs/tier_require
 import 'package:moniepoint_flutter/app/accountupdates/views/next_of_kin_view.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/proof_of_address_view.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/bottom_sheet_state.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/lazy.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/views/pie_progress_bar.dart';
+import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:provider/provider.dart';
 
 import 'document_verification_view.dart';
@@ -72,11 +75,10 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> {
   void _displayBottomSheet() {
     if(_viewModel.tiers.isEmpty) return;
     Scaffold.of(context).showBottomSheet(
-        (context) => GestureDetector(
-          // onVerticalDragStart: (info) {
-          //   print(info.kind);
-          // },
-          child: TierRequirementDialog(_viewModel.tiers),
+        (context) => TierRequirementDialog(
+            _viewModel.tiers,
+            _viewModel.getFormWeightedProgress(),
+            Tuple(0, BottomSheetState.COLLAPSED)
         ),
     );
   }
@@ -160,6 +162,12 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> {
     return forms;
   }
 
+  void _updatePageProgress() {
+    setState(() {
+
+    });
+  }
+
   bool _isAwaitingVerification(AccountUpdateFlag? idVerification, AccountUpdateFlag? addressVerification) {
     final isAwaitingDocumentIDVerification = idVerification?.status == false;
     final isAwaitingAddressVerification = addressVerification?.status == false;
@@ -176,6 +184,7 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> {
         //submit form
         _subscribeUiToAccountEligibility();
       }
+      _updatePageProgress();
     });
   }
 
@@ -276,60 +285,68 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> {
           providers: [
             ChangeNotifierProvider.value(value: _viewModel),
           ],
-          child: Scaffold(
-            resizeToAvoidBottomInset: false,
-            appBar: AppBar(
-                centerTitle: false,
-                titleSpacing: -12,
-                title: Text('Account Status', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.darkBlue)),
-                elevation: 0,
-                backgroundColor: Colors.backgroundWhite,
-                iconTheme: IconThemeData(color: Colors.primaryColor)
-            ),
-            body: Container(
-              color: Colors.backgroundWhite,
-              child: StreamBuilder(
-                  stream: _viewModel.getOnBoardingSchemes(),
-                  builder: (context, AsyncSnapshot<Resource<List<Tier>>> snap) {
-                    if(!snap.hasData) return Container();
-                    final resource = snap.data;
-                    if(resource is Loading && resource?.data?.isEmpty == true) {
-                      return Center(
-                        child: SizedBox(
-                          width: 70,
-                          height: 70,
-                          child: CircularProgressIndicator(),
-                        ),
-                      );
-                    }
-                    if((resource is Success || resource is Loading) && resource?.data?.isNotEmpty == true) {
-                      SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
-                        _displayBottomSheet();
-                      });
-                    }
-                    return Column(
-                      // mainAxisAlignment: MainAxisAlignment.,
-                      children: [
-                        FutureBuilder(
-                          future: Future.value(true),
-                          builder: (BuildContext mContext, AsyncSnapshot<void> snap) {
-                            return (snap.hasData && _displayPageProgress) ? Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              child: PieProgressBar(
-                                viewPager: _pageController,
-                                totalItemCount: _pages.length,
-                                pageTitles: getPageTitles(),
-                              ),
-                            ) : SizedBox();
-                          },
-                        ),
-                        SizedBox(height: 32,),
-                        Expanded(child: setupPageView())
-                      ],
-                    );
-                  }
-              ),
-            ),
+          child: StreamBuilder(
+            stream: _viewModel.getOnBoardingSchemes(),
+            builder: (context, AsyncSnapshot<Resource<List<Tier>>> snap) {
+              if(!snap.hasData) return Container();
+              final resource = snap.data;
+              if(resource is Loading && resource?.data?.isEmpty == true) {
+                return Center(
+                  child: SizedBox(
+                    width: 70,
+                    height: 70,
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+              if((resource is Success || resource is Loading) && resource?.data?.isNotEmpty == true) {
+                SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
+                  _displayBottomSheet();
+                });
+              }
+              return SessionedWidget(
+                  context: context,
+                  child: Scaffold(
+                    resizeToAvoidBottomInset: false,
+                    // bottomSheet: TierRequirementDialog(
+                    //     _viewModel.tiers,
+                    //     _viewModel.getFormWeightedProgress(),
+                    //     Tuple(0, BottomSheetState.COLLAPSED)
+                    // ),
+                    appBar: AppBar(
+                        centerTitle: false,
+                        titleSpacing: -12,
+                        title: Text('Account Status', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.darkBlue)),
+                        elevation: 0,
+                        backgroundColor: Colors.backgroundWhite,
+                        iconTheme: IconThemeData(color: Colors.primaryColor)
+                    ),
+                    body: Container(
+                      color: Colors.backgroundWhite,
+                      child: Column(
+                        // mainAxisAlignment: MainAxisAlignment.,
+                        children: [
+                          FutureBuilder(
+                            future: Future.value(true),
+                            builder: (BuildContext mContext, AsyncSnapshot<void> snap) {
+                              return (snap.hasData && _displayPageProgress) ? Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                child: PieProgressBar(
+                                  viewPager: _pageController,
+                                  totalItemCount: _pages.length,
+                                  pageTitles: getPageTitles(),
+                                ),
+                              ) : SizedBox();
+                            },
+                          ),
+                          SizedBox(height: 32,),
+                          Expanded(child: setupPageView())
+                        ],
+                      ),
+                    ),
+                  ),
+              );
+            },
           ),
     ));
   }

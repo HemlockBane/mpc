@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/profile_request.dart';
+import 'package:moniepoint_flutter/app/onboarding/username_validation_state.dart';
 import 'package:moniepoint_flutter/app/securityquestion/model/data/security_question.dart';
+import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/validators.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -15,8 +17,8 @@ class ProfileForm with ChangeNotifier, Validators {
 
   ProfileCreationRequestBody get profile => _requestBody;
 
-  final _usernameController = StreamController<String>.broadcast();
-  Stream<String> get usernameStream => _usernameController.stream;
+  final _usernameController = StreamController<Tuple<String, UsernameValidationState>>.broadcast();
+  Stream<Tuple<String, UsernameValidationState>> get usernameStream => _usernameController.stream;
 
   final _passwordController = StreamController<String>.broadcast();
   Stream<String> get passwordStream => _passwordController.stream;
@@ -24,14 +26,14 @@ class ProfileForm with ChangeNotifier, Validators {
   final _pinInputController = StreamController<String>.broadcast();
   Stream<String> get pinInputStream => _pinInputController.stream;
 
-  final _questionOneController = StreamController<SecurityQuestion>.broadcast();
-  Stream<SecurityQuestion> get questionOneStream => _questionOneController.stream;
+  final _questionOneController = StreamController<SecurityQuestion?>.broadcast();
+  Stream<SecurityQuestion?> get questionOneStream => _questionOneController.stream;
 
-  final _questionTwoController = StreamController<SecurityQuestion>.broadcast();
-  Stream<SecurityQuestion> get questionTwoStream => _questionTwoController.stream;
+  final _questionTwoController = StreamController<SecurityQuestion?>.broadcast();
+  Stream<SecurityQuestion?> get questionTwoStream => _questionTwoController.stream;
 
-  final _questionThreeController = StreamController<SecurityQuestion>.broadcast();
-  Stream<SecurityQuestion> get questionThreeStream => _questionThreeController.stream;
+  final _questionThreeController = StreamController<SecurityQuestion?>.broadcast();
+  Stream<SecurityQuestion?> get questionThreeStream => _questionThreeController.stream;
 
   final _answerOneController = StreamController<String>.broadcast();
   Stream<String> get answerOneStream => _answerOneController.stream;
@@ -50,6 +52,21 @@ class ProfileForm with ChangeNotifier, Validators {
 
   SecurityQuestion? _securityThree;
   SecurityQuestion? get securityQuestionThree => _securityThree;
+
+  List<SecurityQuestion> _securityQuestionOneList = [];
+  List<SecurityQuestion> get securityQuestionOneList => _securityQuestionOneList ;
+
+  List<SecurityQuestion> _securityQuestionTwoList = [];
+  List<SecurityQuestion> get securityQuestionTwoList => _securityQuestionTwoList;
+
+  List<SecurityQuestion> _securityQuestionThreeList = [];
+  List<SecurityQuestion> get securityQuestionThreeList => _securityQuestionThreeList;
+
+  UsernameValidationState _validationState = UsernameValidationState(UsernameValidationStatus.NONE, "");
+
+  /// Internally used to track if the questions have already been set
+  /// to avoid outsiders initializing twice
+  bool _isQuestionInitialized = false;
 
   String? _answerOne;
   String? get answerOne => _answerOne;
@@ -86,6 +103,7 @@ class ProfileForm with ChangeNotifier, Validators {
       return _isUsernameValid(displayError: false)
           && _isPasswordValid(displayError: false)
           && _isPinValid(displayError: false)
+          && _validationState.status == UsernameValidationStatus.AVAILABLE
           && _securityOne != null
           && _securityTwo != null
           && _securityThree != null
@@ -98,8 +116,17 @@ class ProfileForm with ChangeNotifier, Validators {
   void onUsernameChanged(String? text) {
     isUsernameVerified = false;
     _requestBody.username = text;
-    _usernameController.sink.add(text ?? "");
+    this._validationState =  UsernameValidationState(UsernameValidationStatus.NONE, "");
+    _usernameController.sink.add(Tuple(text ?? "", _validationState));
     _isUsernameValid(displayError: true);
+  }
+
+  void updateUsernameValidationState(UsernameValidationState state) {
+    this._validationState = state;
+    if(state.status == UsernameValidationStatus.FAILED || state.status == UsernameValidationStatus.ALREADY_TAKEN) {
+      return _usernameController.sink.addError(state.message);
+    }
+    _usernameController.sink.add(Tuple(_requestBody.username ?? "", state));
   }
 
   /// Validates the username
@@ -140,25 +167,45 @@ class ProfileForm with ChangeNotifier, Validators {
     if (!question.isEnabled) return;
 
     if (questionNumber == 1) {
-      //get the previous selected question disable it
-      _securityOne?.isEnabled = true;
+      final previous = _securityOne;
+      previous?.isEnabled = true;
       _securityOne = question;
       _securityOne?.isEnabled = false;
-      _questionOneController.sink.add(question);
+      _sanitizeSecurityQuestions(securityQuestionOneList, previous, question, [securityQuestionTwoList, securityQuestionThreeList]);
     } else if (questionNumber == 2) {
-      _securityTwo?.isEnabled = true;
+      final previous = _securityTwo;
+      previous?.isEnabled = true;
       _securityTwo = question;
       _securityTwo?.isEnabled = false;
-      _questionTwoController.sink.add(question);
+      _sanitizeSecurityQuestions(securityQuestionTwoList, previous, question, [securityQuestionOneList, securityQuestionThreeList]);
     } else if (questionNumber == 3) {
-      _securityThree?.isEnabled = true;
+      final previous = _securityThree;
+      previous?.isEnabled = true;
       _securityThree = question;
       _securityThree?.isEnabled = false;
-      _questionThreeController.sink.add(question);
+      _sanitizeSecurityQuestions(securityQuestionThreeList, previous, question, [securityQuestionOneList, securityQuestionTwoList]);
     }
   }
 
+  void _sanitizeSecurityQuestions(
+      List<SecurityQuestion> source,
+      SecurityQuestion? itemToAdd,
+      SecurityQuestion itemToRemove,
+      List<List<SecurityQuestion>> destinations) {
+
+    final addIndex = (itemToAdd!=null) ? source.indexOf(itemToAdd) : -1;
+    destinations.forEach((element) {
+      if(addIndex != -1 && itemToAdd != null) element.insert(addIndex, itemToAdd);
+      element.remove(itemToRemove);
+    });
+
+    _questionOneController.sink.add(_securityOne);
+    _questionTwoController.sink.add(_securityTwo);
+    _questionThreeController.sink.add(_securityThree);
+  }
+
   void onAnswerChanged(int questionNumber, String? text) {
+    // ignore: close_sinks
     StreamSink? sink;
     if (questionNumber == 1) {
       sink = _answerOneController.sink;
@@ -178,6 +225,14 @@ class ProfileForm with ChangeNotifier, Validators {
   }
 
   Stream<bool> get isValid => _isValid;
+
+  bool initializeSecurityQuestions(List<SecurityQuestion> securityQuestions) {
+    if(_isQuestionInitialized) return false;
+    _securityQuestionOneList.addAll(securityQuestions);
+    _securityQuestionTwoList.addAll(securityQuestions);
+    _securityQuestionThreeList.addAll(securityQuestions);
+    return true;
+  }
 
   @override
   void dispose() {

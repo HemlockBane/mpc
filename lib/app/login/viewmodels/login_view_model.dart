@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:device_info/device_info.dart';
@@ -13,6 +14,8 @@ import 'package:moniepoint_flutter/app/login/model/data/user.dart';
 import 'package:moniepoint_flutter/app/login/model/login_service_delegate.dart';
 import 'package:moniepoint_flutter/core/config/build_config.dart';
 import 'package:moniepoint_flutter/core/device_manager.dart';
+import 'package:moniepoint_flutter/core/models/services/system_configuration_service_delegate.dart';
+import 'package:moniepoint_flutter/core/models/system_configuration.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
@@ -20,21 +23,25 @@ import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 class LoginViewModel with ChangeNotifier {
 
   late LoginServiceDelegate _delegate;
+  late SystemConfigurationServiceDelegate _configurationServiceDelegate;
   late DeviceManager _deviceManager;
-
 
   Queue<SecurityFlag>? _securityFlagQueue;
   Queue<SecurityFlag>? get securityFlagQueue => _securityFlagQueue;
 
+  final List<SystemConfiguration> _systemConfigurations = [];
+
   LoginViewModel({
     LoginServiceDelegate? delegate,
+    SystemConfigurationServiceDelegate? configurationServiceDelegate,
     DeviceManager? deviceManager}) {
     this._delegate = delegate ?? GetIt.I<LoginServiceDelegate>();
+    this._configurationServiceDelegate = configurationServiceDelegate ?? GetIt.I<SystemConfigurationServiceDelegate>();
     this._deviceManager = deviceManager ?? GetIt.I<DeviceManager>();
-    // _initDeviceManager();
 
-    PreferenceUtil.deleteLoggedInUser();
-    UserInstance().getUser()?.withAccessToken(null);
+    UserInstance().resetSession();
+    // PreferenceUtil.deleteLoggedInUser();
+    // UserInstance().getUser()?.withAccessToken(null);
   }
 
   //334FD601-3E95-457E-B890-70BCD77B6F76
@@ -72,6 +79,23 @@ class LoginViewModel with ChangeNotifier {
 
       _securityFlagQueue = user.securityFlags?.requiredFlagToQueue();
 
+      return event;
+    });
+  }
+
+  String getApplicationPlayStoreUrl() {
+    final key = (Platform.isIOS) ? "ios.appstore.url" : "android.playstore.url";
+    final config  = _systemConfigurations.firstWhere((element)
+    => element.name?.contains(key) == true, orElse: () => SystemConfiguration(value: "https://www.teamapt.com"));
+    return config.value ?? "";
+  }
+
+  Stream<Resource<List<SystemConfiguration>>> getSystemConfigurations()  {
+    return _configurationServiceDelegate.getSystemConfigurations(forceRemote: false).map((event) {
+      if(event.data?.isNotEmpty == true) {
+        _systemConfigurations.clear();
+        _systemConfigurations.addAll(event.data ?? []);
+      }
       return event;
     });
   }

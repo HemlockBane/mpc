@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "261984535970",
+    "project_id": "moniepoint-customer-hybrid",
+    "storage_bucket": "moniepoint-customer-hybrid.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:261984535970:android:8c0a4cb80dd2e5c626defb",
+        "android_client_info": {
+          "package_name": "com.teamapt.customers.moniepoint"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "261984535970-drg6dmrest6pkppl4pocmg151t1g7r67.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2rB25KaoQJ6MUY0S9YaiY5KjoyRX_jEU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "261984535970-drg6dmrest6pkppl4pocmg151t1g7r67.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "261984535970-7u96thgk3qe9q9vnhujo17dm8j6tnq40.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.teamapt.moniepoint"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

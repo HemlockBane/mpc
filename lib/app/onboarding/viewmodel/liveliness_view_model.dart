@@ -130,6 +130,13 @@ class LivelinessViewModel with ChangeNotifier {
     });
   }
 
+  void resetLiveliness() {
+    _imageMap.clear();
+    _internalChecks?.clear();
+    _internalChecks =  null;
+    _progressValue = 0;
+  }
+
   @override
   void dispose() {
     _progressController.close();

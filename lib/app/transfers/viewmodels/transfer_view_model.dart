@@ -1,12 +1,15 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/transfer_beneficiary_delegate.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/fee_vat_config.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/transfer_request_body.dart';
 import 'package:moniepoint_flutter/app/transfers/model/transfer_service_delegate.dart';
+import 'package:moniepoint_flutter/core/device_manager.dart';
 import 'package:moniepoint_flutter/core/models/transaction_status.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/network/service_error.dart';
@@ -21,6 +24,7 @@ INTRA_BANK_TRANSFER, INTER_BANK_TRANSFER
 class TransferViewModel extends BaseViewModel with PaymentViewModel {
   late final TransferServiceDelegate _delegate;
   late final TransferBeneficiaryServiceDelegate _beneficiaryServiceDelegate;
+  late final DeviceManager _deviceManager;
 
   String _narration = "";
 
@@ -30,10 +34,12 @@ class TransferViewModel extends BaseViewModel with PaymentViewModel {
 
   TransferViewModel({
     TransferServiceDelegate? delegate,
-    TransferBeneficiaryServiceDelegate? beneficiaryServiceDelegate}) {
+    TransferBeneficiaryServiceDelegate? beneficiaryServiceDelegate,
+    DeviceManager? deviceManager
+  }) {
     this._delegate = delegate ?? GetIt.I<TransferServiceDelegate>();
     this._beneficiaryServiceDelegate = beneficiaryServiceDelegate ?? GetIt.I<TransferBeneficiaryServiceDelegate>();
-
+    this._deviceManager = deviceManager ?? GetIt.I<DeviceManager>();
     //Load all feeVatConfig at once
     _delegate.getAllFeeAndVatConfigByType().listen((event) {
       if((event is Success || event is Loading) && event.data != null){
@@ -49,6 +55,7 @@ class TransferViewModel extends BaseViewModel with PaymentViewModel {
   @override
   void setAmount(double amount) {
     super.setAmount(amount);
+    print("Setting amount $amount");
     this.checkValidity();
   }
 
@@ -67,8 +74,8 @@ class TransferViewModel extends BaseViewModel with PaymentViewModel {
   }
 
   String getTransactionType() {
-    if(isIntra()) return TransferTransactionType.INTRA_BANK_TRANSFER.toString();
-    else return TransferTransactionType.INTER_BANK_TRANSFER.toString();
+    if(isIntra()) return describeEnum(TransferTransactionType.INTRA_BANK_TRANSFER);
+    else return describeEnum(TransferTransactionType.INTER_BANK_TRANSFER);
   }
 
   double getTransferFee() {
@@ -112,14 +119,20 @@ class TransferViewModel extends BaseViewModel with PaymentViewModel {
         ..sinkAccountProviderCode = mBeneficiary.getBeneficiaryProviderCode()
         ..sourceAccountNumber = accountNumber
         ..sourceAccountProviderCode = accountProviderCode
-        ..deviceId = "999"
+        ..deviceId = _deviceManager.deviceId
         ..validatedAccountName = mBeneficiary.getAccountName()
         ..minorAmount = (amount! * 100).toInt()
         ..pin = pin
         ..narration = _narration
         ..minorVatAmount = _minorVat
+        ..metaData = buildTransactionMetaData(getTransactionType())
         ..minorFeeAmount = _minorFee;
+
     return _delegate.doTransfer(request);
+  }
+
+  Stream<Uint8List> downloadReceipt(int batchId){
+    return _delegate.downloadReceipt(customerId.toString(), batchId);
   }
 
   @override

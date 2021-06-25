@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-testios-dev-122823-authRole",
+      "UnauthRoleArn": "arn:aws:iam::140699681082:role/amplify-testios-dev-122823-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::140699681082:role/amplify-testios-dev-122823-authRole",
+      "Region": "us-east-2",
+      "DeploymentBucketName": "amplify-testios-dev-122823-deployment",
+      "UnauthRoleName": "amplify-testios-dev-122823-unauthRole",
+      "StackName": "amplify-testios-dev-122823",
+      "StackId": "arn:aws:cloudformation:us-east-2:140699681082:stack/amplify-testios-dev-122823/4c5b00c0-d4df-11eb-99aa-064be342920c",
+      "AmplifyAppId": "d2foynz599gbw1"
+    },
+    "categories": {
+      "auth": {
+        "testios125e5d1e": {}
+      }
+    }
+  }
+}

@@ -168,13 +168,13 @@ class _SecurityQuestionScreen extends State<SecurityQuestionScreen> {
                                 fontWeight: FontWeight.normal
                             ),
                           )),
-                          SizedBox(height: 32),
+                          SizedBox(height: 16),
                           Align(
                             alignment: Alignment.centerRight,
                             child: TextButton.icon(
                                 onPressed:() => loadQuestion(),
                                 icon: Icon(CustomFont.refresh_question, color: Colors.primaryColor, size: 16),
-                                label: Text('   Ask me another question',
+                                label: Text(' Ask me another question',
                                     style: TextStyle(
                                         color: Colors.colorPrimaryDark,
                                         fontSize: 14, fontWeight: FontWeight.normal,

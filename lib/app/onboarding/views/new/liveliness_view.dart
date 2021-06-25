@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart' hide Colors;
@@ -61,15 +60,19 @@ class _LivelinessScreen extends State<LivelinessScreen> {
         ? cameras.firstWhere((element) => element.lensDirection == CameraLensDirection.front)
         : cameras.first;
     _facingCamera = _camera.lensDirection;
-    _controller = CameraController(_camera, ResolutionPreset.medium);
+    _controller = CameraController(
+        _camera, ResolutionPreset.medium,
+        enableAudio: false,
+        imageFormatGroup: Platform.isIOS ? ImageFormatGroup.yuv420 : ImageFormatGroup.jpeg
+    )..setFlashMode(FlashMode.off);
+
     _initializeControllerFuture = _controller?.initialize();
-    setState(() {
-      _isCameraReady = true;
-    });
+    setState(() { _isCameraReady = true; });
   }
 
   @override
   void dispose() {
+    _countDownTimer?.cancel();
     _cameraTimer?.cancel();
     _controller?.dispose();
     super.dispose();
@@ -81,7 +84,7 @@ class _LivelinessScreen extends State<LivelinessScreen> {
     var startingGesture = _viewModel.currentCheck?.name;
     _countDownTimer = Timer(Duration(seconds: 10), () {
       var currentGesture = _viewModel.currentCheck?.name;
-      if(currentGesture == startingGesture && !_isCapturingCompleted) {
+      if(currentGesture == startingGesture && !_isCapturingCompleted && mounted) {
         //We have waited for more than 10seconds
         setState(() {
           _enableRetry = true;
@@ -114,27 +117,19 @@ class _LivelinessScreen extends State<LivelinessScreen> {
 
       final imageBytes = await FlutterImageCompress.compressWithFile(_lastImageCaptured!.path, quality: 30, keepExif: true);
 
-      // setState(() {
-      //   imageInfo = "Sending Image: ${imageBytes!.lengthInBytes / 1024} KB";
-      // });
-
       final startTime = DateTime.now();
 
-      final result = await platform.invokeMethod('analyzeImage', {"imageByte": imageBytes});
+      final result = await platform.invokeMethod('analyzeImage', {"imageByte": imageBytes, "imagePath": _lastImageCaptured!.path});
 
       print(DateTime.now().difference(startTime).inMilliseconds);
-      // setState(() {
-      //   imageInfo = "";
-      // });
 
-      // print("Completed $result");
       if(result is Map && result.containsKey("error")) {
         _updateImageProcessStatus(false);
         return;
       }
 
       /// There's no point validating when already in retry mode
-      if(!_enableRetry) {
+      if(!_enableRetry && result != null) {
         validateCallbackResult(result, _lastImageCaptured);
         startCountDownTimer();
       }
@@ -151,17 +146,12 @@ class _LivelinessScreen extends State<LivelinessScreen> {
       return;
     }
 
-    print(result);
-
     if (result.keys.isEmpty) {
       _updateImageProcessStatus(false);
       return _viewModel.updateCurrentCheckState(CheckState.FAIL, message: "No face detected");
     }
 
     /// let's check if the general problems are solved
-    // setState(() {
-    //   imageInfo = "Validating General Problems";
-    // });
     final passesGeneralProblems = validateGeneralProblems(result);
     if (!passesGeneralProblems) {
       _updateImageProcessStatus(false);
@@ -171,9 +161,6 @@ class _LivelinessScreen extends State<LivelinessScreen> {
     final challenge = _viewModel.nextCheck();
 
     if(challenge != null) {
-      // setState(() {
-      //   imageInfo = "Validating Challenge ${challenge.name}";
-      // });
       final isChallengeValid = validateChallenge(challenge, result);
 
       if(isChallengeValid) {
@@ -232,7 +219,9 @@ class _LivelinessScreen extends State<LivelinessScreen> {
     bool isValid = true;
     final criteria = challenge.criteria;
     final challengeName = challenge.name!.replaceAll(" ", "");
-    var item = result[criteria.name.toLowerCase()] as Map;
+    var item = result[criteria.name.toLowerCase()] as Map?;
+
+    if(item == null) return false;
 
     final criteriaYaw = criteria.yaw;
 
@@ -248,26 +237,25 @@ class _LivelinessScreen extends State<LivelinessScreen> {
       }
       else {
         if(challengeName == _viewModel.profilePictureCriteria?.name?.replaceAll(" ", "")) {
-          isValid = isLookingStraight(item, criteria);
+          isValid = findProfilePictureMatch(result);//isLookingStraight(item, criteria);
         }
       }
     } else {
       isValid = item['value'];
     }
-    // setState(() {
-    //   imageInfo = "Challenge for ${challenge.name} ended with status $isValid";
-    // });
+
     return isValid;
   }
 
   bool validateGeneralProblems(Map<dynamic, dynamic> result) {
     bool isValid = true;
+    bool isExclusive = false;
 
     var generalProblems = _viewModel.generalProblems;
 
     //check the number of faces present
     if(result.containsKey("numberOfFaces") && result["numberOfFaces"] > 1) {
-      _viewModel.updateCurrentCheckState(CheckState.FAIL, message: "Please, Take a selfie of yourself only.");
+      _viewModel.updateCurrentCheckState(CheckState.FAIL, message: "Multiple faces detected.");
       return false;
     }
 
@@ -282,26 +270,22 @@ class _LivelinessScreen extends State<LivelinessScreen> {
       /// We skip the check if the current challenge is requesting a criteria in general problems
       if (!result.containsKey(keyName) || currentCriteriaName == keyName) continue;
 
-      /// Amplify might treat smile as mouth open and vice-versa so we simple just ignore
+      /// Amplify might treat smile as mouth open and vice-versa so we simply just ignore
+      /// We also flag this as exclusive, to avoid a profile picture taken with smile or mouth open
       if((currentCriteriaName == "smile" || currentCriteriaName == "mouthopen")
           && (keyName == "smile" || keyName == "mouthopen")) {
+        isExclusive = true;
         continue;
       }
 
+      print("KeyName Check $keyName");
       final facialFeature = result[keyName];
 
       if (!facialFeature.containsKey("value")) continue;
 
       final value = facialFeature["value"] as bool;
-      final confidence = (facialFeature["confidence"] as double?) ?? 100;
-      final criteriaConfidence = criteria.confidence;
 
       if(value != criteria.value) {
-        if(criteriaConfidence != null && compare<num>(confidence, criteriaConfidence.singleValue??99,
-            criteriaConfidence.livelinessComparator)) {
-          continue;
-        }
-
         _viewModel.updateCurrentCheckState(CheckState.FAIL, message: element.description ?? "");
         _countDownTimer?.cancel();
         isValid = false;
@@ -309,9 +293,10 @@ class _LivelinessScreen extends State<LivelinessScreen> {
       }
     }
 
-    if(isValid && result.containsKey("pose") && _viewModel.profilePicturePath == null) {
-      findProfilePictureMatch(result["pose"]);
+    if((isValid && !isExclusive) && _viewModel.profilePicturePath == null) {
+      findProfilePictureMatch(result);
     }
+    print("General Problems Validity $isValid");
     return isValid;
   }
 
@@ -340,9 +325,40 @@ class _LivelinessScreen extends State<LivelinessScreen> {
     return isPitchValid && isYawValid && isRollValid;
   }
 
-  void findProfilePictureMatch(Map<dynamic, dynamic> pose) {
+  bool findProfilePictureMatch(Map<dynamic, dynamic> result) {
+    if(!result.containsKey("pose")) return false;
+
     final criteria = _viewModel.profilePictureCriteria!.criteria;
-    var isValid = isLookingStraight(pose, criteria);
+    final generalProblems = _viewModel.generalProblems;
+    var isValid = isLookingStraight(result["pose"], criteria);
+
+    if(!isValid) return false;
+
+    /// Before we can consider it profile picture valid, we need to be sure
+    /// AWS has a high confidence when its value is false.
+    /// There are scenarios where the mouth is opened and aws returns false with less confidence
+    /// Thus resulting in a profile picture with mouth opened
+
+    generalProblems.forEach((element) {
+      final generalCriteria = element.criteria;
+      final keyName = generalCriteria.name.toLowerCase();
+      final facialFeature = result[keyName];
+
+      if(facialFeature != null && facialFeature.containsKey("value")) {
+        final value = facialFeature["value"] as bool;
+        final confidence = (facialFeature["confidence"] as double?) ?? 100;
+        final criteriaConfidence = criteria.confidence;
+
+        /// Yes, it matches what's expected, but let's confirm the confidence
+        if (value == generalCriteria.value) {
+          if (criteriaConfidence != null && !compare<num>(confidence, criteriaConfidence.singleValue ?? 99, criteriaConfidence.livelinessComparator)) {
+            isValid = false;
+          } else if(keyName == "mouthopen" || keyName == "smile") {
+            if(confidence < 85) isValid = false;
+          }
+        }
+      }
+    });
 
     if(isValid) {
       _viewModel.addSuccessfulChallenge(
@@ -351,6 +367,7 @@ class _LivelinessScreen extends State<LivelinessScreen> {
           updateState: false
       );
     }
+    return isValid;
   }
 
   void uploadImage() {
@@ -364,7 +381,11 @@ class _LivelinessScreen extends State<LivelinessScreen> {
             isScrollControlled: true,
             backgroundColor: Colors.transparent,
             builder: (context) {
-              return BottomSheets.displayErrorModal(context, message: event.message);
+              return BottomSheets.displayErrorModal(context, message: event.message, onClick: (){
+                _viewModel.resetLiveliness();
+                startImageCapturing();
+                Navigator.of(context).pop();
+              });
             });
       }
       if (event is Success<LivelinessCompareResponse>) {
@@ -405,7 +426,6 @@ class _LivelinessScreen extends State<LivelinessScreen> {
     List<dynamic> configs = (value != null) ? jsonDecode(value) : [];
     List<SystemConfiguration> configurations = configs.map((e) => SystemConfiguration.fromJson(e)).toList();
     List<SystemConfiguration>? livelinessConfig = configurations.where((element) => element.name == "liveliness.test.interval").toList();
-
     if(livelinessConfig.isEmpty) return;
 
     try {

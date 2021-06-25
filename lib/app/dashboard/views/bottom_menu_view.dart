@@ -1,3 +1,4 @@
+import 'package:drawerbehavior/drawerbehavior.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
@@ -46,7 +47,7 @@ class DashboardBottomMenu extends StatelessWidget {
           Expanded(child: _menuItem(
               'More',
               'res/drawables/ic_menu_more.svg',
-                  () => Scaffold.of(context).openDrawer()
+                  () => DrawerScaffold.currentController(context).open()
           )),
         ],
       ),

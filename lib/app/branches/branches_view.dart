@@ -111,8 +111,9 @@ class _BranchScreen extends State<BranchScreen> {
 
   void _onCameraMove(CameraPosition cameraPosition) {
     final movingZoom = cameraPosition.zoom;
-    if(currentZoom != movingZoom) {
+    if(currentZoom.floorToDouble() != movingZoom.floorToDouble()) {
       //We are zooming
+      currentZoom = movingZoom;
       _fetchLastLocation();
     }
     currentZoom = movingZoom;
@@ -150,8 +151,8 @@ class _BranchScreen extends State<BranchScreen> {
     LatLngBounds l2=await c.getVisibleRegion();
     print(l1.toString());
     print(l2.toString());
-    if(l1.southwest.latitude==-90 ||l2.southwest.latitude==-90)
-      check(u, c);
+    //if(l1.southwest.latitude==-90 ||l2.southwest.latitude==-90)
+      //check(u, c);
   }
 
   LatLngBounds boundsFromLatLngList(List<LatLng?> list) {

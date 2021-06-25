@@ -94,6 +94,12 @@ class MockOnBoardingService extends _i1.Mock implements _i3.OnBoardingService {
               returnValue: Future<_i2.ServiceResult<_i11.AccountProfile>>.value(
                   _FakeServiceResult<_i11.AccountProfile>()))
           as _i4.Future<_i2.ServiceResult<_i11.AccountProfile>>);
+  @override
+  _i4.Future<_i2.ServiceResult<bool>> checkUsername(String? username) =>
+      (super.noSuchMethod(Invocation.method(#checkUsername, [username]),
+              returnValue: Future<_i2.ServiceResult<bool>>.value(
+                  _FakeServiceResult<bool>()))
+          as _i4.Future<_i2.ServiceResult<bool>>);
 }
 
 /// A class which mocks [AccountCreationService].

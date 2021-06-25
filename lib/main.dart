@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -7,6 +8,7 @@ import 'package:moniepoint_flutter/app/accounts/viewmodels/account_transaction_d
 import 'package:moniepoint_flutter/app/accounts/viewmodels/transaction_list_view_model.dart';
 import 'package:moniepoint_flutter/app/accounts/views/account_transaction_detailed_view.dart';
 import 'package:moniepoint_flutter/app/accounts/views/account_transactions_view.dart';
+import 'package:moniepoint_flutter/app/accounts/views/block_account_view.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/account_update_view.dart';
 import 'package:moniepoint_flutter/app/airtime/viewmodels/airtime_history_detail_view_model.dart';
 import 'package:moniepoint_flutter/app/airtime/views/airtime_history_detailed_view.dart';
@@ -19,6 +21,7 @@ import 'package:moniepoint_flutter/app/branches/branches_view.dart';
 import 'package:moniepoint_flutter/app/branches/viewmodels/branch_view_model.dart';
 import 'package:moniepoint_flutter/app/cards/viewmodels/single_card_view_model.dart';
 import 'package:moniepoint_flutter/app/cards/views/card_view.dart';
+import 'package:moniepoint_flutter/app/cards/views/unblock_debit_card_view.dart';
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_view.dart';
 import 'package:moniepoint_flutter/app/login/viewmodels/login_view_model.dart';
@@ -46,32 +49,9 @@ import 'package:moniepoint_flutter/core/viewmodels/contacts_view_model.dart';
 import 'package:moniepoint_flutter/core/viewmodels/system_configuration_view_model.dart';
 import 'package:moniepoint_flutter/core/views/contacts_view.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 import 'app/settings/settings_view.dart';
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  DatabaseModule.inject();
-  ServiceModule.inject();
-  initializeWorkManager();
-  await FlutterDownloader.initialize(debug: true // optional: set false to disable printing logs to console
-  );
-  await PreferenceUtil.initAsync();
-
-  runApp(MultiProvider(
-    providers: [
-      ChangeNotifierProvider(create: (_) => LoginViewModel()),
-      ChangeNotifierProvider(create: (_) => DashboardViewModel()),
-    ],
-    child: MoniepointApp(),
-  ));
-}
-
-void initializeWorkManager() async {
-
-}
 
 //We need to move this to some where else
 final defaultAppTheme = ThemeData(
@@ -80,7 +60,7 @@ final defaultAppTheme = ThemeData(
     backgroundColor: Colors.backgroundWhite,
     fontFamily: Styles.defaultFont,
     textTheme: TextTheme(
-      bodyText2: TextStyle(fontFamily: Styles.defaultFont, fontFamilyFallback: ["Roboto"])
+        bodyText2: TextStyle(fontFamily: Styles.defaultFont, fontFamilyFallback: ["Roboto"])
     )
 );
 
@@ -120,7 +100,7 @@ class MoniepointApp extends StatelessWidget {
       },
       //TODO consider moving this to a separate file
       routes: <String, WidgetBuilder>{
-        '/login': (BuildContext context) => Scaffold(body: LoginScreen()),
+        '/login': (BuildContext context) => LoginScreen(),
         '/sign-up': (BuildContext context) => Scaffold(body: OnBoardingScreen()),
         Routes.REGISTER_EXISTING_ACCOUNT: (BuildContext context) => Scaffold(body: ExistingAccountView()),
         Routes.REGISTER_NEW_ACCOUNT: (BuildContext context) => Scaffold(body: NewAccountScreen()),
@@ -177,7 +157,32 @@ class MoniepointApp extends StatelessWidget {
         Routes.SELECT_AIRTIME_BENEFICIARY: (BuildContext context) => AirtimeSelectBeneficiaryScreen(),
         Routes.SELECT_TRANSFER_BENEFICIARY: (BuildContext context) => TransferSelectBeneficiaryScreen(),
         Routes.SELECT_BILL_BENEFICIARY: (BuildContext context) => BillSelectBeneficiaryScreen(),
+        Routes.BLOCK_ACCOUNT: (BuildContext context) => BlockAccountScreen(),
+        Routes.UNBLOCK_DEBIT_CARD: (BuildContext context) => UnblockDebitCardScreen(),
       },
     );
   }
+
+}
+
+void main() async {
+
+  await _onCreate();
+
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => LoginViewModel()),
+      ChangeNotifierProvider(create: (_) => DashboardViewModel()),
+    ],
+    child: MoniepointApp(),
+  ));
+}
+
+Future<void> _onCreate() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  DatabaseModule.inject();
+  ServiceModule.inject();
+
+  await Firebase.initializeApp();
+  await PreferenceUtil.initAsync();
 }

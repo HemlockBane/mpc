@@ -18,7 +18,7 @@ import 'package:moniepoint_flutter/core/network/network_bound_resource.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/otp.dart';
 
-
+/// @author Paul Okeke
 class OnBoardingServiceDelegate with NetworkResource {
   late final OnBoardingService _service;
   late final AccountCreationService _accountCreationService;
@@ -84,12 +84,19 @@ class OnBoardingServiceDelegate with NetworkResource {
     );
   }
 
-
   Stream<Resource<FileUUID>> uploadFileForUUID(String filePath) {
     return networkBoundResource(
         fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () async {
           return this._accountCreationService.uploadImageForUUID(File(filePath));
+        });
+  }
+
+  Stream<Resource<bool>> checkUsername(String username) {
+    return networkBoundResource(
+        fetchFromLocal: () => Stream.value(null),
+        fetchFromRemote: () async {
+          return this._service.checkUsername(username);
         });
   }
 }

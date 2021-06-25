@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:moniepoint_flutter/core/models/transaction_meta_data.dart';
 
 part 'data_topup_request.g.dart';
 
@@ -20,8 +21,8 @@ class DataTopUpRequest  {
   @JsonKey(name:"name")
   String? name;
 
-  @JsonKey(name:"metaData")
-  String? metaData;
+  @JsonKey(name:"metaDataObj")
+  TransactionMetaData? metaData;
 
 
   DataTopUpRequest({this.phoneNumber,
@@ -61,7 +62,7 @@ class DataTopUpRequest  {
     return this;
   }
 
-  DataTopUpRequest withMetaData(String metaData) {
+  DataTopUpRequest withMetaData(TransactionMetaData metaData) {
     this.metaData = metaData;
     return this;
   }

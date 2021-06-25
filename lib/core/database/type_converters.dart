@@ -17,6 +17,7 @@ import 'package:moniepoint_flutter/app/transfers/model/data/transfer_batch.dart'
 import 'package:moniepoint_flutter/app/transfers/model/data/transfer_history_item.dart';
 import 'package:moniepoint_flutter/core/models/transaction.dart';
 import 'package:moniepoint_flutter/core/models/transaction_batch.dart';
+import 'package:moniepoint_flutter/core/models/transaction_meta_data.dart';
 import 'package:moniepoint_flutter/core/strings.dart';
 
 class ListStringConverter extends TypeConverter<List<String>?, String?>{
@@ -232,6 +233,20 @@ class TransactionChannelConverter extends TypeConverter<TransactionChannel?, Str
   @override
   String? encode(TransactionChannel? value) {
     return (value != null) ? describeEnum(value) : null;
+  }
+}
+
+class TransactionMetaDataConverter extends TypeConverter<TransactionMetaData?, String?>{
+  @override
+  TransactionMetaData? decode(String? databaseValue) {
+    if(databaseValue == null) return null;
+    final dynamic type = jsonDecode(databaseValue);
+    return TransactionMetaData.fromJson(type);
+  }
+
+  @override
+  String? encode(TransactionMetaData? value) {
+    return (value != null) ? jsonEncode(value) : null;
   }
 }
 

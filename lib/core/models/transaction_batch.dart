@@ -1,142 +1,151 @@
+import 'package:floor/floor.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/transfer_request_body.dart';
+import 'package:moniepoint_flutter/core/database/type_converters.dart';
+import 'package:moniepoint_flutter/core/models/transaction_meta_data.dart';
 
 part 'transaction_batch.g.dart';
 
 @JsonSerializable()
 class TransactionBatch {
   @JsonKey(name: "id")
-  final int? id;
+  int? id;
 
   @JsonKey(name: "batchKey")
-  final String? batchKey;
+  String? batchKey;
 
   @JsonKey(name: "sourceAccountProviderCode")
-  final String? sourceAccountProviderCode;
+  String? sourceAccountProviderCode;
 
   @JsonKey(name: "sourceAccountProviderName")
-  final String? sourceAccountProviderName;
+  String? sourceAccountProviderName;
 
   @JsonKey(name: "sourceAccountNumber")
-  final String? sourceAccountNumber;
+  String? sourceAccountNumber;
 
   @JsonKey(name: "currencyCode")
-  final String? currencyCode;
+  String? currencyCode;
 
   @JsonKey(name: "initiator")
-  final String? initiator;
+  String? initiator;
 
   @JsonKey(name: "status")
-  final String? status;
+  String? status;
 
   @JsonKey(name: "paymentType")
-  final PaymentType? paymentType;
+  PaymentType? paymentType;
 
   @JsonKey(name: "paymentInterval")
-  final String? paymentInterval;
+  String? paymentInterval;
 
   @JsonKey(name: "responseCode")
-  final String? responseCode;
+  String? responseCode;
 
   @JsonKey(name: "comment")
-  final String? comment;
+  String? comment;
 
   @JsonKey(name: "count")
-  final int? count;
+  int? count;
 
   // @JsonKey(name: "createdOn")
   // @TypeConverters(DateListTypeConverter.class)
-  // final String? createdOn;
+  // String? createdOn;
 
   @JsonKey(name: "minorTotalAmount")
-  final double? minorTotalAmount;
+  double? minorTotalAmount;
 
   @JsonKey(name: "transactionStatus")
-  final String? transactionStatus;
+  String? transactionStatus;
 
   @JsonKey(name: "paymentMethod")
-  final String? paymentMethod;
+  String? paymentMethod;
 
   // @JsonKey(name: "paymentStartDate")
   // // @TypeConverters(DateListTypeConverter.class)
-  // final String? paymentStartDate;
+  // String? paymentStartDate;
   //
   // @JsonKey(name: "nextPaymentDate")
   // // @TypeConverters(DateListTypeConverter.class)
-  // final String? nextPaymentDate;
+  // String? nextPaymentDate;
   //
   // @JsonKey(name: "paymentEndDate")
   // // @TypeConverters(DateListTypeConverter.class)
-  // final String? paymentEndDate;
+  // String? paymentEndDate;
 
   // @JsonKey(name: "startPayDate")
-  // final int? startPayDate;
+  // int? startPayDate;
   //
   // @JsonKey(name: "nextPayDate")
-  // final int? nextPayDate;
+  // int? nextPayDate;
   //
   // @JsonKey(name: "endPayDate")
-  // final int? endPayDate;
+  // int? endPayDate;
   //
   // @JsonKey(name: "creationDate")
-  // final int? creationDate;
+  // int? creationDate;
 
   @JsonKey(name: "transactionName")
-  final String? transactionName;
+  String? transactionName;
 
   // @JsonKey(name: "completedOn")
   // // @TypeConverters(DateListTypeConverter.class)
-  // final String? completedOn;
+  // String? completedOn;
 
   @JsonKey(name: "tracked")
-  final bool? tracked;
+  bool? tracked;
 
   @JsonKey(name: "rechargeDate")
-  final int? rechargeDate;
+  int? rechargeDate;
 
   @JsonKey(name: "creationTimeStamp")
-  final int? creationTimeStamp;
+  int? creationTimeStamp;
 
-  // @JsonKey(name:"metaDataObj")
-  // @Embedded(prefix = "_metaData")
-  // final MetaData metaData;
+  @JsonKey(name:"metaDataObj")
+  @TypeConverters([TransactionMetaDataConverter])
+  TransactionMetaData? metaData;
 
   @JsonKey(name: "token")
-  final String? token;
+  String? token;
 
-  TransactionBatch({
-    this.id,
-    this.batchKey,
-    this.sourceAccountProviderCode,
-    this.sourceAccountProviderName,
-    this.sourceAccountNumber,
-    this.currencyCode,
-    this.initiator,
-    this.status,
-    this.paymentType,
-    this.paymentInterval,
-    this.responseCode,
-    this.comment,
-    this.count,
-    // this.createdOn,
-    this.minorTotalAmount,
-    this.transactionStatus,
-    this.paymentMethod,
-    // this.paymentStartDate,
-    // this.nextPaymentDate,
-    // this.paymentEndDate,
-    // this.startPayDate,
-    // this.nextPayDate,
-    // this.endPayDate,
-    // this.creationDate,
-    this.transactionName,
-    // this.completedOn,
-    this.tracked,
-    this.rechargeDate,
-    this.creationTimeStamp,
-    this.token
-});
+  TransactionBatch();
 
-  factory TransactionBatch.fromJson(Object? data) => _$TransactionBatchFromJson(data as Map<String, dynamic>);
+//   TransactionBatch({
+//     this.id,
+//     this.batchKey,
+//     this.sourceAccountProviderCode,
+//     this.sourceAccountProviderName,
+//     this.sourceAccountNumber,
+//     this.currencyCode,
+//     this.initiator,
+//     this.status,
+//     this.paymentType,
+//     this.paymentInterval,
+//     this.responseCode,
+//     this.comment,
+//     this.count,
+//     // this.createdOn,
+//     this.minorTotalAmount,
+//     this.transactionStatus,
+//     this.paymentMethod,
+//     // this.paymentStartDate,
+//     // this.nextPaymentDate,
+//     // this.paymentEndDate,
+//     // this.startPayDate,
+//     // this.nextPayDate,
+//     // this.endPayDate,
+//     // this.creationDate,
+//     this.transactionName,
+//     // this.completedOn,
+//     this.tracked,
+//     this.rechargeDate,
+//     this.creationTimeStamp,
+//     this.token,
+//     this.metaData
+// });
+
+  factory TransactionBatch.fromJson(Object? data) {
+    final result = data as Map<String, dynamic>;
+    return _$TransactionBatchFromJson(result);
+  }
   Map<String, dynamic> toJson() => _$TransactionBatchToJson(this);
 }

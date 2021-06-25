@@ -45,6 +45,9 @@ class AdditionalInfoForm with ChangeNotifier {
   final _employmentStatusController = StreamController<EmploymentStatus>.broadcast();
   Stream<EmploymentStatus> get employmentStatusStream => _employmentStatusController.stream;
 
+  bool _isFormValid = false;
+  bool get isFormValid => _isFormValid;
+
 
   /// Initializes the state of the profile form
   void _initState() {
@@ -58,12 +61,13 @@ class AdditionalInfoForm with ChangeNotifier {
     ];
 
     this._isValid = Rx.combineLatest(formStreams, (values) {
-      return _isTitleValid(displayError: false)
+      _isFormValid =  _isTitleValid(displayError: false)
           && _isMaritalStatusValid(displayError: false)
           && _isReligionValid(displayError: false)
           && _isNationalityValid(displayError: false)
           && _isLocalGovtValid(displayError: false)
           && _isEmploymentStatusValid(displayError: false);
+      return _isFormValid;
     }).asBroadcastStream();
   }
 

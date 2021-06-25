@@ -21,9 +21,9 @@ class SystemConfigurationViewModel extends ChangeNotifier {
     this._ussdServiceDelegate = ussdServiceDelegate ?? GetIt.I<USSDServiceDelegate>();
   }
 
-  Stream<Resource<List<SystemConfiguration>>> getSystemConfigurations()  {
-    return _delegate.getSystemConfigurations().map((event) {
-      if(event  is! Error) _controller.sink.add(event);
+  Stream<Resource<List<SystemConfiguration>>> getSystemConfigurations({bool forceRemote = true})  {
+    return _delegate.getSystemConfigurations(forceRemote: forceRemote).map((event) {
+      if(event is! Error) _controller.sink.add(event);
       return event;
     });
   }

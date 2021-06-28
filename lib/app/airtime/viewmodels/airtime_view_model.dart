@@ -8,6 +8,7 @@ import 'package:moniepoint_flutter/app/airtime/model/data/airtime_purchase_reque
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_purchase_type.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_service_provider_item.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/data_topup_request.dart';
+import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/login/model/data/authentication_method.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/airtime/model/airtime_beneficiary_delegate.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/airtime/model/data/airtime_beneficiary.dart';
@@ -66,6 +67,12 @@ class AirtimeViewModel extends BaseViewModel with PaymentViewModel {
   }
 
   @override
+  void setSourceAccount(UserAccount? userAccount){
+    super.setSourceAccount(userAccount);
+    checkValidity();
+  }
+
+  @override
   void setAmount(double amount) {
     super.setAmount(amount);
     this.checkValidity();
@@ -73,6 +80,7 @@ class AirtimeViewModel extends BaseViewModel with PaymentViewModel {
 
   @override
   bool validityCheck() {
+    if(sourceAccount == null) return false;
     if(this.purchaseType == PurchaseType.DATA) {
       if(this.dataPlan == null) return false;
       final isAmountFixed = this.dataPlan?.priceFixed == true;
@@ -115,8 +123,8 @@ class AirtimeViewModel extends BaseViewModel with PaymentViewModel {
         .withAuthenticationType(AuthenticationMethod.PIN)
         .withDeviceId(_deviceManager.deviceId ?? "")
         .withSaveBeneficiary(saveBeneficiary ?? false)
-        .withSourceAccountNumber(accountNumber)
-        .withSourceAccountProviderCode(accountProviderCode)
+        .withSourceAccountNumber(sourceAccount?.customerAccount?.accountNumber ?? "")
+        .withSourceAccountProviderCode(sourceAccount?.accountProvider?.centralBankCode ?? "")
         .withPin(pin);
 
 

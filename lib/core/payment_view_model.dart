@@ -33,10 +33,7 @@ mixin PaymentViewModel {
   Position? _paymentLocation;
   Position? get paymentLocation => _paymentLocation;
 
-  void setSourceAccount(UserAccount? userAccount) {
-    print(jsonEncode(userAccount));
-    this._sourceAccount = userAccount;
-  }
+  void setSourceAccount(UserAccount? userAccount) => this._sourceAccount = userAccount;
   void setSaveBeneficiary(bool save) => this._saveBeneficiary = save;
   void setBeneficiary(Beneficiary beneficiary) =>this._beneficiary = beneficiary;
   void setAmount(double amount) => this._amount = amount;

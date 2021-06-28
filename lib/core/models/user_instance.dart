@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_status.dart';
+import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/login/model/data/user.dart';
 import 'package:moniepoint_flutter/core/config/service_config.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
@@ -14,7 +15,8 @@ class UserInstance {
   static UserInstance? _instance;
   static User? _user;
   static AccountStatus? _accountStatus;
-  static AccountBalance? _accountBalance;
+  static List<AccountBalance?> _accountBalance = [];
+  static List<UserAccount> _userAccounts = [];
   static Timer? timer;
 
   UserInstance._internal() {
@@ -26,7 +28,8 @@ class UserInstance {
   void resetSession() {
     _user = null;
     _accountStatus = null;
-    _accountBalance = null;
+    _accountBalance = [];
+    _userAccounts = [];
     PreferenceUtil.deleteLoggedInUser();
   }
 
@@ -45,19 +48,29 @@ class UserInstance {
 
   AccountStatus? get accountStatus => _accountStatus;
 
-  void setAccountBalance(AccountBalance? accountBalance) {
+  void setAccountBalance(List<AccountBalance?> accountBalance) {
     _accountBalance = accountBalance;
   }
 
-  AccountBalance? get accountBalance => _accountBalance;
+  List<AccountBalance?> get accountBalance => _accountBalance;
+
+  void setUserAccounts(List<UserAccount> userAccounts) {
+    _userAccounts.clear();
+    _userAccounts.addAll(userAccounts);
+
+    _accountBalance.clear();
+    _accountBalance.addAll(_userAccounts.map((e) => e.accountBalance));
+  }
+
+  List<UserAccount> get userAccounts => _userAccounts;
 
   void sessionTimeOut(BuildContext context, SessionTimeoutReason reason) {
     // if(ServiceConfig.ENV != "dev" && ServiceConfig.ENV != "live") {
-    //   Navigator.of(context)
-    //       .pushNamedAndRemoveUntil(
-    //       Routes.LOGIN, (route) => false,
-    //       arguments: Tuple("reason", reason)
-    //   );
+      Navigator.of(context)
+          .pushNamedAndRemoveUntil(
+          Routes.LOGIN, (route) => false,
+          arguments: Tuple("reason", reason)
+      );
     // }
   }
 

@@ -484,7 +484,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
     );
 
     final balanceContainerPosition = Positioned(
-        key: Key("dashboard-balance-1"),
+        key: Key("dashboard-balance-0"),
         right: balanceViewSides,
         left: balanceViewSides,
         top: balanceViewSides,

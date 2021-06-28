@@ -2,6 +2,8 @@ import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
+import 'package:moniepoint_flutter/app/airtime/views/selection_combo.dart';
+import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/transfers/viewmodels/transfer_view_model.dart';
 import 'package:moniepoint_flutter/app/transfers/views/transfer_view.dart';
 import 'package:moniepoint_flutter/core/amount_pill.dart';
@@ -17,6 +19,7 @@ import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
+import 'package:moniepoint_flutter/core/views/selection_combo_two.dart';
 import 'package:moniepoint_flutter/core/views/transaction_success_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:moniepoint_flutter/core/utils/text_utils.dart';
@@ -49,8 +52,13 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
   initState() {
     this._amount = widget.defaultAmount;
     final viewModel = Provider.of<TransferViewModel>(context, listen: false);
-    viewModel.getCustomerAccountBalance().listen((event) { });
-    viewModel.setNarration("");
+
+    if(viewModel.userAccounts.length > 0)
+      viewModel.getUserAccountsBalance().listen((event) { });
+    else viewModel.getCustomerAccountBalance();
+
+    viewModel.reset();
+
     super.initState();
 
     if(widget.defaultAmount > 0) {
@@ -155,6 +163,39 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
   }
 
   Widget transferSource(BaseViewModel viewModel) {
+    if(viewModel.userAccounts.length > 1) {
+      return Flexible(
+          flex:0,
+          child: StreamBuilder(
+              stream: viewModel.accountsBalanceStream,
+              builder: (BuildContext context, AsyncSnapshot<Resource<List<AccountBalance?>>> snapShot) {
+                if(!snapShot.hasData || snapShot.data?.data == null) return boxContainer(Container());
+                final List<AccountBalance?> accounts = snapShot.data!.data ?? [];
+                final userAccounts = viewModel.userAccounts;
+
+                final comboItems = accounts.mapIndexed((index, element) {
+                  final userAccount = userAccounts[index];
+                  final accountBalance = accounts[index];
+                  userAccount.accountBalance = accountBalance ?? userAccount.accountBalance;
+                  print("IDSSS ${(viewModel as PaymentViewModel).sourceAccount?.id}  ${userAccount.id}");
+                  return ComboItem<UserAccount>(
+                      userAccount, "${userAccount.customerAccount?.accountName}",
+                      subTitle: "Balance - ${userAccount.accountBalance?.availableBalance?.formatCurrency}",
+                      isSelected: (viewModel as PaymentViewModel).sourceAccount?.id == userAccount.id
+                  );
+                }).toList();
+
+                return SelectionCombo2<UserAccount>(
+                  comboItems,
+                  defaultTitle: "Select an Account",
+                  onItemSelected: (item, i) => (viewModel as PaymentViewModel).setSourceAccount(item),
+                  titleIcon: SelectionCombo2.initialView(),
+                );
+              }
+          )
+      );
+    }
+    (viewModel as PaymentViewModel).setSourceAccount(viewModel.userAccounts.first);
     return boxContainer(Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,

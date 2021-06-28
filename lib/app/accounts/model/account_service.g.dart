@@ -9,7 +9,7 @@ part of 'account_service.dart';
 class _AccountService implements AccountService {
   _AccountService(this._dio, {this.baseUrl}) {
     baseUrl ??=
-        'https://moniepoint-customer-root-v2.console.teamapt.com/api/v1/account/';
+        'https://core-root.monnify.development.teamapt.com/api/v1/account/';
   }
 
   final Dio _dio;
@@ -30,7 +30,7 @@ class _AccountService implements AccountService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.0.4'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -41,6 +41,33 @@ class _AccountService implements AccountService {
       _result.data!,
       (json) => AccountBalance.fromJson(json as Map<String, dynamic>),
     );
+    return value;
+  }
+
+  @override
+  Future<ServiceResult<List<UserAccount>>> getUserAccountsWithBalance() async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    final _result = await _dio.fetch<Map<String, dynamic>>(
+        _setStreamType<ServiceResult<List<UserAccount>>>(Options(
+                method: 'GET',
+                headers: <String, dynamic>{
+                  r'Content-Type': 'application/json',
+                  r'client-id': 'ANDROID',
+                  r'appVersion': '0.0.1'
+                },
+                extra: _extra,
+                contentType: 'application/json')
+            .compose(_dio.options, 'account_with_balance',
+                queryParameters: queryParameters, data: _data)
+            .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = ServiceResult<List<UserAccount>>.fromJson(
+        _result.data!,
+        (json) => (json as List<dynamic>)
+            .map<UserAccount>(
+                (i) => UserAccount.fromJson(i as Map<String, dynamic>))
+            .toList());
     return value;
   }
 
@@ -58,7 +85,7 @@ class _AccountService implements AccountService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.0.4'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -87,7 +114,7 @@ class _AccountService implements AccountService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.0.4'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')

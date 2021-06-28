@@ -15,8 +15,7 @@ AccountTransaction _$AccountTransactionFromJson(Map<String, dynamic> json) {
     amount: (json['amount'] as num?)?.toDouble(),
     type: _$enumDecodeNullable(_$TransactionTypeEnumMap, json['type']),
     channel: json['channel'] as String?,
-    transactionChannel: _$enumDecodeNullable(
-        _$TransactionChannelEnumMap, json['transactionChannel']),
+    transactionChannel: json['transactionChannel'] as String?,
     tags: json['tags'] as String?,
     narration: json['narration'] as String?,
     runningBalance: json['runningBalance'] as String?,
@@ -36,8 +35,7 @@ Map<String, dynamic> _$AccountTransactionToJson(AccountTransaction instance) =>
       'amount': instance.amount,
       'type': _$TransactionTypeEnumMap[instance.type],
       'channel': instance.channel,
-      'transactionChannel':
-          _$TransactionChannelEnumMap[instance.transactionChannel],
+      'transactionChannel': instance.transactionChannel,
       'tags': instance.tags,
       'narration': instance.narration,
       'transactionDate': instance.transactionDate,
@@ -88,13 +86,4 @@ const _$TransactionTypeEnumMap = {
   TransactionType.DEBIT: 'DEBIT',
   TransactionType.CREDIT: 'CREDIT',
   TransactionType.UNKNOWN: 'UNKNOWN',
-};
-
-const _$TransactionChannelEnumMap = {
-  TransactionChannel.ATM: 'ATM',
-  TransactionChannel.POS: 'POS',
-  TransactionChannel.WEB: 'WEB',
-  TransactionChannel.USSD: 'USSD',
-  TransactionChannel.MOBILE: 'MOBILE',
-  TransactionChannel.KIOSK: 'KIOSK',
 };

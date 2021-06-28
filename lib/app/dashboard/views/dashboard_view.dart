@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lottie/lottie.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_status.dart';
 import 'package:moniepoint_flutter/app/customer/customer.dart';
+import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/bottom_menu_view.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_container_view.dart';
@@ -23,6 +24,7 @@ import 'package:moniepoint_flutter/core/views/finger_print_alert_dialog.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:provider/provider.dart';
+import 'dart:math';
 
 class DashboardScreen extends StatefulWidget {
   @override
@@ -38,6 +40,7 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
   );
   late final AnimationController _dashboardCardController = AnimationController(duration: Duration(milliseconds: 800),vsync: this);
   late final AnimationController _greetingCardController = AnimationController(duration: Duration(milliseconds: 800), vsync: this);
+  late DashboardViewModel _viewModel;
 
   PageController _pageController = PageController(viewportFraction: 1);
   GlobalKey<DashboardContainerViewState> _dashboardContainerState = GlobalKey();
@@ -123,15 +126,13 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
     Customer? customer = viewModel.customer;
     AccountStatus? accountStatus = UserInstance().accountStatus;
     final flags = accountStatus?.listFlags() ?? customer?.listFlags();
-    print("flags is null $flags");
     if(flags == null) return true;
-    print("print flags $flags");
     return flags.where((element) => element?.status != true).isEmpty;
   }
 
   void _refreshDashboard() {
     setState(() {});
-    _dashboardContainerState.currentState?.loadAccountBalance();
+    _viewModel.getUserAccountsBalance(useLocal: false).listen((event) {});
     subscribeUiToAccountStatus();
   }
 
@@ -298,43 +299,112 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
   }
 
   Widget _centerDashboardContainer(DashboardViewModel viewModel) {
-    final width = MediaQuery.of(context).size.width * 0.13;
-    return SlideTransition(
-      position: Tween<Offset>(begin: Offset(0, 0.7), end: Offset(0, 0))
-          .animate(CurvedAnimation(parent: _dashboardCardController, curve: Curves.easeInToLinear)),
-      child: Hero(
-          tag: "dashboard-balance-view",
-          child: Container(
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                      color: UserInstance().accountStatus?.postNoDebit != true
-                          ? Colors.primaryColor.withOpacity(0.2)
-                          : Colors.postNoDebitColor,
-                      offset: Offset(0, 4),
-                      blurRadius: 5,
-                      spreadRadius: 1
-                  )
-                ]
-            ),
-            margin: EdgeInsets.only(left: width, right: width),
-            child: Material(
-              borderRadius: BorderRadius.circular(16),
-              child: InkWell(
-                  customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  onTap: () => Navigator.of(context).pushNamed(Routes.ACCOUNT_TRANSACTIONS).then((_) => _refreshDashboard()),
-                  child: DashboardContainerView(_dashboardContainerState, viewModel)
-              ),
-            ),
-          )
+    // final width = MediaQuery.of(context).size.width * 0.13;
+    final items = [
+      Container(
+        width: 200,
+        decoration: BoxDecoration(
+          color: Colors.grey,
+          borderRadius: BorderRadius.circular(16)
+        ),
       ),
+      Container(
+        width: 200,
+        decoration: BoxDecoration(
+            color: Colors.red,
+            borderRadius: BorderRadius.circular(16)
+        ),
+      ),
+      Container(
+        width: 200,
+        decoration: BoxDecoration(
+            color: Colors.solidGreen,
+            borderRadius: BorderRadius.circular(16)
+        ),
+      ),
+      Container(
+        width: 200,
+        decoration: BoxDecoration(
+            color: Colors.darkBlue,
+            borderRadius: BorderRadius.circular(16)
+        ),
+      ),
+      Container(
+        width: 200,
+        decoration: BoxDecoration(
+            color: Colors.primaryColor,
+            borderRadius: BorderRadius.circular(16)
+        ),
+      ),
+    ];
+
+    final pageController = PageController(viewportFraction: 0.72);
+
+    return PageView.builder(
+        controller: pageController,
+        itemCount: _viewModel.customers.length,
+        itemBuilder: (context, index) {
+          return AnimatedBuilder(
+              animation: pageController,
+              builder: (mContext, _) {
+
+                num selectedPage =  (pageController.position.hasContentDimensions)
+                    ? (pageController.page ?? pageController.initialPage)
+                    : 0;
+
+                num scaleTo = max(0.8, 1.0 - (selectedPage - index).abs());
+                num degree = min(15,  1.0 + (15 - 1) * (selectedPage - index));
+                num rotateTo = degree * pi / 360;
+
+                print("Degree $degree ---->>> Final Rotate To $rotateTo ---> Selected Page $selectedPage --->>> Index $index");
+                return Transform.rotate(
+                    angle: - rotateTo.toDouble(),
+                    child: Transform.scale(
+                        scale: scaleTo.toDouble(),
+                        alignment: AlignmentDirectional.centerEnd,
+                        origin: Offset(-150, 200),
+                        child: Hero(
+                            tag: "dashboard-balance-view-$index",
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: UserInstance().accountStatus?.postNoDebit != true
+                                            ? Colors.primaryColor.withOpacity(0.2)
+                                            : Colors.postNoDebitColor,
+                                        offset: Offset(0, 4),
+                                        blurRadius: 5,
+                                        spreadRadius: 1
+                                    )
+                                  ]
+                              ),
+                              child: Material(
+                                borderRadius: BorderRadius.circular(16),
+                                child: InkWell(
+                                    customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                    onTap: () => Navigator.of(context).pushNamed(Routes.ACCOUNT_TRANSACTIONS).then((_) => _refreshDashboard()),
+                                    child: DashboardContainerView(
+                                      key: Key("$index"),
+                                      viewModel: _viewModel,//TODO don't pass the view-model
+                                      userAccount: _viewModel.userAccounts[index],
+                                      position: index,
+                                    )
+                                ),
+                              ),
+                            )
+                        )
+                    ),
+                );
+              }
+          );
+        }
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = Provider.of<DashboardViewModel>(context, listen: false);
+    _viewModel = Provider.of<DashboardViewModel>(context, listen: false);
     return DrawerScaffold(
       controller: _drawerScaffoldController,
       extendBodyBehindAppBar: true,
@@ -379,7 +449,7 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
                               style: TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.bold),
                             ),
                             Text(
-                              viewModel.accountName,
+                              _viewModel.accountName,
                               style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
                             )
                           ],
@@ -424,7 +494,7 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
                         SizedBox(height: 16),
                         AspectRatio(
                           aspectRatio: 3 / 3.1,
-                          child: _centerDashboardContainer(viewModel),
+                          child: _centerDashboardContainer(_viewModel),
                         ),
                         SizedBox(height: 110),
                       ],
@@ -450,10 +520,11 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
 
   @override
   void initState() {
+    _viewModel = Provider.of<DashboardViewModel>(context, listen: false);
+    _viewModel.getUserAccountsBalance(useLocal: false).listen((event) { });
     super.initState();
     _bottomMenuController.forward().whenComplete(() => "");
     _dashboardCardController.forward();
-
     WidgetsBinding.instance?.addObserver(this);
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
       subscribeUiToAccountStatus();

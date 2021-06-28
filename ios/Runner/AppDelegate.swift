@@ -75,48 +75,48 @@ import AWSPredictionsPlugin
         request.attributes = ["ALL"]
         
         awsRekognition.detectFaces(request) { (response: AWSRekognitionDetectFacesResponse?, error: Error?) in
-            guard error == nil else {
-                mapResult["error"] = ["message" : error.debugDescription]
-                return reply(mapResult)
-            }
-            
-            guard response != nil else { return reply(nil) }
-            
-            guard let faces = response?.faceDetails else {
-                mapResult["facenotdetected"] = ["value" : true, "confidence" : 100.0]
-                return reply(mapResult)
-            }
-            
-            let newFaces = IdentifyEntitiesResultTransformers.processFaces(faces)
-            let entityResult = IdentifyEntitiesResult(entities: newFaces)
-            
-            if entityResult.entities.isEmpty {
-                mapResult["facenotdetected"] = ["value" : true, "confidence" : 100.0]
-                return reply(mapResult)
-            }
-            
-            mapResult["numberOfFaces"] = entityResult.entities.count
-            
-            entityResult.entities.forEach({(Entity) in
-                
-                let pose = Entity.metadata.pose
-                let attributes = Entity.attributes
-                
-                mapResult["pose"] = [
-                    "yaw" : pose.yaw,
-                    "roll" : pose.roll,
-                    "pitch" : pose.pitch,
-                ]
-                
-                attributes?.forEach({ (Attribute) in
-                    mapResult[Attribute.name.lowercased()] = [
-                        "value": Attribute.value,
-                        "confidence": Attribute.confidence
-                    ]
-                })
-            })
-
-            reply(mapResult)
+//            guard error == nil else {
+//                mapResult["error"] = ["message" : error.debugDescription]
+//                return reply(mapResult)
+//            }
+//
+//            guard response != nil else { return reply(nil) }
+//
+//            guard let faces = response?.faceDetails else {
+//                mapResult["facenotdetected"] = ["value" : true, "confidence" : 100.0]
+//                return reply(mapResult)
+//            }
+//
+//            let newFaces = IdentifyEntitiesResultTransformers.processFaces(faces)
+//            let entityResult = IdentifyEntitiesResult(entities: newFaces)
+//
+//            if entityResult.entities.isEmpty {
+//                mapResult["facenotdetected"] = ["value" : true, "confidence" : 100.0]
+//                return reply(mapResult)
+//            }
+//
+//            mapResult["numberOfFaces"] = entityResult.entities.count
+//
+//            entityResult.entities.forEach({(Entity) in
+//
+//                let pose = Entity.metadata.pose
+//                let attributes = Entity.attributes
+//
+//                mapResult["pose"] = [
+//                    "yaw" : pose.yaw,
+//                    "roll" : pose.roll,
+//                    "pitch" : pose.pitch,
+//                ]
+//
+//                attributes?.forEach({ (Attribute) in
+//                    mapResult[Attribute.name.lowercased()] = [
+//                        "value": Attribute.value,
+//                        "confidence": Attribute.confidence
+//                    ]
+//                })
+//            })
+//
+//            reply(mapResult)
         }
     })
   }

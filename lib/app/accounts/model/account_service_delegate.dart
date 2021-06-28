@@ -2,6 +2,7 @@
 import 'package:moniepoint_flutter/app/accounts/model/account_service.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_status.dart';
+import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/network_bound_resource.dart';
@@ -17,10 +18,24 @@ class AccountServiceDelegate with NetworkResource {
   Stream<Resource<AccountBalance>> getCustomerAccountBalance(int customerId) {
     return networkBoundResource(
         shouldFetchLocal: true,
-        fetchFromLocal: () => Stream.value(UserInstance().accountBalance),
+        fetchFromLocal: () {
+          final balances = UserInstance().accountBalance;
+          return Stream.value((balances.isNotEmpty ? balances.first : null));
+        },
         fetchFromRemote: () => this._service.getCustomerAccountBalance(customerId),
         saveRemoteData: (balance) async {
-          UserInstance().setAccountBalance(balance);
+          UserInstance().setAccountBalance([balance]);
+        }
+    );
+  }
+
+  Stream<Resource<List<UserAccount>>> getUserAccountWithBalance() {
+    return networkBoundResource(
+        shouldFetchLocal: true,
+        fetchFromLocal: () => Stream.value(UserInstance().userAccounts),
+        fetchFromRemote: () => this._service.getUserAccountsWithBalance(),
+        saveRemoteData: (userAccounts) async {
+          UserInstance().setUserAccounts(userAccounts);
         }
     );
   }

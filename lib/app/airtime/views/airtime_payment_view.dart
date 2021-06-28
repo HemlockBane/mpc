@@ -1,4 +1,6 @@
 
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter_svg/flutter_svg.dart';
@@ -15,6 +17,7 @@ import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/config/service_config.dart';
 import 'package:moniepoint_flutter/core/constants.dart';
+import 'package:moniepoint_flutter/core/models/file_result.dart';
 import 'package:moniepoint_flutter/core/models/list_item.dart';
 import 'package:moniepoint_flutter/core/models/transaction_status.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -24,6 +27,7 @@ import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
+import 'package:moniepoint_flutter/core/views/selection_combo_two.dart';
 import 'package:moniepoint_flutter/core/views/transaction_success_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:moniepoint_flutter/core/utils/text_utils.dart';
@@ -51,6 +55,8 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
   double _amount = 0.00;
   ListDataItem<String>? _selectedAmountPill;
   Stream<Resource<List<AirtimeServiceProviderItem>>>? dataPlanStream;
+  Image? _providerLogo;
+
   final List<ListDataItem<String>> amountPills = List.of([
     ListDataItem(100.formatCurrencyWithoutLeadingZero),
     ListDataItem(200.formatCurrencyWithoutLeadingZero),
@@ -174,6 +180,7 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
   }
 
   Widget dataPlans(AirtimeViewModel viewModel) {
+    final beneficiary = viewModel.beneficiary as AirtimeBeneficiary;
     return Flexible(
         flex: 0,
         fit: FlexFit.tight,
@@ -181,17 +188,48 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
             stream: dataPlanStream,
             builder: (BuildContext context, AsyncSnapshot<Resource<List<AirtimeServiceProviderItem>>> a) {
               if(!a.hasData || a.data?.data == null) return boxContainer(Container());
-              print('re-mapping list');
-              final comboItems = a.data!.data!.map((e) => ComboItem<AirtimeServiceProviderItem>(e, e.name!)).toList();
-              return SelectionCombo<AirtimeServiceProviderItem>(comboItems, (item, i){
-                  setState(() {
-                    this._amount = 0;
-                    print('Called');
-                    viewModel.setServiceProviderItem(item);
-                  });
-              });
-        }
-    ));
+              final comboItems = viewModel.dataProviderItems.map((e) => ComboItem<AirtimeServiceProviderItem>(e, e.name!, isSelected: e.id == viewModel.dataPlan?.id)).toList();
+              return SelectionCombo2<AirtimeServiceProviderItem>(
+                comboItems,
+                defaultTitle: "Select Data Plan",
+                onItemSelected: (item, i) => setState(() => viewModel.setServiceProviderItem(item)),
+                titleIcon: StreamBuilder(
+                    stream: viewModel.getFile(beneficiary.serviceProvider!.logoImageUUID ?? ""),
+                    builder: (ctx, AsyncSnapshot<Resource<FileResult>> result) {
+                      if(!result.hasData || result.data == null) SelectionCombo2.initialView();
+                      final base64 = result.data?.data;
+                      final base64String = base64?.base64String;
+                      if(base64 == null || base64String == null || base64String.isEmpty == true) return SelectionCombo2.initialView();
+                      _providerLogo = (_providerLogo == null)
+                          ? Image.memory(base64Decode(base64String), width: 40, height: 40, errorBuilder: (_,_i,_j) {
+                            return SelectionCombo2.initialView();
+                          })
+                          : _providerLogo;
+                      return _providerLogo!;
+                    }
+                ),
+              );
+            }
+        )
+    );
+    // return Flexible(
+    //     flex: 0,
+    //     fit: FlexFit.tight,
+    //     child: StreamBuilder(
+    //         stream: dataPlanStream,
+    //         builder: (BuildContext context, AsyncSnapshot<Resource<List<AirtimeServiceProviderItem>>> a) {
+    //           if(!a.hasData || a.data?.data == null) return boxContainer(Container());
+    //           print('re-mapping list');
+    //           final comboItems = a.data!.data!.map((e) => ComboItem<AirtimeServiceProviderItem>(e, e.name!)).toList();
+    //           return SelectionCombo<AirtimeServiceProviderItem>(comboItems, (item, i){
+    //               setState(() {
+    //                 this._amount = 0;
+    //                 print('Called');
+    //                 viewModel.setServiceProviderItem(item);
+    //               });
+    //           });
+    //     }
+    // ));
   }
 
   Widget transferSource(BaseViewModel viewModel) {

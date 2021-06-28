@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
+import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
@@ -17,8 +18,15 @@ import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 class DashboardContainerView extends StatefulWidget{
 
   final DashboardViewModel viewModel;
+  final int position;
+  final UserAccount userAccount;
 
-  DashboardContainerView(Key key, this.viewModel):super(key: key);
+  DashboardContainerView({
+    required Key key,
+    required this.viewModel,
+    required this.userAccount,
+    required this.position
+  }):super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -29,38 +37,44 @@ class DashboardContainerView extends StatefulWidget{
 
 class DashboardContainerViewState extends State<DashboardContainerView> with WidgetsBindingObserver {
 
-  bool _isLoadingBalance = true;
-  bool _isLoadingBalanceError = false;
+  // bool _isLoadingBalance = true;
+  // bool _isLoadingBalanceError = false;
 
   void loadAccountBalance() {
     final viewModel = widget.viewModel;
-    viewModel.getCustomerAccountBalance(useLocal: false).listen((event) {
-      if(event is Loading) setState(() {
-        _isLoadingBalance = true;
-        _isLoadingBalanceError = false;
-      });
-      if (event is Error<AccountBalance>) {
-        setState(() {
-          _isLoadingBalance = false;
-          _isLoadingBalanceError = true;
-        });
-      }
-      if(event is Success<AccountBalance>) {
-        setState(() {
-          _isLoadingBalance = false;
-          _isLoadingBalanceError = false;
-        });
-      }
-    });
+    viewModel.getUserAccountsBalance(useLocal: false).listen((event) { });
+    // viewModel.getCustomerAccountBalance(useLocal: false).listen((event) {
+    //   if(event is Loading) setState(() {
+    //     _isLoadingBalance = true;
+    //     _isLoadingBalanceError = false;
+    //   });
+    //   if (event is Error<AccountBalance>) {
+    //     setState(() {
+    //       _isLoadingBalance = false;
+    //       _isLoadingBalanceError = true;
+    //     });
+    //   }
+    //   if(event is Success<AccountBalance>) {
+    //     setState(() {
+    //       _isLoadingBalance = false;
+    //       _isLoadingBalanceError = false;
+    //     });
+    //   }
+    // });
   }
 
   Widget _displayAccountBalance () {
     final bool hideAccountBalance = PreferenceUtil.getValueForLoggedInUser(PreferenceUtil.HIDE_ACCOUNT_BAL) ?? false;
     return StreamBuilder(
-        stream: widget.viewModel.balanceStream,
-        builder: (BuildContext ctx, AsyncSnapshot<AccountBalance?> snapshot) {
+        stream: widget.viewModel.accountsBalanceStream,
+        builder: (BuildContext ctx, AsyncSnapshot<Resource<List<AccountBalance?>>> snapshot) {
+          final _isLoadingBalanceError = snapshot.hasData && snapshot.data is Error;
+          final _isLoadingBalance = snapshot.hasData && snapshot.data is Loading;
+          final List<AccountBalance?> accountBalances = (snapshot.hasData && snapshot.data != null) ? snapshot.data!.data ?? [] : [];
+          final accountBalance = (accountBalances.isNotEmpty == true) ? accountBalances[widget.position] : null;
+
           if(snapshot.hasData && (!_isLoadingBalance && !_isLoadingBalanceError)) {
-            final balance = hideAccountBalance ? "****" : "N ${snapshot.data?.availableBalance!.formatCurrencyWithoutSymbolAndDividing}";
+            final balance = hideAccountBalance ? "****" : "N ${accountBalance?.availableBalance?.formatCurrencyWithoutSymbolAndDividing}";
             return Text("$balance",
                 textAlign: TextAlign.start,
                 style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 28, fontFamily: Styles.defaultFont)
@@ -95,7 +109,8 @@ class DashboardContainerViewState extends State<DashboardContainerView> with Wid
                 ),
               )),
               baseColor: Colors.white.withOpacity(0.6),
-              highlightColor: Colors.deepGrey.withOpacity(0.6));
+              highlightColor: Colors.deepGrey.withOpacity(0.6)
+          );
         });
   }
 
@@ -193,6 +208,7 @@ class DashboardContainerViewState extends State<DashboardContainerView> with Wid
 
   @override
   Widget build(BuildContext context) {
+    final customerAccount = widget.userAccount.customerAccount;
     return Stack(
       children: [
         _getCardGradientBackground(),
@@ -248,7 +264,7 @@ class DashboardContainerViewState extends State<DashboardContainerView> with Wid
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text('Moniepoint Acc. No:', style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 13)),
-                            Text(widget.viewModel.accountNumber,
+                            Text(customerAccount?.accountNumber ?? "",
                                 textAlign: TextAlign.start,
                                 style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w400, fontFamily: Styles.ocraExtended)
                             ),
@@ -261,7 +277,7 @@ class DashboardContainerViewState extends State<DashboardContainerView> with Wid
                               padding: EdgeInsets.all(8),
                               color: Colors.transparent,
                               borderRadius: BorderRadius.circular(30),
-                              onClick: () => Share.share(widget.viewModel.accountNumber, subject: 'Moniepoint'),
+                              onClick: () => Share.share(customerAccount?.accountNumber ?? "", subject: 'Moniepoint'),
                               image: SvgPicture.asset(
                                 'res/drawables/ic_share.svg',
                                 fit: BoxFit.contain,
@@ -285,9 +301,9 @@ class DashboardContainerViewState extends State<DashboardContainerView> with Wid
   void initState() {
     super.initState();
     WidgetsBinding.instance?.addObserver(this);
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      loadAccountBalance();
-    });
+    // WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+    //   loadAccountBalance();
+    // });
   }
 
   @override

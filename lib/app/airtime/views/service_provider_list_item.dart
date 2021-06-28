@@ -1,18 +1,12 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart' hide Colors;
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_service_provider.dart';
 import 'package:moniepoint_flutter/app/airtime/viewmodels/service_provider_view_model.dart';
-import 'package:moniepoint_flutter/app/customer/account_provider.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
-import 'package:moniepoint_flutter/core/config/service_config.dart';
-import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/models/file_result.dart';
-import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
-import 'package:moniepoint_flutter/core/utils/download_util.dart';
 import 'package:moniepoint_flutter/core/views/custom_check_box.dart';
 import 'package:provider/provider.dart';
 
@@ -38,12 +32,17 @@ class ServiceProviderListItem extends StatefulWidget {
 class _ServiceProviderItem extends State<ServiceProviderListItem> {
 
   Stream<Resource<FileResult>>? _fileResultStream;
+  Image? _itemImage;
 
   @override
   void initState() {
-    _fileResultStream = Provider.of<ServiceProviderViewModel>(context, listen: false)
-        .getFile(widget._provider.logoImageUUID ?? "");
+    _fetchServiceProviderLogo();
     super.initState();
+  }
+
+  void _fetchServiceProviderLogo() {
+      _fileResultStream = Provider.of<ServiceProviderViewModel>(context, listen: false)
+          .getFile(widget._provider.logoImageUUID ?? "");
   }
 
   void _onSelected() {
@@ -65,13 +64,18 @@ class _ServiceProviderItem extends State<ServiceProviderListItem> {
             Visibility(
               visible: widget._provider.logoImageUUID != null,
               child: StreamBuilder(
-                  stream: _fileResultStream,
+                  stream: (widget._provider.logoImageUUID != null) ? _fileResultStream : null,
                   builder: (mContext, AsyncSnapshot<Resource<FileResult>> snapShot) {
-                    if(!snapShot.hasData || snapShot.data == null) return Container();
+                    if(!snapShot.hasData || snapShot.data == null || (snapShot.data is Error && _itemImage == null)) return Container();
                     final base64 = snapShot.data?.data;
                     final base64String = base64?.base64String;
-                    if(base64 == null || base64String == null || base64String.isEmpty == true) return Container();
-                    return Image.memory(base64Decode(base64.base64String!), width: 40, height: 40,);
+                    if((base64 == null || base64String == null || base64String.isEmpty == true) && _itemImage == null) return Container();
+                    _itemImage = (_itemImage == null)
+                        ? Image.memory(base64Decode(base64String!), width: 40, height: 40, errorBuilder: (_,_i,_j) {
+                          return Container();
+                        })
+                        : _itemImage;
+                    return _itemImage!;
                   }
               ),
             ),

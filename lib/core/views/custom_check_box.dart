@@ -5,8 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../colors.dart';
 
 class CustomCheckBox extends StatefulWidget {
-  const CustomCheckBox(
-      {Key? key,
+  const CustomCheckBox({Key? key,
         required this.onSelect,
         required this.isSelected,
         this.height,

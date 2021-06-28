@@ -86,7 +86,7 @@ class TransactionHistoryListItem extends Container {
                             borderRadius: BorderRadius.circular(4)
                           ),
                           child: Text(
-                            describeEnum(_transaction.transactionChannel ?? TransactionChannel.MOBILE),
+                            _transaction.transactionChannel ?? "",
                             style: TextStyle(fontSize: 12, color: Colors.primaryColor, fontWeight: FontWeight.bold),),
                         )
                     ),

@@ -53,11 +53,11 @@ class UserInstance {
 
   void sessionTimeOut(BuildContext context, SessionTimeoutReason reason) {
     // if(ServiceConfig.ENV != "dev" && ServiceConfig.ENV != "live") {
-    //   Navigator.of(context)
-    //       .pushNamedAndRemoveUntil(
-    //       Routes.LOGIN, (route) => false,
-    //       arguments: Tuple("reason", reason)
-    //   );
+      Navigator.of(context)
+          .pushNamedAndRemoveUntil(
+          Routes.LOGIN, (route) => false,
+          arguments: Tuple("reason", reason)
+      );
     // }
   }
 

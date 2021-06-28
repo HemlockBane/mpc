@@ -87,20 +87,16 @@ import AWSPredictionsPlugin
                 return reply(mapResult)
             }
             
-            let newFaces = IdentifyEntitiesResultTransformers.processFaces(faces)
-            let entityResult = IdentifyEntitiesResult(entities: newFaces)
-            
-            if entityResult.entities.isEmpty {
+            if faces.isEmpty {
                 mapResult["facenotdetected"] = ["value" : true, "confidence" : 100.0]
-                return reply(mapResult)
+                reply(mapResult)
+                return
             }
             
-            mapResult["numberOfFaces"] = entityResult.entities.count
-            
-            entityResult.entities.forEach({(Entity) in
-                
-                let pose = Entity.metadata.pose
-                let attributes = Entity.attributes
+            mapResult["numberOfFaces"] = faces.count
+
+            for face in faces {
+                guard let pose = face.pose else { continue }
                 
                 mapResult["pose"] = [
                     "yaw" : pose.yaw,
@@ -108,15 +104,33 @@ import AWSPredictionsPlugin
                     "pitch" : pose.pitch,
                 ]
                 
-                attributes?.forEach({ (Attribute) in
-                    mapResult[Attribute.name.lowercased()] = [
-                        "value": Attribute.value,
-                        "confidence": Attribute.confidence
-                    ]
-                })
-            })
-
+                mapResult["smile"] = [
+                    "value": face.smile?.value,
+                    "confidence": face.smile?.confidence,
+                ]
+                
+                mapResult["mouthopen"] = [
+                    "value": face.mouthOpen?.value,
+                    "confidence": face.mouthOpen?.confidence,
+                ]
+                
+                mapResult["sunglasses"] = [
+                    "value": face.sunglasses?.value,
+                    "confidence": face.sunglasses?.confidence,
+                ]
+                
+                mapResult["eyeglasses"] = [
+                    "value": face.eyeglasses?.value,
+                    "confidence": face.eyeglasses?.confidence,
+                ]
+                
+                mapResult["eyesopen"] = [
+                    "value": face.eyesOpen?.value,
+                    "confidence": face.eyesOpen?.confidence,
+                ]
+            }
             reply(mapResult)
+            return
         }
     })
   }

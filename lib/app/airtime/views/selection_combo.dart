@@ -273,6 +273,7 @@ class ComboItem<T> {
   bool isSelected = false;
   final T value;
   final String title;
+  final String? subTitle;
   final Widget? icon;
-  ComboItem(this.value, this.title, {this.icon, this.isSelected = false});
+  ComboItem(this.value, this.title, {this.icon, this.isSelected = false, this.subTitle});
 }

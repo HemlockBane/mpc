@@ -24,6 +24,7 @@ class CustomerServiceDelegate with NetworkResource {
         fetchFromLocal: () => _schemeDao.getSchemes(),
         fetchFromRemote: () => this._service.getAllOnboardingSchemes(),
         saveRemoteData: (data) async {
+          //await _schemeDao.deleteItems(item)
           await _schemeDao.insertItems(data);
         }
     );

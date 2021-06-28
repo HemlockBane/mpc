@@ -10,7 +10,7 @@ import 'package:moniepoint_flutter/core/models/transaction_meta_data.dart';
 part 'account_transaction.g.dart';
 
 enum  TransactionChannel {
-ATM,POS, WEB, USSD, MOBILE, KIOSK
+  ATM,POS, WEB, USSD, MOBILE, KIOSK
 }
 
 
@@ -41,8 +41,8 @@ class AccountTransaction implements ListItem, Transaction {
   final String? channel;
 
   @JsonKey(name:"transactionChannel")
-  @TypeConverters([TransactionChannelConverter])
-  final TransactionChannel? transactionChannel;
+  //@TypeConverters([TransactionChannelConverter])
+  final String? transactionChannel;
 
   @JsonKey(name:"tags")
   final String? tags;
@@ -89,7 +89,7 @@ class AccountTransaction implements ListItem, Transaction {
 
   String getTransactionChannelValue() {
     final channel = this.transactionChannel;
-    return channel == null ? "" : describeEnum(channel);
+    return channel == null ? "" : channel;
   }
 
   @override

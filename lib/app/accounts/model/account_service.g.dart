@@ -45,6 +45,33 @@ class _AccountService implements AccountService {
   }
 
   @override
+  Future<ServiceResult<List<UserAccount>>> getUserAccountsWithBalance() async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    final _result = await _dio.fetch<Map<String, dynamic>>(
+        _setStreamType<ServiceResult<List<UserAccount>>>(Options(
+                method: 'GET',
+                headers: <String, dynamic>{
+                  r'Content-Type': 'application/json',
+                  r'client-id': 'ANDROID',
+                  r'appVersion': '0.0.1'
+                },
+                extra: _extra,
+                contentType: 'application/json')
+            .compose(_dio.options, 'account_with_balance',
+                queryParameters: queryParameters, data: _data)
+            .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = ServiceResult<List<UserAccount>>.fromJson(
+        _result.data!,
+        (json) => (json as List<dynamic>)
+            .map<UserAccount>(
+                (i) => UserAccount.fromJson(i as Map<String, dynamic>))
+            .toList());
+    return value;
+  }
+
+  @override
   Future<ServiceResult<AccountStatus>> getAccountStatus(
       customerAccountId) async {
     const _extra = <String, dynamic>{};

@@ -8,10 +8,13 @@ import 'package:moniepoint_flutter/app/airtime/model/data/airtime_purchase_reque
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_purchase_type.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_service_provider_item.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/data_topup_request.dart';
+import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/login/model/data/authentication_method.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/airtime/model/airtime_beneficiary_delegate.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/airtime/model/data/airtime_beneficiary.dart';
 import 'package:moniepoint_flutter/core/device_manager.dart';
+import 'package:moniepoint_flutter/core/models/file_result.dart';
+import 'package:moniepoint_flutter/core/models/services/file_management_service_delegate.dart';
 import 'package:moniepoint_flutter/core/models/transaction_status.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/payment_view_model.dart';
@@ -21,6 +24,7 @@ class AirtimeViewModel extends BaseViewModel with PaymentViewModel {
   late final AirtimeServiceDelegate _delegate;
   late final AirtimeBeneficiaryServiceDelegate _beneficiaryServiceDelegate;
   late final DeviceManager _deviceManager;
+  late final FileManagementServiceDelegate _fileServiceDelegate;
 
   PurchaseType _purchaseType = PurchaseType.AIRTIME;
   PurchaseType get purchaseType => _purchaseType;
@@ -28,12 +32,18 @@ class AirtimeViewModel extends BaseViewModel with PaymentViewModel {
   AirtimeServiceProviderItem? _dataPlan;
   AirtimeServiceProviderItem? get dataPlan => _dataPlan;
 
+  List<AirtimeServiceProviderItem> _dataProviderItems = [];
+  List<AirtimeServiceProviderItem> get dataProviderItems => _dataProviderItems;
+
   AirtimeViewModel({AirtimeServiceDelegate? delegate,
     AirtimeBeneficiaryServiceDelegate? beneficiaryServiceDelegate,
-    DeviceManager? deviceManager}) {
+    DeviceManager? deviceManager,
+    FileManagementServiceDelegate? fileManagementServiceDelegate
+  }) {
     this._delegate = delegate ?? GetIt.I<AirtimeServiceDelegate>();
     this._beneficiaryServiceDelegate = beneficiaryServiceDelegate ?? GetIt.I<AirtimeBeneficiaryServiceDelegate>();
     this._deviceManager = deviceManager ?? GetIt.I<DeviceManager>();
+    this._fileServiceDelegate = fileManagementServiceDelegate ?? GetIt.I<FileManagementServiceDelegate>();
   }
 
   Stream<Resource<List<AirtimeBeneficiary>>> getFrequentBeneficiaries() {
@@ -41,12 +51,24 @@ class AirtimeViewModel extends BaseViewModel with PaymentViewModel {
   }
 
   Stream<Resource<List<AirtimeServiceProviderItem>>> getServiceProviderItems(String billerId) {
-    return _delegate.getServiceProviderItems(billerId);
+    return _delegate.getServiceProviderItems(billerId).map((event) {
+      if((event is Success || event is Loading) && (_dataProviderItems.isEmpty && event.data?.isNotEmpty == true)) {
+        _dataProviderItems.clear();
+        _dataProviderItems.addAll(event.data ?? []);
+      }
+      return event;
+    });
   }
 
   void setPurchaseType(PurchaseType purchaseType) => this._purchaseType = purchaseType;
   void setServiceProviderItem(AirtimeServiceProviderItem? item) {
     this._dataPlan = item;
+    checkValidity();
+  }
+
+  @override
+  void setSourceAccount(UserAccount? userAccount){
+    super.setSourceAccount(userAccount);
     checkValidity();
   }
 
@@ -58,6 +80,7 @@ class AirtimeViewModel extends BaseViewModel with PaymentViewModel {
 
   @override
   bool validityCheck() {
+    if(sourceAccount == null) return false;
     if(this.purchaseType == PurchaseType.DATA) {
       if(this.dataPlan == null) return false;
       final isAmountFixed = this.dataPlan?.priceFixed == true;
@@ -100,8 +123,8 @@ class AirtimeViewModel extends BaseViewModel with PaymentViewModel {
         .withAuthenticationType(AuthenticationMethod.PIN)
         .withDeviceId(_deviceManager.deviceId ?? "")
         .withSaveBeneficiary(saveBeneficiary ?? false)
-        .withSourceAccountNumber(accountNumber)
-        .withSourceAccountProviderCode(accountProviderCode)
+        .withSourceAccountNumber(sourceAccount?.customerAccount?.accountNumber ?? "")
+        .withSourceAccountProviderCode(sourceAccount?.accountProvider?.centralBankCode ?? "")
         .withPin(pin);
 
 
@@ -115,6 +138,11 @@ class AirtimeViewModel extends BaseViewModel with PaymentViewModel {
 
   Stream<Uint8List> downloadReceipt(int batchId){
     return _delegate.downloadReceipt(customerId.toString(), batchId, purchaseType);
+  }
+
+
+  Stream<Resource<FileResult>> getFile(String fileUUID) {
+    return _fileServiceDelegate.getFileByUUID(fileUUID, shouldFetchRemote: false);
   }
 
 }

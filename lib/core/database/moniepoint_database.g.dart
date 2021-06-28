@@ -1861,8 +1861,7 @@ class _$TransactionDao extends TransactionDao {
                   'amount': item.amount,
                   'type': _transactionTypeConverter.encode(item.type),
                   'channel': item.channel,
-                  'transactionChannel': _transactionChannelConverter
-                      .encode(item.transactionChannel),
+                  'transactionChannel': item.transactionChannel,
                   'tags': item.tags,
                   'narration': item.narration,
                   'transactionDate': item.transactionDate,
@@ -1885,8 +1884,7 @@ class _$TransactionDao extends TransactionDao {
                   'amount': item.amount,
                   'type': _transactionTypeConverter.encode(item.type),
                   'channel': item.channel,
-                  'transactionChannel': _transactionChannelConverter
-                      .encode(item.transactionChannel),
+                  'transactionChannel': item.transactionChannel,
                   'tags': item.tags,
                   'narration': item.narration,
                   'transactionDate': item.transactionDate,
@@ -1938,8 +1936,7 @@ class _$TransactionDao extends TransactionDao {
             amount: row['amount'] as double?,
             type: _transactionTypeConverter.decode(row['type'] as String?),
             channel: row['channel'] as String?,
-            transactionChannel: _transactionChannelConverter
-                .decode(row['transactionChannel'] as String?),
+            transactionChannel: row['transactionChannel'] as String?,
             tags: row['tags'] as String?,
             narration: row['narration'] as String?,
             runningBalance: row['runningBalance'] as String?,
@@ -1971,8 +1968,7 @@ class _$TransactionDao extends TransactionDao {
             amount: row['amount'] as double?,
             type: _transactionTypeConverter.decode(row['type'] as String?),
             channel: row['channel'] as String?,
-            transactionChannel: _transactionChannelConverter
-                .decode(row['transactionChannel'] as String?),
+            transactionChannel: row['transactionChannel'] as String?,
             tags: row['tags'] as String?,
             narration: row['narration'] as String?,
             runningBalance: row['runningBalance'] as String?,
@@ -2199,7 +2195,6 @@ final _billerConverter = BillerConverter();
 final _listBillerProductConverter = ListBillerProductConverter();
 final _additionalFieldsConverter = AdditionalFieldsConverter();
 final _transactionTypeConverter = TransactionTypeConverter();
-final _transactionChannelConverter = TransactionChannelConverter();
 final _transactionMetaDataConverter = TransactionMetaDataConverter();
 final _schemeRequirementConverter = SchemeRequirementConverter();
 final _alternateSchemeRequirementConverter =

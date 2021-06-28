@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
+import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/transfer_beneficiary_delegate.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/fee_vat_config.dart';
@@ -52,10 +53,22 @@ class TransferViewModel extends BaseViewModel with PaymentViewModel {
     return _beneficiaryServiceDelegate.getFrequentBeneficiaries();
   }
 
+  void reset() {
+    setAmount(0.0);
+    setNarration("");
+    setSourceAccount(null);
+  }
+
   @override
   void setAmount(double amount) {
     super.setAmount(amount);
     print("Setting amount $amount");
+    this.checkValidity();
+  }
+
+  @override
+  void setSourceAccount(UserAccount? userAccount) {
+    super.setSourceAccount(userAccount);
     this.checkValidity();
   }
 
@@ -66,7 +79,7 @@ class TransferViewModel extends BaseViewModel with PaymentViewModel {
 
   @override
   bool validityCheck() {
-    return (this.amount ?? 0.00) > 0;
+    return (this.amount ?? 0.00) > 0 && sourceAccount != null;
   }
 
   bool isIntra() {
@@ -117,8 +130,8 @@ class TransferViewModel extends BaseViewModel with PaymentViewModel {
         ..sinkAccountProviderName = mBeneficiary.getBeneficiaryProviderName()
         ..sinkAccountNumber = mBeneficiary.getBeneficiaryDigits()
         ..sinkAccountProviderCode = mBeneficiary.getBeneficiaryProviderCode()
-        ..sourceAccountNumber = accountNumber
-        ..sourceAccountProviderCode = accountProviderCode
+        ..sourceAccountNumber = sourceAccount?.customerAccount?.accountNumber
+        ..sourceAccountProviderCode = sourceAccount?.accountProvider?.centralBankCode
         ..deviceId = _deviceManager.deviceId
         ..validatedAccountName = mBeneficiary.getAccountName()
         ..minorAmount = (amount! * 100).toInt()

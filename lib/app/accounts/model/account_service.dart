@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart' hide Headers;
 import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_status.dart';
+import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/core/config/build_config.dart';
 import 'package:moniepoint_flutter/core/config/service_config.dart';
@@ -22,6 +23,15 @@ abstract class AccountService {
   @GET("account-balance")
   Future<ServiceResult<AccountBalance>> getCustomerAccountBalance(
       @Query("customerAccountId") int customerAccountId);
+
+
+  @Headers(<String, dynamic>{
+    "Content-Type": "application/json",
+    "client-id": BuildConfig.CLIENT_ID,
+    "appVersion": BuildConfig.APP_VERSION
+  })
+  @GET("account_with_balance")
+  Future<ServiceResult<List<UserAccount>>> getUserAccountsWithBalance();
 
   @Headers(<String, dynamic>{
     "Content-Type": "application/json",

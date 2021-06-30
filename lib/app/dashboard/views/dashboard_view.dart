@@ -300,44 +300,6 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
 
   Widget _centerDashboardContainer(DashboardViewModel viewModel) {
     // final width = MediaQuery.of(context).size.width * 0.13;
-    final items = [
-      Container(
-        width: 200,
-        decoration: BoxDecoration(
-          color: Colors.grey,
-          borderRadius: BorderRadius.circular(16)
-        ),
-      ),
-      Container(
-        width: 200,
-        decoration: BoxDecoration(
-            color: Colors.red,
-            borderRadius: BorderRadius.circular(16)
-        ),
-      ),
-      Container(
-        width: 200,
-        decoration: BoxDecoration(
-            color: Colors.solidGreen,
-            borderRadius: BorderRadius.circular(16)
-        ),
-      ),
-      Container(
-        width: 200,
-        decoration: BoxDecoration(
-            color: Colors.darkBlue,
-            borderRadius: BorderRadius.circular(16)
-        ),
-      ),
-      Container(
-        width: 200,
-        decoration: BoxDecoration(
-            color: Colors.primaryColor,
-            borderRadius: BorderRadius.circular(16)
-        ),
-      ),
-    ];
-
     final pageController = PageController(viewportFraction: 0.72);
 
     return PageView.builder(
@@ -356,7 +318,7 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
                 num degree = min(15,  1.0 + (15 - 1) * (selectedPage - index));
                 num rotateTo = degree * pi / 360;
 
-                print("Degree $degree ---->>> Final Rotate To $rotateTo ---> Selected Page $selectedPage --->>> Index $index");
+                final userAccount = _viewModel.userAccounts[index];
                 return Transform.rotate(
                     angle: - rotateTo.toDouble(),
                     child: Transform.scale(
@@ -383,11 +345,13 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
                                 borderRadius: BorderRadius.circular(16),
                                 child: InkWell(
                                     customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                    onTap: () => Navigator.of(context).pushNamed(Routes.ACCOUNT_TRANSACTIONS).then((_) => _refreshDashboard()),
+                                    onTap: () {
+                                      Navigator.of(context).pushNamed(Routes.ACCOUNT_TRANSACTIONS, arguments: {"customerAccountId": userAccount.customerAccount?.id}).then((_) => _refreshDashboard());
+                                    },
                                     child: DashboardContainerView(
                                       key: Key("$index"),
                                       viewModel: _viewModel,//TODO don't pass the view-model
-                                      userAccount: _viewModel.userAccounts[index],
+                                      userAccount: userAccount,
                                       position: index,
                                     )
                                 ),

@@ -32,7 +32,7 @@ class TransferHistoryViewModel extends BaseViewModel {
   }
 
   bool isFilteredList() {
-    return _filterResults.startDate > 0;//d
+    return _filterResults.startDate > 0;
   }
 
   void resetFilter() {

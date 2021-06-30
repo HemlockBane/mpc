@@ -7,6 +7,8 @@ import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/t
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/network_bound_resource.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:collection/collection.dart';
+
 
 class AccountServiceDelegate with NetworkResource {
   late final AccountService _service;
@@ -19,8 +21,10 @@ class AccountServiceDelegate with NetworkResource {
     return networkBoundResource(
         shouldFetchLocal: true,
         fetchFromLocal: () {
-          final balances = UserInstance().accountBalance;
-          return Stream.value((balances.isNotEmpty ? balances.first : null));
+          final userAccounts = UserInstance().userAccounts;
+          final userAccount = userAccounts.where((element) => element.customerAccount?.id == customerId).firstOrNull;
+          // final balances = UserInstance().accountBalance;
+          return Stream.value(userAccount?.accountBalance);
         },
         fetchFromRemote: () => this._service.getCustomerAccountBalance(customerId),
         saveRemoteData: (balance) async {

@@ -34,6 +34,10 @@ import 'package:moniepoint_flutter/core/utils/text_utils.dart';
 
 class AccountTransactionScreen extends StatefulWidget {
 
+  final int? customerAccountId;
+
+  AccountTransactionScreen({this.customerAccountId});
+
   @override
   State<StatefulWidget> createState() => _AccountTransactionScreen();
 
@@ -57,12 +61,12 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
       vsync: this,
       duration: Duration(milliseconds: 3000)
   );
-  PagingSource<int, AccountTransaction> _pagingSource = PagingSource(localSource: (a) => Stream.value(Page([], null, null)));
+  PagingSource<int, AccountTransaction> _pagingSource = PagingSource.empty();
 
   initState() {
     final viewModel = Provider.of<TransactionHistoryViewModel>(context, listen: false);
-    viewModel.getCustomerAccountBalance().listen((event) { });
-    _pagingSource = viewModel.getPagedHistoryTransaction();
+    viewModel.getCustomerAccountBalance(accountId: widget.customerAccountId).listen((event) { });
+    _refresh(viewModel);
     _animationController.forward();
     _scrollController.addListener(_onScroll);
     super.initState();
@@ -212,9 +216,8 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
                                 'A/C No.',
                                 style: TextStyle(color: Colors.colorFaded, fontSize: 13)
                             ),
-
                             Text(
-                                viewModel.accountNumber,
+                                viewModel.customerAccountNumber(accountId: widget.customerAccountId),
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(color: Colors.white, fontSize: 14)
                             )
@@ -231,7 +234,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
                               style: TextStyle(color: Colors.colorFaded, fontSize: 13)
                           ),
                           Text(
-                              viewModel.accountName,
+                              viewModel.customerAccountName(accountId: widget.customerAccountId),
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
                               style: TextStyle(color: Colors.white, fontSize: 14)
@@ -327,11 +330,15 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
     );
   }
 
+  void _refresh(TransactionHistoryViewModel viewModel) {
+    _pagingSource = viewModel.getPagedHistoryTransaction(accountId: widget.customerAccountId);
+  }
+
   void _dateFilterDateChanged(int startDate, int endDate) {
     final viewModel = Provider.of<TransactionHistoryViewModel>(context, listen: false);
     setState(() {
       viewModel.setStartAndEndDate(startDate, endDate);
-      _pagingSource = viewModel.getPagedHistoryTransaction();
+      _refresh(viewModel);
     });
   }
 
@@ -339,7 +346,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
     final viewModel = Provider.of<TransactionHistoryViewModel>(context, listen: false);
     setState(() {
       viewModel.setChannels(channels);
-      _pagingSource = viewModel.getPagedHistoryTransaction();
+      _refresh(viewModel);
     });
   }
 
@@ -347,7 +354,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
     final viewModel = Provider.of<TransactionHistoryViewModel>(context, listen: false);
     setState(() {
       viewModel.setTransactionTypes(types);
-      _pagingSource = viewModel.getPagedHistoryTransaction();
+      _refresh(viewModel);
     });
   }
 
@@ -358,14 +365,14 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
       _isFilterOpened = false;
       viewModel.resetFilter();
       //check if what we had before and now is the same
-      _pagingSource = viewModel.getPagedHistoryTransaction();
+      _refresh(viewModel);
     });
   }
 
   void _retry(){
     final viewModel = Provider.of<TransactionHistoryViewModel>(context, listen: false);
     setState((){
-      _pagingSource = viewModel.getPagedHistoryTransaction();
+      _refresh(viewModel);
     });
   }
 
@@ -489,7 +496,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
         left: balanceViewSides,
         top: balanceViewSides,
         child: Hero(
-          tag: "dashboard-balance-view",
+          tag: "dashboard-balance-view-0",
           child: balanceView(viewModel, value.dy),
         )
     );
@@ -572,7 +579,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
     if(selectedDate != null && selectedDate is Tuple<int?, int?>) {
       try {
         final fileName = "AccountTransaction_Export_${viewModel.accountName}_${DateFormat("dd_MM_yyyy_h_m_s").format(DateTime.now())}.pdf";
-        final downloadTask = () => viewModel.exportStatement(selectedDate.first ?? 0, selectedDate.second ?? DateTime.now().millisecondsSinceEpoch);
+        final downloadTask = () => viewModel.exportStatement(selectedDate.first, selectedDate.second, accountId: widget.customerAccountId);
         await DownloadUtil.downloadTransactionReceipt(downloadTask, fileName, isShare: false, onProgress: (int progress, isComplete) {
           if(!_isDownloading  && !isComplete) setState(() { _isDownloading = true;});
           else if(_isDownloading && isComplete) setState(() { _isDownloading = false; });

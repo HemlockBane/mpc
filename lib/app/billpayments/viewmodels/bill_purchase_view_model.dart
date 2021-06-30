@@ -7,6 +7,7 @@ import 'package:moniepoint_flutter/app/billpayments/model/bill_service_delegate.
 import 'package:moniepoint_flutter/app/billpayments/model/data/bill_payment_request_body.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/biller.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/biller_product.dart';
+import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/login/model/data/authentication_method.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/bills/model/data/bill_beneficiary.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/bills/model/data/bill_beneficiary_delegate.dart';
@@ -58,7 +59,6 @@ class BillPurchaseViewModel extends BaseViewModel with PaymentViewModel {
   }
 
   Stream<Resource<List<BillBeneficiary>>> getFrequentBeneficiaries() {
-    print("Fetching fetching Beneficiaries for ${ _biller?.code}");
     return _beneficiaryServiceDelegate.getFrequentBeneficiariesByBiller(5, _biller?.code ?? "");
   }
 
@@ -83,6 +83,12 @@ class BillPurchaseViewModel extends BaseViewModel with PaymentViewModel {
   void setAmount(double amount) {
     super.setAmount(amount);
     this.checkValidity();
+  }
+
+  @override
+  void setSourceAccount(UserAccount? userAccount) {
+    super.setSourceAccount(userAccount);
+    checkValidity();
   }
 
   void setAdditionalFieldData(String key, String value) {
@@ -132,7 +138,7 @@ class BillPurchaseViewModel extends BaseViewModel with PaymentViewModel {
 
   @override
   bool validityCheck() {
-    if(_billerProduct == null) return false;
+    if(_billerProduct == null || sourceAccount == null) return false;
     final isAmountFixed = this._billerProduct?.priceFixed == true;
     final productAmount = this._billerProduct?.amount ?? 0;
     final isAmountValid = (isAmountFixed) ? this.amount == (productAmount /100): this.amount != null && this.amount! > 0;
@@ -159,8 +165,8 @@ class BillPurchaseViewModel extends BaseViewModel with PaymentViewModel {
       .withAuthenticationType(AuthenticationMethod.PIN)
       .withSaveBeneficiary(saveBeneficiary ?? false)
       .withPin(pin)
-      .withSourceAccountNumber(accountNumber)
-      .withSourceAccountProviderCode(accountProviderCode)
+      .withSourceAccountNumber(sourceAccount?.customerAccount?.accountNumber ?? "")
+      .withSourceAccountProviderCode(sourceAccount?.accountProvider?.centralBankCode ?? "")
       .withRequest(request)
       .withDeviceId(_deviceManager.deviceId ?? "");
 
@@ -170,7 +176,6 @@ class BillPurchaseViewModel extends BaseViewModel with PaymentViewModel {
   Stream<Uint8List> downloadReceipt(int batchId){
     return _delegate.downloadReceipt(customerId.toString(), batchId);
   }
-
 
   Stream<Resource<FileResult>> getFile(String fileUUID) {
     return _fileServiceDelegate.getFileByUUID(fileUUID);

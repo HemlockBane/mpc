@@ -96,7 +96,15 @@ class MoniepointApp extends StatelessWidget {
           : LoginScreen(),
       ),
       onGenerateRoute: (settings) {
-
+        switch(settings.name) {
+          case Routes.ACCOUNT_TRANSACTIONS:
+            final customerAccountId = (settings.arguments as Map?)?["customerAccountId"];
+            return MaterialPageRoute(builder: (_) => ChangeNotifierProvider(
+              create: (_) => TransactionHistoryViewModel(),
+              child: AccountTransactionScreen(customerAccountId: customerAccountId),
+            ));
+        }
+        return null;
       },
       //TODO consider moving this to a separate file
       routes: <String, WidgetBuilder>{
@@ -126,10 +134,6 @@ class MoniepointApp extends StatelessWidget {
         Routes.BILL_DETAIL: (BuildContext context) => ChangeNotifierProvider(
           create: (_) => BillHistoryDetailViewModel(),
           child: BillHistoryDetailedView(),
-        ),
-        Routes.ACCOUNT_TRANSACTIONS: (BuildContext context) => ChangeNotifierProvider(
-          create: (_) => TransactionHistoryViewModel(),
-          child: AccountTransactionScreen(),
         ),
         Routes.ACCOUNT_TRANSACTIONS_DETAIL: (BuildContext context) => ChangeNotifierProvider(
           create: (_) => AccountTransactionDetailViewModel(),

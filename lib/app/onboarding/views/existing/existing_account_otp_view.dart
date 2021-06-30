@@ -125,7 +125,7 @@ class _ExistingAccountOTPScreen extends State<ExistingAccountOTPScreen> {
                 controller: otpController,
                 maxLength: 6),
             SizedBox(height: 20),
-            OtpUssdInfoView("Onboarding Phone Number Validation OTP Mobile"),
+            OtpUssdInfoView("Onboarding Phone Number Validation OTP Mobile", defaultCode: "*5573*70#",),
             Spacer(),
             Styles.statefulButton2(
                 onClick: () => _subscribeUiToOtpValidation(context),

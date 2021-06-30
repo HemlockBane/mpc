@@ -3,8 +3,10 @@ import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/airtime/views/selection_combo.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/views/custom_check_box.dart';
 import 'package:collection/collection.dart';
+import 'package:moniepoint_flutter/core/utils/text_utils.dart';
 
 import '../styles.dart';
 
@@ -45,7 +47,7 @@ class SelectionCombo2<T> extends StatefulWidget {
 class _SelectionCombo2<T> extends State<SelectionCombo2<T>>
     with SingleTickerProviderStateMixin {
   final titleStyle = const TextStyle(fontSize: 14, color: Colors.colorPrimaryDark, fontWeight: FontWeight.bold);
-  final subtitleStyle = const TextStyle(fontSize: 12, color: Colors.deepGrey);
+  final subtitleStyle = const TextStyle(fontSize: 12, color: Colors.deepGrey, fontFamily: Styles.defaultFont);
   late final _animationController = AnimationController(vsync: this, duration: Duration(milliseconds: 500));
   late final _animation = Tween(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.fastOutSlowIn)
@@ -78,6 +80,7 @@ class _SelectionCombo2<T> extends State<SelectionCombo2<T>>
   //0.......1
 
   Widget _comboHeader() {
+    final boldText = _selectedCombo?.subTitle?.substring(0, _selectedCombo?.subTitle?.indexOf("-"));
     return Material(
       color: Colors.transparent,
       borderRadius: BorderRadius.only(
@@ -105,7 +108,11 @@ class _SelectionCombo2<T> extends State<SelectionCombo2<T>>
             child: Text(_selectedCombo?.title ?? widget.defaultTitle, style: titleStyle,),
           ),
           subtitle: (_selectedCombo?.subTitle != null)
-              ? Opacity(opacity: (_isExpanded) ? 0.3 : 1, child: Text(_selectedCombo?.subTitle ?? "", style: subtitleStyle,))
+              ? Opacity(
+                opacity: (_isExpanded) ? 0.3 : 1,
+                child: Text(_selectedCombo?.subTitle ?? "", style: subtitleStyle,).colorText(
+                    {"$boldText": Tuple(Colors.deepGrey, null)}, underline: false)
+              )
               : null,
           trailing: RotationTransition(
               turns: Tween(begin: 0.5, end: 1.0).animate(_animationController),
@@ -137,7 +144,11 @@ class _SelectionCombo2<T> extends State<SelectionCombo2<T>>
     widget.comboItems.take(takeLength).forEachIndexed((index, element) {
       final comboItem = widget.comboItems[index];
 
+      final boldText = comboItem.subTitle?.substring(0, comboItem.subTitle?.indexOf("-"));
+
       final listItem = ListTile(
+        // dense: true,
+        // visualDensity: VisualDensity(vertical: -4),
         onTap: () => _onItemSelected(comboItem, index),
         leading: CustomCheckBox(
             onSelect: (v) =>_onItemSelected(comboItem, index),
@@ -149,6 +160,7 @@ class _SelectionCombo2<T> extends State<SelectionCombo2<T>>
         ),
         subtitle: (comboItem.subTitle != null)
             ? Text(comboItem.subTitle ?? "", style: subtitleStyle,)
+                .colorText({"$boldText": Tuple(Colors.deepGrey, null)}, underline: false)
             : null,
       );
 

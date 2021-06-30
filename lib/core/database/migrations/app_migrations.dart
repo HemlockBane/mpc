@@ -10,8 +10,7 @@ class AppMigration {
 
   Migration _version1To2() {
     return Migration(1, 2, (db) async {
-      print("MMMMMMMiiiiigggrrrrrrrrraaaaaaattttttttiiiiiiinnnnggggg");
-      // await db.execute('ALTER TABLE bill_transactions ADD COLUMN nickname TEXT');
+      await db.execute('ALTER TABLE account_transactions ADD COLUMN customerAccountId INT');
     });
   }
 

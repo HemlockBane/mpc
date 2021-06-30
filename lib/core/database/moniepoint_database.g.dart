@@ -95,7 +95,7 @@ class _$AppDatabase extends AppDatabase {
   Future<sqflite.Database> open(String path, List<Migration> migrations,
       [Callback? callback]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 1,
+      version: 2,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -139,7 +139,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `biller_products` (`billerCode` TEXT, `id` INTEGER NOT NULL, `name` TEXT, `code` TEXT, `amount` REAL, `fee` REAL, `paymentCode` TEXT, `currencySymbol` TEXT, `active` INTEGER, `priceFixed` INTEGER, `minimumAmount` REAL, `maximumAmount` REAL, `identifierName` TEXT, `additionalFieldsMap` TEXT, PRIMARY KEY (`id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `account_transactions` (`id` INTEGER, `accountNumber` TEXT, `status` INTEGER, `transactionRef` TEXT NOT NULL, `amount` REAL, `type` TEXT, `channel` TEXT, `transactionChannel` TEXT, `tags` TEXT, `narration` TEXT, `transactionDate` INTEGER NOT NULL, `runningBalance` TEXT, `balanceBefore` TEXT, `balanceAfter` TEXT, `metaData` TEXT, PRIMARY KEY (`transactionRef`))');
+            'CREATE TABLE IF NOT EXISTS `account_transactions` (`id` INTEGER, `accountNumber` TEXT, `status` INTEGER, `transactionRef` TEXT NOT NULL, `amount` REAL, `type` TEXT, `channel` TEXT, `transactionChannel` TEXT, `tags` TEXT, `narration` TEXT, `transactionDate` INTEGER NOT NULL, `runningBalance` TEXT, `balanceBefore` TEXT, `balanceAfter` TEXT, `metaData` TEXT, `customerAccountId` INTEGER, PRIMARY KEY (`transactionRef`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `tiers` (`id` INTEGER NOT NULL, `status` TEXT, `createdOn` TEXT, `lastModifiedOn` TEXT, `code` TEXT, `name` TEXT, `classification` TEXT, `accountNumberPrefix` TEXT, `accountNumberLength` INTEGER, `allowNegativeBalance` INTEGER, `allowLien` INTEGER, `enableInstantBalanceUpdate` INTEGER, `maximumCumulativeBalance` REAL, `maximumSingleDebit` REAL, `maximumSingleCredit` REAL, `maximumDailyDebit` REAL, `maximumDailyCredit` REAL, `schemeRequirement` TEXT, `alternateSchemeRequirement` TEXT, `supportsAccountGeneration` INTEGER, PRIMARY KEY (`id`))');
 
@@ -1869,7 +1869,8 @@ class _$TransactionDao extends TransactionDao {
                   'balanceBefore': item.balanceBefore,
                   'balanceAfter': item.balanceAfter,
                   'metaData':
-                      _transactionMetaDataConverter.encode(item.metaData)
+                      _transactionMetaDataConverter.encode(item.metaData),
+                  'customerAccountId': item.customerAccountId
                 },
             changeListener),
         _accountTransactionDeletionAdapter = DeletionAdapter(
@@ -1892,7 +1893,8 @@ class _$TransactionDao extends TransactionDao {
                   'balanceBefore': item.balanceBefore,
                   'balanceAfter': item.balanceAfter,
                   'metaData':
-                      _transactionMetaDataConverter.encode(item.metaData)
+                      _transactionMetaDataConverter.encode(item.metaData),
+                  'customerAccountId': item.customerAccountId
                 },
             changeListener);
 
@@ -1909,13 +1911,14 @@ class _$TransactionDao extends TransactionDao {
 
   @override
   Stream<List<AccountTransaction>> getTransactionsByFilter(
+      int customerAccountId,
       int startDate,
       int endDate,
       List<String> channels,
       List<String> transactionTypes,
       int limit,
       int myOffset) {
-    int offset = 5;
+    int offset = 6;
     final _sqliteVariablesForChannels =
         Iterable<String>.generate(channels.length, (i) => '?${i + offset}')
             .join(',');
@@ -1923,11 +1926,11 @@ class _$TransactionDao extends TransactionDao {
     final _sqliteVariablesForTransactionTypes = Iterable<String>.generate(
         transactionTypes.length, (i) => '?${i + offset}').join(',');
     return _queryAdapter.queryListStream(
-        'SELECT * FROM account_transactions WHERE (transactionDate BETWEEN ?1 AND ?2) AND (transactionChannel IN (' +
+        'SELECT * FROM account_transactions WHERE customerAccountId = ?1 AND (transactionDate BETWEEN ?2 AND ?3) AND (transactionChannel IN (' +
             _sqliteVariablesForChannels +
             ') OR transactionChannel is null) AND type IN (' +
             _sqliteVariablesForTransactionTypes +
-            ') ORDER BY transactionDate DESC LIMIT ?3 OFFSET ?4',
+            ') ORDER BY transactionDate DESC LIMIT ?4 OFFSET ?5',
         mapper: (Map<String, Object?> row) => AccountTransaction(
             id: row['id'] as int?,
             transactionDate: row['transactionDate'] as int,
@@ -1943,8 +1946,10 @@ class _$TransactionDao extends TransactionDao {
             balanceBefore: row['balanceBefore'] as String?,
             balanceAfter: row['balanceAfter'] as String?,
             metaData: _transactionMetaDataConverter
-                .decode(row['metaData'] as String?)),
+                .decode(row['metaData'] as String?),
+            customerAccountId: row['customerAccountId'] as int?),
         arguments: [
+          customerAccountId,
           startDate,
           endDate,
           limit,
@@ -1975,7 +1980,8 @@ class _$TransactionDao extends TransactionDao {
             balanceBefore: row['balanceBefore'] as String?,
             balanceAfter: row['balanceAfter'] as String?,
             metaData: _transactionMetaDataConverter
-                .decode(row['metaData'] as String?)),
+                .decode(row['metaData'] as String?),
+            customerAccountId: row['customerAccountId'] as int?),
         arguments: [tranRef]);
   }
 

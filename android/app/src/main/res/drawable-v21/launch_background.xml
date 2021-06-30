@@ -11,6 +11,6 @@
         android:gravity="center" />
     <item
         android:bottom="150dp"
-        android:drawable="@drawable/ic_version1_0_2"
+        android:drawable="@drawable/ic_version1_0_4"
         android:gravity="bottom|center" />
 </layer-list>

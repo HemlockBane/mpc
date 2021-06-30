@@ -56,9 +56,11 @@ class TransactionAccountSource extends StatelessWidget {
                   final userAccount = userAccounts[index];
                   final accountBalance = accounts[index];
                   userAccount.accountBalance = accountBalance ?? userAccount.accountBalance;
+                  final accountNumber = userAccount.customerAccount?.accountNumber;
+                  final formattedBalance = userAccount.accountBalance?.availableBalance?.formatCurrency ?? "--";
                   return ComboItem<UserAccount>(
                       userAccount, "${userAccount.customerAccount?.accountName}",
-                      subTitle: "Balance - ${userAccount.accountBalance?.availableBalance?.formatCurrency ?? "--"}",
+                      subTitle: "$accountNumber - $formattedBalance",
                       isSelected: (viewModel as PaymentViewModel).sourceAccount?.id == userAccount.id
                   );
                 }).toList();

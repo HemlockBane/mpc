@@ -17,7 +17,7 @@ class OtpUssdInfoView extends StatelessWidget{
   final String? defaultCode;
 
   static Tuple<String, String> getUSSDDialingCodeAndPreview(String ussdKey, {String defaultCode = ""}) {
-    String? value = PreferenceUtil.getValueForLoggedInUser(PreferenceUtil.USSD_CONFIG);
+    String? value = PreferenceUtil.getValue(PreferenceUtil.USSD_CONFIG);
     List<dynamic> savedConfig = (value != null) ? jsonDecode(value) : [];
     List<USSDConfiguration> configs = savedConfig.map((e) => USSDConfiguration.fromJson(e)).toList();
     final List<USSDConfiguration>? mainConfig = configs.where((element) => element.name == ussdKey).toList();
@@ -29,11 +29,10 @@ class OtpUssdInfoView extends StatelessWidget{
       final configuration = configs.first;
       final baseCode = configuration.baseCode;
       final body = configuration.body;
-      return "*${baseCode?.baseCode}*$body${Uri.encodeComponent("#")}";
+      return (body == null) ? "*${baseCode?.baseCode}${Uri.encodeComponent("#")}" : "*${baseCode?.baseCode}*$body${Uri.encodeComponent("#")}";
     }
     return "${defaultCode.replaceAll("#", Uri.encodeComponent("#"))}";
   }
-
 
   static String _getPreviewCode(List<USSDConfiguration>? configs, {String defaultCode = ""}) {
     if(configs!= null && configs.isNotEmpty == true) {
@@ -42,7 +41,6 @@ class OtpUssdInfoView extends StatelessWidget{
     }
     return defaultCode;
   }
-
 
   OtpUssdInfoView(this.ussdKey, {this.defaultCode});
 
@@ -67,9 +65,7 @@ class OtpUssdInfoView extends StatelessWidget{
                   fontWeight: FontWeight.normal,
                   fontSize: 14))
               .colorText({
-            codes.second: Tuple(
-                Colors.primaryColor,
-                    () => dialNumber("tel:${codes.first}"))
+            codes.second: Tuple(Colors.primaryColor, () => dialNumber("tel:${codes.first}"))
           }))
         ],
       ),

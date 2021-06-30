@@ -387,7 +387,7 @@ class _LoginState extends State<LoginScreen> with SingleTickerProviderStateMixin
   }
 
   Widget _bottomUSSDWidget() {
-    Tuple<String, String> codes = OtpUssdInfoView.getUSSDDialingCodeAndPreview("Main Menu");
+    Tuple<String, String> codes = OtpUssdInfoView.getUSSDDialingCodeAndPreview("Main Menu", defaultCode: "*5573#");
     return Container(
         decoration: BoxDecoration(
             color: Colors.white,
@@ -408,7 +408,7 @@ class _LoginState extends State<LoginScreen> with SingleTickerProviderStateMixin
           highlightColor: Colors.grey.withOpacity(0.05),
           overlayColor: MaterialStateProperty.all(Colors.primaryColor.withOpacity(0.05)),
           borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
-          onTap: () => dialNumber("tel:${Uri.encodeComponent('*425#')}"),
+          onTap: () => dialNumber("tel:${codes.first}"),
           child: Container(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),

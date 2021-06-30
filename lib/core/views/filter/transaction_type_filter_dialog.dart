@@ -11,6 +11,10 @@ import '../custom_check_box.dart';
 
 class TransactionTypeFilterDialog extends StatefulWidget {
 
+  final List<TransactionType>? selectedTypes;
+
+  TransactionTypeFilterDialog({this.selectedTypes});
+
   @override
   State<StatefulWidget> createState() => _TransactionTypeFilterDialog();
 
@@ -24,6 +28,23 @@ class _TransactionTypeFilterDialog extends State<TransactionTypeFilterDialog> {
   ]);
 
   final List<TransactionType> _selectedTypes = [];
+
+  @override
+  void initState() {
+    _setDefaultValues();
+    super.initState();
+  }
+
+  void _setDefaultValues() {
+    final selectedTypes = widget.selectedTypes;
+    if(selectedTypes == null) return;
+    _typeFilters.forEach((element) {
+      if(selectedTypes.contains(element.value)) {
+        element.isSelected = true;
+        _selectedTypes.add(element.value);
+      }
+    });
+  }
 
   Widget generateChannelItem(_TransactionTypeFilterItem item, int position, OnItemClickListener<_TransactionTypeFilterItem, int> itemClickListener) {
     return Material(

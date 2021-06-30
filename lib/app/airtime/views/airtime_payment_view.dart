@@ -67,9 +67,9 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
   @override
   initState() {
     final viewModel = Provider.of<AirtimeViewModel>(context, listen: false);
-    if(viewModel.userAccounts.length > 0)
+    if(viewModel.userAccounts.length > 1)
       viewModel.getUserAccountsBalance().listen((event) { });
-    else viewModel.getCustomerAccountBalance();
+    else viewModel.getCustomerAccountBalance().listen((event) { });
 
     viewModel.setServiceProviderItem(null);
     viewModel.setSourceAccount(null);
@@ -162,15 +162,13 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
                 ),
                 SizedBox(height: 1,),
                 Text(
-                  '${beneficiary?.getBeneficiaryProviderName()} - ${beneficiary
-                      ?.getBeneficiaryDigits()}',
+                  '${beneficiary?.getBeneficiaryProviderName()} - ${beneficiary?.getBeneficiaryDigits()}',
                   textAlign: TextAlign.left,
                   style: TextStyle(color: Colors.deepGrey,
                       fontSize: 13,
                       fontFamily: Styles.defaultFont),
                 ).colorText({
-                  "${beneficiary?.getBeneficiaryDigits()}": Tuple(
-                      Colors.deepGrey, null)
+                  "${beneficiary?.getBeneficiaryDigits()}": Tuple(Colors.deepGrey, null)
                 }, underline: false)
               ],
             )
@@ -187,14 +185,10 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
               style: ButtonStyle(
                   minimumSize: MaterialStateProperty.all(Size(40, 0)),
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  overlayColor: MaterialStateProperty.all(
-                      Colors.solidOrange.withOpacity(0.2)),
-                  padding: MaterialStateProperty.all(
-                      EdgeInsets.symmetric(horizontal: 8, vertical: 7)),
-                  shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10))),
-                  backgroundColor: MaterialStateProperty.all(
-                      Colors.solidOrange.withOpacity(0.2))
+                  overlayColor: MaterialStateProperty.all(Colors.solidOrange.withOpacity(0.2)),
+                  padding: MaterialStateProperty.all(EdgeInsets.symmetric(horizontal: 8, vertical: 7)),
+                  shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                  backgroundColor: MaterialStateProperty.all(Colors.solidOrange.withOpacity(0.2))
               ),
             )
         )
@@ -223,16 +217,14 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
                 onItemSelected: (item, i) =>
                     setState(() => viewModel.setServiceProviderItem(item)),
                 titleIcon: StreamBuilder(
-                    stream: viewModel.getFile(
-                        beneficiary.serviceProvider!.logoImageUUID ?? ""),
+                    stream: viewModel.getFile(beneficiary.serviceProvider!.logoImageUUID ?? ""),
                     builder: (ctx, AsyncSnapshot<Resource<FileResult>> result) {
-                      if (!result.hasData ||
-                          result.data == null) SelectionCombo2.initialView();
+                      if (!result.hasData || result.data == null) SelectionCombo2.initialView();
                       final base64 = result.data?.data;
                       final base64String = base64?.base64String;
-                      if (base64 == null || base64String == null ||
-                          base64String.isEmpty == true)
+                      if (base64 == null || base64String == null || base64String.isEmpty == true) {
                         return SelectionCombo2.initialView();
+                      }
                       _providerLogo = (_providerLogo == null)
                           ? Image.memory(base64Decode(base64String), width: 40,
                           height: 40,
@@ -338,10 +330,8 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
 
   Widget amountWidget() {
     final viewModel = Provider.of<AirtimeViewModel>(context, listen: false);
-    final isAmountFixed = viewModel.dataPlan != null &&
-        viewModel.dataPlan?.priceFixed == true;
-    this._amount =
-    isAmountFixed ? (viewModel.dataPlan?.amount ?? 0) / 100 : this._amount;
+    final isAmountFixed = viewModel.dataPlan != null && viewModel.dataPlan?.priceFixed == true;
+    this._amount = isAmountFixed ? (viewModel.dataPlan?.amount ?? 0) / 100 : this._amount;
     viewModel.setAmount(this._amount);
     return boxContainer(
         PaymentAmountView((_amount * 100).toInt(), (value) {
@@ -458,8 +448,7 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
               visible: viewModel.purchaseType == PurchaseType.DATA,
               child: dataPlans(viewModel),
             ),
-            SizedBox(
-              height: viewModel.purchaseType == PurchaseType.DATA ? 24 : 0,),
+            SizedBox(height: viewModel.purchaseType == PurchaseType.DATA ? 24 : 0,),
             makeLabel('Purchase From'),
             SizedBox(height: 8,),
             TransactionAccountSource(viewModel),

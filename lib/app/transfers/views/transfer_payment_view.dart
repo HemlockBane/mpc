@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart' hide Colors, ScrollView;
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
-import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
-import 'package:moniepoint_flutter/app/airtime/views/selection_combo.dart';
-import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/transfers/viewmodels/transfer_view_model.dart';
 import 'package:moniepoint_flutter/app/transfers/views/transfer_view.dart';
 import 'package:moniepoint_flutter/core/amount_pill.dart';
@@ -16,10 +12,8 @@ import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/payment_view_model.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
-import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
-import 'package:moniepoint_flutter/core/views/selection_combo_two.dart';
 import 'package:moniepoint_flutter/core/views/transaction_account_source.dart';
 import 'package:moniepoint_flutter/core/views/transaction_success_dialog.dart';
 import 'package:provider/provider.dart';
@@ -54,9 +48,11 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
     this._amount = widget.defaultAmount;
     final viewModel = Provider.of<TransferViewModel>(context, listen: false);
 
-    if(viewModel.userAccounts.length > 0)
-      viewModel.getUserAccountsBalance().listen((event) { });
-    else viewModel.getCustomerAccountBalance();
+    if (viewModel.userAccounts.length > 1) {
+      viewModel.getUserAccountsBalance().listen((event) {});
+    } else {
+      viewModel.getCustomerAccountBalance().listen((event) { });
+    }
 
     viewModel.reset();
 
@@ -163,98 +159,6 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
           ],
         ));
   }
-
-  // Widget transferSource(BaseViewModel viewModel) {
-  //   if(viewModel.userAccounts.length > 1) {
-  //     return Flexible(
-  //         flex:0,
-  //         child: StreamBuilder(
-  //             stream: viewModel.accountsBalanceStream,
-  //             builder: (BuildContext context, AsyncSnapshot<Resource<List<AccountBalance?>>> snapShot) {
-  //               if(!snapShot.hasData || snapShot.data?.data == null) return boxContainer(Container());
-  //               final List<AccountBalance?> accounts = snapShot.data!.data ?? [];
-  //               final userAccounts = viewModel.userAccounts;
-  //
-  //               final comboItems = accounts.mapIndexed((index, element) {
-  //                 final userAccount = userAccounts[index];
-  //                 final accountBalance = accounts[index];
-  //                 userAccount.accountBalance = accountBalance ?? userAccount.accountBalance;
-  //                 return ComboItem<UserAccount>(
-  //                     userAccount, "${userAccount.customerAccount?.accountName}",
-  //                     subTitle: "Balance - ${userAccount.accountBalance?.availableBalance?.formatCurrency ?? "--"}",
-  //                     isSelected: (viewModel as PaymentViewModel).sourceAccount?.id == userAccount.id
-  //                 );
-  //               }).toList();
-  //
-  //               return SelectionCombo2<UserAccount>(
-  //                 comboItems,
-  //                 defaultTitle: "Select an Account",
-  //                 onItemSelected: (item, i) => (viewModel as PaymentViewModel).setSourceAccount(item),
-  //                 titleIcon: SelectionCombo2.initialView(),
-  //               );
-  //             }
-  //         )
-  //     );
-  //   }
-  //   (viewModel as PaymentViewModel).setSourceAccount(viewModel.userAccounts.first);
-  //   return boxContainer(Row(
-  //     crossAxisAlignment: CrossAxisAlignment.center,
-  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //     children: [
-  //       Flexible(
-  //           flex:0,
-  //           child: Container(
-  //             width: 37,
-  //             height: 37,
-  //             padding: EdgeInsets.all(6),
-  //             decoration: BoxDecoration(
-  //                 shape: BoxShape.circle,
-  //                 color: Colors.darkBlue.withOpacity(0.1)
-  //             ),
-  //             child: Center(
-  //               child: SvgPicture.asset('res/drawables/ic_bank.svg', color: Colors.primaryColor,),
-  //             ),
-  //           )
-  //       ),
-  //       SizedBox(width: 17,),
-  //       Expanded(
-  //           flex: 1,
-  //           child: Column(
-  //             crossAxisAlignment: CrossAxisAlignment.start,
-  //             children: [
-  //               Text(
-  //                 '${viewModel.accountName}',
-  //                 overflow: TextOverflow.ellipsis,
-  //                 maxLines: 1,
-  //                 style: TextStyle(fontSize: 15, color: Colors.solidDarkBlue, fontWeight: FontWeight.bold),
-  //               ),
-  //               SizedBox(height: 1,),
-  //               StreamBuilder(
-  //                   initialData: null,
-  //                   stream: viewModel.balanceStream,
-  //                   builder: (context, AsyncSnapshot<AccountBalance?> a) {
-  //                     final balance = (a.hasData) ? a.data?.availableBalance?.formatCurrency : "--";
-  //                 return Text(
-  //                   'Balance - $balance',
-  //                   textAlign: TextAlign.left,
-  //                   style: TextStyle(color: Colors.deepGrey, fontSize: 13, fontFamily: Styles.defaultFont, fontFamilyFallback: ["Roboto"]),)
-  //                     .colorText({"$balance" : Tuple(Colors.deepGrey, null)}, underline: false);
-  //               })
-  //             ],
-  //           )
-  //       ),
-  //       SizedBox(width: 17,),
-  //       Expanded(
-  //           flex: 0,
-  //           child: SvgPicture.asset(
-  //             'res/drawables/ic_check_mark_round.svg',
-  //             width: 26,
-  //             height: 26
-  //           )
-  //       )
-  //     ],
-  //   ));
-  // }
 
   Widget amountWidget() {
     final viewModel = Provider.of<TransferViewModel>(context, listen: false);

@@ -36,6 +36,7 @@ class TransactionServiceDelegate with NetworkResource {
           final types = (filterResult.types.isEmpty) ? [...TransactionType.values] : filterResult.types;
 
           return _transactionDao.getTransactionsByFilter(
+              customerAccountId,
               filterResult.startDate,
               filterResult.endDate,
               channels.map((e) => describeEnum(e)).toList(),
@@ -82,7 +83,10 @@ class _TransactionRemoteMediator extends AbstractDataCollectionMediator<int, Acc
 
   @override
   Future<void> saveToDB(List<AccountTransaction> value) async {
-    await _transactionDao.insertItems(value);
+    await _transactionDao.insertItems(value.map((e) {
+      e.customerAccountId = customerAccountId;
+      return e;
+    }).toList());
   }
 
   @override

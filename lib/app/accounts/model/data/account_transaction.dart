@@ -66,6 +66,9 @@ class AccountTransaction implements ListItem, Transaction {
   @TypeConverters([TransactionMetaDataConverter])
   final TransactionMetaData? metaData;
 
+  @JsonKey(name:"customerAccountId")
+  int? customerAccountId;
+
   AccountTransaction(
       {this.id,
       required this.transactionDate,
@@ -80,7 +83,8 @@ class AccountTransaction implements ListItem, Transaction {
       this.runningBalance,
       this.balanceBefore,
       this.balanceAfter,
-      this.metaData
+      this.metaData,
+      this.customerAccountId
       });
 
   factory AccountTransaction.fromJson(Object? data) => _$AccountTransactionFromJson(data as Map<String, dynamic>);

@@ -92,6 +92,12 @@ dev_dependencies:
   json_serializable: ^4.0.3
   floor_generator: ^1.1.0
 
+
+flutter_icons:
+  android: false
+  ios: true
+  image_path: "res/drawables/ios_launcher_icon.jpeg"
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

@@ -44,7 +44,7 @@ class _AddDeviceDialog extends State<AddDeviceDialog> {
       if(event is Success<bool>) {
         setState(() => _isLoading = false);
         Navigator.pop(context);
-        Navigator.of(widget._scaffoldKey.currentContext ?? context).pop();
+        Navigator.of(widget._scaffoldKey.currentContext ?? context).pop(Routes.DASHBOARD);
       }
     });
   }

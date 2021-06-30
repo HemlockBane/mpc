@@ -122,7 +122,7 @@ class _NewAccountOTPScreen extends State<NewAccountOTPScreen> {
                 controller: otpController,
                 maxLength: 6),
             SizedBox(height: 20),
-            OtpUssdInfoView("Onboarding Phone Number Validation OTP Mobile"),
+            OtpUssdInfoView("Onboarding Phone Number Validation OTP Mobile", defaultCode: "*5573*70#",),
             Spacer(),
             SizedBox(height: 20),
             Stack(

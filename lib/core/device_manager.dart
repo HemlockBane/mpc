@@ -26,7 +26,7 @@ class DeviceManager {
       });
     } else if(Platform.isIOS) {
       deviceManager.iosInfo.then((value) {
-        _deviceId = "334FD601-3E95-457E-B890-70BCD77B6F76";//value.identifierForVendor;
+        _deviceId = value.identifierForVendor;
         _deviceName = value.name;
       });
     }

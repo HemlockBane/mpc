@@ -26,13 +26,14 @@ class FilterLayout extends StatefulWidget {
   final bool isPreviouslyOpened;
 
   FilterLayout(this._scaffoldKey, this.filterableItems, {
+    Key? key,
     this.dateFilterCallback,
     this.typeFilterCallback,
     this.channelFilterCallback,
     this.onCancel,
     this.isPreviouslyOpened = false,
     this.onOpen
-  });
+  }):super(key: key);
 
   @override
   State<StatefulWidget> createState() => _FilterLayout();
@@ -116,7 +117,7 @@ class _FilterLayout extends State<FilterLayout> with SingleTickerProviderStateMi
     );
   }
 
-  void _itemClickHandler(FilterItem item, int index) async {
+  void _itemClickHandler(FilterItem<dynamic> item, int index) async {
     switch(item.title.toLowerCase()) {
       case "date": {
         dynamic result = await showModalBottomSheet(
@@ -144,12 +145,13 @@ class _FilterLayout extends State<FilterLayout> with SingleTickerProviderStateMi
             backgroundColor: Colors.transparent,
             context: widget._scaffoldKey.currentContext ?? context,
             builder: (context) {
-              return ChannelFilterDialog();
+              return ChannelFilterDialog(selectedChannels: item.values,);
             }
         );
         if(result is List<TransactionChannel>) {
           widget.channelFilterCallback?.call(result);
           setState(() {
+            item.values = result;
             item.itemCount = result.length;
             item.isSelected = true;
           });
@@ -162,7 +164,7 @@ class _FilterLayout extends State<FilterLayout> with SingleTickerProviderStateMi
             backgroundColor: Colors.transparent,
             context: widget._scaffoldKey.currentContext ?? context,
             builder: (context) {
-              return TransactionTypeFilterDialog();
+              return TransactionTypeFilterDialog(selectedTypes: item.values,);
             }
         );
         if(result is List<TransactionType>) {
@@ -170,6 +172,7 @@ class _FilterLayout extends State<FilterLayout> with SingleTickerProviderStateMi
           setState(() {
             item.itemCount = result.length;
             item.isSelected = true;
+            item.values = result;
           });
         }
         break;

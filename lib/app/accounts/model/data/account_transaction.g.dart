@@ -24,6 +24,7 @@ AccountTransaction _$AccountTransactionFromJson(Map<String, dynamic> json) {
     metaData: json['metaDataObj'] == null
         ? null
         : TransactionMetaData.fromJson(json['metaDataObj'] as Object),
+    customerAccountId: json['customerAccountId'] as int?,
   );
 }
 
@@ -43,6 +44,7 @@ Map<String, dynamic> _$AccountTransactionToJson(AccountTransaction instance) =>
       'balanceBefore': instance.balanceBefore,
       'balanceAfter': instance.balanceAfter,
       'metaDataObj': instance.metaData,
+      'customerAccountId': instance.customerAccountId,
     };
 
 K _$enumDecode<K, V>(

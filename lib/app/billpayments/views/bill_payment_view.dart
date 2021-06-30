@@ -21,6 +21,7 @@ import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
+import 'package:moniepoint_flutter/core/views/transaction_account_source.dart';
 import 'package:moniepoint_flutter/core/views/transaction_success_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:moniepoint_flutter/core/utils/text_utils.dart';
@@ -49,7 +50,12 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
   @override
   initState() {
     final viewModel = Provider.of<BillPurchaseViewModel>(context, listen: false);
-    viewModel.getCustomerAccountBalance().listen((event) { });
+
+    if(viewModel.userAccounts.length > 1)
+      viewModel.getUserAccountsBalance().listen((event) { });
+    else
+      viewModel.getCustomerAccountBalance().listen((event) { });
+
     super.initState();
   }
 
@@ -145,66 +151,6 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
             )
           ],
         ));
-  }
-
-  Widget transferSource(BaseViewModel viewModel) {
-    return boxContainer(Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Flexible(
-            flex:0,
-            child: Container(
-              width: 37,
-              height: 37,
-              padding: EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.darkBlue.withOpacity(0.1)
-              ),
-              child: Center(
-                child: SvgPicture.asset('res/drawables/ic_bank.svg', color: Colors.primaryColor,),
-              ),
-            )
-        ),
-        SizedBox(width: 17,),
-        Expanded(
-            flex: 1,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${viewModel.accountName}',
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: TextStyle(fontSize: 15, color: Colors.solidDarkBlue, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 1,),
-                StreamBuilder(
-                    initialData: null,
-                    stream: viewModel.balanceStream,
-                    builder: (context, AsyncSnapshot<AccountBalance?> a) {
-                      final balance = (a.hasData) ? a.data?.availableBalance?.formatCurrency : "--";
-                  return Text(
-                    'Balance - $balance',
-                    textAlign: TextAlign.left,
-                    style: TextStyle(color: Colors.deepGrey, fontSize: 13, fontFamily: Styles.defaultFont, fontFamilyFallback: ["Roboto"]),)
-                      .colorText({"$balance" : Tuple(Colors.deepGrey, null)}, underline: false);
-                })
-              ],
-            )
-        ),
-        SizedBox(width: 17,),
-        Expanded(
-            flex: 0,
-            child: SvgPicture.asset(
-              'res/drawables/ic_check_mark_round.svg',
-              width: 26,
-              height: 26
-            )
-        )
-      ],
-    ));
   }
 
   Widget amountWidget() {
@@ -379,7 +325,7 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
               SizedBox(height: 24,),
               makeLabel('Purchase From'),
               SizedBox(height: 8,),
-              transferSource(viewModel),
+              TransactionAccountSource(viewModel),
               SizedBox(height: 24,),
               makeLabel('How much would you like to purchase? '),
               SizedBox(height: 8,),

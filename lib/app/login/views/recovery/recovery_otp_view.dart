@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter/services.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:moniepoint_flutter/app/login/viewmodels/recovery_view_model.dart';
 import 'package:moniepoint_flutter/app/login/views/dialogs/add_device_dialog.dart';
 import 'package:moniepoint_flutter/app/login/views/recovery/recovery_controller_screen.dart';
-import 'package:moniepoint_flutter/app/usermanagement/model/data/recovery_response.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
-import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/views/otp_ussd_info_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
@@ -198,7 +195,7 @@ class _RecoveryOtpView extends State<RecoveryOtpView> {
                           startIcon: Icon(CustomFont.password, color: Colors.colorFaded)
                       ),
                       SizedBox(height: 32),
-                      OtpUssdInfoView(getUSSDKeyName(viewModel), defaultCode: "",),
+                      OtpUssdInfoView(getUSSDKeyName(viewModel), defaultCode: "*5573*74#",),
                       SizedBox(height: 100),
                     ],
                   ),

@@ -17,13 +17,13 @@ class USSDServiceDelegate with NetworkResource{
     return networkBoundResource(
         shouldFetchLocal: true,
         fetchFromLocal: () {
-          String? value = PreferenceUtil.getValueForLoggedInUser(PreferenceUtil.USSD_CONFIG);
+          String? value = PreferenceUtil.getValue(PreferenceUtil.USSD_CONFIG);
           List<dynamic> configs = (value != null) ? jsonDecode(value) : [];
           return Stream.value(configs.map((e) => USSDConfiguration.fromJson(e)).toList());
         },
         fetchFromRemote: () => _service.getUSSDConfigurations(),
         saveRemoteData: (data) async {
-          PreferenceUtil.saveValueForLoggedInUser(PreferenceUtil.USSD_CONFIG, jsonEncode(data));
+          PreferenceUtil.saveValue(PreferenceUtil.USSD_CONFIG, jsonEncode(data));
         }
     );
   }

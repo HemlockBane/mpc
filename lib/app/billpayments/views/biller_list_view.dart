@@ -71,7 +71,7 @@ class _BillerListScreen extends State<BillerListScreen> with AutomaticKeepAliveC
                     ),
                   ),
               itemBuilder: (context, index) {
-                return _BillerListItem(items![index], index, (item, selectedIndex) {
+                return BillerListItem(items![index], index, (item, selectedIndex) {
                   viewModel.setBiller(item);
                   Navigator.of(context).pushNamed(BillScreen.BENEFICIARY_SCREEN, arguments: item);
                 });
@@ -119,30 +119,27 @@ class _BillerListScreen extends State<BillerListScreen> with AutomaticKeepAliveC
   }
 }
 
-class _BillerListItem extends Container {
+class BillerListItem extends StatefulWidget {
 
   final Biller _billBiller;
   final int position;
   final OnItemClickListener<Biller, int>? _onItemClickListener;
 
-
-  static const BILLER_IMAGE_MAP = const {
-    "aedc": "res/drawables/aedc.png",
-    "eedc": "res/drawables/eedc.png",
-    "ekedc": "res/drawables/ekedc.png",
-    "ibedc": "res/drawables/ibedc.png",
-    "ikedc": "res/drawables/ikedc.png",
-    "jedc": "res/drawables/jedc.png",
-    "kaduna": "res/drawables/kaduna.png",
-    "kedco": "res/drawables/kedco.png",
-    "phed": "res/drawables/phed.png",
-  };
-
-  _BillerListItem(
+  BillerListItem(
       this._billBiller,
       this.position,
       this._onItemClickListener
       );
+
+  @override
+  State<StatefulWidget> createState() => _BillerListItem();
+
+}
+
+class _BillerListItem extends State<BillerListItem> {
+
+  Stream<Resource<FileResult>>? _fileResultStream;
+  Image? _itemImage;
 
   Widget _defaultImage() {
     return Container(
@@ -156,18 +153,35 @@ class _BillerListItem extends Container {
     );
   }
 
-  Widget initialView(BuildContext mContext) {
-    if(_billBiller.logoImageUUID == null) return _defaultImage();
-    return Visibility(
-      visible: _billBiller.logoImageUUID != null,
-      child: StreamBuilder(
-          stream: Provider.of<BillPurchaseViewModel>(mContext, listen: false).getFile(_billBiller.logoImageUUID ?? ""),
-          builder: (mContext, AsyncSnapshot<Resource<FileResult>> snapShot) {
-            if(!snapShot.hasData || snapShot.data == null) return _defaultImage();
-            final base64 = snapShot.data?.data;
+  @override
+  void initState() {
+    _fetchBillerLogo();
+    super.initState();
+  }
 
-            if(base64 == null || base64.base64String == null) return _defaultImage();
-            return Image.memory(base64Decode(base64.base64String!), width: 40, height: 40,);
+  void _fetchBillerLogo() {
+    _fileResultStream = Provider.of<BillPurchaseViewModel>(context, listen: false)
+        .getFile(widget._billBiller.logoImageUUID ?? "");
+  }
+
+  Widget initialView(BuildContext mContext) {
+    if(widget._billBiller.logoImageUUID == null) return _defaultImage();
+    return Visibility(
+      visible: widget._billBiller.logoImageUUID != null,
+      child: StreamBuilder(
+          stream: _fileResultStream,
+          builder: (mContext, AsyncSnapshot<Resource<FileResult>> snapShot) {
+            //TODO refactor to make re-usable
+            if(!snapShot.hasData || snapShot.data == null || (snapShot.data is Error && _itemImage == null)) return _defaultImage();
+            final base64 = snapShot.data?.data;
+            final base64String = base64?.base64String;
+            if((base64 == null || base64String == null || base64String.isEmpty == true) && _itemImage == null) return _defaultImage();
+            _itemImage = (_itemImage == null)
+                ? Image.memory(base64Decode(base64String!), width: 40, height: 40, errorBuilder: (_,_i,_j) {
+                  return Container();
+                })
+                : _itemImage;
+            return _itemImage!;
           }
       ),
     );
@@ -196,7 +210,7 @@ class _BillerListItem extends Container {
             highlightColor: Colors.primaryColor.withOpacity(0.02),
             overlayColor: MaterialStateProperty.all(Colors.primaryColor.withOpacity(0.05)),
             borderRadius: BorderRadius.all(Radius.circular(13)),
-            onTap: () => _onItemClickListener?.call(_billBiller, position),
+            onTap: () => widget._onItemClickListener?.call(widget._billBiller, widget.position),
             child: Container(
               padding: EdgeInsets.only(top: 12, bottom: 12, left: 16, right: 16),
               child: Row(
@@ -205,7 +219,7 @@ class _BillerListItem extends Container {
                   initialView(context),
                   SizedBox(width: 16),
                   Expanded(
-                      child: Text(_billBiller.name ?? "",
+                      child: Text(widget._billBiller.name ?? "",
                           style: TextStyle(
                               fontSize: 16,
                               color: Colors.colorPrimaryDark,

@@ -33,17 +33,17 @@ class TransactionHistoryViewModel extends BaseViewModel {
     this._customerServiceDelegate = customerServiceDelegate ?? GetIt.I<CustomerServiceDelegate>();
   }
 
-  PagingSource<int, AccountTransaction> getPagedHistoryTransaction() {
-    return _delegate.getPageAccountTransactions(customerAccountId, _filterResults);
+  PagingSource<int, AccountTransaction> getPagedHistoryTransaction({int? accountId}) {
+    return _delegate.getPageAccountTransactions(accountId ?? customerAccountId, _filterResults);
   }
 
-  Stream<Uint8List> exportStatement(int startDate, int endDate){
+  Stream<Uint8List> exportStatement(int? startDate, int? endDate, {int? accountId}) {
     return _delegate.exportStatement(ExportStatementRequestBody(
       fileType: "PDF",
-      customerAccountId: customerAccountId,
-      startDate: startDate,
+      customerAccountId: accountId ?? customerAccountId,
+      startDate: startDate ?? 0,
       transactionType: "ALL",
-      endDate: endDate
+      endDate: endDate ?? DateTime.now().millisecondsSinceEpoch
     ));
   }
 
@@ -83,6 +83,7 @@ class TransactionHistoryViewModel extends BaseViewModel {
       element.isSelected = false;
       element.subTitle = "";
       element.itemCount = 0;
+      element.values = null;
     });
     _filterResults.startDate = 0;
     _filterResults.endDate = DateTime.now().millisecondsSinceEpoch;

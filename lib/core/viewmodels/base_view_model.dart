@@ -9,6 +9,8 @@ import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/network/service_error.dart';
+import 'package:collection/collection.dart';
+
 
 abstract class BaseViewModel with ChangeNotifier {
 
@@ -24,8 +26,8 @@ abstract class BaseViewModel with ChangeNotifier {
   final StreamController<Resource<List<AccountBalance?>>> _accountsBalanceController = StreamController.broadcast();
   Stream<Resource<List<AccountBalance?>>> get accountsBalanceStream => _accountsBalanceController.stream;
 
-  Stream<Resource<AccountBalance>> getCustomerAccountBalance({bool useLocal = true}) {
-    return accountServiceDelegate!.getCustomerAccountBalance(customerAccountId).map((event) {
+  Stream<Resource<AccountBalance>> getCustomerAccountBalance({int? accountId, bool useLocal = true}) {
+    return accountServiceDelegate!.getCustomerAccountBalance(accountId ?? customerAccountId).map((event) {
       if ((event is Loading && event.data != null && useLocal) && !_balanceController.isClosed) _balanceController.sink.add(event.data);
       if (event is Success && !_balanceController.isClosed) _balanceController.sink.add(event.data);
       return event;
@@ -71,6 +73,18 @@ abstract class BaseViewModel with ChangeNotifier {
   String get accountName => UserInstance().getUser()?.customers?.first.customerAccountUsers?.first.customerAccount?.accountName ?? "";
   String get accountNumber => UserInstance().getUser()?.customers?.first.customerAccountUsers?.first.customerAccount?.accountNumber ?? "";
   String get accountProviderCode => UserInstance().getUser()?.customers?.first.accountProvider?.centralBankCode ?? "";
+
+  String customerAccountNumber({int? accountId}) {
+    if(accountId == null) return accountNumber;
+    final customer = customers.where((element) => element.customerAccountUsers?.first.customerAccount?.id == accountId).firstOrNull;
+    return customer?.customerAccountUsers?.first.customerAccount?.accountNumber ?? accountNumber;
+  }
+
+  String customerAccountName({int? accountId}) {
+    if(accountId == null) return accountName;
+    final customer = customers.where((element) => element.customerAccountUsers?.first.customerAccount?.id == accountId).firstOrNull;
+    return customer?.customerAccountUsers?.first.customerAccount?.accountName ?? accountName;
+  }
 
   @override
   void dispose() {

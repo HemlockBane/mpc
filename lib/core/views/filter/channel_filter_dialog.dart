@@ -10,6 +10,10 @@ import '../custom_check_box.dart';
 
 class ChannelFilterDialog extends StatefulWidget {
 
+  final List<TransactionChannel>? selectedChannels;
+
+  ChannelFilterDialog({this.selectedChannels});
+
   @override
   State<StatefulWidget> createState() => _ChannelFilterDialog();
 
@@ -27,6 +31,22 @@ class _ChannelFilterDialog extends State<ChannelFilterDialog> {
   ]);
 
   final List<TransactionChannel> _selectedChannels = [];
+
+  void initState() {
+   _setDefaultValues();
+    super.initState();
+  }
+
+  void _setDefaultValues() {
+    final selectedChannels = widget.selectedChannels;
+    if(selectedChannels == null) return;
+    _channelFilters.forEach((element) {
+      if(selectedChannels.contains(element.value)) {
+        element.isSelected = true;
+        _selectedChannels.add(element.value);
+      }
+    });
+  }
 
   Widget generateChannelItem(_ChannelFilterItem item, int position, OnItemClickListener<_ChannelFilterItem, int> itemClickListener) {
     return Material(
@@ -107,7 +127,8 @@ class _ChannelFilterDialog extends State<ChannelFilterDialog> {
                   style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
-                      color: Colors.colorPrimaryDark)
+                      color: Colors.colorPrimaryDark
+                  )
               ),
             ),
             SizedBox(height: 20),

@@ -54,8 +54,6 @@ class TransactionAccountSource extends StatelessWidget {
 
                 final comboItems = accounts.mapIndexed((index, element) {
                   final userAccount = userAccounts[index];
-                  final accountBalance = accounts[index];
-                  userAccount.accountBalance = accountBalance ?? userAccount.accountBalance;
                   final accountNumber = userAccount.customerAccount?.accountNumber;
                   final formattedBalance = userAccount.accountBalance?.availableBalance?.formatCurrency ?? "--";
                   return ComboItem<UserAccount>(

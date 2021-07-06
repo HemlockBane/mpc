@@ -53,17 +53,20 @@ class _TransferPinDialog extends TransactionPinDialogState<TransferPinDialog> {
                       style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w600,
-                          color: Colors.colorPrimaryDark)),
+                          color: Colors.colorPrimaryDark
+                      )),
                 ),
                 SizedBox(height: 24),
                 Container(
                   color: Colors.colorPrimaryDark.withOpacity(0.05),
                   padding: EdgeInsets.all(18),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: Column(
                     children: [
-                      Column(
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text('Amount', style: TextStyle(color: Colors.colorPrimaryDark, fontSize: 15)),
@@ -76,20 +79,9 @@ class _TransferPinDialog extends TransactionPinDialogState<TransferPinDialog> {
                                       fontWeight: FontWeight.bold
                                   )
                               ),
-                              SizedBox(height: 14,),
-                              Text('Beneficiary', style: TextStyle(color: Colors.colorPrimaryDark, fontSize: 15)),
-                              SizedBox(height: 2,),
-                              Text(
-                                  viewModel.beneficiary!.getAccountName(),
-                                  style: TextStyle(
-                                      color: Colors.colorPrimaryDark,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold
-                                  )
-                              ),
                             ],
-                      ),
-                      Column(
+                          ),
+                          Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text('Fee + VAT', style: TextStyle(color: Colors.colorPrimaryDark, fontSize: 15)),
@@ -113,6 +105,33 @@ class _TransferPinDialog extends TransactionPinDialogState<TransferPinDialog> {
                               ),
                             ],
                           ),
+                        ],
+                      ),
+                      SizedBox(height: 14,),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Beneficiary', style: TextStyle(color: Colors.colorPrimaryDark, fontSize: 15)),
+                                  SizedBox(height: 2,),
+                                  Text(
+                                      viewModel.beneficiary!.getAccountName(),
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                          color: Colors.colorPrimaryDark,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold
+                                      )
+                                  ),
+                                ],
+                              )
+                          ),
+                        ],
+                      )
                     ],
                   ),
                 ),

@@ -27,7 +27,7 @@ class _LivelinessService implements LivelinessService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.0.4'
+                  r'appVersion': '1.0.5'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -58,7 +58,7 @@ class _LivelinessService implements LivelinessService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.0.4'
+                  r'appVersion': '1.0.5'
                 },
                 extra: _extra,
                 contentType: 'application/json')

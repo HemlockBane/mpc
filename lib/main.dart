@@ -24,6 +24,8 @@ import 'package:moniepoint_flutter/app/cards/views/card_view.dart';
 import 'package:moniepoint_flutter/app/cards/views/unblock_debit_card_view.dart';
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_view.dart';
+import 'package:moniepoint_flutter/app/devicemanagement/viewmodels/user_device_view_model.dart';
+import 'package:moniepoint_flutter/app/devicemanagement/views/user_device_list_view.dart';
 import 'package:moniepoint_flutter/app/login/viewmodels/login_view_model.dart';
 import 'package:moniepoint_flutter/app/login/views/login_view.dart';
 import 'package:moniepoint_flutter/app/login/views/recovery/recovery_controller_screen.dart';
@@ -163,6 +165,10 @@ class MoniepointApp extends StatelessWidget {
         Routes.SELECT_BILL_BENEFICIARY: (BuildContext context) => BillSelectBeneficiaryScreen(),
         Routes.BLOCK_ACCOUNT: (BuildContext context) => BlockAccountScreen(),
         Routes.UNBLOCK_DEBIT_CARD: (BuildContext context) => UnblockDebitCardScreen(),
+        Routes.REGISTERED_DEVICES: (BuildContext context) => ChangeNotifierProvider(
+            create: (_) => UserDeviceViewModel(),
+            child: UserDeviceListView(),
+        ),
       },
     );
   }

@@ -20,6 +20,9 @@ class NextOfKinScreen extends PagedForm {
     return _NextOfKinScreen();
   }
 
+  @override
+  String getTitle() => "Next of Kin";
+
 }
 
 class _NextOfKinScreen extends State<NextOfKinScreen> with AutomaticKeepAliveClientMixin {

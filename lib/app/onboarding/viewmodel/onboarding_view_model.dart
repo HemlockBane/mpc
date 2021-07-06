@@ -20,6 +20,7 @@ import 'package:moniepoint_flutter/app/onboarding/model/profile_form.dart';
 import 'package:moniepoint_flutter/app/onboarding/username_validation_state.dart';
 import 'package:moniepoint_flutter/app/securityquestion/model/data/security_question.dart';
 import 'package:moniepoint_flutter/app/securityquestion/model/security_question_delegate.dart';
+import 'package:moniepoint_flutter/core/device_manager.dart';
 import 'package:moniepoint_flutter/core/models/file_uuid.dart';
 import 'package:moniepoint_flutter/core/models/security_answer.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -36,10 +37,7 @@ class OnBoardingViewModel extends ChangeNotifier {
 
   late OnBoardingServiceDelegate _delegate;
   late SecurityQuestionDelegate _questionDelegate;
-  DeviceInfoPlugin? _deviceManager;
-
-  AndroidDeviceInfo? _androidDeviceInfo;
-  IosDeviceInfo? _iosDeviceInfo;
+  DeviceManager? _deviceManager;
 
   final List<SecurityQuestion> _securityQuestions = [];
 
@@ -58,20 +56,10 @@ class OnBoardingViewModel extends ChangeNotifier {
   OnBoardingViewModel({
     OnBoardingServiceDelegate? delegate,
     SecurityQuestionDelegate? questionDelegate,
-    DeviceInfoPlugin? deviceManager}) {
+    DeviceManager? deviceManager}) {
     this._delegate = delegate ?? GetIt.I<OnBoardingServiceDelegate>();
     this._questionDelegate = questionDelegate ?? GetIt.I<SecurityQuestionDelegate>();
-    this._deviceManager = deviceManager ?? GetIt.I<DeviceInfoPlugin>();
-
-    if(Platform.isAndroid) {
-      _deviceManager?.androidInfo.then((value) {
-        _androidDeviceInfo = value;
-      });
-    } else if(Platform.isIOS) {
-      _deviceManager?.iosInfo.then((value) {
-        _iosDeviceInfo = value;
-      });
-    }
+    this._deviceManager = deviceManager ?? GetIt.I<DeviceManager>();
   }
 
   void setIsNewAccount(bool isNewAccount) {
@@ -177,10 +165,10 @@ class OnBoardingViewModel extends ChangeNotifier {
 
   Stream<Resource<bool>> createUser() {
     profileForm.profile
-    ..accountNumber = transferBeneficiary?.accountNumber
-    ..deviceId = (_androidDeviceInfo != null) ? _androidDeviceInfo?.androidId : _iosDeviceInfo?.identifierForVendor
-    ..deviceName = (_androidDeviceInfo != null) ? _androidDeviceInfo?.device : _iosDeviceInfo?.name
-    ..securityAnwsers = getSecurityQuestionAnswers();
+      ..accountNumber = transferBeneficiary?.accountNumber
+      ..deviceId = _deviceManager?.deviceId
+      ..deviceName = _deviceManager?.deviceName
+      ..securityAnwsers = getSecurityQuestionAnswers();
     return _delegate.createUser(profileForm.profile);
   }
 
@@ -190,8 +178,8 @@ class OnBoardingViewModel extends ChangeNotifier {
       ..withSelfieUUID(selfieImageUUID ?? "")
       ..withSignatureUUID(signatureImageUUID ?? "")
       ..withTransactionPin(accountForm.account.pin ?? "")
-      ..deviceId = (_androidDeviceInfo != null) ? _androidDeviceInfo?.androidId : _iosDeviceInfo?.identifierForVendor
-      ..deviceName = (_androidDeviceInfo != null) ? _androidDeviceInfo?.device : _iosDeviceInfo?.name
+      ..deviceId = _deviceManager?.deviceId
+      ..deviceName = _deviceManager?.deviceName
       ..securityAnwsers = getSecurityQuestionAnswers();
     return _delegate.createAccount(accountForm.account);
   }

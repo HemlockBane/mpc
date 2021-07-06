@@ -23,6 +23,8 @@ import 'package:moniepoint_flutter/app/branches/model/branch_service.dart';
 import 'package:moniepoint_flutter/app/branches/model/branch_service_delegate.dart';
 import 'package:moniepoint_flutter/app/cards/model/card_service.dart';
 import 'package:moniepoint_flutter/app/cards/model/card_service_delegate.dart';
+import 'package:moniepoint_flutter/app/devicemanagement/model/user_device_service.dart';
+import 'package:moniepoint_flutter/app/devicemanagement/model/user_device_service_delegate.dart';
 import 'package:moniepoint_flutter/app/institutions/institution_dao.dart';
 import 'package:moniepoint_flutter/app/institutions/institution_repository.dart';
 import 'package:moniepoint_flutter/app/institutions/institution_service.dart';
@@ -217,6 +219,11 @@ class ServiceModule {
     /// USSD Service checks
     GetIt.I.registerLazySingleton<USSDServiceDelegate>(() {
       return USSDServiceDelegate(USSDService(dio));
+    });
+
+    /// UserDeviceManagement checks
+    GetIt.I.registerLazySingleton<UserDeviceServiceDelegate>(() {
+      return UserDeviceServiceDelegate(UserDeviceService(dio));
     });
 
     GetIt.I.registerLazySingleton<DeviceInfoPlugin>(() {

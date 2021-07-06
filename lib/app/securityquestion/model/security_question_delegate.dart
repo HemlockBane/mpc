@@ -34,7 +34,7 @@ class SecurityQuestionDelegate with NetworkResource {
     return networkBoundResource(
         fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () {
-          return this._service.getQuestionByUsername(SecurityQuestionRequestBody().withAccountNumber(accountNumber));
+          return this._service.getQuestionByAccountNumber(SecurityQuestionRequestBody().withAccountNumber(accountNumber));
         }
     );
   }

@@ -2,6 +2,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart' hide ScrollView, Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/data/customer_identification_info.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/forms/customer_identification_form.dart';
@@ -27,6 +28,9 @@ class CustomerIdentificationScreen extends PagedForm {
     return _CustomerIdentificationScreen();
   }
 
+  @override
+  String getTitle() => "Customer ID";
+
 }
 
 class _CustomerIdentificationScreen extends State<CustomerIdentificationScreen> with AutomaticKeepAliveClientMixin{
@@ -42,11 +46,18 @@ class _CustomerIdentificationScreen extends State<CustomerIdentificationScreen> 
   UploadState _fileUploadState = UploadState.NONE;
   String uploadedFileName = "Upload International Passport";
 
-  Map<String, Tuple<Color, VoidCallback?>> getColoredTier() {
-    return {
-      "Tier 2": Tuple(Colors.primaryColor, null),
-      "Tier 3": Tuple(Colors.primaryColor, null),
-    };
+  //TODO don't repeat yourself - reuse in proof of address
+  Map<String, Tuple<Color, VoidCallback?>> getColoredTier(List<String> requiredTiers) {
+    final Map<String, Tuple<Color, VoidCallback?>> coloredTierMap = {};
+    requiredTiers.forEach((element) {
+      coloredTierMap[element] = Tuple(Colors.primaryColor, null);
+    });
+    return coloredTierMap;
+  }
+
+  List<String> getRequiredTier(List<Tier> tiers) {
+    final requiredTiers = tiers.where((element) => element.alternateSchemeRequirement?.identificationProof == true);
+    return requiredTiers.map((e) => e.name?.replaceAll("Moniepoint Customers ", "") ?? "").toList();
   }
 
   void _resetForm() {
@@ -205,6 +216,9 @@ class _CustomerIdentificationScreen extends State<CustomerIdentificationScreen> 
     final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
     this._identificationForm = viewModel.identificationForm;
 
+    final requiredTiers = getRequiredTier(viewModel.tiers);
+    final requiredTierText = "Required for ${requiredTiers.join(", ")}";
+
     return ScrollView(
       child: Container(
         padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
@@ -285,15 +299,21 @@ class _CustomerIdentificationScreen extends State<CustomerIdentificationScreen> 
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      Text(
-                          uploadedFileName,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: TextStyle(color: Colors.textColorBlack, fontSize: 15, fontWeight: FontWeight.bold)
+                      StreamBuilder(
+                          stream: _identificationForm.idTypeStream,
+                          builder: (context, AsyncSnapshot<IdentificationType?> snapshot) {
+                            final idType = snapshot.hasData ? snapshot.data : null;
+                            return Text(
+                                (idType != null) ? "Upload ${idType.idType}" :uploadedFileName,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: TextStyle(color: Colors.textColorBlack, fontSize: 15, fontWeight: FontWeight.bold)
+                            );
+                          }
                       ),
                       SizedBox(height: 1),
-                      Text('Required for Tier 2,  Tier 3', style: TextStyle(color: Colors.deepGrey, fontFamily: Styles.defaultFont, fontSize: 12),)
-                          .colorText(getColoredTier()),
+                      Text('$requiredTierText', style: TextStyle(color: Colors.deepGrey, fontFamily: Styles.defaultFont, fontSize: 12),)
+                          .colorText(getColoredTier(requiredTiers)),
                     ],
                   )),
                   SizedBox(width: 8),

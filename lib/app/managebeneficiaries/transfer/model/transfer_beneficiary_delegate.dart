@@ -73,6 +73,10 @@ class TransferBeneficiaryServiceDelegate with NetworkResource {
     );
   }
 
+  Future<void> deleteLocalBeneficiary(TransferBeneficiary beneficiary) {
+    return _beneficiaryDao.deleteItem(beneficiary);
+  }
+
 }
 
 class _TransferBeneficiaryMediator extends AbstractDataCollectionMediator<int, TransferBeneficiary> {

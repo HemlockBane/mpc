@@ -73,8 +73,10 @@ class TransactionHistoryViewModel extends BaseViewModel {
   }
 
   bool isFilteredList() {
-    return _filterResults.channels.isNotEmpty// did we filter by channels
-        || _filterResults.types.isNotEmpty // did we filter by transaction types
+    final channels = filterableItems.elementAt(2).values as List<dynamic>?;
+    final types = filterableItems.elementAt(1).values as List<dynamic>?;
+    return channels?.isNotEmpty == true// did we filter by channels
+        || types?.isNotEmpty == true// did we filter by transaction types
         || _filterResults.startDate > 0;//d
   }
 

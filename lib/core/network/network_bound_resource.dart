@@ -42,17 +42,6 @@ mixin NetworkResource {
     //let's fetch from local storage
     K? localData; //= //(shouldFetchLocal) ? await fetchFromLocal() : null;
     if(shouldFetchLocal) {
-
-      // final localStream = fetchFromLocal().listen((event) {
-      //   print('Starting');
-      // });
-      // localStream.cancel();
-      // yield* fetchFromLocal().map((event) {
-      //   print('Mapping');
-      //   return Resource.loading(event);
-      // });
-      // print('LaLaLaLa-Too');
-      // final localStream = fetchFromLocal();
       await for (var value in fetchFromLocal()) {
         localData = value;
         print(localData);
@@ -83,6 +72,7 @@ mixin NetworkResource {
           else yield Resource.success(result ?? response.result);
         } else {
           //TODO
+          yield Resource.error(err: ServiceError(message: response.errors?.first.message ?? ""));
         }
       } catch(e) {
         print(e);
@@ -91,7 +81,14 @@ mixin NetworkResource {
         if (e is DioError) {
 
           if(e.response?.statusCode == 401) {
+            //TODO auto logout the user here
             print("Logout since we are in a 401");
+          }
+          else if(e.response?.statusCode == 404) {
+            _errorString = "404";
+            _onFailed<K>(response, result);
+            yield Resource.error(err: this._serviceError);
+            return;
           }
 
           response = e.response;
@@ -232,7 +229,12 @@ Tuple<String, String> formatError(String? errorMessage, String moduleName) {
   } else if(errorMessage.contains("401")){
     errorTitle = "Oops, Something is broken!";
     errorDescription = "We encountered an error loading your $moduleName. Please try again later.";
-  } else {
+  }
+  else if(errorMessage.contains("404")){
+    errorTitle = "Oops, Something is not right";
+    errorDescription = "The requested resource was not found. We are currently investigating what might be the problem.\nPlease try again later.";
+  }
+  else {
     errorTitle = "Oops";
     errorDescription = errorMessage;
   }

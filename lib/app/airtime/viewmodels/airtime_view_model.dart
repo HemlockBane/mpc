@@ -87,7 +87,7 @@ class AirtimeViewModel extends BaseViewModel with PaymentViewModel {
       final dataPlanAmount =  this.dataPlan?.amount ?? 0;
       return (isAmountFixed) ? this.amount == (dataPlanAmount /100): this.amount != null && this.amount! > 0;
     }
-    return this.amount != null && (this.amount ?? 0) > 0;
+    return this.amount != null && (this.amount ?? 0) >= 50;
   }
 
   String _cleansePhoneNumber() {

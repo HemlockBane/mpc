@@ -56,13 +56,13 @@ abstract class BaseViewModel with ChangeNotifier {
   List<UserAccount> get userAccounts  {
     final userAccounts = UserInstance().userAccounts;
     if(userAccounts.isEmpty) {
-      return customers.map((e) {
+      return customer?.customerAccountUsers?.map((e) {
         return UserAccount(
-            id: e.customerAccountUsers!.first.customerAccount!.id,
-            customerAccount: e.customerAccountUsers!.first.customerAccount,
-            customer: e
+            id: e.customerAccount?.id,
+            customerAccount: e.customerAccount,
+            customer: e.customerAccount?.customer
         );
-      }).toList();
+      }).toList() ?? [];
     }
     return UserInstance().userAccounts;
   }
@@ -76,14 +76,14 @@ abstract class BaseViewModel with ChangeNotifier {
 
   String customerAccountNumber({int? accountId}) {
     if(accountId == null) return accountNumber;
-    final customer = customers.where((element) => element.customerAccountUsers?.first.customerAccount?.id == accountId).firstOrNull;
-    return customer?.customerAccountUsers?.first.customerAccount?.accountNumber ?? accountNumber;
+    final mCustomerAccountUser = customer?.customerAccountUsers?.where((element) => element.customerAccount?.id == accountId).firstOrNull;
+    return mCustomerAccountUser?.customerAccount?.accountNumber ?? accountNumber;
   }
 
   String customerAccountName({int? accountId}) {
     if(accountId == null) return accountName;
-    final customer = customers.where((element) => element.customerAccountUsers?.first.customerAccount?.id == accountId).firstOrNull;
-    return customer?.customerAccountUsers?.first.customerAccount?.accountName ?? accountName;
+    final mCustomerAccountUser = customer?.customerAccountUsers?.where((element) => element.customerAccount?.id == accountId).firstOrNull;
+    return mCustomerAccountUser?.customerAccount?.accountName ?? accountName;
   }
 
   @override

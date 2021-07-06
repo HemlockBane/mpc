@@ -216,37 +216,6 @@ class _SettingsScreen extends State<SettingsScreen> {
                     color: Colors.dashboardDivider.withOpacity(0.2),
                   ),
                 ),
-                SwitchListTile(
-                  activeColor: Colors.solidOrange,
-                  activeTrackColor: Colors.solidOrange.withOpacity(0.5),
-                  inactiveTrackColor: Colors.grey.withOpacity(0.5),
-                  inactiveThumbColor: Colors.white.withOpacity(0.5),
-                  title: Text('Hide Account Balance',
-                      style: TextStyle(
-                          color: Colors.textColorMainBlack,
-                          fontSize: 16,
-                          fontWeight: FontWeight.normal)),
-                  subtitle: Text(hideAccountBal ? 'Hiding all dashboard account balance' : 'Showing all dashboard account balance',
-                      style: TextStyle(
-                          color: Colors.deepGrey,
-                          fontSize: 14,
-                          fontWeight: FontWeight.normal)
-                  ),
-                  value: hideAccountBal,
-                  onChanged: (v) {
-                    PreferenceUtil.saveValueForLoggedInUser(PreferenceUtil.HIDE_ACCOUNT_BAL, v);
-                    setState(() {
-
-                    });
-                  },
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: 16, right: 16),
-                  child: Divider(
-                    height: 1,
-                    color: Colors.dashboardDivider.withOpacity(0.2),
-                  ),
-                ),
                 ListTile(
                   contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 7),
                   title: Text('Registered Devices',
@@ -254,7 +223,7 @@ class _SettingsScreen extends State<SettingsScreen> {
                           color: Colors.textColorMainBlack,
                           fontSize: 16,
                           fontWeight: FontWeight.normal)),
-                  onTap: () => "",
+                  onTap: () => Navigator.of(context).pushNamed(Routes.REGISTERED_DEVICES),
                   trailing: SvgPicture.asset('res/drawables/ic_forward_anchor.svg'),
                 ),
                 Padding(

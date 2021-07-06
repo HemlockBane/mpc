@@ -1,5 +1,4 @@
 import 'package:floor/floor.dart';
-import 'package:flutter/foundation.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/transfer_request_body.dart';
 import 'package:moniepoint_flutter/core/database/type_converters.dart';
 import 'package:moniepoint_flutter/core/models/list_item.dart';

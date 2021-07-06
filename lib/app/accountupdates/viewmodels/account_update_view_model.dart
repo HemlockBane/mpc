@@ -7,6 +7,7 @@ import 'package:moniepoint_flutter/app/accounts/model/data/account_update_flag.d
 import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/customer_service_delegate.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/data/account_update.dart';
+import 'package:moniepoint_flutter/app/accountupdates/model/data/address_info.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/data/customer_detail_info.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/forms/additional_info_form.dart';
@@ -95,6 +96,11 @@ class AccountUpdateViewModel extends BaseViewModel {
       customerDetailInfo..addressInfo = addressForm.getAddressInfo;
     } else if(_addressForm.isInitialized && !_additionalInfoForm.isInitialized) {
       customerDetailInfo = CustomerDetailInfo(addressInfo: addressForm.getAddressInfo);
+    }
+
+    if(customerDetailInfo != null && !_addressForm.isInitialized) {
+      //TODO this is just plain useless but the api requires it this way to cover the backend null-pointer exception
+      customerDetailInfo..addressInfo = AddressInfo();
     }
 
     return AccountUpdate(

@@ -23,12 +23,14 @@ class AccountServiceDelegate with NetworkResource {
         fetchFromLocal: () {
           final userAccounts = UserInstance().userAccounts;
           final userAccount = userAccounts.where((element) => element.customerAccount?.id == customerId).firstOrNull;
-          // final balances = UserInstance().accountBalance;
           return Stream.value(userAccount?.accountBalance);
         },
         fetchFromRemote: () => this._service.getCustomerAccountBalance(customerId),
         saveRemoteData: (balance) async {
-          UserInstance().setAccountBalance([balance]);
+          final userAccounts = UserInstance().userAccounts;
+          userAccounts.forEach((element) {
+            if(element.customerAccount?.id == customerId) element.accountBalance = balance;
+          });
         }
     );
   }
@@ -39,7 +41,15 @@ class AccountServiceDelegate with NetworkResource {
         fetchFromLocal: () => Stream.value(UserInstance().userAccounts),
         fetchFromRemote: () => this._service.getUserAccountsWithBalance(),
         saveRemoteData: (userAccounts) async {
-          UserInstance().setUserAccounts(userAccounts);
+          final sessionUserAccounts = UserInstance().userAccounts;
+          for(var i = 0; i < userAccounts.length; i++) {
+            final userAccount = userAccounts[i];
+            sessionUserAccounts.forEach((sessionUserAccount) {
+              if(userAccount.id == sessionUserAccount.id && userAccount.accountBalance != null) {
+                sessionUserAccount.accountBalance = userAccount.accountBalance;
+              }
+            });
+          }
         }
     );
   }

@@ -1,3 +1,3 @@
 enum SessionTimeoutReason {
-  INACTIVITY
+  INACTIVITY, LOGIN_REQUESTED
 }

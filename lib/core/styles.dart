@@ -17,7 +17,8 @@ class Styles {
           fontSize: 16,
           color: Colors.white,
           fontWeight: FontWeight.bold,
-          fontFamily: Styles.defaultFont)),
+          fontFamily: Styles.defaultFont
+      )),
       foregroundColor: MaterialStateProperty.all(Colors.white),
       backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
         if (states.contains(MaterialState.disabled))

@@ -109,6 +109,13 @@ class PreferenceUtil {
     return data as T?;
   }
 
+  static void clearOutFingerPrintSession() {
+    final username = getSavedUsername();
+    _preferences?.remove(FINGER_PRINT_USERNAME);
+    _preferences?.remove("$username-$FINGER_PRINT_ENABLED");
+    _preferences?.remove("$username-$FINGER_PRINT_REQUEST_COUNTER");
+  }
+
   static void setAuthFingerprintUsername() {
     final username = getSavedUsername();
     if(username == null) return;

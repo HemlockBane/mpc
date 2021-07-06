@@ -1,4 +1,5 @@
 
+import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/login/model/data/fingerprint_login_request.dart';
 import 'package:moniepoint_flutter/app/login/model/data/login_request.dart';
 import 'package:moniepoint_flutter/app/login/model/data/password_login_request.dart';
@@ -15,12 +16,25 @@ class LoginServiceDelegate with NetworkResource{
     this._service = service;
   }
 
+  void _updateSession(User user) {
+    UserInstance().setUser(user);
+    final userAccounts = user.customers?.first.customerAccountUsers?.map((e) {
+      return UserAccount(
+          id: e.customerAccount?.id,
+          customerAccount: e.customerAccount,
+          customer: e.customerAccount?.customer,
+          accountProvider: e.customerAccount?.schemeCode?.accountProvider
+      );
+    }).toList() ?? [];
+    UserInstance().setUserAccounts(userAccounts);
+  }
+
   Stream<Resource<User>> loginWithPassword(LoginRequestBody requestBody) {
     return networkBoundResource(
         fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => this._service.loginWithPassword(requestBody as LoginWithPasswordRequestBody),
-        processRemoteResponse: (v) {
-          UserInstance().setUser(v.data!.result!);
+        saveRemoteData: (user) async {
+          _updateSession(user);
         }
     );
   }
@@ -29,8 +43,8 @@ class LoginServiceDelegate with NetworkResource{
     return networkBoundResource(
         fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => this._service.loginWithFingerprint(requestBody as LoginWithFingerprintRequestBody),
-        processRemoteResponse: (v) {
-          UserInstance().setUser(v.data!.result!);
+        saveRemoteData: (user) async {
+          _updateSession(user);
         }
     );
   }

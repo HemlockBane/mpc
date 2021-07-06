@@ -2167,6 +2167,11 @@ class _$SchemeDao extends SchemeDao {
   }
 
   @override
+  Future<void> deleteAllTiers() async {
+    await _queryAdapter.queryNoReturn('DELETE FROM tiers');
+  }
+
+  @override
   Future<void> insertItem(Tier item) async {
     await _tierInsertionAdapter.insert(item, OnConflictStrategy.replace);
   }

@@ -11,6 +11,8 @@ import AWSPredictionsPlugin
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
   let LIVELINESS_CHANNEL: String = "moniepoint.flutter.dev/liveliness"
+  let BIOMETRICS_CHANNEL: String = "moniepoint.flutter.dev/biometrics"
+
     
   override func application(
     _ application: UIApplication,
@@ -26,6 +28,18 @@ import AWSPredictionsPlugin
     self.registerLiveliness(controller:controller)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
+    
+    private func registerBiometrics(controller: FlutterViewController) {
+        let biometricsChannel = FlutterMethodChannel(name: BIOMETRICS_CHANNEL, binaryMessenger: controller.binaryMessenger)
+        let access = SecAccessControlCreateWithFlags(
+            nil, kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly,
+            .biometryAny, nil
+        )
+        let server = "www.teamapt.com"
+        biometricsChannel.setMethodCallHandler { (call: FlutterMethodCall, reply: @escaping FlutterResult) in
+            
+        }
+    }
     
   private func initializeAmplify() {
     do {

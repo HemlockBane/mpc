@@ -224,16 +224,27 @@ class _LivelinessScreen extends State<LivelinessScreen> {
     if(item == null) return false;
 
     final criteriaYaw = criteria.yaw;
+    final criteriaPitch = criteria.pitch;
 
     if (criteria.name.toLowerCase() == 'pose') {
-      if(criteriaYaw == null) isValid = false; // if what we receive from the backend is null let's bounce
-      else if ((challengeName == 'LookLeft' || challengeName == 'LookRight') && _facingCamera == CameraLensDirection.back) {
+      if((challengeName == 'LookLeft' || challengeName == 'LookRight') && criteriaYaw == null) {
+        isValid = false;
+      }
+      else if((challengeName == 'LookUp' || challengeName == 'LookDown') && criteriaPitch == null) {
+        isValid = false;
+      }
+
+      if (criteriaYaw != null && (challengeName == 'LookLeft' || challengeName == 'LookRight') && _facingCamera == CameraLensDirection.back) {
         print("Challenge Name: $challengeName -->>> AWS Yaw => ${item['yaw']} --->>>> Criteria Yaw => ${criteriaYaw.singleValue}");
         isValid = compare<num>(item['yaw'] as num, criteriaYaw.singleValue!, criteriaYaw.livelinessComparator);
       }
-      else if ((challengeName == 'LookLeft' || challengeName == 'LookRight') && _facingCamera == CameraLensDirection.front) {
+      else if (criteriaYaw != null && (challengeName == 'LookLeft' || challengeName == 'LookRight') && _facingCamera == CameraLensDirection.front) {
         print("Challenge Name: $challengeName -->>> AWS Yaw => ${-1 * (item['yaw'] as num)} --->>>> Criteria Yaw => ${(criteriaYaw.singleValue as num)} --->> Comparator => ${criteriaYaw.livelinessComparator}");
         isValid = compare<num>(-1 * (item['yaw'] as num), criteriaYaw.singleValue!, criteriaYaw.livelinessComparator);
+      }
+      else if (criteriaPitch != null && (challengeName == 'LookUp' || challengeName == 'LookDown')) {
+        print("Challenge Name: $challengeName -->>> AWS Pitch => ${item['pitch']} --->>>> Criteria Pitch => ${criteriaPitch.singleValue}");
+        isValid = compare<num>(item['pitch'] as num, criteriaPitch.singleValue!, criteriaPitch.livelinessComparator);
       }
       else {
         if(challengeName == _viewModel.profilePictureCriteria?.name?.replaceAll(" ", "")) {

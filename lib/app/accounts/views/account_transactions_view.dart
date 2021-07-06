@@ -52,14 +52,11 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
   bool _isFilterOpened = false;
   String accountStatementFileName = "MoniepointAccountStatement.pdf";
   String? accountStatementDownloadDir;
+  double yOffset = 0.0;
 
   late final AnimationController _animationController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 1000)
-  );
-  late final AnimationController _pageAnimationController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 3000)
   );
   PagingSource<int, AccountTransaction> _pagingSource = PagingSource.empty();
 
@@ -95,7 +92,8 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
                 'You will have to visit a branch to unblock your account if needed! Proceed to block?', () {
                   Navigator.of(mContext).pop();
                   Navigator.of(mContext).pushNamed(Routes.BLOCK_ACCOUNT);
-                }, buttonText: 'Yes, Proceed')
+                }, buttonText: 'Yes, Proceed'
+            )
         );
       }
     }
@@ -163,7 +161,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
                 },
               )
           ),
-          SizedBox(height: 5,),
+          SizedBox(height: 5),
           Flexible(
               child: StreamBuilder(
                 stream: viewModel.balanceStream,
@@ -182,14 +180,14 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
                 },
               )
           ),
-          SizedBox(height: 2,),
+          SizedBox(height: 2),
           Flexible(
             child: Opacity(
                 opacity: opacityValue,
                 child: Row(
                   children: [
                     Expanded(child: Divider(color: Colors.white.withOpacity(0.2), height: 1,)),
-                    SizedBox(width: 6,),
+                    SizedBox(width: 6),
                     Styles.imageButton(
                         onClick: _displaySettingsDialog,
                         color: Colors.white.withOpacity(0.2),
@@ -201,7 +199,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
                 ),
             ),
           ),
-          SizedBox(height: 6,),
+          SizedBox(height: 6),
           Flexible(
               child: Opacity(
                 opacity: opacityValue,
@@ -364,7 +362,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
       isInFilterMode = false;
       _isFilterOpened = false;
       viewModel.resetFilter();
-      //check if what we had before and now is the same
+      //TODO check if what we had before and now is the same
       _refresh(viewModel);
     });
   }
@@ -468,7 +466,6 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
     );
   }
 
-  var yOffset = 0.0;
   void _onScroll() {
     yOffset = _scrollController.offset;
     if(yOffset >= 0 && yOffset <= 1000) {
@@ -476,14 +473,13 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
     }
   }
 
-  // final _listItems = <Widget>[];
   List<Widget> _positionalWidgets(TransactionHistoryViewModel viewModel, Offset value) {
     final double listTop = min(170, 170 - min(60, (value.dy - 1) * 0.2));
     final double balanceViewSides = min(42, 42 - min(42, (value.dy - 1) * 0.2));
 
     final listPagePosition = Positioned(
         key: Key("list-view-0"),
-        top: listTop,//min(170, 170 - min(42, (value.dy - 1) * 0.2)),
+        top: listTop,
         bottom: 0,
         right: 0,
         left: 0,
@@ -491,12 +487,12 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
     );
 
     final balanceContainerPosition = Positioned(
-        key: Key("dashboard-balance-0"),
+        key: Key("dashboard-balance-${widget.customerAccountId}"),
         right: balanceViewSides,
         left: balanceViewSides,
         top: balanceViewSides,
         child: Hero(
-          tag: "dashboard-balance-view-0",
+          tag: "dashboard-balance-view-${widget.customerAccountId}",
           child: balanceView(viewModel, value.dy),
         )
     );
@@ -581,7 +577,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
         final fileName = "AccountTransaction_Export_${viewModel.accountName}_${DateFormat("dd_MM_yyyy_h_m_s").format(DateTime.now())}.pdf";
         final downloadTask = () => viewModel.exportStatement(selectedDate.first, selectedDate.second, accountId: widget.customerAccountId);
         await DownloadUtil.downloadTransactionReceipt(downloadTask, fileName, isShare: false, onProgress: (int progress, isComplete) {
-          if(!_isDownloading  && !isComplete) setState(() { _isDownloading = true;});
+          if(!_isDownloading && !isComplete) setState(() { _isDownloading = true;});
           else if(_isDownloading && isComplete) setState(() { _isDownloading = false; });
         });
       } catch(e) {

@@ -10,8 +10,8 @@ class AuthInterceptor extends Interceptor {
     User? user = UserInstance().getUser();
     if(user != null && (user.accessToken != null && user.accessToken?.isNotEmpty == true)) {
       options.headers["Authorization"] = "${user.tokenType} ${user.accessToken}";
-      options.headers["client-id"] = (Platform.isAndroid) ? "ANDROID" : (Platform.isIOS) ? "IOS" : "UNKNOWN";
     }
+    options.headers["client-id"] = (Platform.isAndroid) ? "ANDROID" : (Platform.isIOS) ? "IOS" : "UNKNOWN";
     super.onRequest(options, handler);
   }
 }

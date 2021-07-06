@@ -66,6 +66,10 @@ class AirtimeBeneficiaryServiceDelegate with NetworkResource {
     );
   }
 
+  Future<void> deleteLocalBeneficiary(AirtimeBeneficiary beneficiary) {
+    return _beneficiaryDao.deleteItem(beneficiary);
+  }
+
 }
 
 class _AirtimeBeneficiaryMediator extends AbstractDataCollectionMediator<int, AirtimeBeneficiary> {

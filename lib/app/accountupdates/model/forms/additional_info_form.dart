@@ -111,7 +111,7 @@ class AdditionalInfoForm with ChangeNotifier {
 
   void onNationalityChange(Nationality? mNationality) {
     if(_info.nationality == mNationality?.nationality) return;
-    _info.nationality = mNationality?.nationality;
+    _info.nationality = mNationality?.code;
     _nationalityController.sink.add(mNationality!);
     _isNationalityValid(displayError: true);
 

@@ -8,7 +8,7 @@ class ServiceConfig {
       ? "https://moniepoint-customer-root.console.teamapt.com/"
       : "https://moniepoint-customer-root-v2.console.teamapt.com/";
 
-  static const String OPERATION_SERVICE =(ENV == "dev")
+  static const String OPERATION_SERVICE = (ENV == "dev")
       ? "https://core-operations.monnify.development.teamapt.com/"
       : (ENV == "prod")
       ? "https://moniepoint-customer-operations-service.console.teamapt.com/"

@@ -1,16 +1,13 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
 import 'package:moniepoint_flutter/app/accounts/viewmodels/account_transaction_detail_view_model.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/transaction.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
-import 'package:moniepoint_flutter/core/utils/download_util.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:moniepoint_flutter/core/views/transaction_location_view.dart';
@@ -133,7 +130,7 @@ class _AccountTransactionDetailedView extends State<AccountTransactionDetailedVi
                                     maxLines: 1,
                                     style: TextStyle(fontSize: 12, color: Colors.colorPrimaryDark, fontWeight: FontWeight.normal)
                                 ).colorText({balanceBefore: Tuple(Colors.colorPrimaryDark, null)}, underline: false)),
-                                SizedBox(width: 8,),
+                                SizedBox(width: 8),
                                 Flexible(child: Text(
                                   "Balance After: $balanceAfter",
                                   maxLines: 1,

@@ -20,6 +20,9 @@ class DocumentVerificationScreen extends PagedForm {
   DocumentVerificationScreen(this.idVerificationFlag, this.addressVerificationFlag);
 
   @override
+  String getTitle() => "";
+
+  @override
   State<StatefulWidget> createState() => _DocumentVerificationScreen();
 
   static String getMaxDocumentVerificationTime(AccountUpdateFlag? idVerificationFlag, AccountUpdateFlag? addressVerificationFlag) {

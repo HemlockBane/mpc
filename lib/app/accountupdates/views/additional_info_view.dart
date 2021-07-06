@@ -13,6 +13,9 @@ import 'package:provider/provider.dart';
 class AdditionalInfoScreen extends PagedForm {
   @override
   State<StatefulWidget> createState() => _AdditionalInfoScreen();
+
+  @override
+  String getTitle() => "Additional Info";
 }
 
 class _AdditionalInfoScreen extends State<AdditionalInfoScreen> with AutomaticKeepAliveClientMixin {

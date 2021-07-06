@@ -13,6 +13,8 @@ abstract class PagedForm extends StatefulWidget {
     return position == totalItem - 1;
   }
 
+  String getTitle();
+
   void saveForm() {}
 
 }

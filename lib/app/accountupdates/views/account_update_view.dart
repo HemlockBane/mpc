@@ -10,20 +10,19 @@ import 'package:moniepoint_flutter/app/accountupdates/views/additional_info_view
 import 'package:moniepoint_flutter/app/accountupdates/views/customer_address_view.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/customer_identification_view.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/dialogs/account_update_dialog.dart';
-import 'package:moniepoint_flutter/app/accountupdates/views/dialogs/tier_requirement_dialog.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/next_of_kin_view.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/proof_of_address_view.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet_state.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/lazy.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
-import 'package:moniepoint_flutter/core/tuple.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/views/pie_progress_bar.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:provider/provider.dart';
 
+import 'account_restriction_view.dart';
 import 'document_verification_view.dart';
 
 class AccountUpdateScreen extends StatefulWidget {
@@ -74,13 +73,13 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> {
 
   void _displayBottomSheet() {
     if(_viewModel.tiers.isEmpty) return;
-    Scaffold.of(context).showBottomSheet(
-        (context) => TierRequirementDialog(
-            _viewModel.tiers,
-            _viewModel.getFormWeightedProgress(),
-            Tuple(0, BottomSheetState.COLLAPSED)
-        ),
-    );
+    // Scaffold.of(context).showBottomSheet(
+    //     (context) => TierRequirementDialog(
+    //         _viewModel.tiers,
+    //         _viewModel.getFormWeightedProgress(),
+    //         Tuple(0, BottomSheetState.COLLAPSED)
+    //     ),
+    // );
   }
 
   List<PagedForm> _getDisplayableFormsForAccountUpdate() {
@@ -97,7 +96,7 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> {
 
     flags.where((element) => element != null).forEach((flag) {
       //if the flag status is false and it's required then we need to add it up
-      if(!flag!.status && _formsMap.containsKey(flag.flagName))  {
+      if(!flag!.status && _formsMap.containsKey(flag.flagName)) {
         final pageForm = _formsMap[flag.flagName];
         if(pageForm != null) forms.add(pageForm.value);
       }
@@ -268,13 +267,7 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> {
   }
 
   List<String> getPageTitles() {
-    return List.unmodifiable([
-      "Additional Info",
-      "Customer ID",
-      "Customer Address",
-      "Proof of Address",
-      "Next of Kin",
-    ]);
+    return _pages.map((e) => e.getTitle()).toList();
   }
 
   @override
@@ -326,6 +319,15 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> {
                       child: Column(
                         // mainAxisAlignment: MainAxisAlignment.,
                         children: [
+                          if(UserInstance().accountStatus?.postNoDebit == true )
+                            Expanded(
+                                flex:0,
+                                child: Padding(
+                                  padding: EdgeInsets.only(left: 16, right: 16),
+                                  child: AccountRestrictionView(),
+                                )
+                            ),
+                          SizedBox(height: UserInstance().accountStatus?.postNoDebit == true ? 8 : 0,),
                           FutureBuilder(
                             future: Future.value(true),
                             builder: (BuildContext mContext, AsyncSnapshot<void> snap) {

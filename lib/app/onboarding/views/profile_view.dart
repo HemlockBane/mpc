@@ -10,6 +10,7 @@ import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/network/network_bound_resource.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/strings.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
@@ -18,9 +19,7 @@ import 'package:moniepoint_flutter/core/views/pin_entry.dart';
 import 'package:provider/provider.dart';
 import 'package:moniepoint_flutter/core/utils/text_utils.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
-
 import '../username_validation_state.dart';
-
 
 class ProfileScreen extends StatefulWidget {
   late final GlobalKey<ScaffoldState> _scaffoldKey;
@@ -63,10 +62,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           isScrollControlled: true,
           backgroundColor: Colors.transparent,
           builder: (context) {
-            final message = (_isNewAccount) ?"Account Created Successfully" : "Profile Created Successfully";
-            return BottomSheets.displaySuccessModal(context, title:"Success", message: message);
+            final message = (_isNewAccount) ? "Account Created Successfully" : "Profile Created Successfully";
+            return BottomSheets.displaySuccessModal(context, title:"Success", message: message, onClick: (){
+              Navigator.pushNamedAndRemoveUntil(context, Routes.LOGIN, (route) => false);
+            });
           });
-    }else if(resource is Error<T>) {
+    } else if(resource is Error<T>) {
       showModalBottomSheet(
           context: _scaffoldKey.currentContext ?? context,
           isScrollControlled: true,
@@ -163,8 +164,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildTermsLayout() {
-    final txt =
-        'By signing up you agree to our Terms & Conditions and Privacy Policy.';
+    final txt = 'By signing up you agree to our Terms & Conditions and Privacy Policy.';
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 24, vertical: 14),
       decoration: BoxDecoration(

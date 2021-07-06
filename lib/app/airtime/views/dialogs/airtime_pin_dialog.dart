@@ -60,11 +60,13 @@ class _AirtimePinDialog extends TransactionPinDialogState<AirtimePinDialog> {
                 Container(
                   color: Colors.colorPrimaryDark.withOpacity(0.05),
                   padding: EdgeInsets.all(18),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: Column(
                     children: [
-                      Column(
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text('Amount', style: TextStyle(color: Colors.solidDarkBlue, fontSize: 15)),
@@ -77,20 +79,9 @@ class _AirtimePinDialog extends TransactionPinDialogState<AirtimePinDialog> {
                                       fontWeight: FontWeight.bold
                                   )
                               ),
-                              SizedBox(height: 14,),
-                              Text('Beneficiary', style: TextStyle(color: Colors.solidDarkBlue, fontSize: 15)),
-                              SizedBox(height: 2,),
-                              Text(
-                                  "${viewModel.beneficiary!.getBeneficiaryDigits()} $beneficiaryName",
-                                  style: TextStyle(
-                                      color: Colors.solidDarkBlue,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold
-                                  )
-                              ),
                             ],
-                      ),
-                      Column(
+                          ),
+                          Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text('Network', style: TextStyle(color: Colors.solidDarkBlue, fontSize: 15)),
@@ -114,6 +105,33 @@ class _AirtimePinDialog extends TransactionPinDialogState<AirtimePinDialog> {
                               ),
                             ],
                           ),
+                        ],
+                      ),
+                      SizedBox(height: 14,),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Beneficiary', style: TextStyle(color: Colors.solidDarkBlue, fontSize: 15)),
+                                  SizedBox(height: 2,),
+                                  Text(
+                                      "${viewModel.beneficiary!.getBeneficiaryDigits()} $beneficiaryName",
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                          color: Colors.solidDarkBlue,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold
+                                      )
+                                  )
+                                ],
+                              )
+                          )
+                        ],
+                      )
                     ],
                   ),
                 ),

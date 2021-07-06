@@ -1,6 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart' hide ScrollView, Colors;
 import 'package:flutter_svg/svg.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/accountupdates/viewmodels/account_update_view_model.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -20,12 +21,15 @@ class ProofOfAddressScreen extends PagedForm {
   State<StatefulWidget> createState() {
     return _ProofOfAddressScreen();
   }
+
+  @override
+  String getTitle() => "Proof Of Address";
 }
 
 class _ProofOfAddressScreen extends State<ProofOfAddressScreen> with AutomaticKeepAliveClientMixin {
 
   UploadState _fileUploadState = UploadState.NONE;
-  String uploadedFileName = "Upload International Passport";
+  String uploadedFileName = "Upload Proof of Address";
   bool _isLoading = false;
 
   void _saveForm() {
@@ -58,12 +62,19 @@ class _ProofOfAddressScreen extends State<ProofOfAddressScreen> with AutomaticKe
     }
   }
 
-  Map<String, Tuple<Color, VoidCallback?>> getColoredTier() {
-    return {
-      "Tier 2": Tuple(Colors.primaryColor, null),
-      "Tier 3": Tuple(Colors.primaryColor, null),
-    };
+  Map<String, Tuple<Color, VoidCallback?>> getColoredTier(List<String> requiredTiers) {
+    final Map<String, Tuple<Color, VoidCallback?>> coloredTierMap = {};
+    requiredTiers.forEach((element) {
+      coloredTierMap[element] = Tuple(Colors.primaryColor, null);
+    });
+    return coloredTierMap;
   }
+
+  List<String> getRequiredTier(List<Tier> tiers) {
+    final requiredTiers = tiers.where((element) => element.alternateSchemeRequirement?.addressInfo == true);
+    return requiredTiers.map((e) => e.name?.replaceAll("Moniepoint Customers ", "") ?? "").toList();
+  }
+
 
   void _chooseIdentificationImage() async  {
     final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
@@ -137,6 +148,9 @@ class _ProofOfAddressScreen extends State<ProofOfAddressScreen> with AutomaticKe
     super.build(context);
     final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
 
+    final requiredTiers = getRequiredTier(viewModel.tiers);
+    final requiredTierText = "Required for ${requiredTiers.join(", ")}";
+
     return ScrollView(
       child: Container(
         padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
@@ -166,8 +180,8 @@ class _ProofOfAddressScreen extends State<ProofOfAddressScreen> with AutomaticKe
                           style: TextStyle(color: Colors.textColorBlack, fontSize: 15, fontWeight: FontWeight.bold)
                       ),
                       SizedBox(height: 1),
-                      Text('Required for Tier 2,  Tier 3', style: TextStyle(color: Colors.deepGrey, fontFamily: Styles.defaultFont, fontSize: 12),)
-                          .colorText(getColoredTier()),
+                      Text('$requiredTierText', style: TextStyle(color: Colors.deepGrey, fontFamily: Styles.defaultFont, fontSize: 12),)
+                          .colorText(getColoredTier(requiredTiers)),
                     ],
                   )),
                   SizedBox(width: 8),

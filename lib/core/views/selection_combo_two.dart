@@ -46,8 +46,8 @@ class SelectionCombo2<T> extends StatefulWidget {
 
 class _SelectionCombo2<T> extends State<SelectionCombo2<T>>
     with SingleTickerProviderStateMixin {
-  final titleStyle = const TextStyle(fontSize: 14, color: Colors.colorPrimaryDark, fontWeight: FontWeight.bold);
-  final subtitleStyle = const TextStyle(fontSize: 12, color: Colors.deepGrey, fontFamily: Styles.defaultFont);
+  final titleStyle = const TextStyle(fontSize: 14, color: Colors.colorPrimaryDark, fontWeight: FontWeight.bold, fontFamily: Styles.defaultFont, fontFamilyFallback: ["Roboto"]);
+  final subtitleStyle = const TextStyle(fontSize: 12, color: Colors.deepGrey, fontFamily: Styles.defaultFont, fontFamilyFallback: ["Roboto"]);
   late final _animationController = AnimationController(vsync: this, duration: Duration(milliseconds: 500));
   late final _animation = Tween(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.fastOutSlowIn)

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart' hide ScrollView, Colors;
 import 'package:flutter/services.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:moniepoint_flutter/app/login/viewmodels/recovery_view_model.dart';
 import 'package:moniepoint_flutter/app/login/views/recovery/recovery_controller_screen.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/data/recovery_response.dart';
@@ -61,43 +60,46 @@ class _RecoverUsernameScreen extends State<RecoverUsernameScreen> {
           children: [
             Expanded(
                 child: Center(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Recover Username',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: Colors.colorPrimaryDark,
-                        fontSize: 25,
-                        fontWeight: FontWeight.w600),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                      'Please enter the account number and BVN linked to the forgotten username.',
-                      textAlign: TextAlign.start,
-                      style: TextStyle(
-                          color: Colors.textColorBlack,
-                          fontSize: 15,
-                          fontWeight: FontWeight.normal)),
-                  SizedBox(height: 44),
-                  StreamBuilder(
-                    stream: viewModel.userRecoveryForm.accountNumberStream,
-                    builder: (context, snapshot) {
-                      return Styles.appEditText(
-                          hint: 'Account Number',
-                          maxLength: 10,
-                          inputFormats: [
-                            FilteringTextInputFormatter.digitsOnly
-                          ],
-                          animateHint: true,
-                          onChanged: viewModel.userRecoveryForm.onAccountNumberChanged,
-                          errorText: snapshot.hasError
-                              ? snapshot.error.toString()
-                              : null,
-                          startIcon: Icon(CustomFont.bankIcon,
-                              color: Colors.colorFaded));
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Recover Username',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                            color: Colors.colorPrimaryDark,
+                            fontSize: 25,
+                            fontWeight: FontWeight.w600
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                          'Please enter the account number and BVN linked to the forgotten username.',
+                          textAlign: TextAlign.start,
+                          style: TextStyle(
+                              color: Colors.textColorBlack,
+                              fontSize: 15,
+                              fontWeight: FontWeight.normal)
+                      ),
+                      SizedBox(height: 44),
+                      StreamBuilder(
+                        stream: viewModel.userRecoveryForm.accountNumberStream,
+                        builder: (context, snapshot) {
+                          return Styles.appEditText(
+                              hint: 'Account Number',
+                              maxLength: 10,
+                              inputFormats: [
+                                FilteringTextInputFormatter.digitsOnly
+                              ],
+                              animateHint: true,
+                              onChanged: viewModel.userRecoveryForm.onAccountNumberChanged,
+                              errorText: snapshot.hasError
+                                  ? snapshot.error.toString()
+                                  : null,
+                              startIcon: Icon(CustomFont.bankIcon,
+                              color: Colors.colorFaded)
+                          );
                     },
                   ),
                   SizedBox(height: 16),

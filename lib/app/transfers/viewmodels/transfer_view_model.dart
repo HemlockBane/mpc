@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
@@ -79,7 +78,7 @@ class TransferViewModel extends BaseViewModel with PaymentViewModel {
 
   @override
   bool validityCheck() {
-    return (this.amount ?? 0.00) > 0 && sourceAccount != null;
+    return (this.amount ?? 0.00) >= 1 && sourceAccount != null;
   }
 
   bool isIntra() {

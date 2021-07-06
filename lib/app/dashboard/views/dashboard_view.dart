@@ -1,11 +1,12 @@
 import 'package:drawerbehavior/drawerbehavior.dart';
 import 'package:flutter/material.dart' hide ScrollView, Colors;
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:lottie/lottie.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_status.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/customer/customer.dart';
 import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
+import 'package:moniepoint_flutter/app/dashboard/views/dashboard_drawer_view.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/bottom_menu_view.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_container_view.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
@@ -14,9 +15,7 @@ import 'package:moniepoint_flutter/core/login_mode.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
-import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/biometric_helper.dart';
-import 'package:moniepoint_flutter/core/utils/dashboard_util.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/viewmodels/finger_print_alert_view_model.dart';
 import 'package:moniepoint_flutter/core/views/dots_indicator.dart';
@@ -33,7 +32,7 @@ class DashboardScreen extends StatefulWidget {
   }
 }
 
-class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserver , TickerProviderStateMixin{
+class _DashboardScreen extends State<DashboardScreen> with TickerProviderStateMixin{
 
   late final AnimationController _bottomMenuController = AnimationController(
       duration: Duration(milliseconds: 700),vsync: this
@@ -43,16 +42,17 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
   late DashboardViewModel _viewModel;
 
   PageController _pageController = PageController(viewportFraction: 1);
-  GlobalKey<DashboardContainerViewState> _dashboardContainerState = GlobalKey();
   DrawerScaffoldController _drawerScaffoldController = DrawerScaffoldController();
   final pages = [];
 
   Widget _dashboardUpdateItem() {
     final width = MediaQuery.of(context).size.width * 0.13;
     return Material(
+      color: Colors.transparent,
       child: Card(
         shadowColor: Colors.primaryColor.withOpacity(0.1),
-        elevation: 4,
+        elevation: 0,
+        color: Colors.primaryColor.withOpacity(0.1),
         margin: EdgeInsets.only(left: width, right: width, bottom: 8, top: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: InkWell(
@@ -61,24 +61,31 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
               ? Navigator.of(context).pushNamed(Routes.ACCOUNT_UPDATE).then((_) => subscribeUiToAccountStatus())
               : setState(() => {}),
           child: Container(
-            padding: EdgeInsets.only(left: 0, right: 16, top: 0, bottom: 0),
+            padding: EdgeInsets.only(left: 16, right: 16, top: 0, bottom: 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Lottie.asset('res/drawables/dashboard_pop_icon.json', repeat: true),
-                Flexible(child: Column(
+                SvgPicture.asset('res/drawables/ic_upgrade_account_2.svg',),
+                SizedBox(width: 16),
+                Expanded(child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Upgrade Account', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.textColorBlack, fontSize: 17)),
+                    Text('Upgrade Account', style: TextStyle(fontWeight: FontWeight.bold,color: Colors.primaryColor, fontSize: 15)),
                     SizedBox(height: 2),
-                    Text('Upgrade your savings account to enjoy higher limits',
-                        style: TextStyle(color: Colors.textColorBlack, fontSize: 12)
+                    Text('Upgrade your savings account\nto enjoy higher limits',
+                        style: TextStyle(color: Colors.textColorBlack, fontSize: 12, fontWeight: FontWeight.normal)
                     )
                   ],
                 )),
                 SizedBox(width: 16),
-                SvgPicture.asset('res/drawables/ic_forward_arrow.svg', color: Colors.primaryColor)
+                Expanded(
+                    flex: 0,
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: SvgPicture.asset('res/drawables/ic_forward_arrow.svg', color: Colors.primaryColor),
+                    )
+                )
               ],
             ),
           ),
@@ -92,6 +99,7 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
     final width = MediaQuery.of(context).size.width * 0.13;
 
     return Material(
+      color: Colors.transparent,
       child: Card(
         shadowColor: Colors.primaryColor.withOpacity(0.1),
         elevation: 4,
@@ -132,14 +140,15 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
 
   void _refreshDashboard() {
     setState(() {});
-    _viewModel.getUserAccountsBalance(useLocal: false).listen((event) {});
+    print("refreshing dashboard");
+    // _viewModel.getUserAccountsBalance(useLocal: false).listen((event) {});
     subscribeUiToAccountStatus();
   }
 
   void subscribeUiToAccountStatus() {
     final viewModel = Provider.of<DashboardViewModel>(context, listen: false);
     viewModel.fetchAccountStatus().listen((event) {
-      if(event.data is Success) setState(() {});
+      if(event is Success) viewModel.update();
     });
   }
 
@@ -160,151 +169,28 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
     });
   }
 
-  Widget initialView({Color? backgroundColor, required Widget image}) {
-    return Container(
-      width: 40,
-      height: 40,
-      padding: EdgeInsets.all(0),
-      decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.white.withOpacity(0.1)
-      ),
-      child: Center(
-        child: image,
-      ),
-    );
-  }
-
-  Widget _drawerListItem(String title, Widget res, VoidCallback onClick) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        highlightColor: Colors.white.withOpacity(0.1),
-        overlayColor: MaterialStateProperty.all(Colors.white.withOpacity(0.02)),
-        onTap: onClick,
-        child: Container(
-          padding: EdgeInsets.only(left: 24, right: 0, top: 16, bottom: 16),
-          child: Row(
-            children: [
-              initialView(
-                  image: res
-              ),
-              SizedBox(width: 20,),
-              Text(title, style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600, fontFamily: Styles.defaultFont),)
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _drawerListContent() {
-    return Container(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(height: 24,),
-          Padding(
-            padding: EdgeInsets.only(right: 16),
-            child: _drawerListItem('Account', SvgPicture.asset('res/drawables/ic_drawer_accounts.svg', color: Colors.white, width: 22, height: 22,), (){
-              Navigator.of(context).pushNamed(Routes.ACCOUNT_TRANSACTIONS).then((value) => _refreshDashboard());
-              _closeDrawerWithDelay();
-            }),
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 24, right: 16),
-            child: Divider(height: 1, color: Colors.white.withOpacity(0.09),),
-          ),
-          Padding(
-            padding: EdgeInsets.only(right: 16),
-            child: _drawerListItem('Transfer',  SvgPicture.asset('res/drawables/ic_menu_transfer.svg', color: Colors.white,  width: 20, height: 20,) , (){
-              _closeDrawerWithDelay().then((value) => Navigator.of(context).pushNamed(Routes.TRANSFER).then((value) => _refreshDashboard()));
-            }),
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 24, right: 16),
-            child: Divider(height: 1, color: Colors.white.withOpacity(0.09),),
-          ),
-          Padding(
-            padding: EdgeInsets.only(right: 16),
-            child: _drawerListItem('Airtime & Data', SvgPicture.asset('res/drawables/ic_drawer_airtime_data.svg', color: Colors.white, width: 23, height: 23,), (){
-              Navigator.of(context).pushNamed(Routes.AIRTIME).then((value) => _refreshDashboard());
-              _closeDrawerWithDelay();
-            }),
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 24, right: 16),
-            child: Divider(height: 1, color: Colors.white.withOpacity(0.09),),
-          ),
-          Padding(
-            padding: EdgeInsets.only(right: 16),
-            child: _drawerListItem('Bill Payment',  SvgPicture.asset('res/drawables/ic_menu_bills.svg', color: Colors.white, width: 23, height: 23,), (){
-              Navigator.of(context).pushNamed(Routes.BILL).then((value) => _refreshDashboard());
-              _closeDrawerWithDelay();
-            }),
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 24, right: 16),
-            child: Divider(height: 1, color: Colors.white.withOpacity(0.09),),
-          ),
-          Padding(
-            padding: EdgeInsets.only(right: 16),
-            child: _drawerListItem('Card Management', SvgPicture.asset('res/drawables/ic_drawer_card_management.svg', color: Colors.white,  width: 16, height: 16,), (){
-              Navigator.of(context).pushNamed(Routes.CARDS).then((value) => _refreshDashboard());
-              _closeDrawerWithDelay();
-            }),
-          ),
-        ],
-      ),
-    );
-  }
-
-
-  Future<Null> _closeDrawerWithDelay() {
-    return Future.delayed(Duration(milliseconds: 200), (){
-      _drawerScaffoldController.closeDrawer();
-    });
-  }
-
-  Widget _drawerFooterView(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(left: 24, bottom: 55),
-      child: Row(
-        children: [
-          Styles.imageButton(
-              onClick: () {
-                Navigator.of(context).pushNamed(Routes.SETTINGS).then((value) => _refreshDashboard());
-                _closeDrawerWithDelay();
-              },
-              color: Colors.white.withOpacity(0.1),
-              padding: EdgeInsets.only(left: 9, right: 9, top: 8, bottom: 8),
-              image: SvgPicture.asset('res/drawables/ic_dashboard_settings.svg', width: 22, height: 22,),
-              borderRadius: BorderRadius.circular(30)
-          ),
-          SizedBox(width: 8,),
-          Styles.imageButton(
-              onClick: () {
-                UserInstance().resetSession();
-                _closeDrawerWithDelay().then((value) => Navigator.of(context).popAndPushNamed(Routes.LOGIN));
-              },
-              color: Colors.white.withOpacity(0.1),
-              padding: EdgeInsets.only(left: 8, right: 8, top: 8, bottom: 8),
-              image: SvgPicture.asset('res/drawables/ic_logout.svg', width: 22, height: 22,),
-              borderRadius: BorderRadius.circular(30)
-          ),
-          SizedBox(width: 8,)
-        ],
-      ),
-    );
+  void _onDashboardItemClicked(UserAccount userAccount, int position) {
+    if(UserInstance().accountStatus?.postNoDebit == false) {
+      Navigator.of(context)
+          .pushNamed(Routes.ACCOUNT_TRANSACTIONS,
+          arguments: {"customerAccountId": userAccount.customerAccount?.id})
+          .then((_) => _refreshDashboard()
+      );
+    } else {
+      Navigator.of(context)
+          .pushNamed(Routes.ACCOUNT_UPDATE).then((_) => subscribeUiToAccountStatus());
+    }
   }
 
   Widget _centerDashboardContainer(DashboardViewModel viewModel) {
-    // final width = MediaQuery.of(context).size.width * 0.13;
     final pageController = PageController(viewportFraction: 0.72);
+
+    final qualifiedTierIndex = Tier.getQualifiedTierIndex(viewModel.tiers);
+    final qualifiedTier = (viewModel.tiers.isNotEmpty) ? viewModel.tiers[qualifiedTierIndex] : null;
 
     return PageView.builder(
         controller: pageController,
-        itemCount: _viewModel.customers.length,
+        itemCount: _viewModel.customer?.customerAccountUsers?.length ?? 0,
         itemBuilder: (context, index) {
           return AnimatedBuilder(
               animation: pageController,
@@ -320,43 +206,45 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
 
                 final userAccount = _viewModel.userAccounts[index];
                 return Transform.rotate(
-                    angle: - rotateTo.toDouble(),
+                    angle: (selectedPage == index) ? 0 : - rotateTo.toDouble(),
                     child: Transform.scale(
                         scale: scaleTo.toDouble(),
                         alignment: AlignmentDirectional.centerEnd,
                         origin: Offset(-150, 200),
-                        child: Hero(
-                            tag: "dashboard-balance-view-$index",
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: UserInstance().accountStatus?.postNoDebit != true
-                                            ? Colors.primaryColor.withOpacity(0.2)
-                                            : Colors.postNoDebitColor,
-                                        offset: Offset(0, 4),
-                                        blurRadius: 5,
-                                        spreadRadius: 1
-                                    )
-                                  ]
-                              ),
-                              child: Material(
-                                borderRadius: BorderRadius.circular(16),
-                                child: InkWell(
-                                    customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                    onTap: () {
-                                      Navigator.of(context).pushNamed(Routes.ACCOUNT_TRANSACTIONS, arguments: {"customerAccountId": userAccount.customerAccount?.id}).then((_) => _refreshDashboard());
-                                    },
-                                    child: DashboardContainerView(
-                                      key: Key("$index"),
-                                      viewModel: _viewModel,//TODO don't pass the view-model
-                                      userAccount: userAccount,
-                                      position: index,
-                                    )
+                        child: Padding(
+                          padding: EdgeInsets.only(bottom: 24),
+                          child: Hero(
+                              tag: "dashboard-balance-view-${userAccount.customerAccount?.id}",
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: UserInstance().accountStatus?.postNoDebit != true
+                                              ? Colors.primaryColor.withOpacity(0.2)
+                                              : Colors.postNoDebitColor,
+                                          offset: Offset(0, 4),
+                                          blurRadius: 5,
+                                          spreadRadius: 1
+                                      )
+                                    ]
                                 ),
-                              ),
-                            )
+                                child: Material(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: InkWell(
+                                      customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                      onTap: () => _onDashboardItemClicked(userAccount, index),
+                                      child: DashboardContainerView(
+                                        key: Key("$index"),
+                                        viewModel: _viewModel,//TODO don't pass the view-model
+                                        userAccount: userAccount,
+                                        position: index,
+                                        qualifiedTier: qualifiedTier,
+                                      )
+                                  ),
+                                ),
+                              )
+                          ),
                         )
                     ),
                 );
@@ -374,122 +262,76 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
       extendBodyBehindAppBar: true,
       resizeToAvoidBottomInset: false,
       drawers: [
-        SideDrawer(
-          alignment: Alignment.topLeft,
-          direction: Direction.left, // Drawer position, left or right
-          animation: true,
-          color: Colors.colorPrimaryDark,
-          percentage: 0.54,
-          child: _drawerListContent(),
-          footerView: _drawerFooterView(context),
-          headerView: Container(
-            padding: EdgeInsets.only(left: 24, right: 24, top: 40),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    SvgPicture.asset('res/drawables/ic_moniepoint_cube.svg', width: 50, height: 50,),
-                    Styles.imageButton(
-                        color: Colors.transparent,
-                        image: SvgPicture.asset('res/drawables/ic_cancel_dashboard.svg'),
-                        onClick: () => _drawerScaffoldController.closeDrawer()
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 68,
-                ),
-                Row(
-                  children: [
-                    DashboardUtil.getGreetingIcon(DashboardUtil.getTimeOfDay()),
-                    SizedBox(width: 16,),
-                    Flexible(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                'Good ${DashboardUtil.getTimeOfDay()}',
-                              style: TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              _viewModel.accountName,
-                              style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
-                            )
-                          ],
-                        )
-                    )
-                  ],
-                ),
-                SizedBox(height: 32,),
-                Row(
-                  children: [
-                    Text('NAVIGATION', style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12, letterSpacing: 0.14, fontWeight: FontWeight.w600),),
-                    SizedBox(width: 8,),
-                    Flexible(child: Divider(height:1,color: Colors.white.withOpacity(0.3)))
-                  ],
-                )
-              ],
-            ),
-          ),
-        )
+        DashboardDrawerView(
+            context, _drawerScaffoldController,
+            refreshCallback: _refreshDashboard,
+            accountName: _viewModel.accountName
+        ).getDrawer()
       ],
       builder: (mContext, a) {
         return  SessionedWidget(
             context: context,
-            child: Container(
-              width: double.infinity,
-              color: Colors.backgroundWhite,
-              child: Stack(
-                children: [
-                  ScrollView(
-                    child: Column(
-                      children: [
-                        Divider(color: Colors.dashboardTopBar, height: 4),
-                        SizedBox(height: MediaQuery.of(context).padding.top + 32),
-                        Text('OVERVIEW', style: TextStyle(color: Colors.textColorBlack, fontWeight: FontWeight.w400),),
-                        SizedBox(height: 32),
-                        SizedBox(
-                            height: 108,
-                            child: _buildDashboardSlider()
+            child: StreamBuilder(
+              stream: _viewModel.dashboardController,
+              builder: (ctx, _) {
+                return Container(
+                  width: double.infinity,
+                  color: Color(0XFFEBF2FA),
+                  child: Stack(
+                    children: [
+                      ScrollView(
+                        child: Column(
+                          children: [
+                            Divider(color: Colors.dashboardTopBar, height: 4),
+                            SizedBox(height: MediaQuery.of(context).padding.top + 32),
+                            Text('OVERVIEW', style: TextStyle(color: Colors.textColorBlack, fontWeight: FontWeight.w400),),
+                            SizedBox(height: 32),
+                            SizedBox(
+                                height: 90,
+                                child: _buildDashboardSlider()
+                            ),
+                            SizedBox(height: 8),
+                            DotIndicator(controller: _pageController, itemCount: pages.length, color: Colors.solidOrange,),
+                            SizedBox(height: 16),
+                            AspectRatio(
+                              aspectRatio: 3 / 2.8, //UserInstance().accountStatus?.postNoDebit == true ? 3 / 2.8 : 3 / 2.5,
+                              child: _centerDashboardContainer(_viewModel),
+                            ),
+                            SizedBox(height: 110),
+                          ],
                         ),
-                        SizedBox(height: 8),
-                        DotIndicator(controller: _pageController, itemCount: pages.length),
-                        SizedBox(height: 16),
-                        AspectRatio(
-                          aspectRatio: 3 / 3.1,
-                          child: _centerDashboardContainer(_viewModel),
-                        ),
-                        SizedBox(height: 110),
-                      ],
-                    ),
-                  ),
-                  Positioned(
-                      right: 20,
-                      left: 20,
-                      bottom: 0,
-                      child: SlideTransition(
-                          position: Tween<Offset>(begin: Offset(0, 1), end: Offset(0, 0))
-                              .animate(CurvedAnimation(parent: _bottomMenuController, curve: Curves.easeInToLinear)),
-                          child: DashboardBottomMenu(() => _refreshDashboard()),
+                      ),
+                      Positioned(
+                          right: 20,
+                          left: 20,
+                          bottom: 0,
+                          child: SlideTransition(
+                            position: Tween<Offset>(begin: Offset(0, 1), end: Offset(0, 0))
+                                .animate(CurvedAnimation(parent: _bottomMenuController, curve: Curves.easeInToLinear)),
+                            child: DashboardBottomMenu(() => _refreshDashboard()),
+                          )
                       )
-                  )
-                ],
-              ),
+                    ],
+                  ),
+                );
+              },
             )
         );
       },
     );
   }
 
+  void _onDashboardStartUp(){
+    _viewModel = Provider.of<DashboardViewModel>(context, listen: false);
+    _viewModel.getTiers().listen((event) {});
+  }
+
   @override
   void initState() {
-    _viewModel = Provider.of<DashboardViewModel>(context, listen: false);
-    _viewModel.getUserAccountsBalance(useLocal: false).listen((event) { });
+    _onDashboardStartUp();
     super.initState();
     _bottomMenuController.forward().whenComplete(() => "");
     _dashboardCardController.forward();
-    WidgetsBinding.instance?.addObserver(this);
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
       subscribeUiToAccountStatus();
     });
@@ -540,19 +382,10 @@ class _DashboardScreen extends State<DashboardScreen> with WidgetsBindingObserve
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    // _lifecycleState = state;
-    // if(state == AppLifecycleState.resumed) {
-    //   subscribeUiToAccountStatus();
-    // }
-  }
-
-  @override
   void dispose() {
     _dashboardCardController.dispose();
     _greetingCardController.dispose();
     _bottomMenuController.dispose();
-    WidgetsBinding.instance?.removeObserver(this);
     super.dispose();
   }
 }

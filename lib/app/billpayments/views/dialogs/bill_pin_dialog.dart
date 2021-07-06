@@ -57,25 +57,63 @@ class _BillPinDialog extends TransactionPinDialogState<BillPinDialog> {
                 Container(
                   color: Colors.colorPrimaryDark.withOpacity(0.05),
                   padding: EdgeInsets.all(18),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: Column(
                     children: [
-                      Flexible(
-                          child: Column(
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Amount', style: TextStyle(color: Colors.solidDarkBlue, fontSize: 15)),
+                                  SizedBox(height: 2,),
+                                  Text(
+                                      viewModel.amount!.formatCurrency,
+                                      style: TextStyle(
+                                          color: Colors.solidDarkBlue,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold
+                                      )
+                                  ),
+                                  SizedBox(height: 14,),
+                                ],
+                              )
+                          ),
+                          SizedBox(width: 4,),
+                          Flexible(child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text('Bill Product', style: TextStyle(color: Colors.solidDarkBlue, fontSize: 15)),
+                              SizedBox(height: 2),
+                              Container(
+                                padding: EdgeInsets.symmetric(vertical: 1, horizontal: 0),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(5),
+                                    color: Colors.transparent
+                                ),
+                                child: Center(
+                                  child: Text(
+                                      "${viewModel.billerProduct?.name}",
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                          color: Colors.solidDarkBlue,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold
+                                      )
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Amount', style: TextStyle(color: Colors.solidDarkBlue, fontSize: 15)),
-                              SizedBox(height: 2,),
-                              Text(
-                                  viewModel.amount!.formatCurrency,
-                                  style: TextStyle(
-                                      color: Colors.solidDarkBlue,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold
-                                  )
-                              ),
-                              SizedBox(height: 14,),
                               Text('Beneficiary', style: TextStyle(color: Colors.solidDarkBlue, fontSize: 15)),
                               SizedBox(height: 2,),
                               Text(
@@ -89,33 +127,8 @@ class _BillPinDialog extends TransactionPinDialogState<BillPinDialog> {
                               ),
                             ],
                           )
-                      ),
-                      SizedBox(width: 4,),
-                      Flexible(child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text('Bill Product', style: TextStyle(color: Colors.solidDarkBlue, fontSize: 15)),
-                          SizedBox(height: 2),
-                          Container(
-                            padding: EdgeInsets.symmetric(vertical: 1, horizontal: 0),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(5),
-                                color: Colors.transparent
-                            ),
-                            child: Center(
-                              child: Text(
-                                  "${viewModel.billerProduct?.name}",
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                      color: Colors.solidDarkBlue,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold
-                                  )
-                              ),
-                            ),
-                          ),
                         ],
-                      )),
+                      )
                     ],
                   ),
                 ),

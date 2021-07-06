@@ -194,6 +194,7 @@ class _LoginState extends State<LoginScreen> with SingleTickerProviderStateMixin
           isScrollControlled: true,
           backgroundColor: Colors.transparent,
           builder: (context) {
+            //TODO we might need a better way of identifying how to detect an upgrade
             if(event.message?.contains("version") == true) {
               return BottomSheets.displayWarningDialog('Update Moniepoint App', event.message ?? "", () {
                 Navigator.of(context).pop();
@@ -467,6 +468,26 @@ class _LoginState extends State<LoginScreen> with SingleTickerProviderStateMixin
                   context,
                   title: "Logged Out",
                   message: "your session timed out due to inactivity. Please re-login to continue",
+                  onClick: () {
+                    Navigator.of(context).pop();
+                    _startFingerPrintLoginProcess();
+                  }
+              );
+            }
+        );
+      });
+    } else if(reason.second == SessionTimeoutReason.LOGIN_REQUESTED && !_alreadyInSessionError) {
+      _alreadyInSessionError = true;
+      UserInstance().resetSession();
+      Future.delayed(Duration(milliseconds: 150), () {
+        showModalBottomSheet(
+            backgroundColor: Colors.transparent,
+            context: context,
+            builder: (BuildContext context) {
+              return BottomSheets.displayErrorModal(
+                  context,
+                  title: "Logged Out",
+                  message: "A Re-Login was needed for you to continue",
                   onClick: () {
                     Navigator.of(context).pop();
                     _startFingerPrintLoginProcess();

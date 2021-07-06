@@ -8,13 +8,14 @@ class DotIndicator extends AnimatedWidget {
   DotIndicator({
     required this.controller,
     required this.itemCount,
+    this.color = Colors.primaryColor,
   }) : super(listenable: controller);
 
   final PageController controller;
 
   final int itemCount;
 
-  final Color color = Colors.primaryColor;
+  final Color color;// = Colors.primaryColor;
 
   Widget _buildDot(int index) {
     num selectedPage = controller.page ?? controller.initialPage;

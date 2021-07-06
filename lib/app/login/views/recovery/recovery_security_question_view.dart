@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart' hide ScrollView, Colors;
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:moniepoint_flutter/app/login/viewmodels/recovery_view_model.dart';
 import 'package:moniepoint_flutter/app/login/views/recovery/recovery_controller_screen.dart';
 import 'package:moniepoint_flutter/app/securityquestion/model/data/security_question.dart';

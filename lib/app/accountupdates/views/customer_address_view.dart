@@ -18,6 +18,11 @@ class CustomerAddressScreen extends PagedForm {
   State<StatefulWidget> createState() {
     return _CustomerAddressScreen();
   }
+
+  @override
+  String getTitle() {
+    return "Customer Address";
+  }
 }
 
 class _CustomerAddressScreen extends State<CustomerAddressScreen> with AutomaticKeepAliveClientMixin {

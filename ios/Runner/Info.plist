@@ -38,6 +38,8 @@
 	<string>$(PRODUCT_NAME) requires access to your camera to allow you take pictures of yourself when on-boarding as a customer and to help us validate your identity.</string>
 	<key>NSContactsUsageDescription</key>
 	<string>$(PRODUCT_NAME) requires access to your contacts, to allow you offer in-app services directly to the contact of your chosen.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>$(PRODUCT_NAME) uses this to securely grant you access to Moniepoint</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>$(PRODUCT_NAME) uses this to make some feature work, record the location of a transaction, display to you where a certain transactions occurred and to assist us during investigation when clearing disputes. You can always change this later in your phone settings.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
@@ -61,8 +63,6 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>

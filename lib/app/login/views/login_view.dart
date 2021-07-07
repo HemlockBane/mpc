@@ -236,9 +236,9 @@ class _LoginState extends State<LoginScreen> with SingleTickerProviderStateMixin
 
   void _startFingerPrintLoginProcess() async {
     final viewModel = Provider.of<LoginViewModel>(context, listen: false);
-    final value = await _biometricHelper?.isFingerPrintAvailable();
+    final biometricType = await _biometricHelper?.getBiometricType();
     final hasFingerPrint = (await _biometricHelper?.getFingerprintPassword()) != null;
-    if(value?.first == true) {
+    if(biometricType != BiometricType.NONE) {
       if(PreferenceUtil.getFingerPrintEnabled() && hasFingerPrint){
         _biometricHelper?.authenticate(authenticationCallback: (key, msg) {
             if(key != null) {
@@ -270,9 +270,9 @@ class _LoginState extends State<LoginScreen> with SingleTickerProviderStateMixin
 
   void _displayLoginOptions() async {
     final biometricHelper = BiometricHelper.getInstance();
-    final Tuple<bool, String?> availability = await biometricHelper.isFingerPrintAvailable();
+    final biometricType = await biometricHelper.getBiometricType();
     final fingerprintPassword = await biometricHelper.getFingerprintPassword();
-    final isFingerprintAvailable = availability.first;
+    final isBiometricAvailable = biometricType != BiometricType.NONE;
     final isFingerprintSetup = fingerprintPassword != null;
 
     final result = await showModalBottomSheet(
@@ -287,7 +287,7 @@ class _LoginState extends State<LoginScreen> with SingleTickerProviderStateMixin
               centerImageBackgroundColor: Colors.primaryColor.withOpacity(0.1),
               content: LoginOptionsDialogLayout.getLayout(
                   context,
-                  isFingerprintAvailable: isFingerprintAvailable,
+                  isFingerprintAvailable: isBiometricAvailable,
                   hasFingerprintPassword: isFingerprintSetup
               )
           );

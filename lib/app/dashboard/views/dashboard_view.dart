@@ -347,11 +347,12 @@ class _DashboardScreen extends State<DashboardScreen> with TickerProviderStateMi
     if (fingerprintRequestCount >= 2 || PreferenceUtil.getLoginMode() == LoginMode.ONE_TIME) return;
     final biometricHelper = BiometricHelper.getInstance();
 
-    final isFingerPrintAvailable = await biometricHelper.isFingerPrintAvailable();
+    final biometricType = await biometricHelper.getBiometricType();
     final hasFingerprintPassword = (await biometricHelper.getFingerprintPassword()) != null;
-
-    if (isFingerPrintAvailable.first && !hasFingerprintPassword) {
+    print("This is the Biometric Type $biometricType");
+    if (biometricType != BiometricType.NONE && !hasFingerprintPassword) {
       PreferenceUtil.setFingerprintRequestCounter(fingerprintRequestCount + 1);
+
       final result = await showModalBottomSheet(
           backgroundColor: Colors.transparent,
           isScrollControlled: true,
@@ -363,12 +364,21 @@ class _DashboardScreen extends State<DashboardScreen> with TickerProviderStateMi
           });
 
       if (result != null && result is bool) {
+
+        final successTitle = (biometricType == BiometricType.FINGER_PRINT)
+            ? "Fingerprint setup"
+            : "Face ID setup";
+
+        final successMessage = (biometricType == BiometricType.FINGER_PRINT)
+            ? "Fingerprint Setup successfully"
+            : "Face ID Setup successfully";
+
         showModalBottomSheet(
             backgroundColor: Colors.transparent,
             context: context,
             builder: (mContext) => BottomSheets.displaySuccessModal(mContext,
-                title: "Fingerprint setup",
-                message: "Fingerprint Setup successfully"
+                title: successTitle,
+                message: successMessage
             )
         );
       } else if (result is Error<bool>) {

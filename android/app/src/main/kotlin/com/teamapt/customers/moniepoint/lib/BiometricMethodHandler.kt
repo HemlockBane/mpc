@@ -14,6 +14,7 @@ class BiometricMethodHandler(private val mActivity: FragmentActivity) : MethodCh
         when (call.method) {
             "initialize" -> initialize(call, reply)
             "isFingerPrintAvailable" -> isFingerprintAvailable(call, reply)
+            "get_biometric_type" -> getBiometricType(call, reply)
             "get_finger_print_password" -> getFingerprintPassword(call, reply)
             "remove_finger_print_password" -> removeFingerprintPassword(call, reply)
         }
@@ -43,6 +44,15 @@ class BiometricMethodHandler(private val mActivity: FragmentActivity) : MethodCh
     private fun removeFingerprintPassword(call: MethodCall, reply: MethodChannel.Result) {
         biometricChannel.deleteFingerprintPassword()
         reply.success(true)
+    }
+
+    private fun getBiometricType(call: MethodCall, reply: MethodChannel.Result) {
+        val pair = biometricChannel.isFingerPrintAuthAvailable()
+        if (pair.first) {
+            reply.success(mapOf("biometric_type" to "FACE_ID"))
+        } else {
+            reply.success(mapOf("biometric_type" to "NONE"))
+        }
     }
 
     inner class BiometricStreamHandler : EventChannel.StreamHandler {

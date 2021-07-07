@@ -265,7 +265,7 @@ class _UserDeviceListItem extends StatelessWidget{
                             Visibility(
                               visible: isLoggedInDevice,
                               child: TextButton(
-                                onPressed: () => Navigator.of(context).pop(),
+                                onPressed: () => null,
                                 child: Text('Logged In',
                                   style: TextStyle(color: Colors.solidOrange, fontSize: 12, fontWeight: FontWeight.bold),
                                 ),

@@ -1,4 +1,4 @@
-import 'dart:typed_data';
+  import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/fee_vat_config.dart';

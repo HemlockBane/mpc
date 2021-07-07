@@ -6,12 +6,13 @@ import AmplifyPlugins
 import AWSPredictionsPlugin
 import AWSRekognition
 import AWSPredictionsPlugin
+import LocalAuthentication
 
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
   let LIVELINESS_CHANNEL: String = "moniepoint.flutter.dev/liveliness"
-  let BIOMETRICS_CHANNEL: String = "moniepoint.flutter.dev/biometrics"
+  let BIOMETRICS_CHANNEL: String = "moniepoint.flutter.dev/biometric"
 
     
   override func application(
@@ -26,21 +27,10 @@ import AWSPredictionsPlugin
     
     let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
     self.registerLiveliness(controller:controller)
+    BiometricMethodHandler(controller: controller).registerBiometricsMethodHandler()
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
-    
-    private func registerBiometrics(controller: FlutterViewController) {
-        let biometricsChannel = FlutterMethodChannel(name: BIOMETRICS_CHANNEL, binaryMessenger: controller.binaryMessenger)
-        let access = SecAccessControlCreateWithFlags(
-            nil, kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly,
-            .biometryAny, nil
-        )
-        let server = "www.teamapt.com"
-        biometricsChannel.setMethodCallHandler { (call: FlutterMethodCall, reply: @escaping FlutterResult) in
-            
-        }
-    }
-    
+       
   private func initializeAmplify() {
     do {
         Amplify.Logging.logLevel = LogLevel.info

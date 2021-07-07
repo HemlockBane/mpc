@@ -117,7 +117,6 @@ class _SettingsScreen extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bool hideAccountBal = PreferenceUtil.getValueForLoggedInUser(PreferenceUtil.HIDE_ACCOUNT_BAL) ?? false;
     final bool isFingerPrintEnabled = PreferenceUtil.getFingerPrintEnabled();
 
     return Scaffold(

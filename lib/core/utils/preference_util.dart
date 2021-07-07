@@ -145,4 +145,18 @@ class PreferenceUtil {
     final username = getSavedUsername();
     return _preferences?.getInt("$username-$FINGER_PRINT_REQUEST_COUNTER") ?? 0;
   }
+
+  //ios only
+  static void setFingerprintPassword(String? password) {
+    if(password == null) {
+      _preferences?.remove("ios-finger-print-password");
+      return;
+    }
+    _preferences?.setString("ios-finger-print-password", password);
+  }
+
+  //ios only
+  static String? getFingerprintPassword() {
+    return _preferences?.getString("ios-finger-print-password");
+  }
 }

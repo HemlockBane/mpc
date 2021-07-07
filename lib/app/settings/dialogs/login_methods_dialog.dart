@@ -13,6 +13,7 @@ class LoginMethodsDialog extends StatefulWidget {
 
 class _LoginMethodDialog extends State<LoginMethodsDialog> {
 
+  BiometricType? _biometricType;
   bool _isFingerprintAvailable = false;
   bool _isFingerprintSetup = false;
 
@@ -31,9 +32,9 @@ class _LoginMethodDialog extends State<LoginMethodsDialog> {
 
   void _initializeState() async {
     final biometricHelper = BiometricHelper.getInstance();
-    final Tuple<bool, String?> availability = await biometricHelper.isFingerPrintAvailable();
+    _biometricType = await biometricHelper.getBiometricType();
     final fingerprintPassword = await biometricHelper.getFingerprintPassword();
-    _isFingerprintAvailable = availability.first;
+    _isFingerprintAvailable = _biometricType != BiometricType.NONE;
     _isFingerprintSetup = fingerprintPassword != null;
     Future.delayed(Duration(milliseconds: 100), () => setState(() {}));
   }
@@ -46,6 +47,12 @@ class _LoginMethodDialog extends State<LoginMethodsDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final biometricTitle = (_biometricType == BiometricType.FINGER_PRINT)
+        ? "Use Fingerprint"
+        : (_biometricType == BiometricType.FACE_ID)
+            ? "Use Face ID"
+            : "Use Fingerprint/FaceID";
+
     return BottomSheets.makeAppBottomSheet(
         curveBackgroundColor: Colors.white,
         centerImageBackgroundColor: Colors.primaryColor.withOpacity(0.1),
@@ -122,7 +129,7 @@ class _LoginMethodDialog extends State<LoginMethodsDialog> {
                   ),
                   value: !_isFingerprintAvailable ? false : PreferenceUtil.getFingerPrintEnabled(),
                   onChanged: _onFingerprintSwitched,
-                  title: Text('Use Fingerprint', style: TextStyle(fontSize: 18, color: Colors.textColorMainBlack),),
+                  title: Text(biometricTitle, style: TextStyle(fontSize: 18, color: Colors.textColorMainBlack),),
                   subtitle: (!_isFingerprintAvailable || !_isFingerprintSetup)
                       ? Text(!_isFingerprintAvailable ? 'Device not supported' : 'Fingerprint not setup', style: TextStyle(fontSize: 14, color: Colors.textColorMainBlack.withOpacity(0.3)),)
                       : null,

@@ -7,11 +7,11 @@ class PostNoDebitInfo {
   final String? status;
   final String? postNoDebitReason;
   final String? postNoDebitAction;
-  final int? permittedSingleCredit;
-  final int? recordedSingleCredit;
-  final int? permittedDailyCredit;
-  final int? recordedDailyCredit;
-  final int? permittedCumulativeBalance;
+  final double? permittedSingleCredit;
+  final double? recordedSingleCredit;
+  final double? permittedDailyCredit;
+  final double? recordedDailyCredit;
+  final double? permittedCumulativeBalance;
   final double? recordedCumulativeBalance;
 
   PostNoDebitInfo({this.status,

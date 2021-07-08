@@ -49,7 +49,7 @@ class BiometricMethodHandler(private val mActivity: FragmentActivity) : MethodCh
     private fun getBiometricType(call: MethodCall, reply: MethodChannel.Result) {
         val pair = biometricChannel.isFingerPrintAuthAvailable()
         if (pair.first) {
-            reply.success(mapOf("biometric_type" to "FACE_ID"))
+            reply.success(mapOf("biometric_type" to "FINGER_PRINT"))
         } else {
             reply.success(mapOf("biometric_type" to "NONE"))
         }

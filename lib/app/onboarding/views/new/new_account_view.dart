@@ -3,12 +3,15 @@ import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_mode
 import 'package:moniepoint_flutter/app/onboarding/views/new/bvn_validation_view.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/new/details_collection_screen.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/new/new_account_otp_screen.dart';
+import 'package:moniepoint_flutter/app/onboarding/views/phone_number_validation_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:provider/provider.dart';
 
 class NewAccountScreen extends StatelessWidget  {
   static const OTP_SCREEN = "otp-screen";
   static const COLLECTION_SCREEN = "media-collection-screen";
+  static const ONBOARDING_PHONE_NUMBER_VALIDATION  = "ONBOARDING_PHONE_NUMBER_VALIDATION";
 
   final _navigatorKey = GlobalKey<NavigatorState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -17,8 +20,8 @@ class NewAccountScreen extends StatelessWidget  {
     late Widget page;
 
     switch (settings.name) {
-      case "bvn-screen":
-        page = BVNValidationScreen(_scaffoldKey);
+      case ONBOARDING_PHONE_NUMBER_VALIDATION:
+        page = PhoneNumberValidationScreen(_scaffoldKey);
         break;
       case OTP_SCREEN:
         page = NewAccountOTPScreen(_scaffoldKey);

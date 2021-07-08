@@ -9,7 +9,7 @@ part of 'system_configuration_service.dart';
 class _SystemConfigurationService implements SystemConfigurationService {
   _SystemConfigurationService(this._dio, {this.baseUrl}) {
     baseUrl ??=
-        'https://moniepoint-customer-operations-service-v2.console.teamapt.com/api/v1/system-configuration/';
+        'https://core-operations.monnify.development.teamapt.com/api/v1/system-configuration/';
   }
 
   final Dio _dio;
@@ -27,7 +27,7 @@ class _SystemConfigurationService implements SystemConfigurationService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.0.5'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')

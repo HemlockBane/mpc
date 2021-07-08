@@ -34,10 +34,12 @@ import 'package:moniepoint_flutter/app/managebeneficiaries/airtime/views/airtime
 import 'package:moniepoint_flutter/app/managebeneficiaries/bills/views/bill_select_beneficiary_view.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/managed_beneficiary_view.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/views/transfer_select_beneficiary_view.dart';
+import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/existing/existing_account_view.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/new/liveliness_view.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/new/new_account_view.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/onboarding_view.dart';
+import 'package:moniepoint_flutter/app/onboarding/views/phone_number_validation_view.dart';
 import 'package:moniepoint_flutter/app/transfers/viewmodels/transfer_detail_view_model.dart';
 import 'package:moniepoint_flutter/app/transfers/views/transfer_detailed_view.dart';
 import 'package:moniepoint_flutter/app/transfers/views/transfer_view.dart';
@@ -112,6 +114,10 @@ class MoniepointApp extends StatelessWidget {
       routes: <String, WidgetBuilder>{
         '/login': (BuildContext context) => LoginScreen(),
         '/sign-up': (BuildContext context) => Scaffold(body: OnBoardingScreen()),
+        // Routes.ONBOARDING_PHONE_NUMBER_VALIDATION: (BuildContext context) => ChangeNotifierProvider(
+        //   create: (_) => OnBoardingViewModel(),
+        //   child: PhoneNumberValidationScreen(),
+        // ),
         Routes.REGISTER_EXISTING_ACCOUNT: (BuildContext context) => Scaffold(body: ExistingAccountView()),
         Routes.REGISTER_NEW_ACCOUNT: (BuildContext context) => Scaffold(body: NewAccountScreen()),
         Routes.ACCOUNT_RECOVERY: (BuildContext context) => Scaffold(body: RecoveryControllerScreen()),

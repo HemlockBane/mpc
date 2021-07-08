@@ -97,7 +97,6 @@ struct BiometricMethodHandler {
         let newPassword =  "\(generatedPassword)_\(generateRandomBytes())"
         encryptedPassword = try encryptMessage(message: newPassword, encryptionKey: encryptionKey)
         
-        //TODO we need to encrypt the auto-generated password received before saving
         let query : [String: Any] = [
             kSecClass as String: kSecClassInternetPassword,
             kSecAttrAccount as String : username,

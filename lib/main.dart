@@ -90,13 +90,12 @@ class MoniepointApp extends StatelessWidget {
     _loadSystemConfigurations(systemConfigViewModel);
 
     String? savedUsername = PreferenceUtil.getSavedUsername();
-    print("SAVED USERNAME $savedUsername");
     return MaterialApp(
       title: 'Moniepoint Customers',
       theme: defaultAppTheme,
       home: Scaffold(
         body: (savedUsername == null || savedUsername.isEmpty)
-          ? OnBoardingScreen()
+          ? NewAccountScreen()
           : LoginScreen(),
       ),
       onGenerateRoute: (settings) {

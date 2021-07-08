@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
-import 'package:moniepoint_flutter/app/onboarding/views/new/bvn_validation_view.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/new/details_collection_screen.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/new/new_account_otp_screen.dart';
+import 'package:moniepoint_flutter/app/onboarding/views/new/verify_phone_number_otp_screen.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/phone_number_validation_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
-import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:provider/provider.dart';
 
 class NewAccountScreen extends StatelessWidget  {
   static const OTP_SCREEN = "otp-screen";
   static const COLLECTION_SCREEN = "media-collection-screen";
   static const ONBOARDING_PHONE_NUMBER_VALIDATION  = "ONBOARDING_PHONE_NUMBER_VALIDATION";
+  static const ONBOARDING_PHONE_NUMBER_VERIFICATION  = "ONBOARDING_PHONE_NUMBER_VERIFICATION";
 
   final _navigatorKey = GlobalKey<NavigatorState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -22,6 +22,9 @@ class NewAccountScreen extends StatelessWidget  {
     switch (settings.name) {
       case ONBOARDING_PHONE_NUMBER_VALIDATION:
         page = PhoneNumberValidationScreen(_scaffoldKey);
+        break;
+      case ONBOARDING_PHONE_NUMBER_VERIFICATION:
+        page = VerifyPhoneNumberOTPScreen(_scaffoldKey);
         break;
       case OTP_SCREEN:
         page = NewAccountOTPScreen(_scaffoldKey);
@@ -54,7 +57,7 @@ class NewAccountScreen extends StatelessWidget  {
             ),
             body: Navigator(
               key: _navigatorKey,
-              initialRoute: "bvn-screen",
+              initialRoute: ONBOARDING_PHONE_NUMBER_VALIDATION,
               onGenerateRoute: _generateRoute,
             ),
           ),

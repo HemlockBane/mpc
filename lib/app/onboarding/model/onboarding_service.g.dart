@@ -9,7 +9,7 @@ part of 'onboarding_service.dart';
 class _OnBoardingService implements OnBoardingService {
   _OnBoardingService(this._dio, {this.baseUrl}) {
     baseUrl ??=
-        'https://core-root.monnify.development.teamapt.com/api/v1/onboarding';
+        'https://moniepoint-customer-root-v2.console.teamapt.com/api/v1/onboarding';
   }
 
   final Dio _dio;
@@ -28,7 +28,7 @@ class _OnBoardingService implements OnBoardingService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.5'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -55,7 +55,7 @@ class _OnBoardingService implements OnBoardingService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.5'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -82,7 +82,7 @@ class _OnBoardingService implements OnBoardingService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.5'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -108,7 +108,7 @@ class _OnBoardingService implements OnBoardingService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.5'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -134,12 +134,12 @@ class _OnBoardingService implements OnBoardingService {
             headers: <String, dynamic>{
               r'Content-Type': 'application/json',
               r'client-id': 'ANDROID',
-              r'appVersion': '0.0.1'
+              r'appVersion': '1.0.5'
             },
             extra: _extra,
             contentType: 'application/json')
         .compose(_dio.options,
-            'https://core-root.monnify.development.teamapt.com/api/v1/account_creation',
+            'https://moniepoint-customer-root-v2.console.teamapt.com/api/v1/account_creation',
             queryParameters: queryParameters, data: _data)
         .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = ServiceResult<AccountProfile>.fromJson(
@@ -160,12 +160,12 @@ class _OnBoardingService implements OnBoardingService {
             headers: <String, dynamic>{
               r'Content-Type': 'application/json',
               r'client-id': 'ANDROID',
-              r'appVersion': '0.0.1'
+              r'appVersion': '1.0.5'
             },
             extra: _extra,
             contentType: 'application/json')
         .compose(_dio.options,
-            'https://core-operations.monnify.development.teamapt.com/api/v1/user/check_username',
+            'https://moniepoint-customer-operations-service-v2.console.teamapt.com/api/v1/user/check_username',
             queryParameters: queryParameters, data: _data)
         .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = ServiceResult<bool>.fromJson(

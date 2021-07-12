@@ -50,12 +50,12 @@ class _NewAccountOTPScreen extends State<NewAccountOTPScreen> {
 
     super.initState();
 
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
-      viewModel.requestOtpForNewAccount().listen((event) {
-        print(event);
-      });
-    });
+    // WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+    //   final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
+    //   viewModel.requestOtpForNewAccount().listen((event) {
+    //     print(event);
+    //   });
+    // });
   }
 
   void _subscribeUiToOtpValidation(BuildContext context) {

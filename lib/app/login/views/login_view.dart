@@ -1,3 +1,4 @@
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 
 import 'package:flutter_svg/flutter_svg.dart';

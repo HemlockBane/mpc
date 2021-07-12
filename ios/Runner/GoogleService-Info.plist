@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>261984535970-lt9un426vbfjgnlamgterpur4qfnlni3.apps.googleusercontent.com</string>
+	<string>261984535970-7u96thgk3qe9q9vnhujo17dm8j6tnq40.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.261984535970-lt9un426vbfjgnlamgterpur4qfnlni3</string>
+	<string>com.googleusercontent.apps.261984535970-7u96thgk3qe9q9vnhujo17dm8j6tnq40</string>
 	<key>API_KEY</key>
 	<string>AIzaSyCtWVSP5dbThrT_nzb3kKb4t1iH9iCxjpk</string>
 	<key>GCM_SENDER_ID</key>
@@ -13,7 +13,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.teamapt.customers.moniepoint</string>
+	<string>com.teamapt.moniepoint</string>
 	<key>PROJECT_ID</key>
 	<string>moniepoint-customer-hybrid</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,6 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:261984535970:ios:fc6c1134bbde786026defb</string>
+	<string>1:261984535970:ios:9db73ae38a8913b326defb</string>
 </dict>
 </plist>

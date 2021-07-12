@@ -55,6 +55,8 @@ class _VerifyPhoneNumberOTPScreen extends State<VerifyPhoneNumberOTPScreen> {
 
   void _subscribeUiToOtpValidation(BuildContext context) {
     final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
+    Navigator.of(context).pushNamed(NewAccountScreen.COLLECTION_SCREEN);
+
     // viewModel.validateBVNOTP(otpController.text).listen((event) {
     //   if(event is Loading) setState(() => _isLoading = true);
     //   if (event is Error<BVNOTPValidationResult>) {

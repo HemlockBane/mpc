@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/new/details_collection_screen.dart';
+import 'package:moniepoint_flutter/app/onboarding/views/new/liveliness2_view.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/new/new_account_otp_screen.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/new/verify_phone_number_otp_screen.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/phone_number_validation_view.dart';
@@ -30,7 +31,7 @@ class NewAccountScreen extends StatelessWidget  {
         page = NewAccountOTPScreen(_scaffoldKey);
         break;
       case COLLECTION_SCREEN:
-        page = DetailCollectionScreen(_scaffoldKey);
+        page = Liveliness2(_scaffoldKey);
         break;
     }
 

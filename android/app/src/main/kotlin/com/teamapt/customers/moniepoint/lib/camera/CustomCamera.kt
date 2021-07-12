@@ -26,6 +26,7 @@ class CustomCamera(
     private var pictureImageReader: ImageReader? = null
     private var imageStreamReader: ImageReader? = null
 
+    private var cameraDevice: CameraDevice? = null
     private var cameraCharacteristics: CameraCharacteristics? = null
     private var cameraCaptureSession: CameraCaptureSession? = null
     private var captureRequestBuilder: CaptureRequest.Builder? = null
@@ -45,28 +46,44 @@ class CustomCamera(
         pictureImageReader = ImageReader
                 .newInstance(captureSize.width, captureSize.height, ImageFormat.JPEG, 2)
 
-        var imageFormat = supportedImageFormats[imageFormatGroup]
-        if(imageFormat == null) {
-            imageFormat = ImageFormat.YUV_420_888
-        }
-
-        imageStreamReader = ImageReader.newInstance(previewSize.width, previewSize.height, imageFormat, 2)
+        val imageFormat = supportedImageFormats.getOrElse(imageFormatGroup, { ImageFormat.YUV_420_888 })
+        
+        imageStreamReader = ImageReader
+                .newInstance(previewSize.width, previewSize.height, imageFormat, 2)
 
         cameraManager?.openCamera("front",
                 object: CameraDevice.StateCallback() {
                     override fun onOpened(camera: CameraDevice) {
-
+                        this@CustomCamera.cameraDevice = camera
                     }
 
                     override fun onDisconnected(camera: CameraDevice) {
-                        
+                        close() 
                     }
 
                     override fun onError(camera: CameraDevice, error: Int) {
-
+                        close()
                     }
-                },
-                null)
+                }, null
+        )
+    }
+
+    fun close() {
+        closeCaptureSession()
+
+        cameraDevice?.close()
+        cameraDevice = null
+
+        pictureImageReader?.close()
+        pictureImageReader = null
+
+        imageStreamReader?.close()
+        imageStreamReader = null
+    }
+
+    private fun closeCaptureSession() {
+        cameraCaptureSession?.close()
+        cameraCaptureSession = null
     }
 
     companion object {

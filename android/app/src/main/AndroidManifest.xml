@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.teamapt.customers.moniepoint">
 
-    <uses-sdk tools:overrideLibrary="io.flutter.plugins.camera" />
+    <uses-sdk tools:overrideLibrary="io.flutter.plugins.camera,androidx.camera.camera2" />
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />

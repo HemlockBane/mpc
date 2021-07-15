@@ -24,6 +24,11 @@ class Colors {
   static const Color textColorPrimary = const Color(0XFF0B3275);
 
 
+  static const Color textFieldColor = const Color(0XFFCED2D9);
+  static const Color textFieldIcon = const Color(0XFF2E3A59);
+
+
+
   static const Color cardBorder = const Color(0XFF063A4F);
   static const Color dividerColor = const Color(0XFF055072);
   static const Color dividerColor2 = const Color(0XFFA9A5AF);

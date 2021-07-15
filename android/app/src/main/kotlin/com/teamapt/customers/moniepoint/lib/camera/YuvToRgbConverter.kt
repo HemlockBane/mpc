@@ -26,6 +26,7 @@ import android.renderscript.Element
 import android.renderscript.RenderScript
 import android.renderscript.ScriptIntrinsicYuvToRGB
 import android.renderscript.Type
+import com.teamapt.customers.moniepoint.BuildConfig
 
 /**
  * Helper class used to efficiently convert a [Media.Image] object from
@@ -82,7 +83,9 @@ class YuvToRgbConverter(context: Context) {
     }
 
     private fun imageToByteArray(image: Image, outputBuffer: ByteArray) {
-        assert(image.format == ImageFormat.YUV_420_888)
+        if (BuildConfig.DEBUG && image.format != ImageFormat.YUV_420_888) {
+            error("Assertion failed")
+        }
 
         val imageCrop = image.cropRect
         val imagePlanes = image.planes
@@ -146,10 +149,10 @@ class YuvToRgbConverter(context: Context) {
                 imageCrop
             } else {
                 Rect(
-                    imageCrop.left / 2,
-                    imageCrop.top / 2,
-                    imageCrop.right / 2,
-                    imageCrop.bottom / 2
+                        imageCrop.left / 2,
+                        imageCrop.top / 2,
+                        imageCrop.right / 2,
+                        imageCrop.bottom / 2
                 )
             }
 
@@ -177,7 +180,7 @@ class YuvToRgbConverter(context: Context) {
             for (row in 0 until planeHeight) {
                 // Move buffer position to the beginning of this row
                 planeBuffer.position(
-                    (row + planeCrop.top) * rowStride + planeCrop.left * pixelStride)
+                        (row + planeCrop.top) * rowStride + planeCrop.left * pixelStride)
 
                 if (pixelStride == 1 && outputStride == 1) {
                     // When there is a single stride value for pixel and output, we can just copy

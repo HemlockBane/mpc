@@ -14,6 +14,9 @@ class AccountForm with ChangeNotifier, Validators{
   late final Stream<bool> _isMobileNumberValid;
   Stream<bool> get isMobileNumberValid => _isMobileNumberValid;
 
+  late final Stream<bool> _isBVNNumberValid;
+  Stream<bool> get isBankVerificationNumberValid => _isBVNNumberValid;
+
   final _dobStreamController = StreamController<bool>.broadcast();
   Stream<bool> get dobStream => _dobStreamController.stream;
 
@@ -43,12 +46,15 @@ class AccountForm with ChangeNotifier, Validators{
       return _isPhoneNumberValid(displayError: false);
     });
 
+    this._isBVNNumberValid = Rx.combineLatest([bvnStream], (values) {
+      return _isBVNValid(displayError: false);
+    });
+
     final formStreams = [
-      bvnStream,
-      // phoneNumberStream,
       emailStream,
       genderStream,
-      _isMobileNumberValid
+      _isMobileNumberValid,
+      _isBVNNumberValid
     ];
 
 

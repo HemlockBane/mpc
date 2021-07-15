@@ -67,6 +67,66 @@ class BottomSheets {
         ));
   }
 
+  static Widget makeAppBottomSheet2(
+      {double? height,
+        Color curveBackgroundColor = Colors.white,
+        Color centerImageBackgroundColor = Colors.primaryColor,
+        Color contentBackgroundColor = Colors.white,
+        Widget? dialogIcon,
+        double paddingLeft = 0,
+        double paddingRight = 0,
+        double paddingBottom = 0,
+        double? centerBackgroundHeight,
+        double? centerBackgroundWidth,
+        double centerBackgroundPadding = 20,
+        Widget? content,
+      }) {
+    return Container(
+        height: height,
+        child: Stack(
+          children: [
+            Positioned(
+              child: SvgPicture.asset(
+                'res/drawables/ic_white_curve.svg',
+                color: curveBackgroundColor,
+              ),
+              left: 0,
+              right: 0,
+            ),
+            Container(
+              width: double.infinity,
+              margin: EdgeInsets.only(top: 42.5),
+              padding: EdgeInsets.only(top: 43, left: paddingLeft, right: paddingRight, bottom: paddingBottom),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
+                      bottomLeft: Radius.circular(16),
+                      bottomRight: Radius.circular(16)
+                  ),
+                  color: contentBackgroundColor
+              ),
+              child: content,
+            ),
+            Positioned(
+              child: Container(
+                width: centerBackgroundWidth,
+                height: centerBackgroundHeight,
+                decoration: BoxDecoration(
+                  color: centerImageBackgroundColor,
+                  shape: BoxShape.circle,
+                ),
+                child: dialogIcon,
+                padding: EdgeInsets.all(centerBackgroundPadding),
+                margin: EdgeInsets.only(top: 10),
+              ),
+              left: 0,
+              right: 0,
+            ),
+          ],
+        ));
+  }
+
   static Widget displayErrorModal(BuildContext context,
       {String title = "Oops", String? message = "", VoidCallback? onClick}) {
     return makeAppBottomSheet(

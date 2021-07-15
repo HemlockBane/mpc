@@ -7,6 +7,7 @@ import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/views/otp_ussd_info_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
@@ -14,60 +15,34 @@ import 'package:provider/provider.dart';
 
 import 'new_account_view.dart';
 
-class VerifyPhoneNumberOTPScreen extends StatefulWidget {
+class EnterBVNScreen extends StatefulWidget {
   late final GlobalKey<ScaffoldState> _scaffoldKey;
 
-  VerifyPhoneNumberOTPScreen(this._scaffoldKey);
+  EnterBVNScreen(this._scaffoldKey);
 
   @override
   State<StatefulWidget> createState() {
-    return _VerifyPhoneNumberOTPScreen(_scaffoldKey);
+    return _EnterBVNScreen(_scaffoldKey);
   }
 
 }
 
-class _VerifyPhoneNumberOTPScreen extends State<VerifyPhoneNumberOTPScreen> {
+class _EnterBVNScreen extends State<EnterBVNScreen> {
   late final GlobalKey<ScaffoldState> _scaffoldKey;
 
-  late final TextEditingController _otpController;
+  late final TextEditingController _bvnController;
 
-  bool _isLoading = false;
-  bool _isOtpValid = false;
+  _EnterBVNScreen(this._scaffoldKey);
 
-  _VerifyPhoneNumberOTPScreen(this._scaffoldKey);
-
-  void _onOtpChanged() {
-    final text = _otpController.text;
-      setState(() {
-        _isOtpValid = text.isNotEmpty && text.length >= 6;
-      });
-  }
 
   @override
   void initState() {
-    _otpController = TextEditingController()..addListener(_onOtpChanged);
+    
     super.initState();
   }
 
-  void _subscribeUiToOtpValidation(BuildContext context) {
-    final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
-    viewModel.validateOtpForPhoneNumber(_otpController.text).listen((event) {
-        if(event is Loading) setState(() => _isLoading = true);
-        if (event is Error<ValidatePhoneOtpResponse>) {
-          setState(() => _isLoading = false);
-          showModalBottomSheet(
-              context: _scaffoldKey.currentContext ?? context,
-              isScrollControlled: true,
-              backgroundColor: Colors.transparent,
-              builder: (context) {
-                return BottomSheets.displayErrorModal(context, message: event.message);
-              });
-        }
-        if(event is Success<ValidatePhoneOtpResponse>) {
-          setState(() => _isLoading = false);
-          Navigator.of(context).pushNamed(NewAccountScreen.ONBOARDING_ENTER_BVN);
-        }
-    });
+  void _subscribeUiToOtpValidation(BuildContext context) async {
+   await Navigator.of(widget._scaffoldKey.currentContext ?? context).pushNamed(Routes.LIVELINESS_DETECTION);
   }
 
   String getUSSD() {
@@ -76,6 +51,8 @@ class _VerifyPhoneNumberOTPScreen extends State<VerifyPhoneNumberOTPScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
+
     return ScrollView(
       maxHeight: MediaQuery.of(context).size.height - 64,//subtract the vertical padding
       child: Container(
@@ -91,7 +68,7 @@ class _VerifyPhoneNumberOTPScreen extends State<VerifyPhoneNumberOTPScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Verify Phone Number',
+                      'Enter BVN',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.textColorBlack,
@@ -99,24 +76,20 @@ class _VerifyPhoneNumberOTPScreen extends State<VerifyPhoneNumberOTPScreen> {
                       ),
                       textAlign: TextAlign.start,
                     ),
-                    SizedBox(height: 12),
-                    Text(
-                        'We’ve just sent a 6-digit code to your registered phone number. Enter the code to proceed.',
-                        style: TextStyle(
-                            fontWeight: FontWeight.normal,
-                            color: Colors.textColorBlack,
-                            fontSize: 14)
-                    ),
                     SizedBox(height: 30),
-                    Styles.appEditText(
-                        hint: 'Enter 6-Digit Code',
-                        animateHint: true,
-                        inputType: TextInputType.number,
-                        inputFormats: [FilteringTextInputFormatter.digitsOnly],
-                        startIcon: Icon(CustomFont.numberInput, color: Colors.textFieldIcon.withOpacity(0.2), size: 24),
-                        drawablePadding: EdgeInsets.only(left: 4, right: 4),
-                        controller: _otpController,
-                        maxLength: 6),
+                    StreamBuilder(
+                        stream: viewModel.accountForm.bvnStream,
+                        builder: (context, snapshot) {
+                          return Styles.appEditText(
+                              errorText: snapshot.hasError ? snapshot.error.toString() : null,
+                              hint: 'Enter BVN',
+                              inputFormats: [FilteringTextInputFormatter.digitsOnly],
+                              onChanged: viewModel.accountForm.onBVNChanged,
+                              startIcon: Icon(CustomFont.numberInput, color: Colors.textFieldIcon.withOpacity(0.2), size: 22),
+                              animateHint: true,
+                              maxLength: 11
+                          );
+                        }),
                     SizedBox(height: 20),
                     OtpUssdInfoView(
                       "Onboarding Phone Number Validation OTP Mobile",
@@ -128,12 +101,12 @@ class _VerifyPhoneNumberOTPScreen extends State<VerifyPhoneNumberOTPScreen> {
                 ),
               ),
             ),
-            Styles.statefulButton2(
+            Styles.statefulButton(
+                stream: viewModel.accountForm.isBankVerificationNumberValid,
                 elevation: 0,
                 onClick: () => _subscribeUiToOtpValidation(context),
                 text: 'Next',
-                isLoading: _isLoading,
-                isValid:  _isOtpValid && !_isLoading
+                isLoading: false,
             ),
           ],
         ),

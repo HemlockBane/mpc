@@ -39,7 +39,7 @@ import 'package:moniepoint_flutter/app/onboarding/views/existing/existing_accoun
 import 'package:moniepoint_flutter/app/onboarding/views/new/liveliness_view.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/new/new_account_view.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/onboarding_view.dart';
-import 'package:moniepoint_flutter/app/onboarding/views/phone_number_validation_view.dart';
+import 'package:moniepoint_flutter/app/onboarding/views/new/phone_number_validation_view.dart';
 import 'package:moniepoint_flutter/app/transfers/viewmodels/transfer_detail_view_model.dart';
 import 'package:moniepoint_flutter/app/transfers/views/transfer_detailed_view.dart';
 import 'package:moniepoint_flutter/app/transfers/views/transfer_view.dart';
@@ -52,8 +52,8 @@ import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/viewmodels/contacts_view_model.dart';
 import 'package:moniepoint_flutter/core/viewmodels/system_configuration_view_model.dart';
 import 'package:moniepoint_flutter/core/views/contacts_view.dart';
+import 'package:moniepoint_flutter/core/views/liveliness/liveliness_verification.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 import 'app/settings/settings_view.dart';
 
@@ -174,6 +174,7 @@ class MoniepointApp extends StatelessWidget {
             create: (_) => UserDeviceViewModel(),
             child: UserDeviceListView(),
         ),
+        Routes.LIVELINESS_DETECTION: (BuildContext context) => LivelinessVerification(),
       },
     );
   }

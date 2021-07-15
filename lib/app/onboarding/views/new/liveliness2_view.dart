@@ -1,5 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 
 class Liveliness2 extends StatefulWidget {
   late final GlobalKey<ScaffoldState> _scaffoldKey;
@@ -12,6 +17,7 @@ class Liveliness2 extends StatefulWidget {
 
 class _Liveliness2 extends State<Liveliness2> {
   static const platform = const MethodChannel('moniepoint.flutter.dev/liveliness');
+  static const eventChannel = const EventChannel('moniepoint.flutter.dev/liveliness/events');
 
   int? _cameraId;
   Future<dynamic>? cameraFuture;
@@ -23,7 +29,20 @@ class _Liveliness2 extends State<Liveliness2> {
 
     cameraFuture?.whenComplete(() async {
       print("Initializing liveliness from flutter");
-      await platform.invokeMethod("initialize");
+      await platform.invokeMethod("start");
+      print("Listening from stream");
+
+      eventChannel.receiveBroadcastStream().listen((event) async {
+        final map = event as Map<dynamic, dynamic>;
+        final eventType = map["event_type"];
+        if(eventType == "MotionDetectedEvent") {
+          final filePath = map["file_path"];
+          final dir = await getTemporaryDirectory();
+          final file = File(join(dir.path, "motion_resized.jpg"));
+          final compressedByte = await FlutterImageCompress.compressWithFile(filePath, minWidth: 300, minHeight: 300);
+          if(compressedByte != null) file.writeAsBytes(compressedByte);
+        }
+      });
     });
   }
 

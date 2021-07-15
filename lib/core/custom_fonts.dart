@@ -33,6 +33,7 @@ class CustomFont {
   static const IconData question_mark = IconData(0xe809, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData search = IconData(0xe80a, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData backArrow = IconData(0xe80b, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData numberInput = IconData(0xe80c, fontFamily: _kFontFam, fontPackage: _kFontPkg);
 
 
 }

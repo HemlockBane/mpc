@@ -52,6 +52,8 @@ import 'package:moniepoint_flutter/app/transfers/model/transfer_service.dart';
 import 'package:moniepoint_flutter/app/transfers/model/transfer_service_delegate.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/usermanagement_service.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/usermanagement_service_delegate.dart';
+import 'package:moniepoint_flutter/app/validation/model/customer_validation_service.dart';
+import 'package:moniepoint_flutter/app/validation/model/customer_validation_service_delegate.dart';
 import 'package:moniepoint_flutter/app/validation/model/validation_service.dart';
 import 'package:moniepoint_flutter/app/validation/model/validation_service_delegate.dart';
 import 'package:moniepoint_flutter/core/device_manager.dart';
@@ -88,7 +90,14 @@ class ServiceModule {
 
     /// Onboarding Service
     GetIt.I.registerLazySingleton<OnBoardingServiceDelegate>(() {
-      return OnBoardingServiceDelegate(OnBoardingService(dio), AccountCreationService(dio));
+      return OnBoardingServiceDelegate(
+          OnBoardingService(dio), AccountCreationService(dio)
+      );
+    });
+
+    /// CustomerValidation Service
+    GetIt.I.registerLazySingleton<CustomerValidationServiceDelegate>(() {
+      return CustomerValidationServiceDelegate(CustomerValidationService(dio));
     });
 
     /// UserManagement Delegate

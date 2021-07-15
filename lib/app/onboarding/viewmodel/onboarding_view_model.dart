@@ -1,8 +1,11 @@
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:moniepoint_flutter/app/accountupdates/model/customer_service_delegate.dart';
+import 'package:moniepoint_flutter/app/devicemanagement/model/data/user_device_request_body.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/ExistingAccountOTP.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/NewAccountOTP.dart';
@@ -20,11 +23,14 @@ import 'package:moniepoint_flutter/app/onboarding/model/profile_form.dart';
 import 'package:moniepoint_flutter/app/onboarding/username_validation_state.dart';
 import 'package:moniepoint_flutter/app/securityquestion/model/data/security_question.dart';
 import 'package:moniepoint_flutter/app/securityquestion/model/security_question_delegate.dart';
+import 'package:moniepoint_flutter/app/validation/model/customer_validation_service_delegate.dart';
+import 'package:moniepoint_flutter/app/validation/model/data/validate_phone_otp_response.dart';
 import 'package:moniepoint_flutter/core/device_manager.dart';
 import 'package:moniepoint_flutter/core/models/file_uuid.dart';
 import 'package:moniepoint_flutter/core/models/security_answer.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/otp.dart';
+import 'package:moniepoint_flutter/core/network/service_error.dart';
 
 
 /// @author Paul Okeke
@@ -37,6 +43,7 @@ class OnBoardingViewModel extends ChangeNotifier {
 
   late OnBoardingServiceDelegate _delegate;
   late SecurityQuestionDelegate _questionDelegate;
+  late CustomerValidationServiceDelegate _customerValidationDelegate;
   DeviceManager? _deviceManager;
 
   final List<SecurityQuestion> _securityQuestions = [];
@@ -49,6 +56,7 @@ class OnBoardingViewModel extends ChangeNotifier {
   String? signatureImageUUID;
 
   OTP? _accountOtp;
+  String? _phoneNumberValidationKey;
 
   bool _isNewAccount = false;
   bool get isNewAccount => _isNewAccount;
@@ -56,11 +64,44 @@ class OnBoardingViewModel extends ChangeNotifier {
   OnBoardingViewModel({
     OnBoardingServiceDelegate? delegate,
     SecurityQuestionDelegate? questionDelegate,
+    CustomerValidationServiceDelegate? customerValidationDelegate,
     DeviceManager? deviceManager}) {
     this._delegate = delegate ?? GetIt.I<OnBoardingServiceDelegate>();
     this._questionDelegate = questionDelegate ?? GetIt.I<SecurityQuestionDelegate>();
+    this._customerValidationDelegate = customerValidationDelegate ?? GetIt.I<CustomerValidationServiceDelegate>();
     this._deviceManager = deviceManager ?? GetIt.I<DeviceManager>();
   }
+
+
+  Stream<Resource<bool>> sendOtpToDevice() {
+    final phoneNumber = accountForm.account.phoneNumber ?? "";
+    final deviceRequest = UserDeviceRequestBody(username: "")
+      ..deviceId = _deviceManager?.deviceId
+      ..deviceName = _deviceManager?.deviceName
+      ..deviceOs = Platform.isIOS ? "IOS" : "ANDROID";
+
+    return _customerValidationDelegate.sendOtpToPhoneNumber(phoneNumber, deviceRequest).map((event) {
+          if(event is Success) return Resource.success(true);
+          if(event is Error) return Resource<bool>.error(err: ServiceError(message: event.message ?? ""));
+          else return Resource.loading(null);
+    });
+  }
+
+  Stream<Resource<ValidatePhoneOtpResponse>> validateOtpForPhoneNumber(String otp) {
+    final phoneNumber = accountForm.account.phoneNumber ?? "";
+    final deviceRequest = UserDeviceRequestBody(username: "")
+      ..deviceId = _deviceManager?.deviceId
+      ..deviceName = _deviceManager?.deviceName
+      ..deviceOs = Platform.isIOS ? "IOS" : "ANDROID";
+
+    return _customerValidationDelegate.validateOtpForPhoneNumber(otp, phoneNumber, deviceRequest).map((event) {
+        if(event is Success) {
+          _phoneNumberValidationKey = event.data?.phoneNumberValidationKey;
+        }
+        return event;
+    });
+  }
+
 
   void setIsNewAccount(bool isNewAccount) {
     this._isNewAccount = isNewAccount;

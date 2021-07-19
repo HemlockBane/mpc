@@ -28,6 +28,8 @@ import 'package:moniepoint_flutter/app/devicemanagement/model/user_device_servic
 import 'package:moniepoint_flutter/app/institutions/institution_dao.dart';
 import 'package:moniepoint_flutter/app/institutions/institution_repository.dart';
 import 'package:moniepoint_flutter/app/institutions/institution_service.dart';
+import 'package:moniepoint_flutter/app/liveliness/model/liveliness_verification_service_delegate.dart';
+import 'package:moniepoint_flutter/app/liveliness/model/onboarding_validation_service.dart';
 import 'package:moniepoint_flutter/app/login/model/login_service.dart';
 import 'package:moniepoint_flutter/app/login/model/login_service_delegate.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/airtime/model/airtime_beneficiary_delegate.dart';
@@ -241,6 +243,12 @@ class ServiceModule {
 
     GetIt.I.registerLazySingleton<DeviceManager>(() {
       return DeviceManager();
+    });
+
+
+    /// LivelinessVerificationServiceDelegate checks
+    GetIt.I.registerLazySingleton<LivelinessVerificationServiceDelegate>(() {
+      return LivelinessVerificationServiceDelegate(OnboardingValidationService(dio));
     });
 
   }

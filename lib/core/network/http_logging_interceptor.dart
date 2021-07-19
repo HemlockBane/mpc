@@ -12,6 +12,23 @@ class LoggingInterceptor extends Interceptor {
     options.headers.forEach((key, v) => printKV(' - $key', v));
     logPrint('BODY:');
     printAll(options.data ?? "");
+    if(options.data is FormData) {
+      final data = options.data as FormData;
+      logPrint('BOUNDARY:${data.boundary}');
+      logPrint('FILES:');
+      data.files.forEach((element) {
+        print(element.key);
+        print("--->>>");
+        print(element.value.length);
+        print(element.value.contentType);
+        print(element.value.filename);
+      });
+      // data.fields.forEach((element) {
+      //
+      // });
+      logPrint('FIELDS:');
+      printAll(data.fields);
+    }
 
     logPrint('*** API Request - End ***');
     return super.onRequest(options, handler);

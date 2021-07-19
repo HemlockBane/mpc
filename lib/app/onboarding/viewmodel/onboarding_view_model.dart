@@ -57,6 +57,7 @@ class OnBoardingViewModel extends ChangeNotifier {
 
   OTP? _accountOtp;
   String? _phoneNumberValidationKey;
+  String? get phoneNumberValidationKey => _phoneNumberValidationKey;
 
   bool _isNewAccount = false;
   bool get isNewAccount => _isNewAccount;

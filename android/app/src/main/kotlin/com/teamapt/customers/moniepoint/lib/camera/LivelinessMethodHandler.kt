@@ -1,11 +1,9 @@
 package com.teamapt.customers.moniepoint.lib.camera
 
 import android.content.Context
+import android.graphics.Rect
 import androidx.core.content.ContextCompat
-import com.teamapt.customers.moniepoint.lib.camera.event.CameraMotionEvent
-import com.teamapt.customers.moniepoint.lib.camera.event.FaceDetectedEvent
-import com.teamapt.customers.moniepoint.lib.camera.event.MotionDetectedEvent
-import com.teamapt.customers.moniepoint.lib.camera.event.NoFaceDetectedEvent
+import com.teamapt.customers.moniepoint.lib.camera.event.*
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -20,7 +18,7 @@ class LivelinessMethodHandler(
 
     override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {
-            "create" -> initializeCamera(result)
+            "create" -> initializeCamera(call, result)
             "start" -> {
                 livelinessDetector?.startPreview()
                 result.success("started")
@@ -33,6 +31,10 @@ class LivelinessMethodHandler(
                 livelinessDetector?.resumeListening()
                 result.success("")
             }
+            "restart" -> {
+                livelinessDetector?.restartCapture()
+                result.success("")
+            }
             "close" -> {
                 livelinessDetector?.stopCamera()
                 result.success("")
@@ -40,10 +42,33 @@ class LivelinessMethodHandler(
         }
     }
 
-    private fun initializeCamera(reply: MethodChannel.Result) {
+    private fun initializeCamera(methodCall: MethodCall?, reply: MethodChannel.Result) {
         val flutterSurfaceProvider = FlutterSurfaceProvider(textureEntry, ContextCompat.getMainExecutor(context))
         val customCamera = CustomCamera2(context, flutterSurfaceProvider)
-        this.livelinessDetector = LivelinessDetector(context, customCamera)
+        var frameSize: Rect? = null
+        val channelFrameSize = methodCall?.argument<Map<String?, Double?>>("frameSize")
+        println("channelFrameSize $channelFrameSize")
+        if(channelFrameSize != null) {
+            val left = channelFrameSize["left"]
+            val top = channelFrameSize["top"]
+            val right = channelFrameSize["right"]
+            val bottom = channelFrameSize["bottom"]
+
+            if((left != null && left > 0)
+                    && (top != null && top > 0)
+                    && (right != null && right > 0)
+                    && (bottom != null && bottom > 0)) {
+                frameSize = Rect(left.toInt(), top.toInt(), right.toInt(), bottom.toInt())
+            }
+        }
+        //let's check if the frameSize is supplied from the channel
+        this.livelinessDetector = LivelinessDetector.Builder(customCamera)
+                .setFrameSize(frameSize)
+                .setCropCaptureToFrameSize(true)
+                .setFaceDetectionConfidenceLevel(0.505)
+                .setHorizontalAlignmentThreshold(0.8)
+                .setVerticalAlignmentThreshold(0.8)
+                .build()
         reply.success(hashMapOf<String, Any>("cameraId" to textureEntry.id()))
     }
 
@@ -69,6 +94,14 @@ class LivelinessMethodHandler(
 
         private fun sendEvent(cameraMotionEvent: CameraMotionEvent) {
             when(cameraMotionEvent) {
+                is FirstCaptureEvent -> {
+                    eventSink?.success(
+                            hashMapOf<String?, Any?>(
+                                    "event_type" to cameraMotionEvent.eventName,
+                                    "file_path" to cameraMotionEvent.bitmap?.path
+                            )
+                    )
+                }
                 is FaceDetectedEvent -> {
                     eventSink?.success(
                             hashMapOf<String?, Any?>(

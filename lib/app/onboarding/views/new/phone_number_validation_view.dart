@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart' hide ScrollView,Colors;
 import 'package:flutter/services.dart';
 import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
-import 'package:moniepoint_flutter/app/onboarding/views/new/new_account_view.dart';
+import 'package:moniepoint_flutter/app/onboarding/views/new/signup_account_view.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
@@ -92,7 +92,7 @@ class _PhoneNumberValidationScreen extends State<PhoneNumberValidationScreen> {
                                     errorText: snapshot.hasError ? snapshot.error.toString() : null,
                                     startIcon: Icon(CustomFont.call, color: Colors.textFieldIcon.withOpacity(0.2), size: 24),
                                     animateHint: true,
-                                    maxLength: 13
+                                    maxLength: 11
                                 );
                               }),
                           SizedBox(height: 100),

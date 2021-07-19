@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:moniepoint_flutter/core/views/liveliness/liveliness_detector.dart';
+
+import 'liveliness_detector.dart';
 
 class LivelinessCameraPreview extends StatelessWidget {
 

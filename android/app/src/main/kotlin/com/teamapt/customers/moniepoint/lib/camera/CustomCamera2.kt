@@ -2,16 +2,15 @@ package com.teamapt.customers.moniepoint.lib.camera
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.hardware.camera2.CameraAccessException
-import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraManager
-import android.hardware.camera2.CameraMetadata
+import android.hardware.camera2.*
+import android.hardware.camera2.params.StreamConfigurationMap
 import android.util.Size
 import android.view.Surface
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
+import com.teamapt.customers.moniepoint.lib.camera.bioid.Rotation
 import java.lang.Exception
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
@@ -22,8 +21,10 @@ class CustomCamera2(
 ) {
 
     private var cameraProvider: ProcessCameraProvider? = null
+
+    fun getContext() : Context = context
     
-    @SuppressLint("UnsafeOptInUsageError")
+    @SuppressLint("UnsafeOptInUsageError", "RestrictedApi")
     fun startCamera(vararg useCases: UseCase) {
         val cameraProviderListenable = ProcessCameraProvider.getInstance(context)
         cameraProviderListenable.addListener({
@@ -36,8 +37,8 @@ class CustomCamera2(
             }
 
             val preview = Preview.Builder()
-                    .setTargetRotation(Surface.ROTATION_0)
-                    .setTargetResolution(Size(720, 1280))
+                    .setTargetRotation(context.display?.rotation ?: Surface.ROTATION_0)
+                    .setTargetAspectRatio(AspectRatio.RATIO_4_3)
                     .build()
 
             preview.setSurfaceProvider(surfaceProvider)
@@ -45,14 +46,24 @@ class CustomCamera2(
             val cameraSelector = CameraSelector.Builder()
                     .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
                     .build()
-
             try {
                 cameraProvider?.unbindAll()
-                cameraProvider?.bindToLifecycle(
+                val camera = cameraProvider?.bindToLifecycle(
                         context as LifecycleOwner,
                         cameraSelector,
                         preview, *useCases
                 )
+
+                val exposureState = camera?.cameraInfo?.exposureState
+                if(exposureState?.isExposureCompensationSupported == true) {
+                    val exposureRange = exposureState.exposureCompensationRange
+                    println("Range of exposure is $exposureRange")
+
+                    if(exposureRange.contains(4)) {
+                        println("Setting Range of exposure is 0")
+                        camera.cameraControl.setExposureCompensationIndex(20)
+                    }
+                }
             } catch (ex: Exception) {
                 ex.printStackTrace()
             }

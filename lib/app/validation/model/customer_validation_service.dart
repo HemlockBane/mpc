@@ -10,7 +10,7 @@ import 'data/validate_phone_otp_response.dart';
 
 part 'customer_validation_service.g.dart';
 
-@RestApi(baseUrl: "${ServiceConfig.ROOT_SERVICE}api/v1/customer-validation/")
+@RestApi(baseUrl: "${ServiceConfig.ROOT_SERVICE}api/v2/customer-validation/")
 abstract class CustomerValidationService {
 
   factory CustomerValidationService (Dio dio) = _CustomerValidationService;

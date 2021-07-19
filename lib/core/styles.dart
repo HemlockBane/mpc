@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/DropDownItem.dart';
 
@@ -137,7 +136,8 @@ class Styles {
       ButtonStyle? buttonStyle,
       double? elevation,
       double? borderRadius,
-      Widget? icon
+      Widget? icon,
+      TextStyle? textStyle
       }) {
     var mButtonStyle = buttonStyle ?? Styles.primaryButtonStyle;
     if (padding != null) {
@@ -158,6 +158,14 @@ class Styles {
     if (elevation != null) {
       mButtonStyle = mButtonStyle.copyWith(
           elevation: MaterialStateProperty.all(elevation));
+    }
+    if(borderRadius != null) {
+      mButtonStyle = mButtonStyle.copyWith(shape: MaterialStateProperty.all(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(borderRadius))));
+    }
+
+    if(textStyle != null) {
+      mButtonStyle = mButtonStyle.copyWith(textStyle: MaterialStateProperty.all(textStyle));
     }
     return ElevatedButton.icon(
         icon: icon ?? SizedBox(),

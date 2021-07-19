@@ -9,7 +9,7 @@ part of 'customer_validation_service.dart';
 class _CustomerValidationService implements CustomerValidationService {
   _CustomerValidationService(this._dio, {this.baseUrl}) {
     baseUrl ??=
-        'https://core-root.monnify.development.teamapt.com/api/v1/customer-validation/';
+        'https://core-root.monnify.development.teamapt.com/api/v2/customer-validation/';
   }
 
   final Dio _dio;

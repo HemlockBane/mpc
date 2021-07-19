@@ -12,7 +12,7 @@ import 'package:moniepoint_flutter/core/views/otp_ussd_info_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:provider/provider.dart';
 
-import 'new_account_view.dart';
+import 'signup_account_view.dart';
 
 class VerifyPhoneNumberOTPScreen extends StatefulWidget {
   late final GlobalKey<ScaffoldState> _scaffoldKey;

@@ -13,12 +13,13 @@ object CameraDisconnectedEvent: CameraMotionEvent()
 
 object CameraInitializationErrorEvent: CameraMotionEvent()
 
+data class FirstCaptureEvent(val bitmap: File?) : CameraMotionEvent("FirstCaptureEvent")
 data class FaceDetectedEvent(val bitmap: File?) : CameraMotionEvent("FaceDetectedEvent")
 data class MotionDetectedEvent(val bitmap: File?) : CameraMotionEvent("MotionDetectedEvent")
 data class NoFaceDetectedEvent(val bitmap: File?) : CameraMotionEvent("NoFaceDetectedEvent")
-data class NoMotionDetected(val bitmap: File?) : CameraMotionEvent("NoMotionDetected")
+data class NoMotionDetectedEvent(val bitmap: File?) : CameraMotionEvent("NoMotionDetectedEvent")
 
-object CameraFaceOutOfBoundsEvent : CameraMotionEvent()
+object FaceOutOfBoundsEvent : CameraMotionEvent("FaceOutOfBoundsEvent")
 
 data class CameraSessionConfigurationFailed(val message: String = "Failed to configure camera session"): CameraMotionEvent()
 

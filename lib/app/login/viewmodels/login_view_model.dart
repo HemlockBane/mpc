@@ -40,8 +40,6 @@ class LoginViewModel with ChangeNotifier {
     this._deviceManager = deviceManager ?? GetIt.I<DeviceManager>();
 
     UserInstance().resetSession();
-    // PreferenceUtil.deleteLoggedInUser();
-    // UserInstance().getUser()?.withAccessToken(null);
   }
 
   //334FD601-3E95-457E-B890-70BCD77B6F76

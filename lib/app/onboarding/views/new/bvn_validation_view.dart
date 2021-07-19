@@ -3,7 +3,7 @@ import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter/services.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/bvn_validation_request.dart';
 import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
-import 'package:moniepoint_flutter/app/onboarding/views/new/new_account_view.dart';
+import 'package:moniepoint_flutter/app/onboarding/views/new/signup_account_view.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';

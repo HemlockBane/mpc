@@ -25,24 +25,27 @@ import 'package:moniepoint_flutter/core/views/otp_ussd_info_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:provider/provider.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreenOld extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _LoginState();
 }
 
-class _LoginState extends State<LoginScreen>
-    with SingleTickerProviderStateMixin {
+class _LoginState extends State<LoginScreenOld> with SingleTickerProviderStateMixin {
+
   TextEditingController _usernameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   String savedHashUsername = "";
   String? unHashedUsername = "";
 
-  late final AnimationController _animController =
-      AnimationController(vsync: this, duration: Duration(milliseconds: 2000));
+  late final AnimationController _animController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 2000)
+  );
 
-  late final _ussdOffsetAnimation =
-      Tween<Offset>(begin: Offset(0, 12), end: Offset(0, 0)).animate(
-          CurvedAnimation(parent: _animController, curve: Curves.decelerate));
+  late final _ussdOffsetAnimation = Tween<Offset>(
+    begin: Offset(0, 12),
+    end: Offset(0, 0)
+  ).animate(CurvedAnimation(parent: _animController, curve: Curves.decelerate));
 
   bool _isLoading = false;
   bool _isPasswordVisible = false;
@@ -54,7 +57,7 @@ class _LoginState extends State<LoginScreen>
   void initState() {
     final viewModel = Provider.of<LoginViewModel>(context, listen: false);
 
-    viewModel.getSystemConfigurations().listen((event) {});
+    viewModel.getSystemConfigurations().listen((event) { });
 
     _usernameController.addListener(() => validateForm());
     _passwordController.addListener(() => validateForm());
@@ -71,8 +74,9 @@ class _LoginState extends State<LoginScreen>
     _biometricHelper = await BiometricHelper.initialize(
         keyFileName: "moniepoint_iv",
         keyStoreName: "AndroidKeyStore",
-        keyAlias: "teamapt-moniepoint");
-    if (!_alreadyInSessionError) _startFingerPrintLoginProcess();
+        keyAlias: "teamapt-moniepoint"
+    );
+    if(!_alreadyInSessionError) _startFingerPrintLoginProcess();
   }
 
   @override
@@ -90,8 +94,7 @@ class _LoginState extends State<LoginScreen>
 
   void validateForm() {
     setState(() {
-      _isFormValid = _usernameController.text.isNotEmpty &&
-          _passwordController.text.isNotEmpty;
+      _isFormValid = _usernameController.text.isNotEmpty && _passwordController.text.isNotEmpty;
     });
   }
 
@@ -116,7 +119,10 @@ class _LoginState extends State<LoginScreen>
           SizedBox(height: spacing),
           Text(text,
               style: TextStyle(
-                  fontFamily: 'CircularStd', fontSize: 12, color: Colors.white))
+                  fontFamily: 'CircularStd',
+                  fontSize: 12,
+                  color: Colors.textColorDeem
+              ))
         ],
       ),
       onTap: onClick,
@@ -124,47 +130,26 @@ class _LoginState extends State<LoginScreen>
   }
 
   Widget _buildTopMenu() {
-    return Stack(
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        SvgPicture.asset(
-          "res/drawables/bg.svg",
-          fit: BoxFit.fill,
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height * 0.36,
+        makeTextWithIcon(
+            text: "Support",
+            src: "res/drawables/support_icon.svg",
+            spacing: 5,
+            width: 27,
+            height: 24,
+            onClick: () => Navigator.of(context).pushNamed(Routes.SUPPORT)
         ),
-        Container(
-          margin: EdgeInsets.only(top: 40, right: 30),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              makeTextWithIcon(
-                  text: "Support",
-                  src: "res/drawables/support_v2_icon.svg",
-                  spacing: 5,
-                  width: 27,
-                  height: 24,
-                  onClick: () =>
-                      Navigator.of(context).pushNamed(Routes.SUPPORT)),
-              SizedBox(width: 18),
-              makeTextWithIcon(
-                  text: "Branches",
-                  spacing: 0.2,
-                  width: 24,
-                  height: 28,
-                  src: "res/drawables/support_v2_icon.svg",
-                  onClick: () =>
-                      Navigator.of(context).pushNamed(Routes.BRANCHES))
-            ],
-          ),
-        ),
-        // Align(
-        //   alignment: Alignment,
-        //   child: Container(
-        //     color: Colors.black,
-        //     height: 20,
-        //     width: 20,
-        //   ),
-        // )
+        SizedBox(width: 18),
+        makeTextWithIcon(
+            text: "Branches",
+            spacing: 0.2,
+            width: 24,
+            height: 28,
+            src: "res/drawables/double_location_icon.svg",
+            onClick: () => Navigator.of(context).pushNamed(Routes.BRANCHES)
+        )
       ],
     );
   }
@@ -174,12 +159,14 @@ class _LoginState extends State<LoginScreen>
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 8),
-          child: Text('Welcome Back, Adrian',
-              style: TextStyle(
-                  color: Colors.textColorBlack,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 24)),
+            padding: EdgeInsets.symmetric(horizontal: 8),
+            child: Text('Welcome Back',
+                style: TextStyle(
+                    color: Colors.textColorBlack,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24
+                )
+            ),
         ),
         SizedBox(height: 12),
         _buildLoginBox(context)
@@ -194,15 +181,12 @@ class _LoginState extends State<LoginScreen>
     String username = _usernameController.text;
     String password = _passwordController.text;
 
-    String loginUsername =
-        (username.contains("#")) ? unHashedUsername ?? "" : username;
-    viewModel
-        .loginWithPassword(loginUsername, password)
-        .listen(_loginResponseObserver);
+    String loginUsername = (username.contains("#")) ? unHashedUsername ?? "" : username;
+    viewModel.loginWithPassword(loginUsername, password).listen(_loginResponseObserver);
   }
 
   void _loginResponseObserver(Resource<User> event) {
-    if (event is Loading) setState(() => _isLoading = true);
+    if(event is Loading) setState(() => _isLoading = true);
     if (event is Error<User>) {
       setState(() => _isLoading = false);
       _passwordController.clear();
@@ -212,20 +196,17 @@ class _LoginState extends State<LoginScreen>
           backgroundColor: Colors.transparent,
           builder: (context) {
             //TODO we might need a better way of identifying how to detect an upgrade
-            if (event.message?.contains("version") == true) {
-              return BottomSheets.displayWarningDialog(
-                  'Update Moniepoint App', event.message ?? "", () {
+            if(event.message?.contains("version") == true) {
+              return BottomSheets.displayWarningDialog('Update Moniepoint App', event.message ?? "", () {
                 Navigator.of(context).pop();
-                final viewModel =
-                    Provider.of<LoginViewModel>(context, listen: false);
+                final viewModel = Provider.of<LoginViewModel>(context, listen: false);
                 dialNumber(viewModel.getApplicationPlayStoreUrl());
               }, buttonText: "Upgrade App");
             }
-            return BottomSheets.displayErrorModal(context,
-                message: event.message);
+            return BottomSheets.displayErrorModal(context, message: event.message);
           });
     }
-    if (event is Success<User>) {
+    if(event is Success<User>) {
       _passwordController.clear();
       setState(() => _isLoading = false);
       PreferenceUtil.setLoginMode(LoginMode.FULL_ACCESS);
@@ -236,37 +217,36 @@ class _LoginState extends State<LoginScreen>
   }
 
   void loginSuccessfully() {
-    Navigator.popAndPushNamed(context, Routes.DASHBOARD);
+      Navigator.popAndPushNamed(context, Routes.DASHBOARD);
   }
 
   void checkSecurityFlags() {
     final viewModel = Provider.of<LoginViewModel>(context, listen: false);
     var flag = viewModel.securityFlagQueue;
-    if (flag?.isEmpty == true) return loginSuccessfully();
+    if(flag?.isEmpty == true) return loginSuccessfully();
     var queue = flag?.removeFirst();
 
     if (queue == SecurityFlag.ADD_DEVICE) {
       showModalBottomSheet(
           context: context,
           backgroundColor: Colors.transparent,
-          builder: (b) => UnRecognizedDeviceDialog(() => checkSecurityFlags()));
+          builder: (b) => UnRecognizedDeviceDialog(()=> checkSecurityFlags())
+      );
     }
   }
 
   void _startFingerPrintLoginProcess() async {
     final viewModel = Provider.of<LoginViewModel>(context, listen: false);
     final biometricType = await _biometricHelper?.getBiometricType();
-    final hasFingerPrint =
-        (await _biometricHelper?.getFingerprintPassword()) != null;
-    if (biometricType != BiometricType.NONE) {
-      if (PreferenceUtil.getFingerPrintEnabled() && hasFingerPrint) {
+    final hasFingerPrint = (await _biometricHelper?.getFingerprintPassword()) != null;
+    if(biometricType != BiometricType.NONE) {
+      if(PreferenceUtil.getFingerPrintEnabled() && hasFingerPrint){
         _biometricHelper?.authenticate(authenticationCallback: (key, msg) {
-          if (key != null) {
-            viewModel
-                .loginWithFingerPrint(
-                    key, PreferenceUtil.getAuthFingerprintUsername() ?? "")
-                .listen(_loginResponseObserver);
-          }
+            if(key != null) {
+              viewModel
+                  .loginWithFingerPrint(key, PreferenceUtil.getAuthFingerprintUsername() ?? "")
+                  .listen(_loginResponseObserver);
+            }
         });
       }
     } else {
@@ -284,7 +264,8 @@ class _LoginState extends State<LoginScreen>
               height: 420,
               centerImageRes: 'res/drawables/ic_key.svg',
               centerImageBackgroundColor: Colors.primaryColor.withOpacity(0.1),
-              content: RecoverCredentialsDialogLayout.getLayout(context));
+              content: RecoverCredentialsDialogLayout.getLayout(context)
+          );
         });
   }
 
@@ -301,123 +282,134 @@ class _LoginState extends State<LoginScreen>
         backgroundColor: Colors.transparent,
         builder: (context) {
           return BottomSheets.makeAppBottomSheet(
-              height: 420, //this is like our guideline
+              height: 420,//this is like our guideline
               centerImageRes: 'res/drawables/ic_login_options.svg',
               centerBackgroundPadding: 18,
               centerImageBackgroundColor: Colors.primaryColor.withOpacity(0.1),
-              content: LoginOptionsDialogLayout.getLayout(context,
+              content: LoginOptionsDialogLayout.getLayout(
+                  context,
                   isFingerprintAvailable: isBiometricAvailable,
-                  hasFingerprintPassword: isFingerprintSetup));
+                  hasFingerprintPassword: isFingerprintSetup
+              )
+          );
         });
 
-    if (result is String && result == "fingerprint") {
+    if(result is String && result == "fingerprint") {
       _startFingerPrintLoginProcess();
     }
   }
 
   Widget _buildLoginBox(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(top: 28, left: 16, right: 16, bottom: 18),
-      child: Column(
-        children: [
-          Styles.appEditText(
-              hint: 'Username',
-              controller: _usernameController,
-              animateHint: true,
-              drawablePadding: EdgeInsets.only(left: 4, right: 4),
-              fontSize: 16,
-              padding: EdgeInsets.only(top: 22, bottom: 22),
-              startIcon: Icon(
-                CustomFont.username_icon,
-                color: Colors.colorFaded,
-                size: 28,
-              ),
-              focusListener: (bool) => this.setState(() {})),
-          SizedBox(height: 22),
-          Styles.appEditText(
-              controller: _passwordController,
-              hint: 'Password',
-              animateHint: true,
-              drawablePadding: EdgeInsets.only(left: 4, right: 4),
-              fontSize: 16,
-              padding: EdgeInsets.only(top: 22, bottom: 22),
-              endIcon: IconButton(
-                  icon: Icon(
-                      this._isPasswordVisible
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                      color: Colors.colorFaded),
-                  onPressed: () {
-                    setState(() {
-                      this._isPasswordVisible = !_isPasswordVisible;
-                    });
-                  }),
-              startIcon: Icon(
-                CustomFont.password,
-                color: Colors.colorFaded,
-                size: 25,
-              ),
-              focusListener: (bool) => this.setState(() {}),
-              isPassword: !_isPasswordVisible),
-          // SizedBox(height: 22),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              TextButton(
-                onPressed: _displayRecoverCredentials,
-                child: Text('Recover Credentials'),
-                style: ButtonStyle(
-                    padding: MaterialStateProperty.all(EdgeInsets.all(0)),
-                    foregroundColor:
-                        MaterialStateProperty.all(Colors.primaryColor),
-                    textStyle: MaterialStateProperty.all(TextStyle(
-                        fontFamily: Styles.defaultFont,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold))),
-              ),
-            ],
-          ),
-          SizedBox(height: 22),
-          Styles.statefulButton2(
-              isValid: _isFormValid,
-              padding: 20,
-              elevation: _isFormValid && !_isLoading ? 4 : 0,
-              onClick: () => _subscribeUiToLogin(context),
-              text: "Login",
-              isLoading: _isLoading),
-        ],
+    return Card(
+      elevation: 8,
+      shadowColor: Colors.cardBorder.withOpacity(0.15),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: Colors.cardBorder.withOpacity(0.05), width: 1),
+      ),
+      child: Padding(
+        padding: EdgeInsets.only(top: 28, left: 16, right: 16, bottom: 18),
+        child: Column(
+          children: [
+            Styles.appEditText(
+                hint: 'Username',
+                controller: _usernameController,
+                animateHint: true,
+                drawablePadding: EdgeInsets.only(left: 4, right: 4),
+                fontSize: 16,
+                padding: EdgeInsets.only(top: 22, bottom: 22),
+                startIcon: Icon(CustomFont.username_icon, color: Colors.colorFaded, size: 28,),
+                focusListener: (bool) => this.setState(() {})),
+            SizedBox(height: 22),
+            Styles.appEditText(
+                controller: _passwordController,
+                hint: 'Password',
+                animateHint: true,
+                drawablePadding: EdgeInsets.only(left: 4, right: 4),
+                fontSize: 16,
+                padding: EdgeInsets.only(top: 22, bottom: 22),
+                endIcon: IconButton(
+                    icon: Icon(this._isPasswordVisible ? Icons.visibility : Icons.visibility_off, color: Colors.colorFaded),
+                    onPressed: () {
+                      setState(() {
+                        this._isPasswordVisible = !_isPasswordVisible;
+                      });
+                    }
+                ),
+                startIcon: Icon(CustomFont.password, color: Colors.colorFaded, size: 25,),
+                focusListener: (bool) => this.setState(() {}),
+                isPassword: !_isPasswordVisible
+            ),
+            SizedBox(height: 22),
+            Styles.statefulButton2(
+                isValid: _isFormValid,
+                padding: 20,
+                elevation: _isFormValid && !_isLoading ? 4 : 0,
+                onClick: () => _subscribeUiToLogin(context),
+                text: "Login",
+                isLoading: _isLoading
+            ),
+            SizedBox(height: 28),
+            Divider(color: Colors.colorFaded.withOpacity(0.9), height: 1, thickness: 0.4,),
+            SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                TextButton(
+                  onPressed: _displayRecoverCredentials,
+                  child: Text('Recover Credentials'),
+                  style: ButtonStyle(
+                      padding: MaterialStateProperty.all(EdgeInsets.all(0)),
+                      foregroundColor: MaterialStateProperty.all(Colors.primaryColor),
+                      textStyle: MaterialStateProperty.all(TextStyle(
+                          fontFamily: Styles.defaultFont,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold))),
+                ),
+                TextButton(
+                  onPressed: _displayLoginOptions,
+                  child: Text('Login Options'),
+                  style: ButtonStyle(
+                      padding: MaterialStateProperty.all(EdgeInsets.all(0)),
+                      foregroundColor: MaterialStateProperty.all(Colors.primaryColor),
+                      textStyle: MaterialStateProperty.all(TextStyle(
+                          fontFamily: Styles.defaultFont,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold)
+                      )
+                  ),
+                ),
+              ],
+            )
+          ],
+        ),
       ),
     );
   }
 
   Widget _bottomUSSDWidget() {
-    Tuple<String, String> codes = OtpUssdInfoView.getUSSDDialingCodeAndPreview(
-        "Main Menu",
-        defaultCode: "*5573#");
+    Tuple<String, String> codes = OtpUssdInfoView.getUSSDDialingCodeAndPreview("Main Menu", defaultCode: "*5573#");
     return Container(
-      decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(10), topRight: Radius.circular(10)),
-          border:
-              Border.all(color: Colors.cardBorder.withOpacity(0.05), width: 1),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.cardBorder.withOpacity(0.2),
-                offset: Offset(0, 8),
-                blurRadius: 6)
-          ]),
+        decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
+            border: Border.all(color: Colors.cardBorder.withOpacity(0.05), width: 1),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.cardBorder.withOpacity(0.2),
+                  offset: Offset(0, 8),
+                  blurRadius: 6
+              )
+            ]
+        ),
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(10), topRight: Radius.circular(10)),
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
         child: InkWell(
           highlightColor: Colors.grey.withOpacity(0.05),
-          overlayColor:
-              MaterialStateProperty.all(Colors.primaryColor.withOpacity(0.05)),
-          borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(10), topRight: Radius.circular(10)),
+          overlayColor: MaterialStateProperty.all(Colors.primaryColor.withOpacity(0.05)),
+          borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
           onTap: () => dialNumber("tel:${codes.first}"),
           child: Container(
             child: Padding(
@@ -426,8 +418,7 @@ class _LoginState extends State<LoginScreen>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Flexible(
-                      child: Column(
+                  Flexible(child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
@@ -452,7 +443,9 @@ class _LoginState extends State<LoginScreen>
                           fontFamily: Styles.defaultFont,
                           fontSize: 32,
                           color: Colors.primaryColor,
-                          fontWeight: FontWeight.w600))
+                          fontWeight: FontWeight.w600
+                      )
+                  )
                 ],
               ),
             ),
@@ -463,9 +456,8 @@ class _LoginState extends State<LoginScreen>
   }
 
   void _onSessionReason(Tuple<String, SessionTimeoutReason>? reason) {
-    if (reason == null) return;
-    if (reason.second == SessionTimeoutReason.INACTIVITY &&
-        !_alreadyInSessionError) {
+    if(reason == null) return;
+    if(reason.second == SessionTimeoutReason.INACTIVITY && !_alreadyInSessionError) {
       _alreadyInSessionError = true;
       UserInstance().resetSession();
       Future.delayed(Duration(milliseconds: 150), () {
@@ -473,18 +465,19 @@ class _LoginState extends State<LoginScreen>
             backgroundColor: Colors.transparent,
             context: context,
             builder: (BuildContext context) {
-              return BottomSheets.displayErrorModal(context,
+              return BottomSheets.displayErrorModal(
+                  context,
                   title: "Logged Out",
-                  message:
-                      "your session timed out due to inactivity. Please re-login to continue",
+                  message: "your session timed out due to inactivity. Please re-login to continue",
                   onClick: () {
-                Navigator.of(context).pop();
-                _startFingerPrintLoginProcess();
-              });
-            });
+                    Navigator.of(context).pop();
+                    _startFingerPrintLoginProcess();
+                  }
+              );
+            }
+        );
       });
-    } else if (reason.second == SessionTimeoutReason.LOGIN_REQUESTED &&
-        !_alreadyInSessionError) {
+    } else if(reason.second == SessionTimeoutReason.LOGIN_REQUESTED && !_alreadyInSessionError) {
       _alreadyInSessionError = true;
       UserInstance().resetSession();
       Future.delayed(Duration(milliseconds: 150), () {
@@ -492,14 +485,17 @@ class _LoginState extends State<LoginScreen>
             backgroundColor: Colors.transparent,
             context: context,
             builder: (BuildContext context) {
-              return BottomSheets.displayErrorModal(context,
+              return BottomSheets.displayErrorModal(
+                  context,
                   title: "Logged Out",
                   message: "A Re-Login was needed for you to continue",
                   onClick: () {
-                Navigator.of(context).pop();
-                _startFingerPrintLoginProcess();
-              });
-            });
+                    Navigator.of(context).pop();
+                    _startFingerPrintLoginProcess();
+                  }
+              );
+            }
+        );
       });
     }
   }
@@ -511,48 +507,46 @@ class _LoginState extends State<LoginScreen>
 
     Provider.of<LoginViewModel>(context, listen: false);
 
-    final sessionReason = ModalRoute.of(context)!.settings.arguments
-        as Tuple<String, SessionTimeoutReason>?;
+    final sessionReason = ModalRoute.of(context)!.settings.arguments as Tuple<String, SessionTimeoutReason>?;
     _onSessionReason(sessionReason);
 
     return WillPopScope(
-      onWillPop: () async {
-        Navigator.of(context).popAndPushNamed(Routes.SIGN_UP);
-        return true;
-      },
-      child: Scaffold(
-        // backgroundColor: Colors.backgroundWhite,
-        body: ScrollView(
-          child: Container(
-            // color: Colors.backgroundWhite,
-            height: minHeight,
-            child: Column(
-              children: [
-                _buildTopMenu(),
-                Flexible(
-                  child: Container(
-                    padding: EdgeInsets.only(
-                        left: 16, right: 16, top: 34, bottom: 0),
-                    child: _buildCenterBox(context),
-                  ),
-                  fit: FlexFit.tight,
-                  flex: 4,
-                ),
-                Expanded(
-                  flex: 0,
-                  child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: SlideTransition(
-                      position: _ussdOffsetAnimation,
-                      child: _bottomUSSDWidget(),
+        onWillPop: () async {
+          Navigator.of(context).popAndPushNamed(Routes.SIGN_UP);
+          return true;
+        },
+        child: Scaffold(
+            backgroundColor: Colors.backgroundWhite,
+            body: ScrollView(
+                child: Container(
+                  color: Colors.backgroundWhite,
+                  padding: EdgeInsets.only(left: 16, right: 16, top: 34, bottom: 0),
+                  height: minHeight,
+                  child: Column(children: [
+                    Flexible(
+                      child: _buildTopMenu(),
+                      fit: FlexFit.loose,
+                      flex: 1,
                     ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+                    Flexible(
+                      child: _buildCenterBox(context),
+                      fit: FlexFit.tight,
+                      flex: 4,
+                    ),
+                    Expanded(
+                      flex: 0,
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: SlideTransition(
+                          position: _ussdOffsetAnimation,
+                          child: _bottomUSSDWidget(),
+                        ),
+                      ),
+                    ),
+                  ]),
+                )
+            )
         ),
-      ),
     );
   }
 

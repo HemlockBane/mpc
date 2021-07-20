@@ -28,6 +28,7 @@ import 'package:moniepoint_flutter/app/devicemanagement/viewmodels/user_device_v
 import 'package:moniepoint_flutter/app/devicemanagement/views/user_device_list_view.dart';
 import 'package:moniepoint_flutter/app/login/viewmodels/login_view_model.dart';
 import 'package:moniepoint_flutter/app/login/views/login_view.dart';
+import 'package:moniepoint_flutter/app/login/views/login_view_old.dart';
 import 'package:moniepoint_flutter/app/login/views/recovery/recovery_controller_screen.dart';
 import 'package:moniepoint_flutter/app/login/views/support_view.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/airtime/views/airtime_select_beneficiary_view.dart';
@@ -96,7 +97,7 @@ class MoniepointApp extends StatelessWidget {
       home: Scaffold(
         body: (savedUsername == null || savedUsername.isEmpty)
           ? NewAccountScreen()
-          : LoginScreen(),
+          : LoginScreenOld(),
       ),
       onGenerateRoute: (settings) {
         switch(settings.name) {

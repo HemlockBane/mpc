@@ -11,6 +11,7 @@ import 'package:moniepoint_flutter/app/login/views/dialogs/unrecognized_device_d
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
+import 'package:moniepoint_flutter/core/custom_icons2_icons.dart';
 import 'package:moniepoint_flutter/core/login_mode.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -130,10 +131,11 @@ class _LoginState extends State<LoginScreen>
           "res/drawables/bg.svg",
           fit: BoxFit.fill,
           width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height * 0.36,
+          height: MediaQuery.of(context).size.height * 0.35,
         ),
         Container(
-          margin: EdgeInsets.only(top: 40, right: 30),
+          margin: EdgeInsets.only(
+              top: MediaQuery.of(context).size.height * 0.075, right: 30),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -151,7 +153,7 @@ class _LoginState extends State<LoginScreen>
                   spacing: 0.2,
                   width: 24,
                   height: 28,
-                  src: "res/drawables/support_v2_icon.svg",
+                  src: "res/drawables/branches.svg",
                   onClick: () =>
                       Navigator.of(context).pushNamed(Routes.BRANCHES))
             ],
@@ -175,13 +177,13 @@ class _LoginState extends State<LoginScreen>
       children: [
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 8),
-          child: Text('Welcome Back, Adrian',
+          child: Text('Welcome back, Adrian',
               style: TextStyle(
                   color: Colors.textColorBlack,
                   fontWeight: FontWeight.bold,
                   fontSize: 24)),
         ),
-        SizedBox(height: 12),
+        // SizedBox(height: 5),
         _buildLoginBox(context)
       ],
     );
@@ -317,29 +319,31 @@ class _LoginState extends State<LoginScreen>
 
   Widget _buildLoginBox(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(top: 28, left: 16, right: 16, bottom: 18),
+      padding: EdgeInsets.only(top: 11, left: 16, right: 16, bottom: 18),
       child: Column(
         children: [
           Styles.appEditText(
               hint: 'Username',
+              fillColor: Color(0xFFF5F6F7),
               controller: _usernameController,
               animateHint: true,
               drawablePadding: EdgeInsets.only(left: 4, right: 4),
-              fontSize: 16,
+              fontSize: 15,
               padding: EdgeInsets.only(top: 22, bottom: 22),
               startIcon: Icon(
-                CustomFont.username_icon,
+                CustomIcons2.username,
                 color: Colors.colorFaded,
-                size: 28,
+                size: 20,
               ),
               focusListener: (bool) => this.setState(() {})),
           SizedBox(height: 22),
           Styles.appEditText(
               controller: _passwordController,
               hint: 'Password',
+              fillColor: Color(0xFFF5F6F7),
               animateHint: true,
               drawablePadding: EdgeInsets.only(left: 4, right: 4),
-              fontSize: 16,
+              fontSize: 15,
               padding: EdgeInsets.only(top: 22, bottom: 22),
               endIcon: IconButton(
                   icon: Icon(
@@ -353,9 +357,9 @@ class _LoginState extends State<LoginScreen>
                     });
                   }),
               startIcon: Icon(
-                CustomFont.password,
+                CustomIcons2.password,
                 color: Colors.colorFaded,
-                size: 25,
+                size: 20,
               ),
               focusListener: (bool) => this.setState(() {}),
               isPassword: !_isPasswordVisible),
@@ -374,7 +378,7 @@ class _LoginState extends State<LoginScreen>
                     textStyle: MaterialStateProperty.all(TextStyle(
                         fontFamily: Styles.defaultFont,
                         fontSize: 14,
-                        fontWeight: FontWeight.bold))),
+                        fontWeight: FontWeight.normal))),
               ),
             ],
           ),
@@ -507,7 +511,7 @@ class _LoginState extends State<LoginScreen>
   @override
   Widget build(BuildContext context) {
     final top = MediaQuery.of(context).padding.top;
-    final minHeight = MediaQuery.of(context).size.height - (top + 34);
+    final minHeight = MediaQuery.of(context).size.height;
 
     Provider.of<LoginViewModel>(context, listen: false);
 
@@ -521,31 +525,41 @@ class _LoginState extends State<LoginScreen>
         return true;
       },
       child: Scaffold(
+        // resizeToAvoidBottomInset: true,
         // backgroundColor: Colors.backgroundWhite,
-        body: ScrollView(
+        body: SingleChildScrollView(
           child: Container(
-            // color: Colors.backgroundWhite,
-            height: minHeight,
-            child: Column(
+            height: minHeight, //TODO: Find out what this means here
+            child: Stack(
               children: [
                 _buildTopMenu(),
-                Flexible(
-                  child: Container(
-                    padding: EdgeInsets.only(
-                        left: 16, right: 16, top: 34, bottom: 0),
-                    child: _buildCenterBox(context),
-                  ),
-                  fit: FlexFit.tight,
-                  flex: 4,
-                ),
-                Expanded(
-                  flex: 0,
-                  child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: SlideTransition(
-                      position: _ussdOffsetAnimation,
-                      child: _bottomUSSDWidget(),
+                Column(
+                  children: [
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.37,
                     ),
+                    Expanded(
+                      child: Container(
+                        padding: EdgeInsets.only(
+                            left: 16, right: 16, top: 34, bottom: 0),
+                        child: _buildCenterBox(context),
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: SlideTransition(
+                        position: _ussdOffsetAnimation,
+                        child: _bottomUSSDWidget(),
+                      ),
+                    ),
+                  ],
+                ),
+                Align(
+                  alignment: Alignment(0, -0.30),
+                  child: SvgPicture.asset(
+                    "res/drawables/m_icon_2.svg",
+                    height: 110,
+                    width: 110,
                   ),
                 ),
               ],

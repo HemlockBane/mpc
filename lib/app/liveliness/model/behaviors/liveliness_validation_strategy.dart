@@ -3,16 +3,16 @@ import 'package:moniepoint_flutter/app/liveliness/model/behaviors/onboarding_liv
 import 'package:moniepoint_flutter/app/liveliness/viewmodels/liveliness_verification_viewmodel.dart';
 
 /// @author  Paul Okeke
-abstract class LivelinessValidateBehavior<T> {
+abstract class LivelinessValidationStrategy<T> {
 
-  LivelinessValidateBehavior(LivelinessVerificationViewModel viewModel);
+  LivelinessValidationStrategy(LivelinessVerificationViewModel viewModel);
 
   Future<T?> validate(String firstCapturePath, String motionCapturePath);
 
   //TODO use this as a factory method for getting validation behavior for liveliness
-  factory LivelinessValidateBehavior.getInstance(LivelinessVerificationViewModel viewModel,
+  factory LivelinessValidationStrategy.getInstance(LivelinessVerificationViewModel viewModel,
       LivelinessVerificationFor verificationFor, Map<String, dynamic> arguments) {
-    return OnboardingLivelinessValidationBehavior(viewModel, arguments) as LivelinessValidateBehavior<T>;
+    return OnboardingLivelinessValidationStrategy(viewModel, arguments) as LivelinessValidationStrategy<T>;
   }
 
 }

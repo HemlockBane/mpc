@@ -34,6 +34,7 @@ import 'package:moniepoint_flutter/app/managebeneficiaries/airtime/views/airtime
 import 'package:moniepoint_flutter/app/managebeneficiaries/bills/views/bill_select_beneficiary_view.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/managed_beneficiary_view.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/views/transfer_select_beneficiary_view.dart';
+import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/existing/existing_account_view.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/new/liveliness_view.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/new/signup_account_view.dart';
@@ -92,7 +93,7 @@ class MoniepointApp extends StatelessWidget {
       theme: defaultAppTheme,
       home: Scaffold(
         body: (savedUsername == null || savedUsername.isEmpty)
-          ? NewAccountScreen()
+          ? SignUpAccountScreen()
           : LoginScreen(),
       ),
       onGenerateRoute: (settings) {
@@ -115,13 +116,16 @@ class MoniepointApp extends StatelessWidget {
       //TODO consider moving this to a separate file
       routes: <String, WidgetBuilder>{
         '/login': (BuildContext context) => LoginScreen(),
-        '/sign-up': (BuildContext context) => Scaffold(body: NewAccountScreen()),
+        '/sign-up': (BuildContext context) => ChangeNotifierProvider(
+          create: (_) => OnBoardingViewModel(),
+          child: SignUpAccountScreen(),
+        ),
         // Routes.ONBOARDING_PHONE_NUMBER_VALIDATION: (BuildContext context) => ChangeNotifierProvider(
         //   create: (_) => OnBoardingViewModel(),
         //   child: PhoneNumberValidationScreen(),
         // ),
         Routes.REGISTER_EXISTING_ACCOUNT: (BuildContext context) => Scaffold(body: ExistingAccountView()),
-        Routes.REGISTER_NEW_ACCOUNT: (BuildContext context) => Scaffold(body: NewAccountScreen()),
+        Routes.REGISTER_NEW_ACCOUNT: (BuildContext context) => Scaffold(body: SignUpAccountScreen()),
         Routes.ACCOUNT_RECOVERY: (BuildContext context) => Scaffold(body: RecoveryControllerScreen()),
         Routes.DASHBOARD: (BuildContext context) =>  DashboardScreen(),
         Routes.ACCOUNT_UPDATE: (BuildContext context) => Scaffold(body: AccountUpdateScreen()),

@@ -42,7 +42,7 @@ class _PhoneNumberValidationScreen extends State<PhoneNumberValidationScreen> {
       }
       if(event is Success<bool>) {
         setState(() => _isLoading = false);
-        Navigator.of(context).pushNamed(NewAccountScreen.ONBOARDING_PHONE_NUMBER_VERIFICATION);
+        Navigator.of(context).pushNamed(SignUpAccountScreen.ONBOARDING_PHONE_NUMBER_VERIFICATION);
       }
     });
   }

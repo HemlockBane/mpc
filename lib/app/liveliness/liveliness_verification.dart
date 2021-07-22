@@ -140,7 +140,10 @@ class _LivelinessVerification extends State<LivelinessVerification> {
                   SizedBox(height: 36),
                   Styles.appButton(
                       elevation: 0,
-                      onClick: () => Navigator.of(context).pop(),
+                      onClick: () {
+                        Navigator.of(context).pop();
+                        _livelinessDetector?.startMotionDetection();
+                      },
                       text: 'Start Capture'
                   ),
                   SizedBox(height: 24,),
@@ -163,7 +166,7 @@ class _LivelinessVerification extends State<LivelinessVerification> {
 
   void _initLivelinessDetector() {
     final screenSize = MediaQuery.of(context).size;
-    var frameRect = Rect.fromCenter(center: Offset(screenSize.width / 2, 280), width: 300, height: 380);
+    var frameRect = Rect.fromLTRB(55, 90, screenSize.width - 55, screenSize.height / 1.72);
     _initializedLiveliness = _livelinessDetector?.initialize(frameSize: frameRect);
     setState(() {});
   }

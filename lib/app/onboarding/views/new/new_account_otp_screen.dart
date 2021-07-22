@@ -50,33 +50,33 @@ class _NewAccountOTPScreen extends State<NewAccountOTPScreen> {
 
     super.initState();
 
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
-      viewModel.requestOtpForNewAccount().listen((event) {
-        print(event);
-      });
-    });
+    // WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+    //   final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
+    //   viewModel.requestOtpForNewAccount().listen((event) {
+    //     print(event);
+    //   });
+    // });
   }
 
   void _subscribeUiToOtpValidation(BuildContext context) {
     final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
-    viewModel.validateBVNOTP(otpController.text).listen((event) {
-      if(event is Loading) setState(() => _isLoading = true);
-      if (event is Error<BVNOTPValidationResult>) {
-        setState(() => _isLoading = false);
-        showModalBottomSheet(
-            context: _scaffoldKey.currentContext ?? context,
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            builder: (context) {
-              return BottomSheets.displayErrorModal(context, message: event.message);
-            });
-      }
-      if(event is Success<BVNOTPValidationResult>) {
-        setState(() => _isLoading = false);
-        Navigator.of(context).pushNamed(NewAccountScreen.COLLECTION_SCREEN);
-      }
-    });
+    // viewModel.validateBVNOTP(otpController.text).listen((event) {
+    //   if(event is Loading) setState(() => _isLoading = true);
+    //   if (event is Error<BVNOTPValidationResult>) {
+    //     setState(() => _isLoading = false);
+    //     showModalBottomSheet(
+    //         context: _scaffoldKey.currentContext ?? context,
+    //         isScrollControlled: true,
+    //         backgroundColor: Colors.transparent,
+    //         builder: (context) {
+    //           return BottomSheets.displayErrorModal(context, message: event.message);
+    //         });
+    //   }
+    //   if(event is Success<BVNOTPValidationResult>) {
+    //     setState(() => _isLoading = false);
+    //     Navigator.of(context).pushNamed(SignUpAccountScreen.COLLECTION_SCREEN);
+    //   }
+    // });
   }
 
   String getUSSD() {

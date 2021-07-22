@@ -85,7 +85,7 @@ class _SetPasswordRecoveryView extends State<SetPasswordRecoveryView> with Valid
       final validator = validatePasswordWithMessage(_passwordController.text);
       setState(() {
         _isPasswordValid = validator.first;
-        _errorText = validator.second;
+        _errorText = validator.second?.first;
       });
     });
     super.initState();

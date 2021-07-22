@@ -1,20 +1,23 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:moniepoint_flutter/app/onboarding/model/data/account_request.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/profile_request.dart';
 import 'package:moniepoint_flutter/app/onboarding/username_validation_state.dart';
 import 'package:moniepoint_flutter/app/securityquestion/model/data/security_question.dart';
+import 'package:moniepoint_flutter/app/validation/model/data/onboarding_liveliness_validation_response.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/validators.dart';
 import 'package:rxdart/rxdart.dart';
 
 /// @author Paul Okeke
 class ProfileForm with ChangeNotifier, Validators {
+
+
   late final Stream<bool> _isValid;
   var isUsernameVerified = false;
 
   ProfileCreationRequestBody _requestBody = ProfileCreationRequestBody();
-
   ProfileCreationRequestBody get profile => _requestBody;
 
   final _usernameController = StreamController<Tuple<String, UsernameValidationState>>.broadcast();
@@ -26,56 +29,22 @@ class ProfileForm with ChangeNotifier, Validators {
   final _pinInputController = StreamController<String>.broadcast();
   Stream<String> get pinInputStream => _pinInputController.stream;
 
-  final _questionOneController = StreamController<SecurityQuestion?>.broadcast();
-  Stream<SecurityQuestion?> get questionOneStream => _questionOneController.stream;
+  final _ussdPinInputController = StreamController<String>.broadcast();
+  Stream<String> get ussdPinInputStream => _ussdPinInputController.stream;
 
-  final _questionTwoController = StreamController<SecurityQuestion?>.broadcast();
-  Stream<SecurityQuestion?> get questionTwoStream => _questionTwoController.stream;
+  final _enableUssdPinController = StreamController<bool>.broadcast();
+  Stream<bool> get enableUssdStream => _enableUssdPinController.stream;
 
-  final _questionThreeController = StreamController<SecurityQuestion?>.broadcast();
-  Stream<SecurityQuestion?> get questionThreeStream => _questionThreeController.stream;
+  final _signatureController = StreamController<bool>.broadcast();
+  Stream<bool> get signatureStream => _signatureController.stream;
 
-  final _answerOneController = StreamController<String>.broadcast();
-  Stream<String> get answerOneStream => _answerOneController.stream;
+  final _emailController = StreamController<String>.broadcast();
+  Stream<String> get emailStream => _emailController.stream;
 
-  final _answerTwoController = StreamController<String>.broadcast();
-  Stream<String> get answerTwoStream => _answerTwoController.stream;
-
-  final _answerThreeController = StreamController<String>.broadcast();
-  Stream<String> get answerThreeStream => _answerThreeController.stream;
-
-  SecurityQuestion? _securityOne;
-  SecurityQuestion? get securityQuestionOne => _securityOne;
-
-  SecurityQuestion? _securityTwo;
-  SecurityQuestion? get securityQuestionTwo => _securityTwo;
-
-  SecurityQuestion? _securityThree;
-  SecurityQuestion? get securityQuestionThree => _securityThree;
-
-  List<SecurityQuestion> _securityQuestionOneList = [];
-  List<SecurityQuestion> get securityQuestionOneList => _securityQuestionOneList ;
-
-  List<SecurityQuestion> _securityQuestionTwoList = [];
-  List<SecurityQuestion> get securityQuestionTwoList => _securityQuestionTwoList;
-
-  List<SecurityQuestion> _securityQuestionThreeList = [];
-  List<SecurityQuestion> get securityQuestionThreeList => _securityQuestionThreeList;
+  bool _hasSignature = false;
+  OnBoardingType _onBoardingType = OnBoardingType.ACCOUNT_DOES_NOT_EXIST;
 
   UsernameValidationState _validationState = UsernameValidationState(UsernameValidationStatus.NONE, "");
-
-  /// Internally used to track if the questions have already been set
-  /// to avoid outsiders initializing twice
-  bool _isQuestionInitialized = false;
-
-  String? _answerOne;
-  String? get answerOne => _answerOne;
-
-  String? _answerTwo;
-  String? get answerTwo => _answerTwo;
-
-  String? _answerThree;
-  String? get answerThree => _answerThree;
 
   ProfileForm() {
     _initState();
@@ -91,26 +60,24 @@ class ProfileForm with ChangeNotifier, Validators {
       usernameStream,
       passwordStream,
       pinInputStream,
-      questionOneStream,
-      questionTwoStream,
-      questionThreeStream,
-      answerOneStream,
-      answerTwoStream,
-      answerThreeStream
+      signatureStream,
+      emailStream,
+      enableUssdStream
     ];
     
     this._isValid = Rx.combineLatest(formStreams, (values) {
+      print(values);
       return _isUsernameValid(displayError: false)
           && _isPasswordValid(displayError: false)
           && _isPinValid(displayError: false)
+          && _isUssdPinValid(displayError: false)
+          && _isEmailAddressValid(displayError: false)
           && _validationState.status == UsernameValidationStatus.AVAILABLE
-          && _securityOne != null
-          && _securityTwo != null
-          && _securityThree != null
-          && _answerOne != null && _answerOne?.isNotEmpty == true
-          && _answerTwo != null && _answerTwo?.isNotEmpty == true
-          && _answerThree != null && _answerThree?.isNotEmpty == true;
+          && _hasSignature;
     }).asBroadcastStream();
+
+    _enableUssdPinController.sink.add(false);
+    _emailController.sink.add("");
   }
 
   void onUsernameChanged(String? text) {
@@ -146,7 +113,7 @@ class ProfileForm with ChangeNotifier, Validators {
   bool _isPasswordValid({bool displayError = false}) {
     final validator = validatePasswordWithMessage(_requestBody.password);
     if (validator.first) return true;
-    if (displayError && !validator.first) _passwordController.sink.addError(validator.second ?? "");
+    if (displayError && !validator.first) _passwordController.sink.addError(validator.second?.first ?? "");
     return false;
   }
 
@@ -163,90 +130,68 @@ class ProfileForm with ChangeNotifier, Validators {
     return isValid;
   }
 
-  void onSecurityQuestionChange(int questionNumber, SecurityQuestion question) {
-    if (!question.isEnabled) return;
+  void onUssdPinChanged(String? text) {
+    (_requestBody as AccountCreationRequestBody).ussdPin = text;
+    _ussdPinInputController.sink.add(text ?? "");
+    _isUssdPinValid(displayError: true);
+  }
 
-    if (questionNumber == 1) {
-      final previous = _securityOne;
-      previous?.isEnabled = true;
-      _securityOne = question;
-      _securityOne?.isEnabled = false;
-      _sanitizeSecurityQuestions(securityQuestionOneList, previous, question, [securityQuestionTwoList, securityQuestionThreeList]);
-    } else if (questionNumber == 2) {
-      final previous = _securityTwo;
-      previous?.isEnabled = true;
-      _securityTwo = question;
-      _securityTwo?.isEnabled = false;
-      _sanitizeSecurityQuestions(securityQuestionTwoList, previous, question, [securityQuestionOneList, securityQuestionThreeList]);
-    } else if (questionNumber == 3) {
-      final previous = _securityThree;
-      previous?.isEnabled = true;
-      _securityThree = question;
-      _securityThree?.isEnabled = false;
-      _sanitizeSecurityQuestions(securityQuestionThreeList, previous, question, [securityQuestionOneList, securityQuestionTwoList]);
+  bool _isUssdPinValid({bool displayError = false}) {
+    final requestBody = (_requestBody as AccountCreationRequestBody);
+    if(requestBody.createUssdPin == false) return true;
+    final pin = requestBody.ussdPin;
+    final isValid = pin != null && pin.isNotEmpty && pin.length >= 4;
+    if (displayError && !isValid) _ussdPinInputController.sink.addError("Invalid PIN");
+    return isValid;
+  }
+
+  void onEmailChanged(String? text) {
+    _requestBody.emailAddress = text;
+    _emailController.sink.add(text ?? '');
+    _isEmailAddressValid(displayError: true);
+  }
+
+  bool _isEmailAddressValid({bool displayError = false}) {
+    if(_onBoardingType == OnBoardingType.ACCOUNT_EXIST) return true;
+    final isValid = isEmailValid(_requestBody.emailAddress);
+    if (displayError && !isValid) {
+      _emailController.sink.addError(
+          (_requestBody.emailAddress == null || _requestBody.emailAddress!.isEmpty)
+              ? 'Email address is required'
+              : 'Invalid Email address');
+    }
+    return isValid;
+  }
+
+  void onEnableUssd(bool enable) {
+    final requestBody = (_requestBody as AccountCreationRequestBody);
+    requestBody.createUssdPin = enable;
+    _enableUssdPinController.sink.add(enable);
+    if(!enable) {
+      requestBody.withUSSDPin("");
     }
   }
 
-  void _sanitizeSecurityQuestions(
-      List<SecurityQuestion> source,
-      SecurityQuestion? itemToAdd,
-      SecurityQuestion itemToRemove,
-      List<List<SecurityQuestion>> destinations) {
-
-    final addIndex = (itemToAdd!=null) ? source.indexOf(itemToAdd) : -1;
-    destinations.forEach((element) {
-      if(addIndex != -1 && itemToAdd != null) element.insert(addIndex, itemToAdd);
-      element.remove(itemToRemove);
-    });
-
-    _questionOneController.sink.add(_securityOne);
-    _questionTwoController.sink.add(_securityTwo);
-    _questionThreeController.sink.add(_securityThree);
+  void setHasSignature(bool hasSignature) {
+    this._hasSignature = hasSignature;
+    _signatureController.sink.add(hasSignature);
   }
 
-  void onAnswerChanged(int questionNumber, String? text) {
-    // ignore: close_sinks
-    StreamSink? sink;
-    if (questionNumber == 1) {
-      sink = _answerOneController.sink;
-      _answerOne = text;
-    } else if (questionNumber == 2) {
-      sink = _answerTwoController.sink;
-      _answerTwo = text;
-    } else if (questionNumber == 3) {
-      sink = _answerThreeController.sink;
-      _answerThree = text;
-    }
-    sink?.add(text ?? "");
-
-    if (text == null || text.isEmpty) {
-      sink?.addError('Answer $questionNumber is required.');
-    }
+  void setOnboardingType(OnBoardingType onBoardingType) {
+    this._onBoardingType = onBoardingType;
   }
+
 
   Stream<bool> get isValid => _isValid;
-
-  bool initializeSecurityQuestions(List<SecurityQuestion> securityQuestions) {
-    if(_isQuestionInitialized) return false;
-    _securityQuestionOneList.addAll(securityQuestions);
-    _securityQuestionTwoList.addAll(securityQuestions);
-    _securityQuestionThreeList.addAll(securityQuestions);
-    return true;
-  }
-
   @override
   void dispose() {
     _usernameController.close();
     _passwordController.close();
     _pinInputController.close();
-
-    _questionOneController.close();
-    _questionTwoController.close();
-    _questionThreeController.close();
-    
-    _answerOneController.close();
-    _answerTwoController.close();
-    _answerThreeController.close();
+    _ussdPinInputController.close();
+    _enableUssdPinController.close();
+    _signatureController.close();
+    _emailController.close();
     super.dispose();
   }
 }

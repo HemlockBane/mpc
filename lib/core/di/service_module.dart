@@ -88,7 +88,11 @@ class ServiceModule {
   static void inject() {
     final dio = getConfiguredApiClient();
 
-    //initialize all the service/delegate here
+    GetIt.I.registerSingletonAsync<DeviceManager>(() async {
+      final deviceManager = DeviceManager();
+      await deviceManager.init();
+      return deviceManager;
+    });
 
     /// Onboarding Service
     GetIt.I.registerLazySingleton<OnBoardingServiceDelegate>(() {
@@ -239,10 +243,6 @@ class ServiceModule {
 
     GetIt.I.registerLazySingleton<DeviceInfoPlugin>(() {
       return DeviceInfoPlugin();
-    });
-
-    GetIt.I.registerLazySingleton<DeviceManager>(() {
-      return DeviceManager();
     });
 
 

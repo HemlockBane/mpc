@@ -1,24 +1,29 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' hide Colors;
+import 'dart:io';
+
+import 'package:flutter/material.dart' hide Colors, ScrollView;
+import 'package:flutter/services.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:moniepoint_flutter/app/cards/views/error_layout_view.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:lottie/lottie.dart';
 import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
-import 'package:moniepoint_flutter/app/onboarding/views/security_question_shimmer.dart';
-import 'package:moniepoint_flutter/app/securityquestion/model/data/security_question.dart';
+import 'package:moniepoint_flutter/app/validation/model/data/onboarding_liveliness_validation_response.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
-import 'package:moniepoint_flutter/core/custom_fonts.dart';
-import 'package:moniepoint_flutter/core/network/network_bound_resource.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/strings.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/call_utils.dart';
-import 'package:moniepoint_flutter/core/views/pin_entry.dart';
+import 'package:moniepoint_flutter/core/validators.dart';
+import 'package:moniepoint_flutter/core/views/custom_check_box.dart';
+import 'package:moniepoint_flutter/core/views/scroll_view.dart';
+import 'package:path/path.dart' hide context;
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:moniepoint_flutter/core/utils/text_utils.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:signature/signature.dart';
 import '../username_validation_state.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -32,20 +37,23 @@ class ProfileScreen extends StatefulWidget {
   }
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends State<ProfileScreen> with Validators{
 
   late final GlobalKey<ScaffoldState> _scaffoldKey;
   bool _isPasswordVisible  = false;
+  bool _isPinVisible  = false;
+  bool _isUssdVisible  = false;
   bool _isLoading = false;
-  bool _isNewAccount = false;
+  bool _isSignatureEnabled = false;
 
-  Stream<Resource<List<SecurityQuestion>>>? _securityQuestionStream;
+  final SignatureController _signatureController = SignatureController(penStrokeWidth: 2, penColor: Colors.darkBlue);
+  final TextEditingController _passwordController = TextEditingController();
 
   _ProfileScreenState(this._scaffoldKey);
   
   Widget getPasswordToggleIcon(BuildContext context) {
     return IconButton(
-        icon: Icon(this._isPasswordVisible ? Icons.visibility : Icons.visibility_off, color: Colors.colorFaded),
+        icon: Icon(this._isPasswordVisible ? Icons.visibility : Icons.visibility_off, color: Color(0XFF999999)),
         onPressed: () {
           setState(() {
             this._isPasswordVisible = !_isPasswordVisible;
@@ -54,7 +62,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Widget getPinToggleIcon(BuildContext context) {
+    return IconButton(
+        icon: Icon(this._isPinVisible ? Icons.visibility : Icons.visibility_off, color:  Color(0XFF999999)),
+        onPressed: () {
+          setState(() {
+            this._isPinVisible = !_isPinVisible;
+          });
+        }
+    );
+  }
+
+  Widget getUssdToggleIcon(BuildContext context) {
+    return IconButton(
+        icon: Icon(this._isUssdVisible ? Icons.visibility : Icons.visibility_off, color:  Color(0XFF999999)),
+        onPressed: () {
+          setState(() {
+            this._isUssdVisible = !_isUssdVisible;
+          });
+        }
+    );
+  }
+
   void handleCreationResponse<T>(Resource<T> resource) {
+    final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
     if(resource is Success<T>){
       setState(() => _isLoading = false);
       showModalBottomSheet(
@@ -62,7 +93,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           isScrollControlled: true,
           backgroundColor: Colors.transparent,
           builder: (context) {
-            final message = (_isNewAccount) ? "Account Created Successfully" : "Profile Created Successfully";
+            final message = (viewModel.onBoardingType == OnBoardingType.ACCOUNT_DOES_NOT_EXIST)
+                ? "Account Created Successfully"
+                : "Profile Created Successfully";
             return BottomSheets.displaySuccessModal(context, title:"Success", message: message, onClick: (){
               Navigator.pushNamedAndRemoveUntil(context, Routes.LOGIN, (route) => false);
             });
@@ -82,22 +115,99 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  void subscribeUiToOnBoard() {
+  void subscribeUiToOnBoard() async {
     final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
-    if (viewModel.isNewAccount) {
-      _isNewAccount = true;
-      viewModel.createAccount().listen(handleCreationResponse);
-    } else {
-      _isNewAccount = false;
-      viewModel.createUser().listen(handleCreationResponse);
+    if (await Permission.storage.request().isGranted) {
+      final bytes = await _signatureController.toPngBytes();
+      Directory dir = await getTemporaryDirectory();
+      File signatureFile = File(join(dir.path, 'signature.png'));
+      signatureFile.writeAsBytesSync(bytes!);
+
+      viewModel.createAccount(signatureFile.path).listen(handleCreationResponse);
     }
+  }
+
+  void _defaultFn(bool undefined) {
+    /*do nothing*/
+  }
+
+  bool _isValidForKey(List<String>? passwordErrors, String key) {
+    if(passwordErrors == null) return true;
+    var isValid = true;
+
+    passwordErrors.forEach((element) {
+      if(element.toLowerCase().contains(key)) {
+        isValid = false;
+      }
+    });
+
+    return isValid;
+  }
+
+  //TODO move this to a separate widget
+  Widget passwordValidChecker(String password) {
+    final passwordErrors = validatePasswordWithMessage(password).second;
+
+    final hasLowerCase = _isValidForKey(passwordErrors, "valid password");
+    final hasUpperCase = _isValidForKey(passwordErrors, "uppercase");
+    final hasSpecialCase = _isValidForKey(passwordErrors, "special");
+    final hasNumber = _isValidForKey(passwordErrors, "number");
+    final has8Characters = _isValidForKey(passwordErrors, "8 characters");
+
+    final validTextStyle = TextStyle(color: Colors.textColorBlack, fontSize: 14);
+    final invalidTextStyle = TextStyle(color: Color(0XFF9B9B9B), fontSize: 14);
+    return Container(
+      padding: EdgeInsets.all(21),
+      decoration: BoxDecoration(
+          color: Colors.primaryColor.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8)
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Your password should contain:',
+            style: TextStyle(color: Colors.textColorBlack, fontWeight: FontWeight.w600, fontSize: 16),
+          ),
+          SizedBox(height: 8,),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: CustomCheckBox(onSelect: _defaultFn, isSelected: hasLowerCase),
+            title: Text('A lowercase letter (a-z) ', style: hasLowerCase ? validTextStyle : invalidTextStyle,),
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: CustomCheckBox(onSelect: _defaultFn, isSelected: hasUpperCase),
+            title: Text('An uppercase letter (A-Z)', style: hasUpperCase ? validTextStyle : invalidTextStyle,),
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: CustomCheckBox(onSelect: _defaultFn, isSelected: hasSpecialCase),
+            title: Text('A special character (e.g. !@#\$)', style: hasSpecialCase ? validTextStyle : invalidTextStyle,),
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: CustomCheckBox(onSelect: _defaultFn, isSelected:hasNumber),
+            title: Text('A number (1-9) ', style: hasNumber ? validTextStyle : invalidTextStyle,),
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: CustomCheckBox(onSelect: _defaultFn, isSelected:has8Characters),
+            title: Text('8 characters minimum', style: has8Characters ? validTextStyle : invalidTextStyle,),
+          )
+        ],
+      ),
+    );
   }
 
   @override
   void initState() {
     final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
-    _securityQuestionStream = viewModel.getSecurityQuestions();
     super.initState();
+    _signatureController.addListener(() {
+      setState(() {});
+      viewModel.profileForm.setHasSignature(_signatureController.isNotEmpty);
+    });
   }
 
   void _showTermsAndConditionModal(String title, String content) {
@@ -164,113 +274,124 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildTermsLayout() {
-    final txt = 'By signing up you agree to our Terms & Conditions and Privacy Policy.';
+    final txt =
+        'By signing up you agree to our\nTerms & Conditions and Privacy Policy.';
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
       decoration: BoxDecoration(
           color: Colors.primaryColor.withOpacity(0.1),
           borderRadius: BorderRadius.circular(8)),
-      child: Text(
-          txt,
-          style: TextStyle(color: Colors.textColorPrimary, fontFamily: Styles.defaultFont, fontSize: 18)
-      ).colorText({
-        "Terms & Conditions": Tuple(Colors.textColorPrimary, () => _showTermsAndConditionModal("Terms & Conditions", Strings.terms_and_condition)),
-        "Privacy Policy": Tuple(Colors.textColorPrimary, () => _showTermsAndConditionModal("Privacy Policy", Strings.privacy_policy)),
-      }, bold: true, boldType: 1),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SvgPicture.asset('res/drawables/ic_info.svg'),
+          SizedBox(width: 14),
+          Expanded(
+              child: Text(txt,
+                      style: TextStyle(
+                          color: Colors.textColorBlack,
+                          fontFamily: Styles.defaultFont,
+                          fontSize: 18)
+              ).colorText({
+                "Terms & Conditions": Tuple(Colors.primaryColor, () => _showTermsAndConditionModal("Terms & Conditions", Strings.terms_and_condition)),
+                "Privacy Policy": Tuple(Colors.primaryColor, () => _showTermsAndConditionModal("Privacy Policy", Strings.privacy_policy)),
+              }, bold: true, boldType: 1))
+        ],
+      ),
     );
   }
 
-  /// Builds layout that holds all security questions
-  Widget getSecurityQuestionLayout(BuildContext context, List<SecurityQuestion> items) {
-    final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
-    final itemStyle = TextStyle(fontWeight: FontWeight.w600, color: Colors.deepGrey);
-    final selectedItemStyle = TextStyle(fontWeight: FontWeight.w600, color: Colors.deepGrey, backgroundColor: Colors.grey);
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(
-        'Security Question 1',
-        style: TextStyle(
-            fontWeight: FontWeight.normal,
-            fontSize: 13,
-            color: Colors.textColorBlack),
-      ),
-      SizedBox(height: 8),
-      StreamBuilder(
-          initialData: null,
-          stream: viewModel.profileForm.questionOneStream,
-          builder: (context, AsyncSnapshot<SecurityQuestion?> snapShot) {
-            return Styles.buildDropDown(viewModel.profileForm.securityQuestionOneList, snapShot, (item, index) {
-              viewModel.profileForm.onSecurityQuestionChange(1, item as SecurityQuestion);
-            }, itemStyle: itemStyle, hint: "Security Question 1");
-          }),
-      SizedBox(height: 16),
-      StreamBuilder(
-          stream: viewModel.profileForm.answerOneStream,
-          builder: (context, snapshot) {
-            return Styles.appEditText(
-              hint: 'Answer 1',
-              fontSize: 13,
-              onChanged: (v) => viewModel.profileForm.onAnswerChanged(1, v),
-              errorText: snapshot.hasError ? snapshot.error.toString() : null,
-            );
-          }),
-      SizedBox(height: 40),
-      Text(
-        'Security Question 2',
-        style: TextStyle(
-            fontWeight: FontWeight.normal,
-            fontSize: 13,
-            color: Colors.textColorBlack),
-      ),
-      SizedBox(height: 8),
-      StreamBuilder(
-          initialData: null,
-          stream: viewModel.profileForm.questionTwoStream,
-          builder: (context, AsyncSnapshot<SecurityQuestion?> snapShot) {
-            return Styles.buildDropDown(viewModel.profileForm.securityQuestionTwoList, snapShot, (item, index) {
-              viewModel.profileForm.onSecurityQuestionChange(2, item as SecurityQuestion);
-            }, itemStyle: itemStyle, hint: "Security Question 2");
-          }),
-      SizedBox(height: 16),
-      StreamBuilder(
-          stream: viewModel.profileForm.answerTwoStream,
-          builder: (context, snapshot) {
-            return Styles.appEditText(
-              hint: 'Answer 2',
-              fontSize: 13,
-              onChanged: (v) => viewModel.profileForm.onAnswerChanged(2, v),
-              errorText: snapshot.hasError ? snapshot.error.toString() : null,
-            );
-          }),
-      SizedBox(height: 40),
-      Text(
-        'Security Question 3',
-        style: TextStyle(
-            fontWeight: FontWeight.normal,
-            fontSize: 13,
-            color: Colors.textColorBlack),
-      ),
-      SizedBox(height: 8),
-      StreamBuilder(
-          initialData: null,
-          stream: viewModel.profileForm.questionThreeStream,
-          builder: (context, AsyncSnapshot<SecurityQuestion?> snapShot) {
-            return Styles.buildDropDown(viewModel.profileForm.securityQuestionThreeList, snapShot, (item, index) {
-              viewModel.profileForm.onSecurityQuestionChange(3, item as SecurityQuestion);
-            }, itemStyle: itemStyle, hint: "Security Question 3");
-          }),
-      SizedBox(height: 16),
-      StreamBuilder(
-          stream: viewModel.profileForm.answerThreeStream,
-          builder: (context, snapshot) {
-            return Styles.appEditText(
-              hint: 'Answer 3',
-              fontSize: 13,
-              onChanged: (v) => viewModel.profileForm.onAnswerChanged(3, v),
-              errorText: snapshot.hasError ? snapshot.error.toString() : null,
-            );
-          }),
-      SizedBox(height: 32),
-    ]);
+  Widget _signatureView() {
+    return Stack(
+      children: [
+        Container(
+          clipBehavior: Clip.antiAliasWithSaveLayer,
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: _isSignatureEnabled == false ? null :Border.all(color: Colors.deepGrey.withOpacity(0.29), width: 1.0)),
+          child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Signature(
+                height: 200,
+                controller: _signatureController,
+                backgroundColor: Colors.white,
+              )),
+        ),
+        Visibility(
+          visible: _isSignatureEnabled == false,
+          child: Container(
+              height: 200,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                      color: Colors.deepGrey.withOpacity(0.29), width: 1.0))),
+        ),
+        Visibility(
+            visible: _isSignatureEnabled == false,
+            child: Container(
+              padding: EdgeInsets.only(top: 16, bottom: 16, right: 8, left: 8),
+              width: double.infinity,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SvgPicture.asset('res/drawables/ic_signature.svg', color: Colors.colorFaded.withOpacity(0.1),),
+                  SizedBox(height: 30,),
+                  TextButton(
+                      onPressed: () async {
+                        setState(() {
+                          _isSignatureEnabled = true;
+                        });
+                      },
+                      child: Text('Tap to add your Signature',
+                        style: TextStyle(color: Colors.primaryColor, fontWeight: FontWeight.w600),
+                      )
+                  )
+                ],
+              ),
+            )
+        ),
+        Positioned(
+            right: 16,
+            top: 8,
+            child: Opacity(
+              opacity: _signatureController.isEmpty ? 0 : 1,
+              child: TextButton(
+                  child: Text('CLEAR',
+                      style: TextStyle(fontWeight: FontWeight.w400, color: Colors.deepGrey, fontSize: 14)),
+                  onPressed: () {
+                    _signatureController.clear();
+                  }),
+            ))
+      ],
+    );
+  }
+
+  Widget? _getUsernameIconForValidationStatus(UsernameValidationStatus? status) {
+    if(status == UsernameValidationStatus.VALIDATING) {
+      return Padding(
+        padding: EdgeInsets.only(right: 16),
+        child: SizedBox(
+          width: 20,
+          child: Lottie.asset('res/drawables/progress_bar_lottie.json', width: 40, height: 40),
+        ),
+      );
+    }
+    if(status == UsernameValidationStatus.AVAILABLE) {
+      return Padding(
+          padding: EdgeInsets.only(right: 24),
+          child: SizedBox(
+            width: 16,
+            height: 16,
+            child: SvgPicture.asset(
+              'res/drawables/ic_circular_check_mark.svg', color: Colors.solidGreen,
+            ),
+          ),
+      );
+    }
+    return null;
   }
 
   Widget _buildMain(BuildContext context) {
@@ -280,10 +401,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       mainAxisSize: MainAxisSize.max,
       children: [
         Text(
-          'Create Your Profile',
+          'Create Profile',
           style: TextStyle(
             fontWeight: FontWeight.w600,
-            color: Colors.colorPrimaryDark,
+            color: Colors.textColorBlack,
             fontSize: 24,
           ),
           textAlign: TextAlign.start,
@@ -298,21 +419,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   Focus(
                     child: Styles.appEditText(
-                      hint: 'Enter Username',
+                      hint: 'Username',
                       animateHint: true,
-                      endIcon: validationStatus == UsernameValidationStatus.VALIDATING
-                          ? Padding(
-                              padding: EdgeInsets.only(right: 16),
-                              child: SizedBox(
-                                width: 20,
-                                child: SpinKitThreeBounce(size: 20.0, color: Colors.primaryColor.withOpacity(0.8)),),
-                            )
-                          : null,
+                      endIcon: _getUsernameIconForValidationStatus(validationStatus),
                       onChanged: (v) {
                         viewModel.profileForm.onUsernameChanged(v);
                       },
                       errorText: snapshot.hasError ? snapshot.error.toString() : null,
-                      startIcon: Icon(CustomFont.username_icon, color: Colors.colorFaded),
                       drawablePadding: EdgeInsets.only(left: 8, right: 8),
                     ),
                     onFocusChange: (hasFocus) {
@@ -321,87 +434,122 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         viewModel.checkUsername(username).listen((event) {});
                     },
                   ),
-                  Visibility(
-                      visible: validationStatus != null && validationStatus == UsernameValidationStatus.AVAILABLE,
-                      child: Padding(
-                        padding:EdgeInsets.only(left: 16, top: 3),
-                        child: Text(
-                          'Username is available',
-                          style: TextStyle(color: Colors.solidGreen, fontSize: 12),
-                        ),
-                      )
-                  ),
                 ],
               );
             }),
-        SizedBox(height: 16),
+        SizedBox(height: viewModel.onBoardingType == OnBoardingType.ACCOUNT_DOES_NOT_EXIST ? 24 : 0),
+        Visibility(
+            visible: viewModel.onBoardingType == OnBoardingType.ACCOUNT_DOES_NOT_EXIST,
+            child: StreamBuilder(
+                stream: viewModel.profileForm.emailStream,
+                builder: (context, snapshot) {
+                  return Styles.appEditText(
+                    hint: 'Email Address',
+                    onChanged: viewModel.profileForm.onEmailChanged,
+                    errorText: snapshot.hasError ? snapshot.error.toString() : null,
+                    animateHint: true,
+                    drawablePadding: EdgeInsets.only(left: 4, right: 4),
+                  );
+                }
+                ),
+        ),
+        SizedBox(height: 24),
         StreamBuilder(
             stream: viewModel.profileForm.passwordStream,
-            builder: (context, snapshot) {
-              return Styles.appEditText(
-                  hint: 'Password',
-                  onChanged: viewModel.profileForm.onPasswordChanged,
-                  errorText: snapshot.hasError ? snapshot.error.toString() : null,
-                  animateHint: true,
-                  drawablePadding: EdgeInsets.only(left: 4, right: 4),
-                  startIcon: Icon(CustomFont.password, color: Colors.colorFaded),
-                  endIcon: getPasswordToggleIcon(context),
-                  isPassword: !_isPasswordVisible
+            builder: (context, AsyncSnapshot<String?> snapshot) {
+              return Column(
+                children: [
+                  Styles.appEditText(
+                      hint: 'Password',
+                      controller: _passwordController,
+                      onChanged: viewModel.profileForm.onPasswordChanged,
+                      animateHint: true,
+                      drawablePadding: EdgeInsets.only(left: 4, right: 4),
+                      endIcon: getPasswordToggleIcon(context),
+                      isPassword: !_isPasswordVisible
+                  ),
+                  SizedBox(height: 24,),
+                  passwordValidChecker(_passwordController.text)
+                ],
               );
             }),
-        SizedBox(height: 37),
+        SizedBox(height: 24),
+        StreamBuilder(
+            stream: viewModel.profileForm.pinInputStream,
+            builder: (context, snapshot) {
+              return Styles.appEditText(
+                  hint: 'Mobile App PIN',
+                  onChanged: viewModel.profileForm.onPinChanged,
+                  errorText: snapshot.hasError ? snapshot.error.toString() : null,
+                  animateHint: true,
+                  maxLength: 4,
+                  inputType: TextInputType.number,
+                  inputFormats: [FilteringTextInputFormatter.digitsOnly],
+                  drawablePadding: EdgeInsets.only(left: 4, right: 4),
+                  endIcon: getPinToggleIcon(context),
+                  isPassword: !_isPinVisible
+              );
+            }),
+        SizedBox(height: 24),
         Container(
-          margin: EdgeInsets.only(left: 44, right: 44),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                ' Setup Mobile Transaction PIN',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18, color: Colors.colorPrimaryDark),
-              ),
-              SizedBox(height: 16),
-              StreamBuilder(
-                stream: viewModel.profileForm.pinInputStream,
-                  builder: (_, __) {
-                return PinEntry(onChange: viewModel.profileForm.onPinChanged);
-              })
-            ],
+          child: StreamBuilder(
+              stream: viewModel.profileForm.enableUssdStream,
+              builder: (mContext, AsyncSnapshot<bool> snapshot) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Enable USSD banking',
+                          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18, color: Colors.textColorBlack),
+                        ),
+                        CustomCheckBox(onSelect: (v) {
+                          viewModel.profileForm.onEnableUssd(!viewModel.accountForm.account.createUssdPin);
+                        }, isSelected: viewModel.accountForm.account.createUssdPin)
+                      ],
+                    ),
+                    SizedBox(height: viewModel.accountForm.account.createUssdPin ? 4 : 0),
+                    Visibility(
+                      visible: viewModel.accountForm.account.createUssdPin,
+                      child: Divider(color: Colors.dividerColor, height: 0.9,),
+                    ),
+                    SizedBox(height: viewModel.accountForm.account.createUssdPin ? 20 : 0),
+                    Visibility(
+                        visible: viewModel.accountForm.account.createUssdPin ,
+                        child: StreamBuilder(
+                            stream: viewModel.profileForm.ussdPinInputStream,
+                            builder: (context, snapshot) {
+                              return Styles.appEditText(
+                                  hint: 'USSD PIN',
+                                  maxLength: 4,
+                                  inputType: TextInputType.number,
+                                  inputFormats: [FilteringTextInputFormatter.digitsOnly],
+                                  onChanged: viewModel.profileForm.onUssdPinChanged,
+                                  errorText: snapshot.hasError ? snapshot.error.toString() : null,
+                                  animateHint: true,
+                                  drawablePadding: EdgeInsets.only(left: 4, right: 4),
+                                  endIcon: getUssdToggleIcon(context),
+                                  isPassword: !_isUssdVisible
+                              );
+                            })
+                    )
+                  ],
+                );
+              }
           ),
         ),
-        SizedBox(height: 46),
-        Text(
-            'Security Questions',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Colors.colorPrimaryDark),
-        ),
-        SizedBox(height: 16),
-        StreamBuilder(
-            stream: _securityQuestionStream,
-            builder: (context, AsyncSnapshot<Resource<List<SecurityQuestion>>> snapshot) {
-              final responseData = (snapshot.hasData) ? snapshot.data : null;
-              if(responseData is Success) {
-                print(viewModel.profileForm.securityQuestionOneList);
-                return getSecurityQuestionLayout(context, snapshot.data!.data!);
-              }
-              //loading state
-              if(responseData == null || snapshot.data is Loading) {
-                return SecurityQuestionShimmer();
-              }
-              if(responseData is Error<List<SecurityQuestion>>) {
-                final errMessage = formatError(responseData.message, "security questions");
-                return ErrorLayoutView(errMessage.first, errMessage.second, (){
-                  _securityQuestionStream = viewModel.getSecurityQuestions();
-                  setState(() {});
-                });
-              }
-              return Container();
-            }),
-        _buildTermsLayout(),
+        SizedBox(height: 41),
+        _signatureView(),
         SizedBox(height: 44),
+        _buildTermsLayout(),
+        SizedBox(height: 26),
         Spacer(),
         Styles.statefulButton(
             stream: viewModel.profileForm.isValid,
             onClick: () => subscribeUiToOnBoard(),
-            text: "Continue",
+            text: "Complete Signup",
             isLoading: _isLoading
         )
       ],
@@ -410,22 +558,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        resizeToAvoidBottomInset: false,
-        body: LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints constraints) {
-          return SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: IntrinsicHeight(
-                child: Container(
-                    color: Colors.backgroundWhite,
-                    padding: EdgeInsets.only(left: 16, right: 16, top: 41, bottom: 42),
-                    child: _buildMain(context)),
-              ),
-            ),
-          );
-        }));
+    return ScrollView(
+        maxHeight: MediaQuery.of(context).size.height - 64,//subtract the vertical padding
+        child : Container(
+            padding: EdgeInsets.symmetric(vertical: 32, horizontal: 20),
+            color: Colors.white,
+            child : _buildMain(context)
+        )
+    );
+  }
+
+  @override
+  void dispose() {
+    _passwordController.dispose();
+    super.dispose();
   }
 
 }

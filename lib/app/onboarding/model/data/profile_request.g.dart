@@ -12,6 +12,7 @@ ProfileCreationRequestBody _$ProfileCreationRequestBodyFromJson(
     ..accountNumber = json['accountNumber'] as String?
     ..referralCode = json['referralCode'] as String?
     ..username = json['username'] as String?
+    ..emailAddress = json['emailAddress'] as String?
     ..password = json['password'] as String?
     ..pin = json['pin'] as String?
     ..onboardingKey = json['onboardingKey'] as String?
@@ -28,6 +29,7 @@ Map<String, dynamic> _$ProfileCreationRequestBodyToJson(
       'accountNumber': instance.accountNumber,
       'referralCode': instance.referralCode,
       'username': instance.username,
+      'emailAddress': instance.emailAddress,
       'password': instance.password,
       'pin': instance.pin,
       'onboardingKey': instance.onboardingKey,

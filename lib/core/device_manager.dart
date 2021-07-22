@@ -11,24 +11,36 @@ class DeviceManager {
   String? _deviceId;
   String? get deviceId => _deviceId;
 
+  String? _deviceVersion;
+  String? get deviceVersion => _deviceVersion;
+
+  String? _deviceBrandName;
+  String? get deviceBrandName => _deviceBrandName;
+
+  String? _deviceOs;
+  String? get deviceOs => _deviceOs;
+
   static DeviceManager? _deviceManager;
 
   DeviceManager._internal() {
-    _init();
+    init();
   }
 
-  void _init() async {
+  Future<void> init() async {
     var deviceManager = GetIt.I<DeviceInfoPlugin>();
+    _deviceOs = Platform.isIOS ? "IOS" : "ANDROID";
     if(Platform.isAndroid) {
-      deviceManager.androidInfo.then((value) {
-        _deviceId = value.androidId;
-        _deviceName = value.device;
-      });
+      final value = await deviceManager.androidInfo;
+      _deviceId = value.androidId;
+      _deviceName = value.device;
+      _deviceVersion = value.version.codename;
+      _deviceBrandName = value.brand;
     } else if(Platform.isIOS) {
-      deviceManager.iosInfo.then((value) {
-        _deviceId = value.identifierForVendor;
-        _deviceName = value.name;
-      });
+      final value = await deviceManager.iosInfo;
+      _deviceId = value.identifierForVendor;
+      _deviceName = value.name;
+      _deviceVersion = value.systemVersion;
+      _deviceBrandName = value.localizedModel;
     }
   }
 

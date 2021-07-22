@@ -36,10 +36,8 @@ class _EnterBVNScreen extends State<EnterBVNScreen> {
 
   _EnterBVNScreen(this._scaffoldKey);
 
-
   @override
   void initState() {
-    
     super.initState();
   }
 
@@ -52,7 +50,7 @@ class _EnterBVNScreen extends State<EnterBVNScreen> {
           "phoneNumberValidationKey": viewModel.phoneNumberValidationKey
        });
 
-    if(validationResponse!= null && validationResponse is OnboardingLivelinessValidationResponse){
+    if(validationResponse != null && validationResponse is OnboardingLivelinessValidationResponse) {
 
       if(validationResponse.phoneMismatchError != null) {
         _showGenericError(validationResponse.phoneMismatchError?.message);
@@ -65,38 +63,48 @@ class _EnterBVNScreen extends State<EnterBVNScreen> {
       }
 
       if(validationResponse.mobileProfileExist == true) {
-        showModalBottomSheet(
-            backgroundColor: Colors.transparent,
-            context: context,
-            builder: (mContext) {
-              return BottomSheets.displayInfoDialog(
-                  context, title: "We've found you",
-                  message: "The phone number and bvn supplied already has a profile",
-                  primaryButtonText: "Login with your Credentials",
-                  secondaryButtonText: "Recover Credentials",
-                  onPrimaryClick: () {
-                    Navigator.of(widget._scaffoldKey.currentContext ?? context)
-                        .pushNamed(Routes.LOGIN);
-                  },
-                  onSecondaryClick: () {
-                    Navigator.of(widget._scaffoldKey.currentContext ?? context)
-                        .pushNamed(Routes.LOGIN);
-                  }
-              );
-            }
-        );
+        _showProfileExist();
         return;
       }
 
       //If everything is successful then we need to decide our next route
       final onboardingType = validationResponse.setupType?.type;
+
+      viewModel.setOnBoardingType(onboardingType ?? OnBoardingType.ACCOUNT_DOES_NOT_EXIST);
+      viewModel.setOnboardingKey(validationResponse.onboardingKey ?? "");
+
       if(onboardingType == OnBoardingType.ACCOUNT_DOES_NOT_EXIST){
         //We navigate to account info
-      }else {
+        Navigator.of(context).pushNamed(SignUpAccountScreen.ACCOUNT_INFO);
+      } else {
         //We navigate to profile info
-
+        Navigator.of(context).pushNamed(SignUpAccountScreen.PROFILE);
       }
     }
+  }
+
+  void _showProfileExist() {
+    showModalBottomSheet(
+        backgroundColor: Colors.transparent,
+        context: widget._scaffoldKey.currentContext ?? context,
+        builder: (mContext) {
+          return BottomSheets.displayInfoDialog(
+              widget._scaffoldKey.currentContext ?? context,
+              title: "We've found you",
+              message: "The phone number and bvn supplied already has a profile",
+              primaryButtonText: "Login with your Credentials",
+              secondaryButtonText: "Recover Credentials",
+              onPrimaryClick: () {
+                Navigator.of(widget._scaffoldKey.currentContext ?? context)
+                    .pushNamed(Routes.LOGIN);
+              },
+              onSecondaryClick: () {
+                Navigator.of(widget._scaffoldKey.currentContext ?? context)
+                    .pushNamed(Routes.LOGIN);
+              }
+          );
+        }
+    );
   }
 
   void _showGenericError(String? message) {

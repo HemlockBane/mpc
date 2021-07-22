@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.teamapt.customers.moniepoint.lib.BiometricMethodHandler
-import com.teamapt.customers.moniepoint.lib.camera.*
+import com.teamapt.customers.moniepoint.lib.LivelinessMethodHandler
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel

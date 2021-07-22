@@ -40,7 +40,7 @@ class _CreateNewAccountState extends State<DetailCollectionScreen> {
   Widget build(BuildContext context) {
     final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
 
-    viewModel.setIsNewAccount(true);
+    // viewModel.setIsNewAccount(true);
 
     final List<Widget> pages = [];
 
@@ -52,7 +52,7 @@ class _CreateNewAccountState extends State<DetailCollectionScreen> {
     };
 
     pages.add(SelfieView(widget._scaffoldKey, onCompleted: callback));
-    pages.add(SignatureView(widget._scaffoldKey, onCompleted: callback));
+    // pages.add(SignatureView(widget._scaffoldKey, onCompleted: callback));
     pages.add(USSDView(widget._scaffoldKey, onCompleted: callback));
     pages.add(ProfileScreen(widget._scaffoldKey));
 

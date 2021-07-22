@@ -1,13 +1,19 @@
-package com.teamapt.customers.moniepoint.lib.camera
+package com.teamapt.customers.moniepoint.lib
 
 import android.content.Context
 import android.graphics.Rect
+import android.view.Surface
+import androidx.camera.core.Preview
+import androidx.camera.core.SurfaceRequest
 import androidx.core.content.ContextCompat
-import com.teamapt.customers.moniepoint.lib.camera.event.*
+import com.teamapt.livelinessdetector.LivelinessDetector
+import com.teamapt.livelinessdetector.camera.CustomCamera2
+import com.teamapt.livelinessdetector.events.*
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.view.TextureRegistry
+import java.util.concurrent.Executor
 
 class LivelinessMethodHandler(
         private val context: Context,
@@ -29,6 +35,14 @@ class LivelinessMethodHandler(
             }
             "resume" -> {
                 livelinessDetector?.resumeListening()
+                result.success("")
+            }
+            "begin_capture" -> {
+                livelinessDetector?.beginCapture()
+                result.success("")
+            }
+            "end_capture" -> {
+                livelinessDetector?.endCapture()
                 result.success("")
             }
             "restart" -> {
@@ -64,7 +78,7 @@ class LivelinessMethodHandler(
         //let's check if the frameSize is supplied from the channel
         this.livelinessDetector = LivelinessDetector.Builder(customCamera)
                 .setFrameSize(frameSize)
-                .setCropCaptureToFrameSize(true)
+                .setCropCaptureToFrameSize(false)
                 .setFaceDetectionConfidenceLevel(0.505)
                 .setHorizontalAlignmentThreshold(0.8)
                 .setVerticalAlignmentThreshold(0.8)
@@ -136,5 +150,17 @@ class LivelinessMethodHandler(
             }
         }
 
+    }
+
+    class FlutterSurfaceProvider(
+            private val surfaceTextureEntry: TextureRegistry.SurfaceTextureEntry,
+            private val executor: Executor
+    ) : Preview.SurfaceProvider {
+
+        override fun onSurfaceRequested(request: SurfaceRequest) {
+            val surfaceTexture = surfaceTextureEntry.surfaceTexture()
+            surfaceTexture.setDefaultBufferSize(1280, 720)
+            request.provideSurface(Surface(surfaceTexture), executor, {})
+        }
     }
 }

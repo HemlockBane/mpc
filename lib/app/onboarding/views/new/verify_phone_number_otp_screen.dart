@@ -65,7 +65,7 @@ class _VerifyPhoneNumberOTPScreen extends State<VerifyPhoneNumberOTPScreen> {
         }
         if(event is Success<ValidatePhoneOtpResponse>) {
           setState(() => _isLoading = false);
-          Navigator.of(context).pushNamed(NewAccountScreen.ONBOARDING_ENTER_BVN);
+          Navigator.of(context).pushNamed(SignUpAccountScreen.ONBOARDING_ENTER_BVN);
         }
     });
   }
@@ -121,7 +121,7 @@ class _VerifyPhoneNumberOTPScreen extends State<VerifyPhoneNumberOTPScreen> {
                     OtpUssdInfoView(
                       "Onboarding Phone Number Validation OTP Mobile",
                       defaultCode: "*5573*70#",
-                      message: "Dial {} on your registered phone number to get your BVN",
+                      message: "Didn't get the code? Dial {}",
                     ),
                     SizedBox(height: 100),
                   ],

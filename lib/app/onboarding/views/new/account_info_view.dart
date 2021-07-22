@@ -1,8 +1,11 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' hide Colors;
+import 'package:flutter/material.dart' hide Colors, ScrollView;
+import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
 import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
+import 'package:moniepoint_flutter/app/onboarding/views/new/signup_account_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/views/custom_check_box.dart';
+import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:provider/provider.dart';
 
 class AccountInfoScreen extends StatefulWidget {
@@ -22,7 +25,9 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
 
   _AccountInfoScreenState(this._scaffoldKey);
 
-  void subscribeUiToOnBoard() {}
+  void subscribeUiToOnBoard() {
+    Navigator.of(context).pushNamed(SignUpAccountScreen.PROFILE);
+  }
 
   @override
   void initState() {
@@ -38,54 +43,88 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
         Text(
           'Account Info',
           style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: Colors.colorPrimaryDark,
+            fontWeight: FontWeight.bold,
+            color: Colors.textColorBlack,
             fontSize: 24,
           ),
           textAlign: TextAlign.start,
         ),
         SizedBox(height: 30),
         StreamBuilder(
-            stream: viewModel.profileForm.passwordStream,
+            stream: viewModel.accountForm.addressLineStream,
             builder: (context, snapshot) {
               return Styles.appEditText(
                 hint: 'Address',
-                onChanged: viewModel.profileForm.onPasswordChanged,
+                onChanged: viewModel.accountForm.onAddressChange,
                 errorText: snapshot.hasError ? snapshot.error.toString() : null,
                 animateHint: true,
               );
             }),
-        SizedBox(height: 16),
-        // StreamBuilder(
-        //     stream: viewModel.accountForm.nationalityStream,
-        //     builder:
-        //         (BuildContext context, AsyncSnapshot<Nationality> snapshot) {
-        //       return Styles.buildDropDown([], snapshot, (value, i) {
-        //         viewModel.accountForm.onNationalityChange(value as Nationality);
-        //         setState(() {});
-        //       }, hint: 'Nationality');
-        //     }),
-        // StreamBuilder(
-        //     stream: viewModel.accountForm.nationalityStream,
-        //     builder: (BuildContext context,
-        //         AsyncSnapshot<LocalGovernmentArea> snapshot) {
-        //       return Styles.buildDropDown([], snapshot, (value, i) {
-        //         viewModel.accountForm.onNationalityChange(value as Nationality);
-        //         setState(() {});
-        //       }, hint: 'State of Residence');
-        //     }),
-        // StreamBuilder(
-        //     stream: viewModel.accountForm.nationalityStream,
-        //     builder: (BuildContext context,
-        //         AsyncSnapshot<LocalGovernmentArea> snapshot) {
-        //       return Styles.buildDropDown([], snapshot, (value, i) {
-        //         viewModel.accountForm.onNationalityChange(value as Nationality);
-        //         setState(() {});
-        //       }, hint: 'Local Government Area');
-        //     }),
+        SizedBox(height: 24),
+        StreamBuilder(
+            stream: viewModel.accountForm.stateStream,
+            builder: (BuildContext context, AsyncSnapshot<StateOfOrigin?> snapshot) {
+              return Styles.buildDropDown(viewModel.accountForm.states, snapshot, (value, i) {
+                viewModel.accountForm.onStateChange(value as StateOfOrigin);
+                setState(() {});
+              }, hint: 'State of Residence');
+            }),
+        SizedBox(height: 24),
+        StreamBuilder(
+            stream: viewModel.accountForm.localGovtStream,
+            builder: (BuildContext context,
+                AsyncSnapshot<LocalGovernmentArea?> snapshot) {
+              return Styles.buildDropDown(viewModel.accountForm.localGovt, snapshot, (value, i) {
+                viewModel.accountForm.onLocalGovtChange(value as LocalGovernmentArea);
+                setState(() {});
+              }, hint: 'Local Government Area');
+            }),
+        SizedBox(height: 32),
+        Text(
+          'Gender',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: Colors.textColorBlack,
+            fontSize: 18,
+          ),
+          textAlign: TextAlign.start,
+        ),
+        SizedBox(height: 20),
+        StreamBuilder(
+            stream: viewModel.accountForm.genderStream,
+            builder: (BuildContext mContext, AsyncSnapshot<String?> snapshot) {
+              return Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Align(
+                          child: Text('Male', style: TextStyle(fontSize: 16, color: Colors.textColorBlack),),
+                          alignment: Alignment(-1.05, 0),
+                        ),
+                        leading: CustomCheckBox(onSelect: (v) {
+                          viewModel.accountForm.onGenderChanged("MALE");
+                        }, isSelected: snapshot.hasData && snapshot.data == "MALE"),
+                      ),
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Align(
+                          child: Text('Female', style: TextStyle(fontSize: 16, color: Colors.textColorBlack)),
+                          alignment: Alignment(-1.05, 0),
+                        ),
+                        leading: CustomCheckBox(onSelect: (v) {
+                          viewModel.accountForm.onGenderChanged("FEMALE");
+                        }, isSelected: snapshot.hasData && snapshot.data == "FEMALE"),
+                      )
+                    ],
+                  )
+              );
+            }
+        ),
         Spacer(),
         Styles.statefulButton(
-            stream: viewModel.profileForm.isValid,
+            stream: viewModel.accountForm.isAccountInfoValid,
             onClick: () => subscribeUiToOnBoard(),
             text: "Next",
             isLoading: _isLoading)
@@ -95,22 +134,13 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        resizeToAvoidBottomInset: false,
-        body: LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints constraints) {
-          return SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight),
-              child: IntrinsicHeight(
-                child: Container(
-                    color: Colors.backgroundWhite,
-                    padding: EdgeInsets.only(
-                        left: 16, right: 16, top: 41, bottom: 42),
-                    child: _buildMain(context)),
-              ),
-            ),
-          );
-        }));
+    return ScrollView(
+        maxHeight: MediaQuery.of(context).size.height - 64,//subtract the vertical padding
+      child : Container(
+          padding: EdgeInsets.symmetric(vertical: 32, horizontal: 20),
+          color: Colors.white,
+          child : _buildMain(context)
+      )
+    );
   }
 }

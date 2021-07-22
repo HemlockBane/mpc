@@ -73,25 +73,25 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
 
   void subscribeToBVNValidation(BuildContext context) {
     //since we are coming from the dialog lets pop
-    Provider.of<OnBoardingViewModel>(context, listen: false)
-        .validateBVN()
-        .listen((event) {
-          if(event is Loading) setState(() => _isLoading = true);
-          if (event is Error<BVNValidationRequest>) {
-            setState(() => _isLoading = false);
-            showModalBottomSheet(
-                context: _scaffoldKey.currentContext ?? context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (context) {
-                  return BottomSheets.displayErrorModal(context, message: event.message);
-                });
-          }
-          if(event is Success<BVNValidationRequest>) {
-            setState(() => _isLoading = false);
-            Navigator.of(context).pushNamed(NewAccountScreen.OTP_SCREEN);
-          }
-    });
+    // Provider.of<OnBoardingViewModel>(context, listen: false)
+    //     .validateBVN()
+    //     .listen((event) {
+    //       if(event is Loading) setState(() => _isLoading = true);
+    //       if (event is Error<BVNValidationRequest>) {
+    //         setState(() => _isLoading = false);
+    //         showModalBottomSheet(
+    //             context: _scaffoldKey.currentContext ?? context,
+    //             isScrollControlled: true,
+    //             backgroundColor: Colors.transparent,
+    //             builder: (context) {
+    //               return BottomSheets.displayErrorModal(context, message: event.message);
+    //             });
+    //       }
+    //       if(event is Success<BVNValidationRequest>) {
+    //         setState(() => _isLoading = false);
+    //         Navigator.of(context).pushNamed(SignUpAccountScreen.OTP_SCREEN);
+    //       }
+    // });
     //startValidation
   }
 
@@ -172,131 +172,131 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
 
   Widget _buildMain(BuildContext context) {
     final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text('Sign Up to Moniepoint',
-            style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: Colors.colorPrimaryDark,
-                fontSize: 24
-            ),
-            textAlign: TextAlign.start),
-        SizedBox(height: 6),
-        Text('Enter your details to get started.',
-            style: TextStyle(
-                fontWeight: FontWeight.normal,
-                color: Colors.textColorBlack,
-                fontSize: 14)),
-        SizedBox(height: 45),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-          decoration: BoxDecoration(
-              shape: BoxShape.rectangle,
-              color: Colors.primaryColor.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(4)),
-          child: Center(
-            child: Text(
-                'Dial *565*0# on your registered mobile number to get your \nBVN!',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontFamily: Styles.defaultFont,
-                    color: Color(0XFF0B3275),
-                    fontWeight: FontWeight.w400,
-                    fontSize: 12
-                ))
-                .colorText({'*565*0#': Tuple(Colors.primaryColor, () => dialNumber("tel:${Uri.encodeComponent("*565*0#")}"))}, underline: false),
-          ),
-        ),
-        SizedBox(height: 20),
-        StreamBuilder(
-            stream: viewModel.accountForm.bvnStream,
-            builder: (context, snapshot) {
-          return Styles.appEditText(
-              errorText: snapshot.hasError ? snapshot.error.toString() : null,
-              hint: 'BVN',
-              inputFormats: [FilteringTextInputFormatter.digitsOnly],
-              onChanged: viewModel.accountForm.onBVNChanged,
-              startIcon: Icon(CustomFont.bankIcon, color: Colors.colorFaded, size: 22),
-              animateHint: true,
-              maxLength: 11
-          );
-        }),
-        SizedBox(height: 16),
-        StreamBuilder(
-            stream: viewModel.accountForm.phoneNumberStream,
-            builder: (context, snapshot) {
-          return Styles.appEditText(
-            hint: 'Phone Number',
-            inputFormats: [FilteringTextInputFormatter.digitsOnly],
-            onChanged: viewModel.accountForm.onPhoneNumberChanged,
-            errorText: snapshot.hasError ? snapshot.error.toString() : null,
-            startIcon: Icon(CustomFont.call, color: Colors.colorFaded, size: 18),
-            animateHint: true,
-            maxLength: 13
-          );
-        }),
-        SizedBox(height: 16),
-        StreamBuilder(
-          stream: viewModel.accountForm.emailStream,
-            builder: (context, snapshot) {
-          return Styles.appEditText(
-            errorText: snapshot.hasError ? snapshot.error.toString() : null,
-            onChanged: viewModel.accountForm.onEmailChanged,
-            hint: 'Email Address',
-            startIcon: Icon(CustomFont.email, color: Colors.colorFaded, size: 16),
-            animateHint: true,
-          );
-        }),
-        SizedBox(height: 16),
-        StreamBuilder(
-            stream: viewModel.accountForm.genderStream,
-            builder: (BuildContext context, snapshot) {
-          return Styles.appEditText(
-              controller: _genderController,
-              hint: 'Gender',
-              errorText: snapshot.hasError ? snapshot.error.toString() : null,
-              startIcon: Icon(CustomFont.gender, color: Colors.colorFaded, size: 22),
-              endIcon: Icon(CustomFont.dropDown, color: Colors.primaryColor, size: 6),
-              animateHint: true,
-              enabled: false,
-              onClick: () => showDialog(context: context, builder: (BuildContext mContext) {
-                return SimpleDialog(
-                  title: const Text('Select your Gender'),
-                  children: Gender.values.map<Widget>((e) => SimpleDialogOption(
-                    child: Text(describeEnum(e)),
-                    onPressed: () {
-                      _genderController.text = describeEnum(e);
-                      FocusManager.instance.primaryFocus?.unfocus();
-                      Navigator.pop(mContext);
-                      viewModel.accountForm.onGenderChanged(describeEnum(e));
-                    }
-                  )).toList(),
-                );
-              })
-          );
-        }),
-        Spacer(),
-        SizedBox(height: 24),
-        Styles.statefulButton(
-            elevation: 0,
-            stream: viewModel.accountForm.isValid,
-            onClick: () => displayDateOfBirthDialog(context),
-            text: 'Continue',
-            isLoading: _isLoading
-        ),
-        SizedBox(height: 32),
-        Center(
-          child: Text('Already have a profile? Login',
-              style: TextStyle(color: Color(0XFF002331), fontFamily: Styles.defaultFont, fontSize: 16)
-          ).colorText({
-            "Login": Tuple(Colors.primaryColor, () => Navigator.of(_scaffoldKey.currentContext!).popAndPushNamed('/login'))
-          }, underline: false)
-        ),
-      ],
-    );
+    return Container();
+    // return Column(
+    //   crossAxisAlignment: CrossAxisAlignment.stretch,
+    //   mainAxisAlignment: MainAxisAlignment.center,
+    //   children: [
+    //     Text('Sign Up to Moniepoint',
+    //         style: TextStyle(
+    //             fontWeight: FontWeight.w600,
+    //             color: Colors.colorPrimaryDark,
+    //             fontSize: 24
+    //         ),
+    //         textAlign: TextAlign.start),
+    //     SizedBox(height: 6),
+    //     Text('Enter your details to get started.',
+    //         style: TextStyle(
+    //             fontWeight: FontWeight.normal,
+    //             color: Colors.textColorBlack,
+    //             fontSize: 14)),
+    //     SizedBox(height: 45),
+    //     Container(
+    //       padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+    //       decoration: BoxDecoration(
+    //           shape: BoxShape.rectangle,
+    //           color: Colors.primaryColor.withOpacity(0.2),
+    //           borderRadius: BorderRadius.circular(4)),
+    //       child: Center(
+    //         child: Text(
+    //             'Dial *565*0# on your registered mobile number to get your \nBVN!',
+    //             textAlign: TextAlign.center,
+    //             style: TextStyle(
+    //                 fontFamily: Styles.defaultFont,
+    //                 color: Color(0XFF0B3275),
+    //                 fontWeight: FontWeight.w400,
+    //                 fontSize: 12
+    //             ))
+    //             .colorText({'*565*0#': Tuple(Colors.primaryColor, () => dialNumber("tel:${Uri.encodeComponent("*565*0#")}"))}, underline: false),
+    //       ),
+    //     ),
+    //     SizedBox(height: 20),
+    //     StreamBuilder(
+    //         stream: viewModel.accountForm.bvnStream,
+    //         builder: (context, snapshot) {
+    //       return Styles.appEditText(
+    //           errorText: snapshot.hasError ? snapshot.error.toString() : null,
+    //           hint: 'BVN',
+    //           inputFormats: [FilteringTextInputFormatter.digitsOnly],
+    //           onChanged: viewModel.accountForm.onBVNChanged,
+    //           startIcon: Icon(CustomFont.bankIcon, color: Colors.colorFaded, size: 22),
+    //           animateHint: true,
+    //           maxLength: 11
+    //       );
+    //     }),
+    //     SizedBox(height: 16),
+    //     StreamBuilder(
+    //         stream: viewModel.accountForm.phoneNumberStream,
+    //         builder: (context, snapshot) {
+    //       return Styles.appEditText(
+    //         hint: 'Phone Number',
+    //         inputFormats: [FilteringTextInputFormatter.digitsOnly],
+    //         onChanged: viewModel.accountForm.onPhoneNumberChanged,
+    //         errorText: snapshot.hasError ? snapshot.error.toString() : null,
+    //         startIcon: Icon(CustomFont.call, color: Colors.colorFaded, size: 18),
+    //         animateHint: true,
+    //         maxLength: 13
+    //       );
+    //     }),
+    //     SizedBox(height: 16),
+    //     StreamBuilder(
+    //       stream: viewModel.accountForm.emailStream,
+    //         builder: (context, snapshot) {
+    //       return Styles.appEditText(
+    //         errorText: snapshot.hasError ? snapshot.error.toString() : null,
+    //         onChanged: viewModel.accountForm.onEmailChanged,
+    //         hint: 'Email Address',
+    //         startIcon: Icon(CustomFont.email, color: Colors.colorFaded, size: 16),
+    //         animateHint: true,
+    //       );
+    //     }),
+    //     SizedBox(height: 16),
+    //     StreamBuilder(
+    //         stream: viewModel.accountForm.genderStream,
+    //         builder: (BuildContext context, snapshot) {
+    //       return Styles.appEditText(
+    //           controller: _genderController,
+    //           hint: 'Gender',
+    //           errorText: snapshot.hasError ? snapshot.error.toString() : null,
+    //           startIcon: Icon(CustomFont.gender, color: Colors.colorFaded, size: 22),
+    //           endIcon: Icon(CustomFont.dropDown, color: Colors.primaryColor, size: 6),
+    //           animateHint: true,
+    //           enabled: false,
+    //           onClick: () => showDialog(context: context, builder: (BuildContext mContext) {
+    //             return SimpleDialog(
+    //               title: const Text('Select your Gender'),
+    //               children: Gender.values.map<Widget>((e) => SimpleDialogOption(
+    //                 child: Text(describeEnum(e)),
+    //                 onPressed: () {
+    //                   _genderController.text = describeEnum(e);
+    //                   FocusManager.instance.primaryFocus?.unfocus();
+    //                   Navigator.pop(mContext);
+    //                   viewModel.accountForm.onGenderChanged(describeEnum(e));
+    //                 }
+    //               )).toList(),
+    //             );
+    //           })
+    //       );
+    //     }),
+    //     Spacer(),
+    //     SizedBox(height: 24),
+    //     Styles.statefulButton(
+    //         elevation: 0,
+    //         stream: viewModel.accountForm.isValid,
+    //         onClick: () => displayDateOfBirthDialog(context),
+    //         text: 'Continue',
+    //         isLoading: _isLoading
+    //     ),
+    //     SizedBox(height: 32),
+    //     Center(
+    //       child: Text('Already have a profile? Login',
+    //           style: TextStyle(color: Color(0XFF002331), fontFamily: Styles.defaultFont, fontSize: 16)
+    //       ).colorText({
+    //         "Login": Tuple(Colors.primaryColor, () => Navigator.of(_scaffoldKey.currentContext!).popAndPushNamed('/login'))
+    //       }, underline: false)
+    //     ),
+    //   ],
+    // );
   }
 
   @override

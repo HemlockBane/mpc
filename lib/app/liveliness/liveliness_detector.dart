@@ -17,6 +17,8 @@ abstract class LivelinessDetectorCallback {
   Future<void> pauseDetection();
   Future<void> resumeDetection();
   Future<void> restart();
+  Future<void> beginCapture();
+  Future<void> endCapture();
 }
 
 enum CameraMotionEvent {
@@ -89,6 +91,15 @@ class LivelinessDetector extends ValueNotifier<LiveDetectorValue> implements Liv
     await _cameraChannel.invokeMethod("close");
   }
 
+  @override
+  Future<void> beginCapture() async {
+    await _cameraChannel.invokeMethod("begin_capture");
+  }
+
+  @override
+  Future<void> endCapture() async {
+    await _cameraChannel.invokeMethod("end_capture");
+  }
 
   @override
   void startMotionDetection() {

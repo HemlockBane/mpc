@@ -7,6 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/models/file_uuid.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
@@ -18,9 +19,9 @@ import 'package:signature/signature.dart';
 
 class SignatureView extends StatefulWidget {
   late final GlobalKey<ScaffoldState> _scaffoldKey;
-  final VoidCallback? onCompleted;
+  final Stream<Resource<FileUUID>> Function(String path) uploadAction;
 
-  SignatureView(this._scaffoldKey, {this.onCompleted});
+  SignatureView(this._scaffoldKey, this.uploadAction);
 
   @override
   State<StatefulWidget> createState() {
@@ -83,8 +84,7 @@ class _SignatureView extends State<SignatureView> with AutomaticKeepAliveClientM
                             offset: Offset(0, 10),
                           )
                         ]),
-                    child: SvgPicture.asset(
-                        'res/drawables/ic_signature_rotate.svg')
+                    child: SvgPicture.asset('res/drawables/ic_signature_rotate.svg')
                 ),)
             )),
         Positioned(
@@ -126,7 +126,7 @@ class _SignatureView extends State<SignatureView> with AutomaticKeepAliveClientM
     if(resource is Success<T>) {
       setState(() => _isLoading = false);
       _signatureFile?.delete();
-      widget.onCompleted?.call();
+      Navigator.of(context).pop(resource.data);
     } else if(resource is Error<T>) {
       showModalBottomSheet(
           context: widget._scaffoldKey.currentContext ?? context,
@@ -149,53 +149,68 @@ class _SignatureView extends State<SignatureView> with AutomaticKeepAliveClientM
      _signatureFile = File(join(dir.path, 'signature.png'));
      _signatureFile?.writeAsBytesSync(bytes!);
 
-     final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
-      viewModel
-          .uploadSignature(_signatureFile?.path ?? "")
-          .listen(handleUploadResponse);
+     widget.uploadAction
+         .call(_signatureFile?.path ?? "")
+         .listen(handleUploadResponse);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return ScrollView(
-      child: Container(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Sign in the space below',
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 16),
-            _buildSignatureView(),
-            Spacer(),
-            SizedBox(height: 32),
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-              child: Stack(
-                children: [
-                  SizedBox(
-                    width: double.infinity,
-                    child: Styles.appButton(
-                        text: 'Continue',
-                        onClick: (_isLoading || _signatureController.isEmpty)
-                            ? null
-                            : _onCaptureSignature),
-                  ),
-                  Positioned(
-                      right: 16,
-                      top: 16,
-                      bottom: 16,
-                      child: _isLoading
-                          ? SpinKitThreeBounce(size: 20.0, color: Colors.white.withOpacity(0.5))
-                          : SizedBox())
-                ],
+    return Scaffold(
+      appBar: AppBar(
+          title: Text(
+              "Signature",
+              style: TextStyle(
+                  color: Colors.textColorBlack,
+                  fontFamily: Styles.defaultFont,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 17
+              )
+          ),
+          elevation: 0,
+          backgroundColor: Colors.backgroundWhite,
+          iconTheme: IconThemeData(color: Colors.primaryColor)
+      ),
+      body: ScrollView(
+        child: Container(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Sign in the space below',
+                textAlign: TextAlign.center,
               ),
-            ),
-            SizedBox(height: 63)
-          ],
+              SizedBox(height: 16),
+              _buildSignatureView(),
+              Spacer(),
+              SizedBox(height: 32),
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                child: Stack(
+                  children: [
+                    SizedBox(
+                      width: double.infinity,
+                      child: Styles.appButton(
+                          text: 'Continue',
+                          onClick: (_isLoading || _signatureController.isEmpty)
+                              ? null
+                              : _onCaptureSignature),
+                    ),
+                    Positioned(
+                        right: 16,
+                        top: 16,
+                        bottom: 16,
+                        child: _isLoading
+                            ? SpinKitThreeBounce(size: 20.0, color: Colors.white.withOpacity(0.5))
+                            : SizedBox())
+                  ],
+                ),
+              ),
+              SizedBox(height: 63)
+            ],
+          ),
         ),
       ),
     );

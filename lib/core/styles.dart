@@ -137,7 +137,8 @@ class Styles {
       double? elevation,
       double? borderRadius,
       Widget? icon,
-      TextStyle? textStyle
+      TextStyle? textStyle,
+        Key? key,
       }) {
     var mButtonStyle = buttonStyle ?? Styles.primaryButtonStyle;
     if (padding != null) {
@@ -168,6 +169,7 @@ class Styles {
       mButtonStyle = mButtonStyle.copyWith(textStyle: MaterialStateProperty.all(textStyle));
     }
     return ElevatedButton.icon(
+        key: key,
         icon: icon ?? SizedBox(),
         onPressed: onClick,
         label: Text(text),
@@ -303,7 +305,7 @@ class Styles {
       OnItemClickListener<T?, int> valueChanged,
       {
         String? hint,
-        Color? fillColor = Colors.white,
+        Color? fillColor = Colors.textFieldColor,
         TextStyle? itemStyle,
         TextStyle? buttonStyle
       }) {
@@ -323,17 +325,17 @@ class Styles {
         InputDecorator(
           decoration: InputDecoration(
             filled: fillColor != null,
-            fillColor: fillColor ?? null,
+            fillColor: fillColor?.withOpacity(0.2) ?? null,
             border: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.colorFaded),
+                borderSide: BorderSide(color: Colors.transparent),
                 borderRadius: BorderRadius.circular(2)),
             enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.colorFaded)),
+                borderSide: BorderSide(color: Colors.textFieldColor.withOpacity(0.0))),
             contentPadding: EdgeInsets.only(left: 16, right: 21, top: 5, bottom: 5),
           ),
           child: DropdownButton<T>(
               underline: Container(),
-              hint: (hint != null) ? Text(hint, style: TextStyle(color: Colors.colorFaded),) : null,
+              hint: (hint != null) ? Text(hint, style: TextStyle(color: Colors.textHintColor.withOpacity(0.29)),) : null,
               icon: Icon(CustomFont.dropDown, color: Colors.primaryColor, size: 6),
               isExpanded: true,
               value: snapShot.data,

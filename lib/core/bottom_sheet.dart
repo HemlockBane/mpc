@@ -380,17 +380,11 @@ class BottomSheets {
         VoidCallback? onSecondaryClick
       }) {
     return makeAppBottomSheet2(
-        curveBackgroundColor: Colors.modalRed,
-        centerImageBackgroundColor: Colors.red.withOpacity(0.1),
+        curveBackgroundColor: Colors.white,
+        centerImageBackgroundColor: Colors.primaryColor.withOpacity(0.1),
         contentBackgroundColor: Colors.white,
-        dialogIcon: Container(
-          padding: EdgeInsets.all(4),
-          decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.primaryColor.withOpacity(0.1)
-          ),
-          child: SvgPicture.asset('res/drawables/ic_info.svg', color: Colors.primaryColor,),
-        ),
+        centerBackgroundPadding: 12,
+        dialogIcon: SvgPicture.asset('res/drawables/ic_info.svg', color: Colors.primaryColor, width: 46, height: 46,),
         content: Wrap(
           children: [
             Container(
@@ -410,38 +404,38 @@ class BottomSheets {
                         borderRadius: BorderRadius.all(Radius.circular(8)),
                         color: Colors.primaryColor.withOpacity(0.1)),
                     child: Text(message ?? "",
-                        maxLines: 4,
+                        maxLines: 5,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.normal,
-                            color: Colors.white),
+                            color: Colors.textColorBlack),
                         textAlign: TextAlign.center),
                   ),
-                  SizedBox(height: 21),
+                  SizedBox(height: 24),
                   SizedBox(
                       width: double.infinity,
                       child: Styles.appButton(
                           elevation: 0.5,
                           onClick: onPrimaryClick ?? () => Navigator.of(context).pop(),
                           text: primaryButtonText,
-                          buttonStyle: Styles.whiteButtonStyle.copyWith(
+                          buttonStyle: Styles.primaryButtonStyle.copyWith(
                               textStyle: MaterialStateProperty.all(TextStyle(
-                                  fontSize: 18,
+                                  fontSize: 16,
                                   color: Colors.white,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w600,
                                   fontFamily: Styles.defaultFont)),
-                              foregroundColor: MaterialStateProperty.all(Colors.primaryColor)))),
+                              foregroundColor: MaterialStateProperty.all(Colors.white)))),
                   SizedBox(height: secondaryButtonText != null ? 32 : 0),
                   Visibility(
                       visible: secondaryButtonText != null,
                       child: TextButton(
                           onPressed: onSecondaryClick ?? () => Navigator.of(context).pop(),
                           child: Text(secondaryButtonText ?? "",
-                              style: TextStyle(color: Colors.primaryColor, fontSize: 14, fontWeight: FontWeight.bold)
+                              style: TextStyle(color: Colors.primaryColor, fontSize: 16, fontWeight: FontWeight.normal)
                           )
                       )),
-                  SizedBox(height: 64),
+                  SizedBox(height: 32),
                 ],
               ),
             )

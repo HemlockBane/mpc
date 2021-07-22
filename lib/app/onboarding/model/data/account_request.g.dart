@@ -12,6 +12,7 @@ AccountCreationRequestBody _$AccountCreationRequestBodyFromJson(
     ..accountNumber = json['accountNumber'] as String?
     ..referralCode = json['referralCode'] as String?
     ..username = json['username'] as String?
+    ..emailAddress = json['emailAddress'] as String?
     ..password = json['password'] as String?
     ..pin = json['pin'] as String?
     ..onboardingKey = json['onboardingKey'] as String?
@@ -23,7 +24,6 @@ AccountCreationRequestBody _$AccountCreationRequestBodyFromJson(
     ..bvn = json['bvn'] as String?
     ..dateOfBirth = json['dob'] as String?
     ..phoneNumber = json['phoneNumber'] as String?
-    ..emailAddress = json['emailAddress'] as String?
     ..firstName = json['firstName'] as String?
     ..surname = json['surname'] as String?
     ..gender = _$enumDecodeNullable(_$GenderEnumMap, json['gender'])
@@ -34,8 +34,12 @@ AccountCreationRequestBody _$AccountCreationRequestBodyFromJson(
     ..selfieImageUUID = json['userImageUUID'] as String?
     ..signatureUUID = json['signatureUUID'] as String?
     ..livelinessCheck = json['livelinessCheck'] as String?
-    ..stateOfOrigin = json['stateOfOrigin'] as String?
-    ..localGovernmentAreaId = json['localGovernmentAreaId'] as String?;
+    ..addressInfo = json['addressInfo'] == null
+        ? null
+        : AddressInfo.fromJson(json['addressInfo'] as Object)
+    ..setupType = json['setupType'] == null
+        ? null
+        : SetupType.fromJson(json['setupType'] as Object);
 }
 
 Map<String, dynamic> _$AccountCreationRequestBodyToJson(
@@ -44,6 +48,7 @@ Map<String, dynamic> _$AccountCreationRequestBodyToJson(
       'accountNumber': instance.accountNumber,
       'referralCode': instance.referralCode,
       'username': instance.username,
+      'emailAddress': instance.emailAddress,
       'password': instance.password,
       'pin': instance.pin,
       'onboardingKey': instance.onboardingKey,
@@ -53,7 +58,6 @@ Map<String, dynamic> _$AccountCreationRequestBodyToJson(
       'bvn': instance.bvn,
       'dob': instance.dateOfBirth,
       'phoneNumber': instance.phoneNumber,
-      'emailAddress': instance.emailAddress,
       'firstName': instance.firstName,
       'surname': instance.surname,
       'gender': _$GenderEnumMap[instance.gender],
@@ -64,8 +68,8 @@ Map<String, dynamic> _$AccountCreationRequestBodyToJson(
       'userImageUUID': instance.selfieImageUUID,
       'signatureUUID': instance.signatureUUID,
       'livelinessCheck': instance.livelinessCheck,
-      'stateOfOrigin': instance.stateOfOrigin,
-      'localGovernmentAreaId': instance.localGovernmentAreaId,
+      'addressInfo': instance.addressInfo,
+      'setupType': instance.setupType,
     };
 
 K _$enumDecode<K, V>(

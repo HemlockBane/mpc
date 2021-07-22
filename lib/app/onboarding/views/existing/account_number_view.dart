@@ -82,14 +82,14 @@ class _EnterAccountNumberState extends State<EnterAccountNumberScreen> {
   }
 
   void verifyAccount(BuildContext context) {
-    FocusManager.instance.primaryFocus?.unfocus();
-
-    var requestBody = AccountInfoRequestBody(
-        accountNumber: this.mAccountNumberController.text
-    );
-    Provider.of<OnBoardingViewModel>(context, listen: false)
-        .getAccount(requestBody)
-        .listen(_onVerifyAccount);
+    // FocusManager.instance.primaryFocus?.unfocus();
+    //
+    // var requestBody = AccountInfoRequestBody(
+    //     accountNumber: this.mAccountNumberController.text
+    // );
+    // Provider.of<OnBoardingViewModel>(context, listen: false)
+    //     .getAccount(requestBody)
+    //     .listen(_onVerifyAccount);
   }
 
   @override

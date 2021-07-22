@@ -63,7 +63,7 @@ class LoggingInterceptor extends Interceptor {
     logPrint('*** Api Error - End ***:');    return super.onError(err, handler);
   }
 
-  void printKV(String key, Object v) {
+  void printKV(String key, Object? v) {
     logPrint('$key: $v');
   }
 

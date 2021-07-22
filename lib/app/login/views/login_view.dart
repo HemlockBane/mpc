@@ -70,9 +70,6 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
 
     _initSavedUsername();
     _animController.forward();
-    _topAnimController.addStatusListener((AnimationStatus status) {
-      // print(status);
-    });
 
     _initializeAndStartBiometric();
   }
@@ -225,6 +222,12 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
             );
           },
         ),
+        Container(
+          color: Colors.transparent,
+          width: width,
+          height: height,
+          child: SvgPicture.asset("res/drawables/bg_pattern.svg"),
+        ),
         AnimatedBuilder(
           animation: _topAnimController,
           builder: (context, child) {
@@ -247,7 +250,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
               children: [
                 makeTextWithIcon(
                     text: "Support",
-                    src: "res/drawables/support_v2_icon.svg",
+                    src: "res/drawables/ic_support_v2.svg",
                     spacing: 5,
                     width: 25,
                     height: 22,
@@ -259,7 +262,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
                     spacing: 0.2,
                     width: 22,
                     height: 26,
-                    src: "res/drawables/branches.svg",
+                    src: "res/drawables/ic_branches.svg",
                     onClick: () =>
                         Navigator.of(context).pushNamed(Routes.BRANCHES))
               ],
@@ -291,7 +294,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
                 Align(
                   alignment: alignmentLogoAnimation.value,
                   child: SvgPicture.asset(
-                    "res/drawables/m_icon_bg.svg",
+                    "res/drawables/ic_m_bg.svg",
                     fit: BoxFit.cover,
                     height: 65,
                     width: 65,
@@ -303,7 +306,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
                     alignment: Alignment(0, -0.4),
                     child: Container(
                       child: SvgPicture.asset(
-                        "res/drawables/m_icon.svg",
+                        "res/drawables/ic_m.svg",
                         fit: BoxFit.contain,
                         height: 30,
                         width: 30,
@@ -452,6 +455,8 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
     if (event is Error<User>) {
       setState(() => _isLoading = false);
       _passwordController.clear();
+      _topAnimController.reset();
+
       showModalBottomSheet(
           context: context,
           isScrollControlled: true,
@@ -473,6 +478,8 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
     }
     if (event is Success<User>) {
       _passwordController.clear();
+      _topAnimController.reset();
+
       setState(() => _isLoading = false);
       PreferenceUtil.setLoginMode(LoginMode.FULL_ACCESS);
       PreferenceUtil.saveLoggedInUser(event.data!);

@@ -2,6 +2,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:lottie/lottie.dart';
 import 'package:moniepoint_flutter/app/login/model/data/security_flag.dart';
 import 'package:moniepoint_flutter/app/login/model/data/user.dart';
 import 'package:moniepoint_flutter/app/login/viewmodels/login_view_model.dart';
@@ -31,12 +32,13 @@ class LoginScreen extends StatefulWidget {
   State<StatefulWidget> createState() => _LoginState();
 }
 
-class _LoginState extends State<LoginScreen>
-    with SingleTickerProviderStateMixin {
+class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
   TextEditingController _usernameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   String savedHashUsername = "";
   String? unHashedUsername = "";
+
+  late final AnimationController _topAnimController;
 
   late final AnimationController _animController =
       AnimationController(vsync: this, duration: Duration(milliseconds: 2000));
@@ -49,6 +51,7 @@ class _LoginState extends State<LoginScreen>
   bool _isPasswordVisible = false;
   bool _isFormValid = false;
   bool _alreadyInSessionError = false;
+  bool _isValidated = false;
   BiometricHelper? _biometricHelper;
 
   @override
@@ -60,12 +63,302 @@ class _LoginState extends State<LoginScreen>
     _usernameController.addListener(() => validateForm());
     _passwordController.addListener(() => validateForm());
 
+    _topAnimController = AnimationController(
+        duration: const Duration(milliseconds: 2000), vsync: this);
+
     super.initState();
 
     _initSavedUsername();
     _animController.forward();
+    _topAnimController.addStatusListener((AnimationStatus status) {
+      // print(status);
+    });
 
     _initializeAndStartBiometric();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    _animController.dispose();
+    _topAnimController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final top = MediaQuery.of(context).padding.top;
+    final minHeight = MediaQuery.of(context).size.height;
+
+    Provider.of<LoginViewModel>(context, listen: false);
+
+    final sessionReason = ModalRoute.of(context)!.settings.arguments
+        as Tuple<String, SessionTimeoutReason>?;
+    _onSessionReason(sessionReason);
+
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.of(context).popAndPushNamed(Routes.SIGN_UP);
+        return true;
+      },
+      child: Scaffold(
+        body: SingleChildScrollView(
+          child: Container(
+            height: minHeight, //TODO: Find out what this means here
+            child: Stack(
+              children: [
+                _buildTopMenu(context),
+                if (!_isLoading) ...[
+                  Column(
+                    children: [
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.35,
+                      ),
+                      Expanded(
+                        child: Container(
+                          padding: EdgeInsets.only(
+                              left: 0, right: 0, top: 34, bottom: 0),
+                          child: _buildMidSection(context),
+                        ),
+                      ),
+                      _buildBottomSection(context),
+                    ],
+                  )
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTopMenu(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+
+    final Animation<double> opacityBg2Animation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(
+      CurvedAnimation(
+        parent: _topAnimController,
+        curve: Interval(
+          0.09,
+          0.15,
+          curve: Curves.ease,
+        ),
+      ),
+    );
+
+    final Animation<double> heightBlueBgAnimation =
+        Tween<double>(begin: height * 0.3, end: height * 0.5).animate(
+      CurvedAnimation(
+        parent: _topAnimController,
+        curve: Interval(0.0, 0.1, curve: Curves.elasticInOut),
+      ),
+    );
+
+    final Animation<double> heightBlueBg2Animation =
+        Tween<double>(begin: height * 0.3, end: height).animate(
+      CurvedAnimation(
+        parent: _topAnimController,
+        curve: Interval(0.0, 0.1, curve: Curves.ease),
+      ),
+    );
+
+    final Animation alignmentLogoAnimation =
+        AlignmentTween(begin: Alignment(0, -0.42), end: Alignment(0, 0.0))
+            .animate(
+      CurvedAnimation(
+        parent: _topAnimController,
+        curve: Interval(0.1, 0.125, curve: Curves.ease),
+      ),
+    );
+
+    final Animation<double> opacityLogoAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.0,
+    ).animate(
+      CurvedAnimation(
+        parent: _topAnimController,
+        curve: Interval(
+          0.125,
+          0.13,
+          curve: Curves.ease,
+        ),
+      ),
+    );
+
+    final Animation<double> opacitySpinnerAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(
+      CurvedAnimation(
+        parent: _topAnimController,
+        curve: Interval(
+          0.125,
+          0.13,
+          curve: Curves.ease,
+        ),
+      ),
+    );
+
+    return Stack(
+      children: [
+        AnimatedBuilder(
+          animation: _topAnimController,
+          builder: (context, child) {
+            return Container(
+              width: width,
+              height: heightBlueBgAnimation.value,
+              child: SvgPicture.asset(
+                "res/drawables/bg.svg",
+                fit: BoxFit.fill,
+              ),
+            );
+          },
+        ),
+        AnimatedBuilder(
+          animation: _topAnimController,
+          builder: (context, child) {
+            return Opacity(
+              opacity: opacityBg2Animation.value,
+              child: Container(
+                  color: Color(0xff0361f0),
+                  width: width,
+                  height: heightBlueBg2Animation.value,
+                  child: Container()),
+            );
+          },
+        ),
+        if (!_isLoading) ...[
+          Container(
+            margin: EdgeInsets.only(
+                top: MediaQuery.of(context).size.height * 0.074, right: 17),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                makeTextWithIcon(
+                    text: "Support",
+                    src: "res/drawables/support_v2_icon.svg",
+                    spacing: 5,
+                    width: 25,
+                    height: 22,
+                    onClick: () =>
+                        Navigator.of(context).pushNamed(Routes.SUPPORT)),
+                SizedBox(width: 18),
+                makeTextWithIcon(
+                    text: "Branches",
+                    spacing: 0.2,
+                    width: 22,
+                    height: 26,
+                    src: "res/drawables/branches.svg",
+                    onClick: () =>
+                        Navigator.of(context).pushNamed(Routes.BRANCHES))
+              ],
+            ),
+          ),
+        ],
+        AnimatedBuilder(
+          animation: _topAnimController,
+          builder: (context, child) {
+            return Stack(
+              children: [
+                Align(
+                  alignment: alignmentLogoAnimation.value,
+                  child: Container(
+                    height: 65,
+                    width: 65,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.cardBorder.withOpacity(0.2),
+                          offset: Offset(0, 3),
+                          blurRadius: 8,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Align(
+                  alignment: alignmentLogoAnimation.value,
+                  child: SvgPicture.asset(
+                    "res/drawables/m_icon_bg.svg",
+                    fit: BoxFit.cover,
+                    height: 65,
+                    width: 65,
+                  ),
+                ),
+                Opacity(
+                  opacity: opacityLogoAnimation.value,
+                  child: Align(
+                    alignment: Alignment(0, -0.4),
+                    child: Container(
+                      child: SvgPicture.asset(
+                        "res/drawables/m_icon.svg",
+                        fit: BoxFit.contain,
+                        height: 30,
+                        width: 30,
+                      ),
+                    ),
+                  ),
+                ),
+                Opacity(
+                  opacity: opacitySpinnerAnimation.value,
+                  child: Align(
+                    alignment: alignmentLogoAnimation.value,
+                    child: Container(
+                      child: Lottie.asset(
+                        "res/drawables/spinner_lottie.json",
+                        fit: BoxFit.contain,
+                        height: 30,
+                        width: 30,
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Align _buildBottomSection(BuildContext context) {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Container(
+        margin: EdgeInsets.only(left: 16, right: 16),
+        child: Column(
+          children: [
+            Styles.statefulButton2(
+              isValid: _isFormValid,
+              padding: 20,
+              elevation: _isFormValid && !_isLoading ? 4 : 0,
+              onClick: () => _subscribeUiToLogin(context),
+              text: "Login",
+              isLoading: _isLoading,
+            ),
+            SlideTransition(
+              position: _ussdOffsetAnimation,
+              child: Container(
+                margin: EdgeInsets.only(top: 50, bottom: 0),
+                child: _bottomUSSDWidget(),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _initializeAndStartBiometric() async {
@@ -74,11 +367,6 @@ class _LoginState extends State<LoginScreen>
         keyStoreName: "AndroidKeyStore",
         keyAlias: "teamapt-moniepoint");
     if (!_alreadyInSessionError) _startFingerPrintLoginProcess();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
   }
 
   void _initSavedUsername() {
@@ -124,64 +412,19 @@ class _LoginState extends State<LoginScreen>
     );
   }
 
-  Widget _buildTopMenu() {
-    return Stack(
-      children: [
-        SvgPicture.asset(
-          "res/drawables/bg.svg",
-          fit: BoxFit.fill,
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height * 0.35,
-        ),
-        Container(
-          margin: EdgeInsets.only(
-              top: MediaQuery.of(context).size.height * 0.075, right: 30),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              makeTextWithIcon(
-                  text: "Support",
-                  src: "res/drawables/support_v2_icon.svg",
-                  spacing: 5,
-                  width: 27,
-                  height: 24,
-                  onClick: () =>
-                      Navigator.of(context).pushNamed(Routes.SUPPORT)),
-              SizedBox(width: 18),
-              makeTextWithIcon(
-                  text: "Branches",
-                  spacing: 0.2,
-                  width: 24,
-                  height: 28,
-                  src: "res/drawables/branches.svg",
-                  onClick: () =>
-                      Navigator.of(context).pushNamed(Routes.BRANCHES))
-            ],
-          ),
-        ),
-        // Align(
-        //   alignment: Alignment,
-        //   child: Container(
-        //     color: Colors.black,
-        //     height: 20,
-        //     width: 20,
-        //   ),
-        // )
-      ],
-    );
-  }
-
-  Widget _buildCenterBox(BuildContext context) {
+  Widget _buildMidSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 8),
-          child: Text('Welcome back, Adrian',
-              style: TextStyle(
-                  color: Colors.textColorBlack,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 24)),
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            'Welcome back, Adrian',
+            style: TextStyle(
+                color: Colors.textColorBlack,
+                fontWeight: FontWeight.bold,
+                fontSize: 24),
+          ),
         ),
         // SizedBox(height: 5),
         _buildLoginBox(context)
@@ -190,6 +433,7 @@ class _LoginState extends State<LoginScreen>
   }
 
   void _subscribeUiToLogin(BuildContext context) {
+    _topAnimController.forward();
     FocusManager.instance.primaryFocus?.unfocus();
 
     final viewModel = Provider.of<LoginViewModel>(context, listen: false);
@@ -319,12 +563,13 @@ class _LoginState extends State<LoginScreen>
 
   Widget _buildLoginBox(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(top: 11, left: 16, right: 16, bottom: 18),
+      padding: EdgeInsets.only(top: 15, left: 16, right: 16, bottom: 0),
       child: Column(
         children: [
           Styles.appEditText(
               hint: 'Username',
-              fillColor: Color(0xFFF5F6F7),
+              fillColor: Color(0xffCED2D9).withOpacity(0.2),
+              borderColor: Colors.transparent,
               controller: _usernameController,
               animateHint: true,
               drawablePadding: EdgeInsets.only(left: 4, right: 4),
@@ -332,15 +577,16 @@ class _LoginState extends State<LoginScreen>
               padding: EdgeInsets.only(top: 22, bottom: 22),
               startIcon: Icon(
                 CustomIcons2.username,
-                color: Colors.colorFaded,
-                size: 20,
+                color: Colors.textHintColor.withOpacity(0.3),
+                size: 24,
               ),
               focusListener: (bool) => this.setState(() {})),
           SizedBox(height: 22),
           Styles.appEditText(
               controller: _passwordController,
               hint: 'Password',
-              fillColor: Color(0xFFF5F6F7),
+              fillColor: Color(0xffCED2D9).withOpacity(0.2),
+              borderColor: Colors.transparent,
               animateHint: true,
               drawablePadding: EdgeInsets.only(left: 4, right: 4),
               fontSize: 15,
@@ -350,7 +596,7 @@ class _LoginState extends State<LoginScreen>
                       this._isPasswordVisible
                           ? Icons.visibility
                           : Icons.visibility_off,
-                      color: Colors.colorFaded),
+                      color: Colors.textHintColor.withOpacity(0.3)),
                   onPressed: () {
                     setState(() {
                       this._isPasswordVisible = !_isPasswordVisible;
@@ -358,8 +604,8 @@ class _LoginState extends State<LoginScreen>
                   }),
               startIcon: Icon(
                 CustomIcons2.password,
-                color: Colors.colorFaded,
-                size: 20,
+                color: Colors.textHintColor.withOpacity(0.3),
+                size: 24,
               ),
               focusListener: (bool) => this.setState(() {}),
               isPassword: !_isPasswordVisible),
@@ -378,18 +624,10 @@ class _LoginState extends State<LoginScreen>
                     textStyle: MaterialStateProperty.all(TextStyle(
                         fontFamily: Styles.defaultFont,
                         fontSize: 14,
-                        fontWeight: FontWeight.normal))),
+                        fontWeight: FontWeight.w500))),
               ),
             ],
           ),
-          SizedBox(height: 22),
-          Styles.statefulButton2(
-              isValid: _isFormValid,
-              padding: 20,
-              elevation: _isFormValid && !_isLoading ? 4 : 0,
-              onClick: () => _subscribeUiToLogin(context),
-              text: "Login",
-              isLoading: _isLoading),
         ],
       ),
     );
@@ -401,63 +639,71 @@ class _LoginState extends State<LoginScreen>
         defaultCode: "*5573#");
     return Container(
       decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(10), topRight: Radius.circular(10)),
-          border:
-              Border.all(color: Colors.cardBorder.withOpacity(0.05), width: 1),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.cardBorder.withOpacity(0.2),
-                offset: Offset(0, 8),
-                blurRadius: 6)
-          ]),
-      child: Material(
-        color: Colors.transparent,
+        color: Colors.white,
         borderRadius: BorderRadius.only(
             topLeft: Radius.circular(10), topRight: Radius.circular(10)),
-        child: InkWell(
-          highlightColor: Colors.grey.withOpacity(0.05),
-          overlayColor:
-              MaterialStateProperty.all(Colors.primaryColor.withOpacity(0.05)),
+        // border: Border.all(
+        //   color: Colors.cardBorder.withOpacity(0.05),
+        //   width: 1,
+        // ),
+        boxShadow: [
+          BoxShadow(
+            offset: Offset(0, -1),
+            blurRadius: 1,
+            spreadRadius: 2,
+            color: Color(0xff063A4F).withOpacity(0.08),
+          )
+        ],
+      ),
+      child: Container(
+        margin: EdgeInsets.only(top: 15, bottom: 20),
+        child: Material(
+          color: Colors.transparent,
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(10), topRight: Radius.circular(10)),
-          onTap: () => dialNumber("tel:${codes.first}"),
-          child: Container(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Flexible(
-                      child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'USSD Quick Actions',
+          child: InkWell(
+            highlightColor: Colors.grey.withOpacity(0.05),
+            overlayColor: MaterialStateProperty.all(
+                Colors.primaryColor.withOpacity(0.05)),
+            borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(10), topRight: Radius.circular(10)),
+            onTap: () => dialNumber("tel:${codes.first}"),
+            child: Container(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Flexible(
+                        child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'USSD Quick Actions',
+                          style: TextStyle(
+                              fontFamily: Styles.defaultFont,
+                              color: Colors.darkBlue,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16),
+                        ),
+                        SizedBox(height: 5),
+                        Text('Transfer, Airtime & Pay Bills Offline!',
+                            style: TextStyle(
+                                fontSize: 11,
+                                fontFamily: Styles.defaultFont,
+                                color: Colors.textSubColor.withOpacity(0.6))),
+                      ],
+                    )),
+                    SizedBox(width: 8),
+                    Text(codes.second,
                         style: TextStyle(
                             fontFamily: Styles.defaultFont,
-                            color: Colors.darkBlue,
-                            fontWeight: FontWeight.w400,
-                            fontSize: 16),
-                      ),
-                      SizedBox(height: 5),
-                      Text('Transfer, Airtime & Pay Bills Offline!',
-                          style: TextStyle(
-                              fontSize: 12,
-                              fontFamily: Styles.defaultFont,
-                              color: Colors.textSubColor.withOpacity(0.6))),
-                    ],
-                  )),
-                  SizedBox(width: 8),
-                  Text(codes.second,
-                      style: TextStyle(
-                          fontFamily: Styles.defaultFont,
-                          fontSize: 32,
-                          color: Colors.primaryColor,
-                          fontWeight: FontWeight.w600))
-                ],
+                            fontSize: 32,
+                            color: Colors.primaryColor,
+                            fontWeight: FontWeight.w600))
+                  ],
+                ),
               ),
             ),
           ),
@@ -506,75 +752,5 @@ class _LoginState extends State<LoginScreen>
             });
       });
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final top = MediaQuery.of(context).padding.top;
-    final minHeight = MediaQuery.of(context).size.height;
-
-    Provider.of<LoginViewModel>(context, listen: false);
-
-    final sessionReason = ModalRoute.of(context)!.settings.arguments
-        as Tuple<String, SessionTimeoutReason>?;
-    _onSessionReason(sessionReason);
-
-    return WillPopScope(
-      onWillPop: () async {
-        Navigator.of(context).popAndPushNamed(Routes.SIGN_UP);
-        return true;
-      },
-      child: Scaffold(
-        // resizeToAvoidBottomInset: true,
-        // backgroundColor: Colors.backgroundWhite,
-        body: SingleChildScrollView(
-          child: Container(
-            height: minHeight, //TODO: Find out what this means here
-            child: Stack(
-              children: [
-                _buildTopMenu(),
-                Column(
-                  children: [
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.37,
-                    ),
-                    Expanded(
-                      child: Container(
-                        padding: EdgeInsets.only(
-                            left: 16, right: 16, top: 34, bottom: 0),
-                        child: _buildCenterBox(context),
-                      ),
-                    ),
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: SlideTransition(
-                        position: _ussdOffsetAnimation,
-                        child: _bottomUSSDWidget(),
-                      ),
-                    ),
-                  ],
-                ),
-                Align(
-                  alignment: Alignment(0, -0.30),
-                  child: SvgPicture.asset(
-                    "res/drawables/m_icon_2.svg",
-                    height: 110,
-                    width: 110,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _usernameController.dispose();
-    _passwordController.dispose();
-    _animController.dispose();
-    super.dispose();
   }
 }

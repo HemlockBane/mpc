@@ -139,7 +139,7 @@ class _OnBoardingService implements OnBoardingService {
             extra: _extra,
             contentType: 'application/json')
         .compose(_dio.options,
-            'https://core-root.monnify.development.teamapt.com/api/v1/account_creation',
+            'https://core-root.monnify.development.teamapt.com/api/v2/onboarding/onboard-user',
             queryParameters: queryParameters, data: _data)
         .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = ServiceResult<AccountProfile>.fromJson(

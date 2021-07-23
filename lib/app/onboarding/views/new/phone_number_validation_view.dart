@@ -26,6 +26,8 @@ class _PhoneNumberValidationScreen extends State<PhoneNumberValidationScreen> {
 
   bool _isLoading = false;
 
+  TextEditingController? _phoneNumberController;
+
   void _subscribeUiToPhoneNumberValidation() {
     final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
     viewModel.sendOtpToDevice().listen((event) {
@@ -46,6 +48,17 @@ class _PhoneNumberValidationScreen extends State<PhoneNumberValidationScreen> {
       }
     });
   }
+  void _fetchNationalities()  {
+    final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
+    if(viewModel.nationalities.isEmpty) viewModel.fetchCountries().listen((event) { });
+  }
+
+  @override
+  void initState() {
+    _phoneNumberController = TextEditingController();
+    super.initState();
+    _fetchNationalities();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +68,7 @@ class _PhoneNumberValidationScreen extends State<PhoneNumberValidationScreen> {
         maxHeight: MediaQuery.of(context).size.height - 64,//subtract the vertical padding
         child: Container(
             padding: EdgeInsets.symmetric(vertical: 32, horizontal: 20),
-            color: Colors.backgroundWhite,
+            color: Colors.white,
             child: Column(
               children: [
                 Expanded(
@@ -87,7 +100,9 @@ class _PhoneNumberValidationScreen extends State<PhoneNumberValidationScreen> {
                               builder: (context, snapshot) {
                                 return Styles.appEditText(
                                     hint: 'Phone Number',
+                                    controller: _phoneNumberController,
                                     inputFormats: [FilteringTextInputFormatter.digitsOnly],
+                                    inputType: TextInputType.number,
                                     onChanged: viewModel.accountForm.onPhoneNumberChanged,
                                     errorText: snapshot.hasError ? snapshot.error.toString() : null,
                                     startIcon: Icon(CustomFont.call, color: Colors.textFieldIcon.withOpacity(0.2), size: 24),
@@ -109,7 +124,8 @@ class _PhoneNumberValidationScreen extends State<PhoneNumberValidationScreen> {
                 ),
                 SizedBox(height: 40),
                 Center(
-                    child: Text('Already have a profile? Login',
+                    child: Text(
+                        'Already have a profile? Login',
                         style: TextStyle(color: Color(0XFF002331), fontFamily: Styles.defaultFont, fontSize: 16)
                     ).colorText({
                       "Login": Tuple(Colors.primaryColor, () => Navigator.of(widget._scaffoldKey.currentContext!).popAndPushNamed('/login'))

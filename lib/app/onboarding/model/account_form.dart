@@ -68,11 +68,11 @@ class AccountForm with ChangeNotifier, Validators{
 
     this._isMobileNumberValid = Rx.combineLatest([phoneNumberStream], (values) {
       return _isPhoneNumberValid(displayError: false);
-    });
+    }).asBroadcastStream();
 
     this._isBVNNumberValid = Rx.combineLatest([bvnStream], (values) {
       return _isBVNValid(displayError: false);
-    });
+    }).asBroadcastStream();
 
 
     final accountInfoStreams = [

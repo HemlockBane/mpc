@@ -1,6 +1,7 @@
 import 'package:moniepoint_flutter/app/liveliness/liveliness_verification.dart';
-import 'package:moniepoint_flutter/app/liveliness/model/behaviors/onboarding_liveliness_validation_behavior.dart';
 import 'package:moniepoint_flutter/app/liveliness/viewmodels/liveliness_verification_viewmodel.dart';
+
+import 'onboarding_liveliness_validation_strategy.dart';
 
 /// @author  Paul Okeke
 abstract class LivelinessValidationStrategy<T> {

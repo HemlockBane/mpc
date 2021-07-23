@@ -51,37 +51,34 @@ class SignUpAccountScreen extends StatelessWidget  {
     return (isPop != null && isPop) ? Future.value(false) : Future.value(true);
   }
 
-  void _fetchNationalities(BuildContext context)  {
-    final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
-    if(viewModel.nationalities.isEmpty) viewModel.fetchCountries().listen((event) { });
-  }
-
   @override
   Widget build(BuildContext context) {
-    _fetchNationalities(context);
-    return WillPopScope(
-      onWillPop: _onBackPressed,
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        key: _scaffoldKey,
-        appBar: AppBar(
-            title: Text(
-                "Getting Started",
-                style: TextStyle(
-                    color: Colors.textColorBlack,
-                    fontFamily: Styles.defaultFont,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 17
-                )
-            ),
-            elevation: 0,
-            backgroundColor: Colors.white,
-            iconTheme: IconThemeData(color: Colors.primaryColor)
-        ),
-        body: Navigator(
-          key: _navigatorKey,
-          initialRoute: ONBOARDING_PHONE_NUMBER_VALIDATION,
-          onGenerateRoute: _generateRoute,
+    return MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => OnBoardingViewModel()),],
+      child: WillPopScope(
+        onWillPop: _onBackPressed,
+        child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          key: _scaffoldKey,
+          appBar: AppBar(
+              title: Text(
+                  "Getting Started",
+                  style: TextStyle(
+                      color: Colors.textColorBlack,
+                      fontFamily: Styles.defaultFont,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17
+                  )
+              ),
+              elevation: 0,
+              backgroundColor: Colors.white,
+              iconTheme: IconThemeData(color: Colors.primaryColor)
+          ),
+          body: Navigator(
+            key: _navigatorKey,
+            initialRoute: ONBOARDING_PHONE_NUMBER_VALIDATION,
+            onGenerateRoute: _generateRoute,
+          ),
         ),
       ),
     );

@@ -1,14 +1,11 @@
 import 'dart:async';
-import 'dart:math';
 import 'dart:ui';
 
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart' hide Colors;
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lottie/lottie.dart';
 import 'package:moniepoint_flutter/app/liveliness/liveliness_error.dart';
-import 'package:moniepoint_flutter/app/liveliness/model/behaviors/onboarding_liveliness_validation_behavior.dart';
 import 'package:moniepoint_flutter/app/liveliness/liveliness_background_frame.dart';
 import 'package:moniepoint_flutter/app/liveliness/viewmodels/liveliness_verification_viewmodel.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
@@ -19,6 +16,7 @@ import 'package:provider/provider.dart';
 
 import 'liveliness_detector.dart';
 import 'liveliness_verification.dart';
+import 'model/strategy/onboarding_liveliness_validation_strategy.dart';
 
 class LivelinessDetectionGuide extends StatefulWidget {
 
@@ -106,7 +104,7 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
       _motionDetectedEvent = motionEvent;
       _eventAnimationController.reverse();
       _eventTimer?.cancel();
-      _validateFaceMatch();
+      _validateLiveliness();
     }
   }
 
@@ -120,7 +118,7 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
     await widget.callback.restart();
   }
 
-  void _validateFaceMatch() async {
+  void _validateLiveliness() async {
     final viewModel = Provider.of<LivelinessVerificationViewModel>(context, listen: false);
     switch(widget.verificationFor) {
       case LivelinessVerificationFor.ON_BOARDING:
@@ -241,16 +239,7 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
         children: [
           Visibility(
               visible: true,
-              child: AnimatedBuilder(
-                  animation: _controller,
-                  builder: (_, child) {
-                    return Transform.rotate(
-                      angle: _controller.value * 2 * pi,
-                      child: child,
-                    );
-                  },
-                  child: SvgPicture.asset('res/drawables/ic_face_match_progress.svg'),
-              )
+              child: Lottie.asset('res/drawables/progress_bar_lottie.json', width: 36, height: 36)
           ),
           Visibility(visible: infoMessage.isNotEmpty, child: SizedBox(width: 8,)),
           Visibility(
@@ -377,11 +366,6 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
     _state = LivelinessState.RUNNING;
     widget.callback.resumeDetection();
     widget.callback.beginCapture();
-  }
-
-  Future<String> _getFileSizeWidget(String path) async {
-    final file = await FlutterImageCompress.compressWithFile(path, quality: 75);
-    return "${file!.lengthInBytes / 1024} KB";
   }
 
 

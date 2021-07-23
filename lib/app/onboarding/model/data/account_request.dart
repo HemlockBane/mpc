@@ -40,7 +40,7 @@ class AccountCreationRequestBody extends ProfileCreationRequestBody {
   String? transactionPin;
 
   @JsonKey(name: "createUssd")
-  bool createUssdPin = false;
+  bool createUssdPin = true;
 
   @JsonKey(name: "userImageUUID")
   String? selfieImageUUID;

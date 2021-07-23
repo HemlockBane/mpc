@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter/services.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:moniepoint_flutter/app/liveliness/liveliness_verification.dart';
 import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
 import 'package:moniepoint_flutter/app/validation/model/data/onboarding_liveliness_validation_response.dart';
-import 'package:moniepoint_flutter/app/validation/model/data/validate_phone_otp_response.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
-import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/views/otp_ussd_info_view.dart';
@@ -31,17 +28,18 @@ class EnterBVNScreen extends StatefulWidget {
 
 class _EnterBVNScreen extends State<EnterBVNScreen> {
   late final GlobalKey<ScaffoldState> _scaffoldKey;
-
   late final TextEditingController _bvnController;
+  static const BVN_LENGTH = 11;
 
   _EnterBVNScreen(this._scaffoldKey);
 
   @override
   void initState() {
+    _bvnController = TextEditingController();
     super.initState();
   }
 
-  void _subscribeUiToOtpValidation(BuildContext context) async {
+  void _subscribeUiToLivelinessTest(BuildContext context) async {
     final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
     final validationResponse = await Navigator.of(widget._scaffoldKey.currentContext ?? context)
        .pushNamed(Routes.LIVELINESS_DETECTION, arguments: {
@@ -73,7 +71,7 @@ class _EnterBVNScreen extends State<EnterBVNScreen> {
       viewModel.setOnBoardingType(onboardingType ?? OnBoardingType.ACCOUNT_DOES_NOT_EXIST);
       viewModel.setOnboardingKey(validationResponse.onboardingKey ?? "");
 
-      if(onboardingType == OnBoardingType.ACCOUNT_DOES_NOT_EXIST){
+      if(onboardingType == OnBoardingType.ACCOUNT_DOES_NOT_EXIST) {
         //We navigate to account info
         Navigator.of(context).pushNamed(SignUpAccountScreen.ACCOUNT_INFO);
       } else {
@@ -110,7 +108,7 @@ class _EnterBVNScreen extends State<EnterBVNScreen> {
   void _showGenericError(String? message) {
     showModalBottomSheet(
         backgroundColor: Colors.transparent,
-        context: context,
+        context: _scaffoldKey.currentContext ?? context,
         builder: (mContext) {
           return BottomSheets.displayErrorModal(context, message: message, onClick: (){
             Navigator.of(context).pop();
@@ -131,7 +129,7 @@ class _EnterBVNScreen extends State<EnterBVNScreen> {
       maxHeight: MediaQuery.of(context).size.height - 64,//subtract the vertical padding
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 32, horizontal: 20),
-        color: Colors.backgroundWhite,
+        color: Colors.white,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -157,11 +155,13 @@ class _EnterBVNScreen extends State<EnterBVNScreen> {
                           return Styles.appEditText(
                               errorText: snapshot.hasError ? snapshot.error.toString() : null,
                               hint: 'Enter BVN',
+                              controller: _bvnController,
+                              inputType: TextInputType.number,
                               inputFormats: [FilteringTextInputFormatter.digitsOnly],
                               onChanged: viewModel.accountForm.onBVNChanged,
                               startIcon: Icon(CustomFont.numberInput, color: Colors.textFieldIcon.withOpacity(0.2), size: 22),
                               animateHint: true,
-                              maxLength: 11
+                              maxLength: BVN_LENGTH
                           );
                         }),
                     SizedBox(height: 20),
@@ -178,7 +178,7 @@ class _EnterBVNScreen extends State<EnterBVNScreen> {
             Styles.statefulButton(
                 stream: viewModel.accountForm.isBankVerificationNumberValid,
                 elevation: 0,
-                onClick: () => _subscribeUiToOtpValidation(context),
+                onClick: () => _subscribeUiToLivelinessTest(context),
                 text: 'Next',
                 isLoading: false,
             ),

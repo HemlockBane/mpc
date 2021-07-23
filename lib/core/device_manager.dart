@@ -42,6 +42,7 @@ class DeviceManager {
       _deviceVersion = value.systemVersion;
       _deviceBrandName = value.localizedModel;
     }
+    return;
   }
 
   factory DeviceManager() => _deviceManager ?? DeviceManager._internal();

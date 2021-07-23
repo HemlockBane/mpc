@@ -60,7 +60,7 @@ abstract class OnBoardingService {
     "client-id": BuildConfig.CLIENT_ID,
     "appVersion": BuildConfig.APP_VERSION
   })
-  @POST("${ServiceConfig.ROOT_SERVICE}api/v1/account_creation")
+  @POST("${ServiceConfig.ROOT_SERVICE}api/v2/onboarding/onboard-user")
   Future<ServiceResult<AccountProfile>> createAccount(@Body() AccountCreationRequestBody body);
 
   @Headers(<String, dynamic>{

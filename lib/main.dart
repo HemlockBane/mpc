@@ -116,10 +116,7 @@ class MoniepointApp extends StatelessWidget {
       //TODO consider moving this to a separate file
       routes: <String, WidgetBuilder>{
         '/login': (BuildContext context) => LoginScreen(),
-        '/sign-up': (BuildContext context) => ChangeNotifierProvider(
-          create: (_) => OnBoardingViewModel(),
-          child: SignUpAccountScreen(),
-        ),
+        '/sign-up': (BuildContext context) => SignUpAccountScreen(),
         // Routes.ONBOARDING_PHONE_NUMBER_VALIDATION: (BuildContext context) => ChangeNotifierProvider(
         //   create: (_) => OnBoardingViewModel(),
         //   child: PhoneNumberValidationScreen(),
@@ -202,7 +199,7 @@ void main() async {
 
 Future<void> _onCreate() async {
   WidgetsFlutterBinding.ensureInitialized();
-  DatabaseModule.inject();
+  await DatabaseModule.inject();
   ServiceModule.inject();
 
   await Firebase.initializeApp();

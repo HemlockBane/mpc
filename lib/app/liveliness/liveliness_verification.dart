@@ -7,6 +7,7 @@ import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'liveliness_camera_preview.dart';
 import 'liveliness_detection_guide.dart';
@@ -154,13 +155,21 @@ class _LivelinessVerification extends State<LivelinessVerification> {
       ));
   }
 
+  void _requestCameraPermission() async {
+    if(await Permission.camera.request().isGranted) {
+      showDialog(context: context, builder: (mContext) => _entryDialog());
+      _initLivelinessDetector();
+    } else {
+      Navigator.of(context).pop();
+    }
+  }
+
   @override
   void initState() {
     _livelinessDetector = LivelinessDetector();
     super.initState();
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      showDialog(context: context, builder: (mContext) => _entryDialog());
-      _initLivelinessDetector();
+      _requestCameraPermission();
     });
   }
 

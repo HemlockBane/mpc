@@ -212,6 +212,19 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
         AnimatedBuilder(
           animation: _topAnimController,
           builder: (context, child) {
+            return Opacity(
+              opacity: opacityBg2Animation.value,
+              child: Container(
+                  color: Color(0xff0361f0),
+                  width: width,
+                  height: heightBlueBg2Animation.value,
+                  child: Container()),
+            );
+          },
+        ),
+        AnimatedBuilder(
+          animation: _topAnimController,
+          builder: (context, child) {
             return Container(
               width: width,
               height: heightBlueBgAnimation.value,
@@ -223,23 +236,14 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
           },
         ),
         Container(
-          color: Colors.transparent,
           width: width,
           height: height,
-          child: SvgPicture.asset("res/drawables/bg_pattern.svg"),
-        ),
-        AnimatedBuilder(
-          animation: _topAnimController,
-          builder: (context, child) {
-            return Opacity(
-              opacity: opacityBg2Animation.value,
-              child: Container(
-                  color: Color(0xff0361f0),
-                  width: width,
-                  height: heightBlueBg2Animation.value,
-                  child: Container()),
-            );
-          },
+          child: SvgPicture.asset(
+            "res/drawables/bg_pattern.svg",
+            width: width,
+            height: height,
+            fit: BoxFit.fill,
+          ),
         ),
         if (!_isLoading) ...[
           Container(
@@ -554,7 +558,8 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
         backgroundColor: Colors.transparent,
         builder: (context) {
           return BottomSheets.makeAppBottomSheet(
-              height: 420, //this is like our guideline
+              height: 420,
+              //this is like our guideline
               centerImageRes: 'res/drawables/ic_login_options.svg',
               centerBackgroundPadding: 18,
               centerImageBackgroundColor: Colors.primaryColor.withOpacity(0.1),

@@ -157,6 +157,9 @@ flutter:
     - family: CustomFont
       fonts:
         - asset: res/fonts/custom_icons.ttf
+    - family: CustomIcons2
+      fonts:
+        - asset: res/fonts/custom_icons_2.ttf
     - family: Ocra
       fonts:
         - asset: res/fonts/ocraextended.ttf

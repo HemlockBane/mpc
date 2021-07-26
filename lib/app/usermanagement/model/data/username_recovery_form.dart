@@ -24,13 +24,15 @@ class UsernameRecoveryForm with ChangeNotifier, Validators {
 
   void _initState() {
     this._isValid = Rx.combineLatest([accountNumberStream, bvnStream], (values) {
-      return _isAccountNumberValid(displayError: false) && _isBVNValid(displayError: false);
+      return _isAccountNumberValid(displayError: false)
+          || _isBVNValid(displayError: false);
     }).asBroadcastStream();
   }
 
   void onAccountNumberChanged(String? text) {
     _requestBody.accountNumber = text;
     _accountNumberController.sink.add(text ?? "");
+    _bvnController.sink.add("");
     _isAccountNumberValid(displayError: true);
   }
 

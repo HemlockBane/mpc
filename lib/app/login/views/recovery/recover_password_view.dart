@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter/services.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:moniepoint_flutter/app/login/viewmodels/recovery_view_model.dart';
 import 'package:moniepoint_flutter/app/login/views/recovery/recovery_controller_screen.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/data/recovery_response.dart';
@@ -8,8 +7,10 @@ import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
-import 'package:moniepoint_flutter/core/views/scroll_view.dart';
+import 'package:moniepoint_flutter/core/utils/text_utils.dart';
+import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:provider/provider.dart';
 
 class RecoverPasswordScreen extends StatefulWidget {
@@ -49,6 +50,12 @@ class _RecoverPasswordScreen extends State<RecoverPasswordScreen> {
     });
   }
 
+  void _navigateToUseUsername() {
+
+    Navigator.of(widget._scaffoldKey.currentContext ?? context)
+        .popAndPushNamed(Routes.ACCOUNT_RECOVERY, arguments: RecoveryMode.USERNAME_RECOVERY);
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<RecoveryViewModel>(context, listen: false);
@@ -75,55 +82,47 @@ class _RecoverPasswordScreen extends State<RecoverPasswordScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            'Recover Password',
+                            'Enter Username',
                             textAlign: TextAlign.start,
                             style: TextStyle(
-                                color: Colors.colorPrimaryDark,
+                                color: Colors.textColorBlack,
                                 fontSize: 25,
                                 fontWeight: FontWeight.bold),
                           ),
-                          SizedBox(height: 8),
+                          SizedBox(height: 13),
                           Text(
-                              'Please enter the account number and username linked to your account. ',
+                              'Enter your Username to get started.',
                               textAlign: TextAlign.start,
                               style: TextStyle(
                                   color: Colors.textColorBlack,
                                   fontSize: 15,
                                   fontWeight: FontWeight.normal)),
-                          SizedBox(height: 44),
-                          StreamBuilder(
-                            stream: viewModel.passwordRecoveryForm.accountNumberStream,
-                            builder: (context, snapshot) {
-                              return Styles.appEditText(
-                                  hint: 'Account Number',
-                                  maxLength: 10,
-                                  inputFormats: [
-                                    FilteringTextInputFormatter.digitsOnly
-                                  ],
-                                  animateHint: true,
-                                  onChanged: viewModel.passwordRecoveryForm.onAccountNumberChanged,
-                                  errorText: snapshot.hasError
-                                      ? snapshot.error.toString()
-                                      : null,
-                                  startIcon: Icon(CustomFont.bankIcon, color: Colors.colorFaded)
-                              );
-                            },
-                          ),
-                          SizedBox(height: 16),
+                          SizedBox(height: 46),
                           StreamBuilder(
                             stream: viewModel.passwordRecoveryForm.usernameStream,
                             builder: (context, snapshot) {
                               return Styles.appEditText(
-                                  hint: 'Username',
+                                  hint: 'Enter Username',
                                   inputFormats: [LengthLimitingTextInputFormatter(200)],
                                   animateHint: true,
                                   onChanged: viewModel.passwordRecoveryForm.onUsernameChanged,
                                   errorText: snapshot.hasError
                                       ? snapshot.error.toString()
                                       : null,
-                                  startIcon: Icon(CustomFont.username_icon, color: Colors.colorFaded)
+                                  startIcon: Icon(CustomFont.bankNumberInput, color: Colors.textFieldIcon.withOpacity(0.2))
                               );
                             },
+                          ),
+                          SizedBox(height: 14,),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              "Can’t remember username?\nRecover Username",
+                              textAlign: TextAlign.right,
+                              style: TextStyle(color: Colors.textColorBlack, fontSize: 15, fontFamily: Styles.defaultFont, height: 1.4),
+                            ).colorText({
+                              "Recover Username": Tuple(Colors.primaryColor, _navigateToUseUsername)
+                            }, underline: false),
                           ),
                           SizedBox(height: 100),
                         ],
@@ -133,7 +132,7 @@ class _RecoverPasswordScreen extends State<RecoverPasswordScreen> {
                     elevation: 0,
                     stream: viewModel.passwordRecoveryForm.isValid,
                     onClick: _subscribeUiToPasswordRecovery,
-                    text: 'Submit',
+                    text: 'Next',
                     isLoading: _isLoading
                 ),
                 SizedBox(height: 16)

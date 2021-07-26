@@ -196,6 +196,10 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
         if(_state == LivelinessState.INFO) {
           Future.delayed(Duration(milliseconds: 200), () => _eventAnimationController.forward());
         }
+      } else if(_previousMotionEvent == CameraMotionEvent.ImageOverExposed
+          || _previousMotionEvent == CameraMotionEvent.ImageUnderExposed) {
+        _state = LivelinessState.LOCAL_ERROR;
+        widget.callback.pauseDetection().then((value) => "");
       }
     });
   }
@@ -266,6 +270,12 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
     }
     if(_previousMotionEvent == CameraMotionEvent.NoMotionDetectedEvent) {
         return "No Motion Detected";
+    }
+    if(_previousMotionEvent == CameraMotionEvent.ImageOverExposed) {
+      return "Image is too bright";
+    }
+    if(_previousMotionEvent == CameraMotionEvent.ImageUnderExposed) {
+      return "Image is too dark";
     }
     return "";
   }

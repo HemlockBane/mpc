@@ -50,6 +50,11 @@ class LivelinessCameraFrame extends CustomPainter {
       return Colors.solidDarkYellow;
     }
 
+    if(liveMotionEvent.eventType == CameraMotionEvent.ImageUnderExposed
+        || liveMotionEvent.eventType == CameraMotionEvent.ImageUnderExposed ) {
+      return Colors.white;
+    }
+
     return Colors.grey.withOpacity(0.1);
   }
 

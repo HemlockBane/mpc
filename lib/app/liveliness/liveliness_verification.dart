@@ -177,8 +177,13 @@ class _LivelinessVerification extends State<LivelinessVerification> {
     final screenSize = MediaQuery.of(context).size;
     final screenAspectRatio = MediaQuery.of(context).size.aspectRatio;
     print("ScreenAspectRatio => $screenAspectRatio");
-    var frameRect = Rect.fromLTRB(55, 90, screenSize.width - 55, screenSize.height / 1.72);
-    _initializedLiveliness = _livelinessDetector?.initialize(frameSize: frameRect);
+    if(screenAspectRatio > 0.5) {
+      var frameRect = Rect.fromLTRB(27, 60, screenSize.width - 27, screenSize.height / 1.5);
+      _initializedLiveliness = _livelinessDetector?.initialize(frameSize: frameRect);
+    } else {
+      var frameRect = Rect.fromLTRB(55, 90, screenSize.width - 55, screenSize.height / 1.72);
+      _initializedLiveliness = _livelinessDetector?.initialize(frameSize: frameRect);
+    }
     setState(() {});
   }
 

@@ -79,63 +79,6 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
     super.didChangeDependencies();
   }
 
-  @override
-  void dispose() {
-    _usernameController.dispose();
-    _passwordController.dispose();
-    _animController.dispose();
-    _topAnimController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final top = MediaQuery.of(context).padding.top;
-    final minHeight = MediaQuery.of(context).size.height;
-
-    Provider.of<LoginViewModel>(context, listen: false);
-
-    final sessionReason = ModalRoute.of(context)!.settings.arguments
-        as Tuple<String, SessionTimeoutReason>?;
-    _onSessionReason(sessionReason);
-
-    return WillPopScope(
-      onWillPop: () async {
-        Navigator.of(context).popAndPushNamed(Routes.SIGN_UP);
-        return true;
-      },
-      child: Scaffold(
-        body: SingleChildScrollView(
-          child: Container(
-            height: minHeight, //TODO: Find out what this means here
-            child: Stack(
-              children: [
-                _buildTopMenu(context),
-                if (!_isLoading) ...[
-                  Column(
-                    children: [
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.35,
-                      ),
-                      Expanded(
-                        child: Container(
-                          padding: EdgeInsets.only(
-                              left: 0, right: 0, top: 34, bottom: 0),
-                          child: _buildMidSection(context),
-                        ),
-                      ),
-                      _buildBottomSection(context),
-                    ],
-                  )
-                ],
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildTopMenu(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
@@ -759,5 +702,61 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
             });
       });
     }
+  }
+
+  Widget build(BuildContext context) {
+    final top = MediaQuery.of(context).padding.top;
+    final minHeight = MediaQuery.of(context).size.height;
+
+    Provider.of<LoginViewModel>(context, listen: false);
+
+    final sessionReason = ModalRoute.of(context)!.settings.arguments
+        as Tuple<String, SessionTimeoutReason>?;
+    _onSessionReason(sessionReason);
+
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.of(context).popAndPushNamed(Routes.SIGN_UP);
+        return true;
+      },
+      child: Scaffold(
+        body: SingleChildScrollView(
+          child: Container(
+            height: minHeight, //TODO: Find out what this means here
+            child: Stack(
+              children: [
+                _buildTopMenu(context),
+                if (!_isLoading) ...[
+                  Column(
+                    children: [
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.35,
+                      ),
+                      Expanded(
+                        child: Container(
+                          padding: EdgeInsets.only(
+                              left: 0, right: 0, top: 34, bottom: 0),
+                          child: _buildMidSection(context),
+                        ),
+                      ),
+                      _buildBottomSection(context),
+                    ],
+                  )
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    _animController.dispose();
+    _topAnimController.dispose();
+    super.dispose();
   }
 }

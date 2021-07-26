@@ -18,6 +18,7 @@ import 'package:moniepoint_flutter/core/models/services/system_configuration_ser
 import 'package:moniepoint_flutter/core/models/system_configuration.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/utils/biometric_helper.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 
 class LoginViewModel with ChangeNotifier {
@@ -96,6 +97,13 @@ class LoginViewModel with ChangeNotifier {
       }
       return event;
     });
+  }
+
+  Future<bool> canLoginWithBiometric(BiometricHelper? _helper) async {
+    final hasFingerPrint = (await _helper?.getFingerprintPassword()) != null;
+    final biometricType = await _helper?.getBiometricType();
+    final isEnabled = PreferenceUtil.getFingerPrintEnabled();
+    return hasFingerPrint && (biometricType != BiometricType.NONE) && isEnabled;
   }
 
 }

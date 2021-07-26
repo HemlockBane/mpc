@@ -22,8 +22,7 @@ abstract class CustomerValidationService {
     "appVersion": BuildConfig.APP_VERSION
   })
   Future<ServiceResult<dynamic>> sendOtpToPhoneNumber(
-      @Query("phoneNumber") String phoneNumber,
-      @Body() UserDeviceRequestBody securityQuestionsRequestBody,
+      @Query("phoneNumber") String phoneNumber
   );
 
   @POST("validate-phone-number-validation-otp/onboarding")
@@ -34,8 +33,7 @@ abstract class CustomerValidationService {
   })
   Future<ServiceResult<ValidatePhoneOtpResponse>> validateOtpForPhoneNumber(
       @Query("otp") String otp,
-      @Query("phoneNumber") String phoneNumber,
-      @Body() UserDeviceRequestBody securityQuestionsRequestBody
+      @Query("phoneNumber") String phoneNumber
   );
 
 }

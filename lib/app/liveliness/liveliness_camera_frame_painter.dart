@@ -70,6 +70,7 @@ class LivelinessCameraFrame extends CustomPainter {
 
     var frameRect = Rect.fromLTRB(55, 90, size.width - 55, size.height / 1.72);
 
+    print("ScreenWidth => ${size.width}, ScreenHeight => ${size.height}");
     print("ImageWidth => ${frameRect.width}, ImageHeight => ${frameRect.height}");
 
     final lineDistanceToCurve = 16;

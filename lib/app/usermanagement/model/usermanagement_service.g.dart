@@ -8,8 +8,7 @@ part of 'usermanagement_service.dart';
 
 class _UserManagementService implements UserManagementService {
   _UserManagementService(this._dio, {this.baseUrl}) {
-    baseUrl ??=
-        'https://core-operations.monnify.development.teamapt.com/api/v1/user';
+    baseUrl ??= 'https://core-operations.monnify.development.teamapt.com/api/';
   }
 
   final Dio _dio;
@@ -32,7 +31,7 @@ class _UserManagementService implements UserManagementService {
                 },
                 extra: _extra,
                 contentType: 'application/json')
-            .compose(_dio.options, '/forgot_username',
+            .compose(_dio.options, 'v2/user/forgot_username',
                 queryParameters: queryParameters, data: _data)
             .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = ServiceResult<RecoveryResponse>.fromJson(
@@ -58,7 +57,7 @@ class _UserManagementService implements UserManagementService {
                 },
                 extra: _extra,
                 contentType: 'application/json')
-            .compose(_dio.options, '/forgot_password',
+            .compose(_dio.options, 'v2/user/forgot_password',
                 queryParameters: queryParameters, data: _data)
             .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = ServiceResult<RecoveryResponse>.fromJson(
@@ -84,7 +83,7 @@ class _UserManagementService implements UserManagementService {
                 },
                 extra: _extra,
                 contentType: 'application/json')
-            .compose(_dio.options, '/forgot_password/send_otp',
+            .compose(_dio.options, 'v2/user/forgot_password/send_otp',
                 queryParameters: queryParameters, data: _data)
             .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = ServiceResult<OTP>.fromJson(
@@ -110,7 +109,7 @@ class _UserManagementService implements UserManagementService {
                 },
                 extra: _extra,
                 contentType: 'application/json')
-            .compose(_dio.options, '/forgot_username/send_otp',
+            .compose(_dio.options, 'v2/user/forgot_username/send_otp',
                 queryParameters: queryParameters, data: _data)
             .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = ServiceResult<OTP>.fromJson(
@@ -136,7 +135,7 @@ class _UserManagementService implements UserManagementService {
                 },
                 extra: _extra,
                 contentType: 'application/json')
-            .compose(_dio.options, '/change_transaction_pin',
+            .compose(_dio.options, 'v1/user/change_transaction_pin',
                 queryParameters: queryParameters, data: _data)
             .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = ServiceResult<bool>.fromJson(
@@ -162,7 +161,7 @@ class _UserManagementService implements UserManagementService {
                 },
                 extra: _extra,
                 contentType: 'application/json')
-            .compose(_dio.options, '/change_password',
+            .compose(_dio.options, 'v1/user/change_password',
                 queryParameters: queryParameters, data: _data)
             .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = ServiceResult<bool>.fromJson(
@@ -189,7 +188,7 @@ class _UserManagementService implements UserManagementService {
                 },
                 extra: _extra,
                 contentType: 'application/json')
-            .compose(_dio.options, '/set_fingerprint',
+            .compose(_dio.options, 'v1/user/set_fingerprint',
                 queryParameters: queryParameters, data: _data)
             .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = ServiceResult<bool>.fromJson(

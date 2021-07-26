@@ -12,17 +12,17 @@ class CustomerValidationServiceDelegate with NetworkResource {
     this._service = service;
   }
 
-  Stream<Resource<dynamic>> sendOtpToPhoneNumber(String phoneNumber, UserDeviceRequestBody deviceRequest) {
+  Stream<Resource<dynamic>> sendOtpToPhoneNumber(String phoneNumber) {
     return networkBoundResource(
         fetchFromLocal: () => Stream.value(null),
-        fetchFromRemote: () => this._service.sendOtpToPhoneNumber(phoneNumber, deviceRequest)
+        fetchFromRemote: () => this._service.sendOtpToPhoneNumber(phoneNumber)
     );
   }
 
-  Stream<Resource<ValidatePhoneOtpResponse>> validateOtpForPhoneNumber(String otp, String phoneNumber, UserDeviceRequestBody deviceRequest) {
+  Stream<Resource<ValidatePhoneOtpResponse>> validateOtpForPhoneNumber(String otp, String phoneNumber) {
     return networkBoundResource(
         fetchFromLocal: () => Stream.value(null),
-        fetchFromRemote: () => this._service.validateOtpForPhoneNumber(otp, phoneNumber, deviceRequest)
+        fetchFromRemote: () => this._service.validateOtpForPhoneNumber(otp, phoneNumber)
     );
   }
 

@@ -17,10 +17,10 @@ OnboardingLivelinessValidationResponse
     faceMatchError: json['faceMatchError'] == null
         ? null
         : ClientError.fromJson(json['faceMatchError'] as Map<String, dynamic>),
-    bvnMismatchError: json['bvnMismatchError'] == null
+    phoneNumberUniquenessError: json['phoneNumberUniquenessError'] == null
         ? null
         : ClientError.fromJson(
-            json['bvnMismatchError'] as Map<String, dynamic>),
+            json['phoneNumberUniquenessError'] as Map<String, dynamic>),
     phoneMismatchError: json['phoneMismatchError'] == null
         ? null
         : ClientError.fromJson(
@@ -38,7 +38,7 @@ Map<String, dynamic> _$OnboardingLivelinessValidationResponseToJson(
     <String, dynamic>{
       'livelinessError': instance.livelinessError,
       'faceMatchError': instance.faceMatchError,
-      'bvnMismatchError': instance.bvnMismatchError,
+      'phoneNumberUniquenessError': instance.phoneNumberUniquenessError,
       'phoneMismatchError': instance.phoneMismatchError,
       'setupType': instance.setupType,
       'onboardingKey': instance.onboardingKey,

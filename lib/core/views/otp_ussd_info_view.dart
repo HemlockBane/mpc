@@ -72,7 +72,7 @@ class OtpUssdInfoView extends StatelessWidget{
               ))
               .colorText({
             codes.second: Tuple(Colors.primaryColor, () => dialNumber("tel:${codes.first}"))
-          }))
+          }, underline: false))
         ],
       ),
     );

@@ -16,7 +16,7 @@ import 'data/finger_print_auth_request_body.dart';
 part 'usermanagement_service.g.dart';
 
 
-@RestApi(baseUrl: "${ServiceConfig.OPERATION_SERVICE}api/v1/user")
+@RestApi(baseUrl: "${ServiceConfig.OPERATION_SERVICE}api/")
 abstract class UserManagementService {
 
   factory UserManagementService(Dio dio) = _UserManagementService;
@@ -26,7 +26,7 @@ abstract class UserManagementService {
     "client-id": BuildConfig.CLIENT_ID,
     "appVersion": BuildConfig.APP_VERSION
   })
-  @POST("/forgot_username")
+  @POST("v2/user/forgot_username")
   Future<ServiceResult<RecoveryResponse>> forgotUsername(@Body() ForgotPasswordRequest request);
 
   @Headers(<String, dynamic>{
@@ -34,7 +34,7 @@ abstract class UserManagementService {
     "client-id": BuildConfig.CLIENT_ID,
     "appVersion": BuildConfig.APP_VERSION
   })
-  @POST("/forgot_password")
+  @POST("v2/user/forgot_password")
   Future<ServiceResult<RecoveryResponse>> forgotPassword(@Body() ForgotPasswordRequest request);
 
   @Headers(<String, dynamic>{
@@ -42,7 +42,7 @@ abstract class UserManagementService {
     "client-id": BuildConfig.CLIENT_ID,
     "appVersion": BuildConfig.APP_VERSION
   })
-  @POST("/forgot_password/send_otp")
+  @POST("v2/user/forgot_password/send_otp")
   Future<ServiceResult<OTP>> sendForgotPasswordOtp(@Body() ForgotPasswordRequest request);
 
   @Headers(<String, dynamic>{
@@ -50,7 +50,7 @@ abstract class UserManagementService {
     "client-id": BuildConfig.CLIENT_ID,
     "appVersion": BuildConfig.APP_VERSION
   })
-  @POST("/forgot_username/send_otp")
+  @POST("v2/user/forgot_username/send_otp")
   Future<ServiceResult<OTP>> sendForgotUsernameOtp(@Body() ForgotPasswordRequest request);
 
   @Headers(<String, dynamic>{
@@ -58,7 +58,7 @@ abstract class UserManagementService {
     "client-id": BuildConfig.CLIENT_ID,
     "appVersion": BuildConfig.APP_VERSION
   })
-  @PUT("/change_transaction_pin")
+  @PUT("v1/user/change_transaction_pin")
   Future<ServiceResult<bool>> changeTransactionPin(
     @Body() ChangePinRequestBody requestBody
   );
@@ -68,7 +68,7 @@ abstract class UserManagementService {
     "client-id": BuildConfig.CLIENT_ID,
     "appVersion": BuildConfig.APP_VERSION
   })
-  @PUT("/change_password")
+  @PUT("v1/user/change_password")
   Future<ServiceResult<bool>> changePassword(
     @Body() ChangePasswordRequestBody requestBody
   );
@@ -78,7 +78,7 @@ abstract class UserManagementService {
     "client-id": BuildConfig.CLIENT_ID,
     "appVersion": BuildConfig.APP_VERSION
   })
-  @PUT("/set_fingerprint")
+  @PUT("v1/user/set_fingerprint")
   Future<ServiceResult<bool>> setFingerprint(
     @Body() FingerPrintAuthRequestBody? requestBody,
   );

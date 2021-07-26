@@ -65,12 +65,8 @@ class OnBoardingViewModel extends ChangeNotifier {
 
   Stream<Resource<bool>> sendOtpToDevice() {
     final phoneNumber = accountForm.account.phoneNumber ?? "";
-    final deviceRequest = UserDeviceRequestBody(username: "")
-      ..deviceId = _deviceManager.deviceId
-      ..deviceName = _deviceManager.deviceName
-      ..deviceOs = _deviceManager.deviceOs;
 
-    return _customerValidationDelegate.sendOtpToPhoneNumber(phoneNumber, deviceRequest).map((event) {
+    return _customerValidationDelegate.sendOtpToPhoneNumber(phoneNumber).map((event) {
           if(event is Success) return Resource.success(true);
           if(event is Error) return Resource<bool>.error(err: ServiceError(message: event.message ?? ""));
           else return Resource.loading(null);
@@ -79,12 +75,7 @@ class OnBoardingViewModel extends ChangeNotifier {
 
   Stream<Resource<ValidatePhoneOtpResponse>> validateOtpForPhoneNumber(String otp) {
     final phoneNumber = accountForm.account.phoneNumber ?? "";
-    final deviceRequest = UserDeviceRequestBody(username: "")
-      ..deviceId = _deviceManager.deviceId
-      ..deviceName = _deviceManager.deviceName
-      ..deviceOs = _deviceManager.deviceOs;
-
-    return _customerValidationDelegate.validateOtpForPhoneNumber(otp, phoneNumber, deviceRequest).map((event) {
+    return _customerValidationDelegate.validateOtpForPhoneNumber(otp, phoneNumber).map((event) {
         if(event is Success) {
           _phoneNumberValidationKey = event.data?.phoneNumberValidationKey;
         }

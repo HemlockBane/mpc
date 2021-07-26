@@ -168,14 +168,14 @@ class _RecoveryOtpView extends State<RecoveryOtpView> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'Enter 6-Digit Code',
+                        'Enter OTP',
                         textAlign: TextAlign.start,
                         style: TextStyle(
-                            color: Colors.colorPrimaryDark,
+                            color: Colors.textColorBlack,
                             fontSize: 25,
                             fontWeight: FontWeight.w600),
                       ),
-                      SizedBox(height: 6),
+                      SizedBox(height: 13),
                       Text(
                           'We’ve just sent a 6-digit code to your registered phone number. Enter the code to proceed.',
                           textAlign: TextAlign.start,
@@ -183,16 +183,17 @@ class _RecoveryOtpView extends State<RecoveryOtpView> {
                               color: Colors.textColorBlack,
                               fontSize: 16,
                               fontWeight: FontWeight.normal)),
-                      SizedBox(height: 44),
+                      SizedBox(height: 30),
                       Styles.appEditText(
                           controller: _otpController,
-                          hint: 'Enter 6-Digit Code',
+                          hint: 'Enter OTP',
                           inputFormats: [
                             LengthLimitingTextInputFormatter(6),
                             FilteringTextInputFormatter.digitsOnly
                           ],
                           animateHint: true,
-                          startIcon: Icon(CustomFont.password, color: Colors.colorFaded)
+                          maxLength: 6,
+                          startIcon: Icon(CustomFont.numberInput, color:Colors.textFieldIcon.withOpacity(0.2))
                       ),
                       SizedBox(height: 32),
                       OtpUssdInfoView(getUSSDKeyName(viewModel), defaultCode: "*5573*74#",),
@@ -204,7 +205,7 @@ class _RecoveryOtpView extends State<RecoveryOtpView> {
                 elevation: 0,
                 isValid: !_isLoading && _hasOtp,
                 onClick: _subscribeToValidateOtp,
-                text: 'Continue',
+                text: 'Next',
                 isLoading: _isLoading
             ),
             SizedBox(height: 16)

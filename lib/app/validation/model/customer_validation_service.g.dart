@@ -17,12 +17,10 @@ class _CustomerValidationService implements CustomerValidationService {
   String? baseUrl;
 
   @override
-  Future<ServiceResult<dynamic>> sendOtpToPhoneNumber(
-      phoneNumber, securityQuestionsRequestBody) async {
+  Future<ServiceResult<dynamic>> sendOtpToPhoneNumber(phoneNumber) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{r'phoneNumber': phoneNumber};
     final _data = <String, dynamic>{};
-    _data.addAll(securityQuestionsRequestBody.toJson());
     final _result = await _dio.fetch<Map<String, dynamic>>(
         _setStreamType<ServiceResult<dynamic>>(Options(
                 method: 'POST',
@@ -46,14 +44,13 @@ class _CustomerValidationService implements CustomerValidationService {
 
   @override
   Future<ServiceResult<ValidatePhoneOtpResponse>> validateOtpForPhoneNumber(
-      otp, phoneNumber, securityQuestionsRequestBody) async {
+      otp, phoneNumber) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
       r'otp': otp,
       r'phoneNumber': phoneNumber
     };
     final _data = <String, dynamic>{};
-    _data.addAll(securityQuestionsRequestBody.toJson());
     final _result = await _dio.fetch<Map<String, dynamic>>(
         _setStreamType<ServiceResult<ValidatePhoneOtpResponse>>(Options(
                 method: 'POST',

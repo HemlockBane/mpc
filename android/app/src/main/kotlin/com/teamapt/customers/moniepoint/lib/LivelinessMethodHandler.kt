@@ -46,7 +46,7 @@ class LivelinessMethodHandler(
                 result.success("")
             }
             "restart" -> {
-                livelinessDetector?.restartCapture()
+                livelinessDetector?.reset()
                 result.success("")
             }
             "close" -> {
@@ -159,7 +159,7 @@ class LivelinessMethodHandler(
 
         override fun onSurfaceRequested(request: SurfaceRequest) {
             val surfaceTexture = surfaceTextureEntry.surfaceTexture()
-            surfaceTexture.setDefaultBufferSize(1280, 720)
+            surfaceTexture.setDefaultBufferSize(640, 480)
             request.provideSurface(Surface(surfaceTexture), executor, {})
         }
     }

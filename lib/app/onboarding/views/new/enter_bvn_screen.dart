@@ -55,8 +55,8 @@ class _EnterBVNScreen extends State<EnterBVNScreen> {
         return;
       }
 
-      if(validationResponse.bvnMismatchError != null) {
-        _showGenericError(validationResponse.bvnMismatchError?.message);
+      if(validationResponse.phoneNumberUniquenessError != null) {
+        _showGenericError(validationResponse.phoneNumberUniquenessError?.message);
         return;
       }
 

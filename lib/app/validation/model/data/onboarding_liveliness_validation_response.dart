@@ -9,7 +9,7 @@ class OnboardingLivelinessValidationResponse {
   OnboardingLivelinessValidationResponse({
     this.livelinessError,
     this.faceMatchError,
-    this.bvnMismatchError,
+    this.phoneNumberUniquenessError,
     this.phoneMismatchError,
     this.setupType,
     this.onboardingKey,
@@ -18,7 +18,7 @@ class OnboardingLivelinessValidationResponse {
 
   LivelinessError? livelinessError;
   ClientError? faceMatchError;
-  ClientError? bvnMismatchError;
+  ClientError? phoneNumberUniquenessError;
   ClientError? phoneMismatchError;
   SetupType? setupType;
   String? onboardingKey;

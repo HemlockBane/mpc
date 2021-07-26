@@ -8,15 +8,14 @@ import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
-import 'package:moniepoint_flutter/core/tuple.dart';
+import 'package:moniepoint_flutter/core/views/otp_ussd_info_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
-import 'package:moniepoint_flutter/core/utils/text_utils.dart';
 import 'package:provider/provider.dart';
 
-class RecoverUsernameScreen extends StatefulWidget {
+class RecoverUsernameBVNScreen extends StatefulWidget {
   late final GlobalKey<ScaffoldState> _scaffoldKey;
 
-  RecoverUsernameScreen(this._scaffoldKey);
+  RecoverUsernameBVNScreen(this._scaffoldKey);
 
   @override
   State<StatefulWidget> createState() {
@@ -24,10 +23,8 @@ class RecoverUsernameScreen extends StatefulWidget {
   }
 }
 
-class _RecoverUsernameScreen extends State<RecoverUsernameScreen> {
+class _RecoverUsernameScreen extends State<RecoverUsernameBVNScreen> {
   bool _isLoading = false;
-
-  TextEditingController? _accountNumberController;
 
   void subscribeUiToUsernameRecovery() {
     final viewModel = Provider.of<RecoveryViewModel>(context, listen: false);
@@ -51,15 +48,11 @@ class _RecoverUsernameScreen extends State<RecoverUsernameScreen> {
     });
   }
 
-  void _navigateToUseBVN() {
-    Navigator.of(context).popAndPushNamed(RecoveryControllerScreen.USERNAME_BVN_SCREEN);
+
+  void _navigateToUseAccountNumber() {
+    Navigator.of(context).popAndPushNamed(RecoveryControllerScreen.USERNAME_SCREEN);
   }
 
-  @override
-  void initState() {
-    _accountNumberController = TextEditingController();
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,51 +72,58 @@ class _RecoverUsernameScreen extends State<RecoverUsernameScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Enter Account number',
+                    'Enter BVN',
                     textAlign: TextAlign.start,
                     style: TextStyle(
                         color: Colors.textColorBlack,
                         fontSize: 25,
                         fontWeight: FontWeight.w600),
                   ),
-                  SizedBox(height: 13),
-                  Text('Enter your account number to get started',
-                      textAlign: TextAlign.start,
-                      style: TextStyle(
-                          color: Colors.textColorBlack,
-                          fontSize: 15,
-                          fontWeight: FontWeight.normal)),
-                  SizedBox(height: 46),
+                  SizedBox(height: 36),
                   StreamBuilder(
-                    stream: viewModel.userRecoveryForm.accountNumberStream,
+                    stream: viewModel.userRecoveryForm.bvnStream,
                     builder: (context, snapshot) {
                       return Styles.appEditText(
-                          hint: 'Account Number',
-                          controller: _accountNumberController,
-                          maxLength: 10,
-                          inputType: TextInputType.number,
-                          inputFormats: [FilteringTextInputFormatter.digitsOnly],
+                          hint: 'Enter Bank Verification Number',
+                          maxLength: 11,
+                          inputFormats: [
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
                           animateHint: true,
-                          onChanged: viewModel.userRecoveryForm.onAccountNumberChanged,
+                          onChanged: viewModel.userRecoveryForm.onBVNChanged,
                           errorText: snapshot.hasError
                               ? snapshot.error.toString()
                               : null,
-                          startIcon: Icon(CustomFont.bankIcon, color: Colors.textFieldIcon.withOpacity(0.2))
-                      );
+                          startIcon: Icon(CustomFont.username_icon,
+                              color: Colors.textFieldIcon.withOpacity(0.2)));
                     },
                   ),
-                  SizedBox(height: 14,),
+                  SizedBox(height: 20),
+                  OtpUssdInfoView(
+                    "Onboarding Phone Number Validation OTP Mobile",
+                    defaultCode: "*5573*70#",
+                    message: "Dial {} on your registered phone number to get your BVN",
+                  ),
+                  SizedBox(height: 14),
                   Align(
                     alignment: Alignment.centerRight,
-                    child: Text(
-                      "Can’t remember account number?\nUse BVN instead",
-                      textAlign: TextAlign.right,
-                      style: TextStyle(color: Colors.textColorBlack, fontSize: 15, fontFamily: Styles.defaultFont, height: 1.4),
-                    ).colorText({
-                      "Use BVN instead": Tuple(Colors.primaryColor, _navigateToUseBVN)
-                    }, underline: false),
+                    child: TextButton(
+                        onPressed: _navigateToUseAccountNumber,
+                        child: Text(
+                          'Use Account',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                              color: Colors.primaryColor
+                          )),
+                        style: ButtonStyle(
+                            minimumSize: MaterialStateProperty.all(Size(40, 0)),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            padding: MaterialStateProperty.all(EdgeInsets.symmetric(horizontal: 0, vertical: 4)),
+                        )
+                    ),
                   ),
-                  SizedBox(height: 100),
+                  SizedBox(height: 40),
                 ],
               ),
             )),
@@ -132,8 +132,7 @@ class _RecoverUsernameScreen extends State<RecoverUsernameScreen> {
                 stream: viewModel.userRecoveryForm.isValid,
                 onClick: subscribeUiToUsernameRecovery,
                 text: 'Next',
-                isLoading: _isLoading
-            ),
+                isLoading: _isLoading),
             SizedBox(height: 16)
           ],
         ),

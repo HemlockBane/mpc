@@ -59,7 +59,13 @@ class _BillCustomerEnquiryDialog extends State<BillCustomerEnquiryDialog> {
   }
 
   void onConfirm(BillValidationStatus validationStatus) {
-    Navigator.of(context).pop(Triple(validationStatus.validationData?.customerName, validationStatus.validationReference, _saveBeneficiary));
+    Navigator.of(context).pop(
+        Triple(
+            validationStatus.validationData?.customerName,
+            validationStatus.validationReference,
+            _saveBeneficiary
+        )
+    );
   }
 
   Widget _saveBeneficiaryWidget() {
@@ -198,7 +204,8 @@ class _BillCustomerEnquiryDialog extends State<BillCustomerEnquiryDialog> {
           final resource = a.data;
           if(!a.hasData || resource is Loading) return _displayLoadingState();
           if(a.data is Error || resource == null || resource.data == null) return _handleError(a.data as Error);
-
+          if(resource.data?.validationReference == null
+              || resource.data?.validationReference?.isEmpty == true) return _handleError(Error("Biller doesn't exist", null));
           return _mainContent(resource.data!);
         },
       )

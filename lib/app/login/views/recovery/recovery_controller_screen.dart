@@ -2,11 +2,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:moniepoint_flutter/app/login/viewmodels/recovery_view_model.dart';
 import 'package:moniepoint_flutter/app/login/views/recovery/recover_password_view.dart';
+import 'package:moniepoint_flutter/app/login/views/recovery/recover_username_bvn_view.dart';
 import 'package:moniepoint_flutter/app/login/views/recovery/recover_username_view.dart';
 import 'package:moniepoint_flutter/app/login/views/recovery/recovery_otp_view.dart';
 import 'package:moniepoint_flutter/app/login/views/recovery/recovery_set_password_view.dart';
 import 'package:moniepoint_flutter/app/login/views/recovery/recovery_security_question_view.dart';
+import 'package:moniepoint_flutter/app/login/views/recovery/username_display_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:provider/provider.dart';
 
 enum RecoveryMode {
@@ -16,6 +19,8 @@ enum RecoveryMode {
 class RecoveryControllerScreen extends StatefulWidget {
 
   static const String USERNAME_SCREEN = "username";
+  static const String USERNAME_BVN_SCREEN = "USERNAME_BVN_SCREEN";
+  static const String USERNAME_DISPLAY_SCREEN = "USERNAME_DISPLAY_SCREEN";
 
   final _navigatorKey = GlobalKey<NavigatorState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -39,8 +44,14 @@ class _RecoveryControllerScreen extends State<RecoveryControllerScreen> {
       case RecoveryControllerScreen.USERNAME_SCREEN:
         page = RecoverUsernameScreen(widget._scaffoldKey);
         break;
+      case RecoveryControllerScreen.USERNAME_BVN_SCREEN:
+        page = RecoverUsernameBVNScreen(widget._scaffoldKey);
+        break;
+      case RecoveryControllerScreen.USERNAME_DISPLAY_SCREEN:
+        page = UsernameDisplayScreen();
+        break;
       case "password":
-        page = RecoverPasswordScreen(widget._scaffoldKey);
+        page = SetPasswordRecoveryView(widget._scaffoldKey);
         break;
       case "security_question":
         page = SecurityQuestionScreen(widget._scaffoldKey, this.mode);
@@ -77,10 +88,12 @@ class _RecoveryControllerScreen extends State<RecoveryControllerScreen> {
       child: WillPopScope(
           onWillPop: _onBackPressed,
           child: Scaffold(
+            backgroundColor: Colors.white,
             extendBodyBehindAppBar: true,
             resizeToAvoidBottomInset: false,
             key: widget._scaffoldKey,
             appBar: AppBar(
+                title: Text('Recover Username', style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),),
                 elevation: 0,
                 backgroundColor: Colors.transparent,
                 iconTheme: IconThemeData(color: Colors.primaryColor)

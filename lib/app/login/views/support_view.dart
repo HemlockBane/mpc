@@ -112,7 +112,7 @@ class _SupportScreen extends State<SupportScreen> {
     });
   }
 
-  List<Widget> _makeSupportItemList2(
+  List<Widget> _makeSupportItemList(
       List<SystemConfiguration> systemConfigurations) {
     final List<Widget> widgets = [];
     final textStyle =
@@ -231,14 +231,93 @@ class _SupportScreen extends State<SupportScreen> {
               (a.data is Error && a.data?.data?.isEmpty == true ||
                   a.data?.data == null)) return Container();
           return Column(
-            children: _makeSupportItemList2(a.data?.data ?? []),
+            children: _makeSupportItemList(a.data?.data ?? []),
           );
         },
       ),
     );
   }
 
-  @override
+  Widget _buildSocialMediaIcons(SystemConfigurationViewModel viewModel) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 54, vertical: 18),
+      decoration: BoxDecoration(
+          //
+          ),
+      child: StreamBuilder(
+        stream: viewModel.systemConfigStream,
+        builder:
+            (context, AsyncSnapshot<Resource<List<SystemConfiguration>>> a) {
+          if (!a.hasData) return Container();
+          if (a.hasData && (a.data is Loading && a.data?.data?.isEmpty == true))
+            return Container();
+          if (a.hasData &&
+              (a.data is Error && a.data?.data?.isEmpty == true ||
+                  a.data?.data == null)) return Container();
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: a.data!.data!
+                .map((e) {
+                  if (e.key == "support.facebook") {
+                    return Styles.imageButton(
+                        color: Colors.white,
+                        padding: EdgeInsets.all(0),
+                        image: SvgPicture.asset(
+                          'res/drawables/ic_support_facebook.svg',
+                          width: 40,
+                          height: 40,
+                        ),
+                        borderRadius: BorderRadius.circular(80),
+                        onClick: () => dialNumber(e.value ?? ""));
+                  }
+                  if (e.key == "support.twitter") {
+                    return Styles.imageButton(
+                        color: Colors.white,
+                        padding: EdgeInsets.all(0),
+                        image: SvgPicture.asset(
+                          'res/drawables/ic_support_twitter.svg',
+                          width: 40,
+                          height: 40,
+                        ),
+                        borderRadius: BorderRadius.circular(80),
+                        onClick: () => dialNumber(e.value ?? ""));
+                  }
+                  if (e.key == "support.instagram") {
+                    return Styles.imageButton(
+                        color: Colors.white,
+                        padding: EdgeInsets.all(0),
+                        image: SvgPicture.asset(
+                          'res/drawables/ic_support_instagram.svg',
+                          width: 40,
+                          height: 40,
+                        ),
+                        borderRadius: BorderRadius.circular(80),
+                        onClick: () => dialNumber(e.value ?? ""));
+                  }
+                  if (e.key == "support.telegram") {
+                    return Styles.imageButton(
+                        color: Colors.white,
+                        padding: EdgeInsets.all(0),
+                        image: SvgPicture.asset(
+                          'res/drawables/ic_support_telegram.svg',
+                          width: 40,
+                          height: 40,
+                        ),
+                        borderRadius: BorderRadius.circular(80),
+                        onClick: () => dialNumber(e.value ?? ""));
+                  }
+                  return Visibility(visible: false, child: Container());
+                  //not a good approach we should consider moving this to a
+                  //separate function and add what's required on a list as that's faster
+                })
+                .whereNot((element) => element is Visibility)
+                .toList(),
+          );
+        },
+      ),
+    );
+  }
+
   Widget build(BuildContext context) {
     final viewModel =
         Provider.of<SystemConfigurationViewModel>(context, listen: false);
@@ -341,86 +420,6 @@ class _SupportScreen extends State<SupportScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Container _buildSocialMediaIcons(SystemConfigurationViewModel viewModel) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 54, vertical: 18),
-      decoration: BoxDecoration(
-          //
-          ),
-      child: StreamBuilder(
-        stream: viewModel.systemConfigStream,
-        builder:
-            (context, AsyncSnapshot<Resource<List<SystemConfiguration>>> a) {
-          if (!a.hasData) return Container();
-          if (a.hasData && (a.data is Loading && a.data?.data?.isEmpty == true))
-            return Container();
-          if (a.hasData &&
-              (a.data is Error && a.data?.data?.isEmpty == true ||
-                  a.data?.data == null)) return Container();
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: a.data!.data!
-                .map((e) {
-                  if (e.key == "support.facebook") {
-                    return Styles.imageButton(
-                        color: Colors.white,
-                        padding: EdgeInsets.all(0),
-                        image: SvgPicture.asset(
-                          'res/drawables/ic_support_facebook.svg',
-                          width: 40,
-                          height: 40,
-                        ),
-                        borderRadius: BorderRadius.circular(80),
-                        onClick: () => dialNumber(e.value ?? ""));
-                  }
-                  if (e.key == "support.twitter") {
-                    return Styles.imageButton(
-                        color: Colors.white,
-                        padding: EdgeInsets.all(0),
-                        image: SvgPicture.asset(
-                          'res/drawables/ic_support_twitter.svg',
-                          width: 40,
-                          height: 40,
-                        ),
-                        borderRadius: BorderRadius.circular(80),
-                        onClick: () => dialNumber(e.value ?? ""));
-                  }
-                  if (e.key == "support.instagram") {
-                    return Styles.imageButton(
-                        color: Colors.white,
-                        padding: EdgeInsets.all(0),
-                        image: SvgPicture.asset(
-                          'res/drawables/ic_support_instagram.svg',
-                          width: 40,
-                          height: 40,
-                        ),
-                        borderRadius: BorderRadius.circular(80),
-                        onClick: () => dialNumber(e.value ?? ""));
-                  }
-                  if (e.key == "support.telegram") {
-                    return Styles.imageButton(
-                        color: Colors.white,
-                        padding: EdgeInsets.all(0),
-                        image: SvgPicture.asset(
-                          'res/drawables/ic_support_telegram.svg',
-                          width: 40,
-                          height: 40,
-                        ),
-                        borderRadius: BorderRadius.circular(80),
-                        onClick: () => dialNumber(e.value ?? ""));
-                  }
-                  return Visibility(visible: false, child: Container());
-                  //not a good approach we should consider moving this to a
-                  //separate function and add what's required on a list as that's faster
-                })
-                .whereNot((element) => element is Visibility)
-                .toList(),
-          );
-        },
       ),
     );
   }

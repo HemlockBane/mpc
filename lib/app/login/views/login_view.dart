@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 
@@ -279,6 +281,30 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
     );
   }
 
+  Widget _biometricLoginButton() {
+    final viewModel = Provider.of<LoginViewModel>(context, listen: false);
+    return FutureBuilder(
+        future: viewModel.canLoginWithBiometric(_biometricHelper),
+        builder: (mContext, AsyncSnapshot<bool> snapShot) {
+          if(!snapShot.hasData) return SizedBox();
+          if(snapShot.hasData && snapShot.data == false) return SizedBox();
+          return Row(
+            children: [
+              SizedBox(width: 16,),
+              Styles.imageButton(
+                  onClick: () => _startFingerPrintLoginProcess(),
+                  color: Colors.primaryColor.withOpacity(0.1),
+                  padding: EdgeInsets.only(left: 15, right: 15, top: 14, bottom: 14),
+                  image: Platform.isAndroid
+                      ? SvgPicture.asset('res/drawables/ic_finger_print.svg')
+                      : SvgPicture.asset('res/drawables/ic_login_face.svg')
+              )
+            ],
+          );
+        }
+    );
+  }
+
   Align _buildBottomSection(BuildContext context) {
     return Align(
       alignment: Alignment.bottomCenter,
@@ -286,13 +312,20 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
         margin: EdgeInsets.only(left: 16, right: 16),
         child: Column(
           children: [
-            Styles.statefulButton2(
-              isValid: _isFormValid,
-              padding: 20,
-              elevation: _isFormValid && !_isLoading ? 4 : 0,
-              onClick: () => _subscribeUiToLogin(context),
-              text: "Login",
-              isLoading: _isLoading,
+            Row(
+              children: [
+                Expanded(
+                    child: Styles.statefulButton2(
+                      isValid: _isFormValid,
+                      padding: 20,
+                      elevation: _isFormValid && !_isLoading ? 4 : 0,
+                      onClick: () => _subscribeUiToLogin(context),
+                      text: "Login",
+                      isLoading: _isLoading,
+                    ),
+                ),
+                _biometricLoginButton()
+              ],
             ),
             SlideTransition(
               position: _ussdOffsetAnimation,
@@ -452,8 +485,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
   void _startFingerPrintLoginProcess() async {
     final viewModel = Provider.of<LoginViewModel>(context, listen: false);
     final biometricType = await _biometricHelper?.getBiometricType();
-    final hasFingerPrint =
-        (await _biometricHelper?.getFingerprintPassword()) != null;
+    final hasFingerPrint = (await _biometricHelper?.getFingerprintPassword()) != null;
     if (biometricType != BiometricType.NONE) {
       if (PreferenceUtil.getFingerPrintEnabled() && hasFingerPrint) {
         _biometricHelper?.authenticate(authenticationCallback: (key, msg) {
@@ -583,7 +615,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _bottomUSSDWidget() {
+  Widget  _bottomUSSDWidget() {
     Tuple<String, String> codes = OtpUssdInfoView.getUSSDDialingCodeAndPreview(
         "Main Menu",
         defaultCode: "*5573#");
@@ -592,16 +624,16 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
         color: Colors.white,
         borderRadius: BorderRadius.only(
             topLeft: Radius.circular(10), topRight: Radius.circular(10)),
-        // border: Border.all(
-        //   color: Colors.cardBorder.withOpacity(0.05),
-        //   width: 1,
-        // ),
+        border: Border.all(
+          color: Colors.cardBorder.withOpacity(0.05),
+          width: 0.6
+        ),
         boxShadow: [
           BoxShadow(
-            offset: Offset(0, -1),
-            blurRadius: 1,
-            spreadRadius: 2,
-            color: Color(0xff063A4F).withOpacity(0.08),
+            offset: Offset(0, 1),
+            blurRadius: 4,
+            spreadRadius: 1,
+            color: Color(0XFF003D9A).withOpacity(0.08),
           )
         ],
       ),
@@ -730,7 +762,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
                   Column(
                     children: [
                       SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.35,
+                        height:  minHeight * 0.35,
                       ),
                       Expanded(
                         child: Container(

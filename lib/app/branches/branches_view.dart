@@ -163,12 +163,12 @@ class _BranchScreen extends State<BranchScreen> {
             check(cUpdate, _mapController!);
           });
         });
-        showBottomSheet(branchInfo);
+        showDetailsBottomSheet(branchInfo);
       }
     }
   }
 
-  void showBottomSheet(BranchInfo branchInfo) {
+  void showDetailsBottomSheet(BranchInfo branchInfo) {
     _scaffoldKey.currentState!.showBottomSheet((context) {
       return Container(
         padding: EdgeInsets.symmetric(horizontal: 20),

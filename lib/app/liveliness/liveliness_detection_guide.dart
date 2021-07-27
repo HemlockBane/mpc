@@ -5,7 +5,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lottie/lottie.dart';
-import 'package:moniepoint_flutter/app/liveliness/liveliness_error.dart';
+import 'package:moniepoint_flutter/app/liveliness/model/data/liveliness_error.dart';
 import 'package:moniepoint_flutter/app/liveliness/liveliness_background_frame.dart';
 import 'package:moniepoint_flutter/app/liveliness/viewmodels/liveliness_verification_viewmodel.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
@@ -16,8 +16,9 @@ import 'package:provider/provider.dart';
 
 import 'liveliness_detector.dart';
 import 'liveliness_verification.dart';
-import 'model/strategy/onboarding_liveliness_validation_strategy.dart';
+import 'model/strategy/liveliness_validation_strategy.dart';
 
+/// @author Paul Okeke
 class LivelinessDetectionGuide extends StatefulWidget {
 
   final Stream<LivelinessMotionEvent> motionEventStream;
@@ -67,7 +68,7 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
   String _previousRemoteError = "";
   LivelinessState _state = LivelinessState.STARTED;
 
-  void _processEvents(LivelinessMotionEvent motionEvent) async{
+  void _processEvents(LivelinessMotionEvent motionEvent) async {
     if(_motionDetectedEvent != null
         || _state == LivelinessState.LOCAL_ERROR
         || _state == LivelinessState.STARTED
@@ -120,28 +121,27 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
 
   void _validateLiveliness() async {
     final viewModel = Provider.of<LivelinessVerificationViewModel>(context, listen: false);
-    switch(widget.verificationFor) {
-      case LivelinessVerificationFor.ON_BOARDING:
-        final validationBehavior = OnboardingLivelinessValidationStrategy(viewModel, widget.arguments);
-        try {
-          _state = LivelinessState.PROCESSING;
-          final response = await validationBehavior.validate(
-              _firstCaptureEvent?.eventData as String,
-              _motionDetectedEvent?.eventData as String
-          );
-          if (response != null) {
-            final isValid = _isLivelinessValid(response.livelinessError, response.faceMatchError);
-            //Send back the response for the caller to handle
-            if(isValid) return Navigator.of(context).pop(response);
-          } else {
-            Navigator.of(context).pop(response);
-          }
-        } catch(e) {
-          FirebaseCrashlytics.instance.recordError(e, StackTrace.current);
-          _state = LivelinessState.REMOTE_ERROR;
-          _showGenericError(e.toString());
-        }
-        break;
+    final validationStrategy = LivelinessValidationStrategy.getInstance(
+        viewModel, widget.verificationFor, widget.arguments
+    );
+
+    try {
+      _state = LivelinessState.PROCESSING;
+      final response = await validationStrategy.validate(
+          _firstCaptureEvent?.eventData as String,
+          _motionDetectedEvent?.eventData as String
+      );
+      if (response != null) {
+        final isValid = _isLivelinessValid(response.livelinessError, response.faceMatchError);
+        //Send back the response for the caller to handle
+        if(isValid) return Navigator.of(context).pop(response);
+      } else {
+        Navigator.of(context).pop(response);
+      }
+    } catch(e) {
+      FirebaseCrashlytics.instance.recordError(e, StackTrace.current);
+      _state = LivelinessState.REMOTE_ERROR;
+      _showGenericError(e.toString());
     }
   }
 

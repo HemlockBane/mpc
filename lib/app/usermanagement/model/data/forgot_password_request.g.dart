@@ -15,8 +15,7 @@ ForgotPasswordRequest _$ForgotPasswordRequestFromJson(
     ..email = json['email'] as String?
     ..phoneNumber = json['phoneNumber'] as String?
     ..bvn = json['bvn'] as String?
-    ..activationUserCode = json['activationUserCode'] as String?
-    ..otpUserCode = json['otpUserCode'] as String?
+    ..otpUserCode = json['userCode'] as String?
     ..activationCode = json['activationCode'] as String?
     ..otp = json['otp'] as String?
     ..key = json['key'] as String?
@@ -36,8 +35,7 @@ Map<String, dynamic> _$ForgotPasswordRequestToJson(
       'email': instance.email,
       'phoneNumber': instance.phoneNumber,
       'bvn': instance.bvn,
-      'activationUserCode': instance.activationUserCode,
-      'otpUserCode': instance.otpUserCode,
+      'userCode': instance.otpUserCode,
       'activationCode': instance.activationCode,
       'otp': instance.otp,
       'key': instance.key,

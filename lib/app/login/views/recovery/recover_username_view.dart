@@ -46,7 +46,7 @@ class _RecoverUsernameScreen extends State<RecoverUsernameScreen> {
       }
       if (event is Success<RecoveryResponse>) {
         setState(() => _isLoading = false);
-        Navigator.of(context).pushNamed("security_question");
+        Navigator.of(context).pushNamed(RecoveryControllerScreen.RECOVERY_OTP);
       }
     });
   }
@@ -95,7 +95,7 @@ class _RecoverUsernameScreen extends State<RecoverUsernameScreen> {
                           fontWeight: FontWeight.normal)),
                   SizedBox(height: 46),
                   StreamBuilder(
-                    stream: viewModel.userRecoveryForm.accountNumberStream,
+                    stream: viewModel.userRecoveryForm.keyInputStream,
                     builder: (context, snapshot) {
                       return Styles.appEditText(
                           hint: 'Account Number',

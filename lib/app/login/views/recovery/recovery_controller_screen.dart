@@ -21,6 +21,7 @@ class RecoveryControllerScreen extends StatefulWidget {
   static const String USERNAME_SCREEN = "username";
   static const String USERNAME_BVN_SCREEN = "USERNAME_BVN_SCREEN";
   static const String USERNAME_DISPLAY_SCREEN = "USERNAME_DISPLAY_SCREEN";
+  static const String RECOVERY_OTP = "recovery_otp";
 
   final _navigatorKey = GlobalKey<NavigatorState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -52,9 +53,6 @@ class _RecoveryControllerScreen extends State<RecoveryControllerScreen> {
         break;
       case "password":
         page = SetPasswordRecoveryView(widget._scaffoldKey);
-        break;
-      case "security_question":
-        page = SecurityQuestionScreen(widget._scaffoldKey, this.mode);
         break;
       case "recovery_otp":
         page = RecoveryOtpView(widget._scaffoldKey);

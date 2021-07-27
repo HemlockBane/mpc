@@ -1,4 +1,6 @@
 
+import 'dart:io';
+
 import 'package:dio/dio.dart' hide Headers;
 import 'package:moniepoint_flutter/app/usermanagement/model/data/forgot_password_request.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/data/recovery_response.dart';
@@ -22,12 +24,18 @@ abstract class UserManagementService {
   factory UserManagementService(Dio dio) = _UserManagementService;
 
   @Headers(<String, dynamic>{
-    "Content-Type": "application/json",
+    "Content-Type": "multipart/form-data",
     "client-id": BuildConfig.CLIENT_ID,
     "appVersion": BuildConfig.APP_VERSION
   })
   @POST("v2/user/forgot_username")
-  Future<ServiceResult<RecoveryResponse>> forgotUsername(@Body() ForgotPasswordRequest request);
+  Future<ServiceResult<RecoveryResponse>> forgotUsername(
+      @Body() ForgotPasswordRequest request,
+      {
+        @Part(name: "image1", contentType: "application/json") File? firstCapture,
+        @Part(name: "image2", contentType: "application/json") File? motionCapture,
+      }
+  );
 
   @Headers(<String, dynamic>{
     "Content-Type": "application/json",
@@ -82,5 +90,22 @@ abstract class UserManagementService {
   Future<ServiceResult<bool>> setFingerprint(
     @Body() FingerPrintAuthRequestBody? requestBody,
   );
+
+  // @Headers(<String, dynamic>{
+  //   'Content-Type': 'multipart/form-data',
+  //   "client-id": BuildConfig.CLIENT_ID,
+  //   "appVersion": BuildConfig.APP_VERSION,
+  // })
+  // @POST("check-for-liveliness")
+  // Future<ServiceResult<RecoveryLivelinessResponse>> validateLivelinessForOnboarding(
+  //     @Part(name: "image1", contentType: "application/json") File firstCapture,
+  //     @Part(name: "image2", contentType: "application/json") File motionCapture,
+  //     @Part(name: "otpValidationKey") String otpValidationKey,
+  //     {
+  //       @Part(name:"step") String step = "LIVELINESS_CHECK",
+  //       @Part(name: "key") String key,
+  //       @Part(name: "username") String username,
+  //     }
+  // );
 
 }

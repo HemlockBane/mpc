@@ -1,23 +1,21 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:moniepoint_flutter/app/liveliness/liveliness_error.dart';
+import 'package:moniepoint_flutter/app/liveliness/model/data/liveliness_error.dart';
+import 'package:moniepoint_flutter/app/liveliness/model/data/liveliness_validation_response.dart';
 import 'package:moniepoint_flutter/core/network/client_error.dart';
 
 part 'onboarding_liveliness_validation_response.g.dart';
 
 @JsonSerializable()
-class OnboardingLivelinessValidationResponse {
+class OnboardingLivelinessValidationResponse extends LivelinessValidationResponse {
+
   OnboardingLivelinessValidationResponse({
-    this.livelinessError,
-    this.faceMatchError,
     this.phoneNumberUniquenessError,
     this.phoneMismatchError,
     this.setupType,
     this.onboardingKey,
     this.mobileProfileExist,
-  });
+  }):super();
 
-  LivelinessError? livelinessError;
-  ClientError? faceMatchError;
   ClientError? phoneNumberUniquenessError;
   ClientError? phoneMismatchError;
   SetupType? setupType;

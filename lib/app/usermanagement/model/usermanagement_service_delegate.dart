@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:moniepoint_flutter/app/usermanagement/model/data/change_password_request_body.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/data/change_pin_request_body.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/data/finger_print_auth_request_body.dart';
@@ -16,10 +18,13 @@ class UserManagementServiceDelegate with NetworkResource {
     this._service = service;
   }
 
-  Stream<Resource<RecoveryResponse>> forgotUsername(ForgotPasswordRequest requestBody) {
+  Stream<Resource<RecoveryResponse>> forgotUsername(ForgotPasswordRequest requestBody,
+      {File? firstCapture, File? motionCapture}) {
     return networkBoundResource(
         fetchFromLocal: () => Stream.value(null),
-        fetchFromRemote: () => this._service.forgotUsername(requestBody)
+        fetchFromRemote: () => this._service.forgotUsername(requestBody,
+            firstCapture: firstCapture, motionCapture: motionCapture
+        )
     );
   }
 
@@ -64,4 +69,6 @@ class UserManagementServiceDelegate with NetworkResource {
         fetchFromRemote: () => this._service.setFingerprint(requestBody)
     );
   }
+
+
 }

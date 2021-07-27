@@ -18,9 +18,7 @@ class ForgotPasswordRequest {
   String? phoneNumber;
   @JsonKey(name:"bvn")
   String? bvn;
-  @JsonKey(name:"activationUserCode")
-  String? activationUserCode;
-  @JsonKey(name:"otpUserCode")
+  @JsonKey(name:"userCode")
   String? otpUserCode;
   @JsonKey(name:"activationCode")
   String? activationCode;

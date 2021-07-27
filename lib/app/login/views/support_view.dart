@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart' hide Colors, ScrollView;
-import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/login/views/support_shimmer_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/system_configuration.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
-import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/call_utils.dart';
 import 'package:moniepoint_flutter/core/viewmodels/system_configuration_view_model.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:provider/provider.dart';
-import 'package:moniepoint_flutter/core/utils/text_utils.dart';
 import 'package:collection/collection.dart';
 
 class SupportScreen extends StatefulWidget {
@@ -34,11 +31,7 @@ class _SupportScreen extends State<SupportScreen> {
       Widget? trailingIcon,
       String supportChannelValue = ""}) {
     return GestureDetector(
-      onTap: () {
-        if (clickableFn != null) {
-          clickableFn();
-        }
-      },
+      onTap: clickableFn,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -101,15 +94,6 @@ class _SupportScreen extends State<SupportScreen> {
         ],
       ),
     );
-  }
-
-  Map<String, Tuple<Color, Function()>> _makeSupportLinks(
-      String value, Function(String value) fn) {
-    final Map<String, Tuple<Color, Function()>> initialValue = {};
-    return value.split(",").fold(initialValue, (previousValue, element) {
-      previousValue[element] = Tuple(Colors.primaryColor, () => fn(element));
-      return previousValue;
-    });
   }
 
   List<Widget> _makeSupportItemList(
@@ -218,7 +202,6 @@ class _SupportScreen extends State<SupportScreen> {
         Provider.of<SystemConfigurationViewModel>(context, listen: false);
 
     return Container(
-      // padding: EdgeInsets.symmetric(horizontal: 24, vertical: 24),
       decoration: BoxDecoration(),
       child: StreamBuilder(
         stream: viewModel.systemConfigStream,
@@ -241,9 +224,7 @@ class _SupportScreen extends State<SupportScreen> {
   Widget _buildSocialMediaIcons(SystemConfigurationViewModel viewModel) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 54, vertical: 18),
-      decoration: BoxDecoration(
-          //
-          ),
+      decoration: BoxDecoration(),
       child: StreamBuilder(
         stream: viewModel.systemConfigStream,
         builder:
@@ -334,7 +315,6 @@ class _SupportScreen extends State<SupportScreen> {
       ),
       body: ScrollView(
         child: Container(
-          // padding: EdgeInsets.only(left: 16, right: 16, top: 32, bottom: 12),
           child: Stack(
             children: [
               Align(

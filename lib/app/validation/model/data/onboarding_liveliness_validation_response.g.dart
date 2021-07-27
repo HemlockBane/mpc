@@ -10,13 +10,6 @@ OnboardingLivelinessValidationResponse
     _$OnboardingLivelinessValidationResponseFromJson(
         Map<String, dynamic> json) {
   return OnboardingLivelinessValidationResponse(
-    livelinessError: json['livelinessError'] == null
-        ? null
-        : LivelinessError.fromJson(
-            json['livelinessError'] as Map<String, dynamic>),
-    faceMatchError: json['faceMatchError'] == null
-        ? null
-        : ClientError.fromJson(json['faceMatchError'] as Map<String, dynamic>),
     phoneNumberUniquenessError: json['phoneNumberUniquenessError'] == null
         ? null
         : ClientError.fromJson(
@@ -30,7 +23,14 @@ OnboardingLivelinessValidationResponse
         : SetupType.fromJson(json['setupType'] as Object),
     onboardingKey: json['onboardingKey'] as String?,
     mobileProfileExist: json['mobileProfileExist'] as bool?,
-  );
+  )
+    ..livelinessError = json['livelinessError'] == null
+        ? null
+        : LivelinessError.fromJson(
+            json['livelinessError'] as Map<String, dynamic>)
+    ..faceMatchError = json['faceMatchError'] == null
+        ? null
+        : ClientError.fromJson(json['faceMatchError'] as Map<String, dynamic>);
 }
 
 Map<String, dynamic> _$OnboardingLivelinessValidationResponseToJson(

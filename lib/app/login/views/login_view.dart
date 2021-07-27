@@ -23,7 +23,6 @@ import 'package:moniepoint_flutter/core/utils/biometric_helper.dart';
 import 'package:moniepoint_flutter/core/utils/call_utils.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/views/otp_ussd_info_view.dart';
-import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter/services.dart';
+import 'package:moniepoint_flutter/app/liveliness/liveliness_verification.dart';
 import 'package:moniepoint_flutter/app/login/viewmodels/recovery_view_model.dart';
 import 'package:moniepoint_flutter/app/login/views/dialogs/add_device_dialog.dart';
 import 'package:moniepoint_flutter/app/login/views/recovery/recovery_controller_screen.dart';
+import 'package:moniepoint_flutter/app/usermanagement/model/data/recovery_response.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/views/otp_ussd_info_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
@@ -39,21 +42,44 @@ class _RecoveryOtpView extends State<RecoveryOtpView> {
       });
     });
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      subscribeUiToTriggerOtpForDevice();
+      _subscribeUiToTriggerOtpForDevice();
     });
     super.initState();
   }
 
-  void subscribeUiToTriggerOtpForDevice() {
+  void _subscribeUiToTriggerOtpForDevice() {
     final viewModel = Provider.of<RecoveryViewModel>(context, listen: false);
     if(viewModel.recoveryMode == RecoveryMode.DEVICE) {
       viewModel.getOtpForDevice().listen((event) => null);
     }
   }
 
-  void _handleUsernameRecoveryResponse<T>(Resource<T> event) {
+  void _subscribeToValidateOtp() {
+    final viewModel = Provider.of<RecoveryViewModel>(context, listen: false);
+    RecoveryMode? mode = viewModel.recoveryMode;
+
+    if(mode == RecoveryMode.USERNAME_RECOVERY) {
+      viewModel.setOtpCode(_otpController.text);
+      viewModel.validateOtp().listen(_handleUsernameRecoveryResponse);
+    } else if(mode == RecoveryMode.PASSWORD_RECOVERY){
+      viewModel.setOtpCode(_otpController.text);
+      //looks like we validate the otp first here
+      viewModel.validateOtp().listen(_handleValidateOtpResponse);
+    } else if(mode == RecoveryMode.DEVICE) {
+      viewModel.validateDeviceOtp(_otpController.text).listen(_handleOtpValidationResponseForDevice);
+    }
+  }
+
+  void _handleUsernameRecoveryResponse(Resource<RecoveryResponse> event) {
     if(event is Loading) setState(() => _isLoading = true);
-    if (event is Error<T>) {
+    if(event is Success<RecoveryResponse>) {
+      setState(() => _isLoading = false);
+      _startLivelinessTest(
+          LivelinessVerificationFor.USERNAME_RECOVERY,
+          event.data!.otpValidationKey!
+      );
+    }
+    if (event is Error<RecoveryResponse>) {
       setState(() => _isLoading = false);
       showModalBottomSheet(
           context: widget._scaffoldKey.currentContext ?? context,
@@ -63,24 +89,16 @@ class _RecoveryOtpView extends State<RecoveryOtpView> {
             return BottomSheets.displayErrorModal(context, message: event.message);
           });
     }
-    if(event is Success<T>) {
-      setState(() => _isLoading = false);
-      Widget bottomSheetView = BottomSheets.displaySuccessModal(
-          widget._scaffoldKey.currentContext!,
-          title: "Username Recovered",
-          message: "Your username has been sent to your registered email address.",
-          onClick: () {
-            Navigator.of(widget._scaffoldKey.currentContext!).pop();
-            Navigator.of(widget._scaffoldKey.currentContext!).pushNamedAndRemoveUntil('/login', (route) => false);
-          }
-      );
-      showModalBottomSheet(
-          context: widget._scaffoldKey.currentContext ?? context,
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-          builder: (context) => bottomSheetView
-      );
-    }
+  }
+
+  void _startLivelinessTest(LivelinessVerificationFor verificationFor, String validationKey) async {
+    final viewModel = Provider.of<RecoveryViewModel>(context, listen: false);
+    final validationResponse = await Navigator.of(widget._scaffoldKey.currentContext ?? context)
+        .pushNamed(Routes.LIVELINESS_DETECTION, arguments: {
+      "verificationFor": verificationFor,
+      "key" : "",
+      "otpValidationKey": validationKey
+    });
   }
 
   String getUSSDKeyName(RecoveryViewModel viewModel) {
@@ -132,22 +150,6 @@ class _RecoveryOtpView extends State<RecoveryOtpView> {
           backgroundColor: Colors.transparent,
           builder: (v) => AddDeviceDialog(widget._scaffoldKey)
       );
-    }
-  }
-
-  void _subscribeToValidateOtp() {
-    final viewModel = Provider.of<RecoveryViewModel>(context, listen: false);
-    RecoveryMode? mode = viewModel.recoveryMode;
-
-    if(mode == RecoveryMode.USERNAME_RECOVERY) {
-      viewModel.setOtpCode(_otpController.text);
-      viewModel.completeRecovery().listen(_handleUsernameRecoveryResponse);
-    } else if(mode == RecoveryMode.PASSWORD_RECOVERY){
-      viewModel.setOtpCode(_otpController.text);
-      //looks like we validate the otp first here
-      viewModel.validateOtp().listen(_handleValidateOtpResponse);
-    } else if(mode == RecoveryMode.DEVICE) {
-      viewModel.validateDeviceOtp(_otpController.text).listen(_handleOtpValidationResponseForDevice);
     }
   }
 

@@ -81,7 +81,7 @@ class _RecoverUsernameScreen extends State<RecoverUsernameBVNScreen> {
                   ),
                   SizedBox(height: 36),
                   StreamBuilder(
-                    stream: viewModel.userRecoveryForm.bvnStream,
+                    stream: viewModel.userRecoveryForm.keyInputStream,
                     builder: (context, snapshot) {
                       return Styles.appEditText(
                           hint: 'Enter Bank Verification Number',

@@ -14,7 +14,7 @@ import 'liveliness_detection_guide.dart';
 import 'liveliness_detector.dart';
 
 enum LivelinessVerificationFor{
-  ON_BOARDING
+  ON_BOARDING, USERNAME_RECOVERY
 }
 
 class LivelinessVerification extends StatefulWidget {

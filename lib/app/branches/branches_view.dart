@@ -36,6 +36,8 @@ class _BranchScreen extends State<BranchScreen> {
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  LatLng _selectedBranchPosition = LatLng(0, 0);
+
   @override
   void initState() {
     super.initState();
@@ -48,8 +50,7 @@ class _BranchScreen extends State<BranchScreen> {
         "res/drawables/ic_location_marker.png");
   }
 
-  void _fetchLastLocation() async {
-    final viewModel = Provider.of<BranchViewModel>(context, listen: false);
+  Future<Position?> _fetchLastLocation() async {
     _lastLocation = await Geolocator.getLastKnownPosition(
         forceAndroidLocationManager: true);
 
@@ -57,6 +58,11 @@ class _BranchScreen extends State<BranchScreen> {
       _lastLocation = await Geolocator.getCurrentPosition();
     }
 
+    return _lastLocation;
+  }
+
+  void getBranchesAroundLocation(double? latitude, double? longitude) async {
+    final viewModel = Provider.of<BranchViewModel>(context, listen: false);
     viewModel
         .getAllBranches(
             _lastLocation?.latitude ?? 0,
@@ -100,8 +106,8 @@ class _BranchScreen extends State<BranchScreen> {
     }
   }
 
-  bool _addBranchAsMarker(BranchInfo info) {
-    Locations? location = info.location;
+  bool _addBranchAsMarker(BranchInfo branchInfo) {
+    Locations? location = branchInfo.location;
     if (location != null &&
         location.latitude != null &&
         location.longitude != null) {
@@ -109,11 +115,22 @@ class _BranchScreen extends State<BranchScreen> {
           double.parse(location.longitude ?? "0"));
       _displayAbleMarkers.add(
         Marker(
-          markerId: MarkerId(info.id.toString()),
-          position: branchPosition,
-          infoWindow: InfoWindow(title: info.name),
-          // icon: pinLocationIcon!,
-        ),
+            markerId: MarkerId(branchInfo.id.toString()),
+            position: branchPosition,
+            infoWindow: InfoWindow(title: branchInfo.name),
+            icon: _selectedBranchPosition == branchPosition
+                ? BitmapDescriptor.defaultMarker
+                : BitmapDescriptor.defaultMarkerWithHue(60.0),
+            onTap: () {
+              // change to selected branchPosition
+              setState(() {
+                _selectedBranchPosition = branchPosition;
+              });
+              // show bottomsheet
+              showDetailsBottomSheet(branchInfo);
+            }
+            // icon: pinLocationIcon!,
+            ),
       );
       return true;
     }
@@ -123,18 +140,22 @@ class _BranchScreen extends State<BranchScreen> {
   void _checkLocationPermission() async {
     final isPermissionGranted = await Permission.location.request().isGranted;
     if (isPermissionGranted) {
-      _fetchLastLocation();
+      final lastLocation = await _fetchLastLocation();
+      getBranchesAroundLocation(
+          lastLocation?.latitude ?? 0, lastLocation?.longitude ?? 0);
     } else {
       Navigator.of(context).pop();
     }
   }
 
-  void _onCameraMove(CameraPosition cameraPosition) {
+  void _onCameraMove(CameraPosition cameraPosition) async {
     final movingZoom = cameraPosition.zoom;
     if (currentZoom.floorToDouble() != movingZoom.floorToDouble()) {
       //We are zooming
       currentZoom = movingZoom;
-      _fetchLastLocation();
+      final lastLocation = await _fetchLastLocation();
+      getBranchesAroundLocation(
+          lastLocation?.latitude ?? 0, lastLocation?.longitude ?? 0);
     }
     currentZoom = movingZoom;
   }
@@ -147,6 +168,7 @@ class _BranchScreen extends State<BranchScreen> {
 
     if (branchInfo != null && branchInfo is BranchInfo) {
       _displayAbleMarkers.clear();
+
       if (_addBranchAsMarker(branchInfo)) {
         Future.delayed(Duration(milliseconds: 500), () {
           setState(() {

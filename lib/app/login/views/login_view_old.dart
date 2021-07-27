@@ -200,7 +200,7 @@ class _LoginState extends State<LoginScreenOld> with SingleTickerProviderStateMi
               return BottomSheets.displayWarningDialog('Update Moniepoint App', event.message ?? "", () {
                 Navigator.of(context).pop();
                 final viewModel = Provider.of<LoginViewModel>(context, listen: false);
-                dialNumber(viewModel.getApplicationPlayStoreUrl());
+                openUrl(viewModel.getApplicationPlayStoreUrl());
               }, buttonText: "Upgrade App");
             }
             return BottomSheets.displayErrorModal(context, message: event.message);
@@ -410,7 +410,7 @@ class _LoginState extends State<LoginScreenOld> with SingleTickerProviderStateMi
           highlightColor: Colors.grey.withOpacity(0.05),
           overlayColor: MaterialStateProperty.all(Colors.primaryColor.withOpacity(0.05)),
           borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
-          onTap: () => dialNumber("tel:${codes.first}"),
+          onTap: () => openUrl("tel:${codes.first}"),
           child: Container(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),

@@ -207,7 +207,7 @@ class _BVNValidationScreenState extends State<BVNValidationScreen> {
                     fontWeight: FontWeight.w400,
                     fontSize: 12
                 ))
-                .colorText({'*565*0#': Tuple(Colors.primaryColor, () => dialNumber("tel:${Uri.encodeComponent("*565*0#")}"))}, underline: false),
+                .colorText({'*565*0#': Tuple(Colors.primaryColor, () => openUrl("tel:${Uri.encodeComponent("*565*0#")}"))}, underline: false),
           ),
         ),
         SizedBox(height: 20),

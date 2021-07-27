@@ -65,7 +65,7 @@ class OtpUssdInfoView extends StatelessWidget{
                   fontWeight: FontWeight.normal,
                   fontSize: 14))
               .colorText({
-            codes.second: Tuple(Colors.primaryColor, () => dialNumber("tel:${codes.first}"))
+            codes.second: Tuple(Colors.primaryColor, () => openUrl("tel:${codes.first}"))
           }))
         ],
       ),

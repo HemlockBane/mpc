@@ -54,6 +54,9 @@ class Locations {
 
   Locations();
 
+  String get address => "$streetNumber, $streetName, $city";
+
+
   factory Locations.fromJson(Object? data) => _$LocationsFromJson(data as Map<String, dynamic>);
   Map<String, dynamic> toJson() => _$LocationsToJson(this);
 

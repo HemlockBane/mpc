@@ -77,14 +77,6 @@ class _BranchScreen extends State<BranchScreen> {
     if (_lastLocation != null) {
       _lastLocation = await Geolocator.getCurrentPosition();
     }
-
-    final sLocation = SelectedLocation(
-      location:
-          LatLng(_lastLocation?.latitude ?? 0, _lastLocation?.longitude ?? 0),
-    );
-
-    // updateSelectedLocation(sLocation);
-
     return _lastLocation;
   }
 
@@ -155,7 +147,7 @@ class _BranchScreen extends State<BranchScreen> {
       final markerIcon = selectedLocation.isCurrentLocation(LatLng(
               _lastLocation?.latitude ?? 0, _lastLocation?.longitude ?? 0))
           ? locationMarkerIcon!
-          : selectedLocation.isSelectedBranchPosition(branchLocation)
+          : selectedLocation.equalsBranchPosition(branchLocation)
               ? locationMarkerIcon!
               : fadedMarkerIcon!;
 
@@ -171,7 +163,7 @@ class _BranchScreen extends State<BranchScreen> {
           );
 
           final isSelectedMarker =
-              selectedLocation.isSelectedBranchPosition(branchLocation);
+              selectedLocation.equalsBranchPosition(branchLocation);
           // print(
           //     "before - isSelected: ${selectedLocation.isSelectedBranchPosition(sLocation.location)}");
           // print(selectedLocation.branchInfo?.name);

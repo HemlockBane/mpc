@@ -16,6 +16,7 @@ import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/utils/biometric_helper.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/viewmodels/finger_print_alert_view_model.dart';
 import 'package:moniepoint_flutter/core/views/dots_indicator.dart';
@@ -373,13 +374,14 @@ class _DashboardScreen extends State<DashboardScreen> with TickerProviderStateMi
             ? "Fingerprint Setup successfully"
             : "Face ID Setup successfully";
 
-        showModalBottomSheet(
-            backgroundColor: Colors.transparent,
-            context: context,
-            builder: (mContext) => BottomSheets.displaySuccessModal(mContext,
-                title: successTitle,
-                message: successMessage
-            )
+        showSuccess(
+            context,
+            title: successTitle,
+            message: successMessage,
+            primaryButtonText: "Continue",
+            onPrimaryClick: () {
+              Navigator.of(context).pop(true);
+            }
         );
       } else if (result is Error<bool>) {
         showModalBottomSheet(

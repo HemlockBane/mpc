@@ -8,6 +8,7 @@ import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/views/otp_ussd_info_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:provider/provider.dart';
@@ -68,15 +69,18 @@ class _EnterBVNScreen extends State<EnterBVNScreen> {
       //If everything is successful then we need to decide our next route
       final onboardingType = validationResponse.setupType?.type;
 
-      viewModel.setOnBoardingType(onboardingType ?? OnBoardingType.ACCOUNT_DOES_NOT_EXIST);
       viewModel.setOnboardingKey(validationResponse.onboardingKey ?? "");
 
       if(onboardingType == OnBoardingType.ACCOUNT_DOES_NOT_EXIST) {
         //We navigate to account info
+        viewModel.setOnBoardingType(onboardingType!);
         Navigator.of(context).pushNamed(SignUpAccountScreen.ACCOUNT_INFO);
-      } else {
+      } else if(onboardingType == OnBoardingType.ACCOUNT_EXIST){
         //We navigate to profile info
+        viewModel.setOnBoardingType(onboardingType!);
         Navigator.of(context).pushNamed(SignUpAccountScreen.PROFILE);
+      } else {
+        _showGenericError("Failed to determine account setup type");
       }
     }
   }
@@ -106,13 +110,12 @@ class _EnterBVNScreen extends State<EnterBVNScreen> {
   }
 
   void _showGenericError(String? message) {
-    showModalBottomSheet(
-        backgroundColor: Colors.transparent,
-        context: _scaffoldKey.currentContext ?? context,
-        builder: (mContext) {
-          return BottomSheets.displayErrorModal(context, message: message, onClick: (){
-            Navigator.of(context).pop();
-          }, buttonText: "Try Again");
+    showError(
+        widget._scaffoldKey.currentContext ?? context,
+        message: message,
+        primaryButtonText: "Try Again",
+        onPrimaryClick: (){
+          Navigator.of(widget._scaffoldKey.currentContext ?? context).pop();
         }
     );
   }

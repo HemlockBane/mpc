@@ -1,5 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:moniepoint_flutter/app/liveliness/model/data/liveliness_validation_response.dart';
+import 'package:moniepoint_flutter/app/liveliness/model/data/liveliness_error.dart';
+import 'package:moniepoint_flutter/core/network/client_error.dart';
 
 part 'recovery_response.g.dart';
 

@@ -1,6 +1,8 @@
 import 'package:moniepoint_flutter/app/liveliness/liveliness_verification.dart';
 import 'package:moniepoint_flutter/app/liveliness/model/data/liveliness_validation_response.dart';
 import 'package:moniepoint_flutter/app/liveliness/viewmodels/liveliness_verification_viewmodel.dart';
+import 'package:moniepoint_flutter/app/login/model/device_liveliness_validation_strategy.dart';
+import 'package:moniepoint_flutter/app/login/model/recovery_liveliness_validation_strategy.dart';
 
 import 'onboarding_liveliness_validation_strategy.dart';
 
@@ -23,7 +25,13 @@ abstract class LivelinessValidationStrategy<T extends LivelinessValidationRespon
         strategy = OnboardingLivelinessValidationStrategy(viewModel, arguments);
         break;
       case LivelinessVerificationFor.USERNAME_RECOVERY:
-        strategy = OnboardingLivelinessValidationStrategy(viewModel, arguments);
+        strategy = RecoveryLivelinessValidationStrategy(viewModel, arguments);
+        break;
+      case LivelinessVerificationFor.PASSWORD_RECOVERY:
+        strategy = RecoveryLivelinessValidationStrategy(viewModel, arguments);
+        break;
+      case LivelinessVerificationFor.REGISTER_DEVICE:
+        strategy = DeviceLivelinessValidationStrategy(viewModel, arguments);
         break;
       default:
         strategy = OnboardingLivelinessValidationStrategy(viewModel, arguments);

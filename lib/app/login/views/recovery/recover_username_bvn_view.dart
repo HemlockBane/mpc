@@ -49,7 +49,8 @@ class _RecoverUsernameScreen extends State<RecoverUsernameBVNScreen> {
   }
 
 
-  void _navigateToUseAccountNumber() {
+  void _navigateToUseAccountNumber(RecoveryViewModel viewModel) {
+    viewModel.userRecoveryForm.reset();
     Navigator.of(context).popAndPushNamed(RecoveryControllerScreen.USERNAME_SCREEN);
   }
 
@@ -77,7 +78,8 @@ class _RecoverUsernameScreen extends State<RecoverUsernameBVNScreen> {
                     style: TextStyle(
                         color: Colors.textColorBlack,
                         fontSize: 25,
-                        fontWeight: FontWeight.w600),
+                        fontWeight: FontWeight.w600
+                    ),
                   ),
                   SizedBox(height: 36),
                   StreamBuilder(
@@ -86,6 +88,7 @@ class _RecoverUsernameScreen extends State<RecoverUsernameBVNScreen> {
                       return Styles.appEditText(
                           hint: 'Enter Bank Verification Number',
                           maxLength: 11,
+                          inputType: TextInputType.number,
                           inputFormats: [
                             FilteringTextInputFormatter.digitsOnly
                           ],
@@ -94,7 +97,7 @@ class _RecoverUsernameScreen extends State<RecoverUsernameBVNScreen> {
                           errorText: snapshot.hasError
                               ? snapshot.error.toString()
                               : null,
-                          startIcon: Icon(CustomFont.username_icon,
+                          startIcon: Icon(CustomFont.bankNumberInput,
                               color: Colors.textFieldIcon.withOpacity(0.2)));
                     },
                   ),
@@ -108,9 +111,9 @@ class _RecoverUsernameScreen extends State<RecoverUsernameBVNScreen> {
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
-                        onPressed: _navigateToUseAccountNumber,
+                        onPressed: () => _navigateToUseAccountNumber(viewModel),
                         child: Text(
-                          'Use Account',
+                          'Use Account Number',
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 15,

@@ -2,12 +2,12 @@ import 'package:flutter/material.dart' hide ScrollView,Colors;
 import 'package:flutter/services.dart';
 import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/new/signup_account_view.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:provider/provider.dart';
 import 'package:moniepoint_flutter/core/utils/text_utils.dart';
@@ -34,13 +34,10 @@ class _PhoneNumberValidationScreen extends State<PhoneNumberValidationScreen> {
       if(event is Loading) setState(() => _isLoading = true);
       if (event is Error<bool>) {
         setState(() => _isLoading = false);
-        showModalBottomSheet(
-            context: widget._scaffoldKey.currentContext ?? context,
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            builder: (context) {
-              return BottomSheets.displayErrorModal(context, message: event.message);
-            });
+        showError(
+            widget._scaffoldKey.currentContext ?? context,
+            message: event.message
+        );
       }
       if(event is Success<bool>) {
         setState(() => _isLoading = false);

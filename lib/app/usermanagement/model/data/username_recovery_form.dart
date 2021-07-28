@@ -40,6 +40,8 @@ class UsernameRecoveryForm with Validators {
     }).asBroadcastStream();
   }
 
+  String? get getKey => _requestBody.key;
+
   void onAccountNumberChanged(String? text) {
     _requestBody.key = text;
     _keyInputController.sink.add(text ?? "");
@@ -72,6 +74,10 @@ class UsernameRecoveryForm with Validators {
     if (displayError && !isValid) _keyInputController.sink
         .addError(_requestBody.key?.isEmpty == true ? "BVN is required" : "Invalid BVN");
     return false;
+  }
+
+  void reset() {
+    _requestBody.key = "";
   }
 
   // @override

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide Colors;
+import 'package:flutter/services.dart';
 import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/new/enter_bvn_screen.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/new/phone_number_validation_view.dart';
@@ -61,6 +62,18 @@ class SignUpAccountScreen extends StatelessWidget  {
           resizeToAvoidBottomInset: false,
           key: _scaffoldKey,
           appBar: AppBar(
+              titleSpacing: -10,
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back),
+                onPressed: () {
+                  final canPop = Navigator.of(context).canPop();
+                  if(!canPop) {
+                    SystemNavigator.pop();
+                  } else {
+                    Navigator.of(context).pop();
+                  }
+                },
+              ),
               title: Text(
                   "Getting Started",
                   style: TextStyle(

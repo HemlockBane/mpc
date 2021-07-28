@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:moniepoint_flutter/app/login/viewmodels/recovery_view_model.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
-import 'package:moniepoint_flutter/core/custom_fonts.dart';
+import 'package:moniepoint_flutter/core/custom_icons2_icons.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/validators.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
+import 'package:moniepoint_flutter/core/views/valid_password_checker.dart';
 import 'package:provider/provider.dart';
 
 class SetPasswordRecoveryView extends StatefulWidget {
@@ -26,6 +28,7 @@ class _SetPasswordRecoveryView extends State<SetPasswordRecoveryView> with Valid
   bool _isPasswordVisible = false;
   bool _isLoading = false;
   bool _isPasswordValid = false;
+  bool _displayPasswordStrength = false;
   String? _errorText;
 
   Widget getPasswordToggleIcon(BuildContext context) {
@@ -44,30 +47,26 @@ class _SetPasswordRecoveryView extends State<SetPasswordRecoveryView> with Valid
     if(event is Loading) setState(() => _isLoading = true);
     if (event is Error<T>) {
       setState(() => _isLoading = false);
-      showModalBottomSheet(
-          context: widget._scaffoldKey.currentContext ?? context,
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-          builder: (context) {
-            return BottomSheets.displayErrorModal(context, message: event.message);
-          });
+      showError(
+          widget._scaffoldKey.currentContext ?? context,
+          message: event.message,
+          useTextButton: true,
+          primaryButtonText: "Dismiss",
+          onPrimaryClick: () => Navigator.of(widget._scaffoldKey.currentContext ?? context).pop()
+      );
     }
     if(event is Success<T>) {
       setState(() => _isLoading = false);
-      Widget bottomSheetView = BottomSheets.displaySuccessModal(
-          widget._scaffoldKey.currentContext!,
+      showSuccess(
+          widget._scaffoldKey.currentContext ?? context,
           title: "Password Updated",
           message: "Your password has been updated",
-          onClick: () {
+          primaryButtonText: "Proceed to Login",
+          onPrimaryClick: () {
             Navigator.of(widget._scaffoldKey.currentContext!).pop();
-            Navigator.of(widget._scaffoldKey.currentContext!).pushNamedAndRemoveUntil('/login', (route) => false);
+            Navigator.of(widget._scaffoldKey.currentContext!)
+                .pushNamedAndRemoveUntil(Routes.LOGIN, (route) => false);
           }
-      );
-      showModalBottomSheet(
-          context: widget._scaffoldKey.currentContext ?? context,
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-          builder: (context) => bottomSheetView
       );
     }
   }
@@ -105,24 +104,33 @@ class _SetPasswordRecoveryView extends State<SetPasswordRecoveryView> with Valid
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Update Password',
+                    'Set new Password',
                     textAlign: TextAlign.start,
                     style: TextStyle(
-                        color: Colors.colorPrimaryDark,
+                        color: Colors.textColorBlack,
                         fontSize: 25,
                         fontWeight: FontWeight.w600),
                   ),
                   SizedBox(height: 8),
                   SizedBox(height: 44),
-                  Styles.appEditText(
-                      controller: _passwordController,
-                      hint: 'Enter New Password',
-                      errorText: _errorText,
-                      animateHint: true,
-                      startIcon: Icon(CustomFont.password, color: Colors.colorFaded),
-                      endIcon: getPasswordToggleIcon(context),
-                      isPassword: !_isPasswordVisible),
+                  Focus(
+                      onFocusChange: (v) {
+                        setState(() {
+                          _displayPasswordStrength = v;
+                        });
+                      },
+                      child: Styles.appEditText(
+                          controller: _passwordController,
+                          hint: 'Enter New Password',
+                          // errorText: _errorText,
+                          animateHint: true,
+                          startIcon: Icon(CustomIcons2.password, color: Colors.textFieldIcon.withOpacity(0.2)),
+                          endIcon: getPasswordToggleIcon(context),
+                          isPassword: !_isPasswordVisible
+                      )
+                  ),
                   SizedBox(height: 16),
+                  if(_displayPasswordStrength) ValidPasswordChecker(_passwordController.text),
                   SizedBox(height: 100),
                 ],
               ),
@@ -131,7 +139,7 @@ class _SetPasswordRecoveryView extends State<SetPasswordRecoveryView> with Valid
                 elevation: 0,
                 isValid: !_isLoading && _isPasswordValid,
                 onClick: _subscribeToUpdatePassword,
-                text: 'Continue',
+                text: 'Next',
                 isLoading: _isLoading
             ),
             SizedBox(height: 16)

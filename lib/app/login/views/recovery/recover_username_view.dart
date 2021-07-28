@@ -51,7 +51,8 @@ class _RecoverUsernameScreen extends State<RecoverUsernameScreen> {
     });
   }
 
-  void _navigateToUseBVN() {
+  void _navigateToUseBVN(RecoveryViewModel viewModel) {
+    viewModel.userRecoveryForm.reset();
     Navigator.of(context).popAndPushNamed(RecoveryControllerScreen.USERNAME_BVN_SCREEN);
   }
 
@@ -108,7 +109,7 @@ class _RecoverUsernameScreen extends State<RecoverUsernameScreen> {
                           errorText: snapshot.hasError
                               ? snapshot.error.toString()
                               : null,
-                          startIcon: Icon(CustomFont.bankIcon, color: Colors.textFieldIcon.withOpacity(0.2))
+                          startIcon: Icon(CustomFont.bankNumberInput, color: Colors.textFieldIcon.withOpacity(0.2))
                       );
                     },
                   ),
@@ -120,7 +121,7 @@ class _RecoverUsernameScreen extends State<RecoverUsernameScreen> {
                       textAlign: TextAlign.right,
                       style: TextStyle(color: Colors.textColorBlack, fontSize: 15, fontFamily: Styles.defaultFont, height: 1.4),
                     ).colorText({
-                      "Use BVN instead": Tuple(Colors.primaryColor, _navigateToUseBVN)
+                      "Use BVN instead": Tuple(Colors.primaryColor, () => _navigateToUseBVN(viewModel))
                     }, underline: false),
                   ),
                   SizedBox(height: 100),

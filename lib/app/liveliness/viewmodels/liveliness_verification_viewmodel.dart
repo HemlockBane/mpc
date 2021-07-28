@@ -3,11 +3,14 @@
 import 'dart:io';
 
 import 'package:get_it/get_it.dart';
+import 'package:moniepoint_flutter/app/liveliness/liveliness_verification.dart';
 import 'package:moniepoint_flutter/app/liveliness/model/liveliness_verification_service_delegate.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/data/forgot_password_request.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/data/recovery_response.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/usermanagement_service_delegate.dart';
 import 'package:moniepoint_flutter/app/validation/model/data/onboarding_liveliness_validation_response.dart';
+import 'package:moniepoint_flutter/app/validation/model/data/validate_answer_response.dart';
+import 'package:moniepoint_flutter/app/validation/model/validation_service_delegate.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 
@@ -15,13 +18,16 @@ class LivelinessVerificationViewModel extends BaseViewModel{
 
   late final LivelinessVerificationServiceDelegate _verificationServiceDelegate;
   late final UserManagementServiceDelegate _userServiceDelegate;
+  late final ValidationServiceDelegate _validationServiceDelegate;
 
   LivelinessVerificationViewModel({
     LivelinessVerificationServiceDelegate? verificationServiceDelegate,
-    UserManagementServiceDelegate? userManagementServiceDelegate
+    UserManagementServiceDelegate? userManagementServiceDelegate,
+    ValidationServiceDelegate? validationServiceDelegate,
   }) {
     this._verificationServiceDelegate = verificationServiceDelegate ?? GetIt.I<LivelinessVerificationServiceDelegate>();
     this._userServiceDelegate = userManagementServiceDelegate ?? GetIt.I<UserManagementServiceDelegate>();
+    this._validationServiceDelegate = validationServiceDelegate ?? GetIt.I<ValidationServiceDelegate>();
   }
 
   Stream<Resource<OnboardingLivelinessValidationResponse>> validateLivelinessForOnboarding(
@@ -31,9 +37,13 @@ class LivelinessVerificationViewModel extends BaseViewModel{
 
   Stream<Resource<RecoveryResponse>> validateForRecovery(
       File firstCapture, File motionCapture, ForgotPasswordRequest request) {
-    return _userServiceDelegate.forgotUsername(request,
-        firstCapture: firstCapture, motionCapture: motionCapture
-    );
+    return request.livelinessVerificationFor == LivelinessVerificationFor.USERNAME_RECOVERY
+        ? _userServiceDelegate.forgotUsername(request, firstCapture: firstCapture, motionCapture: motionCapture)
+        : _userServiceDelegate.forgotPassword(request, firstCapture: firstCapture, motionCapture: motionCapture);
   }
 
+  Stream<Resource<ValidateAnswerResponse>> validateLivelinessForRegisterDevice(
+      File firstCapture, File motionCapture, String otpValidationKey,  String username,) {
+    return _validationServiceDelegate.validateLivelinessForDevice(firstCapture, motionCapture, otpValidationKey, username);
+  }
 }

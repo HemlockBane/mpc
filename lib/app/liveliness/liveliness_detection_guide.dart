@@ -12,6 +12,7 @@ import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/client_error.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:provider/provider.dart';
 
 import 'liveliness_detector.dart';
@@ -162,17 +163,15 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
   }
 
   void _showGenericError(String? message) async {
-    await showModalBottomSheet(
-        backgroundColor: Colors.transparent,
-        context: context,
-        builder: (mContext) {
-          return BottomSheets.displayErrorModal(context, message: message, onClick: (){
-            Navigator.of(context).pop();
-            _restartCapture();
-          }, buttonText: "Try Again");
+    final value = await showError(
+        context, message: message,
+        primaryButtonText: "Try Again",
+        onPrimaryClick: (){
+          Navigator.of(context).pop(true);
+          _restartCapture();
         }
     );
-    if(_state == LivelinessState.PROCESSING) {
+    if(value == null) {
       _restartCapture();
     }
   }
@@ -208,7 +207,6 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
     super.initState();
     _controller = AnimationController(vsync: this, duration: Duration(seconds: 2))..repeat();
     _livelinessEventNotifier = ValueNotifier(LivelinessMotionEvent.none());
-
   }
 
   String _getEventInfoMessage(LivelinessMotionEvent motionEvent) {
@@ -225,7 +223,7 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
     final infoMessage = _getEventInfoMessage(motionEvent);
     if(infoMessage.isEmpty) return SizedBox();
     return Container(
-      padding: infoMessage.isEmpty ? EdgeInsets.all(8) : EdgeInsets.only(left: 8, top: 3, bottom: 3, right: 8),
+      padding: infoMessage.isEmpty ? EdgeInsets.all(8) : EdgeInsets.only(left: 8, top: 3, bottom: 3, right: 16),
       decoration: BoxDecoration(
           borderRadius: infoMessage.isEmpty ? null : BorderRadius.circular(120),
           color: Colors.white,
@@ -378,6 +376,15 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
     widget.callback.beginCapture();
   }
 
+  bool _shouldEnableCapture(CameraMotionEvent event) {
+    if(event == CameraMotionEvent.FaceDetectedEvent
+    || event == CameraMotionEvent.ImageOverExposed
+    || event == CameraMotionEvent.ImageUnderExposed){
+      return true;
+    }
+    return false;
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -428,10 +435,10 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
                               Visibility(
                                   visible: _state == LivelinessState.STARTED,
                                   child: Opacity(//TODO change this opacity widget it's expensive here
-                                      opacity: liveMotionEvent.eventType == CameraMotionEvent.FaceDetectedEvent ? 1 : 0.5,
+                                      opacity: _shouldEnableCapture(liveMotionEvent.eventType) ? 1 : 0.5,
                                       child: Styles.appButton(
                                           key: Key("capture-btn"),
-                                          onClick: liveMotionEvent.eventType == CameraMotionEvent.FaceDetectedEvent ? () => _beginLivelinessCapture() : null,
+                                          onClick: _shouldEnableCapture(liveMotionEvent.eventType) ? () => _beginLivelinessCapture() : null,
                                           text:  "Begin Capture",
                                           icon: SvgPicture.asset('res/drawables/ic_face_match_camera.svg', color: Colors.primaryColor, width: 20, height: 20,),
                                           buttonStyle: Styles.whiteButtonStyle,

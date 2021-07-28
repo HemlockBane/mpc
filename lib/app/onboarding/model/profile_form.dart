@@ -50,6 +50,7 @@ class ProfileForm with ChangeNotifier, Validators {
     _initState();
   }
 
+
   void setRequestBody(ProfileCreationRequestBody requestBody) {
     this._requestBody = requestBody;
   }
@@ -61,8 +62,9 @@ class ProfileForm with ChangeNotifier, Validators {
       passwordStream,
       pinInputStream,
       signatureStream,
-      emailStream,
-      enableUssdStream
+      enableUssdStream,
+      ussdPinInputStream,
+      emailStream
     ];
     
     this._isValid = Rx.combineLatest(formStreams, (values) {
@@ -75,9 +77,6 @@ class ProfileForm with ChangeNotifier, Validators {
           && _validationState.status == UsernameValidationStatus.AVAILABLE
           && _hasSignature;
     }).asBroadcastStream();
-
-    _enableUssdPinController.sink.add(false);
-    _emailController.sink.add("");
   }
 
   void onUsernameChanged(String? text) {
@@ -168,6 +167,7 @@ class ProfileForm with ChangeNotifier, Validators {
     requestBody.createUssdPin = enable;
     _enableUssdPinController.sink.add(enable);
     if(!enable) {
+      _ussdPinInputController.sink.add("");
       requestBody.withUSSDPin("");
     }
   }
@@ -179,6 +179,7 @@ class ProfileForm with ChangeNotifier, Validators {
 
   void setOnboardingType(OnBoardingType onBoardingType) {
     this._onBoardingType = onBoardingType;
+    _emailController.sink.add("");
   }
 
 

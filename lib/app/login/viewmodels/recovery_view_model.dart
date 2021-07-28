@@ -17,6 +17,7 @@ import 'package:moniepoint_flutter/core/device_manager.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/otp.dart';
+import 'package:moniepoint_flutter/core/network/service_error.dart';
 
 class RecoveryViewModel extends ChangeNotifier {
 
@@ -31,7 +32,6 @@ class RecoveryViewModel extends ChangeNotifier {
   RecoveryMode? _recoveryMode;
   RecoveryMode? get recoveryMode => _recoveryMode;
 
-  String? _validationKeyForDevice;
   String? _deviceOtpUserCode;
   String? _addDeviceKey;
 
@@ -57,14 +57,17 @@ class RecoveryViewModel extends ChangeNotifier {
   }
 
   void setOtpCode(String? code) {
-    _getRequestData().activationCode = code;
     _getRequestData().otp = code;
+  }
+
+  void setLivelinessCheckRef(String? livelinessCheckRef) {
+    _getRequestData().livelinessCheckRef = livelinessCheckRef;
   }
 
   Stream<Resource<RecoveryResponse>> initiateRecovery() {
     final response = (_recoveryMode == RecoveryMode.USERNAME_RECOVERY)
-        ? _delegate.forgotUsername(_getRequestData())
-        : _delegate.forgotPassword(_getRequestData());
+        ? _delegate.forgotUsername(_getRequestData()..withStep(ForgotPasswordStep.INITIATE))
+        : _delegate.forgotPassword(_getRequestData()..withStep(ForgotPasswordStep.INITIATE));
 
     return response.map((event) {
       if(event is Success) {
@@ -77,9 +80,12 @@ class RecoveryViewModel extends ChangeNotifier {
   Stream<Resource<RecoveryResponse>> completeRecovery() {
     return (_recoveryMode == RecoveryMode.USERNAME_RECOVERY)
         ? _delegate.forgotUsername(_getRequestData()..withStep(ForgotPasswordStep.COMPLETE))
-        : _delegate.forgotPassword(_getRequestData()..withStep(ForgotPasswordStep.COMPLETE));
+        : _delegate.completeForgotPassword(_getRequestData()..withStep(ForgotPasswordStep.COMPLETE)).map((event) {
+          if(event is Loading) return Resource.loading(null);
+          if(event is Error<bool>) return Resource.error(err: ServiceError(message: event.message ?? ""), data: null);
+          return Resource.success(RecoveryResponse());
+        });
   }
-
 
   Stream<Resource<RecoveryResponse>> validateOtp() {
     final response = (_recoveryMode == RecoveryMode.USERNAME_RECOVERY)
@@ -97,9 +103,7 @@ class RecoveryViewModel extends ChangeNotifier {
   /// Used for edit device only
   Stream<Resource<OTP>> getOtpForDevice() {
     TriggerOtpRequestBody requestBody = TriggerOtpRequestBody()
-      ..withUsername(UserInstance().getUser()?.username ?? "")
-      ..customerType = "RETAIL"
-      ..withValidationKey(_validationKeyForDevice ?? "");
+      ..withUsername(UserInstance().getUser()?.username ?? "");
 
     final response = _validationDelegate.triggerOtpForEditDevice(requestBody);
     return response.map((event) {
@@ -113,27 +117,24 @@ class RecoveryViewModel extends ChangeNotifier {
     ValidateDeviceSwitchRequestBody requestBody =
         ValidateDeviceSwitchRequestBody()
           ..withUsername(UserInstance().getUser()?.username ?? "")
-          ..customerType = "RETAIL"
-          ..withRequest(AuthenticationRequest()
-            ..userCode = _deviceOtpUserCode
-            ..otp = otpCode
-            ..authenticationType = "OTP")
-          ..withValidationKey(_validationKeyForDevice ?? "");
+          ..withUserCode(_deviceOtpUserCode ?? "")
+          ..withOtp(otpCode);
 
     final response = _validationDelegate.validateEditDeviceOtp(requestBody);
     return response.map((event) {
-      _addDeviceKey = event.data?.validationKey.key;
+      _addDeviceKey = event.data?.validationKey;
       return event;
     });
   }
 
-  Stream<Resource<bool>> editDevice() {
+  Stream<Resource<bool>> registerDevice(String livelinessValidationKey) {
     EditDeviceRequestBody requestBody = EditDeviceRequestBody()
-    ..key = _addDeviceKey
+    ..username = UserInstance().getUser()?.username
+    ..key = livelinessValidationKey
     ..name = _deviceManager.deviceName
     ..deviceId = _deviceManager.deviceId;
 
-    final response = _validationDelegate.editDevice(requestBody);
+    final response = _validationDelegate.registerDevice(requestBody);
     return response.map((event) {
       return event;
     });

@@ -27,8 +27,8 @@ class LoginViewModel with ChangeNotifier {
   late SystemConfigurationServiceDelegate _configurationServiceDelegate;
   late DeviceManager _deviceManager;
 
-  Queue<SecurityFlag>? _securityFlagQueue;
-  Queue<SecurityFlag>? get securityFlagQueue => _securityFlagQueue;
+  // Queue<SecurityFlag>? _securityFlagQueue;
+  // Queue<SecurityFlag>? get securityFlagQueue => _securityFlagQueue;
 
   final List<SystemConfiguration> _systemConfigurations = [];
 
@@ -75,9 +75,6 @@ class LoginViewModel with ChangeNotifier {
     return response.map((event) {
       User? user = event.data;
       if(user == null) return event;
-
-      _securityFlagQueue = user.securityFlags?.requiredFlagToQueue();
-
       return event;
     });
   }

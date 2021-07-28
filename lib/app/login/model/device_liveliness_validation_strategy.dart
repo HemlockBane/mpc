@@ -5,47 +5,36 @@ import 'package:moniepoint_flutter/app/liveliness/model/strategy/liveliness_vali
 import 'package:moniepoint_flutter/app/liveliness/viewmodels/liveliness_verification_viewmodel.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/data/forgot_password_request.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/data/recovery_response.dart';
+import 'package:moniepoint_flutter/app/validation/model/data/validate_answer_response.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 
 
-class RecoveryLivelinessValidationStrategy extends LivelinessValidationStrategy <RecoveryResponse>{
+class DeviceLivelinessValidationStrategy extends LivelinessValidationStrategy<ValidateAnswerResponse>{
 
   final Map<String, dynamic> arguments;
   final LivelinessVerificationViewModel viewModel;
 
-  RecoveryLivelinessValidationStrategy(this.viewModel, this.arguments) : super(viewModel);
+  DeviceLivelinessValidationStrategy(this.viewModel, this.arguments) : super(viewModel);
 
   @override
-  Future<RecoveryResponse?> validate(String firstCapturePath, String motionCapturePath) async {
+  Future<ValidateAnswerResponse?> validate(String firstCapturePath, String motionCapturePath) async {
     final key = arguments["key"];
     final otpValidationKey = arguments["otpValidationKey"];
-    final verificationFor = arguments["verificationFor"] as LivelinessVerificationFor;
 
     final firstCaptureFile = File(firstCapturePath);
     final motionCaptureFile = File(motionCapturePath);
 
-    final request = ForgotPasswordRequest()
-    ..otpValidationKey = otpValidationKey
-    ..step = ForgotPasswordStep.LIVELINESS_CHECK
-    ..livelinessVerificationFor = verificationFor;
-
-    if(verificationFor == LivelinessVerificationFor.USERNAME_RECOVERY) {
-      request.key = key;
-    } else if(verificationFor == LivelinessVerificationFor.PASSWORD_RECOVERY) {
-      request.username = key;
-    }
-
-    final response = viewModel.validateForRecovery(
-        firstCaptureFile, motionCaptureFile, request
+    final response = viewModel.validateLivelinessForRegisterDevice(
+        firstCaptureFile, motionCaptureFile, otpValidationKey, key
     );
 
-    RecoveryResponse? returnValue;
+    ValidateAnswerResponse? returnValue;
 
     await for (var value in response) {
       if(value is Success) {
         returnValue = value.data;
       }
-      if(value is Error<RecoveryResponse>) {
+      if(value is Error<ValidateAnswerResponse>) {
         throw Exception(value.message);
       }
     }

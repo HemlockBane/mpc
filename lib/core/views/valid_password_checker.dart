@@ -42,6 +42,7 @@ class _ValidPasswordChecker extends State<ValidPasswordChecker> with Validators{
     final hasUpperCase = _isValidForKey(passwordErrors, "uppercase");
     final hasSpecialCase = _isValidForKey(passwordErrors, "special");
     final hasNumber = _isValidForKey(passwordErrors, "number");
+    final has8Characters = _isValidForKey(passwordErrors, "8 characters");
 
     print(passwordErrors);
 
@@ -61,21 +62,31 @@ class _ValidPasswordChecker extends State<ValidPasswordChecker> with Validators{
             'Your password should contain:',
             style: TextStyle(color: Colors.textColorBlack, fontWeight: FontWeight.w600, fontSize: 16),
           ),
+          SizedBox(height: 8,),
           ListTile(
+            contentPadding: EdgeInsets.zero,
             leading: CustomCheckBox(onSelect: _defaultFn, isSelected: hasLowerCase),
             title: Text('A lowercase letter (a-z) ', style: hasLowerCase ? validTextStyle : invalidTextStyle,),
           ),
           ListTile(
+            contentPadding: EdgeInsets.zero,
             leading: CustomCheckBox(onSelect: _defaultFn, isSelected: hasUpperCase),
             title: Text('An uppercase letter (A-Z)', style: hasUpperCase ? validTextStyle : invalidTextStyle,),
           ),
           ListTile(
+            contentPadding: EdgeInsets.zero,
             leading: CustomCheckBox(onSelect: _defaultFn, isSelected: hasSpecialCase),
             title: Text('A special character (e.g. !@#\$)', style: hasSpecialCase ? validTextStyle : invalidTextStyle,),
           ),
           ListTile(
+            contentPadding: EdgeInsets.zero,
             leading: CustomCheckBox(onSelect: _defaultFn, isSelected:hasNumber),
             title: Text('A number (1-9) ', style: hasNumber ? validTextStyle : invalidTextStyle,),
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: CustomCheckBox(onSelect: _defaultFn, isSelected:has8Characters),
+            title: Text('8 characters minimum', style: has8Characters ? validTextStyle : invalidTextStyle,),
           )
         ],
       ),

@@ -436,7 +436,6 @@ class Styles {
     );
   }
 
-
 }
 
 

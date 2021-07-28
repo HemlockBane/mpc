@@ -8,7 +8,7 @@ import 'package:moniepoint_flutter/app/login/model/data/user.dart';
 import 'package:moniepoint_flutter/app/login/viewmodels/login_view_model.dart';
 import 'package:moniepoint_flutter/app/login/views/dialogs/login_options.dart';
 import 'package:moniepoint_flutter/app/login/views/dialogs/recover_credentials.dart';
-import 'package:moniepoint_flutter/app/login/views/dialogs/unrecognized_device_dialog.dart';
+import 'package:moniepoint_flutter/app/login/views/recovery/recovery_controller_screen.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_icons2_icons.dart';
@@ -24,6 +24,8 @@ import 'package:moniepoint_flutter/core/utils/call_utils.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/views/otp_ussd_info_view.dart';
 import 'package:provider/provider.dart';
+
+import 'dialogs/add_device_dialog.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -265,7 +267,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
                     alignment: alignmentLogoAnimation.value,
                     child: Container(
                       child: Lottie.asset(
-                        "res/drawables/spinner_lottie.json",
+                        "res/drawables/progress_bar_lottie.json",
                         fit: BoxFit.contain,
                         height: 30,
                         width: 30,
@@ -460,7 +462,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
       PreferenceUtil.setLoginMode(LoginMode.FULL_ACCESS);
       PreferenceUtil.saveLoggedInUser(event.data!);
       PreferenceUtil.saveUsername(event.data?.username ?? "");
-      checkSecurityFlags();
+      checkSecurityFlags(event.data!);
     }
   }
 
@@ -468,17 +470,24 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
     Navigator.popAndPushNamed(context, Routes.DASHBOARD);
   }
 
-  void checkSecurityFlags() {
-    final viewModel = Provider.of<LoginViewModel>(context, listen: false);
-    var flag = viewModel.securityFlagQueue;
-    if (flag?.isEmpty == true) return loginSuccessfully();
-    var queue = flag?.removeFirst();
-
-    if (queue == SecurityFlag.ADD_DEVICE) {
-      showModalBottomSheet(
-          context: context,
-          backgroundColor: Colors.transparent,
-          builder: (b) => UnRecognizedDeviceDialog(() => checkSecurityFlags()));
+  void checkSecurityFlags(User user) {
+    if(user.registerDevice == true) {
+        showModalBottomSheet(
+            context: context,
+            backgroundColor: Colors.transparent,
+            builder: (b) => BottomSheets.displayInfoDialog(
+                context,
+                message: "Your login was successful, but this device is not recognized.",
+                title: "Device not recognized",
+                primaryButtonText: "Register Device",
+                secondaryButtonText: "Dismiss",
+                onPrimaryClick: () async {
+                  Navigator.of(context).popAndPushNamed(Routes.ACCOUNT_RECOVERY, arguments: RecoveryMode.DEVICE);
+                }
+            )
+        );
+    } else {
+      loginSuccessfully();
     }
   }
 
@@ -508,10 +517,11 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
         context: context,
         backgroundColor: Colors.transparent,
         builder: (context) {
-          return BottomSheets.makeAppBottomSheet(
+          return BottomSheets.makeAppBottomSheet2(
               height: 420,
-              centerImageRes: 'res/drawables/ic_key.svg',
+              dialogIcon: SvgPicture.asset('res/drawables/ic_info_italic.svg', color: Colors.primaryColor, width: 40, height: 40,),
               centerImageBackgroundColor: Colors.primaryColor.withOpacity(0.1),
+              centerBackgroundPadding :15,
               content: RecoverCredentialsDialogLayout.getLayout(context));
         });
   }
@@ -618,8 +628,8 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
 
   Widget  _bottomUSSDWidget() {
     Tuple<String, String> codes = OtpUssdInfoView.getUSSDDialingCodeAndPreview(
-        "Main Menu",
-        defaultCode: "*5573#");
+        "Main Menu", defaultCode: "*5573#"
+    );
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -741,7 +751,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
     final top = MediaQuery.of(context).padding.top;
     final minHeight = MediaQuery.of(context).size.height;
 
-    Provider.of<LoginViewModel>(context, listen: false);
+    // Provider.of<LoginViewModel>(context, listen: false);
 
     final sessionReason = ModalRoute.of(context)!.settings.arguments
         as Tuple<String, SessionTimeoutReason>?;
@@ -768,7 +778,8 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
                       Expanded(
                         child: Container(
                           padding: EdgeInsets.only(
-                              left: 0, right: 0, top: 34, bottom: 0),
+                              left: 0, right: 0, top: 34, bottom: 0
+                          ),
                           child: _buildMidSection(context),
                         ),
                       ),

@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart' hide Colors;
+import 'package:flutter/services.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
@@ -18,6 +20,8 @@ import 'package:moniepoint_flutter/core/utils/call_utils.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
+import 'dart:ui' as ui;
+
 class BranchScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _BranchScreen();
@@ -28,7 +32,8 @@ class _BranchScreen extends State<BranchScreen> {
   Position? _lastLocation;
   Set<Marker> _displayAbleMarkers = {};
   double currentZoom = 10.4;
-  BitmapDescriptor? pinLocationIcon;
+  BitmapDescriptor? locationMarkerIcon;
+  BitmapDescriptor? fadedMarkerIcon;
 
   late SelectedLocation selectedLocation;
 
@@ -45,10 +50,24 @@ class _BranchScreen extends State<BranchScreen> {
     setCustomMapPin();
   }
 
+  Future<Uint8List> getBytesFromAsset(String path, int width) async {
+    ByteData data = await rootBundle.load(path);
+    ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(),
+        targetWidth: width);
+    ui.FrameInfo fi = await codec.getNextFrame();
+    return (await fi.image.toByteData(format: ui.ImageByteFormat.png))!
+        .buffer
+        .asUint8List();
+  }
+
   void setCustomMapPin() async {
-    pinLocationIcon = await BitmapDescriptor.fromAssetImage(
-        ImageConfiguration(devicePixelRatio: 3),
-        "res/drawables/ic_location_marker.png");
+    final Uint8List markerIconBytes =
+        await getBytesFromAsset('res/drawables/ic_location_marker.png', 100);
+    locationMarkerIcon = BitmapDescriptor.fromBytes(markerIconBytes);
+
+    final Uint8List fadedMarkerIconBytes = await getBytesFromAsset(
+        'res/drawables/ic_location_marker_faded.png', 100);
+    fadedMarkerIcon = BitmapDescriptor.fromBytes(fadedMarkerIconBytes);
   }
 
   Future<Position?> _fetchLastLocation() async {
@@ -58,6 +77,14 @@ class _BranchScreen extends State<BranchScreen> {
     if (_lastLocation != null) {
       _lastLocation = await Geolocator.getCurrentPosition();
     }
+
+    final sLocation = SelectedLocation(
+      location:
+          LatLng(_lastLocation?.latitude ?? 0, _lastLocation?.longitude ?? 0),
+    );
+
+    updateSelectedLocation(sLocation);
+
     return _lastLocation;
   }
 
@@ -80,8 +107,6 @@ class _BranchScreen extends State<BranchScreen> {
         final location =
             LatLng(_lastLocation?.latitude ?? 0, _lastLocation?.longitude ?? 0);
         if (selectedLocation.isCurrentLocation(location)) {
-          print("length");
-          print(branches.length);
           showCloseBranchesBottomSheet(branches);
         }
       }
@@ -127,31 +152,38 @@ class _BranchScreen extends State<BranchScreen> {
       final branchLocation = LatLng(double.parse(location.latitude ?? "0"),
           double.parse(location.longitude ?? "0"));
 
-      _displayAbleMarkers.add(
-        Marker(
-            markerId: MarkerId(branchInfo.id.toString()),
-            position: branchLocation,
-            infoWindow: InfoWindow(title: branchInfo.name),
-            icon: selectedLocation.isSelectedBranchPosition(branchLocation)
-                ? BitmapDescriptor.defaultMarker
-                : BitmapDescriptor.defaultMarkerWithHue(60.0),
-            onTap: () {
-              final sLocation = SelectedLocation(
-                location:
-                    LatLng(branchLocation.latitude, branchLocation.longitude),
-                branchInfo: branchInfo,
-              );
+      final markerIcon = selectedLocation.isCurrentLocation(LatLng(
+              _lastLocation?.latitude ?? 0, _lastLocation?.longitude ?? 0))
+          ? locationMarkerIcon!
+          : selectedLocation.isSelectedBranchPosition(branchLocation)
+              ? locationMarkerIcon!
+              : fadedMarkerIcon!;
 
-              final isSelectedMarker =
-                  selectedLocation.isSelectedBranchPosition(branchLocation);
-              print("before - isSelected: $isSelectedMarker");
+      final marker = Marker(
+        markerId: MarkerId(branchInfo.id.toString()),
+        position: branchLocation,
+        infoWindow: InfoWindow(title: branchInfo.name),
+        icon: markerIcon,
+        onTap: () {
+          final sLocation = SelectedLocation(
+            location: LatLng(branchLocation.latitude, branchLocation.longitude),
+            branchInfo: branchInfo,
+          );
 
-              if (!isSelectedMarker) {
-                updateSelectedLocation(sLocation);
-                showBranchInfoBottomSheet(branchInfo);
-              }
-            }),
+          final isSelectedMarker =
+              selectedLocation.isSelectedBranchPosition(branchLocation);
+          // print(
+          //     "before - isSelected: ${selectedLocation.isSelectedBranchPosition(sLocation.location)}");
+          // print(selectedLocation.branchInfo?.name);
+
+          if (!isSelectedMarker) {
+            updateSelectedLocation(sLocation);
+            showBranchInfoBottomSheet(branchInfo);
+          }
+        },
       );
+
+      _displayAbleMarkers.add(marker);
       return true;
     }
     return false;
@@ -161,8 +193,9 @@ class _BranchScreen extends State<BranchScreen> {
     setState(() {
       selectedLocation = sLocation;
     });
-    print(
-        "after - isSelected: ${selectedLocation.isSelectedBranchPosition(sLocation.location)}");
+    // print(
+    //     "after - isSelected: ${selectedLocation.isSelectedBranchPosition(sLocation.location)}");
+    // print(selectedLocation.branchInfo?.name);
   }
 
   Future<bool> _checkLocationPermission() async {
@@ -263,7 +296,7 @@ class _BranchScreen extends State<BranchScreen> {
               ),
             ),
             Container(
-              height: 250,
+              height: 230,
               child: ListView.separated(
                 padding: EdgeInsets.zero,
                 shrinkWrap: true,

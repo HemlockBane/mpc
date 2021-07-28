@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/app/login/viewmodels/recovery_view_model.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
@@ -14,8 +15,9 @@ import 'package:provider/provider.dart';
 
 class AddDeviceDialog extends StatefulWidget {
   late final GlobalKey<ScaffoldState> _scaffoldKey;
+  late final String livelinessValidationKey;
 
-  AddDeviceDialog(this._scaffoldKey);
+  AddDeviceDialog(this._scaffoldKey, this.livelinessValidationKey);
 
   @override
   State<StatefulWidget> createState() {
@@ -29,7 +31,7 @@ class _AddDeviceDialog extends State<AddDeviceDialog> {
 
   void _subscribeToAddDevice() {
     final viewModel = Provider.of<RecoveryViewModel>(context, listen: false);
-    viewModel.editDevice().listen((event) {
+    viewModel.registerDevice(widget.livelinessValidationKey).listen((event) {
       if(event is Loading) setState(() => _isLoading = true);
       if (event is Error<bool>) {
         setState(() => _isLoading = false);
@@ -43,78 +45,56 @@ class _AddDeviceDialog extends State<AddDeviceDialog> {
       }
       if(event is Success<bool>) {
         setState(() => _isLoading = false);
-        Navigator.pop(context);
-        Navigator.of(widget._scaffoldKey.currentContext ?? context).pop(Routes.DASHBOARD);
+        Navigator.of(context).pop();
+        Navigator.of(widget._scaffoldKey.currentContext ?? context)
+            .popAndPushNamed(Routes.DASHBOARD);
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    bool isAddDevice = UserInstance().getUser()?.securityFlags?.addDevice ?? false;
-
-    return BottomSheets.makeAppBottomSheet(
+    return BottomSheets.makeAppBottomSheet2(
         curveBackgroundColor: Colors.white,
-        centerImageBackgroundColor: Colors.primaryColor.withOpacity(0.1),
+        centerImageBackgroundColor: Colors.solidGreen.withOpacity(0.1),
         contentBackgroundColor: Colors.white,
-        centerImageRes: 'res/drawables/ic_edit_device.svg',
+        centerBackgroundPadding: 12,
+        dialogIcon: SvgPicture.asset('res/drawables/ic_circular_check_mark.svg', color: Colors.solidGreen, width: 40, height: 40,),
         content: Wrap(
           children: [
             Container(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               child: Column(
                 children: [
-                  Text('Register Device',
+                  Text('Device Registered',
                       style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.darkBlue)),
+                          color: Colors.textColorBlack)),
                   SizedBox(height: 16),
                   Container(
                     width: double.infinity,
                     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 24),
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(Radius.circular(8)),
-                        color: Colors.primaryColor.withOpacity(0.1)),
-                    child: Text('Your account has been validated successfully. Do you want to permanently add this device to your current device(s)?',
+                        color: Colors.solidGreen.withOpacity(0.1)),
+                    child: Text('Your device has been validated and registered successfully.',
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.normal,
-                            color: Colors.darkBlue),
-                        textAlign: TextAlign.center),
+                            color: Colors.darkBlue
+                        ),
+                        textAlign: TextAlign.center
+                    ),
                   ),
                   SizedBox(height: 24),
-                  Stack(
-                    children: [
-                      SizedBox(
-                          width: double.infinity,
-                          child: Styles.appButton(
-                            elevation: 0.5,
-                            onClick: _isLoading ? null :_subscribeToAddDevice,
-                            text: isAddDevice ? 'Yes, add device' : 'Yes, change device',
-                          )),
-                      Positioned(
-                          right: 16,
-                          top: 16,
-                          bottom: 16,
-                          child: _isLoading
-                              ? SpinKitThreeBounce(size: 20.0, color: Colors.white.withOpacity(0.5))
-                              : SizedBox())
-                    ],
-                  ),
-                  SizedBox(height: 32),
-                  TextButton(
-                      onPressed: () {
-                        PreferenceUtil.setLoginMode(LoginMode.ONE_TIME);
-                        Navigator.pop(context);
-                        Navigator.of(widget._scaffoldKey.currentContext ?? context).pop(Routes.DASHBOARD);
-                      },
-                      child: Text(
-                        'No, one-time login',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.primaryColor)
-                      )
+                  Styles.statefulButton2(
+                      isValid: true,
+                      isLoading: _isLoading,
+                      onClick: _subscribeToAddDevice,
+                      text: 'Go to Login'
                   ),
                   SizedBox(height: 32)
                 ],

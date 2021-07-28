@@ -14,7 +14,8 @@ EditDeviceRequestBody _$EditDeviceRequestBodyFromJson(
     ..name = json['name'] as String?
     ..type = json['type'] as String?
     ..imei = json['imei'] as String?
-    ..key = json['key'] as String?;
+    ..key = json['livelinessValidationKey'] as String?
+    ..username = json['username'] as String?;
 }
 
 Map<String, dynamic> _$EditDeviceRequestBodyToJson(
@@ -25,5 +26,6 @@ Map<String, dynamic> _$EditDeviceRequestBodyToJson(
       'name': instance.name,
       'type': instance.type,
       'imei': instance.imei,
-      'key': instance.key,
+      'livelinessValidationKey': instance.key,
+      'username': instance.username,
     };

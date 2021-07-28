@@ -14,9 +14,12 @@ import 'package:moniepoint_flutter/core/strings.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/call_utils.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
+import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/validators.dart';
 import 'package:moniepoint_flutter/core/views/custom_check_box.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
+import 'package:moniepoint_flutter/core/views/valid_password_checker.dart';
 import 'package:path/path.dart' hide context;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -45,6 +48,7 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
   bool _isUssdVisible  = false;
   bool _isLoading = false;
   bool _isSignatureEnabled = false;
+  bool _displayPasswordStrength = false;
 
   final SignatureController _signatureController = SignatureController(penStrokeWidth: 2, penColor: Colors.darkBlue);
   final TextEditingController _passwordController = TextEditingController();
@@ -84,31 +88,33 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
     );
   }
 
-  void handleCreationResponse<T>(Resource<T> resource) {
+  void handleCreationResponse<T>(Resource<T> resource) async {
     final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
-    if(resource is Success<T>){
+    if(resource is Success<T>) {
       setState(() => _isLoading = false);
-      showModalBottomSheet(
-          context: _scaffoldKey.currentContext ?? context,
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-          builder: (context) {
-            final message = (viewModel.onBoardingType == OnBoardingType.ACCOUNT_DOES_NOT_EXIST)
-                ? "Account Created Successfully"
-                : "Profile Created Successfully";
-            return BottomSheets.displaySuccessModal(context, title:"Success", message: message, onClick: (){
-              Navigator.pushNamedAndRemoveUntil(context, Routes.LOGIN, (route) => false);
-            });
-          });
+
+      final message = (viewModel.onBoardingType == OnBoardingType.ACCOUNT_DOES_NOT_EXIST)
+          ? "Your account has been created successfully, login now with your credentials."
+          : "Your profile has been created successfully, login now with your credentials.";
+      await showSuccess(
+          widget._scaffoldKey.currentContext ?? context,
+          title: "Profile Created Successfully",
+          message: message,
+          useText: false,
+          primaryButtonText: "Proceed to Login",
+          onPrimaryClick: () {
+            Navigator.of(context).pop(true);
+            PreferenceUtil.saveUsername(viewModel.profileForm.profile.username ?? "");
+            Navigator.pushNamedAndRemoveUntil(_scaffoldKey.currentContext!, Routes.LOGIN, (route) => false);
+          }
+      );
     } else if(resource is Error<T>) {
-      showModalBottomSheet(
-          context: _scaffoldKey.currentContext ?? context,
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-          builder: (context) {
-            return BottomSheets.displayErrorModal(context, message: resource.message);
-          });
       setState(() => _isLoading = false);
+      showError(
+          widget._scaffoldKey.currentContext ?? context,
+          message: resource.message,
+          primaryButtonText: "Try Again?"
+      );
     }
     else if (resource is Loading){
       setState(() => _isLoading = true);
@@ -131,75 +137,6 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
     /*do nothing*/
   }
 
-  bool _isValidForKey(List<String>? passwordErrors, String key) {
-    if(passwordErrors == null) return true;
-    var isValid = true;
-
-    passwordErrors.forEach((element) {
-      if(element.toLowerCase().contains(key)) {
-        isValid = false;
-      }
-    });
-
-    return isValid;
-  }
-
-  //TODO move this to a separate widget
-  Widget passwordValidChecker(String password) {
-    final passwordErrors = validatePasswordWithMessage(password).second;
-
-    final hasLowerCase = _isValidForKey(passwordErrors, "valid password");
-    final hasUpperCase = _isValidForKey(passwordErrors, "uppercase");
-    final hasSpecialCase = _isValidForKey(passwordErrors, "special");
-    final hasNumber = _isValidForKey(passwordErrors, "number");
-    final has8Characters = _isValidForKey(passwordErrors, "8 characters");
-
-    final validTextStyle = TextStyle(color: Colors.textColorBlack, fontSize: 14);
-    final invalidTextStyle = TextStyle(color: Color(0XFF9B9B9B), fontSize: 14);
-    return Container(
-      padding: EdgeInsets.all(21),
-      decoration: BoxDecoration(
-          color: Colors.primaryColor.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8)
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Your password should contain:',
-            style: TextStyle(color: Colors.textColorBlack, fontWeight: FontWeight.w600, fontSize: 16),
-          ),
-          SizedBox(height: 8,),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: CustomCheckBox(onSelect: _defaultFn, isSelected: hasLowerCase),
-            title: Text('A lowercase letter (a-z) ', style: hasLowerCase ? validTextStyle : invalidTextStyle,),
-          ),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: CustomCheckBox(onSelect: _defaultFn, isSelected: hasUpperCase),
-            title: Text('An uppercase letter (A-Z)', style: hasUpperCase ? validTextStyle : invalidTextStyle,),
-          ),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: CustomCheckBox(onSelect: _defaultFn, isSelected: hasSpecialCase),
-            title: Text('A special character (e.g. !@#\$)', style: hasSpecialCase ? validTextStyle : invalidTextStyle,),
-          ),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: CustomCheckBox(onSelect: _defaultFn, isSelected:hasNumber),
-            title: Text('A number (1-9) ', style: hasNumber ? validTextStyle : invalidTextStyle,),
-          ),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: CustomCheckBox(onSelect: _defaultFn, isSelected:has8Characters),
-            title: Text('8 characters minimum', style: has8Characters ? validTextStyle : invalidTextStyle,),
-          )
-        ],
-      ),
-    );
-  }
-
   @override
   void initState() {
     final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
@@ -207,6 +144,11 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
     _signatureController.addListener(() {
       setState(() {});
       viewModel.profileForm.setHasSignature(_signatureController.isNotEmpty);
+    });
+
+    Future.delayed(Duration(milliseconds: 500), () {
+      viewModel.profileForm.setHasSignature(false);
+      viewModel.profileForm.onEnableUssd(true);
     });
   }
 
@@ -445,6 +387,7 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
                 builder: (context, snapshot) {
                   return Styles.appEditText(
                     hint: 'Email Address',
+                    inputType: TextInputType.emailAddress,
                     onChanged: viewModel.profileForm.onEmailChanged,
                     errorText: snapshot.hasError ? snapshot.error.toString() : null,
                     animateHint: true,
@@ -454,25 +397,32 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
                 ),
         ),
         SizedBox(height: 24),
-        StreamBuilder(
-            stream: viewModel.profileForm.passwordStream,
-            builder: (context, AsyncSnapshot<String?> snapshot) {
-              return Column(
-                children: [
-                  Styles.appEditText(
-                      hint: 'Password',
-                      controller: _passwordController,
-                      onChanged: viewModel.profileForm.onPasswordChanged,
-                      animateHint: true,
-                      drawablePadding: EdgeInsets.only(left: 4, right: 4),
-                      endIcon: getPasswordToggleIcon(context),
-                      isPassword: !_isPasswordVisible
-                  ),
-                  SizedBox(height: 24,),
-                  passwordValidChecker(_passwordController.text)
-                ],
-              );
-            }),
+        Focus(
+            onFocusChange: (v) {
+              _displayPasswordStrength = v;
+              viewModel.profileForm.onPasswordChanged(_passwordController.text);
+            },
+            child: StreamBuilder(
+                stream: viewModel.profileForm.passwordStream,
+                builder: (context, AsyncSnapshot<String?> snapshot) {
+                  return Column(
+                    children: [
+                      Styles.appEditText(
+                          hint: 'Password',
+                          controller: _passwordController,
+                          onChanged: viewModel.profileForm.onPasswordChanged,
+                          animateHint: true,
+                          drawablePadding: EdgeInsets.only(left: 4, right: 4),
+                          endIcon: getPasswordToggleIcon(context),
+                          isPassword: !_isPasswordVisible
+                      ),
+                      if(_displayPasswordStrength) SizedBox(height: 24,),
+                      if(_displayPasswordStrength) ValidPasswordChecker(_passwordController.text)
+                    ],
+                  );
+                }
+            )
+        ),
         SizedBox(height: 24),
         StreamBuilder(
             stream: viewModel.profileForm.pinInputStream,

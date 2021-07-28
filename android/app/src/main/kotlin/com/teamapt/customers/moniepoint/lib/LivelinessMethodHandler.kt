@@ -140,6 +140,22 @@ class LivelinessMethodHandler(
                             )
                     )
                 }
+                is ImageOverExposed -> {
+                    eventSink?.success(
+                        hashMapOf<String?, Any?>(
+                            "event_type" to cameraMotionEvent.eventName,
+                            "file_path" to cameraMotionEvent.exposure
+                        )
+                    )
+                }
+                is ImageUnderExposed -> {
+                    eventSink?.success(
+                        hashMapOf<String?, Any?>(
+                            "event_type" to cameraMotionEvent.eventName,
+                            "file_path" to cameraMotionEvent.exposure
+                        )
+                    )
+                }
                 else -> {
                     eventSink?.success(
                             hashMapOf<String?, Any?>(

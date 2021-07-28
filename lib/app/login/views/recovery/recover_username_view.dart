@@ -46,12 +46,13 @@ class _RecoverUsernameScreen extends State<RecoverUsernameScreen> {
       }
       if (event is Success<RecoveryResponse>) {
         setState(() => _isLoading = false);
-        Navigator.of(context).pushNamed("security_question");
+        Navigator.of(context).pushNamed(RecoveryControllerScreen.RECOVERY_OTP);
       }
     });
   }
 
-  void _navigateToUseBVN() {
+  void _navigateToUseBVN(RecoveryViewModel viewModel) {
+    viewModel.userRecoveryForm.reset();
     Navigator.of(context).popAndPushNamed(RecoveryControllerScreen.USERNAME_BVN_SCREEN);
   }
 
@@ -95,7 +96,7 @@ class _RecoverUsernameScreen extends State<RecoverUsernameScreen> {
                           fontWeight: FontWeight.normal)),
                   SizedBox(height: 46),
                   StreamBuilder(
-                    stream: viewModel.userRecoveryForm.accountNumberStream,
+                    stream: viewModel.userRecoveryForm.keyInputStream,
                     builder: (context, snapshot) {
                       return Styles.appEditText(
                           hint: 'Account Number',
@@ -108,7 +109,7 @@ class _RecoverUsernameScreen extends State<RecoverUsernameScreen> {
                           errorText: snapshot.hasError
                               ? snapshot.error.toString()
                               : null,
-                          startIcon: Icon(CustomFont.bankIcon, color: Colors.textFieldIcon.withOpacity(0.2))
+                          startIcon: Icon(CustomFont.bankNumberInput, color: Colors.textFieldIcon.withOpacity(0.2))
                       );
                     },
                   ),
@@ -120,7 +121,7 @@ class _RecoverUsernameScreen extends State<RecoverUsernameScreen> {
                       textAlign: TextAlign.right,
                       style: TextStyle(color: Colors.textColorBlack, fontSize: 15, fontFamily: Styles.defaultFont, height: 1.4),
                     ).colorText({
-                      "Use BVN instead": Tuple(Colors.primaryColor, _navigateToUseBVN)
+                      "Use BVN instead": Tuple(Colors.primaryColor, () => _navigateToUseBVN(viewModel))
                     }, underline: false),
                   ),
                   SizedBox(height: 100),

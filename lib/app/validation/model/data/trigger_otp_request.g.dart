@@ -15,9 +15,17 @@ TriggerOtpRequestBody _$TriggerOtpRequestBodyFromJson(
 }
 
 Map<String, dynamic> _$TriggerOtpRequestBodyToJson(
-        TriggerOtpRequestBody instance) =>
-    <String, dynamic>{
-      'username': instance.username,
-      'customerType': instance.customerType,
-      'validationKey': instance.validationKey,
-    };
+    TriggerOtpRequestBody instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('username', instance.username);
+  writeNotNull('customerType', instance.customerType);
+  writeNotNull('validationKey', instance.validationKey);
+  return val;
+}

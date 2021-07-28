@@ -9,18 +9,29 @@ part of 'validate_answer_response.dart';
 ValidateAnswerResponse _$ValidateAnswerResponseFromJson(
     Map<String, dynamic> json) {
   return ValidateAnswerResponse(
-    (json['userCustomerTypes'] as List<dynamic>?)
+    userCustomerTypes: (json['userCustomerTypes'] as List<dynamic>?)
         ?.map((e) => e as String)
         .toList(),
-    SwitchValidationKey.fromJson(json['validationKey'] as Object),
-    json['accessToken'] as String?,
-  );
+    validationKey: json['validationKey'] as String?,
+    accessToken: json['accessToken'] as String?,
+    livelinessValidationKey: json['livelinessValidationKey'] as String?,
+  )
+    ..livelinessError = json['livelinessError'] == null
+        ? null
+        : LivelinessError.fromJson(
+            json['livelinessError'] as Map<String, dynamic>)
+    ..faceMatchError = json['faceMatchError'] == null
+        ? null
+        : ClientError.fromJson(json['faceMatchError'] as Map<String, dynamic>);
 }
 
 Map<String, dynamic> _$ValidateAnswerResponseToJson(
         ValidateAnswerResponse instance) =>
     <String, dynamic>{
+      'livelinessError': instance.livelinessError,
+      'faceMatchError': instance.faceMatchError,
       'userCustomerTypes': instance.userCustomerTypes,
       'validationKey': instance.validationKey,
       'accessToken': instance.accessToken,
+      'livelinessValidationKey': instance.livelinessValidationKey,
     };

@@ -96,7 +96,7 @@ class BottomSheets {
             Container(
               width: double.infinity,
               margin: EdgeInsets.only(top: 42.5),
-              padding: EdgeInsets.only(top: 43, left: paddingLeft, right: paddingRight, bottom: paddingBottom),
+              padding: EdgeInsets.only(top: 30, left: paddingLeft, right: paddingRight, bottom: paddingBottom),
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(16),
@@ -128,23 +128,18 @@ class BottomSheets {
   }
 
   static Widget displayErrorModal2(BuildContext context,
-      {String title = "Oops", String? message = "",
+      {String title = "Oops! Something went wrong", String? message = "",
         VoidCallback? onPrimaryClick, String primaryButtonText = "Continue",
         String? secondaryButtonText,
-        VoidCallback? onSecondaryClick
+        VoidCallback? onSecondaryClick,
+        bool useTextButton = false
       }) {
     return makeAppBottomSheet2(
-        curveBackgroundColor: Colors.modalRed,
+        curveBackgroundColor: Colors.white,
         centerImageBackgroundColor: Colors.red.withOpacity(0.1),
         contentBackgroundColor: Colors.white,
-        dialogIcon: Container(
-          padding: EdgeInsets.all(4),
-          decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.primaryColor
-          ),
-          child: SvgPicture.asset('res/drawables/ic_info.svg', color: Colors.red,),
-        ),
+        centerBackgroundPadding: 12,
+        dialogIcon: SvgPicture.asset('res/drawables/ic_info.svg', color: Colors.red, width: 40, height: 40,),
         content: Wrap(
           children: [
             Container(
@@ -154,8 +149,8 @@ class BottomSheets {
                   Text(title,
                       style: TextStyle(
                           fontSize: 22,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white)),
+                          fontWeight: FontWeight.bold,
+                          color: Colors.textColorBlack)),
                   SizedBox(height: 16),
                   Container(
                     width: double.infinity,
@@ -169,23 +164,25 @@ class BottomSheets {
                         style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.normal,
-                            color: Colors.white),
+                            color: Colors.textColorBlack
+                        ),
                         textAlign: TextAlign.center),
                   ),
                   SizedBox(height: 21),
-                  SizedBox(
+                  if(!useTextButton) SizedBox(
                       width: double.infinity,
                       child: Styles.appButton(
-                          elevation: 0.5,
+                          elevation: 0.2,
                           onClick: onPrimaryClick ?? () => Navigator.of(context).pop(),
                           text: primaryButtonText,
-                          buttonStyle: Styles.whiteButtonStyle.copyWith(
-                              textStyle: MaterialStateProperty.all(TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: Styles.defaultFont)),
-                              foregroundColor: MaterialStateProperty.all(Colors.primaryColor)))),
+                      )),
+                  if(useTextButton)TextButton(
+                    child: Text(
+                      primaryButtonText,
+                      style: TextStyle(color: Colors.primaryColor, fontSize: 16),
+                    ),
+                    onPressed: onPrimaryClick,
+                  ),
                   SizedBox(height: secondaryButtonText != null ? 32 : 0),
                   Visibility(
                     visible: secondaryButtonText != null,
@@ -195,8 +192,7 @@ class BottomSheets {
                           style: TextStyle(color: Colors.primaryColor, fontSize: 14, fontWeight: FontWeight.bold)
                       )
                   )),
-                  SizedBox(height: 64),
-
+                  SizedBox(height: 32),
                 ],
               ),
             )
@@ -321,6 +317,83 @@ class BottomSheets {
     );
   }
 
+  static Widget displaySuccessModal2(BuildContext context,
+      {String title = "Oops", String? message = "",
+        VoidCallback? onPrimaryClick, String primaryButtonText = "Continue",
+        String? secondaryButtonText,
+        VoidCallback? onSecondaryClick,
+        bool useText = false
+      }) {
+    return makeAppBottomSheet2(
+        curveBackgroundColor: Colors.white,
+        centerImageBackgroundColor: Colors.solidGreen.withOpacity(0.1),
+        contentBackgroundColor: Colors.white,
+        centerBackgroundPadding: 13,
+        dialogIcon: SvgPicture.asset('res/drawables/ic_circular_check_mark.svg', color: Colors.solidGreen, width: 40, height: 40,),
+        content: Wrap(
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              child: Column(
+                children: [
+                  Text(title,
+                      style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.textColorBlack)),
+                  SizedBox(height: 16),
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(8)),
+                        color: Colors.solidGreen.withOpacity(0.1)),
+                    child: Text(message ?? "",
+                        maxLines: 4,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.normal,
+                            color: Colors.textColorBlack),
+                        textAlign: TextAlign.center),
+                  ),
+                  SizedBox(height: 21),
+                  if(useText)TextButton(
+                    child: Text(
+                      primaryButtonText,
+                      style: TextStyle(color: Colors.primaryColor, fontSize: 16),
+                    ),
+                    onPressed: onPrimaryClick,
+                  ),
+                  if(!useText)SizedBox(
+                      width: double.infinity,
+                      child: Styles.appButton(
+                          elevation: 0.5,
+                          onClick: onPrimaryClick ?? () => Navigator.of(context).pop(),
+                          text: primaryButtonText,
+
+                      )
+                  ),
+                  // SizedBox(height: secondaryButtonText != null ? 32 : 0),
+                  // Visibility(
+                  //     visible: secondaryButtonText != null,
+                  //     child: TextButton(
+                  //         onPressed: onSecondaryClick ?? () => Navigator.of(context).pop(),
+                  //         child: Text(secondaryButtonText ?? "",
+                  //             style: TextStyle(color: Colors.primaryColor, fontSize: 14, fontWeight: FontWeight.bold)
+                  //         )
+                  //     )),
+                  SizedBox(height: 32),
+
+                ],
+              ),
+            )
+          ],
+        )
+    );
+  }
+
+
   static Widget displayWarningDialog(String title, String description, VoidCallback onContinue, {String buttonText = "Continue"}) {
     return BottomSheets.makeAppBottomSheet(
         curveBackgroundColor: Colors.solidYellow,
@@ -384,17 +457,18 @@ class BottomSheets {
         centerImageBackgroundColor: Colors.primaryColor.withOpacity(0.1),
         contentBackgroundColor: Colors.white,
         centerBackgroundPadding: 12,
-        dialogIcon: SvgPicture.asset('res/drawables/ic_info.svg', color: Colors.primaryColor, width: 46, height: 46,),
+        dialogIcon: SvgPicture.asset('res/drawables/ic_info_italic.svg', color: Colors.primaryColor, width: 40, height: 40,),
         content: Wrap(
           children: [
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Column(
                 children: [
+                  SizedBox(height: 7,),
                   Text(title,
                       style: TextStyle(
                           fontSize: 22,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.bold,
                           color: Colors.textColorBlack)),
                   SizedBox(height: 16),
                   Container(
@@ -435,7 +509,7 @@ class BottomSheets {
                               style: TextStyle(color: Colors.primaryColor, fontSize: 16, fontWeight: FontWeight.normal)
                           )
                       )),
-                  SizedBox(height: 32),
+                  SizedBox(height: 16),
                 ],
               ),
             )

@@ -5,19 +5,21 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lottie/lottie.dart';
-import 'package:moniepoint_flutter/app/liveliness/liveliness_error.dart';
+import 'package:moniepoint_flutter/app/liveliness/model/data/liveliness_error.dart';
 import 'package:moniepoint_flutter/app/liveliness/liveliness_background_frame.dart';
 import 'package:moniepoint_flutter/app/liveliness/viewmodels/liveliness_verification_viewmodel.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/client_error.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:provider/provider.dart';
 
 import 'liveliness_detector.dart';
 import 'liveliness_verification.dart';
-import 'model/strategy/onboarding_liveliness_validation_strategy.dart';
+import 'model/strategy/liveliness_validation_strategy.dart';
 
+/// @author Paul Okeke
 class LivelinessDetectionGuide extends StatefulWidget {
 
   final Stream<LivelinessMotionEvent> motionEventStream;
@@ -67,7 +69,7 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
   String _previousRemoteError = "";
   LivelinessState _state = LivelinessState.STARTED;
 
-  void _processEvents(LivelinessMotionEvent motionEvent) async{
+  void _processEvents(LivelinessMotionEvent motionEvent) async {
     if(_motionDetectedEvent != null
         || _state == LivelinessState.LOCAL_ERROR
         || _state == LivelinessState.STARTED
@@ -120,28 +122,27 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
 
   void _validateLiveliness() async {
     final viewModel = Provider.of<LivelinessVerificationViewModel>(context, listen: false);
-    switch(widget.verificationFor) {
-      case LivelinessVerificationFor.ON_BOARDING:
-        final validationBehavior = OnboardingLivelinessValidationStrategy(viewModel, widget.arguments);
-        try {
-          _state = LivelinessState.PROCESSING;
-          final response = await validationBehavior.validate(
-              _firstCaptureEvent?.eventData as String,
-              _motionDetectedEvent?.eventData as String
-          );
-          if (response != null) {
-            final isValid = _isLivelinessValid(response.livelinessError, response.faceMatchError);
-            //Send back the response for the caller to handle
-            if(isValid) return Navigator.of(context).pop(response);
-          } else {
-            Navigator.of(context).pop(response);
-          }
-        } catch(e) {
-          FirebaseCrashlytics.instance.recordError(e, StackTrace.current);
-          _state = LivelinessState.REMOTE_ERROR;
-          _showGenericError(e.toString());
-        }
-        break;
+    final validationStrategy = LivelinessValidationStrategy.getInstance(
+        viewModel, widget.verificationFor, widget.arguments
+    );
+
+    try {
+      _state = LivelinessState.PROCESSING;
+      final response = await validationStrategy.validate(
+          _firstCaptureEvent?.eventData as String,
+          _motionDetectedEvent?.eventData as String
+      );
+      if (response != null) {
+        final isValid = _isLivelinessValid(response.livelinessError, response.faceMatchError);
+        //Send back the response for the caller to handle
+        if(isValid) return Navigator.of(context).pop(response);
+      } else {
+        Navigator.of(context).pop(response);
+      }
+    } catch(e) {
+      FirebaseCrashlytics.instance.recordError(e, StackTrace.current);
+      _state = LivelinessState.REMOTE_ERROR;
+      _showGenericError(e.toString());
     }
   }
 
@@ -162,17 +163,15 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
   }
 
   void _showGenericError(String? message) async {
-    await showModalBottomSheet(
-        backgroundColor: Colors.transparent,
-        context: context,
-        builder: (mContext) {
-          return BottomSheets.displayErrorModal(context, message: message, onClick: (){
-            Navigator.of(context).pop();
-            _restartCapture();
-          }, buttonText: "Try Again");
+    final value = await showError(
+        context, message: message,
+        primaryButtonText: "Try Again",
+        onPrimaryClick: (){
+          Navigator.of(context).pop(true);
+          _restartCapture();
         }
     );
-    if(_state == LivelinessState.PROCESSING) {
+    if(value == null) {
       _restartCapture();
     }
   }
@@ -196,6 +195,10 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
         if(_state == LivelinessState.INFO) {
           Future.delayed(Duration(milliseconds: 200), () => _eventAnimationController.forward());
         }
+      } else if(_previousMotionEvent == CameraMotionEvent.ImageOverExposed
+          || _previousMotionEvent == CameraMotionEvent.ImageUnderExposed) {
+        _state = LivelinessState.LOCAL_ERROR;
+        widget.callback.pauseDetection().then((value) => "");
       }
     });
   }
@@ -204,7 +207,6 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
     super.initState();
     _controller = AnimationController(vsync: this, duration: Duration(seconds: 2))..repeat();
     _livelinessEventNotifier = ValueNotifier(LivelinessMotionEvent.none());
-
   }
 
   String _getEventInfoMessage(LivelinessMotionEvent motionEvent) {
@@ -221,7 +223,7 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
     final infoMessage = _getEventInfoMessage(motionEvent);
     if(infoMessage.isEmpty) return SizedBox();
     return Container(
-      padding: infoMessage.isEmpty ? EdgeInsets.all(8) : EdgeInsets.only(left: 8, top: 3, bottom: 3, right: 8),
+      padding: infoMessage.isEmpty ? EdgeInsets.all(8) : EdgeInsets.only(left: 8, top: 3, bottom: 3, right: 16),
       decoration: BoxDecoration(
           borderRadius: infoMessage.isEmpty ? null : BorderRadius.circular(120),
           color: Colors.white,
@@ -266,6 +268,12 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
     }
     if(_previousMotionEvent == CameraMotionEvent.NoMotionDetectedEvent) {
         return "No Motion Detected";
+    }
+    if(_previousMotionEvent == CameraMotionEvent.ImageOverExposed) {
+      return "Image is too bright";
+    }
+    if(_previousMotionEvent == CameraMotionEvent.ImageUnderExposed) {
+      return "Image is too dark";
     }
     return "";
   }
@@ -368,6 +376,15 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
     widget.callback.beginCapture();
   }
 
+  bool _shouldEnableCapture(CameraMotionEvent event) {
+    if(event == CameraMotionEvent.FaceDetectedEvent
+    || event == CameraMotionEvent.ImageOverExposed
+    || event == CameraMotionEvent.ImageUnderExposed){
+      return true;
+    }
+    return false;
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -418,10 +435,10 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
                               Visibility(
                                   visible: _state == LivelinessState.STARTED,
                                   child: Opacity(//TODO change this opacity widget it's expensive here
-                                      opacity: liveMotionEvent.eventType == CameraMotionEvent.FaceDetectedEvent ? 1 : 0.5,
+                                      opacity: _shouldEnableCapture(liveMotionEvent.eventType) ? 1 : 0.5,
                                       child: Styles.appButton(
                                           key: Key("capture-btn"),
-                                          onClick: liveMotionEvent.eventType == CameraMotionEvent.FaceDetectedEvent ? () => _beginLivelinessCapture() : null,
+                                          onClick: _shouldEnableCapture(liveMotionEvent.eventType) ? () => _beginLivelinessCapture() : null,
                                           text:  "Begin Capture",
                                           icon: SvgPicture.asset('res/drawables/ic_face_match_camera.svg', color: Colors.primaryColor, width: 20, height: 20,),
                                           buttonStyle: Styles.whiteButtonStyle,

@@ -1,19 +1,19 @@
 import 'package:json_annotation/json_annotation.dart';
-
-import 'package:moniepoint_flutter/app/onboarding/model/data/otp.dart';
-import 'package:moniepoint_flutter/app/securityquestion/model/data/security_question.dart';
+import 'package:moniepoint_flutter/app/liveliness/model/data/liveliness_validation_response.dart';
+import 'package:moniepoint_flutter/app/liveliness/model/data/liveliness_error.dart';
+import 'package:moniepoint_flutter/core/network/client_error.dart';
 
 part 'recovery_response.g.dart';
 
 @JsonSerializable()
-class RecoveryResponse {
-  OTP? activation;
-  SecurityQuestion? securityQuestion;
-  OTP? otp;
-  String? key;
-  bool? success;
+class RecoveryResponse extends LivelinessValidationResponse{
+  String? notificationServiceResponseCode;
+  String? otpValidationKey;
+  String? userCode;
+  String? username;
+  String? livelinessCheckRef;
 
-  RecoveryResponse();
+  RecoveryResponse() : super();
 
   factory RecoveryResponse.fromJson(Object? data) => _$RecoveryResponseFromJson(data as Map<String, dynamic>);
   Map<String, dynamic> toJson() => _$RecoveryResponseToJson(this);

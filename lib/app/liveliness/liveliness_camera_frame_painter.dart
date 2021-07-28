@@ -36,18 +36,17 @@ class LivelinessCameraFrame extends CustomPainter {
   }
 
   Color _getFrameColor(LivelinessMotionEvent liveMotionEvent) {
-    if(liveMotionEvent.eventType == CameraMotionEvent.NoFaceDetectedEvent) {
+    if(liveMotionEvent.eventType == CameraMotionEvent.NoFaceDetectedEvent
+    || liveMotionEvent.eventType == CameraMotionEvent.FaceOutOfBoundsEvent) {
       return Colors.red;
     }
 
     if(liveMotionEvent.eventType == CameraMotionEvent.FaceDetectedEvent
         || liveMotionEvent.eventType == CameraMotionEvent.NoMotionDetectedEvent
-        || liveMotionEvent.eventType == CameraMotionEvent.MotionDetectedEvent) {
+        || liveMotionEvent.eventType == CameraMotionEvent.MotionDetectedEvent
+        || liveMotionEvent.eventType == CameraMotionEvent.ImageUnderExposed
+        || liveMotionEvent.eventType == CameraMotionEvent.ImageOverExposed ) {
       return Colors.solidGreen;
-    }
-
-    if(liveMotionEvent.eventType == CameraMotionEvent.FaceOutOfBoundsEvent) {
-      return Colors.solidDarkYellow;
     }
 
     return Colors.grey.withOpacity(0.1);

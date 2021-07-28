@@ -2,9 +2,16 @@ import 'package:flutter/material.dart' hide ScrollView, Colors;
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 
 class UsernameDisplayScreen extends StatefulWidget {
+
+  final String username;
+  late final GlobalKey<ScaffoldState> _scaffoldKey;
+
+  UsernameDisplayScreen(this._scaffoldKey, this.username);
+
   @override
   State<StatefulWidget> createState() => _UsernameDisplayScreen();
 }
@@ -63,7 +70,7 @@ class _UsernameDisplayScreen extends State<UsernameDisplayScreen> {
                                     ),
                                     SizedBox(height: 4,),
                                     Text(
-                                        'bodetomas4life',
+                                        '${widget.username}',
                                         style: TextStyle(
                                             color: Colors.textColorBlack,
                                             fontSize: 19,
@@ -79,7 +86,11 @@ class _UsernameDisplayScreen extends State<UsernameDisplayScreen> {
                                 highlightColor: Colors.primaryColor.withOpacity(0.1),
                                 overlayColor: MaterialStateProperty.all(Colors.primaryColor.withOpacity(0.2)),
                                 borderRadius: BorderRadius.circular(4),
-                                onTap: () => Clipboard.setData(ClipboardData(text: "{username}")),
+                                onTap: () {
+                                  Clipboard.setData(ClipboardData(text: "${widget.username}"));
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(SnackBar(content: Text('Username Copied')));
+                                },
                                 child: Container(
                                   padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                   child:   SvgPicture.asset('res/drawables/ic_copy_full.svg', width: 30, height: 30,)
@@ -94,7 +105,8 @@ class _UsernameDisplayScreen extends State<UsernameDisplayScreen> {
                         SizedBox(height: 4,),
                         TextButton(
                             onPressed: () {
-                              print("Proceed to Login.....");
+                              Navigator.of(widget._scaffoldKey.currentContext ?? context)
+                                  .popAndPushNamed(Routes.LOGIN);
                             },
                             child: Text('Proceed to Login', style: TextStyle(color: Colors.primaryColor),)
                         )

@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/data/change_password_request_body.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/data/change_pin_request_body.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/data/finger_print_auth_request_body.dart';
@@ -16,17 +19,55 @@ class UserManagementServiceDelegate with NetworkResource {
     this._service = service;
   }
 
-  Stream<Resource<RecoveryResponse>> forgotUsername(ForgotPasswordRequest requestBody) {
+  Stream<Resource<RecoveryResponse>> forgotUsername(
+      ForgotPasswordRequest requestBody,
+      {File? firstCapture,
+      File? motionCapture}) {
     return networkBoundResource(
         fetchFromLocal: () => Stream.value(null),
-        fetchFromRemote: () => this._service.forgotUsername(requestBody)
+        fetchFromRemote: () {
+          return this._service.forgotUsername(
+              describeEnum(requestBody.step ?? ForgotPasswordStep.INITIATE),
+              requestBody.key,
+              otp: requestBody.otp,
+              userCode: requestBody.otpUserCode,
+              otpValidationKey: requestBody.otpValidationKey,
+              firstCapture: firstCapture,
+              motionCapture: motionCapture);
+        });
+  }
+
+  Stream<Resource<RecoveryResponse>> forgotPassword(ForgotPasswordRequest requestBody, {File? firstCapture,
+    File? motionCapture}) {
+    return networkBoundResource(
+        fetchFromLocal: () => Stream.value(null),
+        fetchFromRemote: () {
+          return this._service.forgotPassword(
+            describeEnum(requestBody.step ?? ForgotPasswordStep.INITIATE),
+            requestBody.username,
+              otp: requestBody.otp,
+              userCode: requestBody.otpUserCode,
+              otpValidationKey: requestBody.otpValidationKey,
+              livelinessCheckRef: requestBody.livelinessCheckRef,
+              password: requestBody.password,
+              firstCapture: firstCapture,
+              motionCapture: motionCapture
+          );
+        }
     );
   }
 
-  Stream<Resource<RecoveryResponse>> forgotPassword(ForgotPasswordRequest requestBody) {
+  Stream<Resource<bool>> completeForgotPassword(ForgotPasswordRequest requestBody) {
     return networkBoundResource(
         fetchFromLocal: () => Stream.value(null),
-        fetchFromRemote: () => this._service.forgotPassword(requestBody)
+        fetchFromRemote: () {
+          return this._service.completeForgotPassword(
+              describeEnum(requestBody.step ?? ForgotPasswordStep.INITIATE),
+              requestBody.username,
+              livelinessCheckRef: requestBody.livelinessCheckRef,
+              password: requestBody.password,
+          );
+        }
     );
   }
 
@@ -64,4 +105,6 @@ class UserManagementServiceDelegate with NetworkResource {
         fetchFromRemote: () => this._service.setFingerprint(requestBody)
     );
   }
+
+
 }

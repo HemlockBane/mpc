@@ -4,7 +4,6 @@ import 'package:flutter/material.dart' hide ScrollView, Colors;
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/file_uuid.dart';
@@ -14,7 +13,6 @@ import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:path/path.dart' hide context;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:provider/provider.dart';
 import 'package:signature/signature.dart';
 
 class SignatureView extends StatefulWidget {

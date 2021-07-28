@@ -8,22 +8,29 @@ part of 'recovery_response.dart';
 
 RecoveryResponse _$RecoveryResponseFromJson(Map<String, dynamic> json) {
   return RecoveryResponse()
-    ..activation = json['activation'] == null
+    ..livelinessError = json['livelinessError'] == null
         ? null
-        : OTP.fromJson(json['activation'] as Object)
-    ..securityQuestion = json['securityQuestion'] == null
+        : LivelinessError.fromJson(
+            json['livelinessError'] as Map<String, dynamic>)
+    ..faceMatchError = json['faceMatchError'] == null
         ? null
-        : SecurityQuestion.fromJson(json['securityQuestion'] as Object)
-    ..otp = json['otp'] == null ? null : OTP.fromJson(json['otp'] as Object)
-    ..key = json['key'] as String?
-    ..success = json['success'] as bool?;
+        : ClientError.fromJson(json['faceMatchError'] as Map<String, dynamic>)
+    ..notificationServiceResponseCode =
+        json['notificationServiceResponseCode'] as String?
+    ..otpValidationKey = json['otpValidationKey'] as String?
+    ..userCode = json['userCode'] as String?
+    ..username = json['username'] as String?
+    ..livelinessCheckRef = json['livelinessCheckRef'] as String?;
 }
 
 Map<String, dynamic> _$RecoveryResponseToJson(RecoveryResponse instance) =>
     <String, dynamic>{
-      'activation': instance.activation,
-      'securityQuestion': instance.securityQuestion,
-      'otp': instance.otp,
-      'key': instance.key,
-      'success': instance.success,
+      'livelinessError': instance.livelinessError,
+      'faceMatchError': instance.faceMatchError,
+      'notificationServiceResponseCode':
+          instance.notificationServiceResponseCode,
+      'otpValidationKey': instance.otpValidationKey,
+      'userCode': instance.userCode,
+      'username': instance.username,
+      'livelinessCheckRef': instance.livelinessCheckRef,
     };

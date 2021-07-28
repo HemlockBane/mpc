@@ -28,6 +28,8 @@ enum CameraMotionEvent {
   MotionDetectedEvent,
   NoMotionDetectedEvent,
   FaceOutOfBoundsEvent,
+  ImageOverExposed,
+  ImageUnderExposed,
   UNKNOWN
 }
 

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moniepoint_flutter/app/login/views/recovery/recovery_controller_screen.dart';
-import 'package:moniepoint_flutter/app/securityquestion/model/data/security_question.dart';
-import 'package:moniepoint_flutter/app/securityquestion/model/data/security_question_request.dart';
 import 'package:moniepoint_flutter/app/securityquestion/model/security_question_delegate.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/data/forgot_password_request.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/data/password_recovery_form.dart';
@@ -16,10 +14,10 @@ import 'package:moniepoint_flutter/app/validation/model/data/validate_answer_res
 import 'package:moniepoint_flutter/app/validation/model/data/validate_device_switch_request.dart';
 import 'package:moniepoint_flutter/app/validation/model/validation_service_delegate.dart';
 import 'package:moniepoint_flutter/core/device_manager.dart';
-import 'package:moniepoint_flutter/core/models/security_answer.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/otp.dart';
+import 'package:moniepoint_flutter/core/network/service_error.dart';
 
 class RecoveryViewModel extends ChangeNotifier {
 
@@ -34,10 +32,6 @@ class RecoveryViewModel extends ChangeNotifier {
   RecoveryMode? _recoveryMode;
   RecoveryMode? get recoveryMode => _recoveryMode;
 
-  SecurityQuestion? _securityQuestion;
-  SecurityQuestion? get securityQuestion => _securityQuestion;
-
-  String? _validationKeyForDevice;
   String? _deviceOtpUserCode;
   String? _addDeviceKey;
 
@@ -62,24 +56,22 @@ class RecoveryViewModel extends ChangeNotifier {
         : passwordRecoveryForm.requestBody;
   }
 
-  void setSecurityQuestionAnswer(String? answer) {
-    _getRequestData().securityAnswer = SecurityAnswer(_securityQuestion!.id.toString(), answer);
+  void setOtpCode(String? code) {
+    _getRequestData().otp = code;
   }
 
-  void setOtpCode(String? code) {
-    _getRequestData().activationCode = code;
-    _getRequestData().otp = code;
+  void setLivelinessCheckRef(String? livelinessCheckRef) {
+    _getRequestData().livelinessCheckRef = livelinessCheckRef;
   }
 
   Stream<Resource<RecoveryResponse>> initiateRecovery() {
     final response = (_recoveryMode == RecoveryMode.USERNAME_RECOVERY)
-        ? _delegate.forgotUsername(_getRequestData())
-        : _delegate.forgotPassword(_getRequestData());
+        ? _delegate.forgotUsername(_getRequestData()..withStep(ForgotPasswordStep.INITIATE))
+        : _delegate.forgotPassword(_getRequestData()..withStep(ForgotPasswordStep.INITIATE));
 
     return response.map((event) {
       if(event is Success) {
-        _securityQuestion = event.data?.securityQuestion;
-        _getRequestData().activationUserCode = event.data?.activation?.response?.userCode;
+        _getRequestData().otpUserCode = event.data?.userCode;
       }
       return event;
     });
@@ -88,21 +80,11 @@ class RecoveryViewModel extends ChangeNotifier {
   Stream<Resource<RecoveryResponse>> completeRecovery() {
     return (_recoveryMode == RecoveryMode.USERNAME_RECOVERY)
         ? _delegate.forgotUsername(_getRequestData()..withStep(ForgotPasswordStep.COMPLETE))
-        : _delegate.forgotPassword(_getRequestData()..withStep(ForgotPasswordStep.COMPLETE));
-  }
-
-  Stream<Resource<RecoveryResponse>> validateSecurityAnswer() {
-    final response = (_recoveryMode == RecoveryMode.USERNAME_RECOVERY)
-        ? _delegate.forgotUsername(_getRequestData()..withStep(ForgotPasswordStep.VALIDATE_SECURITY_ANSWER))
-        : _delegate.forgotPassword(_getRequestData()..withStep(ForgotPasswordStep.VALIDATE_SECURITY_ANSWER));
-
-    return response.map((event) {
-      if(event is Success) {
-        _getRequestData().activationUserCode = event.data?.activation?.response?.userCode;
-        _getRequestData().otpUserCode = event.data?.activation?.response?.userCode;
-      }
-      return event;
-    });
+        : _delegate.completeForgotPassword(_getRequestData()..withStep(ForgotPasswordStep.COMPLETE)).map((event) {
+          if(event is Loading) return Resource.loading(null);
+          if(event is Error<bool>) return Resource.error(err: ServiceError(message: event.message ?? ""), data: null);
+          return Resource.success(RecoveryResponse());
+        });
   }
 
   Stream<Resource<RecoveryResponse>> validateOtp() {
@@ -111,34 +93,9 @@ class RecoveryViewModel extends ChangeNotifier {
         : _delegate.forgotPassword(_getRequestData()..withStep(ForgotPasswordStep.VALIDATE_OTP));
 
     return response.map((event) {
-      if(event is Success) {
-        _getRequestData().key = event.data?.key;
-      }
-      return event;
-    });
-  }
-
-  Stream<Resource<SecurityQuestion>> loadSecurityQuestion() {
-    final  response =  (recoveryMode == RecoveryMode.DEVICE)
-        ? questionDelegate.getSecurityQuestionByUsername()
-        : questionDelegate.getSecurityQuestionByAccountNumber(_getRequestData().accountNumber!);
-
-    return response.map((event) {
-      if(event is Success) _securityQuestion = event.data;
-      return event;
-    });
-  }
-
-  /// Used for edit device only
-  Stream<Resource<ValidateAnswerResponse>> validateSecurityQuestionAnswer(String answer) {
-    SecurityQuestionRequestBody requestBody = SecurityQuestionRequestBody()
-      ..withUsername(UserInstance().getUser()?.username ?? "")
-      ..withQuestionId(_securityQuestion?.id.toString() ?? "")
-      ..withAnswer(answer);
-
-    final response = _validationDelegate.validateSecurityQuestionAnswer(requestBody);
-    return response.map((event) {
-      _validationKeyForDevice = event.data?.validationKey.key;
+      // if(event is Success) {
+      //   _getRequestData().key = event.data?.key;
+      // }
       return event;
     });
   }
@@ -146,9 +103,7 @@ class RecoveryViewModel extends ChangeNotifier {
   /// Used for edit device only
   Stream<Resource<OTP>> getOtpForDevice() {
     TriggerOtpRequestBody requestBody = TriggerOtpRequestBody()
-      ..withUsername(UserInstance().getUser()?.username ?? "")
-      ..customerType = "RETAIL"
-      ..withValidationKey(_validationKeyForDevice ?? "");
+      ..withUsername(UserInstance().getUser()?.username ?? "");
 
     final response = _validationDelegate.triggerOtpForEditDevice(requestBody);
     return response.map((event) {
@@ -162,29 +117,33 @@ class RecoveryViewModel extends ChangeNotifier {
     ValidateDeviceSwitchRequestBody requestBody =
         ValidateDeviceSwitchRequestBody()
           ..withUsername(UserInstance().getUser()?.username ?? "")
-          ..customerType = "RETAIL"
-          ..withRequest(AuthenticationRequest()
-            ..userCode = _deviceOtpUserCode
-            ..otp = otpCode
-            ..authenticationType = "OTP")
-          ..withValidationKey(_validationKeyForDevice ?? "");
+          ..withUserCode(_deviceOtpUserCode ?? "")
+          ..withOtp(otpCode);
 
     final response = _validationDelegate.validateEditDeviceOtp(requestBody);
     return response.map((event) {
-      _addDeviceKey = event.data?.validationKey.key;
+      _addDeviceKey = event.data?.validationKey;
       return event;
     });
   }
 
-  Stream<Resource<bool>> editDevice() {
+  Stream<Resource<bool>> registerDevice(String livelinessValidationKey) {
     EditDeviceRequestBody requestBody = EditDeviceRequestBody()
-    ..key = _addDeviceKey
+    ..username = UserInstance().getUser()?.username
+    ..key = livelinessValidationKey
     ..name = _deviceManager.deviceName
     ..deviceId = _deviceManager.deviceId;
 
-    final response = _validationDelegate.editDevice(requestBody);
+    final response = _validationDelegate.registerDevice(requestBody);
     return response.map((event) {
       return event;
     });
+  }
+
+  @override
+  void dispose() {
+    userRecoveryForm.dispose();
+    passwordRecoveryForm.dispose();
+    super.dispose();
   }
 }

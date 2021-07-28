@@ -206,7 +206,7 @@ class _BranchSearchScreen extends State<BranchSearchScreen> {
                         ),
                       ),
                       itemBuilder: (context, index) {
-                        return _BranchListItem(a.data!.data![index], index,
+                        return BranchListItem(a.data!.data![index], index,
                             (item, itemIndex) {
                           Future.delayed(Duration(milliseconds: 180), () {
                             Navigator.of(context).pop(item);
@@ -229,12 +229,12 @@ class _BranchSearchScreen extends State<BranchSearchScreen> {
   }
 }
 
-class _BranchListItem extends Container {
+class BranchListItem extends Container {
   final BranchInfo _branchInfo;
   final int position;
   final OnItemClickListener<BranchInfo, int> _onItemClickListener;
 
-  _BranchListItem(this._branchInfo, this.position, this._onItemClickListener);
+  BranchListItem(this._branchInfo, this.position, this._onItemClickListener);
 
   Widget initialContainer() {
     return Container(

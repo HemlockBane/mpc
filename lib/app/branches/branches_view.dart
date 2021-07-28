@@ -83,7 +83,7 @@ class _BranchScreen extends State<BranchScreen> {
           LatLng(_lastLocation?.latitude ?? 0, _lastLocation?.longitude ?? 0),
     );
 
-    updateSelectedLocation(sLocation);
+    // updateSelectedLocation(sLocation);
 
     return _lastLocation;
   }

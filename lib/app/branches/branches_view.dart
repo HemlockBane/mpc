@@ -80,7 +80,7 @@ class _BranchScreen extends State<BranchScreen> {
     return _lastLocation;
   }
 
-  void getBranchesAroundSelectedLocation() {
+  void getBranchesAroundSelectedLocation({bool shouldForceCenter = false}) {
     final viewModel = Provider.of<BranchViewModel>(context, listen: false);
     final latitude = selectedLocation.location.latitude;
     final longitude = selectedLocation.location.longitude;
@@ -94,7 +94,8 @@ class _BranchScreen extends State<BranchScreen> {
         if (branchInfo != null) {
           branches.add(branchInfo);
         }
-        _addBranchesAsMarkerToMap(branches);
+        _addBranchesAsMarkerToMap(branches,
+            shouldForceCenter: shouldForceCenter);
 
         final location =
             LatLng(_lastLocation?.latitude ?? 0, _lastLocation?.longitude ?? 0);
@@ -111,7 +112,8 @@ class _BranchScreen extends State<BranchScreen> {
         pow(2.0, currentZoom); //2.0.pow((currentZoom).toDouble());
   }
 
-  void _addBranchesAsMarkerToMap(List<BranchInfo> branches) {
+  void _addBranchesAsMarkerToMap(List<BranchInfo> branches,
+      {bool shouldForceCenter = false}) {
     if (branches.isNotEmpty) _displayAbleMarkers.clear();
     List<LatLng?> latLngs = branches
         .map((e) {
@@ -128,11 +130,13 @@ class _BranchScreen extends State<BranchScreen> {
 
     if (latLngs.isNotEmpty) {
       setState(() {});
-      LatLngBounds bounds = boundsFromLatLngList(latLngs);
-      final mUpdate = CameraUpdate.newLatLngBounds(bounds, 0);
-      _mapController?.animateCamera(mUpdate).then((value) {
-        check(mUpdate, _mapController!);
-      });
+      if (shouldForceCenter) {
+        LatLngBounds bounds = boundsFromLatLngList(latLngs);
+        final mUpdate = CameraUpdate.newLatLngBounds(bounds, 0);
+        _mapController?.animateCamera(mUpdate).then((value) {
+          check(mUpdate, _mapController!);
+        });
+      }
     }
   }
 
@@ -200,7 +204,7 @@ class _BranchScreen extends State<BranchScreen> {
       //We are zooming
       currentZoom = movingZoom;
       // final lastLocation = await _fetchLastLocation();
-      getBranchesAroundSelectedLocation();
+      getBranchesAroundSelectedLocation(shouldForceCenter: false);
     }
     currentZoom = movingZoom;
   }
@@ -233,7 +237,7 @@ class _BranchScreen extends State<BranchScreen> {
       final branchPosition = LatLng(
           double.parse(branchInfo.location!.latitude ?? "0"),
           double.parse(branchInfo.location!.longitude ?? "0"));
-      CameraUpdate cUpdate = CameraUpdate.newLatLngZoom(branchPosition, 16);
+      CameraUpdate cUpdate = CameraUpdate.newLatLngZoom(branchPosition, 10);
       _mapController?.animateCamera(cUpdate).then((value) {
         check(cUpdate, _mapController!);
       });
@@ -553,7 +557,7 @@ class _BranchScreen extends State<BranchScreen> {
                         _lastLocation?.longitude ?? 0));
 
                 updateSelectedLocation(sLocation);
-                getBranchesAroundSelectedLocation();
+                getBranchesAroundSelectedLocation(shouldForceCenter: true);
               } else {
                 Navigator.pop(context);
               }
@@ -569,23 +573,38 @@ class _BranchScreen extends State<BranchScreen> {
           ),
 
           Positioned(
-            top: 30,
+            top: 38,
             right: 16,
             left: 16,
-            child: Styles.appEditText(
-              readOnly: true,
-              // padding: EdgeInsets.symmetric(horizontal: 28, vertical: 24),
-              drawablePadding: EdgeInsets.symmetric(horizontal: 15),
-              borderColor: Colors.transparent,
-              value: 'Search by branch name',
-              hint: 'Search by branch name',
-              fontWeight: FontWeight.normal,
-              animateHint: false,
-              textColor: Color(0xFF9DA1AB),
-              fontSize: 15,
-              startIcon:
-                  Icon(CustomFont.search, color: Color(0xFF9DA1AB), size: 20),
-              onClick: _onSearch,
+            child: Container(
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(6),
+                  boxShadow: [
+                    BoxShadow(
+                      offset: Offset(0, 1),
+                      color: Colors.grey.withOpacity(0.2),
+                      blurRadius: 6,
+                      spreadRadius: 2,
+                    )
+                  ]),
+              child: Styles.appEditText(
+                readOnly: true,
+                // padding: EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+                drawablePadding: EdgeInsets.symmetric(horizontal: 15),
+                borderColor: Colors.transparent,
+                focusedBorderColor: Colors.transparent,
+
+                value: 'Search by branch name',
+                hint: 'Search by branch name',
+                fontWeight: FontWeight.normal,
+                animateHint: false,
+                textColor: Color(0xFF9DA1AB),
+                fontSize: 15,
+                startIcon:
+                    Icon(CustomFont.search, color: Color(0xFF9DA1AB), size: 20),
+                onClick: _onSearch,
+              ),
             ),
           ),
 

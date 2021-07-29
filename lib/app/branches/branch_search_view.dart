@@ -91,68 +91,71 @@ class _BranchSearchScreen extends State<BranchSearchScreen> {
           mainAxisSize: MainAxisSize.max,
           children: [
             Flexible(
-                child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 20),
-              // padding: EdgeInsets.only(top: 19, bottom: 19),
-              child: TextFormField(
-                  controller: _searchController,
-                  onChanged: (v) => _onSearchFieldChange(viewModel, v),
-                  textAlignVertical: TextAlignVertical.center,
-                  decoration: InputDecoration(
-                      hintText: "Search by branch name",
-                      hintStyle: TextStyle(
-                          color: Color(0xFF4A4A4A).withOpacity(0.2934)),
-                      contentPadding: EdgeInsets.only(top: 19, bottom: 19),
-                      prefixIcon: GestureDetector(
-                        onTap: () {
-                          if (_searchController.text.isNotEmpty)
-                            _onSearchFieldChange(viewModel, "");
-                          else
-                            Navigator.of(context).pop();
-                        },
-                        child: Padding(
-                          padding: EdgeInsets.only(
-                              top: 12, right: 16, bottom: 12, left: 16),
-                          child: Icon(
-                            CustomFont.backArrow,
-                            size: 20,
-                            color: Color(0xFF9DA1AB),
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 20),
+                // padding: EdgeInsets.only(top: 19, bottom: 19),
+                child: TextFormField(
+                    controller: _searchController,
+                    onChanged: (v) => _onSearchFieldChange(viewModel, v),
+                    textAlignVertical: TextAlignVertical.center,
+                    decoration: InputDecoration(
+                        hintText: "Search by branch name",
+                        hintStyle: TextStyle(
+                            color: Color(0xFF4A4A4A).withOpacity(0.2934)),
+                        contentPadding: EdgeInsets.only(top: 19, bottom: 19),
+                        prefixIcon: GestureDetector(
+                          onTap: () {
+                            if (_searchController.text.isNotEmpty)
+                              _onSearchFieldChange(viewModel, "");
+                            else
+                              Navigator.of(context).pop();
+                          },
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                                top: 12, right: 16, bottom: 12, left: 16),
+                            child: Icon(
+                              CustomFont.backArrow,
+                              size: 20,
+                              color: Color(0xFF9DA1AB),
+                            ),
                           ),
                         ),
-                      ),
-                      suffixIcon: _isLoading
-                          ? Padding(
-                              padding: EdgeInsets.only(right: 16),
-                              child: SizedBox(
-                                height: 10,
-                                width: 10,
-                                child: SpinKitThreeBounce(
-                                    size: 20.0,
-                                    color:
-                                        Colors.primaryColor.withOpacity(0.8)),
-                              ),
-                            )
-                          : null,
-                      isCollapsed: true,
-                      disabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.transparent)),
-                      enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.transparent)),
-                      focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.transparent)),
-                      border: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.transparent)))),
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(6),
-                  boxShadow: [
-                    BoxShadow(
+                        suffixIcon: _isLoading
+                            ? Padding(
+                                padding: EdgeInsets.only(right: 16),
+                                child: SizedBox(
+                                  height: 10,
+                                  width: 10,
+                                  child: SpinKitThreeBounce(
+                                      size: 20.0,
+                                      color:
+                                          Colors.primaryColor.withOpacity(0.8)),
+                                ),
+                              )
+                            : null,
+                        isCollapsed: true,
+                        disabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.transparent)),
+                        enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.transparent)),
+                        focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.transparent)),
+                        border: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Colors.transparent)))),
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(6),
+                    boxShadow: [
+                      BoxShadow(
                         offset: Offset(0, 1),
                         color: Colors.grey.withOpacity(0.2),
                         blurRadius: 6,
-                        spreadRadius: 2)
-                  ]),
-            )),
+                        spreadRadius: 2,
+                      )
+                    ]),
+              ),
+            ),
             SizedBox(height: 50),
             StreamBuilder(
                 stream: viewModel.searchResultStream,

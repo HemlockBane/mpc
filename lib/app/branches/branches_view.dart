@@ -4,7 +4,6 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter/services.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -35,6 +34,9 @@ class _BranchScreen extends State<BranchScreen> {
   BitmapDescriptor? locationMarkerIcon;
   BitmapDescriptor? fadedMarkerIcon;
 
+
+  List<BranchInfo> displayableBranches = [];
+
   late SelectedLocation selectedLocation;
 
   final CameraPosition _kGooglePlex = CameraPosition(
@@ -47,10 +49,11 @@ class _BranchScreen extends State<BranchScreen> {
   @override
   void initState() {
     super.initState();
-    setCustomMapPin();
+
+    _buildCustomMapMarkers();
   }
 
-  Future<Uint8List> getBytesFromAsset(String path, int width) async {
+  Future<Uint8List> getMarkerBytesFromAsset(String path, int width) async {
     ByteData data = await rootBundle.load(path);
     ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(),
         targetWidth: width);
@@ -60,12 +63,13 @@ class _BranchScreen extends State<BranchScreen> {
         .asUint8List();
   }
 
-  void setCustomMapPin() async {
+
+  void _buildCustomMapMarkers() async {
     final Uint8List markerIconBytes =
-        await getBytesFromAsset('res/drawables/ic_location_marker.png', 100);
+        await getMarkerBytesFromAsset('res/drawables/ic_location_marker.png', 100);
     locationMarkerIcon = BitmapDescriptor.fromBytes(markerIconBytes);
 
-    final Uint8List fadedMarkerIconBytes = await getBytesFromAsset(
+    final Uint8List fadedMarkerIconBytes = await getMarkerBytesFromAsset(
         'res/drawables/ic_location_marker_faded.png', 100);
     fadedMarkerIcon = BitmapDescriptor.fromBytes(fadedMarkerIconBytes);
   }
@@ -77,32 +81,30 @@ class _BranchScreen extends State<BranchScreen> {
     if (_lastLocation != null) {
       _lastLocation = await Geolocator.getCurrentPosition();
     }
-
-    final sLocation = SelectedLocation(
-      location:
-          LatLng(_lastLocation?.latitude ?? 0, _lastLocation?.longitude ?? 0),
-    );
-
-    // updateSelectedLocation(sLocation);
-
     return _lastLocation;
   }
 
-  void getBranchesAroundSelectedLocation() {
+  void getBranchesAroundSelectedLocation({bool shouldForceCenter = false}) {
     final viewModel = Provider.of<BranchViewModel>(context, listen: false);
     final latitude = selectedLocation.location.latitude;
     final longitude = selectedLocation.location.longitude;
     final branchInfo = selectedLocation.branchInfo;
+
 
     viewModel
         .getAllBranches(latitude, longitude, _radiusInMeters(longitude).toInt())
         .listen((event) async {
       if (event is Success && event.data!.length > 0) {
         final branches = event.data!;
+
+        displayableBranches
+          ..clear()
+          ..addAll(branches);
         if (branchInfo != null) {
           branches.add(branchInfo);
         }
-        _addBranchesAsMarkerToMap(branches);
+        _addBranchesAsMarkerToMap(branches,
+            shouldForceCenter: shouldForceCenter);
 
         final location =
             LatLng(_lastLocation?.latitude ?? 0, _lastLocation?.longitude ?? 0);
@@ -119,7 +121,9 @@ class _BranchScreen extends State<BranchScreen> {
         pow(2.0, currentZoom); //2.0.pow((currentZoom).toDouble());
   }
 
-  void _addBranchesAsMarkerToMap(List<BranchInfo> branches) {
+
+  void _addBranchesAsMarkerToMap(List<BranchInfo> branches,
+      {bool shouldForceCenter = false}) {
     if (branches.isNotEmpty) _displayAbleMarkers.clear();
     List<LatLng?> latLngs = branches
         .map((e) {
@@ -136,11 +140,13 @@ class _BranchScreen extends State<BranchScreen> {
 
     if (latLngs.isNotEmpty) {
       setState(() {});
-      LatLngBounds bounds = boundsFromLatLngList(latLngs);
-      final mUpdate = CameraUpdate.newLatLngBounds(bounds, 0);
-      _mapController?.animateCamera(mUpdate).then((value) {
-        check(mUpdate, _mapController!);
-      });
+      if (shouldForceCenter) {
+        LatLngBounds bounds = boundsFromLatLngList(latLngs);
+        final mUpdate = CameraUpdate.newLatLngBounds(bounds, 0);
+        _mapController?.animateCamera(mUpdate).then((value) {
+          check(mUpdate, _mapController!);
+        });
+      }
     }
   }
 
@@ -155,7 +161,8 @@ class _BranchScreen extends State<BranchScreen> {
       final markerIcon = selectedLocation.isCurrentLocation(LatLng(
               _lastLocation?.latitude ?? 0, _lastLocation?.longitude ?? 0))
           ? locationMarkerIcon!
-          : selectedLocation.isSelectedBranchPosition(branchLocation)
+
+          : selectedLocation.equalsBranchPosition(branchLocation)
               ? locationMarkerIcon!
               : fadedMarkerIcon!;
 
@@ -170,14 +177,10 @@ class _BranchScreen extends State<BranchScreen> {
             branchInfo: branchInfo,
           );
 
-          final isSelectedMarker =
-              selectedLocation.isSelectedBranchPosition(branchLocation);
-          // print(
-          //     "before - isSelected: ${selectedLocation.isSelectedBranchPosition(sLocation.location)}");
-          // print(selectedLocation.branchInfo?.name);
-
+          final isSelectedMarker = selectedLocation.equalsBranchPosition(branchLocation);
           if (!isSelectedMarker) {
-            updateSelectedLocation(sLocation);
+            selectedLocation = sLocation;
+            _addBranchesAsMarkerToMap(displayableBranches);
             showBranchInfoBottomSheet(branchInfo);
           }
         },
@@ -193,9 +196,6 @@ class _BranchScreen extends State<BranchScreen> {
     setState(() {
       selectedLocation = sLocation;
     });
-    // print(
-    //     "after - isSelected: ${selectedLocation.isSelectedBranchPosition(sLocation.location)}");
-    // print(selectedLocation.branchInfo?.name);
   }
 
   Future<bool> _checkLocationPermission() async {
@@ -207,8 +207,7 @@ class _BranchScreen extends State<BranchScreen> {
     if (currentZoom.floorToDouble() != movingZoom.floorToDouble()) {
       //We are zooming
       currentZoom = movingZoom;
-      // final lastLocation = await _fetchLastLocation();
-      getBranchesAroundSelectedLocation();
+      getBranchesAroundSelectedLocation(shouldForceCenter: false);
     }
     currentZoom = movingZoom;
   }
@@ -241,7 +240,8 @@ class _BranchScreen extends State<BranchScreen> {
       final branchPosition = LatLng(
           double.parse(branchInfo.location!.latitude ?? "0"),
           double.parse(branchInfo.location!.longitude ?? "0"));
-      CameraUpdate cUpdate = CameraUpdate.newLatLngZoom(branchPosition, 16);
+
+      CameraUpdate cUpdate = CameraUpdate.newLatLngZoom(branchPosition, 10);
       _mapController?.animateCamera(cUpdate).then((value) {
         check(cUpdate, _mapController!);
       });
@@ -251,8 +251,6 @@ class _BranchScreen extends State<BranchScreen> {
   void showCloseBranchesBottomSheet(List<BranchInfo> branches) {
     _scaffoldKey.currentState!.showBottomSheet((context) {
       return Container(
-        // padding: EdgeInsets.symmetric(horizontal: 20),
-        // height: 250,
         decoration: BoxDecoration(
           color: Colors.backgroundWhite,
           borderRadius: BorderRadius.vertical(
@@ -444,9 +442,8 @@ class _BranchScreen extends State<BranchScreen> {
   void check(CameraUpdate u, GoogleMapController c) async {
     c.animateCamera(u);
     _mapController?.animateCamera(u);
-    LatLngBounds l1 = await c.getVisibleRegion();
-    LatLngBounds l2 = await c.getVisibleRegion();
-    //if(l1.southwest.latitude==-90 ||l2.southwest.latitude==-90)
+    // LatLngBounds l1 = await c.getVisibleRegion();
+    // LatLngBounds l2 = await c.getVisibleRegion();
     //check(u, c);
   }
 
@@ -561,7 +558,7 @@ class _BranchScreen extends State<BranchScreen> {
                         _lastLocation?.longitude ?? 0));
 
                 updateSelectedLocation(sLocation);
-                getBranchesAroundSelectedLocation();
+                getBranchesAroundSelectedLocation(shouldForceCenter: true);
               } else {
                 Navigator.pop(context);
               }
@@ -577,78 +574,40 @@ class _BranchScreen extends State<BranchScreen> {
           ),
 
           Positioned(
-            top: 30,
+            top: 38,
             right: 16,
             left: 16,
-            child: Styles.appEditText(
-              readOnly: true,
-              // padding: EdgeInsets.symmetric(horizontal: 28, vertical: 24),
-              drawablePadding: EdgeInsets.symmetric(horizontal: 15),
-              borderColor: Colors.transparent,
-              value: 'Search by branch name',
-              hint: 'Search by branch name',
-              fontWeight: FontWeight.normal,
-              animateHint: false,
-              textColor: Color(0xFF9DA1AB),
-              fontSize: 15,
-              startIcon:
-                  Icon(CustomFont.search, color: Color(0xFF9DA1AB), size: 20),
-              onClick: _onSearch,
+            child: Container(
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(6),
+                  boxShadow: [
+                    BoxShadow(
+                      offset: Offset(0, 1),
+                      color: Colors.grey.withOpacity(0.2),
+                      blurRadius: 6,
+                      spreadRadius: 2,
+                    )
+                  ]),
+              child: Styles.appEditText(
+                readOnly: true,
+                // padding: EdgeInsets.symmetric(horizontal: 28, vertical: 24),
+                drawablePadding: EdgeInsets.symmetric(horizontal: 15),
+                borderColor: Colors.transparent,
+                focusedBorderColor: Colors.transparent,
+
+                value: 'Search by branch name',
+                hint: 'Search by branch name',
+                fontWeight: FontWeight.normal,
+                animateHint: false,
+                textColor: Color(0xFF9DA1AB),
+                fontSize: 15,
+                startIcon:
+                    Icon(CustomFont.search, color: Color(0xFF9DA1AB), size: 20),
+                onClick: _onSearch,
+              ),
             ),
           ),
-
-          // DraggableScrollableSheet(
-          //     initialChildSize: 0.35,
-          //     minChildSize: 0.35,
-          //     maxChildSize: 0.68,
-          //     builder:
-          //         (BuildContext context, ScrollController scrollController) {
-          //       return Card(
-          //         margin: EdgeInsets.zero,
-          //         shape: RoundedRectangleBorder(
-          //             borderRadius:
-          //                 BorderRadius.vertical(top: Radius.circular(20))),
-          //         elevation: 5,
-          //         child: ListView(
-          //           padding: EdgeInsets.symmetric(horizontal: 24),
-          //           controller: scrollController,
-          //           children: [
-          //             SizedBox(
-          //               height: 10,
-          //             ),
-          //             Row(
-          //               mainAxisAlignment: MainAxisAlignment.center,
-          //               children: [
-          //                 Container(
-          //                   height: 7,
-          //                   width: 45,
-          //                   decoration: BoxDecoration(
-          //                     color: Colors.grey.withOpacity(0.2),
-          //                     borderRadius: BorderRadius.circular(16),
-          //                   ),
-          //                 ),
-          //               ],
-          //             ),
-          //             SizedBox(
-          //               height: 20,
-          //             ),
-          //             Container(
-          //                 child: Text(
-          //               "BRANCHES CLOSE TO YOU",
-          //               style: TextStyle(
-          //                   fontSize: 14,
-          //                   color: Colors.textColorBlack,
-          //                   fontWeight: FontWeight.w600),
-          //             ))
-          //           ],
-          //         ),
-          //       );
-          //     })
-          // Positioned(
-          //   right: 24,
-          //   bottom: 42,
-          //   child: zoomButtonContainer(),
-          // )
         ],
       ),
     );

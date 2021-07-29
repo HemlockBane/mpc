@@ -76,7 +76,7 @@ class SelectedLocation {
     return this.location == location;
   }
 
-  bool isSelectedBranchPosition(LatLng otherBranchLocation) {
+  bool equalsBranchPosition(LatLng otherBranchLocation) {
     return this.location == otherBranchLocation;
   }
 }

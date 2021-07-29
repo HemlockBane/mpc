@@ -197,7 +197,7 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
                           child: Html(
                               data: content,
                               onLinkTap: (String? url, RenderContext context, Map<String, String> attributes, _){
-                                if(url != null) dialNumber(url);
+                                if(url != null) openUrl(url);
                               },
                           )//Text(Strings.terms_and_condition),
                         ),

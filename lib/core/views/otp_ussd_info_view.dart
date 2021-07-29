@@ -4,7 +4,6 @@ import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/ussd_configuration.dart';
-import 'package:moniepoint_flutter/core/strings.dart';
 import 'package:moniepoint_flutter/core/utils/call_utils.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/utils/text_utils.dart';
@@ -71,8 +70,8 @@ class OtpUssdInfoView extends StatelessWidget{
                   height: 1.6
               ))
               .colorText({
-            codes.second: Tuple(Colors.primaryColor, () => dialNumber("tel:${codes.first}"))
-          }, underline: false))
+            codes.second: Tuple(Colors.primaryColor, () => openUrl("tel:${codes.first}"))
+          }))
         ],
       ),
     );

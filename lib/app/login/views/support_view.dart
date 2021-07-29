@@ -125,7 +125,7 @@ class _SupportScreen extends State<SupportScreen> {
             ],
           ),
           onPressed: () {
-            dialNumber("tel:${e.value}");
+            openUrl("tel:${e.value}");
           },
         );
 
@@ -142,7 +142,7 @@ class _SupportScreen extends State<SupportScreen> {
             style: textStyle,
           ),
           onTap: () {
-            dialNumber("https://api.whatsapp.com/send?phone=${e.value}");
+            openUrl("https://api.whatsapp.com/send?phone=${e.value}");
           },
         );
 
@@ -169,7 +169,7 @@ class _SupportScreen extends State<SupportScreen> {
                   'subject': 'Hello Moniepoint',
                   'body': "Good day"
                 }).toString();
-            dialNumber(uri);
+            openUrl(uri);
           },
           supportChannelValue: e.value ?? "",
         );
@@ -249,7 +249,7 @@ class _SupportScreen extends State<SupportScreen> {
                           height: 40,
                         ),
                         borderRadius: BorderRadius.circular(80),
-                        onClick: () => dialNumber(e.value ?? ""));
+                        onClick: () => openUrl(e.value ?? ""));
                   }
                   if (e.key == "support.twitter") {
                     return Styles.imageButton(
@@ -261,7 +261,7 @@ class _SupportScreen extends State<SupportScreen> {
                           height: 40,
                         ),
                         borderRadius: BorderRadius.circular(80),
-                        onClick: () => dialNumber(e.value ?? ""));
+                        onClick: () => openUrl(e.value ?? ""));
                   }
                   if (e.key == "support.instagram") {
                     return Styles.imageButton(
@@ -273,7 +273,7 @@ class _SupportScreen extends State<SupportScreen> {
                           height: 40,
                         ),
                         borderRadius: BorderRadius.circular(80),
-                        onClick: () => dialNumber(e.value ?? ""));
+                        onClick: () => openUrl(e.value ?? ""));
                   }
                   if (e.key == "support.telegram") {
                     return Styles.imageButton(
@@ -285,7 +285,7 @@ class _SupportScreen extends State<SupportScreen> {
                           height: 40,
                         ),
                         borderRadius: BorderRadius.circular(80),
-                        onClick: () => dialNumber(e.value ?? ""));
+                        onClick: () => openUrl(e.value ?? ""));
                   }
                   return Visibility(visible: false, child: Container());
                   //not a good approach we should consider moving this to a

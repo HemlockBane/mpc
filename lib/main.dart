@@ -16,7 +16,9 @@ import 'package:moniepoint_flutter/app/billpayments/viewmodels/bill_history_deta
 import 'package:moniepoint_flutter/app/billpayments/views/bill_history_detailed_view.dart';
 import 'package:moniepoint_flutter/app/billpayments/views/bill_view.dart';
 import 'package:moniepoint_flutter/app/branches/branch_search_view.dart';
+import 'package:moniepoint_flutter/app/branches/branch_search_view_old.dart';
 import 'package:moniepoint_flutter/app/branches/branches_view.dart';
+import 'package:moniepoint_flutter/app/branches/branches_view_old.dart';
 import 'package:moniepoint_flutter/app/branches/viewmodels/branch_view_model.dart';
 import 'package:moniepoint_flutter/app/cards/viewmodels/single_card_view_model.dart';
 import 'package:moniepoint_flutter/app/cards/views/card_view.dart';

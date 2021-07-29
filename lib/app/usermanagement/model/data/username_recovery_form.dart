@@ -63,7 +63,8 @@ class UsernameRecoveryForm with Validators {
   }
 
   void onBVNChanged(String? text) {
-    _requestBody.bvn = text;
+    _requestBody.key = text;
+    _keyInputController.sink.add(text ?? "");
     validationMode = VALIDATING_BVN;
     _isBVNValid(displayError: true);
   }

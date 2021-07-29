@@ -3,11 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:moniepoint_flutter/app/login/viewmodels/recovery_view_model.dart';
 import 'package:moniepoint_flutter/app/login/views/recovery/recovery_controller_screen.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/data/recovery_response.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/views/otp_ussd_info_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:provider/provider.dart';
@@ -32,28 +32,24 @@ class _RecoverUsernameScreen extends State<RecoverUsernameBVNScreen> {
       if (event is Loading) setState(() => _isLoading = true);
       if (event is Error<RecoveryResponse>) {
         setState(() => _isLoading = false);
-        showModalBottomSheet(
-            context: widget._scaffoldKey.currentContext ?? context,
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            builder: (context) {
-              return BottomSheets.displayErrorModal(context,
-                  message: event.message);
-            });
+        showError(
+            widget._scaffoldKey.currentContext ?? context,
+            message: event.message,
+            primaryButtonText: "Dismiss",
+            useTextButton: true
+        );
       }
       if (event is Success<RecoveryResponse>) {
         setState(() => _isLoading = false);
-        Navigator.of(context).pushNamed("security_question");
+        Navigator.of(context).pushNamed(RecoveryControllerScreen.RECOVERY_OTP);
       }
     });
   }
-
 
   void _navigateToUseAccountNumber(RecoveryViewModel viewModel) {
     viewModel.userRecoveryForm.reset();
     Navigator.of(context).popAndPushNamed(RecoveryControllerScreen.USERNAME_SCREEN);
   }
-
 
   @override
   Widget build(BuildContext context) {

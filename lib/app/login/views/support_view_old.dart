@@ -76,7 +76,7 @@ class _SupportScreen extends State<SupportScreenOld> {
         final emailItem = supportItem(
             "Send us an Email", 'res/drawables/ic_support_message.svg',
             Text(e.value ?? "", style: textStyle).colorText(
-                _makeSupportLinks(e.value ?? "", (value) => dialNumber(Uri(
+                _makeSupportLinks(e.value ?? "", (value) => openUrl(Uri(
                   scheme: "mailto",
                   path: "$value",
                     queryParameters: {
@@ -92,7 +92,7 @@ class _SupportScreen extends State<SupportScreenOld> {
         final phoneItem = supportItem(
             "Call us on:", 'res/drawables/ic_support_phone.svg',
             Text(e.value ?? "", style: textStyle).colorText(
-                _makeSupportLinks(e.value ?? "", (value) => dialNumber("tel:$value")),
+                _makeSupportLinks(e.value ?? "", (value) => openUrl("tel:$value")),
                 bold: false
             ));
         widgets.add(phoneItem);
@@ -101,7 +101,7 @@ class _SupportScreen extends State<SupportScreenOld> {
         final phoneItem = supportItem(
             "Send us a whatsapp Message",'res/drawables/ic_support_whatsapp.svg',
             Text(e.value ?? "", style: textStyle).colorText(
-                _makeSupportLinks(e.value ?? "", (value) => dialNumber("https://api.whatsapp.com/send?phone=$value")),
+                _makeSupportLinks(e.value ?? "", (value) => openUrl("https://api.whatsapp.com/send?phone=$value")),
                 bold: false
             ));
         widgets.add(phoneItem);
@@ -226,7 +226,7 @@ class _SupportScreen extends State<SupportScreenOld> {
                               padding: EdgeInsets.all(0),
                               image: SvgPicture.asset('res/drawables/ic_support_facebook.svg', width: 42, height: 42,),
                               borderRadius: BorderRadius.circular(80),
-                              onClick: () => dialNumber(e.value ?? "")
+                              onClick: () => openUrl(e.value ?? "")
                           );
                         }
                         if(e.key == "support.twitter") {
@@ -235,7 +235,7 @@ class _SupportScreen extends State<SupportScreenOld> {
                               padding: EdgeInsets.all(0),
                               image: SvgPicture.asset('res/drawables/ic_support_twitter.svg', width: 42, height: 42,),
                               borderRadius: BorderRadius.circular(80),
-                              onClick: () => dialNumber(e.value ?? "")
+                              onClick: () => openUrl(e.value ?? "")
                           );
                         }
                         if(e.key == "support.instagram") {
@@ -244,7 +244,7 @@ class _SupportScreen extends State<SupportScreenOld> {
                               padding: EdgeInsets.all(0),
                               image: SvgPicture.asset('res/drawables/ic_support_instagram.svg', width: 42, height: 42,),
                               borderRadius: BorderRadius.circular(80),
-                              onClick: () => dialNumber(e.value ?? "")
+                              onClick: () => openUrl(e.value ?? "")
                           );
                         }
                         if(e.key == "support.telegram") {
@@ -253,7 +253,7 @@ class _SupportScreen extends State<SupportScreenOld> {
                               padding: EdgeInsets.all(0),
                               image: SvgPicture.asset('res/drawables/ic_support_telegram.svg', width: 42, height: 42,),
                               borderRadius: BorderRadius.circular(80),
-                              onClick: () => dialNumber(e.value ?? "")
+                              onClick: () => openUrl(e.value ?? "")
                           );
                         }
                         return Visibility(visible: false,child: Container());

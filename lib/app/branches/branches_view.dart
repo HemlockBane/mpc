@@ -49,10 +49,10 @@ class _BranchScreen extends State<BranchScreen> {
   @override
   void initState() {
     super.initState();
-    setCustomMapPin();
+    _buildCustomMapMarkers();
   }
 
-  Future<Uint8List> getBytesFromAsset(String path, int width) async {
+  Future<Uint8List> getMarkerBytesFromAsset(String path, int width) async {
     ByteData data = await rootBundle.load(path);
     ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(),
         targetWidth: width);
@@ -62,12 +62,12 @@ class _BranchScreen extends State<BranchScreen> {
         .asUint8List();
   }
 
-  void setCustomMapPin() async {
+  void _buildCustomMapMarkers() async {
     final Uint8List markerIconBytes =
-        await getBytesFromAsset('res/drawables/ic_location_marker.png', 100);
+        await getMarkerBytesFromAsset('res/drawables/ic_location_marker.png', 100);
     locationMarkerIcon = BitmapDescriptor.fromBytes(markerIconBytes);
 
-    final Uint8List fadedMarkerIconBytes = await getBytesFromAsset(
+    final Uint8List fadedMarkerIconBytes = await getMarkerBytesFromAsset(
         'res/drawables/ic_location_marker_faded.png', 100);
     fadedMarkerIcon = BitmapDescriptor.fromBytes(fadedMarkerIconBytes);
   }
@@ -173,12 +173,8 @@ class _BranchScreen extends State<BranchScreen> {
 
           final isSelectedMarker =
               selectedLocation.equalsBranchPosition(branchLocation);
-          // print(
-          //     "before - isSelected: ${selectedLocation.isSelectedBranchPosition(sLocation.location)}");
-          // print(selectedLocation.branchInfo?.name);
 
           if (!isSelectedMarker) {
-            // updateSelectedLocation(sLocation);
             selectedLocation = sLocation;
             _addBranchesAsMarkerToMap(displayableBranches);
             showBranchInfoBottomSheet(branchInfo);
@@ -196,9 +192,6 @@ class _BranchScreen extends State<BranchScreen> {
     setState(() {
       selectedLocation = sLocation;
     });
-    // print(
-    //     "after - isSelected: ${selectedLocation.isSelectedBranchPosition(sLocation.location)}");
-    // print(selectedLocation.branchInfo?.name);
   }
 
   Future<bool> _checkLocationPermission() async {
@@ -210,7 +203,7 @@ class _BranchScreen extends State<BranchScreen> {
     if (currentZoom.floorToDouble() != movingZoom.floorToDouble()) {
       //We are zooming
       currentZoom = movingZoom;
-      // final lastLocation = await _fetchLastLocation();
+
       getBranchesAroundSelectedLocation(shouldForceCenter: false);
     }
     currentZoom = movingZoom;
@@ -254,8 +247,6 @@ class _BranchScreen extends State<BranchScreen> {
   void showCloseBranchesBottomSheet(List<BranchInfo> branches) {
     _scaffoldKey.currentState!.showBottomSheet((context) {
       return Container(
-        // padding: EdgeInsets.symmetric(horizontal: 20),
-        // height: 250,
         decoration: BoxDecoration(
           color: Colors.backgroundWhite,
           borderRadius: BorderRadius.vertical(
@@ -578,7 +569,6 @@ class _BranchScreen extends State<BranchScreen> {
             onCameraMove: _onCameraMove,
             markers: _displayAbleMarkers,
           ),
-
           Positioned(
             top: 38,
             right: 16,
@@ -614,59 +604,6 @@ class _BranchScreen extends State<BranchScreen> {
               ),
             ),
           ),
-
-          // DraggableScrollableSheet(
-          //     initialChildSize: 0.35,
-          //     minChildSize: 0.35,
-          //     maxChildSize: 0.68,
-          //     builder:
-          //         (BuildContext context, ScrollController scrollController) {
-          //       return Card(
-          //         margin: EdgeInsets.zero,
-          //         shape: RoundedRectangleBorder(
-          //             borderRadius:
-          //                 BorderRadius.vertical(top: Radius.circular(20))),
-          //         elevation: 5,
-          //         child: ListView(
-          //           padding: EdgeInsets.symmetric(horizontal: 24),
-          //           controller: scrollController,
-          //           children: [
-          //             SizedBox(
-          //               height: 10,
-          //             ),
-          //             Row(
-          //               mainAxisAlignment: MainAxisAlignment.center,
-          //               children: [
-          //                 Container(
-          //                   height: 7,
-          //                   width: 45,
-          //                   decoration: BoxDecoration(
-          //                     color: Colors.grey.withOpacity(0.2),
-          //                     borderRadius: BorderRadius.circular(16),
-          //                   ),
-          //                 ),
-          //               ],
-          //             ),
-          //             SizedBox(
-          //               height: 20,
-          //             ),
-          //             Container(
-          //                 child: Text(
-          //               "BRANCHES CLOSE TO YOU",
-          //               style: TextStyle(
-          //                   fontSize: 14,
-          //                   color: Colors.textColorBlack,
-          //                   fontWeight: FontWeight.w600),
-          //             ))
-          //           ],
-          //         ),
-          //       );
-          //     })
-          // Positioned(
-          //   right: 24,
-          //   bottom: 42,
-          //   child: zoomButtonContainer(),
-          // )
         ],
       ),
     );

@@ -35,6 +35,8 @@ class _BranchScreen extends State<BranchScreen> {
   BitmapDescriptor? locationMarkerIcon;
   BitmapDescriptor? fadedMarkerIcon;
 
+  List<BranchInfo> displayableBranches = [];
+
   late SelectedLocation selectedLocation;
 
   final CameraPosition _kGooglePlex = CameraPosition(
@@ -91,6 +93,9 @@ class _BranchScreen extends State<BranchScreen> {
         .listen((event) async {
       if (event is Success && event.data!.length > 0) {
         final branches = event.data!;
+        displayableBranches
+          ..clear()
+          ..addAll(branches);
         if (branchInfo != null) {
           branches.add(branchInfo);
         }
@@ -173,7 +178,9 @@ class _BranchScreen extends State<BranchScreen> {
           // print(selectedLocation.branchInfo?.name);
 
           if (!isSelectedMarker) {
-            updateSelectedLocation(sLocation);
+            // updateSelectedLocation(sLocation);
+            selectedLocation = sLocation;
+            _addBranchesAsMarkerToMap(displayableBranches);
             showBranchInfoBottomSheet(branchInfo);
           }
         },

@@ -120,7 +120,7 @@ class _BranchSearchScreen extends State<BranchSearchScreen> {
                             ),
                           ),
                         ),
-                        suffixIcon: _isLoading
+                        suffixIcon: _isLoading && _searchController.text.isNotEmpty
                             ? Padding(
                                 padding: EdgeInsets.only(right: 16),
                                 child: SizedBox(
@@ -161,7 +161,8 @@ class _BranchSearchScreen extends State<BranchSearchScreen> {
                 stream: viewModel.searchResultStream,
                 builder:
                     (context, AsyncSnapshot<Resource<List<BranchInfo>>> a) {
-                  if (!a.hasData) return Container();
+                  if (!a.hasData || _searchController.text == "")
+                    return Container();
                   // if ((a.hasData && a.data is Success) &&
                   //     a.data?.data?.isEmpty == true) {
                   //   return _emptyView();
@@ -189,7 +190,8 @@ class _BranchSearchScreen extends State<BranchSearchScreen> {
                   stream: viewModel.searchResultStream,
                   builder:
                       (context, AsyncSnapshot<Resource<List<BranchInfo>>> a) {
-                    if (!a.hasData) return Container();
+                    if (!a.hasData || _searchController.text == "")
+                      return Container();
                     if ((a.hasData && a.data is Success) &&
                         a.data?.data?.isEmpty == true) {
                       return _emptyView();

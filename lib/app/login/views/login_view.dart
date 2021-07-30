@@ -82,33 +82,11 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
 
-    final Animation<double> opacityBg2Animation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(
-      CurvedAnimation(
-        parent: _topAnimController,
-        curve: Interval(
-          0.09,
-          0.15,
-          curve: Curves.ease,
-        ),
-      ),
-    );
-
-    final Animation<double> heightBlueBgAnimation =
-        Tween<double>(begin: height * 0.3, end: height * 0.5).animate(
+    final Animation<double> sizeBlueBgAnimation =
+        Tween<double>(begin: 1, end: 10).animate(
       CurvedAnimation(
         parent: _topAnimController,
         curve: Interval(0.0, 0.1, curve: Curves.elasticInOut),
-      ),
-    );
-
-    final Animation<double> heightBlueBg2Animation =
-        Tween<double>(begin: height * 0.3, end: height).animate(
-      CurvedAnimation(
-        parent: _topAnimController,
-        curve: Interval(0.0, 0.1, curve: Curves.ease),
       ),
     );
 
@@ -117,7 +95,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
             .animate(
       CurvedAnimation(
         parent: _topAnimController,
-        curve: Interval(0.1, 0.125, curve: Curves.ease),
+        curve: Interval(0.11, 0.15, curve: Curves.ease),
       ),
     );
 
@@ -128,7 +106,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
       CurvedAnimation(
         parent: _topAnimController,
         curve: Interval(
-          0.125,
+          0.11,
           0.13,
           curve: Curves.ease,
         ),
@@ -154,25 +132,15 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
         AnimatedBuilder(
           animation: _topAnimController,
           builder: (context, child) {
-            return Opacity(
-              opacity: opacityBg2Animation.value,
+            return Transform.scale(
+              scale: sizeBlueBgAnimation.value,
               child: Container(
-                  color: Color(0xff0361f0),
-                  width: width,
-                  height: heightBlueBg2Animation.value,
-                  child: Container()),
-            );
-          },
-        ),
-        AnimatedBuilder(
-          animation: _topAnimController,
-          builder: (context, child) {
-            return Container(
-              width: width,
-              height: heightBlueBgAnimation.value,
-              child: SvgPicture.asset(
-                "res/drawables/bg.svg",
-                fit: BoxFit.fill,
+                width: width,
+                height: height * 0.3,
+                child: SvgPicture.asset(
+                  "res/drawables/bg.svg",
+                  fit: BoxFit.fill,
+                ),
               ),
             );
           },
@@ -458,7 +426,6 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
     if (event is Success<User>) {
       _passwordController.clear();
 
-      setState(() => _isLoading = false);
       PreferenceUtil.setLoginMode(LoginMode.FULL_ACCESS);
       PreferenceUtil.saveLoggedInUser(event.data!);
       PreferenceUtil.saveUsername(event.data?.username ?? "");
@@ -473,6 +440,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
   void checkSecurityFlags(User user) async {
     if (user.registerDevice == true) {
       _topAnimController.reset();
+      setState(() => _isLoading = false);
       showModalBottomSheet(
           context: context,
           backgroundColor: Colors.transparent,

@@ -9,15 +9,18 @@ import Foundation
 import AVFoundation
 
 
-struct CustomCamera2 {
-    
+class CustomCamera2: NSObject, FlutterTexture, AVCaptureVideoDataOutputSampleBufferDelegate, FlutterStreamHandler {
     
     private let captureSession = AVCaptureSession()
     
     private let textureRegistry: FlutterTextureRegistry
+    private(set) var latestPixelBuffer: CVPixelBuffer?
     
     init(textureRegistry: FlutterTextureRegistry) {
         self.textureRegistry = textureRegistry
+        
+        var preset: AVCaptureSession.Preset = .medium
+        captureSession.sessionPreset = preset
     }
     
     private lazy var previewLayer: AVCaptureVideoPreviewLayer = {
@@ -33,4 +36,48 @@ struct CustomCamera2 {
         self.captureSession.addInput(cameraInput)
     }
     
+    func captureOutput(_ output: AVCaptureOutput, didDrop sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+//        let newBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
+//        var old = latestPixelBuffer
+//        while !OSAtomicCompareAndSwapPtrBarrier(old!.castToCPointer(), newBuffer, latestPixelBuffer) {
+//                 old = latestPixelBuffer
+//             }
+//             if old != nil {
+//
+//             }
+//             if onFrameAvailable != nil {
+//                 onFrameAvailable()
+//             }
+    }
+    
+    func copyPixelBuffer() -> Unmanaged<CVPixelBuffer>? {
+//        var pixelBuffer = latestPixelBuffer
+//        let data = pixelBuffer
+//        while !OSAtomicCompareAndSwapPtrBarrier(pixelBuffer, nil, latestPixelBuffer) {
+//            pixelBuffer = latestPixelBuffer
+//        }
+        return nil
+    }
+    
+    func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+        
+        return nil
+    }
+    
+    func onCancel(withArguments arguments: Any?) -> FlutterError? {
+        return nil
+    }
+    
+    
+    
 }
+//extension CVPixelBuffer {
+//    func castToCPointer<T>() -> T {
+//        let mem = UnsafeMutablePointer<T>.allocate(capacity: 1)
+//        _ = UnsafeMutableBufferPointer<CVPixelBuffer>(sta)
+//        //self.(to: UnsafeMutableBufferPointer(start: mem, count: 1))
+//        let val =  mem.move()
+////        mem.deallocate(capacity: 1)
+//        return val
+//    }
+//}

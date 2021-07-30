@@ -406,6 +406,7 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
                               ? motionEvent.data ?? LivelinessMotionEvent.none()
                               : LivelinessMotionEvent.none();
 
+                          print("CameraMotionEvent => ${liveMotionEvent.eventType}");
                           _processEvents(liveMotionEvent);
 
                           _livelinessEventNotifier?.value = liveMotionEvent;

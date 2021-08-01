@@ -89,7 +89,7 @@ dependencies {
     // CameraX Lifecycle Library
     implementation "androidx.camera:camera-lifecycle:$camerax_version"
 
-    implementation "com.teamapt:livelinessdetector:1.0.4-SNAPSHOT"
+    implementation "com.teamapt:livelinessdetector:1.0.8-SNAPSHOT"
 //
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'com.amplifyframework:aws-predictions:1.17.4'

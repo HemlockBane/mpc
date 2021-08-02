@@ -9,6 +9,7 @@ import 'package:moniepoint_flutter/app/managebeneficiaries/general/remove_benefi
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/viewmodels/transfer_beneficiary_view_model.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/paging/page_config.dart';
 import 'package:moniepoint_flutter/core/paging/pager.dart';
 import 'package:moniepoint_flutter/core/paging/paging_data.dart';
 import 'package:moniepoint_flutter/core/paging/paging_source.dart';
@@ -67,6 +68,7 @@ class TransferBeneficiaryListState extends BeneficiaryListState<TransferBenefici
           ]
       ),
       child: Pager<int, TransferBeneficiary>(
+          pagingConfig: PagingConfig(pageSize: 40, initialPageSize: 40),
           source: _pagingSource,
           builder: (context, value, _) {
             return ListViewUtil.handleLoadStates(

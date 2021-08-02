@@ -49,6 +49,7 @@ class SignUpAccountScreen extends StatelessWidget  {
 
   Future<bool> _onBackPressed() async {
     final isPop = await _navigatorKey.currentState?.maybePop();
+    print("What is the value => $isPop");
     return (isPop != null && isPop) ? Future.value(false) : Future.value(true);
   }
 
@@ -65,12 +66,11 @@ class SignUpAccountScreen extends StatelessWidget  {
               titleSpacing: -10,
               leading: IconButton(
                 icon: Icon(Icons.arrow_back),
-                onPressed: () {
-                  final canPop = Navigator.of(context).canPop();
-                  if(!canPop) {
+                onPressed: () async {
+                  final canPop = await _onBackPressed();
+                  print("OnPressedValue is $canPop");
+                  if(canPop) {
                     SystemNavigator.pop();
-                  } else {
-                    Navigator.of(context).pop();
                   }
                 },
               ),

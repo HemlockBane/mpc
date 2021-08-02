@@ -37,30 +37,34 @@ class CustomCamera2: NSObject, FlutterTexture, AVCaptureVideoDataOutputSampleBuf
     }
     
     func captureOutput(_ output: AVCaptureOutput, didDrop sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-//        let newBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
+//        var newBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
 //        var old = latestPixelBuffer
-//        while !OSAtomicCompareAndSwapPtrBarrier(old!.castToCPointer(), newBuffer, latestPixelBuffer) {
+////        var pointer = UnsafeMutableBufferPointer
+//        while !OSAtomicCompareAndSwapPtrBarrier(&old, &newBuffer, latestPixelBuffer) {
 //                 old = latestPixelBuffer
 //             }
 //             if old != nil {
 //
 //             }
-//             if onFrameAvailable != nil {
-//                 onFrameAvailable()
-//             }
     }
     
     func copyPixelBuffer() -> Unmanaged<CVPixelBuffer>? {
-//        var pixelBuffer = latestPixelBuffer
-//        let data = pixelBuffer
-//        while !OSAtomicCompareAndSwapPtrBarrier(pixelBuffer, nil, latestPixelBuffer) {
-//            pixelBuffer = latestPixelBuffer
-//        }
-        return nil
+        var pixelBuffer = latestPixelBuffer
+        let data = pixelBuffer
+        while !OSAtomicCompareAndSwapPtrBarrier(&pixelBuffer, nil, latestPixelBuffer) {
+            pixelBuffer = latestPixelBuffer
+        }
+        return Unmanaged.passRetained(pixelBuffer!)
     }
     
+    deinit {
+          if latestPixelBuffer != nil {
+
+          }
+   }
+    
     func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
-        
+                
         return nil
     }
     

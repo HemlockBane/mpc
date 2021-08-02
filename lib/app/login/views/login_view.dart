@@ -275,40 +275,12 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
         });
   }
 
-  Align _buildBottomSection(BuildContext context) {
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: Container(
-        margin: EdgeInsets.only(left: 16, right: 16),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Styles.statefulButton2(
-                    isValid: _isFormValid,
-                    padding: 20,
-                    elevation: _isFormValid && !_isLoading ? 4 : 0,
-                    onClick: () => _subscribeUiToLogin(context),
-                    text: "Login",
-                    isLoading: _isLoading,
-                  ),
-                ),
-                _biometricLoginButton()
-              ],
-            ),
-            SlideTransition(
-              position: _ussdOffsetAnimation,
-              child: Container(
-                margin: EdgeInsets.only(top: 50, bottom: 0),
-                child: _bottomUSSDWidget(),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // Align _buildBottomSection(BuildContext context) {
+  //   return Align(
+  //     alignment: Alignment.bottomCenter,
+  //     child: ,
+  //   );
+  // }
 
   void _initializeAndStartBiometric() async {
     _biometricHelper = await BiometricHelper.initialize(
@@ -376,7 +348,38 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
           ),
         ),
         // SizedBox(height: 5),
-        _buildLoginBox(context)
+        _buildLoginBox(context),
+        Spacer(),
+        Container(
+          margin: EdgeInsets.only(left: 16, right: 16),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Styles.statefulButton2(
+                      isValid: _isFormValid,
+                      padding: 20,
+                      elevation: _isFormValid && !_isLoading ? 4 : 0,
+                      onClick: () => _subscribeUiToLogin(context),
+                      text: "Login",
+                      isLoading: _isLoading,
+                    ),
+                  ),
+                  _biometricLoginButton()
+                ],
+              ),
+            ],
+          ),
+        ),
+        Spacer(flex: 2),
+        SlideTransition(
+          position: _ussdOffsetAnimation,
+          child: Container(
+            margin: EdgeInsets.only(bottom: 0),
+            child: _bottomUSSDWidget(),
+          ),
+        ),
       ],
     );
   }
@@ -755,7 +758,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
                           child: _buildMidSection(context),
                         ),
                       ),
-                      _buildBottomSection(context),
+                      // _buildBottomSection(context),
                     ],
                   )
                 ],

@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter_svg/flutter_svg.dart';
@@ -83,33 +82,11 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
 
-    final Animation<double> opacityBg2Animation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(
-      CurvedAnimation(
-        parent: _topAnimController,
-        curve: Interval(
-          0.09,
-          0.15,
-          curve: Curves.ease,
-        ),
-      ),
-    );
-
-    final Animation<double> heightBlueBgAnimation =
-        Tween<double>(begin: height * 0.3, end: height * 0.5).animate(
+    final Animation<double> sizeBlueBgAnimation =
+        Tween<double>(begin: 1, end: 10).animate(
       CurvedAnimation(
         parent: _topAnimController,
         curve: Interval(0.0, 0.1, curve: Curves.elasticInOut),
-      ),
-    );
-
-    final Animation<double> heightBlueBg2Animation =
-        Tween<double>(begin: height * 0.3, end: height).animate(
-      CurvedAnimation(
-        parent: _topAnimController,
-        curve: Interval(0.0, 0.1, curve: Curves.ease),
       ),
     );
 
@@ -118,7 +95,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
             .animate(
       CurvedAnimation(
         parent: _topAnimController,
-        curve: Interval(0.1, 0.125, curve: Curves.ease),
+        curve: Interval(0.11, 0.15, curve: Curves.ease),
       ),
     );
 
@@ -129,7 +106,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
       CurvedAnimation(
         parent: _topAnimController,
         curve: Interval(
-          0.125,
+          0.11,
           0.13,
           curve: Curves.ease,
         ),
@@ -155,25 +132,15 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
         AnimatedBuilder(
           animation: _topAnimController,
           builder: (context, child) {
-            return Opacity(
-              opacity: opacityBg2Animation.value,
+            return Transform.scale(
+              scale: sizeBlueBgAnimation.value,
               child: Container(
-                  color: Color(0xff0361f0),
-                  width: width,
-                  height: heightBlueBg2Animation.value,
-                  child: Container()),
-            );
-          },
-        ),
-        AnimatedBuilder(
-          animation: _topAnimController,
-          builder: (context, child) {
-            return Container(
-              width: width,
-              height: heightBlueBgAnimation.value,
-              child: SvgPicture.asset(
-                "res/drawables/bg.svg",
-                fit: BoxFit.fill,
+                width: width,
+                height: height * 0.3,
+                child: SvgPicture.asset(
+                  "res/drawables/bg.svg",
+                  fit: BoxFit.fill,
+                ),
               ),
             );
           },
@@ -288,23 +255,24 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
     return FutureBuilder(
         future: viewModel.canLoginWithBiometric(_biometricHelper),
         builder: (mContext, AsyncSnapshot<bool> snapShot) {
-          if(!snapShot.hasData) return SizedBox();
-          if(snapShot.hasData && snapShot.data == false) return SizedBox();
+          if (!snapShot.hasData) return SizedBox();
+          if (snapShot.hasData && snapShot.data == false) return SizedBox();
           return Row(
             children: [
-              SizedBox(width: 16,),
+              SizedBox(
+                width: 16,
+              ),
               Styles.imageButton(
                   onClick: () => _startFingerPrintLoginProcess(),
                   color: Colors.primaryColor.withOpacity(0.1),
-                  padding: EdgeInsets.only(left: 15, right: 15, top: 14, bottom: 14),
+                  padding:
+                      EdgeInsets.only(left: 15, right: 15, top: 14, bottom: 14),
                   image: Platform.isAndroid
                       ? SvgPicture.asset('res/drawables/ic_finger_print.svg')
-                      : SvgPicture.asset('res/drawables/ic_login_face.svg')
-              )
+                      : SvgPicture.asset('res/drawables/ic_login_face.svg'))
             ],
           );
-        }
-    );
+        });
   }
 
   Align _buildBottomSection(BuildContext context) {
@@ -317,14 +285,14 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
             Row(
               children: [
                 Expanded(
-                    child: Styles.statefulButton2(
-                      isValid: _isFormValid,
-                      padding: 20,
-                      elevation: _isFormValid && !_isLoading ? 4 : 0,
-                      onClick: () => _subscribeUiToLogin(context),
-                      text: "Login",
-                      isLoading: _isLoading,
-                    ),
+                  child: Styles.statefulButton2(
+                    isValid: _isFormValid,
+                    padding: 20,
+                    elevation: _isFormValid && !_isLoading ? 4 : 0,
+                    onClick: () => _subscribeUiToLogin(context),
+                    text: "Login",
+                    isLoading: _isLoading,
+                  ),
                 ),
                 _biometricLoginButton()
               ],
@@ -453,12 +421,11 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
             return BottomSheets.displayErrorModal(context,
                 message: event.message);
           });
+      _topAnimController.reset();
     }
     if (event is Success<User>) {
       _passwordController.clear();
-      _topAnimController.reset();
 
-      setState(() => _isLoading = false);
       PreferenceUtil.setLoginMode(LoginMode.FULL_ACCESS);
       PreferenceUtil.saveLoggedInUser(event.data!);
       PreferenceUtil.saveUsername(event.data?.username ?? "");
@@ -466,39 +433,42 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
     }
   }
 
-  void loginSuccessfully() {
-    Navigator.popAndPushNamed(context, Routes.DASHBOARD);
+  Future<void> navigateToDashboardView() async {
+    await Navigator.pushReplacementNamed(context, Routes.DASHBOARD);
   }
 
-  void checkSecurityFlags(User user) {
-    if(user.registerDevice == true) {
-        showModalBottomSheet(
-            context: context,
-            backgroundColor: Colors.transparent,
-            builder: (b) => BottomSheets.displayInfoDialog(
-                context,
-                message: "Your login was successful, but this device is not recognized.",
-                title: "Device not recognized",
-                primaryButtonText: "Register Device",
-                secondaryButtonText: "Dismiss",
-                onPrimaryClick: () async {
-                  Navigator.of(context).popAndPushNamed(Routes.ACCOUNT_RECOVERY, arguments: RecoveryMode.DEVICE);
-                }
-            )
-        );
+  void checkSecurityFlags(User user) async {
+    if (user.registerDevice == true) {
+      _topAnimController.reset();
+      setState(() => _isLoading = false);
+      showModalBottomSheet(
+          context: context,
+          backgroundColor: Colors.transparent,
+          builder: (b) => BottomSheets.displayInfoDialog(context,
+                  message:
+                      "Your login was successful, but this device is not recognized.",
+                  title: "Device not recognized",
+                  primaryButtonText: "Register Device",
+                  secondaryButtonText: "Dismiss", onPrimaryClick: () async {
+                Navigator.of(context).popAndPushNamed(Routes.ACCOUNT_RECOVERY,
+                    arguments: RecoveryMode.DEVICE);
+              }));
     } else {
-      loginSuccessfully();
+      navigateToDashboardView();
     }
   }
 
   void _startFingerPrintLoginProcess() async {
     final viewModel = Provider.of<LoginViewModel>(context, listen: false);
+
     final biometricType = await _biometricHelper?.getBiometricType();
-    final hasFingerPrint = (await _biometricHelper?.getFingerprintPassword()) != null;
+    final hasFingerPrint =
+        (await _biometricHelper?.getFingerprintPassword()) != null;
     if (biometricType != BiometricType.NONE) {
       if (PreferenceUtil.getFingerPrintEnabled() && hasFingerPrint) {
         _biometricHelper?.authenticate(authenticationCallback: (key, msg) {
           if (key != null) {
+            _topAnimController.forward();
             viewModel
                 .loginWithFingerPrint(
                     key, PreferenceUtil.getAuthFingerprintUsername() ?? "")
@@ -519,9 +489,14 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
         builder: (context) {
           return BottomSheets.makeAppBottomSheet2(
               height: 420,
-              dialogIcon: SvgPicture.asset('res/drawables/ic_info_italic.svg', color: Colors.primaryColor, width: 40, height: 40,),
+              dialogIcon: SvgPicture.asset(
+                'res/drawables/ic_info_italic.svg',
+                color: Colors.primaryColor,
+                width: 40,
+                height: 40,
+              ),
               centerImageBackgroundColor: Colors.primaryColor.withOpacity(0.1),
-              centerBackgroundPadding :15,
+              centerBackgroundPadding: 15,
               content: RecoverCredentialsDialogLayout.getLayout(context));
         });
   }
@@ -626,19 +601,17 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget  _bottomUSSDWidget() {
+  Widget _bottomUSSDWidget() {
     Tuple<String, String> codes = OtpUssdInfoView.getUSSDDialingCodeAndPreview(
-        "Main Menu", defaultCode: "*5573#"
-    );
+        "Main Menu",
+        defaultCode: "*5573#");
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.only(
             topLeft: Radius.circular(10), topRight: Radius.circular(10)),
-        border: Border.all(
-          color: Colors.cardBorder.withOpacity(0.05),
-          width: 0.6
-        ),
+        border:
+            Border.all(color: Colors.cardBorder.withOpacity(0.05), width: 0.6),
         boxShadow: [
           BoxShadow(
             offset: Offset(0, 1),
@@ -773,13 +746,12 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
                   Column(
                     children: [
                       SizedBox(
-                        height:  minHeight * 0.35,
+                        height: minHeight * 0.35,
                       ),
                       Expanded(
                         child: Container(
                           padding: EdgeInsets.only(
-                              left: 0, right: 0, top: 34, bottom: 0
-                          ),
+                              left: 0, right: 0, top: 34, bottom: 0),
                           child: _buildMidSection(context),
                         ),
                       ),

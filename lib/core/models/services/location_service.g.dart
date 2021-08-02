@@ -9,7 +9,7 @@ part of 'location_service.dart';
 class _LocationService implements LocationService {
   _LocationService(this._dio, {this.baseUrl}) {
     baseUrl ??=
-        'https://core-operations.monnify.development.teamapt.com/api/v1/location/';
+        'https://moniepoint-customer-operations-service-v2.console.teamapt.com/api/v1/location/';
   }
 
   final Dio _dio;
@@ -27,7 +27,7 @@ class _LocationService implements LocationService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.6'
                 },
                 extra: _extra,
                 contentType: 'application/json')

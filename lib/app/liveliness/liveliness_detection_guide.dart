@@ -8,7 +8,6 @@ import 'package:lottie/lottie.dart';
 import 'package:moniepoint_flutter/app/liveliness/model/data/liveliness_error.dart';
 import 'package:moniepoint_flutter/app/liveliness/liveliness_background_frame.dart';
 import 'package:moniepoint_flutter/app/liveliness/viewmodels/liveliness_verification_viewmodel.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/client_error.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
@@ -198,7 +197,10 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
       } else if(_previousMotionEvent == CameraMotionEvent.ImageOverExposed
           || _previousMotionEvent == CameraMotionEvent.ImageUnderExposed) {
         _state = LivelinessState.LOCAL_ERROR;
-        widget.callback.pauseDetection().then((value) => "");
+        print("We are pausing for image underexposed");
+        Future.delayed(Duration(milliseconds: 300), (){
+          widget.callback.pauseDetection().then((value) => "");
+        });
       }
     });
   }
@@ -213,7 +215,8 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
     if(motionEvent.eventType == CameraMotionEvent.NoFaceDetectedEvent) {
       return "Checking for face...";
     }
-    if(motionEvent.eventType == CameraMotionEvent.FaceOutOfBoundsEvent && _state != LivelinessState.STARTED) {
+    if(motionEvent.eventType == CameraMotionEvent.FaceOutOfBoundsEvent
+        && _state != LivelinessState.STARTED) {
       return "Position face in frame";
     }
     return "";
@@ -406,6 +409,7 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
                               ? motionEvent.data ?? LivelinessMotionEvent.none()
                               : LivelinessMotionEvent.none();
 
+                          print("CameraMotionEvent => ${liveMotionEvent.eventType}");
                           _processEvents(liveMotionEvent);
 
                           _livelinessEventNotifier?.value = liveMotionEvent;

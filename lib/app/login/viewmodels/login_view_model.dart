@@ -1,15 +1,12 @@
-import 'dart:collection';
-import 'dart:convert';
+
 import 'dart:io';
 
-import 'package:device_info/device_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moniepoint_flutter/app/login/model/data/authentication_method.dart';
 import 'package:moniepoint_flutter/app/login/model/data/fingerprint_login_request.dart';
 import 'package:moniepoint_flutter/app/login/model/data/login_request.dart';
 import 'package:moniepoint_flutter/app/login/model/data/password_login_request.dart';
-import 'package:moniepoint_flutter/app/login/model/data/security_flag.dart';
 import 'package:moniepoint_flutter/app/login/model/data/user.dart';
 import 'package:moniepoint_flutter/app/login/model/login_service_delegate.dart';
 import 'package:moniepoint_flutter/core/config/build_config.dart';

@@ -20,12 +20,12 @@ if (flutterRoot == null) {
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
 if (flutterVersionCode == null) {
-    flutterVersionCode = '3'
+    flutterVersionCode = '5'
 }
 
 def flutterVersionName = localProperties.getProperty('flutter.versionName')
 if (flutterVersionName == null) {
-    flutterVersionName = '1.0.4'
+    flutterVersionName = '1.0.6'
 }
 
 apply plugin: 'com.android.application'
@@ -82,14 +82,15 @@ flutter {
 }
 
 dependencies {
-    compile project(":livelinessdetector-debug")
+//    compile project(":livelinessdetector-debug")
     def camerax_version = "1.0.0"
     // CameraX core library using camera2 implementation
     implementation "androidx.camera:camera-camera2:$camerax_version"
     // CameraX Lifecycle Library
     implementation "androidx.camera:camera-lifecycle:$camerax_version"
 
-//    implementation "com.teamapt:livelinessdetector:1.0.3-SNAPSHOT"
+
+    implementation "com.teamapt:livelinessdetector:1.0.9-SNAPSHOT"
 //
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'com.amplifyframework:aws-predictions:1.17.4'

@@ -35,47 +35,47 @@ typedef enum {
 
 @class CIDetector;
 
-@interface CaptureViewController : UIViewController <AVCaptureVideoDataOutputSampleBufferDelegate, NSURLSessionDataDelegate>
+@interface CaptureViewController : NSObject
 {
-@private
-    // Visual effect views
-    UIVisualEffectView *viewWithBlurredBackground;
-    UIVisualEffectView *statusViewBlurred;
-    UIVisualEffectView *alertView;
-    
-    // Progress views
-    UIProgressView *uploadProgressView1;
-    UIProgressView *uploadProgressView2;
-    
-    // Labels for displaying messages
-    UILabel *messageLabel;
-    UILabel *statusLabel;
-    UILabel *debugLabel;
-    
-    // SceneView for 3D head
-    SCNView *sceneView;
- 
-    // NSURLSessionDataTask for uploads
-    NSURLSessionDataTask *uploadTask1;
-    NSURLSessionDataTask *uploadTask2;
-    
-    // Capture device & video output
-    BOOL cameraAccess;
-    AVCaptureDevice *captureDevice;
-    AVCaptureVideoPreviewLayer *previewLayer;
-    AVCaptureVideoDataOutput *videoDataOutput;
-    dispatch_queue_t videoDataOutputQueue;
-    
-    // FaceDetector
     CIDetector *faceDetector;
+@private
+//    // Visual effect views
+//    UIVisualEffectView *viewWithBlurredBackground;
+//    UIVisualEffectView *statusViewBlurred;
+//    UIVisualEffectView *alertView;
+//
+//    // Progress views
+//    UIProgressView *uploadProgressView1;
+//    UIProgressView *uploadProgressView2;
+//
+//    // Labels for displaying messages
+//    UILabel *messageLabel;
+//    UILabel *statusLabel;
+//    UILabel *debugLabel;
+//
+//    // SceneView for 3D head
+//    SCNView *sceneView;
+//
+//    // NSURLSessionDataTask for uploads
+//    NSURLSessionDataTask *uploadTask1;
+//    NSURLSessionDataTask *uploadTask2;
+    
+//    // Capture device & video output
+//    BOOL cameraAccess;
+//    AVCaptureDevice *captureDevice;
+//    AVCaptureVideoPreviewLayer *previewLayer;
+//    AVCaptureVideoDataOutput *videoDataOutput;
+//    dispatch_queue_t videoDataOutputQueue;
+//    
+    // FaceDetector
     NSDictionary *detectorOptions;
 
-    // Timers
-    NSTimer *cameraTimer;
-    NSTimer *killTimer;
-    NSTimer *triggerTimer;
-    NSTimer *displayTimer;
-    NSTimer *challengeResponseTimer;
+//    // Timers
+//    NSTimer *cameraTimer;
+//    NSTimer *killTimer;
+//    NSTimer *triggerTimer;
+//    NSTimer *displayTimer;
+//    NSTimer *challengeResponseTimer;
     
     // Template for motion detection
     int templateWidth;
@@ -133,6 +133,10 @@ typedef enum {
     BOOL challengeRunning;
     BOOL challengeWait;
 }
+
+- (void)createTemplate: (UIImage *) first;
+
+- (void)initFaceFinder;
 
 @property (weak, nonatomic) IBOutlet UIView *previewView;
 // configuration settings and callback provided by the caller

@@ -8,8 +8,7 @@ part of 'usermanagement_service.dart';
 
 class _UserManagementService implements UserManagementService {
   _UserManagementService(this._dio, {this.baseUrl}) {
-    baseUrl ??=
-        'https://moniepoint-customer-operations-service-v2.console.teamapt.com/api/';
+    baseUrl ??= 'https://core-operations.monnify.development.teamapt.com/api/';
   }
 
   final Dio _dio;
@@ -58,7 +57,7 @@ class _UserManagementService implements UserManagementService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'multipart/form-data',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.0.6'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'multipart/form-data')
@@ -126,7 +125,7 @@ class _UserManagementService implements UserManagementService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'multipart/form-data',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.0.6'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'multipart/form-data')
@@ -165,7 +164,7 @@ class _UserManagementService implements UserManagementService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.0.6'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -191,7 +190,7 @@ class _UserManagementService implements UserManagementService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.0.6'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -217,7 +216,7 @@ class _UserManagementService implements UserManagementService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.0.6'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -243,7 +242,7 @@ class _UserManagementService implements UserManagementService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.0.6'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -269,7 +268,7 @@ class _UserManagementService implements UserManagementService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.0.6'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -296,7 +295,7 @@ class _UserManagementService implements UserManagementService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.0.6'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')

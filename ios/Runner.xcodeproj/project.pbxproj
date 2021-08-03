@@ -17,7 +17,7 @@
 		4C869F5F268C7B8500E12B74 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4C869F5E268C7B8500E12B74 /* LaunchScreen.storyboard */; };
 		4C9FF28A26B2E85D00AA5535 /* LivelinessMethodHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9FF28926B2E85D00AA5535 /* LivelinessMethodHandler.swift */; };
 		4C9FF28C26B2F01E00AA5535 /* CustomCamera2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C9FF28B26B2F01E00AA5535 /* CustomCamera2.swift */; };
-		4C9FF28E26B300E700AA5535 /* MotionDetector.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C9FF28D26B300E700AA5535 /* MotionDetector.m */; };
+		4C9FF28E26B300E700AA5535 /* CaptureViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C9FF28D26B300E700AA5535 /* CaptureViewController.m */; };
 		4C9FF29326B307A900AA5535 /* CaptureConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C9FF29226B307A900AA5535 /* CaptureConfiguration.m */; };
 		4CA1CFCF26956C8400740E8A /* BiometricMethodHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CA1CFCE26956C8400740E8A /* BiometricMethodHandler.swift */; };
 		4EC214CE6FF5DA98E58B1F20 /* amplifyconfiguration.json in Resources */ = {isa = PBXBuildFile; fileRef = AC653AFF20C2F41E015150D5 /* amplifyconfiguration.json */; };
@@ -59,7 +59,7 @@
 		4C869F5E268C7B8500E12B74 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		4C9FF28926B2E85D00AA5535 /* LivelinessMethodHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LivelinessMethodHandler.swift; sourceTree = "<group>"; };
 		4C9FF28B26B2F01E00AA5535 /* CustomCamera2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomCamera2.swift; sourceTree = "<group>"; };
-		4C9FF28D26B300E700AA5535 /* MotionDetector.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MotionDetector.m; sourceTree = "<group>"; };
+		4C9FF28D26B300E700AA5535 /* CaptureViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CaptureViewController.m; sourceTree = "<group>"; };
 		4C9FF28F26B3015C00AA5535 /* CaptureViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CaptureViewController.h; sourceTree = "<group>"; };
 		4C9FF29126B303CA00AA5535 /* CaptureConfiguration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CaptureConfiguration.h; sourceTree = "<group>"; };
 		4C9FF29226B307A900AA5535 /* CaptureConfiguration.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CaptureConfiguration.m; sourceTree = "<group>"; };
@@ -115,7 +115,7 @@
 		4C9FF29026B302AD00AA5535 /* bioid */ = {
 			isa = PBXGroup;
 			children = (
-				4C9FF28D26B300E700AA5535 /* MotionDetector.m */,
+				4C9FF28D26B300E700AA5535 /* CaptureViewController.m */,
 				4C9FF28F26B3015C00AA5535 /* CaptureViewController.h */,
 				4C9FF29126B303CA00AA5535 /* CaptureConfiguration.h */,
 				4C9FF29226B307A900AA5535 /* CaptureConfiguration.m */,
@@ -393,7 +393,7 @@
 				4C9FF28C26B2F01E00AA5535 /* CustomCamera2.swift in Sources */,
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
-				4C9FF28E26B300E700AA5535 /* MotionDetector.m in Sources */,
+				4C9FF28E26B300E700AA5535 /* CaptureViewController.m in Sources */,
 				4C9FF29326B307A900AA5535 /* CaptureConfiguration.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

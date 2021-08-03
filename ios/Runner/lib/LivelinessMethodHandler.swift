@@ -33,16 +33,19 @@ struct LivelinessMethodHandler {
                     return
                 }
             } catch {
-                
+                print("Unexpected Error: \(error)")
             }
         }
     }
     
     func initializeCamera(call: FlutterMethodCall, reply:@escaping FlutterResult) {
-        weak var registrar = controller.registrar(forPlugin: "liveliness-camera")
-        let texture = registrar?.textures()
-        let camera = CustomCamera2(textureRegistry: texture!)
-        let cameraId = texture?.register(camera)
-        reply(["cameraId":cameraId])
+        print("Calling initialize cameraaooooo")
+        weak var registrar = controller.engine?.registrar(forPlugin: "test")
+        let texture:FlutterTextureRegistry = (registrar?.textures())!
+        let camera = CustomCamera2(textureRegistry: texture)
+        camera.startCamera()
+        let cameraId = texture.register(camera)
+        print("CameraID => \(cameraId ?? -1)")
+        reply(["cameraId": cameraId])
     }
 }

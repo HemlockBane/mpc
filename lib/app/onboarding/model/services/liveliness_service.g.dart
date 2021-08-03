@@ -9,7 +9,7 @@ part of 'liveliness_service.dart';
 class _LivelinessService implements LivelinessService {
   _LivelinessService(this._dio, {this.baseUrl}) {
     baseUrl ??=
-        'https://moniepoint-customer-operations-service-v2.console.teamapt.com/api/v1/liveness-check/';
+        'https://core-operations.monnify.development.teamapt.com/api/v1/liveness-check/';
   }
 
   final Dio _dio;
@@ -27,7 +27,7 @@ class _LivelinessService implements LivelinessService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.0.6'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -58,7 +58,7 @@ class _LivelinessService implements LivelinessService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.0.6'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')

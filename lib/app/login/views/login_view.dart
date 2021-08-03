@@ -275,13 +275,6 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
         });
   }
 
-  // Align _buildBottomSection(BuildContext context) {
-  //   return Align(
-  //     alignment: Alignment.bottomCenter,
-  //     child: ,
-  //   );
-  // }
-
   void _initializeAndStartBiometric() async {
     _biometricHelper = await BiometricHelper.initialize(
         keyFileName: "moniepoint_iv",
@@ -340,7 +333,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
           child: Text(
-            'Welcome back, Adrian',
+            'Welcome',
             style: TextStyle(
                 color: Colors.textColorBlack,
                 fontWeight: FontWeight.bold,
@@ -432,6 +425,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
       PreferenceUtil.setLoginMode(LoginMode.FULL_ACCESS);
       PreferenceUtil.saveLoggedInUser(event.data!);
       PreferenceUtil.saveUsername(event.data?.username ?? "");
+      //PreferenceUtil.saveCustomerName(event.data?.customers?.first.name);
       checkSecurityFlags(event.data!);
     }
   }
@@ -502,34 +496,6 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
               centerBackgroundPadding: 15,
               content: RecoverCredentialsDialogLayout.getLayout(context));
         });
-  }
-
-  void _displayLoginOptions() async {
-    final biometricHelper = BiometricHelper.getInstance();
-    final biometricType = await biometricHelper.getBiometricType();
-    final fingerprintPassword = await biometricHelper.getFingerprintPassword();
-    final isBiometricAvailable = biometricType != BiometricType.NONE;
-    final isFingerprintSetup = fingerprintPassword != null;
-
-    final result = await showModalBottomSheet(
-        isScrollControlled: false,
-        context: context,
-        backgroundColor: Colors.transparent,
-        builder: (context) {
-          return BottomSheets.makeAppBottomSheet(
-              height: 420,
-              //this is like our guideline
-              centerImageRes: 'res/drawables/ic_login_options.svg',
-              centerBackgroundPadding: 18,
-              centerImageBackgroundColor: Colors.primaryColor.withOpacity(0.1),
-              content: LoginOptionsDialogLayout.getLayout(context,
-                  isFingerprintAvailable: isBiometricAvailable,
-                  hasFingerprintPassword: isFingerprintSetup));
-        });
-
-    if (result is String && result == "fingerprint") {
-      _startFingerPrintLoginProcess();
-    }
   }
 
   Widget _buildLoginBox(BuildContext context) {

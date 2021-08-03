@@ -136,6 +136,10 @@ typedef enum {
 
 - (void)createTemplate: (UIImage *) first;
 
+-(BOOL)motionDetection:(UIImage *)current;
+
+- (UIImage *)imageFromSampleBuffer:(CMSampleBufferRef) sampleBuffer orientation:(UIImageOrientation)imageOrientation;
+
 - (void)initFaceFinder;
 
 @property (weak, nonatomic) IBOutlet UIView *previewView;

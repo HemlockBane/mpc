@@ -12,14 +12,26 @@ import UIKit
 enum CameraMotionEvent {
     case FaceDetectedEvent
     case NoFaceDetectedEvent
+    case FirstCaptureEvent(path: URL?)
+    case MotionDetectedEvent(path: URL?)
+    case NoMotionDetectedEvent(path: URL?)
 }
 
 
-class CustomCamera2: NSObject, FlutterTexture, AVCaptureVideoDataOutputSampleBufferDelegate, FlutterStreamHandler {
+class CustomCamera2: NSObject, FlutterTexture, AVCaptureVideoDataOutputSampleBufferDelegate {
     
     private let captureSession = AVCaptureSession()
     private let motionDetector = CaptureViewController()
     private let faceDectector: CIDetector!
+    private var eventHandler: (_:CameraMotionEvent)->Void = {(_) in }
+    private var onFrameAvailable: ()->Void = {}
+    
+    private var hasCapturedFirstImage: Bool = false
+    private var hasCapturedMotionImage: Bool = false
+    private var _pauseListening: Bool = false
+    private var _beginCapture: Bool = false
+    
+    private var processing: Bool = false
     
     private let textureRegistry: FlutterTextureRegistry
     private(set) var latestPixelBuffer: CVPixelBuffer?
@@ -35,6 +47,25 @@ class CustomCamera2: NSObject, FlutterTexture, AVCaptureVideoDataOutputSampleBuf
         captureSession.sessionPreset = preset
     }
     
+    
+    func pauseListening() {
+        self._pauseListening = true
+    }
+    
+    func resumeListening() {
+        self._pauseListening = false
+    }
+    
+    func beginCapture() { self._beginCapture = true }
+    func endCapture() { self._beginCapture = false }
+
+    func reset(){
+        hasCapturedFirstImage = false
+        hasCapturedMotionImage = false
+        self.endCapture()
+        self._pauseListening = false
+        //eyeMidPoint.set(0f, 0f)
+    }
 //    private lazy var previewLayer: AVCaptureVideoPreviewLayer = {
 //        let preview = AVCaptureVideoPreviewLayer(session: captureSession)
 //        preview.videoGravity = .resizeAspect
@@ -43,7 +74,7 @@ class CustomCamera2: NSObject, FlutterTexture, AVCaptureVideoDataOutputSampleBuf
     
 
     private func addCameraInput() {
-        let device = AVCaptureDevice.default(for: .video)!
+        let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front)!
         let cameraInput = try! AVCaptureDeviceInput(device: device)
         self.captureSession.addInput(cameraInput)
     }
@@ -53,7 +84,28 @@ class CustomCamera2: NSObject, FlutterTexture, AVCaptureVideoDataOutputSampleBuf
         outputDevice.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA]
         outputDevice.alwaysDiscardsLateVideoFrames = true
         outputDevice.setSampleBufferDelegate(self, queue: DispatchQueue.main)
-        self.captureSession.addOutput(outputDevice)
+        
+        let input = captureSession.inputs[0]
+        
+        let aPorts = input.ports
+        let connection = AVCaptureConnection(inputPorts: aPorts, output: outputDevice)
+        
+        if(connection.isVideoOrientationSupported == true) {
+            print("We Are Setting up the portraint part")
+            connection.isVideoMirrored = true
+            connection.videoOrientation = .portrait
+        }
+        
+        self.captureSession.addOutputWithNoConnections(outputDevice)
+        self.captureSession.addConnection(connection)
+    }
+    
+    func setFrameAvailableHander(handler: @escaping ()->Void) {
+        self.onFrameAvailable = handler
+    }
+    
+    func startListening(eventHandler: @escaping(_: CameraMotionEvent)->Void) {
+        self.eventHandler = eventHandler
     }
     
     private func initalizeIO() {
@@ -69,29 +121,88 @@ class CustomCamera2: NSObject, FlutterTexture, AVCaptureVideoDataOutputSampleBuf
         }
     }
     
+    func stop() {
+        self.reset()
+        self.captureSession.stopRunning()
+    }
+    
     func captureOutput(_ output: AVCaptureOutput, didDrop sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         print("Capturing DidDrop")
     }
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
+        
+        
+        latestPixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
+        
+        onFrameAvailable()
+
+        if(_pauseListening || processing){
             return
         }
-        let cImage = CIImage.init(cvImageBuffer: imageBuffer)
+        
+        
+        let cImage = CIImage.init(cvImageBuffer: latestPixelBuffer!)
         //first lets check if we can detect faces
-        //    UIImageOrientation imageOrientation = UIImageOrientationRight;
+        //UIImageOrientation imageOrientation = UIImageOrientationRight;
         //let deviceOrientation = UIDevice.current.orientation
         
-        validateGeneralProblems(cImage: cImage)
+        processing = true;
+        
+        let passesGeneralProblems = validateGeneralProblems(cImage: cImage)
+        
+        if(!_beginCapture){
+            processing = false;
+            return
+        }
+        
+        if(!hasCapturedFirstImage && passesGeneralProblems) {
+            let uiImage = motionDetector.image(from: sampleBuffer, orientation: UIImage.Orientation.up)
+            motionDetector.createTemplate(uiImage)
+            let savedImage = saveImageToDisk(uiImage: uiImage)
+            self.hasCapturedFirstImage = true
+            self.eventHandler(.FirstCaptureEvent(path: savedImage))
+        } else if(hasCapturedFirstImage && passesGeneralProblems){
+            let uiImage = motionDetector.image(from: sampleBuffer, orientation: UIImage.Orientation.up)
+            let motionDetected = motionDetector.motionDetection(uiImage)
+            if(motionDetected) {
+                pauseListening()
+                let savedImage = saveImageToDisk(uiImage: uiImage, prefix: "MOTION_CAP_")
+                self.hasCapturedMotionImage = true
+                self.eventHandler(.MotionDetectedEvent(path: savedImage))
+            }else {
+                self.eventHandler(.NoMotionDetectedEvent(path: nil))
+            }
+        }
+        processing = false;
+    }
+    
+    func saveImageToDisk(uiImage: UIImage?, prefix: String = "FIRST_CAP_")-> URL? {
+        if(uiImage == nil) { return nil }
+        let temp = FileManager.default.temporaryDirectory
+        let random = UUID().uuidString
+        if let data = uiImage?.jpegData(compressionQuality: 0.8) {
+            let fileName = temp.appendingPathComponent("\(prefix)\(random).JPG")
+            try? data.write(to: fileName)
+            return fileName
+        }
+        return nil
     }
     
     func validateGeneralProblems(cImage: CIImage) -> Bool {
         let detectedFace = isFaceDetected(ciImage: cImage)
         
         if(!detectedFace) {
-            
+            self.eventHandler(.NoFaceDetectedEvent)
+            return false
         }
         
+        //Check if the face is within frameSize
+        
+        
+        //Check brigthness
+        
+        self.eventHandler(.FaceDetectedEvent)
         return true
     }
     
@@ -121,38 +232,24 @@ class CustomCamera2: NSObject, FlutterTexture, AVCaptureVideoDataOutputSampleBuf
         return true
     }
     
+//    private var pointer:UnsafeMutableRawPointer? = UnsafeMutableRawPointer.allocate(byteCount: 90, alignment: 1)
     func copyPixelBuffer() -> Unmanaged<CVPixelBuffer>? {
-        print("Calling CopyPixelBuffer --->>> IIOOOSSS")
+        print("Calling CopyPixelBuffer <<<---->>> IIOOOSSS")
         var pixelBuffer = latestPixelBuffer
-        while !OSAtomicCompareAndSwapPtrBarrier(&pixelBuffer, nil, nil) {
-            pixelBuffer = latestPixelBuffer
+//        while !OSAtomicCompareAndSwapPtrBarrier(&pixelBuffer, nil, &(UnsafeMutableRawPointer **)latestPixelBuffer) {
+//            pixelBuffer = latestPixelBuffer
+//        }
+        if(pixelBuffer == nil) {
+            return nil
         }
+        print("Calling CopyPixelBuffer <<<---->>> WITH VALUE BRUVVVVV")
         return Unmanaged.passRetained(pixelBuffer!)
     }
-    
     
     deinit {
         if latestPixelBuffer != nil {
 
         }
    }
-    
-    func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
-        return nil
-    }
-    
-    func onCancel(withArguments arguments: Any?) -> FlutterError? {
-        return nil
-    }
 
 }
-//extension CVPixelBuffer {
-//    func castToCPointer<T>() -> T {
-//        let mem = UnsafeMutablePointer<T>.allocate(capacity: 1)
-//        _ = UnsafeMutableBufferPointer<CVPixelBuffer>(sta)
-//        //self.(to: UnsafeMutableBufferPointer(start: mem, count: 1))
-//        let val =  mem.move()
-////        mem.deallocate(capacity: 1)
-//        return val
-//    }
-//}

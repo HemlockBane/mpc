@@ -77,6 +77,8 @@ class ProfileForm with ChangeNotifier, Validators {
           && _validationState.status == UsernameValidationStatus.AVAILABLE
           && _hasSignature;
     }).asBroadcastStream();
+
+    _emailController.sink.add("");
   }
 
   void onUsernameChanged(String? text) {

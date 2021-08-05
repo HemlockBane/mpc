@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:moniepoint_flutter/app/customer/customer.dart';
+import 'package:moniepoint_flutter/app/login/model/data/login_prompt.dart';
 
 import 'security_flag.dart';
 
@@ -7,9 +8,9 @@ part 'user.g.dart';
 
 @JsonSerializable()
 class User {
-  @JsonKey(name:"access_token")
+  @JsonKey(name: "access_token")
   String? accessToken;
-  @JsonKey(name:"token_type")
+  @JsonKey(name: "token_type")
   String? tokenType;
   int? expiresIn;
   String? scope;
@@ -26,9 +27,11 @@ class User {
   List<Customer>? customers;
   String? email;
   String? username;
+   @JsonKey(name: "loginCommandPrompts")
+  List<LoginPrompt>? loginPrompts;
+
 
   User();
-
 
   User withAccessToken(String? token) {
     this.accessToken = token;
@@ -52,7 +55,7 @@ class User {
   //   this.email,
   //   this.username});
 
-  factory User.fromJson(Object? data) => _$UserFromJson(data as Map<String, dynamic>);
+  factory User.fromJson(Object? data) =>
+      _$UserFromJson(data as Map<String, dynamic>);
   Map<String, dynamic> toJson() => _$UserToJson(this);
-
 }

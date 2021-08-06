@@ -264,8 +264,8 @@ class _DashboardScreen extends State<DashboardScreen>
                                         userAccount, index),
                                     child: DashboardContainerView(
                                       key: Key("$index"),
-                                      viewModel:
-                                          _viewModel, //TODO don't pass the view-model
+                                      viewModel: _viewModel,
+                                      //TODO don't pass the view-model
                                       userAccount: userAccount,
                                       position: index,
                                       qualifiedTier: qualifiedTier,
@@ -326,8 +326,8 @@ class _DashboardScreen extends State<DashboardScreen>
                             ),
                             SizedBox(height: 16),
                             AspectRatio(
-                              aspectRatio: 3 /
-                                  2.8, //UserInstance().accountStatus?.postNoDebit == true ? 3 / 2.8 : 3 / 2.5,
+                              aspectRatio: 3 / 2.8,
+                              //UserInstance().accountStatus?.postNoDebit == true ? 3 / 2.8 : 3 / 2.5,
                               child: _centerDashboardContainer(_viewModel),
                             ),
                             SizedBox(height: 110),
@@ -411,8 +411,11 @@ class _DashboardScreen extends State<DashboardScreen>
                         insetPadding:
                             EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                         backgroundColor: Colors.transparent,
-                        child: BottomSheets.displayLoginPrompt(context,
-                            prompt: prompt, cardController: controller),
+                        child: BottomSheets.displayLoginPrompt(
+                          context,
+                          prompt: prompt,
+                          cardController: controller,
+                        ),
                       );
                     },
                   ),
@@ -492,24 +495,25 @@ var data = {
   "lastModifiedBy": "SYSTEM",
   "version": 0,
   "title": "Holiday",
-  "image": {
-    "id": 1,
-    "createdOn": "2021-07-13T21:28:46.000+0000",
-    "lastModifiedOn": "2021-07-13T22:28:46",
-    "deleted": false,
-    "createdBy": "peguda",
-    "lastModifiedBy": "peguda",
-    "version": 0,
-    "name": "Test",
-    "type": "PNG",
-    // "uuidRef": "https://picsum.photos/250?image=9",
-    "uuidRef": null,
+  "image": null,
+  // "image": {
+  //   "id": 1,
+  //   "createdOn": "2021-07-13T21:28:46.000+0000",
+  //   "lastModifiedOn": "2021-07-13T22:28:46",
+  //   "deleted": false,
+  //   "createdBy": "peguda",
+  //   "lastModifiedBy": "peguda",
+  //   "version": 0,
+  //   "name": "Test",
+  //   "type": "PNG",
+  //   // "uuidRef": "https://picsum.photos/250?image=9",
+  //   "uuidRef": null,
 
-    "svgText": ""
-  },
-  // "videoLink":
-  //     "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4",
-  "videoLink": null,
+  //   "svgText": ""
+  // },
+  "videoLink":
+      "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4",
+  // "videoLink": null,
   "message": "default",
   "navigationList": [
     {

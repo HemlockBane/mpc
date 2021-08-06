@@ -2,8 +2,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'prompt_image.g.dart';
 
-
-
 @JsonSerializable()
 class PromptImage {
   String? name;
@@ -17,4 +15,7 @@ class PromptImage {
       _$PromptImageFromJson(data as Map<String, dynamic>);
 
   Map<String, dynamic> toJson() => _$PromptImageToJson(this);
+
+  bool get isSvg => this.type == "SVG";
+  bool get isPng => this.type == "PNG" && this.uuidRef != null;
 }

@@ -10,6 +10,7 @@ import 'package:moniepoint_flutter/app/accounts/views/account_transactions_view.
 import 'package:moniepoint_flutter/app/accounts/views/block_account_view.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/account_update_view.dart';
 import 'package:moniepoint_flutter/app/airtime/viewmodels/airtime_history_detail_view_model.dart';
+import 'package:moniepoint_flutter/app/airtime/viewmodels/service_provider_view_model.dart';
 import 'package:moniepoint_flutter/app/airtime/views/airtime_history_detailed_view.dart';
 import 'package:moniepoint_flutter/app/airtime/views/airtime_view.dart';
 import 'package:moniepoint_flutter/app/billpayments/viewmodels/bill_history_detail_view_model.dart';
@@ -65,9 +66,8 @@ final defaultAppTheme = ThemeData(
     backgroundColor: Colors.backgroundWhite,
     fontFamily: Styles.defaultFont,
     textTheme: TextTheme(
-        bodyText2: TextStyle(fontFamily: Styles.defaultFont, fontFamilyFallback: ["Roboto"])
-    )
-);
+        bodyText2: TextStyle(
+            fontFamily: Styles.defaultFont, fontFamilyFallback: ["Roboto"])));
 
 class MoniepointApp extends StatelessWidget {
   // This widget is the root of your application
@@ -96,23 +96,28 @@ class MoniepointApp extends StatelessWidget {
       theme: defaultAppTheme,
       home: Scaffold(
         body: (savedUsername == null || savedUsername.isEmpty)
-          ? SignUpAccountScreen()
-          : LoginScreen(),
+            ? SignUpAccountScreen()
+            : LoginScreen(),
       ),
       onGenerateRoute: (settings) {
-        switch(settings.name) {
+        switch (settings.name) {
           case Routes.ACCOUNT_TRANSACTIONS:
-            final customerAccountId = (settings.arguments as Map?)?["customerAccountId"];
-            return MaterialPageRoute(builder: (_) => ChangeNotifierProvider(
-              create: (_) => TransactionHistoryViewModel(),
-              child: AccountTransactionScreen(customerAccountId: customerAccountId),
-            ));
+            final customerAccountId =
+                (settings.arguments as Map?)?["customerAccountId"];
+            return MaterialPageRoute(
+                builder: (_) => ChangeNotifierProvider(
+                      create: (_) => TransactionHistoryViewModel(),
+                      child: AccountTransactionScreen(
+                          customerAccountId: customerAccountId),
+                    ));
           case Routes.LIVELINESS_DETECTION:
             // final verificationFor = (settings.arguments as Map?)?["verificationFor"] as LivelinessVerificationFor;
-            return MaterialPageRoute(builder: (_) => ChangeNotifierProvider(
-              create: (_) => LivelinessVerificationViewModel(),
-              child:  LivelinessVerification(settings.arguments as Map<String, dynamic>),
-            ));
+            return MaterialPageRoute(
+                builder: (_) => ChangeNotifierProvider(
+                      create: (_) => LivelinessVerificationViewModel(),
+                      child: LivelinessVerification(
+                          settings.arguments as Map<String, dynamic>),
+                    ));
         }
         return null;
       },
@@ -124,71 +129,86 @@ class MoniepointApp extends StatelessWidget {
         //   create: (_) => OnBoardingViewModel(),
         //   child: PhoneNumberValidationScreen(),
         // ),
-        Routes.REGISTER_EXISTING_ACCOUNT: (BuildContext context) => Scaffold(body: ExistingAccountView()),
-        Routes.REGISTER_NEW_ACCOUNT: (BuildContext context) => Scaffold(body: SignUpAccountScreen()),
-        Routes.ACCOUNT_RECOVERY: (BuildContext context) => Scaffold(body: RecoveryControllerScreen()),
-        Routes.DASHBOARD: (BuildContext context) =>  DashboardScreen(),
-        Routes.ACCOUNT_UPDATE: (BuildContext context) => Scaffold(body: AccountUpdateScreen()),
-        Routes.LIVELINESS: (BuildContext context) => Scaffold(body: LivelinessScreen()),
+        Routes.REGISTER_EXISTING_ACCOUNT: (BuildContext context) =>
+            Scaffold(body: ExistingAccountView()),
+        Routes.REGISTER_NEW_ACCOUNT: (BuildContext context) =>
+            Scaffold(body: SignUpAccountScreen()),
+        Routes.ACCOUNT_RECOVERY: (BuildContext context) =>
+            Scaffold(body: RecoveryControllerScreen()),
+        Routes.DASHBOARD: (BuildContext context) => ChangeNotifierProvider(
+              create: (_) => ServiceProviderViewModel(),
+              child: DashboardScreen(),
+            ),
+        Routes.ACCOUNT_UPDATE: (BuildContext context) =>
+            Scaffold(body: AccountUpdateScreen()),
+        Routes.LIVELINESS: (BuildContext context) =>
+            Scaffold(body: LivelinessScreen()),
         Routes.TRANSFER: (BuildContext context) => TransferScreen(),
-        Routes.TRANSFER_DETAIL: (BuildContext context) => ChangeNotifierProvider(
-          create: (_) => TransferDetailViewModel(),
-          child: TransferDetailedView(),
-        ),
+        Routes.TRANSFER_DETAIL: (BuildContext context) =>
+            ChangeNotifierProvider(
+              create: (_) => TransferDetailViewModel(),
+              child: TransferDetailedView(),
+            ),
         Routes.AIRTIME: (BuildContext context) => AirtimeScreen(),
         Routes.AIRTIME_DETAIL: (BuildContext context) => ChangeNotifierProvider(
-          create: (_) => AirtimeHistoryDetailViewModel(),
-          child: AirtimeHistoryDetailedView(),
-        ),
+              create: (_) => AirtimeHistoryDetailViewModel(),
+              child: AirtimeHistoryDetailedView(),
+            ),
         Routes.CONTACTS: (BuildContext context) => ChangeNotifierProvider(
-          create: (_) => ContactsViewModel(),
-          child: ContactScreen(),
-        ),
+              create: (_) => ContactsViewModel(),
+              child: ContactScreen(),
+            ),
         Routes.BILL: (BuildContext context) => BillScreen(),
         Routes.BILL_DETAIL: (BuildContext context) => ChangeNotifierProvider(
-          create: (_) => BillHistoryDetailViewModel(),
-          child: BillHistoryDetailedView(),
-        ),
-        Routes.ACCOUNT_TRANSACTIONS_DETAIL: (BuildContext context) => ChangeNotifierProvider(
-          create: (_) => AccountTransactionDetailViewModel(),
-          child: AccountTransactionDetailedView(),
-        ),
+              create: (_) => BillHistoryDetailViewModel(),
+              child: BillHistoryDetailedView(),
+            ),
+        Routes.ACCOUNT_TRANSACTIONS_DETAIL: (BuildContext context) =>
+            ChangeNotifierProvider(
+              create: (_) => AccountTransactionDetailViewModel(),
+              child: AccountTransactionDetailedView(),
+            ),
 
         Routes.SETTINGS: (BuildContext context) => SettingsScreen(),
-        Routes.MANAGED_BENEFICIARIES: (BuildContext context) => ManagedBeneficiaryScreen(),
+        Routes.MANAGED_BENEFICIARIES: (BuildContext context) =>
+            ManagedBeneficiaryScreen(),
         Routes.SUPPORT: (BuildContext context) => ChangeNotifierProvider.value(
-            value: systemConfigViewModel,
-            child: SupportScreen(),
-        ),
+              value: systemConfigViewModel,
+              child: SupportScreen(),
+            ),
         Routes.BRANCHES: (BuildContext context) => ChangeNotifierProvider(
-          create: (_) => BranchViewModel(),
-          child: BranchScreen(),
-        ),
-        Routes.BRANCHES_SEARCH: (BuildContext context) => ChangeNotifierProvider(
-          create: (_) => BranchViewModel(),
-          child: BranchSearchScreen(),
-        ),
+              create: (_) => BranchViewModel(),
+              child: BranchScreen(),
+            ),
+        Routes.BRANCHES_SEARCH: (BuildContext context) =>
+            ChangeNotifierProvider(
+              create: (_) => BranchViewModel(),
+              child: BranchSearchScreen(),
+            ),
         Routes.CARDS: (BuildContext context) => ChangeNotifierProvider(
-          create: (_) => SingleCardViewModel(),
-          child: CardScreen(),
-        ),
-        Routes.SELECT_AIRTIME_BENEFICIARY: (BuildContext context) => AirtimeSelectBeneficiaryScreen(),
-        Routes.SELECT_TRANSFER_BENEFICIARY: (BuildContext context) => TransferSelectBeneficiaryScreen(),
-        Routes.SELECT_BILL_BENEFICIARY: (BuildContext context) => BillSelectBeneficiaryScreen(),
+              create: (_) => SingleCardViewModel(),
+              child: CardScreen(),
+            ),
+        Routes.SELECT_AIRTIME_BENEFICIARY: (BuildContext context) =>
+            AirtimeSelectBeneficiaryScreen(),
+        Routes.SELECT_TRANSFER_BENEFICIARY: (BuildContext context) =>
+            TransferSelectBeneficiaryScreen(),
+        Routes.SELECT_BILL_BENEFICIARY: (BuildContext context) =>
+            BillSelectBeneficiaryScreen(),
         Routes.BLOCK_ACCOUNT: (BuildContext context) => BlockAccountScreen(),
-        Routes.UNBLOCK_DEBIT_CARD: (BuildContext context) => UnblockDebitCardScreen(),
-        Routes.REGISTERED_DEVICES: (BuildContext context) => ChangeNotifierProvider(
-            create: (_) => UserDeviceViewModel(),
-            child: UserDeviceListView(),
-        ),
+        Routes.UNBLOCK_DEBIT_CARD: (BuildContext context) =>
+            UnblockDebitCardScreen(),
+        Routes.REGISTERED_DEVICES: (BuildContext context) =>
+            ChangeNotifierProvider(
+              create: (_) => UserDeviceViewModel(),
+              child: UserDeviceListView(),
+            ),
       },
     );
   }
-
 }
 
 void main() async {
-
   await _onCreate();
 
   runApp(MultiProvider(

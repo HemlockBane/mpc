@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_swipecards/flutter_swipecards.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_status.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
+import 'package:moniepoint_flutter/app/airtime/viewmodels/service_provider_view_model.dart';
 import 'package:moniepoint_flutter/app/customer/customer.dart';
 import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
@@ -371,14 +372,18 @@ class _DashboardScreen extends State<DashboardScreen>
       subscribeUiToAccountStatus();
       final prompt = LoginPrompt.fromJson(data);
       final list = [prompt, prompt, prompt];
-      _showLoginPrompts(list);
+
+      final serviceProviderModel =
+          Provider.of<ServiceProviderViewModel>(context, listen: false);
+      _showLoginPrompts(list, serviceProviderModel);
     });
     //let check if the user should set up finger print
     Future.delayed(Duration(milliseconds: 1400), () => _setupFingerprint());
   }
 
-  void _showLoginPrompts(List<LoginPrompt>? prompts) {
-    if (prompts != null && prompts.isNotEmpty)
+  void _showLoginPrompts(List<LoginPrompt>? prompts,
+      ServiceProviderViewModel serviceProviderViewModel) {
+    if (prompts != null && prompts.isNotEmpty) {
       showDialog(
           context: context,
           builder: (context) {
@@ -411,11 +416,10 @@ class _DashboardScreen extends State<DashboardScreen>
                         insetPadding:
                             EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                         backgroundColor: Colors.transparent,
-                        child: BottomSheets.displayLoginPrompt(
-                          context,
-                          prompt: prompt,
-                          cardController: controller,
-                        ),
+                        child: BottomSheets.displayLoginPrompt(context,
+                            prompt: prompt,
+                            cardController: controller,
+                            serviceProviderViewModel: serviceProviderViewModel),
                       );
                     },
                   ),
@@ -423,6 +427,7 @@ class _DashboardScreen extends State<DashboardScreen>
               ),
             );
           });
+    }
   }
 
   void _setupFingerprint() async {
@@ -495,25 +500,25 @@ var data = {
   "lastModifiedBy": "SYSTEM",
   "version": 0,
   "title": "Holiday",
-  "image": null,
-  // "image": {
-  //   "id": 1,
-  //   "createdOn": "2021-07-13T21:28:46.000+0000",
-  //   "lastModifiedOn": "2021-07-13T22:28:46",
-  //   "deleted": false,
-  //   "createdBy": "peguda",
-  //   "lastModifiedBy": "peguda",
-  //   "version": 0,
-  //   "name": "Test",
-  //   "type": "PNG",
-  //   // "uuidRef": "https://picsum.photos/250?image=9",
-  //   "uuidRef": null,
+  // "image": null,
+  "image": {
+    "id": 1,
+    "createdOn": "2021-07-13T21:28:46.000+0000",
+    "lastModifiedOn": "2021-07-13T22:28:46",
+    "deleted": false,
+    "createdBy": "peguda",
+    "lastModifiedBy": "peguda",
+    "version": 0,
+    "name": "Test",
+    "type": "PNG",
+    "uuidRef": "7fc0dc1b-8ea3-448f-8f23-183b231b71bf",
+    //   "uuidRef": null,
 
-  //   "svgText": ""
-  // },
-  "videoLink":
-      "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4",
-  // "videoLink": null,
+    //   "svgText": ""
+  },
+  // "videoLink":
+  //     "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4",
+  "videoLink": null,
   "message": "default",
   "navigationList": [
     {
@@ -565,8 +570,7 @@ var data = {
       "name": "Test1",
       "type": "PNG",
       "svgText": null,
-      "uuidRef":
-          "https://www.google.com/search?q=png+image&hl=en&sxsrf=ALeKk01lvxPhclR9WLQOvhaIH1XxWFXqXQ:1628203479976&tbm=isch&source=iu&ictx=1&fir=M2Om1lkv8do8QM%252CZMuvsB-diL1dWM%252C_&vet=1&usg=AI4_-kTt-UEUtmBpK1bUvlCAsktDRga5QQ&sa=X&ved=2ahUKEwiKyK7Q-pryAhXSOcAKHT1pBC8Q9QF6BAgWEAE#imgrc=M2Om1lkv8do8QM"
+      "uuidRef": "7fc0dc1b-8ea3-448f-8f23-183b231b71bf"
     },
     "headerState": "SUCCESS"
   }

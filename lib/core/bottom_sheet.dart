@@ -1,13 +1,19 @@
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_swipecards/flutter_swipecards.dart';
+import 'package:lottie/lottie.dart';
+import 'package:moniepoint_flutter/app/airtime/viewmodels/service_provider_view_model.dart';
 import 'package:moniepoint_flutter/app/login/model/data/login_prompt.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/models/file_result.dart';
+import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/call_utils.dart';
+import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 
@@ -558,7 +564,9 @@ class BottomSheets {
   }
 
   static Widget displayLoginPrompt(BuildContext context,
-      {required LoginPrompt? prompt, required CardController cardController}) {
+      {required LoginPrompt? prompt,
+      required CardController cardController,
+      required ServiceProviderViewModel serviceProviderViewModel}) {
     VoidCallback? onPrimaryClick;
     String primaryButtonText = "Continue";
     String? secondaryButtonText = "Dismiss";
@@ -648,7 +656,7 @@ class BottomSheets {
         height: 40,
       ),
       content: ConstrainedBox(
-        constraints: BoxConstraints(minHeight: 200, maxHeight: 450),
+        constraints: BoxConstraints(minHeight: 400, maxHeight: 450),
         child: ListView(
           shrinkWrap: true,
           children: [
@@ -665,11 +673,12 @@ class BottomSheets {
                     ),
                   ),
                   SizedBox(height: 24),
-                  if (hasImageOrVideo) _buildDisplayContent(prompt),
+                  if (hasImageOrVideo)
+                    _buildDisplayContent(prompt, serviceProviderViewModel),
                   if (hasImageOrVideo) SizedBox(height: 24),
                   Container(
                     width: double.infinity,
-                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(Radius.circular(8)),
                         color: color.withOpacity(0.1)),
@@ -714,7 +723,8 @@ class BottomSheets {
     );
   }
 
-  static Widget _buildDisplayContent(LoginPrompt? prompt) {
+  static Widget _buildDisplayContent(
+      LoginPrompt? prompt, ServiceProviderViewModel serviceProviderViewModel) {
     Widget widget = Container();
     if (prompt != null &&
         prompt.videoLink != null &&
@@ -740,10 +750,9 @@ class BottomSheets {
         child: (prompt != null &&
                 prompt.displayImage != null &&
                 prompt.displayImage!.isPng)
-            ? FadeInImage.assetNetwork(
-                placeholder: "res/drawables/progress_bar_lottie.json",
-                image: prompt.displayImage!.uuidRef!,
-                fit: BoxFit.cover,
+            ? ImageWidget(
+                uuidRef: prompt.displayImage!.uuidRef,
+                serviceProviderViewModel: serviceProviderViewModel,
               )
             : SvgPicture.asset("res/drawables/ic_circular_check_mark.svg"),
       );
@@ -774,7 +783,14 @@ class _VideoScreenState extends State<VideoScreen> {
         videoPlayerController: widget.controller,
         autoPlay: false,
         autoInitialize: true,
-        aspectRatio: 20 / 9);
+        aspectRatio: 20 / 9,
+        placeholder: Lottie.asset(
+          "res/drawables/progress_bar_lottie.json",
+          height: 30,
+          width: 30,
+          fit: BoxFit.contain,
+        ),
+        errorBuilder: (context, message) => Container());
   }
 
   @override
@@ -794,6 +810,68 @@ class _VideoScreenState extends State<VideoScreen> {
           controller: _chewieController,
         ),
       ),
+    );
+  }
+}
+
+class ImageWidget extends StatefulWidget {
+  ImageWidget({required this.uuidRef, required this.serviceProviderViewModel});
+
+  final String? uuidRef;
+  final ServiceProviderViewModel serviceProviderViewModel;
+
+  @override
+  _ImageWidgetState createState() => _ImageWidgetState();
+}
+
+class _ImageWidgetState extends State<ImageWidget> {
+  Stream<Resource<FileResult>>? _fileResultStream;
+  Widget? _itemImage;
+
+  @override
+  void initState() {
+    _fetchServiceProviderLogo();
+    super.initState();
+  }
+
+  void _fetchServiceProviderLogo() {
+    _fileResultStream =
+        widget.serviceProviderViewModel.getFile(widget.uuidRef ?? "");
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: (widget.uuidRef != null) ? _fileResultStream : null,
+      builder: (mContext, AsyncSnapshot<Resource<FileResult>> snapShot) {
+        if (!snapShot.hasData ||
+            snapShot.data == null ||
+            (snapShot.data is Error && _itemImage == null)) return Container();
+
+        final base64 = snapShot.data?.data;
+        final base64String = base64?.base64String;
+
+        if ((base64 == null ||
+                base64String == null ||
+                base64String.isEmpty == true) &&
+            _itemImage == null) {
+          return Container();
+        }
+
+        if (_itemImage == null) {
+          _itemImage = ConstrainedBox(
+            constraints:
+                BoxConstraints(maxHeight: 150, minWidth: double.infinity),
+            child: Image.memory(base64Decode(base64String!),
+                fit: BoxFit.contain,
+                color: Colors.black, errorBuilder: (_, _i, _j) {
+              return Container();
+            }),
+          );
+        }
+
+        return _itemImage!;
+      },
     );
   }
 }

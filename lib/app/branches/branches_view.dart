@@ -245,6 +245,7 @@ class _BranchScreen extends State<BranchScreen> {
   }
 
   void showCloseBranchesBottomSheet(List<BranchInfo> branches) {
+    closeVisibleModals();
     _scaffoldKey.currentState!.showBottomSheet((context) {
       return Container(
         decoration: BoxDecoration(
@@ -319,7 +320,16 @@ class _BranchScreen extends State<BranchScreen> {
     });
   }
 
+  void closeVisibleModals() {
+    var hasModalRoute =
+        ModalRoute.of(context)?.willHandlePopInternally ?? false;
+    if (hasModalRoute) {
+      Navigator.pop(context);
+    }
+  }
+
   void showBranchInfoBottomSheet(BranchInfo branchInfo) {
+    closeVisibleModals();
     _scaffoldKey.currentState!.showBottomSheet((context) {
       return Container(
         padding: EdgeInsets.symmetric(horizontal: 20),
@@ -380,7 +390,8 @@ class _BranchScreen extends State<BranchScreen> {
                 Expanded(
                   child: TextButton(
                     onPressed: () => openUrl("tel:${branchInfo.phoneNumber}"),
-                    style: ButtonStyle(padding: MaterialStateProperty.all(EdgeInsets.zero)),
+                    style: ButtonStyle(
+                        padding: MaterialStateProperty.all(EdgeInsets.zero)),
                     child: Container(
                       padding:
                           EdgeInsets.symmetric(horizontal: 20, vertical: 20),

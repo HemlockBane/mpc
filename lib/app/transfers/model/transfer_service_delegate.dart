@@ -19,7 +19,6 @@ import 'package:moniepoint_flutter/core/paging/paging_source.dart';
 
 import 'data/single_transfer_transaction.dart';
 import 'data/transfer_dao.dart';
-import 'package:collection/collection.dart';
 
 class TransferServiceDelegate with NetworkResource {
   late final TransferService _service;

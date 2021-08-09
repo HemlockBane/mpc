@@ -112,6 +112,7 @@ class PreferenceUtil {
   static void clearOutFingerPrintSession() {
     final username = getSavedUsername();
     _preferences?.remove(FINGER_PRINT_USERNAME);
+    setFingerPrintEnabled(false);
     _preferences?.remove("$username-$FINGER_PRINT_ENABLED");
     _preferences?.remove("$username-$FINGER_PRINT_REQUEST_COUNTER");
   }

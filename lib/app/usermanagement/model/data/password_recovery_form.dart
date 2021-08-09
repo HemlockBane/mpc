@@ -10,8 +10,8 @@ class PasswordRecoveryForm with ChangeNotifier, Validators {
   late final Stream<bool> _isValid;
   Stream<bool> get isValid => _isValid;
 
-  final _accountNumberController = StreamController<String>.broadcast();
-  Stream<String> get accountNumberStream => _accountNumberController.stream;
+  // final _accountNumberController = StreamController<String>.broadcast();
+  // Stream<String> get accountNumberStream => _accountNumberController.stream;
 
   final _usernameController = StreamController<String>.broadcast();
   Stream<String> get usernameStream => _usernameController.stream;
@@ -24,24 +24,23 @@ class PasswordRecoveryForm with ChangeNotifier, Validators {
   }
 
   void _initState() {
-    this._isValid = Rx.combineLatest([accountNumberStream, usernameStream], (values) {
-      return _isAccountNumberValid(displayError: false) && _isUsernameValid(displayError: false);
+    this._isValid = Rx.combineLatest([usernameStream], (values) {
+      return _isUsernameValid(displayError: false);
     }).asBroadcastStream();
   }
 
-  void onAccountNumberChanged(String? text) {
-    _requestBody.accountNumber = text;
-    _accountNumberController.sink.add(text ?? "");
-    _isAccountNumberValid(displayError: true);
-  }
-
-  bool _isAccountNumberValid({bool displayError = false}) {
-    final isValid = isAccountNumberValid(_requestBody.accountNumber);
-    if (isValid) return true;
-    if (displayError && !isValid) _accountNumberController.sink
-        .addError(_requestBody.accountNumber?.isEmpty == true ? "Account number is required" : "Invalid Account Number");
-    return false;
-  }
+  // void onAccountNumberChanged(String? text) {
+  //   _requestBody.accountNumber = text;
+  //   _isAccountNumberValid(displayError: true);
+  // }
+  //
+  // bool _isAccountNumberValid({bool displayError = false}) {
+  //   final isValid = isAccountNumberValid(_requestBody.accountNumber);
+  //   if (isValid) return true;
+  //   if (displayError && !isValid) _accountNumberController.sink
+  //       .addError(_requestBody.accountNumber?.isEmpty == true ? "Account number is required" : "Invalid Account Number");
+  //   return false;
+  // }
 
   void onUsernameChanged(String? text) {
     _requestBody.username = text;
@@ -58,7 +57,7 @@ class PasswordRecoveryForm with ChangeNotifier, Validators {
 
   @override
   void dispose() {
-    _accountNumberController.close();
+    // _accountNumberController.close();
     _usernameController.close();
     super.dispose();
   }

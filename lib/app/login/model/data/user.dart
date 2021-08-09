@@ -15,6 +15,7 @@ class User {
   String? scope;
   int? lastLogin;
   String? lastName;
+  bool? registerDevice;
   SecurityFlags? securityFlags;
   String? fullName;
   String? firstName;

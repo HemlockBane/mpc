@@ -15,6 +15,9 @@ class ProfileCreationRequestBody {
   @JsonKey(name: "username")
   String? username;
 
+  @JsonKey(name: "emailAddress")
+  String? emailAddress;
+
   @JsonKey(name: "password")
   String? password;
 

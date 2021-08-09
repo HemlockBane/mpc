@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart' hide Colors, Page;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
@@ -582,6 +583,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
         });
       } catch(e) {
         setState(() { _isDownloading = false; });
+        FirebaseCrashlytics.instance.recordError(e, null);
         showModalBottomSheet(
             backgroundColor: Colors.transparent,
             context: context,

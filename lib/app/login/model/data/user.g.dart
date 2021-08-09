@@ -14,6 +14,7 @@ User _$UserFromJson(Map<String, dynamic> json) {
     ..scope = json['scope'] as String?
     ..lastLogin = json['lastLogin'] as int?
     ..lastName = json['lastName'] as String?
+    ..registerDevice = json['registerDevice'] as bool?
     ..securityFlags = json['securityFlags'] == null
         ? null
         : SecurityFlags.fromJson(json['securityFlags'] as Object)
@@ -37,6 +38,7 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'scope': instance.scope,
       'lastLogin': instance.lastLogin,
       'lastName': instance.lastName,
+      'registerDevice': instance.registerDevice,
       'securityFlags': instance.securityFlags,
       'fullName': instance.fullName,
       'firstName': instance.firstName,

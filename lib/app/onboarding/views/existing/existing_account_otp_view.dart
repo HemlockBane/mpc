@@ -53,33 +53,33 @@ class _ExistingAccountOTPScreen extends State<ExistingAccountOTPScreen> {
 
     super.initState();
 
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
-      viewModel.requestForExistingAccountOtp().listen((event) {
-        print(event);
-      });
-    });
+    // WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+    //   final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
+    //   viewModel.requestForExistingAccountOtp().listen((event) {
+    //     print(event);
+    //   });
+    // });
   }
 
   void _subscribeUiToOtpValidation(BuildContext context) {
-    final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
-    viewModel.validateAccountOtp(otpController.text).listen((event) {
-      if(event is Loading) setState(() => _isLoading = true);
-      if (event is Error<ValidationKey>) {
-        setState(() => _isLoading = false);
-        showModalBottomSheet(
-            context: _scaffoldKey.currentContext ?? context,
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            builder: (context) {
-              return BottomSheets.displayErrorModal(context, message: event.message);
-            });
-      }
-      if(event is Success<ValidationKey>) {
-        setState(() => _isLoading = false);
-        Navigator.of(context).pushNamed("profile");
-      }
-    });
+    // final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
+    // viewModel.validateAccountOtp(otpController.text).listen((event) {
+    //   if(event is Loading) setState(() => _isLoading = true);
+    //   if (event is Error<ValidationKey>) {
+    //     setState(() => _isLoading = false);
+    //     showModalBottomSheet(
+    //         context: _scaffoldKey.currentContext ?? context,
+    //         isScrollControlled: true,
+    //         backgroundColor: Colors.transparent,
+    //         builder: (context) {
+    //           return BottomSheets.displayErrorModal(context, message: event.message);
+    //         });
+    //   }
+    //   if(event is Success<ValidationKey>) {
+    //     setState(() => _isLoading = false);
+    //     Navigator.of(context).pushNamed("profile");
+    //   }
+    // });
   }
 
   String getUSSD() {

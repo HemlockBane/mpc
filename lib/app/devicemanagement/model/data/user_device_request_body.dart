@@ -7,12 +7,14 @@ class UserDeviceRequestBody {
   String username;
   String? deviceId;
   String? deviceName;
+  String? deviceOs;
   String? transactionPin;
 
   UserDeviceRequestBody({
     required this.username,
     this.deviceId,
     this.deviceName,
+    this.deviceOs,
     this.transactionPin
   });
 

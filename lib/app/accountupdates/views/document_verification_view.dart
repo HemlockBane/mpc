@@ -75,7 +75,11 @@ class _DocumentVerificationScreen extends State<DocumentVerificationScreen> {
                 ? "Document Verification\nIn Progress..."
                 : "We Encountered a Problem \nConcluding your Verification",
             textAlign: TextAlign.center,
-            style: TextStyle(color: (hasError) ? Colors.red : Colors.darkBlue, fontSize: 22, fontWeight: FontWeight.w600),
+            style: TextStyle(
+                color: (hasError)
+                ? Colors.red
+                : Colors.darkBlue, fontSize: 22, fontWeight: FontWeight.w600
+            ),
           ),
         ),
         SizedBox(height: 12),

@@ -296,7 +296,7 @@ class _PagerState<K, T> extends State<Pager<K, T>> {
 
   void _scrollListener() {
     if(_scrollController?.position.pixels == _scrollController?.position.maxScrollExtent) {
-      print("Omo be like it's the time");
+      print("it's the time to load more");
       _doLoad(LoadType.APPEND);
     }
   }
@@ -312,7 +312,7 @@ class _PagerState<K, T> extends State<Pager<K, T>> {
     Widget builder = widget.builder(context, value, widget.child);
     if (builder is ScrollView) {
       _scrollController = builder.controller;
-    }else {
+    } else {
       _scrollController = widget.scrollController;
     }
     _registerScrollListener();

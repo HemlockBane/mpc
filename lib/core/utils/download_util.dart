@@ -14,7 +14,8 @@ class DownloadUtil {
 
   static Future<void> downloadTransactionReceipt(
       Stream<Uint8List> Function() downloadTask, String fileName,
-      {bool isShare = true, Function(int progress, bool isCompleted)?   onProgress}) async {
+      {bool isShare = true, Function(int progress, bool isCompleted)?  onProgress}) async {
+
     if(!(await Permission.storage.request().isGranted)) return;
 
     int progress = 5;//0-100

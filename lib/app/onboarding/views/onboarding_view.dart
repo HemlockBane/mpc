@@ -5,7 +5,6 @@ import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
-import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 
 ///@author Paul Okeke
 class OnBoardingScreen extends StatelessWidget {

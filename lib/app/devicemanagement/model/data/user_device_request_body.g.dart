@@ -12,6 +12,7 @@ UserDeviceRequestBody _$UserDeviceRequestBodyFromJson(
     username: json['username'] as String,
     deviceId: json['deviceId'] as String?,
     deviceName: json['deviceName'] as String?,
+    deviceOs: json['deviceOs'] as String?,
     transactionPin: json['transactionPin'] as String?,
   );
 }
@@ -22,5 +23,6 @@ Map<String, dynamic> _$UserDeviceRequestBodyToJson(
       'username': instance.username,
       'deviceId': instance.deviceId,
       'deviceName': instance.deviceName,
+      'deviceOs': instance.deviceOs,
       'transactionPin': instance.transactionPin,
     };

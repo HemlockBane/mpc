@@ -113,7 +113,6 @@ class _CustomerAddressScreen extends State<CustomerAddressScreen> with Automatic
         final state = StateOfOrigin.fromLocalGovtId(
             info.addressLocalGovernmentAreaId, nationality.states ?? []);
         _customerAddressForm.mailingAddressForm?.onStateChange(state);
-        print(state);
         _customerAddressForm.mailingAddressForm?.onLocalGovtChange(
             LocalGovernmentArea.fromId(info.addressLocalGovernmentAreaId,
                 state?.localGovernmentAreas ?? [])
@@ -195,7 +194,7 @@ class _CustomerAddressScreen extends State<CustomerAddressScreen> with Automatic
     super.build(context);
     final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
     this._customerAddressForm = viewModel.addressForm
-      ..setStates(viewModel.nationalities.first.states ?? []);
+      ..setStates(viewModel.nationalities.first.states ?? []); //TODO remove from here
 
     return ScrollView(
       child: Container(

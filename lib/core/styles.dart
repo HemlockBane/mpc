@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/DropDownItem.dart';
 
@@ -137,7 +136,9 @@ class Styles {
       ButtonStyle? buttonStyle,
       double? elevation,
       double? borderRadius,
-      Widget? icon
+      Widget? icon,
+      TextStyle? textStyle,
+        Key? key,
       }) {
     var mButtonStyle = buttonStyle ?? Styles.primaryButtonStyle;
     if (padding != null) {
@@ -159,7 +160,16 @@ class Styles {
       mButtonStyle = mButtonStyle.copyWith(
           elevation: MaterialStateProperty.all(elevation));
     }
+    if(borderRadius != null) {
+      mButtonStyle = mButtonStyle.copyWith(shape: MaterialStateProperty.all(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(borderRadius))));
+    }
+
+    if(textStyle != null) {
+      mButtonStyle = mButtonStyle.copyWith(textStyle: MaterialStateProperty.all(textStyle));
+    }
     return ElevatedButton.icon(
+        key: key,
         icon: icon ?? SizedBox(),
         onPressed: onClick,
         label: Text(text),
@@ -191,7 +201,7 @@ class Styles {
     VoidCallback? onClick,
     bool enabled = true,
     bool readOnly = false,
-    Color? fillColor = Colors.white,
+    Color? fillColor = Colors.textFieldColor,
     int? maxLines = 1,
     int? minLines,
     String? value,
@@ -200,6 +210,15 @@ class Styles {
     TextInputAction? textInputAction
   }) {
     String? labelText = (animateHint) ? hint : null;
+
+    if(maxLength != null && controller != null && !controller.hasListeners) {
+      print("Adding Listener");
+      controller.addListener(() {
+        if(controller.text.length >= maxLength) {
+          FocusManager.instance.primaryFocus?.unfocus();
+        }
+      });
+    }
 
     return TextFormField(
       initialValue: value,
@@ -219,7 +238,7 @@ class Styles {
           fontWeight: fontWeight ?? FontWeight.normal,
           fontFamily: Styles.defaultFont,
           fontSize: fontSize ?? 16,
-          color: textColor ?? Colors.textColorPrimary
+          color: textColor ?? Colors.textColorBlack
       ),
       keyboardType: inputType,
       obscureText: isPassword,
@@ -227,12 +246,12 @@ class Styles {
       autocorrect: (isPassword) ? false : true,
       decoration: InputDecoration(
           filled: fillColor != null,
-          fillColor: fillColor ?? null,
+          fillColor: fillColor?.withOpacity(0.2) ?? null,
           errorText: errorText,
           hintText: (!animateHint) ? hint : null,
           labelText: labelText,
           contentPadding: padding,
-          hintStyle: TextStyle(fontFamily: Styles.defaultFont, fontSize : hintSize ?? fontSize ?? 16, color: Colors.textHintColor.withOpacity(0.29)),
+          hintStyle: TextStyle(fontFamily: Styles.defaultFont, fontWeight: FontWeight.w200, fontSize : hintSize ?? fontSize ?? 16, color: Colors.textHintColor.withOpacity(0.29)),
           labelStyle: TextStyle(
               fontFamily: Styles.defaultFont,
               fontSize: fontSize ?? 16,
@@ -246,15 +265,15 @@ class Styles {
           suffixIcon: (endIcon == null) ? null : endIcon,
           enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
-              borderSide: BorderSide(color: borderColor ?? Colors.colorFaded, width: 0.8)
+              borderSide: BorderSide(color: borderColor ?? Colors.transparent, width: 0.8)
           ),
           focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
-              borderSide: BorderSide(color: focusedBorderColor ?? Colors.primaryColor, width: 1.8)
+              borderSide: BorderSide(color: focusedBorderColor ?? Colors.textFieldColor.withOpacity(0.3), width: 1.8)
           ),
           border: OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
-              borderSide: BorderSide(color: borderColor ?? Colors.colorFaded, width: 1.5)
+              borderSide: BorderSide(color: borderColor ?? Colors.transparent, width: 1.5)
           ),
       ),
     );
@@ -295,7 +314,7 @@ class Styles {
       OnItemClickListener<T?, int> valueChanged,
       {
         String? hint,
-        Color? fillColor = Colors.white,
+        Color? fillColor = Colors.textFieldColor,
         TextStyle? itemStyle,
         TextStyle? buttonStyle
       }) {
@@ -315,17 +334,17 @@ class Styles {
         InputDecorator(
           decoration: InputDecoration(
             filled: fillColor != null,
-            fillColor: fillColor ?? null,
+            fillColor: fillColor?.withOpacity(0.2) ?? null,
             border: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.colorFaded),
+                borderSide: BorderSide(color: Colors.transparent),
                 borderRadius: BorderRadius.circular(2)),
             enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.colorFaded)),
+                borderSide: BorderSide(color: Colors.textFieldColor.withOpacity(0.0))),
             contentPadding: EdgeInsets.only(left: 16, right: 21, top: 5, bottom: 5),
           ),
           child: DropdownButton<T>(
               underline: Container(),
-              hint: (hint != null) ? Text(hint, style: TextStyle(color: Colors.colorFaded),) : null,
+              hint: (hint != null) ? Text(hint, style: TextStyle(color: Colors.textHintColor.withOpacity(0.29)),) : null,
               icon: Icon(CustomFont.dropDown, color: Colors.primaryColor, size: 6),
               isExpanded: true,
               value: snapShot.data,
@@ -417,7 +436,6 @@ class Styles {
       ],
     );
   }
-
 
 }
 

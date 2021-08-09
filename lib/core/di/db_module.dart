@@ -18,7 +18,7 @@ import 'package:moniepoint_flutter/core/database/moniepoint_database.dart';
 
 class DatabaseModule {
 
-  static void inject() async {
+  static Future<void> inject() async {
 
     GetIt.I.registerSingletonAsync<AppDatabase>(() async =>
     await $FloorAppDatabase
@@ -27,10 +27,15 @@ class DatabaseModule {
         .build()
     );
 
-    GetIt.I.registerSingletonAsync<NationalityDao>(() async {
-      final db = await GetIt.I.getAsync<AppDatabase>();
+    final db = await GetIt.I.getAsync<AppDatabase>();
+
+    GetIt.I.registerLazySingleton<NationalityDao>(() {
       return db.nationalityDao;
     });
+    // GetIt.I.re<NationalityDao>(() async {
+    //   final db = await GetIt.I.getAsync<AppDatabase>();
+    //   return db.nationalityDao;
+    // });
 
     GetIt.I.registerSingletonAsync<TransferBeneficiaryDao>(() async {
       final db = await GetIt.I.getAsync<AppDatabase>();

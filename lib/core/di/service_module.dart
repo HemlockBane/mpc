@@ -28,6 +28,8 @@ import 'package:moniepoint_flutter/app/devicemanagement/model/user_device_servic
 import 'package:moniepoint_flutter/app/institutions/institution_dao.dart';
 import 'package:moniepoint_flutter/app/institutions/institution_repository.dart';
 import 'package:moniepoint_flutter/app/institutions/institution_service.dart';
+import 'package:moniepoint_flutter/app/liveliness/model/liveliness_verification_service_delegate.dart';
+import 'package:moniepoint_flutter/app/liveliness/model/onboarding_validation_service.dart';
 import 'package:moniepoint_flutter/app/login/model/login_service.dart';
 import 'package:moniepoint_flutter/app/login/model/login_service_delegate.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/airtime/model/airtime_beneficiary_delegate.dart';
@@ -52,6 +54,8 @@ import 'package:moniepoint_flutter/app/transfers/model/transfer_service.dart';
 import 'package:moniepoint_flutter/app/transfers/model/transfer_service_delegate.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/usermanagement_service.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/usermanagement_service_delegate.dart';
+import 'package:moniepoint_flutter/app/validation/model/customer_validation_service.dart';
+import 'package:moniepoint_flutter/app/validation/model/customer_validation_service_delegate.dart';
 import 'package:moniepoint_flutter/app/validation/model/validation_service.dart';
 import 'package:moniepoint_flutter/app/validation/model/validation_service_delegate.dart';
 import 'package:moniepoint_flutter/core/device_manager.dart';
@@ -84,11 +88,22 @@ class ServiceModule {
   static void inject() {
     final dio = getConfiguredApiClient();
 
-    //initialize all the service/delegate here
+    GetIt.I.registerSingletonAsync<DeviceManager>(() async {
+      final deviceManager = DeviceManager();
+      await deviceManager.init();
+      return deviceManager;
+    });
 
     /// Onboarding Service
     GetIt.I.registerLazySingleton<OnBoardingServiceDelegate>(() {
-      return OnBoardingServiceDelegate(OnBoardingService(dio), AccountCreationService(dio));
+      return OnBoardingServiceDelegate(
+          OnBoardingService(dio), AccountCreationService(dio)
+      );
+    });
+
+    /// CustomerValidation Service
+    GetIt.I.registerLazySingleton<CustomerValidationServiceDelegate>(() {
+      return CustomerValidationServiceDelegate(CustomerValidationService(dio));
     });
 
     /// UserManagement Delegate
@@ -230,8 +245,10 @@ class ServiceModule {
       return DeviceInfoPlugin();
     });
 
-    GetIt.I.registerLazySingleton<DeviceManager>(() {
-      return DeviceManager();
+
+    /// LivelinessVerificationServiceDelegate checks
+    GetIt.I.registerLazySingleton<LivelinessVerificationServiceDelegate>(() {
+      return LivelinessVerificationServiceDelegate(OnboardingValidationService(dio));
     });
 
   }

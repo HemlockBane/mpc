@@ -177,7 +177,7 @@ class DashboardDrawerView  {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Good ${DashboardUtil.getTimeOfDay()}',
+                      'Good ${DashboardUtil.getTimeOfDay().replaceAll("Sunset", "Evening")}',
                       style: TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.bold),
                     ),
                     Text(

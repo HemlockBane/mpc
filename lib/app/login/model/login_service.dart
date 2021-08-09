@@ -20,7 +20,7 @@ abstract class LoginService {
     "client-id": BuildConfig.CLIENT_ID,
     "appVersion": BuildConfig.APP_VERSION
   })
-  @POST("/")
+  @POST("${ServiceConfig.ROOT_SERVICE}api/v2/login")
   Future<ServiceResult<User>> loginWithPassword(@Body() LoginWithPasswordRequestBody requestBody);
 
   @Headers(<String, dynamic>{

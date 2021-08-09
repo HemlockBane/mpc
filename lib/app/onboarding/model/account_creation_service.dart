@@ -35,13 +35,13 @@ abstract class AccountCreationService {
   Future<ServiceResult<BVNOTPResult>> requestBVNOTP(
       @Body() BVNOTPValidationRequest otpRequest);
 
-  @Headers(<String, dynamic>{
-    "Content-Type": "application/json",
-    "client-id": BuildConfig.CLIENT_ID,
-    "appVersion": BuildConfig.APP_VERSION
-  })
-  @POST("/upload")
-  Future<ServiceResult<FileUUID>> uploadImageForUUID(@Part(value: "file") File selfieImage);
+    @Headers(<String, dynamic>{
+      "Content-Type": "application/json",
+      "client-id": BuildConfig.CLIENT_ID,
+      "appVersion": BuildConfig.APP_VERSION
+    })
+    @POST("/upload")
+    Future<ServiceResult<FileUUID>> uploadImageForUUID(@Part(value: "file") File selfieImage);
 
   @Headers(<String, dynamic>{
     "Content-Type": "application/json",

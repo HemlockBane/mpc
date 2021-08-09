@@ -15,35 +15,42 @@ ForgotPasswordRequest _$ForgotPasswordRequestFromJson(
     ..email = json['email'] as String?
     ..phoneNumber = json['phoneNumber'] as String?
     ..bvn = json['bvn'] as String?
-    ..activationUserCode = json['activationUserCode'] as String?
-    ..otpUserCode = json['otpUserCode'] as String?
-    ..activationCode = json['activationCode'] as String?
+    ..otpUserCode = json['userCode'] as String?
+    ..otpValidationKey = json['otpValidationKey'] as String?
     ..otp = json['otp'] as String?
     ..key = json['key'] as String?
     ..password = json['password'] as String?
-    ..securityAnswer = json['securityAnswer'] == null
-        ? null
-        : SecurityAnswer.fromJson(
-            json['securityAnswer'] as Map<String, dynamic>);
+    ..livelinessCheckRef = json['livelinessCheckRef'] as String?
+    ..livelinessVerificationFor = _$enumDecodeNullable(
+        _$LivelinessVerificationForEnumMap, json['livelinessVerificationFor']);
 }
 
 Map<String, dynamic> _$ForgotPasswordRequestToJson(
-        ForgotPasswordRequest instance) =>
-    <String, dynamic>{
-      'step': _$ForgotPasswordStepEnumMap[instance.step],
-      'username': instance.username,
-      'accountNumber': instance.accountNumber,
-      'email': instance.email,
-      'phoneNumber': instance.phoneNumber,
-      'bvn': instance.bvn,
-      'activationUserCode': instance.activationUserCode,
-      'otpUserCode': instance.otpUserCode,
-      'activationCode': instance.activationCode,
-      'otp': instance.otp,
-      'key': instance.key,
-      'password': instance.password,
-      'securityAnswer': instance.securityAnswer,
-    };
+    ForgotPasswordRequest instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('step', _$ForgotPasswordStepEnumMap[instance.step]);
+  writeNotNull('username', instance.username);
+  writeNotNull('accountNumber', instance.accountNumber);
+  writeNotNull('email', instance.email);
+  writeNotNull('phoneNumber', instance.phoneNumber);
+  writeNotNull('bvn', instance.bvn);
+  writeNotNull('userCode', instance.otpUserCode);
+  writeNotNull('otpValidationKey', instance.otpValidationKey);
+  writeNotNull('otp', instance.otp);
+  writeNotNull('key', instance.key);
+  writeNotNull('password', instance.password);
+  writeNotNull('livelinessCheckRef', instance.livelinessCheckRef);
+  writeNotNull('livelinessVerificationFor',
+      _$LivelinessVerificationForEnumMap[instance.livelinessVerificationFor]);
+  return val;
+}
 
 K _$enumDecode<K, V>(
   Map<K, V> enumValues,
@@ -86,5 +93,13 @@ const _$ForgotPasswordStepEnumMap = {
   ForgotPasswordStep.INITIATE: 'INITIATE',
   ForgotPasswordStep.VALIDATE_SECURITY_ANSWER: 'VALIDATE_SECURITY_ANSWER',
   ForgotPasswordStep.VALIDATE_OTP: 'VALIDATE_OTP',
+  ForgotPasswordStep.LIVELINESS_CHECK: 'LIVELINESS_CHECK',
   ForgotPasswordStep.COMPLETE: 'COMPLETE',
+};
+
+const _$LivelinessVerificationForEnumMap = {
+  LivelinessVerificationFor.ON_BOARDING: 'ON_BOARDING',
+  LivelinessVerificationFor.USERNAME_RECOVERY: 'USERNAME_RECOVERY',
+  LivelinessVerificationFor.PASSWORD_RECOVERY: 'PASSWORD_RECOVERY',
+  LivelinessVerificationFor.REGISTER_DEVICE: 'REGISTER_DEVICE',
 };

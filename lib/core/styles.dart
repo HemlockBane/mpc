@@ -211,7 +211,8 @@ class Styles {
   }) {
     String? labelText = (animateHint) ? hint : null;
 
-    if(maxLength != null && controller != null) {
+    if(maxLength != null && controller != null && !controller.hasListeners) {
+      print("Adding Listener");
       controller.addListener(() {
         if(controller.text.length >= maxLength) {
           FocusManager.instance.primaryFocus?.unfocus();

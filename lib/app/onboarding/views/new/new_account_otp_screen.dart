@@ -91,7 +91,7 @@ class _NewAccountOTPScreen extends State<NewAccountOTPScreen> {
         height: double.infinity,
         width: double.infinity,
         padding: EdgeInsets.only(left: 16, right: 16, top: 41, bottom: 44),
-        color: Colors.backgroundWhite,
+        color: Colors.white,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

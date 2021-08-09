@@ -3,6 +3,9 @@ import 'package:flutter/material.dart' hide Colors;
 import 'package:moniepoint_flutter/app/liveliness/liveliness_detector.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 
+const _left = 45.0;
+const _top = 60.0;
+
 class LivelinessFaceOval extends CustomPainter {
 
   LivelinessFaceOval();
@@ -10,12 +13,14 @@ class LivelinessFaceOval extends CustomPainter {
   late final _backgroundPaint = Paint()
     ..color = Colors.red
     ..style = PaintingStyle.fill
+    ..strokeCap = StrokeCap.round
     ..blendMode = BlendMode.srcOver;
 
   @override
   void paint(Canvas canvas, Size size) {
-    var frameRect = Rect.fromLTRB(55, 90, size.width - 55, size.height / 1.72);
-    canvas.drawOval(frameRect, _backgroundPaint);
+    var margin = 8.0;
+    var frameRect = Rect.fromLTRB(_left + margin, _top+margin, (size.width - _left) - margin, (size.height * 0.65) - margin);
+    canvas.drawRRect(RRect.fromRectAndRadius(frameRect, Radius.circular(6)), _backgroundPaint);
   }
 
   @override
@@ -28,8 +33,8 @@ class LivelinessFaceOval extends CustomPainter {
 class LivelinessCameraFrame extends CustomPainter {
 
   final ValueNotifier<LivelinessMotionEvent>? _valueNotifier;
-
   late Color borderColor = Colors.grey.withOpacity(0.1);
+  var _previousEventColor = Colors.grey.withOpacity(0.1);
 
   LivelinessCameraFrame(this._valueNotifier): super(repaint: _valueNotifier) {
       borderColor = _getFrameColor(_valueNotifier?.value ?? LivelinessMotionEvent.none());
@@ -38,18 +43,19 @@ class LivelinessCameraFrame extends CustomPainter {
   Color _getFrameColor(LivelinessMotionEvent liveMotionEvent) {
     if(liveMotionEvent.eventType == CameraMotionEvent.NoFaceDetectedEvent
     || liveMotionEvent.eventType == CameraMotionEvent.FaceOutOfBoundsEvent) {
-      return Colors.red;
+      _previousEventColor = Colors.red;
     }
 
     if(liveMotionEvent.eventType == CameraMotionEvent.FaceDetectedEvent
         || liveMotionEvent.eventType == CameraMotionEvent.NoMotionDetectedEvent
         || liveMotionEvent.eventType == CameraMotionEvent.MotionDetectedEvent
         || liveMotionEvent.eventType == CameraMotionEvent.ImageUnderExposed
+        || liveMotionEvent.eventType == CameraMotionEvent.FaceTooFarEvent
         || liveMotionEvent.eventType == CameraMotionEvent.ImageOverExposed ) {
-      return Colors.solidGreen;
+      _previousEventColor = Colors.solidGreen;
     }
 
-    return Colors.grey.withOpacity(0.1);
+    return _previousEventColor;
   }
 
   late final _strokePaint = Paint()
@@ -59,34 +65,85 @@ class LivelinessCameraFrame extends CustomPainter {
     ..blendMode = BlendMode.srcOver
     ..strokeCap = StrokeCap.round;
 
+  var _faceRect = Rect.fromLTRB(0, 0, 0, 0);
+  var _frameRect = Rect.fromLTRB(0, 0, 0, 0);
+
+  final _faceRectPaint = Paint()
+    ..color = Colors.red
+    ..style = PaintingStyle.stroke
+    ..strokeCap = StrokeCap.round
+    ..strokeWidth = 1.3;
+
+  late final _backgroundPaint = Paint()
+    ..color = Colors.white.withOpacity(0.25)
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 1.5
+    ..strokeCap = StrokeCap.round;
+
   @override
-  void paint(Canvas canvas, Size size) {
+  void paint(Canvas canvas, Size   size) {
 
     borderColor = _getFrameColor(_valueNotifier?.value ?? LivelinessMotionEvent.none());
     _strokePaint.color = borderColor;
 
     var path = Path();
 
-    var frameRect = Rect.fromLTRB(55, 90, size.width - 55, size.height / 1.72);
+    _frameRect = Rect.fromLTRB(_left, _top, (size.width - _left), (size.height * 0.65));
 
     print("ScreenWidth => ${size.width}, ScreenHeight => ${size.height}");
-    print("ImageWidth => ${frameRect.width}, ImageHeight => ${frameRect.height}");
+    print("ImageWidth => ${_frameRect.width}, ImageHeight => ${_frameRect.height}");
 
     final lineDistanceToCurve = 16;
 
-    path.moveTo(frameRect.right - lineDistanceToCurve, frameRect.top);
-    path.quadraticBezierTo(frameRect.right, frameRect.top, frameRect.right - 2, frameRect.top  + lineDistanceToCurve);
+    path.moveTo(_frameRect.right - lineDistanceToCurve, _frameRect.top);
+    path.quadraticBezierTo(_frameRect.right, _frameRect.top, _frameRect.right - 2, _frameRect.top  + lineDistanceToCurve);
 
-    path.moveTo(frameRect.right, frameRect.bottom - lineDistanceToCurve);
-    path.quadraticBezierTo(frameRect.right, frameRect.bottom, frameRect.right - lineDistanceToCurve, frameRect.bottom - 2);
+    path.moveTo(_frameRect.right, _frameRect.bottom - lineDistanceToCurve);
+    path.quadraticBezierTo(_frameRect.right, _frameRect.bottom, _frameRect.right - lineDistanceToCurve, _frameRect.bottom - 2);
 
-    path.moveTo(frameRect.left + lineDistanceToCurve, frameRect.bottom);
-    path.quadraticBezierTo(frameRect.left, frameRect.bottom, frameRect.left + 2, frameRect.bottom - lineDistanceToCurve);
+    path.moveTo(_frameRect.left + lineDistanceToCurve, _frameRect.bottom);
+    path.quadraticBezierTo(_frameRect.left, _frameRect.bottom, _frameRect.left + 2, _frameRect.bottom - lineDistanceToCurve);
 
-    path.moveTo(frameRect.left, frameRect.top + lineDistanceToCurve);
-    path.quadraticBezierTo(frameRect.left, frameRect.top, frameRect.left + lineDistanceToCurve, frameRect.top + 2);
+    path.moveTo(_frameRect.left, _frameRect.top + lineDistanceToCurve);
+    path.quadraticBezierTo(_frameRect.left, _frameRect.top, _frameRect.left + lineDistanceToCurve, _frameRect.top + 2);
+
+    var frameRect = Rect.fromLTRB(_left + 8.0, _top + 8.0,
+        (size.width - _left) - 8.0, (size.height * 0.65) - 8.0
+    );
+    canvas.drawRRect(RRect.fromRectAndRadius(frameRect, Radius.circular(6)), _backgroundPaint);
 
     canvas.drawPath(path, _strokePaint);
+    _faceRect = _getFaceRect(size);
+    canvas.drawRect(_faceRect, _faceRectPaint);
+  }
+
+  Rect _getFaceRect(Size size) {
+    if(_valueNotifier?.value.eventType == CameraMotionEvent.DetectedFaceRectEvent) {
+      final faceDetected = _valueNotifier?.value.eventData as String;
+      final points = faceDetected.split(",");
+      final mScale = size.width / 480;
+
+      final faceRect = Rect.fromLTRB(
+          double.parse(points[0]) * mScale,
+          double.parse(points[1]) * mScale,
+          double.parse(points[2]) * mScale,
+          double.parse(points[3]) * mScale
+      );
+
+      if(faceRect.left < _frameRect.left
+          || faceRect.top < _frameRect.top
+          || faceRect.right > _frameRect.right
+          || faceRect.bottom > _frameRect.bottom) {
+        _faceRectPaint.color = Colors.red;
+      } else {
+        _faceRectPaint.color = Colors.solidGreen;
+      }
+
+      return faceRect;
+    } else if(_valueNotifier?.value.eventType == CameraMotionEvent.NoFaceDetectedEvent) {
+      return Rect.fromLTRB(0, 0, 0, 0);
+    }
+    return _faceRect;
   }
 
   @override

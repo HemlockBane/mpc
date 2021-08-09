@@ -54,15 +54,20 @@ class _PhoneNumberValidationScreen extends State<PhoneNumberValidationScreen> {
   void initState() {
     _phoneNumberController = TextEditingController();
     super.initState();
+    // _phoneNumberController?.addListener(() {
+    //   if(_phoneNumberController!.text.length >= 11) {
+    //     FocusManager.instance.primaryFocus?.unfocus();
+    //   }
+    // });
     _fetchNationalities();
   }
 
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
-
+    final bottom = MediaQuery.of(context).viewPadding.bottom;
     return ScrollView(
-        maxHeight: MediaQuery.of(context).size.height - 64,//subtract the vertical padding
+        maxHeight: MediaQuery.of(context).size.height - (70 + bottom),//subtract the vertical padding
         child: Container(
             padding: EdgeInsets.symmetric(vertical: 32, horizontal: 20),
             color: Colors.white,

@@ -205,6 +205,7 @@ class _RecoveryOtpView extends State<RecoveryOtpView> {
                       Styles.appEditText(
                           controller: _otpController,
                           hint: 'Enter OTP',
+                          inputType: TextInputType.number,
                           inputFormats: [
                             LengthLimitingTextInputFormatter(6),
                             FilteringTextInputFormatter.digitsOnly

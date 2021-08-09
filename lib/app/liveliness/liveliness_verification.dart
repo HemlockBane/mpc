@@ -144,6 +144,7 @@ class _LivelinessVerification extends State<LivelinessVerification> {
                       onClick: () {
                         Navigator.of(context).pop();
                         _livelinessDetector?.startMotionDetection();
+                        _livelinessDetector?.beginCapture();
                       },
                       text: 'Start Capture'
                   ),
@@ -175,15 +176,13 @@ class _LivelinessVerification extends State<LivelinessVerification> {
 
   void _initLivelinessDetector() {
     final screenSize = MediaQuery.of(context).size;
-    final screenAspectRatio = MediaQuery.of(context).size.aspectRatio;
-    print("ScreenAspectRatio => $screenAspectRatio");
-    if(screenAspectRatio > 0.5) {
-      var frameRect = Rect.fromLTRB(27, 60, screenSize.width - 27, screenSize.height / 1.5);
-      _initializedLiveliness = _livelinessDetector?.initialize(frameSize: frameRect);
-    } else {
-      var frameRect = Rect.fromLTRB(55, 90, screenSize.width - 55, screenSize.height / 1.72);
-      _initializedLiveliness = _livelinessDetector?.initialize(frameSize: frameRect);
-    }
+
+    var frameRect = Rect.fromLTRB(45, 60, screenSize.width - 45, screenSize.height * 0.65);
+    var previewSize = Size(screenSize.width, screenSize.height * (1/3));
+
+    _initializedLiveliness = _livelinessDetector?.initialize(
+        frameSize: frameRect, previewSize: previewSize
+    );
     setState(() {});
   }
 
@@ -192,12 +191,19 @@ class _LivelinessVerification extends State<LivelinessVerification> {
     return SafeArea(child: Scaffold(
       body: Stack(
         children: [
-          FutureBuilder(
-              future: _initializedLiveliness,
-              builder: (mContext, value) {
-                if (value.connectionState != ConnectionState.done) return Container();
-                return LivelinessCameraPreview(_livelinessDetector!);
-              }),
+          Positioned(
+              left: 0,
+              right: 0,
+              child: FutureBuilder(
+                  future: _initializedLiveliness,
+                  builder: (mContext, value) {
+                    if (value.connectionState != ConnectionState.done) return Container();
+                    return AspectRatio(
+                      aspectRatio: 3/4,//TODO get the aspect ratio from channel
+                      child: LivelinessCameraPreview(_livelinessDetector!),
+                    );
+                  })
+          ),
           Positioned(
             left: 0,
             right: 0,

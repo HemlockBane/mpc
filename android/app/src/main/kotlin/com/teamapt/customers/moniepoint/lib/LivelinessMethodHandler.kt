@@ -2,6 +2,7 @@ package com.teamapt.customers.moniepoint.lib
 
 import android.content.Context
 import android.graphics.Rect
+import android.util.Size
 import android.view.Surface
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
@@ -60,7 +61,9 @@ class LivelinessMethodHandler(
         val flutterSurfaceProvider = FlutterSurfaceProvider(textureEntry, ContextCompat.getMainExecutor(context))
         val customCamera = CustomCamera2(context, flutterSurfaceProvider)
         var frameSize: Rect? = null
+        var previewSize: Size? = null
         val channelFrameSize = methodCall?.argument<Map<String?, Double?>>("frameSize")
+        val channelPreviewSize = methodCall?.argument<Map<String?, Double?>>("previewSize")
         println("channelFrameSize $channelFrameSize")
         if(channelFrameSize != null) {
             val left = channelFrameSize["left"]
@@ -75,13 +78,21 @@ class LivelinessMethodHandler(
                 frameSize = Rect(left.toInt(), top.toInt(), right.toInt(), bottom.toInt())
             }
         }
+        if(channelPreviewSize != null) {
+            val width = channelPreviewSize["width"]
+            val height = channelPreviewSize["height"]
+
+            if(width != null && height != null) {
+                previewSize = Size(width.toInt(), height.toInt())
+            }
+        }
         //let's check if the frameSize is supplied from the channel
         this.livelinessDetector = LivelinessDetector.Builder(customCamera)
                 .setFrameSize(frameSize)
                 .setCropCaptureToFrameSize(false)
                 .setFaceDetectionConfidenceLevel(0.505)
-                .setHorizontalAlignmentThreshold(0.8)
-                .setVerticalAlignmentThreshold(0.8)
+                .setCompressionQuality(75)
+                .setPreviewSize(previewSize ?: Size(480, 640))
                 .build()
         reply.success(hashMapOf<String, Any>("cameraId" to textureEntry.id()))
     }
@@ -112,7 +123,7 @@ class LivelinessMethodHandler(
                     eventSink?.success(
                             hashMapOf<String?, Any?>(
                                     "event_type" to cameraMotionEvent.eventName,
-                                    "file_path" to cameraMotionEvent.bitmap?.path
+                                    "event_data" to cameraMotionEvent.bitmap?.path
                             )
                     )
                 }
@@ -120,7 +131,8 @@ class LivelinessMethodHandler(
                     eventSink?.success(
                             hashMapOf<String?, Any?>(
                                     "event_type" to cameraMotionEvent.eventName,
-                                    "file_path" to cameraMotionEvent.bitmap?.path
+                                    "event_data" to cameraMotionEvent.bitmap?.path,
+                                    "exposure" to cameraMotionEvent.exposure
                             )
                     )
                 }
@@ -128,7 +140,7 @@ class LivelinessMethodHandler(
                     eventSink?.success(
                             hashMapOf<String?, Any?>(
                                     "event_type" to cameraMotionEvent.eventName,
-                                    "file_path" to cameraMotionEvent.bitmap?.path
+                                    "event_data" to cameraMotionEvent.bitmap?.path
                             )
                     )
                 }
@@ -136,7 +148,7 @@ class LivelinessMethodHandler(
                     eventSink?.success(
                             hashMapOf<String?, Any?>(
                                     "event_type" to cameraMotionEvent.eventName,
-                                    "file_path" to cameraMotionEvent.bitmap?.path
+                                    "event_data" to cameraMotionEvent.bitmap?.path
                             )
                     )
                 }
@@ -144,7 +156,7 @@ class LivelinessMethodHandler(
                     eventSink?.success(
                         hashMapOf<String?, Any?>(
                             "event_type" to cameraMotionEvent.eventName,
-                            "file_path" to cameraMotionEvent.exposure
+                            "event_data" to cameraMotionEvent.exposure
                         )
                     )
                 }
@@ -152,7 +164,26 @@ class LivelinessMethodHandler(
                     eventSink?.success(
                         hashMapOf<String?, Any?>(
                             "event_type" to cameraMotionEvent.eventName,
-                            "file_path" to cameraMotionEvent.exposure
+                            "event_data" to cameraMotionEvent.exposure
+                        )
+                    )
+                }
+                is DetectedFaceRectEvent -> {
+                    eventSink?.success(
+                        hashMapOf<String?, Any?>(
+                            "event_type" to cameraMotionEvent.eventName,
+                            "event_data" to """${cameraMotionEvent.faceRect.left}
+                                |,${cameraMotionEvent.faceRect.top},
+                                | ${cameraMotionEvent.faceRect.right},
+                                |  ${cameraMotionEvent.faceRect.bottom}""".trimMargin()
+                        )
+                    )
+                }
+                is FaceNotCenteredEvent -> {
+                    eventSink?.success(
+                        hashMapOf<String?, Any?>(
+                            "event_type" to cameraMotionEvent.eventName,
+                            "event_data" to """""".trimMargin()
                         )
                     )
                 }

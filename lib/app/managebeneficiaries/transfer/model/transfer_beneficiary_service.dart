@@ -5,7 +5,6 @@ import 'package:dio/dio.dart' hide Headers;
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/core/config/build_config.dart';
 import 'package:moniepoint_flutter/core/config/service_config.dart';
-import 'package:moniepoint_flutter/core/models/data_collection.dart';
 import 'package:moniepoint_flutter/core/network/service_result.dart';
 import 'package:retrofit/retrofit.dart';
 

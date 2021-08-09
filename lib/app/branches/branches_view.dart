@@ -34,7 +34,6 @@ class _BranchScreen extends State<BranchScreen> {
   BitmapDescriptor? locationMarkerIcon;
   BitmapDescriptor? fadedMarkerIcon;
 
-
   List<BranchInfo> displayableBranches = [];
 
   late SelectedLocation selectedLocation;
@@ -63,10 +62,9 @@ class _BranchScreen extends State<BranchScreen> {
         .asUint8List();
   }
 
-
   void _buildCustomMapMarkers() async {
-    final Uint8List markerIconBytes =
-        await getMarkerBytesFromAsset('res/drawables/ic_location_marker.png', 100);
+    final Uint8List markerIconBytes = await getMarkerBytesFromAsset(
+        'res/drawables/ic_location_marker.png', 100);
     locationMarkerIcon = BitmapDescriptor.fromBytes(markerIconBytes);
 
     final Uint8List fadedMarkerIconBytes = await getMarkerBytesFromAsset(
@@ -89,7 +87,6 @@ class _BranchScreen extends State<BranchScreen> {
     final latitude = selectedLocation.location.latitude;
     final longitude = selectedLocation.location.longitude;
     final branchInfo = selectedLocation.branchInfo;
-
 
     viewModel
         .getAllBranches(latitude, longitude, _radiusInMeters(longitude).toInt())
@@ -120,7 +117,6 @@ class _BranchScreen extends State<BranchScreen> {
         cos(longitude * pi / 180) /
         pow(2.0, currentZoom); //2.0.pow((currentZoom).toDouble());
   }
-
 
   void _addBranchesAsMarkerToMap(List<BranchInfo> branches,
       {bool shouldForceCenter = false}) {
@@ -161,7 +157,6 @@ class _BranchScreen extends State<BranchScreen> {
       final markerIcon = selectedLocation.isCurrentLocation(LatLng(
               _lastLocation?.latitude ?? 0, _lastLocation?.longitude ?? 0))
           ? locationMarkerIcon!
-
           : selectedLocation.equalsBranchPosition(branchLocation)
               ? locationMarkerIcon!
               : fadedMarkerIcon!;
@@ -177,7 +172,8 @@ class _BranchScreen extends State<BranchScreen> {
             branchInfo: branchInfo,
           );
 
-          final isSelectedMarker = selectedLocation.equalsBranchPosition(branchLocation);
+          final isSelectedMarker =
+              selectedLocation.equalsBranchPosition(branchLocation);
           if (!isSelectedMarker) {
             selectedLocation = sLocation;
             _addBranchesAsMarkerToMap(displayableBranches);
@@ -249,6 +245,7 @@ class _BranchScreen extends State<BranchScreen> {
   }
 
   void showCloseBranchesBottomSheet(List<BranchInfo> branches) {
+    closeVisibleModals();
     _scaffoldKey.currentState!.showBottomSheet((context) {
       return Container(
         decoration: BoxDecoration(
@@ -323,7 +320,16 @@ class _BranchScreen extends State<BranchScreen> {
     });
   }
 
+  void closeVisibleModals() {
+    var hasModalRoute =
+        ModalRoute.of(context)?.willHandlePopInternally ?? false;
+    if (hasModalRoute) {
+      Navigator.pop(context);
+    }
+  }
+
   void showBranchInfoBottomSheet(BranchInfo branchInfo) {
+    closeVisibleModals();
     _scaffoldKey.currentState!.showBottomSheet((context) {
       return Container(
         padding: EdgeInsets.symmetric(horizontal: 20),
@@ -382,8 +388,10 @@ class _BranchScreen extends State<BranchScreen> {
             Row(
               children: [
                 Expanded(
-                  child: InkWell(
-                    onTap: () => openUrl("tel:${branchInfo.phoneNumber}"),
+                  child: TextButton(
+                    onPressed: () => openUrl("tel:${branchInfo.phoneNumber}"),
+                    style: ButtonStyle(
+                        padding: MaterialStateProperty.all(EdgeInsets.zero)),
                     child: Container(
                       padding:
                           EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -410,16 +418,26 @@ class _BranchScreen extends State<BranchScreen> {
                 ),
                 SizedBox(width: 20),
                 Expanded(
-                  child: Center(
-                    child: InkWell(
-                      onTap: () => openUrl(
-                          "geo:${branchInfo.location?.latitude}, ${branchInfo.location?.longitude}"),
-                      child: Text(
-                        "Share Location",
-                        style: _style(
-                            color: Color(0xFF0361F0),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500),
+                  child: TextButton(
+                    style: ButtonStyle(
+                      padding: MaterialStateProperty.all(EdgeInsets.zero),
+                    ),
+                    onPressed: () => openUrl(
+                        "geo:${branchInfo.location?.latitude}, ${branchInfo.location?.longitude}"),
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                      decoration: BoxDecoration(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.all(Radius.circular(4))),
+                      child: Center(
+                        child: Text(
+                          "Share Location",
+                          style: _style(
+                              color: Color(0xFF0361F0),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500),
+                        ),
                       ),
                     ),
                   ),
@@ -572,7 +590,6 @@ class _BranchScreen extends State<BranchScreen> {
             onCameraMove: _onCameraMove,
             markers: _displayAbleMarkers,
           ),
-
           Positioned(
             top: 38,
             right: 16,

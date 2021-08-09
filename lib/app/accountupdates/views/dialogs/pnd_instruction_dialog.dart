@@ -45,15 +45,18 @@ class PndInstructionDialog extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 0),
                     child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text("1."),
                         SizedBox(width: 4,),
-                        Text(maxCumulative,
-                            style: TextStyle(
-                            color: Colors.black,
-                            fontFamily: Styles.defaultFont,
-                            fontFamilyFallback: ["Roboto"]
-                        )).colorText({recordedCumulative: Tuple(Colors.red, null)}, bold: false, underline: false),
+                        Flexible(
+                            child: Text(maxCumulative,
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontFamily: Styles.defaultFont,
+                                    fontFamilyFallback: ["Roboto"]
+                                )).colorText({recordedCumulative: Tuple(Colors.red, null)}, bold: false, underline: false)
+                        ),
                       ],
                     ),
                   ),
@@ -61,16 +64,19 @@ class PndInstructionDialog extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 0),
                     child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text("2."),
                         SizedBox(width: 4,),
-                        Text(maxSingle,
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontFamily: Styles.defaultFont,
-                                fontFamilyFallback: ["Roboto"]
-                            ))
-                            .colorText({recordedSingle: Tuple(Colors.red, null)}, bold: false, underline: false),
+                        Flexible(
+                            child: Text(maxSingle,
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontFamily: Styles.defaultFont,
+                                    fontFamilyFallback: ["Roboto"]
+                                ))
+                                .colorText({recordedSingle: Tuple(Colors.red, null)}, bold: false, underline: false)
+                        ),
                       ],
                     ),
                   ),

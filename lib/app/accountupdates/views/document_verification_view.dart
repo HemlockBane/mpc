@@ -44,7 +44,7 @@ class _DocumentVerificationScreen extends State<DocumentVerificationScreen> {
 
   bool _documentIsInErrorState() {
     return widget.idVerificationFlag?.verificationStates != VerificationState.INPROGRESS
-    || widget.addressVerificationFlag?.verificationStates != VerificationState.INPROGRESS;
+    && widget.addressVerificationFlag?.verificationStates != VerificationState.INPROGRESS;
   }
   
   String getVerificationTextWithTime() {

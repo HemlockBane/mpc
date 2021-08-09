@@ -11,11 +11,12 @@ PostNoDebitInfo _$PostNoDebitInfoFromJson(Map<String, dynamic> json) {
     status: json['status'] as String?,
     postNoDebitReason: json['postNoDebitReason'] as String?,
     postNoDebitAction: json['postNoDebitAction'] as String?,
-    permittedSingleCredit: json['permittedSingleCredit'] as int?,
-    recordedSingleCredit: json['recordedSingleCredit'] as int?,
-    permittedDailyCredit: json['permittedDailyCredit'] as int?,
-    recordedDailyCredit: json['recordedDailyCredit'] as int?,
-    permittedCumulativeBalance: json['permittedCumulativeBalance'] as int?,
+    permittedSingleCredit: (json['permittedSingleCredit'] as num?)?.toDouble(),
+    recordedSingleCredit: (json['recordedSingleCredit'] as num?)?.toDouble(),
+    permittedDailyCredit: (json['permittedDailyCredit'] as num?)?.toDouble(),
+    recordedDailyCredit: (json['recordedDailyCredit'] as num?)?.toDouble(),
+    permittedCumulativeBalance:
+        (json['permittedCumulativeBalance'] as num?)?.toDouble(),
     recordedCumulativeBalance:
         (json['recordedCumulativeBalance'] as num?)?.toDouble(),
   );

@@ -142,12 +142,12 @@ packages:
     source: hosted
     version: "2.0.1"
   chewie:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: chewie
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.0"
+    version: "1.2.2"
   chewie_audio:
     dependency: transitive
     description:
@@ -231,7 +231,7 @@ packages:
       name: cupertino_icons
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.2"
+    version: "1.0.3"
   dart_style:
     dependency: transitive
     description:
@@ -447,11 +447,25 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.22.0"
+  flutter_swipecards:
+    dependency: "direct main"
+    description:
+      name: flutter_swipecards
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.2.1"
   flutter_test:
     dependency: transitive
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_tindercard:
+    dependency: "direct main"
+    description:
+      name: flutter_tindercard
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.2.0"
   flutter_web_plugins:
     dependency: transitive
     description: flutter
@@ -1125,12 +1139,12 @@ packages:
     source: hosted
     version: "2.1.0"
   video_player:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: video_player
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.6"
+    version: "2.1.12"
   video_player_platform_interface:
     dependency: transitive
     description:
@@ -1158,7 +1172,7 @@ packages:
       name: wakelock
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.0"
+    version: "0.5.3+3"
   wakelock_macos:
     dependency: transitive
     description:
@@ -1180,6 +1194,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.2.0+1"
+  wakelock_windows:
+    dependency: transitive
+    description:
+      name: wakelock_windows
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.0+1"
   watcher:
     dependency: transitive
     description:
@@ -1237,5 +1258,5 @@ packages:
     source: hosted
     version: "3.1.0"
 sdks:
-  dart: ">=2.12.0 <3.0.0"
+  dart: ">=2.13.0 <3.0.0"
   flutter: ">=2.2.0"

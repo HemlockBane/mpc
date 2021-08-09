@@ -21,11 +21,15 @@ import 'package:moniepoint_flutter/core/timeout_reason.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/biometric_helper.dart';
 import 'package:moniepoint_flutter/core/utils/call_utils.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/views/otp_ussd_info_view.dart';
 import 'package:provider/provider.dart';
 
 import 'dialogs/add_device_dialog.dart';
+
+// import 'package:flutter_tindercard/flutter_tindercard.dart';
+import 'package:flutter_swipecards/flutter_swipecards.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -60,6 +64,8 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
   bool _isValidated = false;
   BiometricHelper? _biometricHelper;
 
+  CardController controller = CardController();
+
   @override
   void initState() {
     final viewModel = Provider.of<LoginViewModel>(context, listen: false);
@@ -76,7 +82,6 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
 
     _initSavedUsername();
     _animController.forward();
-
     _initializeAndStartBiometric();
   }
 
@@ -418,6 +423,17 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
       _topAnimController.reverse(from: 0.15);
     }
     if (event is Success<User>) {
+      var user = event.data!;
+
+      print("prompts");
+      print(user.loginPrompts);
+
+      // if (user.loginPrompts!.isNotEmpty) {
+      //   for (var i in user.loginPrompts!) {
+      //     print(i.toJson());
+      //   }
+      // }
+
       _passwordController.clear();
 
       PreferenceUtil.setLoginMode(LoginMode.FULL_ACCESS);

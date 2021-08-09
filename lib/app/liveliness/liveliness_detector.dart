@@ -30,16 +30,21 @@ enum CameraMotionEvent {
   FaceOutOfBoundsEvent,
   ImageOverExposed,
   ImageUnderExposed,
+  DetectedFaceRectEvent,
+  FaceTooFarEvent,
+  FaceTooCloseEvent,
+  FaceNotCenteredEvent,
   UNKNOWN
 }
 
 class LivelinessMotionEvent {
   final CameraMotionEvent eventType;
   final dynamic eventData;
+  final double? exposure;
 
-  LivelinessMotionEvent({required this.eventType, this.eventData});
+  LivelinessMotionEvent({required this.eventType, this.eventData, this.exposure});
 
-  const LivelinessMotionEvent.none({this.eventType = CameraMotionEvent.UNKNOWN, this.eventData});
+  const LivelinessMotionEvent.none({this.eventType = CameraMotionEvent.UNKNOWN, this.eventData, this.exposure});
 }
 
 class LivelinessDetector extends ValueNotifier<LiveDetectorValue> implements LivelinessDetectorCallback {
@@ -51,8 +56,7 @@ class LivelinessDetector extends ValueNotifier<LiveDetectorValue> implements Liv
 
   int? _cameraId;
 
-
-  Future<void> initialize({Rect? frameSize}) async {
+  Future<void> initialize({Rect? frameSize, Size? previewSize}) async {
     final arguments = {};
 
     if(frameSize != null) {
@@ -61,6 +65,12 @@ class LivelinessDetector extends ValueNotifier<LiveDetectorValue> implements Liv
         "top": frameSize.top,
         "right": frameSize.right,
         "bottom": frameSize.bottom
+      };
+    }
+    if(previewSize != null) {
+      arguments["previewSize"] = {
+        "width": previewSize.width,
+        "height": previewSize.height,
       };
     }
 
@@ -108,9 +118,11 @@ class LivelinessDetector extends ValueNotifier<LiveDetectorValue> implements Liv
     _motionDetector.receiveBroadcastStream().listen((event) {
       if(event is! Map) return;
       final cameraMotionEvent = eventFromString(event["event_type"]);
-      final data = event["file_path"];
-      final motionEvent = LivelinessMotionEvent(eventType: cameraMotionEvent, eventData: data);
-      if(!_motionEventEmitter.isClosed) _motionEventEmitter.add(motionEvent);
+      final data = event["event_data"];
+      final motionEvent = LivelinessMotionEvent(
+          eventType: cameraMotionEvent, eventData: data, exposure: event["exposure"] ?? null
+      );
+      if(!_motionEventEmitter.isClosed) _motionEventEmitter.sink.add(motionEvent);
     });
   }
 

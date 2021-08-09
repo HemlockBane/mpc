@@ -7,24 +7,30 @@
 
 import Foundation
 import Flutter
+import UIKit
+
 
 
 class LivelinessMethodHandler : NSObject, FlutterStreamHandler {
 
-    let LIVELINESS_CHANNEL: String = "moniepoint.flutter.dev/liveliness"
+    private let LIVELINESS_CHANNEL: String = "moniepoint.flutter.dev/liveliness"
     private let LIVELINESS_EVENT_CHANNEL = "moniepoint.flutter.dev/liveliness/events"
-    let controller:FlutterViewController
+    private let LIVELINESS_REGISTRAR = "moniepoint.flutter.dev/liveliness/liveliness_test"
+    
+    private let controller: FlutterViewController
     private var livelinessDetector: CustomCamera2?
     private var eventSink: FlutterEventSink?
+    weak private var registrar: FlutterPluginRegistrar?
     
     init(controller: FlutterViewController) {
         self.controller = controller
-        
+        self.registrar = self.controller.engine?.registrar(forPlugin: LIVELINESS_REGISTRAR)
     }
     
     func registerLivelinessMethodHandler() {
         let livelinessChannel = FlutterMethodChannel(name:LIVELINESS_CHANNEL,
                                                      binaryMessenger:controller.binaryMessenger)
+        
         let livelinessEventChannel = FlutterEventChannel(name: LIVELINESS_EVENT_CHANNEL,
                                                          binaryMessenger: controller.binaryMessenger)
         
@@ -75,51 +81,109 @@ class LivelinessMethodHandler : NSObject, FlutterStreamHandler {
     }
     
     func initializeCamera(call: FlutterMethodCall, reply:@escaping FlutterResult) {
-        print("Calling initialize cameraaooooo")
-        weak var registrar = controller.engine?.registrar(forPlugin: "test")
-        let texture: FlutterTextureRegistry = (registrar?.textures())!
-        self.livelinessDetector = CustomCamera2(textureRegistry: texture)
-        livelinessDetector?.startCamera()
-        let cameraId = texture.register(livelinessDetector!)
-        livelinessDetector?.setFrameAvailableHander {
-            texture.textureFrameAvailable(cameraId)
+        if(registrar == nil) {
+            self.registrar = self.controller.engine?.registrar(forPlugin: LIVELINESS_REGISTRAR)
         }
-        print("CameraID => \(cameraId )")
-        reply(["cameraId": cameraId])
+        
+        print("ARGUMENTS ==>>> \(call.arguments)")
+        
+        let texture: FlutterTextureRegistry = (registrar?.textures())!
+
+        if let args = call.arguments as? Dictionary<String, Any>,
+           let channelFrameSize = args["frameSize"] as? Dictionary<String?, Double?>?,
+           let channelPreviewSize = args["previewSize"] as? Dictionary<String?, Double?>? {
+            
+            var frameSize: CGRect? = nil
+            var previewSize: CGSize = CGSize(width:480, height:640)
+            
+            if(channelFrameSize != nil) {
+                let left = channelFrameSize!["left"]
+                let top = channelFrameSize!["top"]
+                let right = channelFrameSize!["right"]
+                let bottom = channelFrameSize!["bottom"]
+
+                if((left != nil) && (top != nil) && (right != nil) && (bottom != nil)) {
+                    frameSize = CGRect(
+                        x: left!!,
+                        y: (top ?? 0.0)!,
+                        width: (right ?? 0.0)!,
+                        height: (bottom ?? 0.0)!
+                    )
+                }
+            }
+
+            if(channelPreviewSize != nil) {
+                let  width = channelPreviewSize!["width"]
+                let height = channelPreviewSize!["height"]
+
+                if(width != nil && height != nil) {
+                    previewSize = CGSize(width: width!!, height: height!!)
+                }
+            }
+
+            self.livelinessDetector = CustomCamera2(
+                textureRegistry: texture, previewSize: previewSize, frameSize: frameSize)
+            
+            livelinessDetector?.startCamera()
+            
+            let cameraId = texture.register(self.livelinessDetector!)
+            
+            livelinessDetector?.setFrameAvailableHander {
+                texture.textureFrameAvailable(cameraId)
+            }
+            
+            print("CameraID => \(cameraId )")
+            reply(["cameraId": cameraId])
+        }
+        else {
+            
+        }
     }
     
     func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
         self.eventSink = events
-        print("Recevied an event.......=====================.........")
         livelinessDetector?.startListening(eventHandler: { CameraMotionEvent in
             print("This is the Event \(CameraMotionEvent)")
             switch CameraMotionEvent {
             case .NoFaceDetectedEvent:
                 self.eventSink?([
                     "event_type":"NoFaceDetectedEvent",
-                    "file_path" :""
+                    "event_data" :""
                 ])
                 return
             case .FirstCaptureEvent(path: let path):
                 self.eventSink?([
                     "event_type":"FirstCaptureEvent",
-                    "file_path" :path?.path
+                    "event_data" :path?.path
                 ])
                 return
             case .MotionDetectedEvent(path: let path):
                 self.eventSink?([
                     "event_type":"MotionDetectedEvent",
-                    "file_path" :path?.path
+                    "event_data" :path?.path
                 ])
+                return
             case .NoMotionDetectedEvent(path: let path):
                 self.eventSink?([
-                    "event_type":"NoMotionDetectedEvent",
-                    "file_path" :""
+                    "event_type": "NoMotionDetectedEvent",
+                    "event_data": ""
                 ])
+                return
             case .FaceDetectedEvent:
                 self.eventSink?([
                     "event_type":"FaceDetectedEvent",
-                    "file_path" :""
+                    "event_data" :""
+                ])
+                return
+            case .DetectedFaceRectEvent(faceRect: let faceRect):
+                self.eventSink?([
+                    "event_type":"DetectedFaceRectEvent",
+                    "event_data" :"\(faceRect.minX),\(faceRect.minY),\(faceRect.maxX),\(faceRect.maxY)"
+                ])
+                return
+            case .FaceOutOfBoundsEvent:
+                self.eventSink?([
+                    "event_type":"FaceOutOfBoundsEvent",
                 ])
                 return
             }

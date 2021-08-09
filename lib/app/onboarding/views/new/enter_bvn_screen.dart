@@ -127,9 +127,10 @@ class _EnterBVNScreen extends State<EnterBVNScreen> {
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
+    final bottom = MediaQuery.of(context).viewPadding.bottom;
 
     return ScrollView(
-      maxHeight: MediaQuery.of(context).size.height - 64,//subtract the vertical padding
+      maxHeight: MediaQuery.of(context).size.height - (70 + bottom),//subtract the vertical padding
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 32, horizontal: 20),
         color: Colors.white,
@@ -170,7 +171,7 @@ class _EnterBVNScreen extends State<EnterBVNScreen> {
                     SizedBox(height: 20),
                     OtpUssdInfoView(
                       "Onboarding Phone Number Validation OTP Mobile",
-                      defaultCode: "*5573*70#",
+                      defaultCode: "*5573*60#",
                       message: "Dial {} on your registered phone number to get your BVN",
                     ),
                     SizedBox(height: 100),

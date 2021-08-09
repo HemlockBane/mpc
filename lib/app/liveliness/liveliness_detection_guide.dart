@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:ui';
+import 'package:rxdart/transformers.dart';
 
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lottie/lottie.dart';
@@ -10,7 +13,7 @@ import 'package:moniepoint_flutter/app/liveliness/liveliness_background_frame.da
 import 'package:moniepoint_flutter/app/liveliness/viewmodels/liveliness_verification_viewmodel.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/client_error.dart';
-import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:provider/provider.dart';
 
@@ -39,21 +42,20 @@ class LivelinessDetectionGuide extends StatefulWidget {
 }
 
 enum LivelinessState {
-  STARTED,
   LOCAL_ERROR,
   REMOTE_ERROR,
-  INFO,
   PROCESSING,
   RUNNING,
-  PAUSED
 }
 
 class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with TickerProviderStateMixin {
 
   late final AnimationController _controller;
-  late final AnimationController _eventAnimationController = AnimationController(duration: const Duration(milliseconds: 500), vsync: this,)..repeat(reverse: true);
+  late final AnimationController _eventAnimationController = AnimationController(
+    duration: const Duration(milliseconds: 500), vsync: this,
+  )..repeat(reverse: true);
 
-  late final Animation<double> _motionInfoAnimation = CurvedAnimation(
+  late final Animation<double> _infoAnimation = CurvedAnimation(
     parent: _eventAnimationController,
     curve: Curves.easeIn,
   );
@@ -64,14 +66,50 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
   ValueNotifier<LivelinessMotionEvent>? _livelinessEventNotifier;
 
   Timer? _eventTimer;
+  String _lastPerceivedLight = "";
 
   String _previousRemoteError = "";
-  LivelinessState _state = LivelinessState.STARTED;
+  LivelinessState _state = LivelinessState.RUNNING;
 
-  void _processEvents(LivelinessMotionEvent motionEvent) async {
+  final livelinessEventToInfoSubject = {
+    CameraMotionEvent.NoFaceDetectedEvent : Tuple(
+        "No Face Detected",
+        "Ensure you’re facing the camera.\nPosition head in frame to begin capture"
+    ),
+    CameraMotionEvent.NoMotionDetectedEvent : Tuple(
+        "Move your face",
+        "Ensure you’re facing the camera.\nPosition head in frame to begin capture"
+    ),
+    CameraMotionEvent.FaceOutOfBoundsEvent : Tuple(
+        "Position your face in frame",
+        "Ensure you’re facing the camera and your head is within the frame."
+    ),
+    CameraMotionEvent.ImageUnderExposed : Tuple(
+        "Image too dark",
+        "Ensure you’re within a moderately bright environment."
+    ),
+    CameraMotionEvent.ImageOverExposed : Tuple(
+        "Image too bright",
+        "Ensure the light entering the camera is mild"
+    ),
+    CameraMotionEvent.FaceTooFarEvent : Tuple(
+        "Face Too Far",
+        "Ensure you are not too far from the frame"
+    ),
+    CameraMotionEvent.FaceTooCloseEvent : Tuple(
+        "Face Too Close",
+        "Ensure you are not too close to the camera"
+    ),
+    CameraMotionEvent.FaceNotCenteredEvent : Tuple(
+        "Face Not Centered",
+        "Ensure that your face is centered within the frame"
+    )
+  };
+
+  void _processEvents(LivelinessMotionEvent motionEvent)  {
+    //Discard DetectedFaceRectEvent, we only need it to track the face
     if(_motionDetectedEvent != null
-        || _state == LivelinessState.LOCAL_ERROR
-        || _state == LivelinessState.STARTED
+        || motionEvent.eventType == CameraMotionEvent.DetectedFaceRectEvent
         || _state == LivelinessState.REMOTE_ERROR) return;
 
     if(_previousMotionEvent == motionEvent.eventType && _eventTimer?.isActive == true) {
@@ -88,6 +126,10 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
           && motionEvent.eventType == CameraMotionEvent.FaceDetectedEvent) {
         return;
       }
+      _state = LivelinessState.RUNNING;
+      _eventAnimationController.reverse().whenComplete(() {
+        _eventAnimationController.forward(from: 0.5);
+      });
       _previousMotionEvent = motionEvent.eventType;
       _eventTimer?.cancel();
       _startTimer();
@@ -103,8 +145,9 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
     }
     if(motionEvent.eventType == CameraMotionEvent.MotionDetectedEvent) {
       _motionDetectedEvent = motionEvent;
-      _eventAnimationController.reverse();
       _eventTimer?.cancel();
+      print("Before First Detected Image => ${_firstCaptureEvent?.eventData}");
+      print("Before Motion Detected Image => ${_motionDetectedEvent?.eventData}");
       _validateLiveliness();
     }
   }
@@ -113,10 +156,10 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
     _firstCaptureEvent = null;
     _motionDetectedEvent = null;
     _previousMotionEvent = null;
-    _state = LivelinessState.STARTED;
+    _state = LivelinessState.RUNNING;
     _eventTimer?.cancel();
-    await widget.callback.endCapture();
     await widget.callback.restart();
+    await widget.callback.beginCapture();
   }
 
   void _validateLiveliness() async {
@@ -127,6 +170,8 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
 
     try {
       _state = LivelinessState.PROCESSING;
+      print("First Detected Image => ${_firstCaptureEvent?.eventData}");
+      print("Motion Detected Image => ${_motionDetectedEvent?.eventData}");
       final response = await validationStrategy.validate(
           _firstCaptureEvent?.eventData as String,
           _motionDetectedEvent?.eventData as String
@@ -139,9 +184,10 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
         Navigator.of(context).pop(response);
       }
     } catch(e) {
-      FirebaseCrashlytics.instance.recordError(e, StackTrace.current);
+      FirebaseCrashlytics.instance.recordError(e, null);
       _state = LivelinessState.REMOTE_ERROR;
-      _showGenericError(e.toString());
+      var errorMessage = e.toString().replaceAll("Exception: ", "");
+      if(mounted) _showGenericError(errorMessage);
     }
   }
 
@@ -149,9 +195,9 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
     if(livelinessError != null && livelinessError.errors?.isNotEmpty == true) {
       final errors = livelinessError.errors ?? [];
       final error = errors.first;
+      _state = LivelinessState.REMOTE_ERROR;
       widget.callback.endCapture();
       widget.callback.resumeDetection();
-      _state = LivelinessState.REMOTE_ERROR;
       _previousRemoteError = "${error.code}";
       return false;
     } else if(faceMatchError != null && faceMatchError.message?.isNotEmpty == true) {
@@ -178,30 +224,9 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
   void _startTimer() {
     _eventTimer = Timer.periodic(Duration(seconds: 5), (timer)  {
       _eventTimer?.cancel();
-      if(_previousMotionEvent == CameraMotionEvent.NoFaceDetectedEvent) {
-        _state = LivelinessState.LOCAL_ERROR;
-        widget.callback.pauseDetection().then((value) => "");
-      } else if (_previousMotionEvent == CameraMotionEvent.NoMotionDetectedEvent){
-        if(timer.tick > 1) {
-          _state = LivelinessState.LOCAL_ERROR;
-        } else {
-          _state = LivelinessState.INFO;
-        }
-
-        if(_state == LivelinessState.LOCAL_ERROR) {
-          widget.callback.pauseDetection().then((value) => "");
-        }
-        if(_state == LivelinessState.INFO) {
-          Future.delayed(Duration(milliseconds: 200), () => _eventAnimationController.forward());
-        }
-      } else if(_previousMotionEvent == CameraMotionEvent.ImageOverExposed
-          || _previousMotionEvent == CameraMotionEvent.ImageUnderExposed) {
-        _state = LivelinessState.LOCAL_ERROR;
-        print("We are pausing for image underexposed");
-        Future.delayed(Duration(milliseconds: 300), (){
-          widget.callback.pauseDetection().then((value) => "");
-        });
-      }
+      if(_previousMotionEvent == CameraMotionEvent.FaceDetectedEvent) return;
+      _state = LivelinessState.LOCAL_ERROR;
+      Future.delayed(Duration(milliseconds: 200), () => _eventAnimationController.forward());
     });
   }
 
@@ -209,76 +234,16 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
     super.initState();
     _controller = AnimationController(vsync: this, duration: Duration(seconds: 2))..repeat();
     _livelinessEventNotifier = ValueNotifier(LivelinessMotionEvent.none());
-  }
+    _eventAnimationController.forward();
 
-  String _getEventInfoMessage(LivelinessMotionEvent motionEvent) {
-    if(motionEvent.eventType == CameraMotionEvent.NoFaceDetectedEvent) {
-      return "Checking for face...";
-    }
-    if(motionEvent.eventType == CameraMotionEvent.FaceOutOfBoundsEvent
-        && _state != LivelinessState.STARTED) {
-      return "Position face in frame";
-    }
-    return "";
-  }
-
-  Widget _livelinessInfo(LivelinessMotionEvent motionEvent) {
-    final infoMessage = _getEventInfoMessage(motionEvent);
-    if(infoMessage.isEmpty) return SizedBox();
-    return Container(
-      padding: infoMessage.isEmpty ? EdgeInsets.all(8) : EdgeInsets.only(left: 8, top: 3, bottom: 3, right: 16),
-      decoration: BoxDecoration(
-          borderRadius: infoMessage.isEmpty ? null : BorderRadius.circular(120),
-          color: Colors.white,
-          shape: (infoMessage.isEmpty) ? BoxShape.circle : BoxShape.rectangle,
-          boxShadow: [
-            BoxShadow(
-                color: Colors.primaryColor.withOpacity(0.01),
-                offset: Offset(0, -1),
-                blurRadius: 3,
-                spreadRadius: 0
-            )
-          ]),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Visibility(
-              visible: true,
-              child: Lottie.asset('res/drawables/progress_bar_lottie.json', width: 36, height: 36)
-          ),
-          Visibility(visible: infoMessage.isNotEmpty, child: SizedBox(width: 8,)),
-          Visibility(
-              child: Flexible(child: Text(
-                  infoMessage,
-                  style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.textColorBlack
-                  )
-              ))
-          )
-        ],
-      ),
-    );
-  }
-
-  String _getErrorMessage() {
-    if(_state == LivelinessState.REMOTE_ERROR) {
-      return _previousRemoteError;
-    }
-    if(_previousMotionEvent == CameraMotionEvent.NoFaceDetectedEvent) {
-      return "No Face Detected";
-    }
-    if(_previousMotionEvent == CameraMotionEvent.NoMotionDetectedEvent) {
-        return "No Motion Detected";
-    }
-    if(_previousMotionEvent == CameraMotionEvent.ImageOverExposed) {
-      return "Image is too bright";
-    }
-    if(_previousMotionEvent == CameraMotionEvent.ImageUnderExposed) {
-      return "Image is too dark";
-    }
-    return "";
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+      widget.motionEventStream.listen((event) {
+        if(event.eventType == CameraMotionEvent.FirstCaptureEvent
+            && _firstCaptureEvent == null) {
+          _firstCaptureEvent = event;
+        }
+      });
+    });
   }
 
   void _tryAgain() {
@@ -289,212 +254,187 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
     widget.callback.resumeDetection();
   }
 
-  Widget _livelinessErrorInfo(LivelinessMotionEvent motionEvent) {
+  void _imageExposureText(LivelinessMotionEvent motionEvent) {
+    if(motionEvent.eventType == CameraMotionEvent.ImageOverExposed ||
+        motionEvent.eventType == CameraMotionEvent.ImageUnderExposed){
+      _lastPerceivedLight =  "Exposure Value => ${motionEvent.eventData} from [0-255]";
+    }else if(motionEvent.eventType == CameraMotionEvent.FaceDetectedEvent) {
+      _lastPerceivedLight =  "Exposure Value => ${motionEvent.exposure} from [0-255]";
+    }
+  }
+
+  Widget _getInfoIconForState() {
+    if(_state == LivelinessState.RUNNING) {
+      return Container(
+        padding: EdgeInsets.all(6),
+        decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.solidOrange
+        ),
+        child: SvgPicture.asset('res/drawables/ic_face.svg', width: 30, height: 30, color: Colors.white,),
+      );
+    }
+    if(_state == LivelinessState.PROCESSING) {
+      return Lottie.asset('res/drawables/progress_bar_lottie.json', width: 48, height: 48);
+    }
+
+    if(_state == LivelinessState.REMOTE_ERROR){
+      return SvgPicture.asset('res/drawables/ic_info.svg', width: 30, height: 30, color: Colors.red,);
+    }
+
     return Container(
-      padding: EdgeInsets.only(left: 8, top: 3, bottom: 3, right: 16),
+      padding: EdgeInsets.all(6),
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(120),
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-                color: Colors.primaryColor.withOpacity(0.01),
-                offset: Offset(0, -1),
-                blurRadius: 3,
-                spreadRadius: 0
-            )
-          ]),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+          shape: BoxShape.circle,
+          color: Colors.solidOrange
+      ),
+      child: SvgPicture.asset('res/drawables/ic_face.svg', width: 30, height: 30, color: Colors.white,),
+    );
+  }
+
+  String _getInfoTitleForState(Tuple<String, String>? info) {
+    if(_state == LivelinessState.RUNNING) {
+      return "Analyzing Face";
+    }
+    if(_state == LivelinessState.PROCESSING) {
+      return "";
+    }
+    if(_state == LivelinessState.REMOTE_ERROR) {
+      return _previousRemoteError;
+    }
+
+    return info?.first ?? "";
+  }
+
+  String _getInfoMessageForState(Tuple<String, String>? info) {
+    if(_state == LivelinessState.RUNNING) {
+      return "Please Position your face within the frame.";
+    }
+    if(_state == LivelinessState.PROCESSING) {
+      return "Processing, please wait";
+    }
+    if(_state == LivelinessState.REMOTE_ERROR) return "";
+
+    return info?.second ?? "";
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    final sheetSize = 1 - 0.67;
+    final itemSize = screenSize.height - (screenSize.height * 0.67);
+    return Container(
+      height: screenSize.height,
+      child: Stack(
         children: [
-          Container(
-            height: 44,
-            width: 44,
-            padding: EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.red
-            ),
-            child: Center(
-              child: SvgPicture.asset('res/drawables/ic_face.svg', width: 30, height: 30,),
-            ),
-          ),
-          Visibility(visible: true, child: SizedBox(width: 15,)),
-          Expanded(child: Text(
-              _getErrorMessage(),
-              style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.textColorBlack
-              )
-          )),
-          Flexible(
-              child:TextButton(
-                  onPressed: () => _tryAgain(),
-                  child: Text('Try Again',
-                      style: TextStyle(color: Colors.primaryColor, fontSize: 14, fontWeight: FontWeight.bold)
-                  )
-              )
+          LivelinessBackgroundFrame(_livelinessEventNotifier!),
+          DraggableScrollableSheet(
+            initialChildSize: sheetSize,
+            minChildSize: sheetSize,
+            maxChildSize: sheetSize + 0.1,
+            builder: (context, scrollController) {
+              return Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20)
+                    ),
+                    color: Colors.white
+                ),
+                child: ListView.builder(
+                    controller: scrollController,
+                    shrinkWrap: true,
+                    itemCount: 1,
+                    itemBuilder: (BuildContext ctx, int index) {
+                      return StreamBuilder(
+                          stream: widget.motionEventStream.delay(Duration(milliseconds: 100)),
+                          builder: (mContext, AsyncSnapshot<LivelinessMotionEvent> motionEvent) {
+
+                            final liveMotionEvent = (motionEvent.hasData)
+                                ? motionEvent.data ?? LivelinessMotionEvent.none()
+                                : LivelinessMotionEvent.none();
+
+                            print("CameraMotionEvent => ${liveMotionEvent.eventType}");
+                            _processEvents(liveMotionEvent);
+
+                            _livelinessEventNotifier?.value = liveMotionEvent;
+
+                            final infoForState = (_state == LivelinessState.RUNNING)
+                                ? null
+                                : livelinessEventToInfoSubject[_previousMotionEvent];
+
+                            String infoTitle = _getInfoTitleForState(infoForState);
+                            String infoMessage = _getInfoMessageForState(infoForState);
+                            Widget infoIcon = _getInfoIconForState();
+
+                            _imageExposureText(liveMotionEvent);
+
+                            return Container(
+                              width: double.infinity,
+                              height: max(220, itemSize),
+                              padding: EdgeInsets.only(top: 24),
+                              child: Column(
+                                children: [
+                                  Center(child: infoIcon),
+                                  SizedBox(height: 12),
+                                  FadeTransition(
+                                    opacity: _infoAnimation,
+                                    child: Text(infoTitle,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Flexible(
+                                      fit: FlexFit.loose,
+                                      child: Text(infoMessage, textAlign: TextAlign.center)
+                                  ),
+                                  SizedBox(height: _state == LivelinessState.REMOTE_ERROR ? 24 : 0),
+                                  Text(
+                                    _lastPerceivedLight,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                                  ),
+                                  Visibility(
+                                    visible: _state == LivelinessState.REMOTE_ERROR,
+                                    child: Flexible(
+                                        child: Align(
+                                          alignment: Alignment.bottomCenter,
+                                          child: Divider(color: Colors.grey.withOpacity(0.1), height: 1,),
+                                        )
+                                    ),
+                                  ),
+                                  Visibility(
+                                    visible: _state == LivelinessState.REMOTE_ERROR,
+                                    child: Flexible(
+                                        fit: FlexFit.loose,
+                                        child: Align(
+                                          alignment: Alignment.bottomCenter,
+                                          child: TextButton(
+                                            child: Text('Try Again', style: TextStyle(color: Colors.primaryColor, fontSize: 16),),
+                                            onPressed: () => _tryAgain(),
+                                          ),
+                                        )
+                                    )
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+                      );
+                    }
+                ),
+              );
+            },
           )
         ],
       ),
     );
   }
 
-  Widget _motionInfoWidget() {
-    return ClipRRect(
-      borderRadius: BorderRadius.all(Radius.circular(8)),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-        child: Container(
-          width: 200,
-          padding: EdgeInsets.all(8),
-          decoration: BoxDecoration(
-              color: Colors.grey.withOpacity(0.5),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.white.withOpacity(0.2), width: 0.8)
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SvgPicture.asset("res/drawables/ic_info.svg", color: Colors.white,),
-              SizedBox(height: 4),
-              Flexible(child: Text(
-                'Nod so we can capture\nyour face properly',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 15
-                ),
-              ))
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _beginLivelinessCapture() {
-    _state = LivelinessState.RUNNING;
-    widget.callback.resumeDetection();
-    widget.callback.beginCapture();
-  }
-
-  bool _shouldEnableCapture(CameraMotionEvent event) {
-    if(event == CameraMotionEvent.FaceDetectedEvent
-    || event == CameraMotionEvent.ImageOverExposed
-    || event == CameraMotionEvent.ImageUnderExposed){
-      return true;
-    }
-    return false;
-  }
-
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-              Stack(
-                children: [
-                  LivelinessBackgroundFrame(_livelinessEventNotifier!),
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    top: (MediaQuery.of(context).size.height / 1.7 ) + 16,
-                    child: StreamBuilder(
-                        stream: widget.motionEventStream,
-                        builder: (mContext, AsyncSnapshot<LivelinessMotionEvent> motionEvent) {
-
-                          final liveMotionEvent = (motionEvent.hasData)
-                              ? motionEvent.data ?? LivelinessMotionEvent.none()
-                              : LivelinessMotionEvent.none();
-
-                          print("CameraMotionEvent => ${liveMotionEvent.eventType}");
-                          _processEvents(liveMotionEvent);
-
-                          _livelinessEventNotifier?.value = liveMotionEvent;
-
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Visibility(
-                                  visible: _state == LivelinessState.STARTED,
-                                  child: Text(
-                                    'Position your face within \nthe frame then begin capture',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16
-                                    ),
-                                  )
-                              ),
-                              Visibility(
-                                  visible: _firstCaptureEvent != null && _state == LivelinessState.INFO,
-                                  child: FadeTransition(
-                                    opacity: _motionInfoAnimation,
-                                    child: _motionInfoWidget(),
-                                  )
-                              ),
-                              SizedBox(height: 100,),
-                              Visibility(
-                                  visible: _state == LivelinessState.STARTED,
-                                  child: Opacity(//TODO change this opacity widget it's expensive here
-                                      opacity: _shouldEnableCapture(liveMotionEvent.eventType) ? 1 : 0.5,
-                                      child: Styles.appButton(
-                                          key: Key("capture-btn"),
-                                          onClick: _shouldEnableCapture(liveMotionEvent.eventType) ? () => _beginLivelinessCapture() : null,
-                                          text:  "Begin Capture",
-                                          icon: SvgPicture.asset('res/drawables/ic_face_match_camera.svg', color: Colors.primaryColor, width: 20, height: 20,),
-                                          buttonStyle: Styles.whiteButtonStyle,
-                                          textStyle: TextStyle(
-                                              color: Colors.primaryColor,
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.w600,
-                                              fontFamily: Styles.defaultFont
-                                          ),
-                                          borderRadius: 120,
-                                          padding: null,
-                                          paddingTop: 14,
-                                          paddingBottom: 14,
-                                          paddingStart: 12,
-                                          paddingEnd: 12
-                                      ),
-                                  )
-                              ),
-                              Visibility(
-                                  visible: _state == LivelinessState.RUNNING || _state == LivelinessState.INFO,
-                                  child: _livelinessInfo(liveMotionEvent)
-                              ),
-                              Visibility(
-                                  visible: _state == LivelinessState.PROCESSING,
-                                  child: Container(
-                                    width: 48,
-                                    height: 48,
-                                    padding: EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: Colors.white
-                                    ),
-                                    child: Lottie.asset('res/drawables/progress_bar_lottie.json', width: 48, height: 48),
-                                  )
-                              ),
-                              Visibility(
-                                  visible: _state == LivelinessState.LOCAL_ERROR || _state == LivelinessState.REMOTE_ERROR,
-                                  child: _livelinessErrorInfo(liveMotionEvent)
-                              )
-                            ],
-                          );
-                        }
-                    ),
-                  )
-                ],
-              )
-      ],
-    );
-  }
-
   @override
   void dispose() {
+    widget.callback.restart();
     _controller.dispose();
     _eventAnimationController.dispose();
     _eventTimer?.cancel();

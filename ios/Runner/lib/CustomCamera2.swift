@@ -15,6 +15,8 @@ enum CameraMotionEvent {
     case FirstCaptureEvent(path: URL?)
     case MotionDetectedEvent(path: URL?)
     case NoMotionDetectedEvent(path: URL?)
+    case DetectedFaceRectEvent(faceRect: CGRect)
+    case FaceOutOfBoundsEvent
 }
 
 
@@ -31,19 +33,28 @@ class CustomCamera2: NSObject, FlutterTexture, AVCaptureVideoDataOutputSampleBuf
     private var _pauseListening: Bool = false
     private var _beginCapture: Bool = false
     
+    private var faceRect: CGRect?
+    
     private var processing: Bool = false
     
     private let textureRegistry: FlutterTextureRegistry
     private(set) var latestPixelBuffer: CVPixelBuffer?
     
-    init(textureRegistry: FlutterTextureRegistry) {
+    private let previewSize: CGSize
+    private var frameSize: CGRect?
+    
+    
+    init(textureRegistry: FlutterTextureRegistry, previewSize: CGSize, frameSize: CGRect?) {
         self.textureRegistry = textureRegistry
+        self.previewSize = previewSize
+        self.frameSize = frameSize
+        
         self.faceDectector = CIDetector.init(
             ofType: CIDetectorTypeFace,
             context: nil,
-            options: [CIDetectorAccuracy:CIDetectorAccuracyLow]
+            options: [CIDetectorAccuracy:CIDetectorAccuracyHigh]
         )
-        let preset: AVCaptureSession.Preset = .medium
+        let preset: AVCaptureSession.Preset = .vga640x480
         captureSession.sessionPreset = preset
     }
     
@@ -59,20 +70,14 @@ class CustomCamera2: NSObject, FlutterTexture, AVCaptureVideoDataOutputSampleBuf
     func beginCapture() { self._beginCapture = true }
     func endCapture() { self._beginCapture = false }
 
-    func reset(){
+    func reset() {
         hasCapturedFirstImage = false
         hasCapturedMotionImage = false
         self.endCapture()
         self._pauseListening = false
         //eyeMidPoint.set(0f, 0f)
     }
-//    private lazy var previewLayer: AVCaptureVideoPreviewLayer = {
-//        let preview = AVCaptureVideoPreviewLayer(session: captureSession)
-//        preview.videoGravity = .resizeAspect
-//        return preview
-//    }()
     
-
     private func addCameraInput() {
         let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front)!
         let cameraInput = try! AVCaptureDeviceInput(device: device)
@@ -85,19 +90,20 @@ class CustomCamera2: NSObject, FlutterTexture, AVCaptureVideoDataOutputSampleBuf
         outputDevice.alwaysDiscardsLateVideoFrames = true
         outputDevice.setSampleBufferDelegate(self, queue: DispatchQueue.main)
         
-        let input = captureSession.inputs[0]
+        let input = captureSession.inputs.first
         
-        let aPorts = input.ports
-        let connection = AVCaptureConnection(inputPorts: aPorts, output: outputDevice)
+        let aPorts = input?.ports
         
-        if(connection.isVideoOrientationSupported == true) {
-            print("We Are Setting up the portraint part")
-            connection.isVideoMirrored = true
-            connection.videoOrientation = .portrait
+        if(aPorts != nil) {
+            let connection = AVCaptureConnection(inputPorts: aPorts!, output: outputDevice)
+        
+            if(connection.isVideoOrientationSupported == true) {
+                connection.isVideoMirrored = true
+                connection.videoOrientation = .portrait
+            }
+            self.captureSession.addOutputWithNoConnections(outputDevice)
+            self.captureSession.addConnection(connection)
         }
-        
-        self.captureSession.addOutputWithNoConnections(outputDevice)
-        self.captureSession.addConnection(connection)
     }
     
     func setFrameAvailableHander(handler: @escaping ()->Void) {
@@ -108,14 +114,14 @@ class CustomCamera2: NSObject, FlutterTexture, AVCaptureVideoDataOutputSampleBuf
         self.eventHandler = eventHandler
     }
     
-    private func initalizeIO() {
+    private func initializeIO() {
         addCameraInput()
         addCameraOutput()
         print("Input and Output ADded")
     }
 
     func startCamera() {
-        self.initalizeIO()
+        self.initializeIO()
         DispatchQueue.global(qos: .userInitiated).async {
             self.captureSession.startRunning()
         }
@@ -132,56 +138,55 @@ class CustomCamera2: NSObject, FlutterTexture, AVCaptureVideoDataOutputSampleBuf
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         
-        
         latestPixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
         
         onFrameAvailable()
 
-        if(_pauseListening || processing){
+        if(_pauseListening || processing) {
             return
         }
-        
         
         let cImage = CIImage.init(cvImageBuffer: latestPixelBuffer!)
         //first lets check if we can detect faces
-        //UIImageOrientation imageOrientation = UIImageOrientationRight;
-        //let deviceOrientation = UIDevice.current.orientation
-        
+
         processing = true;
         
-        let passesGeneralProblems = validateGeneralProblems(cImage: cImage)
         
-        if(!_beginCapture){
-            processing = false;
-            return
-        }
-        
-        if(!hasCapturedFirstImage && passesGeneralProblems) {
-            let uiImage = motionDetector.image(from: sampleBuffer, orientation: UIImage.Orientation.up)
-            motionDetector.createTemplate(uiImage)
-            let savedImage = saveImageToDisk(uiImage: uiImage)
-            self.hasCapturedFirstImage = true
-            self.eventHandler(.FirstCaptureEvent(path: savedImage))
-        } else if(hasCapturedFirstImage && passesGeneralProblems){
-            let uiImage = motionDetector.image(from: sampleBuffer, orientation: UIImage.Orientation.up)
-            let motionDetected = motionDetector.motionDetection(uiImage)
-            if(motionDetected) {
-                pauseListening()
-                let savedImage = saveImageToDisk(uiImage: uiImage, prefix: "MOTION_CAP_")
-                self.hasCapturedMotionImage = true
-                self.eventHandler(.MotionDetectedEvent(path: savedImage))
-            }else {
-                self.eventHandler(.NoMotionDetectedEvent(path: nil))
+        DispatchQueue.global().async {
+            let passesGeneralProblems = self.validateGeneralProblems(cImage: cImage)
+            
+            if(!self._beginCapture){
+                self.processing = false;
+                return
             }
+            
+            if(!self.hasCapturedFirstImage && passesGeneralProblems) {
+                let uiImage = self.motionDetector.image(from: sampleBuffer, orientation: UIImage.Orientation.up)
+                self.motionDetector.createTemplate(uiImage)
+                let savedImage = self.saveImageToDisk(uiImage: uiImage)
+                self.hasCapturedFirstImage = true
+                self.eventHandler(.FirstCaptureEvent(path: savedImage))
+            } else if(self.hasCapturedFirstImage && passesGeneralProblems){
+                let uiImage = self.motionDetector.image(from: sampleBuffer, orientation: UIImage.Orientation.up)
+                let motionDetected = self.motionDetector.motionDetection(uiImage)
+                if(motionDetected) {
+                    self.pauseListening()
+                    let savedImage = self.saveImageToDisk(uiImage: uiImage, prefix: "MOTION_CAP_")
+                    self.hasCapturedMotionImage = true
+                    self.eventHandler(.MotionDetectedEvent(path: savedImage))
+                } else {
+                    self.eventHandler(.NoMotionDetectedEvent(path: nil))
+                }
+            }
+            self.processing = false;
         }
-        processing = false;
     }
     
     func saveImageToDisk(uiImage: UIImage?, prefix: String = "FIRST_CAP_")-> URL? {
         if(uiImage == nil) { return nil }
         let temp = FileManager.default.temporaryDirectory
         let random = UUID().uuidString
-        if let data = uiImage?.jpegData(compressionQuality: 0.8) {
+        if let data = uiImage?.jpegData(compressionQuality: 0.75) {
             let fileName = temp.appendingPathComponent("\(prefix)\(random).JPG")
             try? data.write(to: fileName)
             return fileName
@@ -198,7 +203,10 @@ class CustomCamera2: NSObject, FlutterTexture, AVCaptureVideoDataOutputSampleBuf
         }
         
         //Check if the face is within frameSize
-        
+        if(!isFaceWithinFrame(cImage: cImage)) {
+            self.eventHandler(.FaceOutOfBoundsEvent)
+            return false
+        }
         
         //Check brigthness
         
@@ -208,6 +216,32 @@ class CustomCamera2: NSObject, FlutterTexture, AVCaptureVideoDataOutputSampleBuf
     
     func adjustImageOrientation() {
         
+    }
+    
+    func isFaceWithinFrame(cImage: CIImage) -> Bool{
+        if(frameSize == nil) {return true}
+        let width = cImage.extent.width
+        let height = cImage.extent.height
+        
+        let screenScale = previewSize.width / width
+        
+        eventHandler(.DetectedFaceRectEvent(faceRect: faceRect!))
+        Thread.sleep(forTimeInterval: 0.4)
+        
+        let faceLeft = faceRect!.minX * screenScale
+        let faceTop = faceRect!.minY * screenScale
+        let faceRight = faceRect!.maxX * screenScale
+        let faceBottom = faceRect!.maxY * screenScale
+        
+        if(faceLeft < frameSize!.minX
+                    || faceRight > frameSize!.maxX
+                    || faceTop < frameSize!.minY
+                    || faceBottom > frameSize!.maxY) {
+                    print("FaceOutOfBounds => \(faceLeft), \(faceTop), \(faceRight), \(faceBottom)")
+                    return false
+        }
+        
+        return true
     }
     
     func isFaceDetected(ciImage: CIImage) -> Bool {
@@ -227,15 +261,15 @@ class CustomCamera2: NSObject, FlutterTexture, AVCaptureVideoDataOutputSampleBuf
         
         features.forEach { CIFeature in
             print("Your face bounds is \(CIFeature.bounds)")
+            faceRect = CIFeature.bounds
         }
         
         return true
     }
     
-//    private var pointer:UnsafeMutableRawPointer? = UnsafeMutableRawPointer.allocate(byteCount: 90, alignment: 1)
     func copyPixelBuffer() -> Unmanaged<CVPixelBuffer>? {
         print("Calling CopyPixelBuffer <<<---->>> IIOOOSSS")
-        var pixelBuffer = latestPixelBuffer
+        let pixelBuffer = latestPixelBuffer
 //        while !OSAtomicCompareAndSwapPtrBarrier(&pixelBuffer, nil, &(UnsafeMutableRawPointer **)latestPixelBuffer) {
 //            pixelBuffer = latestPixelBuffer
 //        }
@@ -248,7 +282,7 @@ class CustomCamera2: NSObject, FlutterTexture, AVCaptureVideoDataOutputSampleBuf
     
     deinit {
         if latestPixelBuffer != nil {
-
+            latestPixelBuffer = nil
         }
    }
 

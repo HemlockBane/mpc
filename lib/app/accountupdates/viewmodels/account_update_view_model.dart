@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:get_it/get_it.dart';
@@ -108,7 +107,7 @@ class AccountUpdateViewModel extends BaseViewModel {
           ? additionalInfoForm.customerInfo
           : null,
       mailingAddressInfo: (_addressForm.isInitialized)
-          ? addressForm.getMailingAddressInfo
+          ? addressForm.getMailingAddressInfo?.addressCity != null ? addressForm.getMailingAddressInfo : null
           : null,
       identificationInfo: (_identificationForm.isInitialized)
           ? identificationForm.identificationInfo

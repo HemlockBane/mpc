@@ -49,7 +49,6 @@ class SignUpAccountScreen extends StatelessWidget  {
 
   Future<bool> _onBackPressed() async {
     final isPop = await _navigatorKey.currentState?.maybePop();
-    print("What is the value => $isPop");
     return (isPop != null && isPop) ? Future.value(false) : Future.value(true);
   }
 

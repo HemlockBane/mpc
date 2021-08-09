@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lottie/lottie.dart';
@@ -40,7 +41,13 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
   late final AnimationController _topAnimController;
 
   late final AnimationController _animController =
-      AnimationController(vsync: this, duration: Duration(milliseconds: 2000));
+      AnimationController(vsync: this, duration: Duration(milliseconds: 1400));
+
+  late final Animation<double> sizeBlueBgAnimation = Tween<double>(begin: 1, end: 6).animate(CurvedAnimation(
+      parent: _topAnimController,
+      curve: Interval(0.0, 0.5, curve: Curves.linear),
+    ),
+  );
 
   late final _ussdOffsetAnimation =
       Tween<Offset>(begin: Offset(0, 12), end: Offset(0, 0)).animate(
@@ -82,20 +89,13 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
 
-    final Animation<double> sizeBlueBgAnimation =
-        Tween<double>(begin: 1, end: 10).animate(
+    final Animation alignmentLogoAnimation = AlignmentTween(
+        begin: Alignment(0, -0.42),
+        end: Alignment(0, 0.0)
+    ).animate(
       CurvedAnimation(
         parent: _topAnimController,
-        curve: Interval(0.0, 0.1, curve: Curves.elasticInOut),
-      ),
-    );
-
-    final Animation alignmentLogoAnimation =
-        AlignmentTween(begin: Alignment(0, -0.42), end: Alignment(0, 0.0))
-            .animate(
-      CurvedAnimation(
-        parent: _topAnimController,
-        curve: Interval(0.11, 0.15, curve: Curves.ease),
+        curve: Interval(0.05, 0.5, curve: Curves.ease),
       ),
     );
 
@@ -106,8 +106,8 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
       CurvedAnimation(
         parent: _topAnimController,
         curve: Interval(
-          0.11,
-          0.13,
+          0.5,
+          0.7,
           curve: Curves.ease,
         ),
       ),
@@ -132,8 +132,10 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
         AnimatedBuilder(
           animation: _topAnimController,
           builder: (context, child) {
-            return Transform.scale(
-              scale: sizeBlueBgAnimation.value,
+            final xScale = max(1.0, sizeBlueBgAnimation.value/1.5);
+            return Transform(
+              alignment: Alignment.center,
+              transform: Matrix4.diagonal3Values(xScale, sizeBlueBgAnimation.value, 1.0),
               child: Container(
                 width: width,
                 height: height * 0.3,
@@ -144,16 +146,6 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
               ),
             );
           },
-        ),
-        Container(
-          width: width,
-          height: height,
-          child: SvgPicture.asset(
-            "res/drawables/bg_pattern.svg",
-            width: width,
-            height: height,
-            fit: BoxFit.fill,
-          ),
         ),
         if (!_isLoading) ...[
           Container(
@@ -203,45 +195,51 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
                         ),
                       ],
                     ),
-                  ),
-                ),
-                Align(
-                  alignment: alignmentLogoAnimation.value,
-                  child: SvgPicture.asset(
-                    "res/drawables/ic_m_bg.svg",
-                    fit: BoxFit.cover,
-                    height: 65,
-                    width: 65,
-                  ),
-                ),
-                Opacity(
-                  opacity: opacityLogoAnimation.value,
-                  child: Align(
-                    alignment: Alignment(0, -0.4),
-                    child: Container(
-                      child: SvgPicture.asset(
-                        "res/drawables/ic_m.svg",
-                        fit: BoxFit.contain,
-                        height: 30,
-                        width: 30,
-                      ),
+                    child: SvgPicture.asset(
+                      "res/drawables/ic_moniepoint_cube.svg",
+                      fit: BoxFit.cover,
+                      height: 65,
+                      width: 65,
                     ),
                   ),
                 ),
-                Opacity(
-                  opacity: opacitySpinnerAnimation.value,
-                  child: Align(
-                    alignment: alignmentLogoAnimation.value,
-                    child: Container(
-                      child: Lottie.asset(
-                        "res/drawables/progress_bar_lottie.json",
-                        fit: BoxFit.contain,
-                        height: 30,
-                        width: 30,
-                      ),
-                    ),
-                  ),
-                )
+                // Align(
+                //   alignment: alignmentLogoAnimation.value,
+                //   child: SvgPicture.asset(
+                //     "res/drawables/ic_m_bg.svg",
+                //     fit: BoxFit.cover,
+                //     height: 65,
+                //     width: 65,
+                //   ),
+                // ),
+                // Opacity(
+                //   opacity: opacityLogoAnimation.value,
+                //   child: Align(
+                //     alignment: Alignment(0, -0.4),
+                //     child: Container(
+                //       child: SvgPicture.asset(
+                //         "res/drawables/ic_m.svg",
+                //         fit: BoxFit.contain,
+                //         height: 30,
+                //         width: 30,
+                //       ),
+                //     ),
+                //   ),
+                // ),
+                // Opacity(
+                //   opacity: opacitySpinnerAnimation.value,
+                //   child: Align(
+                //     alignment: alignmentLogoAnimation.value,
+                //     child: Container(
+                //       child: Lottie.asset(
+                //         "res/drawables/progress_bar_lottie.json",
+                //         fit: BoxFit.contain,
+                //         height: 30,
+                //         width: 30,
+                //       ),
+                //     ),
+                //   ),
+                // )
               ],
             );
           },
@@ -417,7 +415,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
             return BottomSheets.displayErrorModal(context,
                 message: event.message);
           });
-      _topAnimController.reset();
+      _topAnimController.reverse(from: 0.15);
     }
     if (event is Success<User>) {
       _passwordController.clear();
@@ -710,8 +708,6 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
             height: minHeight, //TODO: Find out what this means here
             child: Stack(
               children: [
-                _buildTopMenu(context),
-                if (!_isLoading) ...[
                   Column(
                     children: [
                       SizedBox(
@@ -726,8 +722,8 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
                       ),
                       // _buildBottomSection(context),
                     ],
-                  )
-                ],
+                  ),
+                _buildTopMenu(context),
               ],
             ),
           ),

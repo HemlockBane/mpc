@@ -76,11 +76,12 @@ class _VerifyPhoneNumberOTPScreen extends State<VerifyPhoneNumberOTPScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bottom = MediaQuery.of(context).viewPadding.bottom;
     return ScrollView(
-      maxHeight: MediaQuery.of(context).size.height - 64,//subtract the vertical padding
+      maxHeight: MediaQuery.of(context).size.height - (70 + bottom),//subtract the vertical padding
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 32, horizontal: 20),
-        color: Colors.backgroundWhite,
+        color: Colors.white,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

@@ -26,6 +26,7 @@ import 'package:moniepoint_flutter/app/cards/views/card_view.dart';
 import 'package:moniepoint_flutter/app/cards/views/unblock_debit_card_view.dart';
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_view.dart';
+import 'package:moniepoint_flutter/app/dashboard/views/dashboard_view_old.dart';
 import 'package:moniepoint_flutter/app/devicemanagement/viewmodels/user_device_view_model.dart';
 import 'package:moniepoint_flutter/app/devicemanagement/views/user_device_list_view.dart';
 import 'package:moniepoint_flutter/app/liveliness/liveliness_verification.dart';
@@ -135,10 +136,11 @@ class MoniepointApp extends StatelessWidget {
             Scaffold(body: SignUpAccountScreen()),
         Routes.ACCOUNT_RECOVERY: (BuildContext context) =>
             Scaffold(body: RecoveryControllerScreen()),
-        Routes.DASHBOARD: (BuildContext context) => ChangeNotifierProvider(
+        Routes.DASHBOARD_OLD: (BuildContext context) => ChangeNotifierProvider(
               create: (_) => ServiceProviderViewModel(),
-              child: DashboardScreen(),
+              child: DashboardScreenOld(),
             ),
+        Routes.DASHBOARD: (BuildContext context) => DashboardScreen(),
         Routes.ACCOUNT_UPDATE: (BuildContext context) =>
             Scaffold(body: AccountUpdateScreen()),
         Routes.LIVELINESS: (BuildContext context) =>

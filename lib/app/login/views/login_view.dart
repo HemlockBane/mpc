@@ -445,7 +445,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
   }
 
   Future<void> navigateToDashboardView() async {
-    await Navigator.pushReplacementNamed(context, Routes.DASHBOARD);
+    await Navigator.pushReplacementNamed(context, Routes.DASHBOARD_OLD);
   }
 
   void checkSecurityFlags(User user) async {

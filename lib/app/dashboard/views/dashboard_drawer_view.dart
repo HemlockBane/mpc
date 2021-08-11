@@ -207,7 +207,7 @@ class DashboardDrawerView  {
       direction: Direction.left, // Drawer position, left or right
       animation: true,
       color: Colors.colorPrimaryDark,
-      percentage: 0.54,
+      percentage: 0.0,
       child: _child,
       footerView: _footerView,
       headerView: _headerView,

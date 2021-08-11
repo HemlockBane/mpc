@@ -1,577 +1,576 @@
-import 'package:drawerbehavior/drawerbehavior.dart';
+import 'dart:math';
 import 'package:flutter/material.dart' hide ScrollView, Colors;
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:flutter_swipecards/flutter_swipecards.dart';
-import 'package:moniepoint_flutter/app/accounts/model/data/account_status.dart';
-import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
-import 'package:moniepoint_flutter/app/airtime/viewmodels/service_provider_view_model.dart';
-import 'package:moniepoint_flutter/app/customer/customer.dart';
-import 'package:moniepoint_flutter/app/customer/user_account.dart';
-import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
-import 'package:moniepoint_flutter/app/dashboard/views/dashboard_drawer_view.dart';
-import 'package:moniepoint_flutter/app/dashboard/views/bottom_menu_view.dart';
-import 'package:moniepoint_flutter/app/dashboard/views/dashboard_container_view.dart';
-import 'package:moniepoint_flutter/app/login/model/data/login_prompt.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
-import 'package:moniepoint_flutter/core/login_mode.dart';
-import 'package:moniepoint_flutter/core/models/user_instance.dart';
-import 'package:moniepoint_flutter/core/network/resource.dart';
-import 'package:moniepoint_flutter/core/routes.dart';
-import 'package:moniepoint_flutter/core/utils/biometric_helper.dart';
-import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
-import 'package:moniepoint_flutter/core/utils/preference_util.dart';
-import 'package:moniepoint_flutter/core/viewmodels/finger_print_alert_view_model.dart';
 import 'package:moniepoint_flutter/core/views/dots_indicator.dart';
-import 'package:moniepoint_flutter/core/views/finger_print_alert_dialog.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
-import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
-import 'package:provider/provider.dart';
-import 'dart:math';
 
 class DashboardScreen extends StatefulWidget {
+  const DashboardScreen({Key? key}) : super(key: key);
+
   @override
-  State<StatefulWidget> createState() {
-    return _DashboardScreen();
-  }
+  _DashboardScreenState createState() => _DashboardScreenState();
 }
 
-class _DashboardScreen extends State<DashboardScreen>
-    with TickerProviderStateMixin {
-  late final AnimationController _bottomMenuController =
-      AnimationController(duration: Duration(milliseconds: 700), vsync: this);
-  late final AnimationController _dashboardCardController =
-      AnimationController(duration: Duration(milliseconds: 800), vsync: this);
-  late final AnimationController _greetingCardController =
-      AnimationController(duration: Duration(milliseconds: 800), vsync: this);
-  late DashboardViewModel _viewModel;
-
+class _DashboardScreenState extends State<DashboardScreen> {
   PageController _pageController = PageController(viewportFraction: 1);
-  DrawerScaffoldController _drawerScaffoldController =
-      DrawerScaffoldController();
-  final pages = [];
-  CardController controller = CardController();
 
-  Widget _dashboardUpdateItem() {
-    final width = MediaQuery.of(context).size.width * 0.13;
-    return Material(
-      color: Colors.transparent,
-      child: Card(
-        shadowColor: Colors.primaryColor.withOpacity(0.1),
-        elevation: 0,
-        color: Colors.primaryColor.withOpacity(0.1),
-        margin: EdgeInsets.only(left: width, right: width, bottom: 8, top: 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: InkWell(
-          customBorder:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          onTap: () => (!_hasCompletedAccountUpdate())
-              ? Navigator.of(context)
-                  .pushNamed(Routes.ACCOUNT_UPDATE)
-                  .then((_) => subscribeUiToAccountStatus())
-              : setState(() => {}),
+  Container _buildRecentlyPaidSection(List<Color> recentlyPaidColors) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 17),
+      decoration: BoxDecoration(
+          color: Color(0xffF9FBFD),
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+          boxShadow: [
+            BoxShadow(
+              offset: Offset(0, 1),
+              blurRadius: 2,
+              color: Color(0xff1F0E4FB1).withOpacity(0.12),
+            ),
+          ]),
+      child: Column(children: [
+        SizedBox(
+          height: 12,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "Recently Paid",
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+                color: Color(0xff1A0C2F),
+              ),
+            ),
+            Text(
+              "View all",
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+                color: Color(0xff0361F0),
+              ),
+            )
+          ],
+        ),
+        SizedBox(height: 25),
+        Container(
+          height: 130,
+          child: Stack(
+            children: [
+              ListView.builder(
+                scrollDirection: Axis.horizontal,
+                shrinkWrap: true,
+                itemCount: 10,
+                itemBuilder: (BuildContext context, int index) {
+                  final random = Random();
+                  final randInt = random.nextInt(9);
+                  final color = recentlyPaidColors[randInt];
+
+                  return Row(
+                    children: [
+                      _buildRecentlyPaidItem(color: color),
+                      SizedBox(width: 25)
+                    ],
+                  );
+                },
+              ),
+              Align(
+                alignment: Alignment.topRight,
+                child: Container(
+                  height: 112,
+                  width: 40,
+                  // color: Colors.red,
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                          colors: [Color(0xff00FFFFFF), Colors.white],
+                          stops: [0.48, 1.0])),
+                ),
+              )
+            ],
+          ),
+        )
+      ]),
+    );
+  }
+
+  Widget _buildNormalAccountCard() {
+    return Stack(
+      children: [
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+              color: Color(0xffF9FBFD),
+              borderRadius: BorderRadius.all(Radius.circular(16)),
+              boxShadow: [
+                BoxShadow(
+                  offset: Offset(0, 13),
+                  blurRadius: 21,
+                  color: Color(0xff1F0E4FB1).withOpacity(0.12),
+                ),
+              ]),
+          child: Column(
+            children: [
+              SizedBox(height: 30),
+              SizedBox(
+                height: 132,
+                child: PageView.builder(
+                    itemCount: 3,
+                    controller: _pageController,
+                    itemBuilder: (ctx, idx) {
+                      return Column(children: [
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Available Balance",
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.textColorBlack),
+                              ),
+                              // SizedBox(height: 4),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('₦ 200,394.00',
+                                      style: TextStyle(
+                                          fontSize: 23,
+                                          fontWeight: FontWeight.w800,
+                                          color: Colors.textColorBlack)),
+                                  IconButton(
+                                    onPressed: () {},
+                                    icon: Icon(
+                                      Icons.visibility,
+                                      size: 20,
+                                      color: Color(0xffB8003382).withOpacity(0.4),
+                                    ),
+                                  )
+                                ],
+                              )
+                            ],
+                          ),
+                        ),
+                        Container(
+                          margin: EdgeInsets.symmetric(horizontal: 18),
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 11, vertical: 11),
+                          decoration: BoxDecoration(
+                            color: Color(0xff0361F0).withOpacity(0.04),
+                            borderRadius: BorderRadius.all(Radius.circular(9)),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    'Account Number',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: 11,
+                                        color: Colors.textColorBlack),
+                                  ),
+                                  SizedBox(
+                                    width: 7,
+                                  ),
+                                  Text("0011357716",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 11,
+                                          color: Colors.primaryColor))
+                                ],
+                              ),
+                              IconButton(
+                                onPressed: () {},
+                                icon: Icon(Icons.share,
+                                    size: 24,
+                                    color: Color(0xffB8003382).withOpacity(0.4)),
+                              )
+                            ],
+                          ),
+                        ),
+                      ]);
+                    }),
+              ),
+              SizedBox(height: 17),
+              DotIndicator(controller: _pageController, itemCount: 3),
+              SizedBox(height: 20)
+            ],
+          ),
+        ),
+        Positioned.fill(
+          top: -184,
           child: Container(
-            padding: EdgeInsets.only(left: 16, right: 16, top: 0, bottom: 0),
+            width: double.infinity,
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SvgPicture.asset(
-                  'res/drawables/ic_upgrade_account_2.svg',
-                ),
-                SizedBox(width: 16),
-                Expanded(
-                    child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('Upgrade Account',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.primaryColor,
-                            fontSize: 15)),
-                    SizedBox(height: 2),
-                    Text('Upgrade your savings account\nto enjoy higher limits',
-                        style: TextStyle(
-                            color: Colors.textColorBlack,
-                            fontSize: 12,
-                            fontWeight: FontWeight.normal))
-                  ],
-                )),
-                SizedBox(width: 16),
-                Expanded(
-                    flex: 0,
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: SvgPicture.asset(
-                          'res/drawables/ic_forward_arrow.svg',
-                          color: Colors.primaryColor),
-                    ))
+                    "res/drawables/ic_dashboard_account_label.svg"),
               ],
             ),
+          ),
+        ),
+        Align(
+          alignment: Alignment.topCenter,
+          child: Column(
+            children: [
+              SizedBox(height: 4),
+              Text(
+                'SAVINGS',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Expanded _buildSuggestedItem(
+      {required String iconPath,
+      required String primaryText,
+      required String secondaryText,
+      required Color color}) {
+    return Expanded(
+      child: Container(
+        decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.all(Radius.circular(16)),
+            boxShadow: [
+              BoxShadow(
+                offset: Offset(0, 1),
+                blurRadius: 2,
+                color: Color(0xff1F0E4FB1).withOpacity(0.12),
+              ),
+            ]),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  height: 112,
+                  width: 111,
+                  child: Image.asset(iconPath),
+                )
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    primaryText,
+                    style: TextStyle(
+                        fontWeight: FontWeight.normal,
+                        fontSize: 17,
+                        color: Colors.white),
+                  ),
+                  Text(
+                    secondaryText,
+                    style: TextStyle(
+                        fontWeight: FontWeight.normal,
+                        fontSize: 17,
+                        color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 24,
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Column _buildRecentlyPaidItem({required Color color}) {
+    return Column(children: [
+      Stack(
+        clipBehavior: Clip.none,
+        children: [
+          SvgPicture.asset(
+            "res/drawables/ic_m_bg.svg",
+            fit: BoxFit.cover,
+            height: 65,
+            width: 65,
+            color: color.withOpacity(0.1),
+          ),
+          Container(
+            height: 65,
+            width: 65,
+            child: Center(
+              // alignment: Alignment.center,
+              child: Text(
+                'AA',
+                style: TextStyle(
+                    fontSize: 19, fontWeight: FontWeight.w700, color: color),
+              ),
+            ),
+          ),
+          Positioned(
+            top: -2,
+            right: 1,
+            child: SvgPicture.asset(
+              "res/drawables/ic_m_bg.svg",
+              fit: BoxFit.cover,
+              height: 20,
+              width: 20,
+              color: Colors.white,
+            ),
+          ),
+          Positioned(
+            top: 0,
+            right: 3,
+            child: SvgPicture.asset(
+              "res/drawables/ic_moniepoint_cube_alt.svg",
+              fit: BoxFit.cover,
+              height: 16,
+              width: 16,
+            ),
+          ),
+        ],
+      ),
+      SizedBox(height: 6),
+      Text(
+        "Adrian",
+        style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+            color: Color(0xff1A0C2F).withOpacity(0.8)),
+        textAlign: TextAlign.center,
+      ),
+      SizedBox(height: 4),
+      Text(
+        "Agho",
+        style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+            color: Color(0xff1A0C2F).withOpacity(0.8)),
+        textAlign: TextAlign.center,
+      ),
+      // SizedBox(height: 19),
+    ]);
+  }
+
+  Container _buildItemCard({
+    required Color color,
+    required String text,
+    required String iconString,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+          color: Color(0xffF9FBFD),
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+          boxShadow: [
+            BoxShadow(
+              offset: Offset(0, 1),
+              blurRadius: 2,
+              color: Color(0xff1F0E4FB1).withOpacity(0.12),
+            ),
+          ]),
+      child: Column(
+        children: [
+          SizedBox(height: 17),
+          Container(
+            height: 50,
+            width: 50,
+            margin: EdgeInsets.symmetric(horizontal: 24),
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: SvgPicture.asset(
+                iconString,
+                width: 24,
+                height: 24,
+                color: color,
+              ),
+            ),
+          ),
+          SizedBox(height: 10),
+          Text(
+            text,
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 12,
+              color: Color(0xff1A0C2F),
+            ),
+          ),
+          SizedBox(height: 11)
+        ],
+      ),
+    );
+  }
+
+  Container _buildTopIcons(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(
+        top: MediaQuery.of(context).size.height * 0.074,
+        left: 16,
+        right: 16,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          InkWell(
+            onTap: () {},
+            child: SvgPicture.asset(
+              "res/drawables/ic_dashboard_drawer_menu.svg",
+              height: 16,
+              width: 24,
+              color: Colors.white,
+            ),
+          ),
+          Row(
+            children: [
+              Text(
+                'Hello, Leslie',
+                style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white),
+              ),
+              SizedBox(width: 9),
+              Container(
+                height: 32,
+                width: 32,
+                padding: EdgeInsets.all(2),
+                decoration:
+                    BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                child: Container(
+                  height: 30,
+                  width: 30,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: AssetImage("res/drawables/dashboard_icon.png"),
+                    ),
+                  ),
+                ),
+              )
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+
+    final recentlyPaidColors = [
+      Color(0xff0361F0),
+      Color(0xffECAB03),
+      Color(0xff0B3275),
+      Color(0xff1EB12D),
+      Color(0xffF08922),
+      Color(0xff9B51E0),
+      Color(0xffE05196),
+      Color(0xff51ADE0),
+      Color(0xff51E070)
+    ];
+
+    return Scaffold(
+      body: Container(
+        width: double.infinity,
+        color: Color(0XFFEBF2FA),
+        child: ScrollView(
+          child: Stack(
+            children: [
+              Container(
+                width: width,
+                height: height * 0.3,
+                child: SvgPicture.asset(
+                  "res/drawables/bg.svg",
+                  fit: BoxFit.fill,
+                ),
+              ),
+              _buildTopIcons(context),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: height * 0.16,
+                    ),
+                    _buildNormalAccountCard(),
+                    SizedBox(
+                      height: 32,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildItemCard(
+                          color: Color(0xFF0361F0),
+                          text: "Transfer",
+                          iconString:
+                              "res/drawables/ic_dashboard_transfer_2.svg",
+                        ),
+                        _buildItemCard(
+                          color: Color(0xffF08922),
+                          text: "Airtime",
+                          iconString:
+                              "res/drawables/ic_dashboard_airtime_2.svg",
+                        ),
+                        _buildItemCard(
+                          color: Color(0xff1EB12D),
+                          text: "Bills",
+                          iconString: "res/drawables/ic_dashboard_bills_2.svg",
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 32),
+                    _buildRecentlyPaidSection(recentlyPaidColors),
+                    SizedBox(height: 32),
+                    Text(
+                      "Suggested for You",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: Color(0xff1A0C2F).withOpacity(0.6),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    Row(
+                      children: [
+                        _buildSuggestedItem(
+                            iconPath: "res/drawables/ic_dashboard_target.png",
+                            primaryText: "Start",
+                            secondaryText: "Saving.",
+                            color: Color(0xff0361F0)),
+                        SizedBox(width: 20.5),
+                        _buildSuggestedItem(
+                            iconPath: "res/drawables/ic_dashboard_calendar.png",
+                            primaryText: "Get a",
+                            secondaryText: "Loan.",
+                            color: Color(0xff1EB12D))
+                      ],
+                    ),
+                    SizedBox(height: 20),
+                  ],
+                ),
+              )
+            ],
           ),
         ),
       ),
     );
   }
-
-  Widget _greetingItem() {
-    final viewModel = Provider.of<DashboardViewModel>(context, listen: false);
-    final width = MediaQuery.of(context).size.width * 0.13;
-
-    return Material(
-      color: Colors.transparent,
-      child: Card(
-        shadowColor: Colors.primaryColor.withOpacity(0.1),
-        elevation: 4,
-        margin: EdgeInsets.only(left: width, right: width, bottom: 8, top: 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: InkWell(
-          customBorder:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          onTap: () => null,
-          child: Container(
-              padding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Hello ${viewModel.accountName},',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.textColorBlack,
-                          fontSize: 17)),
-                  SizedBox(height: 2),
-                  Text('Remember to stay safe!',
-                      style:
-                          TextStyle(color: Colors.textColorBlack, fontSize: 12))
-                ],
-              )),
-        ),
-      ),
-    );
-  }
-
-  bool _hasCompletedAccountUpdate() {
-    final viewModel = Provider.of<DashboardViewModel>(context, listen: false);
-    Customer? customer = viewModel.customer;
-    AccountStatus? accountStatus = UserInstance().accountStatus;
-    final flags = accountStatus?.listFlags() ?? customer?.listFlags();
-    if (flags == null) return true;
-    return flags.where((element) => element?.status != true).isEmpty;
-  }
-
-  void _refreshDashboard() {
-    setState(() {});
-    print("refreshing dashboard");
-    // _viewModel.getUserAccountsBalance(useLocal: false).listen((event) {});
-    subscribeUiToAccountStatus();
-  }
-
-  void subscribeUiToAccountStatus() {
-    final viewModel = Provider.of<DashboardViewModel>(context, listen: false);
-    viewModel.fetchAccountStatus().listen((event) {
-      if (event is Success) viewModel.update();
-    });
-  }
-
-  Widget _buildDashboardSlider() {
-    //Since we have only a single update page for now we can put it in here
-    pages.clear();
-    if (_hasCompletedAccountUpdate()) {
-      pages.add(_greetingItem());
-    } else {
-      pages.add(_dashboardUpdateItem());
-    }
-
-    return PageView.builder(
-        itemCount: pages.length,
-        controller: _pageController,
-        itemBuilder: (BuildContext context, int index) {
-          return pages[index % pages.length];
-        });
-  }
-
-  void _onDashboardItemClicked(UserAccount userAccount, int position) {
-    if (UserInstance().accountStatus?.postNoDebit == false) {
-      Navigator.of(context).pushNamed(Routes.ACCOUNT_TRANSACTIONS, arguments: {
-        "customerAccountId": userAccount.customerAccount?.id
-      }).then((_) => _refreshDashboard());
-    } else {
-      Navigator.of(context)
-          .pushNamed(Routes.ACCOUNT_UPDATE)
-          .then((_) => subscribeUiToAccountStatus());
-    }
-  }
-
-  Widget _centerDashboardContainer(DashboardViewModel viewModel) {
-    final pageController = PageController(viewportFraction: 0.72);
-
-    final qualifiedTierIndex = Tier.getQualifiedTierIndex(viewModel.tiers);
-    final qualifiedTier = (viewModel.tiers.isNotEmpty)
-        ? viewModel.tiers[qualifiedTierIndex]
-        : null;
-
-    return PageView.builder(
-        controller: pageController,
-        itemCount: _viewModel.customer?.customerAccountUsers?.length ?? 0,
-        itemBuilder: (context, index) {
-          return AnimatedBuilder(
-              animation: pageController,
-              builder: (mContext, _) {
-                num selectedPage =
-                    (pageController.position.hasContentDimensions)
-                        ? (pageController.page ?? pageController.initialPage)
-                        : 0;
-
-                num scaleTo = max(0.8, 1.0 - (selectedPage - index).abs());
-                num degree = min(15, 1.0 + (15 - 1) * (selectedPage - index));
-                num rotateTo = degree * pi / 360;
-
-                final userAccount = _viewModel.userAccounts[index];
-                return Transform.rotate(
-                  angle: (selectedPage == index) ? 0 : -rotateTo.toDouble(),
-                  child: Transform.scale(
-                      scale: scaleTo.toDouble(),
-                      alignment: AlignmentDirectional.centerEnd,
-                      origin: Offset(-150, 200),
-                      child: Padding(
-                        padding: EdgeInsets.only(bottom: 24),
-                        child: Hero(
-                            tag:
-                                "dashboard-balance-view-${userAccount.customerAccount?.id}",
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: UserInstance()
-                                                    .accountStatus
-                                                    ?.postNoDebit !=
-                                                true
-                                            ? Colors.primaryColor
-                                                .withOpacity(0.2)
-                                            : Colors.postNoDebitColor,
-                                        offset: Offset(0, 4),
-                                        blurRadius: 5,
-                                        spreadRadius: 1)
-                                  ]),
-                              child: Material(
-                                borderRadius: BorderRadius.circular(16),
-                                child: InkWell(
-                                    customBorder: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(16)),
-                                    onTap: () => _onDashboardItemClicked(
-                                        userAccount, index),
-                                    child: DashboardContainerView(
-                                      key: Key("$index"),
-                                      viewModel: _viewModel,
-                                      //TODO don't pass the view-model
-                                      userAccount: userAccount,
-                                      position: index,
-                                      qualifiedTier: qualifiedTier,
-                                    )),
-                              ),
-                            )),
-                      )),
-                );
-              });
-        });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    _viewModel = Provider.of<DashboardViewModel>(context, listen: false);
-    return DrawerScaffold(
-      controller: _drawerScaffoldController,
-      extendBodyBehindAppBar: true,
-      resizeToAvoidBottomInset: false,
-      drawers: [
-        DashboardDrawerView(context, _drawerScaffoldController,
-                refreshCallback: _refreshDashboard,
-                accountName: _viewModel.accountName)
-            .getDrawer()
-      ],
-      builder: (mContext, a) {
-        return SessionedWidget(
-            context: context,
-            child: StreamBuilder(
-              stream: _viewModel.dashboardController,
-              builder: (ctx, _) {
-                return Container(
-                  width: double.infinity,
-                  color: Color(0XFFEBF2FA),
-                  child: Stack(
-                    children: [
-                      ScrollView(
-                        child: Column(
-                          children: [
-                            Divider(color: Colors.dashboardTopBar, height: 4),
-                            SizedBox(
-                                height:
-                                    MediaQuery.of(context).padding.top + 32),
-                            Text(
-                              'OVERVIEW',
-                              style: TextStyle(
-                                  color: Colors.textColorBlack,
-                                  fontWeight: FontWeight.w400),
-                            ),
-                            SizedBox(height: 32),
-                            SizedBox(
-                                height: 90, child: _buildDashboardSlider()),
-                            SizedBox(height: 8),
-                            DotIndicator(
-                              controller: _pageController,
-                              itemCount: pages.length,
-                              color: Colors.solidOrange,
-                            ),
-                            SizedBox(height: 16),
-                            AspectRatio(
-                              aspectRatio: 3 / 2.8,
-                              //UserInstance().accountStatus?.postNoDebit == true ? 3 / 2.8 : 3 / 2.5,
-                              child: _centerDashboardContainer(_viewModel),
-                            ),
-                            SizedBox(height: 110),
-                          ],
-                        ),
-                      ),
-                      Positioned(
-                          right: 20,
-                          left: 20,
-                          bottom: 0,
-                          child: SlideTransition(
-                            position: Tween<Offset>(
-                                    begin: Offset(0, 1), end: Offset(0, 0))
-                                .animate(CurvedAnimation(
-                                    parent: _bottomMenuController,
-                                    curve: Curves.easeInToLinear)),
-                            child:
-                                DashboardBottomMenu(() => _refreshDashboard()),
-                          ))
-                    ],
-                  ),
-                );
-              },
-            ));
-      },
-    );
-  }
-
-  void _onDashboardStartUp() {
-    _viewModel = Provider.of<DashboardViewModel>(context, listen: false);
-    _viewModel.getTiers().listen((event) {});
-  }
-
-  @override
-  void initState() {
-    _onDashboardStartUp();
-    super.initState();
-    _bottomMenuController.forward().whenComplete(() => "");
-    _dashboardCardController.forward();
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      subscribeUiToAccountStatus();
-      final prompt = LoginPrompt.fromJson(data);
-      final list = [prompt, prompt, prompt];
-
-      final serviceProviderModel =
-          Provider.of<ServiceProviderViewModel>(context, listen: false);
-      _showLoginPrompts(list, serviceProviderModel);
-    });
-    //let check if the user should set up finger print
-    Future.delayed(Duration(milliseconds: 1400), () => _setupFingerprint());
-  }
-
-  void _showLoginPrompts(List<LoginPrompt>? prompts,
-      ServiceProviderViewModel serviceProviderViewModel) {
-    if (prompts != null && prompts.isNotEmpty) {
-      showDialog(
-          context: context,
-          builder: (context) {
-            return GestureDetector(
-              onTap: () {
-                controller.triggerUp();
-              },
-              child: Center(
-                child: Container(
-                  height: MediaQuery.of(context).size.height * 0.81,
-                  child: TinderSwapCard(
-                    swipeDown: true,
-                    swipeUp: true,
-                    orientation: AmassOrientation.bottom,
-                    totalNum: prompts.length,
-                    stackNum: 3,
-                    swipeEdge: 4.0,
-                    maxWidth: MediaQuery.of(context).size.width,
-                    maxHeight: MediaQuery.of(context).size.height * 0.81,
-                    minWidth: MediaQuery.of(context).size.width * 0.8,
-                    minHeight: MediaQuery.of(context).size.height * 0.78,
-                    cardController: controller = CardController(),
-                    swipeCompleteCallback: (orientation, idx) {
-                      if (idx == prompts.length - 1) Navigator.pop(context);
-                    },
-                    cardBuilder: (context, idx) {
-                      final prompt = prompts[idx];
-
-                      return Dialog(
-                        insetPadding:
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                        backgroundColor: Colors.transparent,
-                        child: BottomSheets.displayLoginPrompt(context,
-                            prompt: prompt,
-                            cardController: controller,
-                            serviceProviderViewModel: serviceProviderViewModel),
-                      );
-                    },
-                  ),
-                ),
-              ),
-            );
-          });
-    }
-  }
-
-  void _setupFingerprint() async {
-    final fingerprintRequestCount =
-        PreferenceUtil.getFingerprintRequestCounter();
-
-    //We should only request 3 times from the dashboard
-
-    if (fingerprintRequestCount >= 2 ||
-        PreferenceUtil.getLoginMode() == LoginMode.ONE_TIME) return;
-    final biometricHelper = BiometricHelper.getInstance();
-
-    final biometricType = await biometricHelper.getBiometricType();
-    final hasFingerprintPassword =
-        (await biometricHelper.getFingerprintPassword()) != null;
-    print("This is the Biometric Type $biometricType");
-    if (biometricType != BiometricType.NONE && !hasFingerprintPassword) {
-      PreferenceUtil.setFingerprintRequestCounter(fingerprintRequestCount + 1);
-
-      final result = await showModalBottomSheet(
-          backgroundColor: Colors.transparent,
-          isScrollControlled: true,
-          context: context,
-          builder: (mContext) {
-            return ChangeNotifierProvider(
-                create: (_) => FingerPrintAlertViewModel(),
-                child: FingerPrintAlertDialog());
-          });
-
-      if (result != null && result is bool) {
-        final successTitle = (biometricType == BiometricType.FINGER_PRINT)
-            ? "Fingerprint setup"
-            : "Face ID setup";
-
-        final successMessage = (biometricType == BiometricType.FINGER_PRINT)
-            ? "Fingerprint Setup successfully"
-            : "Face ID Setup successfully";
-
-        showSuccess(context,
-            title: successTitle,
-            message: successMessage,
-            primaryButtonText: "Continue", onPrimaryClick: () {
-          Navigator.of(context).pop(true);
-        });
-      } else if (result is Error<bool>) {
-        showModalBottomSheet(
-            backgroundColor: Colors.transparent,
-            context: context,
-            builder: (mContext) => BottomSheets.displayErrorModal(mContext,
-                message: result.message));
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    _dashboardCardController.dispose();
-    _greetingCardController.dispose();
-    _bottomMenuController.dispose();
-    super.dispose();
-  }
 }
-
-var data = {
-  "id": 15,
-  "createdOn": "2021-08-02T20:01:10.000+0000",
-  "lastModifiedOn": "2021-08-02T21:01:10",
-  "deleted": false,
-  "createdBy": "SYSTEM",
-  "lastModifiedBy": "SYSTEM",
-  "version": 0,
-  "title": "Holiday",
-  // "image": null,
-  "image": {
-    "id": 1,
-    "createdOn": "2021-07-13T21:28:46.000+0000",
-    "lastModifiedOn": "2021-07-13T22:28:46",
-    "deleted": false,
-    "createdBy": "peguda",
-    "lastModifiedBy": "peguda",
-    "version": 0,
-    "name": "Test",
-    "type": "PNG",
-    "uuidRef": "7fc0dc1b-8ea3-448f-8f23-183b231b71bf",
-    //   "uuidRef": null,
-
-    //   "svgText": ""
-  },
-  // "videoLink":
-  //     "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4",
-  "videoLink": null,
-  "message": "default",
-  "navigationList": [
-    {
-      "title": "Test1",
-      "destination": "https://pub.dev/packages/flutter_swipecards/install",
-      "id": 2,
-      "createdOn": "Jul 29, 2021 2:05:45 PM",
-      "lastModifiedOn": {
-        "date": {"year": 2021, "month": 7, "day": 29},
-        "time": {"hour": 14, "minute": 5, "second": 45, "nano": 0}
-      },
-      "deleted": false,
-      "createdBy": "peguda",
-      "lastModifiedBy": "peguda",
-      "version": 0
-    },
-    {
-      "title": "test2",
-      "destination": "https://pub.dev/packages/flutter_swipecards/install",
-      "id": 3,
-      "createdOn": "Jul 29, 2021 2:05:54 PM",
-      "lastModifiedOn": {
-        "date": {"year": 2021, "month": 7, "day": 29},
-        "time": {"hour": 14, "minute": 5, "second": 54, "nano": 0}
-      },
-      "deleted": false,
-      "createdBy": "peguda",
-      "lastModifiedBy": "peguda",
-      "version": 0
-    }
-  ],
-  "commandPromptHeader": {
-    "id": 1,
-    "createdOn": "2021-08-02T15:13:29.000+0000",
-    "lastModifiedOn": "2021-08-02T16:20:15",
-    "deleted": false,
-    "createdBy": "peguda",
-    "lastModifiedBy": "peguda",
-    "version": 1,
-    "name": "Test",
-    "image": {
-      "id": 2,
-      "createdOn": "2021-07-13T21:30:26.000+0000",
-      "lastModifiedOn": "2021-07-13T22:30:26",
-      "deleted": false,
-      "createdBy": "peguda",
-      "lastModifiedBy": "peguda",
-      "version": 0,
-      "name": "Test1",
-      "type": "PNG",
-      "svgText": null,
-      "uuidRef": "7fc0dc1b-8ea3-448f-8f23-183b231b71bf"
-    },
-    "headerState": "SUCCESS"
-  }
-};

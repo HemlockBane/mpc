@@ -1,7 +1,10 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart' hide ScrollView, Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
+import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/views/dots_indicator.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 
@@ -14,6 +17,7 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   PageController _pageController = PageController(viewportFraction: 1);
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   Container _buildRecentlyPaidSection(List<Color> recentlyPaidColors) {
     return Container(
@@ -133,7 +137,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                               // SizedBox(height: 4),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text('₦ 200,394.00',
                                       style: TextStyle(
@@ -145,7 +150,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     icon: Icon(
                                       Icons.visibility,
                                       size: 20,
-                                      color: Color(0xffB8003382).withOpacity(0.4),
+                                      color:
+                                          Color(0xffB8003382).withOpacity(0.4),
                                     ),
                                   )
                                 ],
@@ -155,8 +161,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                         Container(
                           margin: EdgeInsets.symmetric(horizontal: 18),
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 11, vertical: 11),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 11, vertical: 11),
                           decoration: BoxDecoration(
                             color: Color(0xff0361F0).withOpacity(0.04),
                             borderRadius: BorderRadius.all(Radius.circular(9)),
@@ -187,7 +193,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 onPressed: () {},
                                 icon: Icon(Icons.share,
                                     size: 24,
-                                    color: Color(0xffB8003382).withOpacity(0.4)),
+                                    color:
+                                        Color(0xffB8003382).withOpacity(0.4)),
                               )
                             ],
                           ),
@@ -426,7 +433,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           InkWell(
-            onTap: () {},
+            onTap: () {
+              _scaffoldKey.currentState?.openDrawer();
+            },
             child: SvgPicture.asset(
               "res/drawables/ic_dashboard_drawer_menu.svg",
               height: 16,
@@ -469,6 +478,62 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  Widget _icon(
+      {required String svgPath,
+      Color? color,
+      double? width,
+      double? height,
+      VoidCallback? onClick}) {
+    return InkWell(
+      highlightColor: Colors.white.withOpacity(0.1),
+      overlayColor: MaterialStateProperty.all(Colors.white.withOpacity(0.02)),
+      onTap: onClick,
+      child: SvgPicture.asset(
+        svgPath,
+        width: width ?? 20,
+        height: height ?? 20,
+        color: color,
+      ),
+    );
+  }
+
+  Widget drawerListItem(String title, String svgPath, String routeName,
+      {double? height, double? width}) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        highlightColor: Colors.white.withOpacity(0.1),
+        overlayColor: MaterialStateProperty.all(Colors.white.withOpacity(0.02)),
+        onTap: () {
+          if (routeName.isNotEmpty) {
+            Navigator.pop(context);
+            Navigator.pushNamed(context, routeName);
+          }
+        },
+        child: Container(
+          padding: EdgeInsets.only(left: 40, right: 0, top: 20, bottom: 20),
+          child: Row(
+            children: [
+              _icon(svgPath: svgPath, height: height, width: width),
+              SizedBox(
+                width: 20,
+                height: 20,
+              ),
+              Text(
+                title,
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: Styles.defaultFont),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -487,6 +552,125 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ];
 
     return Scaffold(
+      key: _scaffoldKey,
+      drawer: Drawer(
+        child: Container(
+          color: Colors.colorPrimaryDark,
+          child: Stack(
+            children: [
+              Column(
+                children: [
+                  SizedBox(height: 58),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 21),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _icon(
+                            svgPath: "res/drawables/ic_moniepoint_cube_2.svg",
+                            width: 40,
+                            height: 40),
+                        Row(
+                          children: [
+                            Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                _icon(
+                                    svgPath:
+                                        "res/drawables/ic_dashboard_notifications.svg"),
+                                Positioned(
+                                  top: -13,
+                                  right: -10,
+                                  child: Container(
+                                    padding: EdgeInsets.all(2),
+                                    decoration: BoxDecoration(
+                                        color: Colors.darkRed,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(4))),
+                                    child: Text(
+                                      "99",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                            SizedBox(width: 29),
+                            _icon(
+                                svgPath:
+                                    "res/drawables/ic_dashboard_settings.svg"),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 35),
+                  Expanded(
+                    child: ListView(
+                      children: [
+                        drawerListItem("Dashboard",
+                            "res/drawables/ic_dashboard_dashboard.svg", "",
+                            height: 17, width: 17),
+                        drawerListItem(
+                          "Transfer Money",
+                          "res/drawables/ic_dashboard_transfer_2.svg",
+                          Routes.TRANSFER,
+                          width: 21,
+                          height: 14,
+                        ),
+                        drawerListItem(
+                            "Airtime & Data",
+                            "res/drawables/ic_dashboard_airtime_2.svg",
+                            Routes.AIRTIME),
+                        drawerListItem(
+                            "Bill Payments",
+                            "res/drawables/ic_dashboard_bills_2.svg",
+                            Routes.BILL),
+                        Container(
+                          margin: EdgeInsets.symmetric(
+                              horizontal: 40, vertical: 15),
+                          child: Divider(
+                              height: 1, color: Colors.white.withOpacity(0.3)),
+                        ),
+                        drawerListItem(
+                            "Manage Account",
+                            "res/drawables/ic_dashboard_manage_account.svg",
+                            Routes.ACCOUNT_TRANSACTIONS),
+                        drawerListItem(
+                            "Manage Cards",
+                            "res/drawables/ic_dashboard_manage_cards.svg",
+                            Routes.CARDS),
+                        drawerListItem("Get Loan",
+                            "res/drawables/ic_dashboard_manage_cards.svg", ""),
+                        drawerListItem("Savings",
+                            "res/drawables/ic_dashboard_savings.svg", ""),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+              Positioned(
+                bottom: 64,
+                right: 36,
+                child: Container(
+                  padding: EdgeInsets.all(15),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.1),
+                  ),
+                  child: _icon(
+                      svgPath: "res/drawables/ic_cancel_dashboard.svg",
+                      onClick: () => Navigator.pop(context)),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
       body: Container(
         width: double.infinity,
         color: Color(0XFFEBF2FA),

@@ -22,7 +22,6 @@ class DashboardDrawerView  {
       controller.closeDrawer();
     });
   }
-
   Widget _initialView({Color? backgroundColor, required Widget image}) {
     return Container(
       width: 40,
@@ -37,6 +36,7 @@ class DashboardDrawerView  {
       ),
     );
   }
+
 
   Widget _drawerListItem(String title, Widget res, VoidCallback onClick) {
     return Material(

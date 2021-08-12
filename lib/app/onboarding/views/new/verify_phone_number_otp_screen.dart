@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter/services.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
 import 'package:moniepoint_flutter/app/validation/model/data/validate_phone_otp_response.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';

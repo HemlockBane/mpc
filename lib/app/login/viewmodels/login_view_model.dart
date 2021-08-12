@@ -24,9 +24,6 @@ class LoginViewModel with ChangeNotifier {
   late SystemConfigurationServiceDelegate _configurationServiceDelegate;
   late DeviceManager _deviceManager;
 
-  // Queue<SecurityFlag>? _securityFlagQueue;
-  // Queue<SecurityFlag>? get securityFlagQueue => _securityFlagQueue;
-
   final List<SystemConfiguration> _systemConfigurations = [];
 
   LoginViewModel({
@@ -40,7 +37,6 @@ class LoginViewModel with ChangeNotifier {
     UserInstance().resetSession();
   }
 
-  //334FD601-3E95-457E-B890-70BCD77B6F76
   Stream<Resource<User>> loginWithPassword(String username, String password) {
     LoginWithPasswordRequestBody requestBody = LoginWithPasswordRequestBody()
       ..authenticationType = AuthenticationMethod.PASSWORD

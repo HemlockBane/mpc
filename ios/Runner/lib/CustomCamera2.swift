@@ -16,7 +16,8 @@ enum CameraMotionEvent {
     case MotionDetectedEvent(path: URL?)
     case NoMotionDetectedEvent(path: URL?)
     case DetectedFaceRectEvent(faceRect: CGRect)
-    case FaceOutOfBoundsEvent
+    case FaceOutOfBoundsEvent(faceRect: CGRect? = nil)
+    case FaceTooFarEvent(faceRect: CGRect?)
 }
 
 
@@ -75,7 +76,6 @@ class CustomCamera2: NSObject, FlutterTexture, AVCaptureVideoDataOutputSampleBuf
         hasCapturedMotionImage = false
         self.endCapture()
         self._pauseListening = false
-        //eyeMidPoint.set(0f, 0f)
     }
     
     private func addCameraInput() {
@@ -151,9 +151,11 @@ class CustomCamera2: NSObject, FlutterTexture, AVCaptureVideoDataOutputSampleBuf
 
         processing = true;
         
-        
         DispatchQueue.global().async {
-            let passesGeneralProblems = self.validateGeneralProblems(cImage: cImage)
+            
+            let adjustedImage = self.adjustImageOrientation(ciImage: cImage)
+            
+            let passesGeneralProblems = self.validateGeneralProblems(cImage: adjustedImage)
             
             if(!self._beginCapture){
                 self.processing = false;
@@ -204,34 +206,66 @@ class CustomCamera2: NSObject, FlutterTexture, AVCaptureVideoDataOutputSampleBuf
         
         //Check if the face is within frameSize
         if(!isFaceWithinFrame(cImage: cImage)) {
-            self.eventHandler(.FaceOutOfBoundsEvent)
+            self.eventHandler(.FaceOutOfBoundsEvent())
+            return false
+        }
+        
+        //Check if the face is too far
+        if(isFaceTooFarFromFrame(imageWidth: cImage.extent.width)) {
+            self.eventHandler(.FaceTooFarEvent(faceRect: faceRect))
             return false
         }
         
         //Check brigthness
-        
         self.eventHandler(.FaceDetectedEvent)
         return true
     }
     
-    func adjustImageOrientation() {
-        
+    func adjustImageOrientation(ciImage: CIImage) -> CIImage{
+        let input = captureSession.inputs.first as? AVCaptureDeviceInput
+        if(input?.device.position == .front){
+            return ciImage.oriented(.downMirrored)
+        }
+        return ciImage
     }
     
-    func isFaceWithinFrame(cImage: CIImage) -> Bool{
+    private func isExposureWithinRange(ciImage: CIImage) -> Bool{
+        //guard let ptr = CFDataGetBytePtr(ciImage) else {return false}
+        return true
+    }
+    
+    private func isFaceTooFarFromFrame(imageWidth: CGFloat) -> Bool {
+        if(frameSize == nil) {return false}
+
+        let screenScale = previewSize.width / imageWidth
+
+        let faceLeft = faceRect!.minY * screenScale
+        let faceRight = faceRect!.maxX * screenScale
+
+        let frameScale = (faceRight - faceLeft) / frameSize!.width
+        if(frameScale < 0.5) {
+            return true
+        }
+        return false
+    }
+    
+    private func isFaceWithinFrame(cImage: CIImage) -> Bool{
         if(frameSize == nil) {return true}
         let width = cImage.extent.width
-        let height = cImage.extent.height
         
-        let screenScale = previewSize.width / width
+        let widthScale = previewSize.width / width
+        
+        let insetTop = (faceRect!.minY * 1.3) - faceRect!.minY
+        
+        faceRect = faceRect?.inset(by: UIEdgeInsets.init(top: -insetTop, left: 0, bottom: 0, right: 0))
         
         eventHandler(.DetectedFaceRectEvent(faceRect: faceRect!))
         Thread.sleep(forTimeInterval: 0.4)
         
-        let faceLeft = faceRect!.minX * screenScale
-        let faceTop = faceRect!.minY * screenScale
-        let faceRight = faceRect!.maxX * screenScale
-        let faceBottom = faceRect!.maxY * screenScale
+        let faceLeft = faceRect!.minX * widthScale
+        let faceTop = faceRect!.minY * widthScale
+        let faceRight = faceRect!.maxX * widthScale
+        let faceBottom = faceRect!.maxY * widthScale
         
         if(faceLeft < frameSize!.minX
                     || faceRight > frameSize!.maxX
@@ -245,13 +279,9 @@ class CustomCamera2: NSObject, FlutterTexture, AVCaptureVideoDataOutputSampleBuf
     }
     
     func isFaceDetected(ciImage: CIImage) -> Bool {
-        let _ : [String:Any] = [:]
-//        numberWithInt
         let features = self.faceDectector.features(
             in: ciImage,
-            options: [
-                "forKey": CIDetectorImageOrientation,
-            ]
+            options: [CIDetectorImageOrientation: 4]
         )
 
         if (features.count == 0) {
@@ -268,15 +298,10 @@ class CustomCamera2: NSObject, FlutterTexture, AVCaptureVideoDataOutputSampleBuf
     }
     
     func copyPixelBuffer() -> Unmanaged<CVPixelBuffer>? {
-        print("Calling CopyPixelBuffer <<<---->>> IIOOOSSS")
         let pixelBuffer = latestPixelBuffer
-//        while !OSAtomicCompareAndSwapPtrBarrier(&pixelBuffer, nil, &(UnsafeMutableRawPointer **)latestPixelBuffer) {
-//            pixelBuffer = latestPixelBuffer
-//        }
         if(pixelBuffer == nil) {
             return nil
         }
-        print("Calling CopyPixelBuffer <<<---->>> WITH VALUE BRUVVVVV")
         return Unmanaged.passRetained(pixelBuffer!)
     }
     

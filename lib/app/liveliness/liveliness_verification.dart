@@ -143,8 +143,10 @@ class _LivelinessVerification extends State<LivelinessVerification> {
                       elevation: 0,
                       onClick: () {
                         Navigator.of(context).pop();
-                        _livelinessDetector?.startMotionDetection();
-                        _livelinessDetector?.beginCapture();
+                        Future.delayed(Duration(milliseconds: 1300), (){
+                          _livelinessDetector?.startMotionDetection();
+                          _livelinessDetector?.beginCapture();
+                        });
                       },
                       text: 'Start Capture'
                   ),
@@ -158,7 +160,11 @@ class _LivelinessVerification extends State<LivelinessVerification> {
 
   void _requestCameraPermission() async {
     if(await Permission.camera.request().isGranted) {
-      showDialog(context: context, builder: (mContext) => _entryDialog());
+      showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (mContext) => _entryDialog()
+      );
       _initLivelinessDetector();
     } else {
       Navigator.of(context).pop();

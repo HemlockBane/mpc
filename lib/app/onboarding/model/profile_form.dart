@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/account_request.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/profile_request.dart';
 import 'package:moniepoint_flutter/app/onboarding/username_validation_state.dart';
-import 'package:moniepoint_flutter/app/securityquestion/model/data/security_question.dart';
 import 'package:moniepoint_flutter/app/validation/model/data/onboarding_liveliness_validation_response.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/validators.dart';
@@ -55,8 +54,7 @@ class ProfileForm with ChangeNotifier, Validators {
     this._requestBody = requestBody;
   }
 
-  /// Initializes the state of the profile form
-  void _initState() {
+  void initForm(OnBoardingType onboardingType) {
     final formStreams = [
       usernameStream,
       passwordStream,
@@ -64,9 +62,12 @@ class ProfileForm with ChangeNotifier, Validators {
       signatureStream,
       enableUssdStream,
       ussdPinInputStream,
-      emailStream
     ];
-    
+
+    if(onboardingType == OnBoardingType.ACCOUNT_DOES_NOT_EXIST) {
+      formStreams.add(emailStream);
+    }
+
     this._isValid = Rx.combineLatest(formStreams, (values) {
       print(values);
       return _isUsernameValid(displayError: false)
@@ -77,8 +78,11 @@ class ProfileForm with ChangeNotifier, Validators {
           && _validationState.status == UsernameValidationStatus.AVAILABLE
           && _hasSignature;
     }).asBroadcastStream();
+  }
 
-    _emailController.sink.add("");
+  /// Initializes the state of the profile form
+  void _initState() {
+
   }
 
   void onUsernameChanged(String? text) {
@@ -181,7 +185,6 @@ class ProfileForm with ChangeNotifier, Validators {
 
   void setOnboardingType(OnBoardingType onBoardingType) {
     this._onBoardingType = onBoardingType;
-    _emailController.sink.add("");
   }
 
 

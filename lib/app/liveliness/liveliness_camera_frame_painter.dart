@@ -16,13 +16,13 @@ class LivelinessFaceOval extends CustomPainter {
     ..strokeCap = StrokeCap.round
     ..blendMode = BlendMode.srcOver;
 
+
   @override
   void paint(Canvas canvas, Size size) {
     var margin = 8.0;
     var frameRect = Rect.fromLTRB(_left + margin, _top+margin, (size.width - _left) - margin, (size.height * 0.65) - margin);
     canvas.drawRRect(RRect.fromRectAndRadius(frameRect, Radius.circular(6)), _backgroundPaint);
   }
-
   @override
   bool shouldRepaint(covariant LivelinessFaceOval oldDelegate) {
     return true;
@@ -106,7 +106,7 @@ class LivelinessCameraFrame extends CustomPainter {
 
     path.moveTo(_frameRect.left, _frameRect.top + lineDistanceToCurve);
     path.quadraticBezierTo(_frameRect.left, _frameRect.top, _frameRect.left + lineDistanceToCurve, _frameRect.top + 2);
-
+    
     var frameRect = Rect.fromLTRB(_left + 8.0, _top + 8.0,
         (size.width - _left) - 8.0, (size.height * 0.65) - 8.0
     );

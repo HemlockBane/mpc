@@ -749,7 +749,7 @@ class BottomSheets {
         ),
         child: (prompt != null &&
                 prompt.displayImage != null &&
-                prompt.displayImage!.isPng)
+                prompt.displayImage!.isPng) // TODO: Remove "isPng". Check for SVG, then lottie, then image is fallback
             ? ImageWidget(
                 uuidRef: prompt.displayImage!.uuidRef,
                 serviceProviderViewModel: serviceProviderViewModel,

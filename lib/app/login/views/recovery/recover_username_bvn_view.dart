@@ -32,18 +32,28 @@ class _RecoverUsernameScreen extends State<RecoverUsernameBVNScreen> {
       if (event is Loading) setState(() => _isLoading = true);
       if (event is Error<RecoveryResponse>) {
         setState(() => _isLoading = false);
-        showError(
-            widget._scaffoldKey.currentContext ?? context,
-            message: event.message,
-            primaryButtonText: "Dismiss",
-            useTextButton: true
-        );
+        _doOnError(event.message ?? "");
       }
       if (event is Success<RecoveryResponse>) {
         setState(() => _isLoading = false);
         Navigator.of(context).pushNamed(RecoveryControllerScreen.RECOVERY_OTP);
       }
     });
+  }
+
+  void _doOnError(String message) {
+    //The flow specifies that we should navigate to the otp
+    //If the status is true. The body of the request is usually empty
+    if(message.contains("fulfilling your request")) {
+      Navigator.of(context).pushNamed(RecoveryControllerScreen.RECOVERY_OTP);
+    } else {
+      showError(
+          widget._scaffoldKey.currentContext ?? context,
+          message: message,
+          primaryButtonText: "Dismiss",
+          useTextButton: true
+      );
+    }
   }
 
   void _navigateToUseAccountNumber(RecoveryViewModel viewModel) {

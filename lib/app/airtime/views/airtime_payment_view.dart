@@ -370,6 +370,7 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
 
   void subscribeUiToPin() async {
     final viewModel = Provider.of<AirtimeViewModel>(context, listen: false);
+    viewModel.setPin("");
     dynamic result = await showModalBottomSheet(
         context: widget._scaffoldKey.currentContext ?? context,
         isScrollControlled: true,

@@ -96,7 +96,9 @@ class LivelinessMethodHandler : NSObject, FlutterStreamHandler {
             var frameSize: CGRect? = nil
             var previewSize: CGSize = CGSize(width:480, height:640)
             
+            
             if(channelFrameSize != nil) {
+                print("ChannelFrameSize ==> \(channelFrameSize)")
                 let left = channelFrameSize!["left"]
                 let top = channelFrameSize!["top"]
                 let right = channelFrameSize!["right"]
@@ -106,8 +108,8 @@ class LivelinessMethodHandler : NSObject, FlutterStreamHandler {
                     frameSize = CGRect(
                         x: left!!,
                         y: (top ?? 0.0)!,
-                        width: (right ?? 0.0)!,
-                        height: (bottom ?? 0.0)!
+                        width: right!! - left!!,
+                        height: bottom!! - top!!
                     )
                 }
             }
@@ -185,6 +187,14 @@ class LivelinessMethodHandler : NSObject, FlutterStreamHandler {
                 self.eventSink?([
                     "event_type":"FaceOutOfBoundsEvent",
                 ])
+                return
+            case .FaceTooFarEvent(faceRect: let faceRect):
+                var data = [String: String]()
+                data["event_type"] = "FaceTooFarEvent"
+                if(faceRect != nil) {
+                    data["event_data"] = "\(faceRect!.minX),\(faceRect!.minY),\(faceRect!.maxX),\(faceRect!.maxY)"
+                }
+                self.eventSink?(data)
                 return
             }
         })

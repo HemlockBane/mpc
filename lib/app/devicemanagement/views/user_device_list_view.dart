@@ -257,10 +257,12 @@ class _UserDeviceListItem extends StatelessWidget{
                       children: [
                         Row(
                           children: [
-                            Text(
+                            Flexible(child: Text(
                                 _userDevice.name ?? "--",
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
                                 style: TextStyle(fontSize: 16, color: Colors.darkBlue, fontWeight: FontWeight.bold)
-                            ),
+                            )),
                             SizedBox(width: 8,),
                             Visibility(
                               visible: isLoggedInDevice,

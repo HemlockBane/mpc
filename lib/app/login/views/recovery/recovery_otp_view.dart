@@ -106,9 +106,11 @@ class _RecoveryOtpView extends State<RecoveryOtpView> {
     if(validationResponse != null && validationResponse is RecoveryResponse) {
       if(verificationFor == LivelinessVerificationFor.USERNAME_RECOVERY) {
         PreferenceUtil.saveUsername(validationResponse.username!);
-        Navigator.of(context)
-            .pushNamed(RecoveryControllerScreen.USERNAME_DISPLAY_SCREEN,
-            arguments: validationResponse.username);
+        Future.delayed(Duration(milliseconds: 500), (){
+          Navigator.of(context)
+              .pushNamed(RecoveryControllerScreen.USERNAME_DISPLAY_SCREEN,
+              arguments: validationResponse.username);
+        });
       } else if(verificationFor == LivelinessVerificationFor.PASSWORD_RECOVERY) {
         if(validationResponse.livelinessCheckRef == null
             || validationResponse.livelinessCheckRef?.isEmpty == true) {
@@ -117,8 +119,9 @@ class _RecoveryOtpView extends State<RecoveryOtpView> {
           return;
         }
         viewModel.setLivelinessCheckRef(validationResponse.livelinessCheckRef);
-        Navigator.of(context)
-            .pushNamed(RecoveryControllerScreen.SET_PASSWORD);
+        Future.delayed(Duration(milliseconds: 500), (){
+          Navigator.of(context).pushNamed(RecoveryControllerScreen.SET_PASSWORD);
+        });
       }
     }
 

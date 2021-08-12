@@ -198,6 +198,7 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
 
   void subscribeUiToPin() async {
     final viewModel = Provider.of<TransferViewModel>(context, listen: false);
+    viewModel.setPin("");
     dynamic result = await showModalBottomSheet(
         context: widget._scaffoldKey.currentContext ?? context,
         isScrollControlled: true,

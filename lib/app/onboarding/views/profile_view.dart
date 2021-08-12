@@ -141,6 +141,7 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
   void initState() {
     final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
     super.initState();
+    viewModel.profileForm.initForm(viewModel.onBoardingType);
     _signatureController.addListener(() {
       setState(() {});
       viewModel.profileForm.setHasSignature(_signatureController.isNotEmpty);
@@ -177,7 +178,8 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                             color: Colors.textColorPrimary,
-                          ))),
+                          ))
+                  ),
                   Positioned(
                       top: 66,
                       right: 16,
@@ -185,7 +187,8 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
                       child: Divider(
                         height: 4,
                         color: Colors.colorFaded,
-                      )),
+                      )
+                  ),
                   Positioned(
                       top: 70,
                       bottom: 40,
@@ -216,8 +219,7 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
   }
 
   Widget _buildTermsLayout() {
-    final txt =
-        'By signing up you agree to our\nTerms & Conditions and Privacy Policy.';
+    final txt = 'By signing up you agree to our\nTerms & Conditions and Privacy Policy.';
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
       decoration: BoxDecoration(

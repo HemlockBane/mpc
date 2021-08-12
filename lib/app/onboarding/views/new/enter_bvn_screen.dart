@@ -120,10 +120,6 @@ class _EnterBVNScreen extends State<EnterBVNScreen> {
     );
   }
 
-  String getUSSD() {
-    return "*5573*80#";
-  }
-
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
@@ -170,8 +166,8 @@ class _EnterBVNScreen extends State<EnterBVNScreen> {
                         }),
                     SizedBox(height: 20),
                     OtpUssdInfoView(
-                      "Onboarding Phone Number Validation OTP Mobile",
-                      defaultCode: "*5573*60#",
+                      "None",
+                      defaultCode: "*565*0#",
                       message: "Dial {} on your registered phone number to get your BVN",
                     ),
                     SizedBox(height: 100),

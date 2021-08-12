@@ -167,7 +167,10 @@ class DashboardContainerViewState extends State<DashboardContainerView> with Wid
                     padding: EdgeInsets.all(8),
                     color: Colors.transparent,
                     borderRadius: BorderRadius.circular(30),
-                    onClick: () => Share.share(customerAccount?.accountNumber ?? "", subject: 'Moniepoint'),
+                    onClick: () => Share.share(
+                        "Moniepoint MFB\n${customerAccount?.accountNumber}\n${customerAccount?.customer?.name}",
+                        subject: 'Moniepoint MFB'
+                    ),
                     image: SvgPicture.asset(
                       'res/drawables/ic_share.svg',
                       fit: BoxFit.contain,

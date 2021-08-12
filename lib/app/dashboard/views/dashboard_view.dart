@@ -63,12 +63,9 @@ class _DashboardScreen extends State<DashboardScreen>
         margin: EdgeInsets.only(left: width, right: width, bottom: 8, top: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: InkWell(
-          customBorder:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           onTap: () => (!_hasCompletedAccountUpdate())
-              ? Navigator.of(context)
-                  .pushNamed(Routes.ACCOUNT_UPDATE)
-                  .then((_) => subscribeUiToAccountStatus())
+              ? Navigator.of(context).pushNamed(Routes.ACCOUNT_UPDATE).then((_) => subscribeUiToAccountStatus())
               : setState(() => {}),
           child: Container(
             padding: EdgeInsets.only(left: 16, right: 16, top: 0, bottom: 0),
@@ -79,8 +76,7 @@ class _DashboardScreen extends State<DashboardScreen>
                   'res/drawables/ic_upgrade_account_2.svg',
                 ),
                 SizedBox(width: 16),
-                Expanded(
-                    child: Column(
+                Expanded(child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -126,8 +122,7 @@ class _DashboardScreen extends State<DashboardScreen>
         margin: EdgeInsets.only(left: width, right: width, bottom: 8, top: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: InkWell(
-          customBorder:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           onTap: () => null,
           child: Container(
               padding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 4),
@@ -142,8 +137,8 @@ class _DashboardScreen extends State<DashboardScreen>
                           fontSize: 17)),
                   SizedBox(height: 2),
                   Text('Remember to stay safe!',
-                      style:
-                          TextStyle(color: Colors.textColorBlack, fontSize: 12))
+                      style: TextStyle(color: Colors.textColorBlack, fontSize: 12)
+                  )
                 ],
               )),
         ),
@@ -163,7 +158,6 @@ class _DashboardScreen extends State<DashboardScreen>
   void _refreshDashboard() {
     setState(() {});
     print("refreshing dashboard");
-    // _viewModel.getUserAccountsBalance(useLocal: false).listen((event) {});
     subscribeUiToAccountStatus();
   }
 
@@ -218,8 +212,7 @@ class _DashboardScreen extends State<DashboardScreen>
           return AnimatedBuilder(
               animation: pageController,
               builder: (mContext, _) {
-                num selectedPage =
-                    (pageController.position.hasContentDimensions)
+                num selectedPage = (pageController.position.hasContentDimensions)
                         ? (pageController.page ?? pageController.initialPage)
                         : 0;
 
@@ -237,32 +230,27 @@ class _DashboardScreen extends State<DashboardScreen>
                       child: Padding(
                         padding: EdgeInsets.only(bottom: 24),
                         child: Hero(
-                            tag:
-                                "dashboard-balance-view-${userAccount.customerAccount?.id}",
+                            tag: "dashboard-balance-view-${userAccount.customerAccount?.id}",
                             child: Container(
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(16),
                                   boxShadow: [
                                     BoxShadow(
-                                        color: UserInstance()
-                                                    .accountStatus
-                                                    ?.postNoDebit !=
-                                                true
-                                            ? Colors.primaryColor
-                                                .withOpacity(0.2)
+                                        color: UserInstance().accountStatus?.postNoDebit != true
+                                            ? Colors.primaryColor.withOpacity(0.2)
                                             : Colors.postNoDebitColor,
                                         offset: Offset(0, 4),
                                         blurRadius: 5,
-                                        spreadRadius: 1)
+                                        spreadRadius: 1
+                                    )
                                   ]),
                               child: Material(
                                 borderRadius: BorderRadius.circular(16),
                                 child: InkWell(
                                     customBorder: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(16)),
-                                    onTap: () => _onDashboardItemClicked(
-                                        userAccount, index),
+                                        borderRadius: BorderRadius.circular(16)
+                                    ),
+                                    onTap: () => _onDashboardItemClicked(userAccount, index),
                                     child: DashboardContainerView(
                                       key: Key("$index"),
                                       viewModel: _viewModel,
@@ -287,10 +275,11 @@ class _DashboardScreen extends State<DashboardScreen>
       extendBodyBehindAppBar: true,
       resizeToAvoidBottomInset: false,
       drawers: [
-        DashboardDrawerView(context, _drawerScaffoldController,
-                refreshCallback: _refreshDashboard,
-                accountName: _viewModel.accountName)
-            .getDrawer()
+        DashboardDrawerView(
+            context, _drawerScaffoldController,
+            refreshCallback: _refreshDashboard,
+            accountName: _viewModel.accountName
+        ).getDrawer()
       ],
       builder: (mContext, a) {
         return SessionedWidget(
@@ -307,9 +296,7 @@ class _DashboardScreen extends State<DashboardScreen>
                         child: Column(
                           children: [
                             Divider(color: Colors.dashboardTopBar, height: 4),
-                            SizedBox(
-                                height:
-                                    MediaQuery.of(context).padding.top + 32),
+                            SizedBox(height: MediaQuery.of(context).padding.top + 32),
                             Text(
                               'OVERVIEW',
                               style: TextStyle(
@@ -317,8 +304,7 @@ class _DashboardScreen extends State<DashboardScreen>
                                   fontWeight: FontWeight.w400),
                             ),
                             SizedBox(height: 32),
-                            SizedBox(
-                                height: 90, child: _buildDashboardSlider()),
+                            SizedBox(height: 90, child: _buildDashboardSlider()),
                             SizedBox(height: 8),
                             DotIndicator(
                               controller: _pageController,
@@ -328,7 +314,6 @@ class _DashboardScreen extends State<DashboardScreen>
                             SizedBox(height: 16),
                             AspectRatio(
                               aspectRatio: 3 / 2.8,
-                              //UserInstance().accountStatus?.postNoDebit == true ? 3 / 2.8 : 3 / 2.5,
                               child: _centerDashboardContainer(_viewModel),
                             ),
                             SizedBox(height: 110),
@@ -340,14 +325,12 @@ class _DashboardScreen extends State<DashboardScreen>
                           left: 20,
                           bottom: 0,
                           child: SlideTransition(
-                            position: Tween<Offset>(
-                                    begin: Offset(0, 1), end: Offset(0, 0))
-                                .animate(CurvedAnimation(
-                                    parent: _bottomMenuController,
-                                    curve: Curves.easeInToLinear)),
-                            child:
-                                DashboardBottomMenu(() => _refreshDashboard()),
-                          ))
+                            position: Tween<Offset>(begin: Offset(0, 1), end: Offset(0, 0)).animate(
+                                CurvedAnimation(parent: _bottomMenuController, curve: Curves.easeInToLinear)
+                            ),
+                            child: DashboardBottomMenu(() => _refreshDashboard()),
+                          )
+                      )
                     ],
                   ),
                 );
@@ -373,9 +356,8 @@ class _DashboardScreen extends State<DashboardScreen>
       final prompt = LoginPrompt.fromJson(data);
       final list = [prompt, prompt, prompt];
 
-      final serviceProviderModel =
-          Provider.of<ServiceProviderViewModel>(context, listen: false);
-      _showLoginPrompts(list, serviceProviderModel);
+      final serviceProviderModel = Provider.of<ServiceProviderViewModel>(context, listen: false);
+      //_showLoginPrompts(list, serviceProviderModel);
     });
     //let check if the user should set up finger print
     Future.delayed(Duration(milliseconds: 1400), () => _setupFingerprint());
@@ -413,8 +395,7 @@ class _DashboardScreen extends State<DashboardScreen>
                       final prompt = prompts[idx];
 
                       return Dialog(
-                        insetPadding:
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        insetPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                         backgroundColor: Colors.transparent,
                         child: BottomSheets.displayLoginPrompt(context,
                             prompt: prompt,
@@ -431,18 +412,15 @@ class _DashboardScreen extends State<DashboardScreen>
   }
 
   void _setupFingerprint() async {
-    final fingerprintRequestCount =
-        PreferenceUtil.getFingerprintRequestCounter();
+    final fingerprintRequestCount = PreferenceUtil.getFingerprintRequestCounter();
 
     //We should only request 3 times from the dashboard
 
-    if (fingerprintRequestCount >= 2 ||
-        PreferenceUtil.getLoginMode() == LoginMode.ONE_TIME) return;
+    if (fingerprintRequestCount >= 2 || PreferenceUtil.getLoginMode() == LoginMode.ONE_TIME) return;
     final biometricHelper = BiometricHelper.getInstance();
 
     final biometricType = await biometricHelper.getBiometricType();
-    final hasFingerprintPassword =
-        (await biometricHelper.getFingerprintPassword()) != null;
+    final hasFingerprintPassword = (await biometricHelper.getFingerprintPassword()) != null;
     print("This is the Biometric Type $biometricType");
     if (biometricType != BiometricType.NONE && !hasFingerprintPassword) {
       PreferenceUtil.setFingerprintRequestCounter(fingerprintRequestCount + 1);
@@ -476,8 +454,8 @@ class _DashboardScreen extends State<DashboardScreen>
         showModalBottomSheet(
             backgroundColor: Colors.transparent,
             context: context,
-            builder: (mContext) => BottomSheets.displayErrorModal(mContext,
-                message: result.message));
+            builder: (mContext) => BottomSheets.displayErrorModal(mContext, message: result.message)
+        );
       }
     }
   }

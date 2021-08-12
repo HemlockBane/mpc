@@ -354,7 +354,7 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
                             print("CameraMotionEvent => ${liveMotionEvent.eventType}");
                             _processEvents(liveMotionEvent);
 
-                            Future.delayed(Duration(milliseconds:1), () {
+                            Future.delayed(Duration(milliseconds: 1), () {
                               _livelinessEventNotifier.value = liveMotionEvent;
                             });
 

@@ -59,6 +59,7 @@ import 'package:provider/provider.dart';
 
 import 'app/liveliness/viewmodels/liveliness_verification_viewmodel.dart';
 import 'app/settings/settings_view.dart';
+import 'app/transfers/viewmodels/transfer_view_model.dart';
 
 //We need to move this to some where else
 final defaultAppTheme = ThemeData(
@@ -140,7 +141,9 @@ class MoniepointApp extends StatelessWidget {
               create: (_) => ServiceProviderViewModel(),
               child: DashboardScreenOld(),
             ),
-        Routes.DASHBOARD: (BuildContext context) => DashboardScreen(),
+        Routes.DASHBOARD: (BuildContext context) => MultiProvider(providers: [
+              ChangeNotifierProvider(create: (_) => TransferViewModel())
+            ], child: DashboardScreen()),
         Routes.ACCOUNT_UPDATE: (BuildContext context) =>
             Scaffold(body: AccountUpdateScreen()),
         Routes.LIVELINESS: (BuildContext context) =>

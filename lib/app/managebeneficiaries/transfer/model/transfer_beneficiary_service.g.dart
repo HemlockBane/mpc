@@ -18,7 +18,7 @@ class _TransferBeneficiaryService implements TransferBeneficiaryService {
 
   @override
   Future<ServiceResult<TransferBeneficiaryCollection>> getAccountBeneficiaries(
-      {page = 0, pageSize = 20}) async {
+      {customerId, page = 0, pageSize = 20}) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
       r'page': page,
@@ -36,7 +36,7 @@ class _TransferBeneficiaryService implements TransferBeneficiaryService {
                 },
                 extra: _extra,
                 contentType: 'application/json')
-            .compose(_dio.options, 'paged',
+            .compose(_dio.options, '$customerId/paged',
                 queryParameters: queryParameters, data: _data)
             .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = ServiceResult<TransferBeneficiaryCollection>.fromJson(

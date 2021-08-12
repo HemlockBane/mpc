@@ -31,7 +31,6 @@ class _LivelinessExposureRange extends State<LivelinessExposureRange> {
   final double _maxColorValue = 255;
   var _previousTickerPosition = 0.0;
 
-
   double _getTickerPosition(LivelinessMotionEvent motionEvent, double scaleFactor) {
     var position = _previousTickerPosition;
     if(motionEvent.eventType == CameraMotionEvent.ImageUnderExposed
@@ -50,7 +49,7 @@ class _LivelinessExposureRange extends State<LivelinessExposureRange> {
   bool _positionIsWithinRange(double position, double scaleFactor) {
     final start = (widget.start * scaleFactor);
     final end = widget.end * scaleFactor;
-    return position >= start && position <= (end - _linearMargin);
+    return position >= (start) && position <= end;
   }
 
   @override
@@ -128,7 +127,7 @@ class _LivelinessExposureRange extends State<LivelinessExposureRange> {
                 }
             ),
             Positioned(
-                left: startPoint,
+                left: _linearMargin + startPoint,
                 child: ValueListenableBuilder(
                   valueListenable: widget.notifier,
                   builder: (context, LivelinessMotionEvent value, _) {

@@ -12,7 +12,7 @@ class TransferBeneficiaryViewModel extends BaseViewModel {
     this._delegate = delegate ?? GetIt.I<TransferBeneficiaryServiceDelegate>();
   }
 
-  PagingSource<int, TransferBeneficiary> getAccountBeneficiaries() => _delegate.getTransferBeneficiaries();
-  PagingSource<int, TransferBeneficiary> searchAccountBeneficiaries(String search) => _delegate.searchTransferBeneficiaries("%$search%");
+  PagingSource<int, TransferBeneficiary> getAccountBeneficiaries() => _delegate.getTransferBeneficiaries(customerId);
+  PagingSource<int, TransferBeneficiary> searchAccountBeneficiaries(String search) => _delegate.searchTransferBeneficiaries("%$search%", customerId);
 
 }

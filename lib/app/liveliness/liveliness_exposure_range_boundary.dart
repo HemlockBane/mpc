@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:moniepoint_flutter/core/colors.dart';
 
+/// @author Paul Okeke
 class LivelinessExposureRangeBoundary extends CustomPainter {
 
   final double width;

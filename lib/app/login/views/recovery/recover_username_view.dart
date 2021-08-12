@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:moniepoint_flutter/app/login/viewmodels/recovery_view_model.dart';
 import 'package:moniepoint_flutter/app/login/views/recovery/recovery_controller_screen.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/data/recovery_response.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';

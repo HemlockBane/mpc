@@ -13,7 +13,7 @@ import 'package:rxdart/rxdart.dart';
 class ProfileForm with ChangeNotifier, Validators {
 
 
-  late final Stream<bool> _isValid;
+  Stream<bool>? _isValid;
   var isUsernameVerified = false;
 
   ProfileCreationRequestBody _requestBody = ProfileCreationRequestBody();
@@ -46,7 +46,7 @@ class ProfileForm with ChangeNotifier, Validators {
   UsernameValidationState _validationState = UsernameValidationState(UsernameValidationStatus.NONE, "");
 
   ProfileForm() {
-    _initState();
+    // _initState();
   }
 
 
@@ -188,7 +188,7 @@ class ProfileForm with ChangeNotifier, Validators {
   }
 
 
-  Stream<bool> get isValid => _isValid;
+  Stream<bool> get isValid => _isValid ?? Stream.value(false);
   @override
   void dispose() {
     _usernameController.close();

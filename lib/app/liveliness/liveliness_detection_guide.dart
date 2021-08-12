@@ -324,7 +324,7 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
       child: Stack(
         children: [
           LivelinessBackgroundFrame(_livelinessEventNotifier),
-          LivelinessExposureRange(_livelinessEventNotifier, 90, 255, exposureWidth, 36),
+          LivelinessExposureRange(_livelinessEventNotifier, 90, 220, exposureWidth, 36),
           DraggableScrollableSheet(
             initialChildSize: sheetSize,
             minChildSize: sheetSize,

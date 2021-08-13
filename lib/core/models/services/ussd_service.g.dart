@@ -9,7 +9,7 @@ part of 'ussd_service.dart';
 class _USSDService implements USSDService {
   _USSDService(this._dio, {this.baseUrl}) {
     baseUrl ??=
-        'https://moniepoint-customer-operations-service-v2.console.teamapt.com/api/v1/ussd-code/';
+        'https://core-operations.monnify.development.teamapt.com/api/v1/ussd-code/';
   }
 
   final Dio _dio;
@@ -27,7 +27,7 @@ class _USSDService implements USSDService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.0.6'
+                  r'appVersion': '0.0.6'
                 },
                 extra: _extra,
                 contentType: 'application/json')

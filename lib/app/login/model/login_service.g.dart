@@ -9,7 +9,7 @@ part of 'login_service.dart';
 class _LoginService implements LoginService {
   _LoginService(this._dio, {this.baseUrl}) {
     baseUrl ??=
-        'https://moniepoint-customer-root-v2.console.teamapt.com/api/v1/login';
+        'https://core-root.monnify.development.teamapt.com/api/v1/login';
   }
 
   final Dio _dio;
@@ -28,12 +28,12 @@ class _LoginService implements LoginService {
             headers: <String, dynamic>{
               r'Content-Type': 'application/json',
               r'client-id': 'ANDROID',
-              r'appVersion': '1.0.6'
+              r'appVersion': '0.0.6'
             },
             extra: _extra,
             contentType: 'application/json')
         .compose(_dio.options,
-            'https://moniepoint-customer-root-v2.console.teamapt.com/api/v2/login',
+            'https://core-root.monnify.development.teamapt.com/api/v2/login',
             queryParameters: queryParameters, data: _data)
         .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = ServiceResult<User>.fromJson(
@@ -55,7 +55,7 @@ class _LoginService implements LoginService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.0.6'
+                  r'appVersion': '0.0.6'
                 },
                 extra: _extra,
                 contentType: 'application/json')

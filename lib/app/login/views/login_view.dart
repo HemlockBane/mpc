@@ -282,9 +282,8 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
                 fontSize: 24),
           ),
         ),
-        // SizedBox(height: 5),
         _buildLoginBox(context),
-        Spacer(),
+        SizedBox(height: 28,),
         Container(
           margin: EdgeInsets.only(left: 16, right: 16),
           child: Column(
@@ -368,7 +367,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
   }
 
   Future<void> navigateToDashboardView() async {
-    await Navigator.pushReplacementNamed(context, Routes.DASHBOARD_OLD);
+    await Navigator.pushReplacementNamed(context, Routes.DASHBOARD);
   }
 
   void checkSecurityFlags(User user) async {
@@ -422,7 +421,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
         backgroundColor: Colors.transparent,
         builder: (context) {
           return BottomSheets.makeAppBottomSheet2(
-              height: 420,
+              height: 390,
               dialogIcon: SvgPicture.asset(
                 'res/drawables/ic_info_italic.svg',
                 color: Colors.primaryColor,
@@ -609,18 +608,14 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
       _alreadyInSessionError = true;
       UserInstance().resetSession();
       Future.delayed(Duration(milliseconds: 150), () {
-        showModalBottomSheet(
-            backgroundColor: Colors.transparent,
-            context: context,
-            builder: (BuildContext context) {
-              return BottomSheets.displayErrorModal(context,
-                  title: "Logged Out",
-                  message: "A Re-Login was needed for you to continue",
-                  onClick: () {
-                Navigator.of(context).pop();
-                _startFingerPrintLoginProcess();
-              });
-            });
+        showError(context,
+            title: "Logged Out",
+            message: "A Re-Login was needed for you to continue",
+            onPrimaryClick: () {
+              Navigator.of(context).pop();
+              _startFingerPrintLoginProcess();
+            }
+        );
       });
     }
   }
@@ -629,38 +624,29 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
     final top = MediaQuery.of(context).padding.top;
     final minHeight = MediaQuery.of(context).size.height;
 
-    // Provider.of<LoginViewModel>(context, listen: false);
-
-    final sessionReason = ModalRoute.of(context)!.settings.arguments
-        as Tuple<String, SessionTimeoutReason>?;
+    final sessionReason = ModalRoute.of(context)!.settings.arguments as Tuple<String, SessionTimeoutReason>?;
     _onSessionReason(sessionReason);
 
-    return WillPopScope(
-      onWillPop: () async {
-        Navigator.of(context).popAndPushNamed(Routes.SIGN_UP);
-        return true;
-      },
-      child: Scaffold(
-        body: SingleChildScrollView(
-          child: Container(
-            height: minHeight, //TODO: Find out what this means here
-            child: Stack(
-              children: [
-                  Column(
-                    children: [
-                      SizedBox(height: minHeight * 0.35,),
-                      Expanded(
-                        child: Container(
-                          padding: EdgeInsets.only(left: 0, right: 0, top: 34, bottom: 0),
-                          child: _buildMidSection(context),
-                        ),
-                      ),
-                      // _buildBottomSection(context),
-                    ],
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Container(
+          height: minHeight, //TODO: Find out what this means here
+          child: Stack(
+            children: [
+              Column(
+                children: [
+                  SizedBox(height: minHeight * 0.35,),
+                  Expanded(
+                    child: Container(
+                      padding: EdgeInsets.only(left: 0, right: 0, top: 34, bottom: 0),
+                      child: _buildMidSection(context),
+                    ),
                   ),
-                _buildTopMenu(context),
-              ],
-            ),
+                  // _buildBottomSection(context),
+                ],
+              ),
+              _buildTopMenu(context),
+            ],
           ),
         ),
       ),

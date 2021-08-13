@@ -40,7 +40,7 @@ class AirtimeBeneficiaryServiceDelegate with NetworkResource {
         localSource: (LoadParams params) {
           final offset = params.key ?? 0;
           return _beneficiaryDao.getPagedAirtimeBeneficiary(0, params.loadSize)
-              .map((event) => Page(event, params.key, event.length == params.loadSize ? offset + 1 : null)
+              .map((event) => Page(event, params.key ?? 0, event.length == params.loadSize ? offset + 1 : null)
           );
         },
         remoteMediator: _AirtimeBeneficiaryMediator(_service, _beneficiaryDao)
@@ -52,7 +52,7 @@ class AirtimeBeneficiaryServiceDelegate with NetworkResource {
         localSource: (LoadParams params) {
           final offset = params.key ?? 0;
           return _beneficiaryDao.searchPagedAirtimeBeneficiary(search, offset * params.loadSize, params.loadSize)
-              .map((event) => Page(event, params.key, event.length == params.loadSize ? offset + 1 : null)
+              .map((event) => Page(event, params.key ?? 0, event.length == params.loadSize ? offset + 1 : null)
           );
         },
         remoteMediator: _AirtimeBeneficiaryMediator(_service, _beneficiaryDao)

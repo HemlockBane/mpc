@@ -10,6 +10,7 @@ import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:provider/provider.dart';
 
@@ -35,13 +36,10 @@ class _AddDeviceDialog extends State<AddDeviceDialog> {
       if(event is Loading) setState(() => _isLoading = true);
       if (event is Error<bool>) {
         setState(() => _isLoading = false);
-        showModalBottomSheet(
-            context: widget._scaffoldKey.currentContext ?? context,
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            builder: (context) {
-              return BottomSheets.displayErrorModal(context, message: event.message);
-            });
+        showError(
+            widget._scaffoldKey.currentContext ?? context,
+            message: event.message
+        );
       }
       if(event is Success<bool>) {
         setState(() => _isLoading = false);

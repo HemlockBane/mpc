@@ -35,9 +35,11 @@ enum OnBoardingType {
 class SetupType {
   SetupType({
     this.type,
+    this.hasEmail
   });
 
   OnBoardingType? type;
+  bool? hasEmail;
 
   factory SetupType.fromJson(Object? data) => _$SetupTypeFromJson(data as Map<String, dynamic>);
   Map<String, dynamic> toJson() => _$SetupTypeToJson(this);

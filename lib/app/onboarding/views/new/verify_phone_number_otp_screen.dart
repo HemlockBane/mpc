@@ -7,6 +7,7 @@ import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/views/otp_ussd_info_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:provider/provider.dart';
@@ -37,14 +38,16 @@ class _VerifyPhoneNumberOTPScreen extends State<VerifyPhoneNumberOTPScreen> {
 
   void _onOtpChanged() {
     final text = _otpController.text;
-      setState(() {
-        _isOtpValid = text.isNotEmpty && text.length >= 6;
-      });
+    _isOtpValid = text.isNotEmpty && text.length >= 6;
+    if(_isOtpValid) {
+      FocusManager.instance.primaryFocus?.unfocus();
+    }
+    setState(() {});
   }
 
   @override
   void initState() {
-    _otpController = TextEditingController()..addListener(_onOtpChanged);
+    _otpController = TextEditingController();
     super.initState();
   }
 
@@ -54,13 +57,10 @@ class _VerifyPhoneNumberOTPScreen extends State<VerifyPhoneNumberOTPScreen> {
         if(event is Loading) setState(() => _isLoading = true);
         if (event is Error<ValidatePhoneOtpResponse>) {
           setState(() => _isLoading = false);
-          showModalBottomSheet(
-              context: _scaffoldKey.currentContext ?? context,
-              isScrollControlled: true,
-              backgroundColor: Colors.transparent,
-              builder: (context) {
-                return BottomSheets.displayErrorModal(context, message: event.message);
-              });
+          showError(
+              _scaffoldKey.currentContext ?? context,
+              message: event.message
+          );
         }
         if(event is Success<ValidatePhoneOtpResponse>) {
           setState(() => _isLoading = false);
@@ -116,6 +116,7 @@ class _VerifyPhoneNumberOTPScreen extends State<VerifyPhoneNumberOTPScreen> {
                         startIcon: Icon(CustomFont.numberInput, color: Colors.textFieldIcon.withOpacity(0.2), size: 24),
                         drawablePadding: EdgeInsets.only(left: 4, right: 4),
                         controller: _otpController,
+                        onChanged: (v) => _onOtpChanged(),
                         maxLength: 6),
                     SizedBox(height: 20),
                     OtpUssdInfoView(

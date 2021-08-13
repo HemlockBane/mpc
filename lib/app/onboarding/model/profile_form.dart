@@ -41,6 +41,9 @@ class ProfileForm with ChangeNotifier, Validators {
   Stream<String> get emailStream => _emailController.stream;
 
   bool _hasSignature = false;
+  bool _enableEmail = true;
+  bool get enableEmail => _enableEmail;
+
   OnBoardingType _onBoardingType = OnBoardingType.ACCOUNT_DOES_NOT_EXIST;
 
   UsernameValidationState _validationState = UsernameValidationState(UsernameValidationStatus.NONE, "");
@@ -49,12 +52,11 @@ class ProfileForm with ChangeNotifier, Validators {
     // _initState();
   }
 
-
   void setRequestBody(ProfileCreationRequestBody requestBody) {
     this._requestBody = requestBody;
   }
 
-  void initForm(OnBoardingType onboardingType) {
+  void initForm() {
     final formStreams = [
       usernameStream,
       passwordStream,
@@ -64,9 +66,7 @@ class ProfileForm with ChangeNotifier, Validators {
       ussdPinInputStream,
     ];
 
-    if(onboardingType == OnBoardingType.ACCOUNT_DOES_NOT_EXIST) {
-      formStreams.add(emailStream);
-    }
+    if(enableEmail) formStreams.add(emailStream);
 
     this._isValid = Rx.combineLatest(formStreams, (values) {
       print(values);
@@ -157,7 +157,7 @@ class ProfileForm with ChangeNotifier, Validators {
   }
 
   bool _isEmailAddressValid({bool displayError = false}) {
-    if(_onBoardingType == OnBoardingType.ACCOUNT_EXIST) return true;
+    if(!enableEmail) return true;
     final isValid = isEmailValid(_requestBody.emailAddress);
     if (displayError && !isValid) {
       _emailController.sink.addError(
@@ -183,8 +183,9 @@ class ProfileForm with ChangeNotifier, Validators {
     _signatureController.sink.add(hasSignature);
   }
 
-  void setOnboardingType(OnBoardingType onBoardingType) {
+  void setOnboardingType(OnBoardingType onBoardingType, bool useEmail) {
     this._onBoardingType = onBoardingType;
+    this._enableEmail = useEmail;
   }
 
 

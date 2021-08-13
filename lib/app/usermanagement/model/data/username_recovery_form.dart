@@ -51,7 +51,10 @@ class UsernameRecoveryForm with Validators {
 
   bool _isAccountNumberValid({bool displayError = false}) {
     final isValid = isAccountNumberValid(_requestBody.key);
-    if (isValid) return true;
+    if (isValid) {
+      FocusManager.instance.primaryFocus?.unfocus();
+      return true;
+    }
     final isEmpty = _requestBody.accountNumber?.isEmpty == true;
     if (displayError && !isValid) {
       _keyInputController.sink.addError(isEmpty
@@ -71,7 +74,10 @@ class UsernameRecoveryForm with Validators {
 
   bool _isBVNValid({bool displayError = false}) {
     final isValid = isBVNValid(_requestBody.key);
-    if (isValid) return true;
+    if (isValid) {
+      FocusManager.instance.primaryFocus?.unfocus();
+      return true;
+    }
     if (displayError && !isValid) _keyInputController.sink
         .addError(_requestBody.key?.isEmpty == true ? "BVN is required" : "Invalid BVN");
     return false;

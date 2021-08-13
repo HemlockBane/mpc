@@ -54,11 +54,6 @@ class _PhoneNumberValidationScreen extends State<PhoneNumberValidationScreen> {
   void initState() {
     _phoneNumberController = TextEditingController();
     super.initState();
-    // _phoneNumberController?.addListener(() {
-    //   if(_phoneNumberController!.text.length >= 11) {
-    //     FocusManager.instance.primaryFocus?.unfocus();
-    //   }
-    // });
     _fetchNationalities();
   }
 

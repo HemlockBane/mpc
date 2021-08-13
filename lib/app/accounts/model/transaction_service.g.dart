@@ -9,7 +9,7 @@ part of 'transaction_service.dart';
 class _TransactionService implements TransactionService {
   _TransactionService(this._dio, {this.baseUrl}) {
     baseUrl ??=
-        'https://core-root.monnify.development.teamapt.com/api/v1/transactions/';
+        'https://moniepoint-customer-root-v2.console.teamapt.com/api/v1/transactions/';
   }
 
   final Dio _dio;
@@ -43,7 +43,7 @@ class _TransactionService implements TransactionService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.6'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -68,7 +68,7 @@ class _TransactionService implements TransactionService {
             method: 'POST',
             headers: <String, dynamic>{
               r'client-id': 'ANDROID',
-              r'appVersion': '0.0.1'
+              r'appVersion': '1.0.6'
             },
             extra: _extra,
             responseType: ResponseType.stream)
@@ -89,7 +89,7 @@ class _TransactionService implements TransactionService {
             method: 'POST',
             headers: <String, dynamic>{
               r'client-id': 'ANDROID',
-              r'appVersion': '0.0.1'
+              r'appVersion': '1.0.6'
             },
             extra: _extra,
             responseType: ResponseType.stream)

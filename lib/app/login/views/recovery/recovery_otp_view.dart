@@ -38,16 +38,19 @@ class _RecoveryOtpView extends State<RecoveryOtpView> {
 
   @override
   void initState() {
-    _otpController.addListener(() {
-      String otp = _otpController.text;
-      setState(() {
-        _hasOtp = otp.isNotEmpty && otp.length == 6;
-      });
-    });
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
       _subscribeUiToTriggerOtpForDevice();
     });
     super.initState();
+  }
+
+  void _onOtpChanged() {
+    String otp = _otpController.text;
+    _hasOtp = otp.isNotEmpty && otp.length == 6;
+    if(_hasOtp) {
+      FocusManager.instance.primaryFocus?.unfocus();
+    }
+    setState(() {});
   }
 
   void _subscribeUiToTriggerOtpForDevice() {
@@ -213,6 +216,7 @@ class _RecoveryOtpView extends State<RecoveryOtpView> {
                             LengthLimitingTextInputFormatter(6),
                             FilteringTextInputFormatter.digitsOnly
                           ],
+                          onChanged: (v) => _onOtpChanged(),
                           animateHint: true,
                           maxLength: 6,
                           startIcon: Icon(CustomFont.numberInput, color:Colors.textFieldIcon.withOpacity(0.2))

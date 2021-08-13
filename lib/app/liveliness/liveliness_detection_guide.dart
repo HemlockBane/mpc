@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 import 'package:rxdart/transformers.dart';
@@ -147,8 +146,6 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
     if(motionEvent.eventType == CameraMotionEvent.MotionDetectedEvent) {
       _motionDetectedEvent = motionEvent;
       _eventTimer?.cancel();
-      print("Before First Detected Image => ${_firstCaptureEvent?.eventData}");
-      print("Before Motion Detected Image => ${_motionDetectedEvent?.eventData}");
       _validateLiveliness();
     }
   }
@@ -171,8 +168,6 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
 
     try {
       _state = LivelinessState.PROCESSING;
-      print("First Detected Image => ${_firstCaptureEvent?.eventData}");
-      print("Motion Detected Image => ${_motionDetectedEvent?.eventData}");
 
       final response = await validationStrategy.validate(
           _firstCaptureEvent?.eventData as String,
@@ -203,15 +198,17 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
       _previousRemoteError = "${error.code}";
       return false;
     } else if(faceMatchError != null && faceMatchError.message?.isNotEmpty == true) {
-      _showGenericError(faceMatchError.message);
+      _showGenericError(faceMatchError.message, title: "Face Match Failed");
       return false;
     } 
     return true;
   }
 
-  void _showGenericError(String? message) async {
+  void _showGenericError(String? message, {String title = "Oops! Something went wrong"}) async {
     final value = await showError(
-        context, message: message,
+        context,
+        message: message,
+        title: title,
         primaryButtonText: "Try Again",
         onPrimaryClick: (){
           Navigator.of(context).pop(true);
@@ -240,6 +237,7 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
     _livelinessEventNotifier = ValueNotifier(LivelinessMotionEvent.none());
     _eventAnimationController.forward();
 
+    //To Ensure that we don't miss this events from the streamBuilder
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
       widget.motionEventStream.listen((event) {
         if(event.eventType == CameraMotionEvent.FirstCaptureEvent
@@ -313,12 +311,94 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
     return info?.second ?? "";
   }
 
+  StreamBuilder<LivelinessMotionEvent> _bottomSection() {
+    final screenSize = MediaQuery.of(context).size;
+    final itemSize = screenSize.height - (screenSize.height * 0.67);
+
+    return StreamBuilder(
+        stream: widget.motionEventStream.delay(Duration(milliseconds: 100)),
+        builder: (context, AsyncSnapshot<LivelinessMotionEvent> motionEvent) {
+
+          final LivelinessMotionEvent liveMotionEvent = (motionEvent.hasData)
+              ? motionEvent.data ?? LivelinessMotionEvent.none()
+              : LivelinessMotionEvent.none();
+
+          print("CameraMotionEvent => ${liveMotionEvent.eventType}");
+          _processEvents(liveMotionEvent);
+
+          Future.delayed(Duration(milliseconds: 1), () {
+            _livelinessEventNotifier.value = liveMotionEvent;
+          });
+
+          final infoForState = (_state == LivelinessState.RUNNING)
+              ? null
+              : livelinessEventToInfoSubject[_previousMotionEvent];
+
+          String infoTitle = _getInfoTitleForState(infoForState);
+          String infoMessage = _getInfoMessageForState(infoForState);
+          Widget infoIcon = _getInfoIconForState();
+
+          return Container(
+            width: double.infinity,
+            height: max(250, itemSize),
+            padding: EdgeInsets.only(top: 24),
+            child: Column(
+              children: [
+                Center(child: infoIcon),
+                SizedBox(height: 12),
+                FadeTransition(
+                  opacity: _infoAnimation,
+                  child: Text(infoTitle,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  ),
+                ),
+                SizedBox(height: 8),
+                Flexible(
+                    fit: FlexFit.loose,
+                    child: Text(infoMessage, textAlign: TextAlign.center)
+                ),
+                SizedBox(height: _state == LivelinessState.REMOTE_ERROR ? 24 : 0),
+                Visibility(
+                  visible: _state == LivelinessState.REMOTE_ERROR,
+                  child: Flexible(
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Divider(color: Colors.grey.withOpacity(0.1), height: 1,),
+                      )
+                  ),
+                ),
+                Visibility(
+                    visible: _state == LivelinessState.REMOTE_ERROR,
+                    child: Flexible(
+                        fit: FlexFit.loose,
+                        child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: TextButton(
+                            child: Text(
+                              'Try Again',
+                              style: TextStyle(
+                                  color: Colors.primaryColor,
+                                  fontSize: 16)
+                              ),
+                            onPressed: () => _tryAgain(),
+                          ),
+                        )
+                    )
+                ),
+              ],
+            ),
+          );
+        }
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final sheetSize = 1 - 0.67;
-    final itemSize = screenSize.height - (screenSize.height * 0.67);
     final exposureWidth = screenSize.width * 0.85;
+
     return Container(
       height: screenSize.height,
       child: Stack(
@@ -343,77 +423,7 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
                     shrinkWrap: true,
                     itemCount: 1,
                     itemBuilder: (BuildContext ctx, int index) {
-                      return StreamBuilder(
-                          stream: widget.motionEventStream.delay(Duration(milliseconds: 100)),
-                          builder: (mContext, AsyncSnapshot<LivelinessMotionEvent> motionEvent) {
-
-                            final LivelinessMotionEvent liveMotionEvent = (motionEvent.hasData)
-                                ? motionEvent.data ?? LivelinessMotionEvent.none()
-                                : LivelinessMotionEvent.none();
-
-                            print("CameraMotionEvent => ${liveMotionEvent.eventType}");
-                            _processEvents(liveMotionEvent);
-
-                            Future.delayed(Duration(milliseconds: 1), () {
-                              _livelinessEventNotifier.value = liveMotionEvent;
-                            });
-
-                            final infoForState = (_state == LivelinessState.RUNNING)
-                                ? null
-                                : livelinessEventToInfoSubject[_previousMotionEvent];
-
-                            String infoTitle = _getInfoTitleForState(infoForState);
-                            String infoMessage = _getInfoMessageForState(infoForState);
-                            Widget infoIcon = _getInfoIconForState();
-
-                            return Container(
-                              width: double.infinity,
-                              height: max(250, itemSize),
-                              padding: EdgeInsets.only(top: 24),
-                              child: Column(
-                                children: [
-                                  Center(child: infoIcon),
-                                  SizedBox(height: 12),
-                                  FadeTransition(
-                                    opacity: _infoAnimation,
-                                    child: Text(infoTitle,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                                    ),
-                                  ),
-                                  SizedBox(height: 8),
-                                  Flexible(
-                                      fit: FlexFit.loose,
-                                      child: Text(infoMessage, textAlign: TextAlign.center)
-                                  ),
-                                  SizedBox(height: _state == LivelinessState.REMOTE_ERROR ? 24 : 0),
-                                  Visibility(
-                                    visible: _state == LivelinessState.REMOTE_ERROR,
-                                    child: Flexible(
-                                        child: Align(
-                                          alignment: Alignment.bottomCenter,
-                                          child: Divider(color: Colors.grey.withOpacity(0.1), height: 1,),
-                                        )
-                                    ),
-                                  ),
-                                  Visibility(
-                                    visible: _state == LivelinessState.REMOTE_ERROR,
-                                    child: Flexible(
-                                        fit: FlexFit.loose,
-                                        child: Align(
-                                          alignment: Alignment.bottomCenter,
-                                          child: TextButton(
-                                            child: Text('Try Again', style: TextStyle(color: Colors.primaryColor, fontSize: 16),),
-                                            onPressed: () => _tryAgain(),
-                                          ),
-                                        )
-                                    )
-                                  ),
-                                ],
-                              ),
-                            );
-                          }
-                      );
+                      return _bottomSection();
                     }
                 ),
               );

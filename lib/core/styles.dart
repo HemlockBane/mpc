@@ -210,15 +210,17 @@ class Styles {
     TextInputAction? textInputAction
   }) {
     String? labelText = (animateHint) ? hint : null;
-
-    if(maxLength != null && controller != null && !controller.hasListeners) {
-      print("Adding Listener");
-      controller.addListener(() {
-        if(controller.text.length >= maxLength) {
-          FocusManager.instance.primaryFocus?.unfocus();
-        }
-      });
-    }
+    //
+    // if(maxLength != null && controller != null && !controller.hasListeners) {
+    //   print("Adding Listener");
+    //   controller.addListener(() {
+    //       Future.delayed(Duration(milliseconds: 100), (){
+    //         if(controller.text.length >= maxLength && FocusManager.instance.primaryFocus?.hasFocus == true) {
+    //           FocusManager.instance.primaryFocus?.unfocus();
+    //         }
+    //       });
+    //   });
+    // }
 
     return TextFormField(
       initialValue: value,

@@ -24,16 +24,24 @@ ProfileCreationRequestBody _$ProfileCreationRequestBodyFromJson(
 }
 
 Map<String, dynamic> _$ProfileCreationRequestBodyToJson(
-        ProfileCreationRequestBody instance) =>
-    <String, dynamic>{
-      'accountNumber': instance.accountNumber,
-      'referralCode': instance.referralCode,
-      'username': instance.username,
-      'emailAddress': instance.emailAddress,
-      'password': instance.password,
-      'pin': instance.pin,
-      'onboardingKey': instance.onboardingKey,
-      'securityAnswers': instance.securityAnwsers,
-      'deviceId': instance.deviceId,
-      'deviceName': instance.deviceName,
-    };
+    ProfileCreationRequestBody instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('accountNumber', instance.accountNumber);
+  writeNotNull('referralCode', instance.referralCode);
+  writeNotNull('username', instance.username);
+  writeNotNull('emailAddress', instance.emailAddress);
+  writeNotNull('password', instance.password);
+  writeNotNull('pin', instance.pin);
+  writeNotNull('onboardingKey', instance.onboardingKey);
+  val['securityAnswers'] = instance.securityAnwsers;
+  writeNotNull('deviceId', instance.deviceId);
+  writeNotNull('deviceName', instance.deviceName);
+  return val;
+}

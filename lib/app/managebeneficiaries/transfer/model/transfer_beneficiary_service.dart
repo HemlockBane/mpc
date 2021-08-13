@@ -22,8 +22,9 @@ abstract class TransferBeneficiaryService {
     "client-id": BuildConfig.CLIENT_ID,
     "appVersion": BuildConfig.APP_VERSION
   })
-  @GET("paged")
+  @GET("{customerId}/paged")
   Future<ServiceResult<TransferBeneficiaryCollection>> getAccountBeneficiaries({
+    @Path("customerId") int? customerId,
     @Query("page") int? page = 0,
     @Query("pageSize") int? pageSize = 20}
   );

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../bottom_sheet.dart';
 
 Future<dynamic> showError(BuildContext context,
-    {String? message,
+    {String title = "Oops! Something went wrong", String? message,
     VoidCallback? onPrimaryClick,
     String primaryButtonText = "Continue",
     String? secondaryButtonText,
@@ -15,6 +15,7 @@ Future<dynamic> showError(BuildContext context,
       backgroundColor: Colors.transparent,
       builder: (mContext) {
         return BottomSheets.displayErrorModal2(context,
+            title: title,
             message: message,
             useTextButton: useTextButton,
             primaryButtonText: primaryButtonText,

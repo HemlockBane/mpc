@@ -71,13 +71,15 @@ class _EnterBVNScreen extends State<EnterBVNScreen> {
 
       viewModel.setOnboardingKey(validationResponse.onboardingKey ?? "");
 
+      final useEmail = validationResponse.setupType?.hasEmail ?? true;
+
       if(onboardingType == OnBoardingType.ACCOUNT_DOES_NOT_EXIST) {
         //We navigate to account info
-        viewModel.setOnBoardingType(onboardingType!);
+        viewModel.setOnBoardingType(onboardingType!, useEmail);
         Navigator.of(context).pushNamed(SignUpAccountScreen.ACCOUNT_INFO);
       } else if(onboardingType == OnBoardingType.ACCOUNT_EXIST){
         //We navigate to profile info
-        viewModel.setOnBoardingType(onboardingType!);
+        viewModel.setOnBoardingType(onboardingType!, useEmail);
         Navigator.of(context).pushNamed(SignUpAccountScreen.PROFILE);
       } else {
         _showGenericError("Failed to determine account setup type");
@@ -118,10 +120,6 @@ class _EnterBVNScreen extends State<EnterBVNScreen> {
           Navigator.of(widget._scaffoldKey.currentContext ?? context).pop();
         }
     );
-  }
-
-  String getUSSD() {
-    return "*5573*80#";
   }
 
   @override
@@ -170,8 +168,8 @@ class _EnterBVNScreen extends State<EnterBVNScreen> {
                         }),
                     SizedBox(height: 20),
                     OtpUssdInfoView(
-                      "Onboarding Phone Number Validation OTP Mobile",
-                      defaultCode: "*5573*60#",
+                      "None",
+                      defaultCode: "*565*0#",
                       message: "Dial {} on your registered phone number to get your BVN",
                     ),
                     SizedBox(height: 100),

@@ -3,12 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:moniepoint_flutter/app/login/viewmodels/recovery_view_model.dart';
 import 'package:moniepoint_flutter/app/login/views/recovery/recovery_controller_screen.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/data/recovery_response.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
-import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/utils/text_utils.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:provider/provider.dart';
@@ -35,19 +34,28 @@ class _RecoverPasswordScreen extends State<RecoverPasswordScreen> {
       if(event is Loading) setState(() => _isLoading = true);
       if (event is Error<RecoveryResponse>) {
         setState(() => _isLoading = false);
-        showModalBottomSheet(
-            context: widget._scaffoldKey.currentContext ?? context,
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            builder: (context) {
-              return BottomSheets.displayErrorModal(context, message: event.message);
-            });
+        _doOnError(event.message ?? "");
       }
       if(event is Success<RecoveryResponse>) {
         setState(() => _isLoading = false);
         Navigator.of(context).pushNamed(RecoveryControllerScreen.RECOVERY_OTP);
       }
     });
+  }
+
+  void _doOnError(String message) {
+    //The flow specifies that we should navigate to the otp
+    //If the status is true. The body of the request is usually empty
+    if(message.contains("fulfilling your request")) {
+      Navigator.of(context).pushNamed(RecoveryControllerScreen.RECOVERY_OTP);
+    } else {
+      showError(
+          widget._scaffoldKey.currentContext ?? context,
+          message: message,
+          primaryButtonText: "Dismiss",
+          useTextButton: true
+      );
+    }
   }
 
   void _navigateToUseUsername(RecoveryViewModel viewModel) {

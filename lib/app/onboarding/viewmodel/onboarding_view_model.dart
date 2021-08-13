@@ -137,23 +137,24 @@ class OnBoardingViewModel extends ChangeNotifier {
       }
       else if(event is Loading) {
         profileForm.updateUsernameValidationState(
-            UsernameValidationState(
-                UsernameValidationStatus.VALIDATING, "")
+            UsernameValidationState(UsernameValidationStatus.VALIDATING, "")
         );
       }
       else if(event is Error<bool>) {
         profileForm.updateUsernameValidationState(
             UsernameValidationState(
-                UsernameValidationStatus.FAILED, "An error occurred validating username.")
+                UsernameValidationStatus.FAILED,
+                "An error occurred validating username."
+            )
         );
       }
       return event;
     });
   }
 
-  void setOnBoardingType(OnBoardingType type) {
+  void setOnBoardingType(OnBoardingType type, bool useEmail) {
     this._onBoardingType = type;
-    profileForm.setOnboardingType(type);
+    profileForm.setOnboardingType(type, useEmail);
   }
 
   void setOnboardingKey(String onboardingKey) {

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/account_request.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/profile_request.dart';
 import 'package:moniepoint_flutter/app/onboarding/username_validation_state.dart';
-import 'package:moniepoint_flutter/app/securityquestion/model/data/security_question.dart';
 import 'package:moniepoint_flutter/app/validation/model/data/onboarding_liveliness_validation_response.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/validators.dart';
@@ -14,7 +13,7 @@ import 'package:rxdart/rxdart.dart';
 class ProfileForm with ChangeNotifier, Validators {
 
 
-  late final Stream<bool> _isValid;
+  Stream<bool>? _isValid;
   var isUsernameVerified = false;
 
   ProfileCreationRequestBody _requestBody = ProfileCreationRequestBody();
@@ -42,21 +41,22 @@ class ProfileForm with ChangeNotifier, Validators {
   Stream<String> get emailStream => _emailController.stream;
 
   bool _hasSignature = false;
+  bool _enableEmail = true;
+  bool get enableEmail => _enableEmail;
+
   OnBoardingType _onBoardingType = OnBoardingType.ACCOUNT_DOES_NOT_EXIST;
 
   UsernameValidationState _validationState = UsernameValidationState(UsernameValidationStatus.NONE, "");
 
   ProfileForm() {
-    _initState();
+    // _initState();
   }
-
 
   void setRequestBody(ProfileCreationRequestBody requestBody) {
     this._requestBody = requestBody;
   }
 
-  /// Initializes the state of the profile form
-  void _initState() {
+  void initForm() {
     final formStreams = [
       usernameStream,
       passwordStream,
@@ -64,9 +64,10 @@ class ProfileForm with ChangeNotifier, Validators {
       signatureStream,
       enableUssdStream,
       ussdPinInputStream,
-      emailStream
     ];
-    
+
+    if(enableEmail) formStreams.add(emailStream);
+
     this._isValid = Rx.combineLatest(formStreams, (values) {
       print(values);
       return _isUsernameValid(displayError: false)
@@ -77,8 +78,11 @@ class ProfileForm with ChangeNotifier, Validators {
           && _validationState.status == UsernameValidationStatus.AVAILABLE
           && _hasSignature;
     }).asBroadcastStream();
+  }
 
-    _emailController.sink.add("");
+  /// Initializes the state of the profile form
+  void _initState() {
+
   }
 
   void onUsernameChanged(String? text) {
@@ -153,7 +157,7 @@ class ProfileForm with ChangeNotifier, Validators {
   }
 
   bool _isEmailAddressValid({bool displayError = false}) {
-    if(_onBoardingType == OnBoardingType.ACCOUNT_EXIST) return true;
+    if(!enableEmail) return true;
     final isValid = isEmailValid(_requestBody.emailAddress);
     if (displayError && !isValid) {
       _emailController.sink.addError(
@@ -179,13 +183,13 @@ class ProfileForm with ChangeNotifier, Validators {
     _signatureController.sink.add(hasSignature);
   }
 
-  void setOnboardingType(OnBoardingType onBoardingType) {
+  void setOnboardingType(OnBoardingType onBoardingType, bool useEmail) {
     this._onBoardingType = onBoardingType;
-    _emailController.sink.add("");
+    this._enableEmail = useEmail;
   }
 
 
-  Stream<bool> get isValid => _isValid;
+  Stream<bool> get isValid => _isValid ?? Stream.value(false);
   @override
   void dispose() {
     _usernameController.close();

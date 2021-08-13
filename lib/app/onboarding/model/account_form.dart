@@ -100,6 +100,9 @@ class AccountForm with ChangeNotifier, Validators{
 
   bool _isBVNValid({bool displayError = false}) {
     final isValid = isBVNValid(_requestBody.bvn);
+    if(isValid) {
+      FocusManager.instance.primaryFocus?.unfocus();
+    }
     if (displayError && !isValid) {
       _bvnController.sink.addError(
           (_requestBody.bvn == null || _requestBody.bvn!.isEmpty)
@@ -117,6 +120,9 @@ class AccountForm with ChangeNotifier, Validators{
 
   bool _isPhoneNumberValid({bool displayError = false}) {
     final isValid = isPhoneNumberValid(_requestBody.phoneNumber);
+    if(isValid) {
+      FocusManager.instance.primaryFocus?.unfocus();
+    }
     if (displayError && !isValid) {
       _phoneNumberController.sink.addError(
           (_requestBody.phoneNumber == null || _requestBody.phoneNumber!.isEmpty)

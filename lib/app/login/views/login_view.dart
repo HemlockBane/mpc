@@ -3,10 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lottie/lottie.dart';
-import 'package:moniepoint_flutter/app/login/model/data/security_flag.dart';
 import 'package:moniepoint_flutter/app/login/model/data/user.dart';
 import 'package:moniepoint_flutter/app/login/viewmodels/login_view_model.dart';
-import 'package:moniepoint_flutter/app/login/views/dialogs/login_options.dart';
 import 'package:moniepoint_flutter/app/login/views/dialogs/recover_credentials.dart';
 import 'package:moniepoint_flutter/app/login/views/recovery/recovery_controller_screen.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
@@ -26,9 +24,6 @@ import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/views/otp_ussd_info_view.dart';
 import 'package:provider/provider.dart';
 
-import 'dialogs/add_device_dialog.dart';
-
-// import 'package:flutter_tindercard/flutter_tindercard.dart';
 import 'package:flutter_swipecards/flutter_swipecards.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -45,23 +40,23 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
   late final AnimationController _topAnimController;
 
   late final AnimationController _animController =
-      AnimationController(vsync: this, duration: Duration(milliseconds: 1400));
+      AnimationController(vsync: this, duration: Duration(milliseconds: 500));
 
-  late final Animation<double> sizeBlueBgAnimation = Tween<double>(begin: 1, end: 6).animate(CurvedAnimation(
+  late final Animation<double> sizeBlueBgAnimation = Tween<double>(
+      begin: 1, end: 6
+  ).animate(CurvedAnimation(
       parent: _topAnimController,
-      curve: Interval(0.0, 0.5, curve: Curves.linear),
-    ),
+      curve: Interval(0.0, 0.5, curve: Curves.ease))
   );
 
-  late final _ussdOffsetAnimation =
-      Tween<Offset>(begin: Offset(0, 12), end: Offset(0, 0)).animate(
-          CurvedAnimation(parent: _animController, curve: Curves.decelerate));
+  late final _ussdOffsetAnimation = Tween<Offset>(
+      begin: Offset(0, 12), end: Offset(0, 0)
+  ).animate(CurvedAnimation(parent: _animController, curve: Curves.decelerate));
 
   bool _isLoading = false;
   bool _isPasswordVisible = false;
   bool _isFormValid = false;
   bool _alreadyInSessionError = false;
-  bool _isValidated = false;
   BiometricHelper? _biometricHelper;
 
   CardController controller = CardController();
@@ -76,7 +71,8 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
     _passwordController.addListener(() => validateForm());
 
     _topAnimController = AnimationController(
-        duration: const Duration(milliseconds: 2000), vsync: this);
+        duration: const Duration(milliseconds: 600), vsync: this
+    );
 
     super.initState();
 
@@ -104,34 +100,6 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
       ),
     );
 
-    final Animation<double> opacityLogoAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.0,
-    ).animate(
-      CurvedAnimation(
-        parent: _topAnimController,
-        curve: Interval(
-          0.5,
-          0.7,
-          curve: Curves.ease,
-        ),
-      ),
-    );
-
-    final Animation<double> opacitySpinnerAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(
-      CurvedAnimation(
-        parent: _topAnimController,
-        curve: Interval(
-          0.125,
-          0.13,
-          curve: Curves.ease,
-        ),
-      ),
-    );
-
     return Stack(
       children: [
         AnimatedBuilder(
@@ -154,8 +122,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
         ),
         if (!_isLoading) ...[
           Container(
-            margin: EdgeInsets.only(
-                top: MediaQuery.of(context).size.height * 0.074, right: 17),
+            margin: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.074, right: 17),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -165,8 +132,8 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
                     spacing: 5,
                     width: 25,
                     height: 22,
-                    onClick: () =>
-                        Navigator.of(context).pushNamed(Routes.SUPPORT)),
+                    onClick: () => Navigator.of(context).pushNamed(Routes.SUPPORT)
+                ),
                 SizedBox(width: 18),
                 makeTextWithIcon(
                     text: "Branches",
@@ -174,8 +141,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
                     width: 22,
                     height: 26,
                     src: "res/drawables/ic_branches.svg",
-                    onClick: () =>
-                        Navigator.of(context).pushNamed(Routes.BRANCHES))
+                    onClick: () => Navigator.of(context).pushNamed(Routes.BRANCHES))
               ],
             ),
           ),
@@ -183,69 +149,45 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
         AnimatedBuilder(
           animation: _topAnimController,
           builder: (context, child) {
-            return Stack(
-              children: [
-                Align(
-                  alignment: alignmentLogoAnimation.value,
-                  child: Container(
-                    height: 65,
-                    width: 65,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.cardBorder.withOpacity(0.2),
-                          offset: Offset(0, 3),
-                          blurRadius: 8,
-                        ),
-                      ],
+            final alignmentValue = alignmentLogoAnimation.value as Alignment;
+            print(alignmentValue);
+            return Align(
+              alignment: alignmentValue,
+              child: Container(
+                height: 65,
+                width: 65,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.cardBorder.withOpacity(0.2),
+                      offset: Offset(0, 3),
+                      blurRadius: 8,
                     ),
-                    child: SvgPicture.asset(
-                      "res/drawables/ic_moniepoint_cube.svg",
-                      fit: BoxFit.cover,
-                      height: 65,
-                      width: 65,
-                    ),
-                  ),
+                  ],
                 ),
-                // Align(
-                //   alignment: alignmentLogoAnimation.value,
-                //   child: SvgPicture.asset(
-                //     "res/drawables/ic_m_bg.svg",
-                //     fit: BoxFit.cover,
-                //     height: 65,
-                //     width: 65,
-                //   ),
-                // ),
-                // Opacity(
-                //   opacity: opacityLogoAnimation.value,
-                //   child: Align(
-                //     alignment: Alignment(0, -0.4),
-                //     child: Container(
-                //       child: SvgPicture.asset(
-                //         "res/drawables/ic_m.svg",
-                //         fit: BoxFit.contain,
-                //         height: 30,
-                //         width: 30,
-                //       ),
-                //     ),
-                //   ),
-                // ),
-                // Opacity(
-                //   opacity: opacitySpinnerAnimation.value,
-                //   child: Align(
-                //     alignment: alignmentLogoAnimation.value,
-                //     child: Container(
-                //       child: Lottie.asset(
-                //         "res/drawables/progress_bar_lottie.json",
-                //         fit: BoxFit.contain,
-                //         height: 30,
-                //         width: 30,
-                //       ),
-                //     ),
-                //   ),
-                // )
-              ],
+                child: Stack(
+                  children: [
+                    Positioned(
+                        left: 0,
+                        right: 0,
+                        child: SvgPicture.asset('res/drawables/ic_m_bg.svg', width: 65, height: 65,)
+                    ),
+                    Positioned(
+                        top: 15,
+                        right: 15,
+                        left: 15,
+                        bottom: 15,
+                        child: AnimatedCrossFade(
+                            firstChild: SvgPicture.asset("res/drawables/ic_m.svg", fit: BoxFit.cover, height: 30, width: 30,),
+                            secondChild: Lottie.asset('res/drawables/progress_bar_lottie.json'),
+                            crossFadeState: alignmentValue.y >= -0.1 ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                            duration: Duration(milliseconds: 600)
+                        )
+                    )
+                  ],
+                ),
+              ),
             );
           },
         ),
@@ -262,17 +204,15 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
           if (snapShot.hasData && snapShot.data == false) return SizedBox();
           return Row(
             children: [
-              SizedBox(
-                width: 16,
-              ),
+              SizedBox(width: 16,),
               Styles.imageButton(
                   onClick: () => _startFingerPrintLoginProcess(),
                   color: Colors.primaryColor.withOpacity(0.1),
-                  padding:
-                      EdgeInsets.only(left: 15, right: 15, top: 14, bottom: 14),
+                  padding: EdgeInsets.only(left: 15, right: 15, top: 14, bottom: 14),
                   image: Platform.isAndroid
                       ? SvgPicture.asset('res/drawables/ic_finger_print.svg')
-                      : SvgPicture.asset('res/drawables/ic_login_face.svg'))
+                      : SvgPicture.asset('res/drawables/ic_login_face.svg')
+              )
             ],
           );
         });
@@ -296,8 +236,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
 
   void validateForm() {
     setState(() {
-      _isFormValid = _usernameController.text.isNotEmpty &&
-          _passwordController.text.isNotEmpty;
+      _isFormValid = _usernameController.text.isNotEmpty && _passwordController.text.isNotEmpty;
     });
   }
 
@@ -321,8 +260,8 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
           ),
           SizedBox(height: spacing),
           Text(text,
-              style: TextStyle(
-                  fontFamily: 'CircularStd', fontSize: 12, color: Colors.white))
+              style: TextStyle(fontFamily: 'CircularStd', fontSize: 12, color: Colors.white)
+          )
         ],
       ),
       onTap: onClick,
@@ -343,9 +282,8 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
                 fontSize: 24),
           ),
         ),
-        // SizedBox(height: 5),
         _buildLoginBox(context),
-        Spacer(),
+        SizedBox(height: 28,),
         Container(
           margin: EdgeInsets.only(left: 16, right: 16),
           child: Column(
@@ -388,11 +326,11 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
     String username = _usernameController.text;
     String password = _passwordController.text;
 
-    String loginUsername =
-        (username.contains("#")) ? unHashedUsername ?? "" : username;
-    viewModel
-        .loginWithPassword(loginUsername, password)
-        .listen(_loginResponseObserver);
+    String loginUsername = (username.contains("#"))
+        ? unHashedUsername ?? ""
+        : username;
+
+    viewModel.loginWithPassword(loginUsername, password).listen(_loginResponseObserver);
   }
 
   void _loginResponseObserver(Resource<User> event) {
@@ -409,43 +347,27 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
           builder: (context) {
             //TODO we might need a better way of identifying how to detect an upgrade
             if (event.message?.contains("version") == true) {
-              return BottomSheets.displayWarningDialog(
-                  'Update Moniepoint App', event.message ?? "", () {
+              return BottomSheets.displayWarningDialog('Update Moniepoint App', event.message ?? "", () {
                 Navigator.of(context).pop();
-                final viewModel =
-                    Provider.of<LoginViewModel>(context, listen: false);
+                final viewModel = Provider.of<LoginViewModel>(context, listen: false);
                 openUrl(viewModel.getApplicationPlayStoreUrl());
               }, buttonText: "Upgrade App");
             }
-            return BottomSheets.displayErrorModal(context,
-                message: event.message);
+            return BottomSheets.displayErrorModal(context, message: event.message);
           });
       _topAnimController.reverse(from: 0.15);
     }
     if (event is Success<User>) {
-      var user = event.data!;
-
-      print("prompts");
-      print(user.loginPrompts);
-
-      // if (user.loginPrompts!.isNotEmpty) {
-      //   for (var i in user.loginPrompts!) {
-      //     print(i.toJson());
-      //   }
-      // }
-
       _passwordController.clear();
-
       PreferenceUtil.setLoginMode(LoginMode.FULL_ACCESS);
       PreferenceUtil.saveLoggedInUser(event.data!);
       PreferenceUtil.saveUsername(event.data?.username ?? "");
-      //PreferenceUtil.saveCustomerName(event.data?.customers?.first.name);
       checkSecurityFlags(event.data!);
     }
   }
 
   Future<void> navigateToDashboardView() async {
-    await Navigator.pushReplacementNamed(context, Routes.DASHBOARD_OLD);
+    await Navigator.pushReplacementNamed(context, Routes.DASHBOARD);
   }
 
   void checkSecurityFlags(User user) async {
@@ -456,14 +378,15 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
           context: context,
           backgroundColor: Colors.transparent,
           builder: (b) => BottomSheets.displayInfoDialog(context,
-                  message:
-                      "Your login was successful, but this device is not recognized.",
-                  title: "Device not recognized",
-                  primaryButtonText: "Register Device",
-                  secondaryButtonText: "Dismiss", onPrimaryClick: () async {
+              message: "Your login was successful, but this device is not recognized.",
+              title: "Device not recognized",
+              primaryButtonText: "Register Device",
+              secondaryButtonText: "Dismiss",
+              onPrimaryClick: () async {
                 Navigator.of(context).popAndPushNamed(Routes.ACCOUNT_RECOVERY,
                     arguments: RecoveryMode.DEVICE);
-              }));
+              })
+      );
     } else {
       navigateToDashboardView();
     }
@@ -480,10 +403,9 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
         _biometricHelper?.authenticate(authenticationCallback: (key, msg) {
           if (key != null) {
             _topAnimController.forward();
-            viewModel
-                .loginWithFingerPrint(
-                    key, PreferenceUtil.getAuthFingerprintUsername() ?? "")
-                .listen(_loginResponseObserver);
+            viewModel.loginWithFingerPrint(
+                key, PreferenceUtil.getAuthFingerprintUsername() ?? ""
+            ).listen(_loginResponseObserver);
           }
         });
       }
@@ -499,7 +421,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
         backgroundColor: Colors.transparent,
         builder: (context) {
           return BottomSheets.makeAppBottomSheet2(
-              height: 420,
+              height: 390,
               dialogIcon: SvgPicture.asset(
                 'res/drawables/ic_info_italic.svg',
                 color: Colors.primaryColor,
@@ -547,7 +469,8 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
                       this._isPasswordVisible
                           ? Icons.visibility
                           : Icons.visibility_off,
-                      color: Colors.textHintColor.withOpacity(0.3)),
+                      color: Colors.textHintColor.withOpacity(0.3)
+                  ),
                   onPressed: () {
                     setState(() {
                       this._isPasswordVisible = !_isPasswordVisible;
@@ -559,7 +482,8 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
                 size: 24,
               ),
               focusListener: (bool) => this.setState(() {}),
-              isPassword: !_isPasswordVisible),
+              isPassword: !_isPasswordVisible
+          ),
           // SizedBox(height: 22),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -567,15 +491,16 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
             children: [
               TextButton(
                 onPressed: _displayRecoverCredentials,
-                child: Text('Recover Credentials'),
+                child: Text('Forgot Username or Password?'),
                 style: ButtonStyle(
                     padding: MaterialStateProperty.all(EdgeInsets.all(0)),
-                    foregroundColor:
-                        MaterialStateProperty.all(Colors.primaryColor),
+                    foregroundColor: MaterialStateProperty.all(Colors.primaryColor),
                     textStyle: MaterialStateProperty.all(TextStyle(
                         fontFamily: Styles.defaultFont,
                         fontSize: 14,
-                        fontWeight: FontWeight.w500))),
+                        fontWeight: FontWeight.w500)
+                    )
+                ),
               ),
             ],
           ),
@@ -641,7 +566,8 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
                             style: TextStyle(
                                 fontSize: 11,
                                 fontFamily: Styles.defaultFont,
-                                color: Colors.textSubColor.withOpacity(0.6))),
+                                color: Colors.textSubColor.withOpacity(0.6)
+                            )),
                       ],
                     )),
                     SizedBox(width: 8),
@@ -650,7 +576,9 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
                             fontFamily: Styles.defaultFont,
                             fontSize: 32,
                             color: Colors.primaryColor,
-                            fontWeight: FontWeight.w600))
+                            fontWeight: FontWeight.w600
+                        )
+                    )
                   ],
                 ),
               ),
@@ -663,42 +591,31 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
 
   void _onSessionReason(Tuple<String, SessionTimeoutReason>? reason) {
     if (reason == null) return;
-    if (reason.second == SessionTimeoutReason.INACTIVITY &&
-        !_alreadyInSessionError) {
+    if (reason.second == SessionTimeoutReason.INACTIVITY && !_alreadyInSessionError) {
       _alreadyInSessionError = true;
       UserInstance().resetSession();
       Future.delayed(Duration(milliseconds: 150), () {
-        showModalBottomSheet(
-            backgroundColor: Colors.transparent,
-            context: context,
-            builder: (BuildContext context) {
-              return BottomSheets.displayErrorModal(context,
-                  title: "Logged Out",
-                  message:
-                      "your session timed out due to inactivity. Please re-login to continue",
-                  onClick: () {
-                Navigator.of(context).pop();
-                _startFingerPrintLoginProcess();
-              });
-            });
+        showError(context,
+          title: "Logged Out",
+          message: "your session timed out due to inactivity. Please re-login to continue",
+          onPrimaryClick: () {
+            Navigator.of(context).pop();
+            _startFingerPrintLoginProcess();
+          }
+        );
       });
-    } else if (reason.second == SessionTimeoutReason.LOGIN_REQUESTED &&
-        !_alreadyInSessionError) {
+    } else if (reason.second == SessionTimeoutReason.LOGIN_REQUESTED && !_alreadyInSessionError) {
       _alreadyInSessionError = true;
       UserInstance().resetSession();
       Future.delayed(Duration(milliseconds: 150), () {
-        showModalBottomSheet(
-            backgroundColor: Colors.transparent,
-            context: context,
-            builder: (BuildContext context) {
-              return BottomSheets.displayErrorModal(context,
-                  title: "Logged Out",
-                  message: "A Re-Login was needed for you to continue",
-                  onClick: () {
-                Navigator.of(context).pop();
-                _startFingerPrintLoginProcess();
-              });
-            });
+        showError(context,
+            title: "Logged Out",
+            message: "A Re-Login was needed for you to continue",
+            onPrimaryClick: () {
+              Navigator.of(context).pop();
+              _startFingerPrintLoginProcess();
+            }
+        );
       });
     }
   }
@@ -707,41 +624,29 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
     final top = MediaQuery.of(context).padding.top;
     final minHeight = MediaQuery.of(context).size.height;
 
-    // Provider.of<LoginViewModel>(context, listen: false);
-
-    final sessionReason = ModalRoute.of(context)!.settings.arguments
-        as Tuple<String, SessionTimeoutReason>?;
+    final sessionReason = ModalRoute.of(context)!.settings.arguments as Tuple<String, SessionTimeoutReason>?;
     _onSessionReason(sessionReason);
 
-    return WillPopScope(
-      onWillPop: () async {
-        Navigator.of(context).popAndPushNamed(Routes.SIGN_UP);
-        return true;
-      },
-      child: Scaffold(
-        body: SingleChildScrollView(
-          child: Container(
-            height: minHeight, //TODO: Find out what this means here
-            child: Stack(
-              children: [
-                  Column(
-                    children: [
-                      SizedBox(
-                        height: minHeight * 0.35,
-                      ),
-                      Expanded(
-                        child: Container(
-                          padding: EdgeInsets.only(
-                              left: 0, right: 0, top: 34, bottom: 0),
-                          child: _buildMidSection(context),
-                        ),
-                      ),
-                      // _buildBottomSection(context),
-                    ],
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Container(
+          height: minHeight, //TODO: Find out what this means here
+          child: Stack(
+            children: [
+              Column(
+                children: [
+                  SizedBox(height: minHeight * 0.35,),
+                  Expanded(
+                    child: Container(
+                      padding: EdgeInsets.only(left: 0, right: 0, top: 34, bottom: 0),
+                      child: _buildMidSection(context),
+                    ),
                   ),
-                _buildTopMenu(context),
-              ],
-            ),
+                  // _buildBottomSection(context),
+                ],
+              ),
+              _buildTopMenu(context),
+            ],
           ),
         ),
       ),

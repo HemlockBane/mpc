@@ -27,7 +27,7 @@ class BillBeneficiaryServiceDelegate with NetworkResource {
         localSource: (LoadParams params) {
           final offset = params.key ?? 0;
           return _beneficiaryDao.getPagedBillBeneficiary(0, params.loadSize)
-              .map((event) => Page(event, params.key, event.length == params.loadSize ? offset + 1 : null)
+              .map((event) => Page(event, params.key ?? 0, event.length == params.loadSize ? offset + 1 : null)
           );
         },
       remoteMediator: _BillBeneficiaryMediator(_service, _beneficiaryDao)..customerId = customerId
@@ -39,7 +39,7 @@ class BillBeneficiaryServiceDelegate with NetworkResource {
         localSource: (LoadParams params) {
           final offset = params.key ?? 0;
           return _beneficiaryDao.searchPagedBillBeneficiary(search, offset * params.loadSize, params.loadSize)
-              .map((event) => Page(event, params.key, event.length == params.loadSize ? offset + 1 : null)
+              .map((event) => Page(event, params.key ?? 0, event.length == params.loadSize ? offset + 1 : null)
           );
         },
         remoteMediator: _BillBeneficiaryMediator(_service, _beneficiaryDao)..customerId = customerId

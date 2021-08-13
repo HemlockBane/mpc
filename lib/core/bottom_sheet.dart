@@ -201,7 +201,7 @@ class BottomSheets {
                         style:
                             TextStyle(color: Colors.primaryColor, fontSize: 16),
                       ),
-                      onPressed: onPrimaryClick,
+                      onPressed: onPrimaryClick ?? () => Navigator.of(context).pop(),
                     ),
                   SizedBox(height: secondaryButtonText != null ? 32 : 0),
                   Visibility(

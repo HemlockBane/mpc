@@ -44,7 +44,6 @@ mixin NetworkResource {
     if(shouldFetchLocal) {
       await for (var value in fetchFromLocal()) {
         localData = value;
-        print(localData);
         yield Resource.loading(localData);
         break;
       }
@@ -105,10 +104,14 @@ mixin NetworkResource {
             }
           } else {
             var error = e.error;
-            _errorString = error.toString();
-            print('In the else branch of error type: ${error.runtimeType}');
-            print('In the else branch of error: $error');
-            print('In the else branch of error: ${e.response?.statusCode}');
+            if(error is TypeError) {
+              _errorString = "We encountered an error fulfilling your request. Please try again later.";//TypeError occurred here
+            } else {
+              _errorString = error.toString();
+              print('In the else branch of error type: ${error.runtimeType}');
+              print('In the else branch of error: $error');
+              print('In the else branch of error: ${e.response?.statusCode}');
+            }
           }
         }
         else if (e is Exception) {
@@ -168,7 +171,7 @@ mixin NetworkResource {
         _errorString = "System Error";
       }
       if (_errorString!.toLowerCase().contains("database error")) {
-        _errorString = "Operation Was Unsuccessful";
+        _errorString = "Operation was Unsuccessful";
       }
       if (_errorString!.toLowerCase().contains("ssl") || _errorString!.toLowerCase().contains("redis")) {
         _errorString = "We are unable to reach the service at this time. Try again";

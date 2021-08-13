@@ -5,7 +5,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_utils.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
-import 'package:moniepoint_flutter/app/transfers/viewmodels/transfer_view_model.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
@@ -87,8 +86,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   final random = Random();
                   final randInt = random.nextInt(9);
                   final color = recentlyPaidColors[randInt];
-                  final recentlyPaidBeneficiary =
-                      recentlyPaidBeneficiaries[index];
+                  final recentlyPaidBeneficiary = recentlyPaidBeneficiaries[index];
 
                   return Row(
                     children: [
@@ -616,8 +614,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   void initState() {
-    final viewModel = Provider.of<TransferViewModel>(context, listen: false);
-    frequentBeneficiaries = viewModel.getFrequentBeneficiaries();
+    _viewModel = Provider.of<DashboardViewModel>(context, listen: false);
+    frequentBeneficiaries = _viewModel.getRecentlyPaidBeneficiary();
     super.initState();
   }
 
@@ -625,7 +623,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
-    _viewModel = Provider.of<DashboardViewModel>(context, listen: false);
 
     final recentlyPaidColors = [
       Color(0xff0361F0),
@@ -695,9 +692,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     SizedBox(height: 32),
                     StreamBuilder(
-                      builder: (BuildContext context,
-                          AsyncSnapshot<Resource<List<TransferBeneficiary>?>>
-                              snapshot) {
+                      builder: (BuildContext context, AsyncSnapshot<Resource<List<TransferBeneficiary>?>>snapshot) {
                         if (!snapshot.hasData) return Container();
 
                         final resource = snapshot.data;

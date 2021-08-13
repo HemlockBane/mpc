@@ -5,15 +5,22 @@ import 'package:moniepoint_flutter/app/accounts/model/account_service_delegate.d
 import 'package:moniepoint_flutter/app/accounts/model/data/account_status.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/customer_service_delegate.dart';
+import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
+import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/transfer_beneficiary_delegate.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 
 class DashboardViewModel extends BaseViewModel {
   late final CustomerServiceDelegate _customerServiceDelegate;
+  late final TransferBeneficiaryServiceDelegate _transferBeneficiaryDelegate;
 
-  DashboardViewModel({AccountServiceDelegate? accountServiceDelegate, CustomerServiceDelegate? customerServiceDelegate})
-      : super(accountServiceDelegate: accountServiceDelegate) {
+  DashboardViewModel({
+    AccountServiceDelegate? accountServiceDelegate,
+    CustomerServiceDelegate? customerServiceDelegate,
+    TransferBeneficiaryServiceDelegate? transferBeneficiaryDelegate
+  }) : super(accountServiceDelegate: accountServiceDelegate) {
     this._customerServiceDelegate = customerServiceDelegate ?? GetIt.I<CustomerServiceDelegate>();
+    this._transferBeneficiaryDelegate = transferBeneficiaryDelegate ?? GetIt.I<TransferBeneficiaryServiceDelegate>();
   }
 
   final List<Tier> tiers = [];
@@ -33,6 +40,10 @@ class DashboardViewModel extends BaseViewModel {
       }
       return event;
     });
+  }
+
+  Stream<Resource<List<TransferBeneficiary>>> getRecentlyPaidBeneficiary() {
+    return _transferBeneficiaryDelegate.getFrequentBeneficiaries();
   }
 
   void update() {

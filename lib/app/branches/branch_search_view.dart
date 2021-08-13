@@ -31,6 +31,7 @@ class _BranchSearchScreen extends State<BranchSearchScreen> {
       setState(() {});
       return;
     }
+
     debouncer?.cancel();
     debouncer = Timer(Duration(milliseconds: 700), () {
       viewModel.search(text);
@@ -134,6 +135,7 @@ class _BranchSearchScreen extends State<BranchSearchScreen> {
                       controller: _searchController,
                       onChanged: (v) => _onSearchFieldChange(viewModel, v),
                       textAlignVertical: TextAlignVertical.center,
+                      autofocus: true,
                       decoration: InputDecoration(
                           hintText: "Search by branch name",
                           hintStyle: TextStyle(
@@ -201,8 +203,15 @@ class _BranchSearchScreen extends State<BranchSearchScreen> {
                   stream: viewModel.searchResultStream,
                   builder:
                       (context, AsyncSnapshot<Resource<List<BranchInfo>>> a) {
-                    if (!a.hasData || _searchController.text == "")
+                    if (_searchController.text == "" || _searchController.text.length <= 2 || _isLoading)
                       return Container();
+
+                    if (!a.hasData ||
+                        (a.hasData && a.data is Success) &&
+                            a.data?.data?.isEmpty == true) {
+                      return Container();
+                    }
+
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
@@ -225,13 +234,15 @@ class _BranchSearchScreen extends State<BranchSearchScreen> {
                     stream: viewModel.searchResultStream,
                     builder:
                         (context, AsyncSnapshot<Resource<List<BranchInfo>>> a) {
-                      if (_searchController.text.isEmpty) return Container();
+                      if (_searchController.text.isEmpty || _searchController.text.length <= 2 || _isLoading) return Container();
+
                       if (!a.hasData ||
-                          _searchController.text.length <= 2 ||
                           (a.hasData && a.data is Success) &&
                               a.data?.data?.isEmpty == true) {
                         return _emptyView();
                       }
+
+
                       return ListView.separated(
                         padding: EdgeInsets.zero,
                         shrinkWrap: true,

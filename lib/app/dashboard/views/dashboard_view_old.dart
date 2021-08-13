@@ -15,6 +15,7 @@ import 'package:moniepoint_flutter/app/login/model/data/login_prompt.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/login_mode.dart';
+import 'package:moniepoint_flutter/core/login_prompt.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
@@ -496,88 +497,3 @@ class _DashboardScreen extends State<DashboardScreenOld>
     super.dispose();
   }
 }
-
-var data = {
-  "id": 15,
-  "createdOn": "2021-08-02T20:01:10.000+0000",
-  "lastModifiedOn": "2021-08-02T21:01:10",
-  "deleted": false,
-  "createdBy": "SYSTEM",
-  "lastModifiedBy": "SYSTEM",
-  "version": 0,
-  "title": "Holiday",
-  // "image": null,
-  "image": {
-    "id": 1,
-    "createdOn": "2021-07-13T21:28:46.000+0000",
-    "lastModifiedOn": "2021-07-13T22:28:46",
-    "deleted": false,
-    "createdBy": "peguda",
-    "lastModifiedBy": "peguda",
-    "version": 0,
-    "name": "Test",
-    "type": "PNG",
-    "uuidRef": "7fc0dc1b-8ea3-448f-8f23-183b231b71bf",
-    //   "uuidRef": null,
-
-    //   "svgText": ""
-  },
-  // "videoLink":
-  //     "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4",
-  "videoLink": null,
-  "message": "default",
-  "navigationList": [
-    {
-      "title": "Test1",
-      "destination": "https://pub.dev/packages/flutter_swipecards/install",
-      "id": 2,
-      "createdOn": "Jul 29, 2021 2:05:45 PM",
-      "lastModifiedOn": {
-        "date": {"year": 2021, "month": 7, "day": 29},
-        "time": {"hour": 14, "minute": 5, "second": 45, "nano": 0}
-      },
-      "deleted": false,
-      "createdBy": "peguda",
-      "lastModifiedBy": "peguda",
-      "version": 0
-    },
-    {
-      "title": "test2",
-      "destination": "https://pub.dev/packages/flutter_swipecards/install",
-      "id": 3,
-      "createdOn": "Jul 29, 2021 2:05:54 PM",
-      "lastModifiedOn": {
-        "date": {"year": 2021, "month": 7, "day": 29},
-        "time": {"hour": 14, "minute": 5, "second": 54, "nano": 0}
-      },
-      "deleted": false,
-      "createdBy": "peguda",
-      "lastModifiedBy": "peguda",
-      "version": 0
-    }
-  ],
-  "commandPromptHeader": {
-    "id": 1,
-    "createdOn": "2021-08-02T15:13:29.000+0000",
-    "lastModifiedOn": "2021-08-02T16:20:15",
-    "deleted": false,
-    "createdBy": "peguda",
-    "lastModifiedBy": "peguda",
-    "version": 1,
-    "name": "Test",
-    "image": {
-      "id": 2,
-      "createdOn": "2021-07-13T21:30:26.000+0000",
-      "lastModifiedOn": "2021-07-13T22:30:26",
-      "deleted": false,
-      "createdBy": "peguda",
-      "lastModifiedBy": "peguda",
-      "version": 0,
-      "name": "Test1",
-      "type": "PNG",
-      "svgText": null,
-      "uuidRef": "7fc0dc1b-8ea3-448f-8f23-183b231b71bf"
-    },
-    "headerState": "SUCCESS"
-  }
-};

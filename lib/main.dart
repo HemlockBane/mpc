@@ -54,6 +54,7 @@ import 'package:provider/provider.dart';
 import 'app/dashboard/views/dashboard_view_old.dart';
 import 'app/liveliness/viewmodels/liveliness_verification_viewmodel.dart';
 import 'app/settings/settings_view.dart';
+import 'app/transfers/viewmodels/transfer_view_model.dart';
 
 //We need to move this to some where else
 final defaultAppTheme = ThemeData(

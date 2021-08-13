@@ -141,7 +141,7 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
   void initState() {
     final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
     super.initState();
-    viewModel.profileForm.initForm(viewModel.onBoardingType);
+    viewModel.profileForm.initForm();
     _signatureController.addListener(() {
       setState(() {});
       viewModel.profileForm.setHasSignature(_signatureController.isNotEmpty);
@@ -204,7 +204,8 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
                               },
                           )//Text(Strings.terms_and_condition),
                         ),
-                      )),
+                      )
+                  ),
                   Positioned(
                       bottom: 32,
                       right: 16,
@@ -212,7 +213,8 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
                       child: Divider(
                         height: 4,
                         color: Colors.colorFaded,
-                      )),
+                      )
+                  ),
                 ],
               ));
         });
@@ -381,9 +383,9 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
                 ],
               );
             }),
-        SizedBox(height: viewModel.onBoardingType == OnBoardingType.ACCOUNT_DOES_NOT_EXIST ? 24 : 0),
+        SizedBox(height: viewModel.profileForm.enableEmail ? 24 : 0),
         Visibility(
-            visible: viewModel.onBoardingType == OnBoardingType.ACCOUNT_DOES_NOT_EXIST,
+            visible: viewModel.profileForm.enableEmail,
             child: StreamBuilder(
                 stream: viewModel.profileForm.emailStream,
                 builder: (context, snapshot) {
@@ -395,8 +397,7 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
                     animateHint: true,
                     drawablePadding: EdgeInsets.only(left: 4, right: 4),
                   );
-                }
-                ),
+                }),
         ),
         SizedBox(height: 24),
         Focus(

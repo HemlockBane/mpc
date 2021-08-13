@@ -10,7 +10,7 @@ import AVFoundation
 import UIKit
 
 enum CameraMotionEvent {
-    case FaceDetectedEvent
+    case FaceDetectedEvent(exposure: Double? = nil)
     case NoFaceDetectedEvent
     case FirstCaptureEvent(path: URL?)
     case MotionDetectedEvent(path: URL?)
@@ -18,6 +18,8 @@ enum CameraMotionEvent {
     case DetectedFaceRectEvent(faceRect: CGRect)
     case FaceOutOfBoundsEvent(faceRect: CGRect? = nil)
     case FaceTooFarEvent(faceRect: CGRect?)
+    case ImageUnderExposed(exposure: Double)
+    case ImageOverExposed(exposure: Double)
 }
 
 
@@ -216,8 +218,20 @@ class CustomCamera2: NSObject, FlutterTexture, AVCaptureVideoDataOutputSampleBuf
             return false
         }
         
+        let (exposureState, level) = isExposureWithinRange(ciImage: cImage)
+        
+        if(exposureState == -1) {
+            self.eventHandler(.ImageUnderExposed(exposure: level))
+            return false
+        }
+        
+        if(exposureState == 1) {
+            self.eventHandler(.ImageOverExposed(exposure: level))
+            return false
+        }
+        
         //Check brigthness
-        self.eventHandler(.FaceDetectedEvent)
+        self.eventHandler(.FaceDetectedEvent(exposure: level))
         return true
     }
     
@@ -229,17 +243,49 @@ class CustomCamera2: NSObject, FlutterTexture, AVCaptureVideoDataOutputSampleBuf
         return ciImage
     }
     
-    private func isExposureWithinRange(ciImage: CIImage) -> Bool{
+    private func isExposureWithinRange(ciImage: CIImage) -> (isValid:Int, level: Double){
         //guard let ptr = CFDataGetBytePtr(ciImage) else {return false}
-        return true
+        let context = CIContext.init(options: nil)
+        print("Inside Exposure Function!!!!")
+        guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent),
+              let data = cgImage.dataProvider?.data,
+              let bytes = CFDataGetBytePtr(data) else {
+            print("Failed to get Exposure Values")
+            return (0, 0.0)
+        }
+        
+        let x = Int(ciImage.extent.width - 1)
+        let y = Int(ciImage.extent.height - 1)
+        
+        let numberOfChannels = 3//r,g,b
+        let pixelData =  ((Int(ciImage.extent.width) * y) + x) * numberOfChannels
+        
+        let r = CGFloat(bytes[pixelData])
+        let g = CGFloat(bytes[pixelData + 1])
+        let b = CGFloat(bytes[pixelData + 2])
+                
+        let perceivedLight = (r * 0.299) + (0.587 * g) + (0.114 * b)
+        
+        let min = CGFloat(90)
+        let max = CGFloat(220)
+        
+        if(perceivedLight < min) {
+            return (-1, Double(perceivedLight))
+        }
+        
+        if(perceivedLight > max) {
+            return (1, Double(perceivedLight))
+        }
+        
+        return (0, Double(perceivedLight))
     }
     
     private func isFaceTooFarFromFrame(imageWidth: CGFloat) -> Bool {
         if(frameSize == nil) {return false}
-
+        
         let screenScale = previewSize.width / imageWidth
 
-        let faceLeft = faceRect!.minY * screenScale
+        let faceLeft = faceRect!.minX * screenScale
         let faceRight = faceRect!.maxX * screenScale
 
         let frameScale = (faceRight - faceLeft) / frameSize!.width
@@ -271,7 +317,6 @@ class CustomCamera2: NSObject, FlutterTexture, AVCaptureVideoDataOutputSampleBuf
                     || faceRight > frameSize!.maxX
                     || faceTop < frameSize!.minY
                     || faceBottom > frameSize!.maxY) {
-                    print("FaceOutOfBounds => \(faceLeft), \(faceTop), \(faceRight), \(faceBottom)")
                     return false
         }
         
@@ -290,7 +335,6 @@ class CustomCamera2: NSObject, FlutterTexture, AVCaptureVideoDataOutputSampleBuf
         }
         
         features.forEach { CIFeature in
-            print("Your face bounds is \(CIFeature.bounds)")
             faceRect = CIFeature.bounds
         }
         

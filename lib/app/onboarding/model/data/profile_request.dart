@@ -3,7 +3,7 @@ import 'package:moniepoint_flutter/core/models/security_answer.dart';
 
 part 'profile_request.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class ProfileCreationRequestBody {
 
   @JsonKey(name: "accountNumber")

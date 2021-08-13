@@ -10,23 +10,19 @@ import 'package:moniepoint_flutter/app/accounts/views/account_transactions_view.
 import 'package:moniepoint_flutter/app/accounts/views/block_account_view.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/account_update_view.dart';
 import 'package:moniepoint_flutter/app/airtime/viewmodels/airtime_history_detail_view_model.dart';
-import 'package:moniepoint_flutter/app/airtime/viewmodels/service_provider_view_model.dart';
 import 'package:moniepoint_flutter/app/airtime/views/airtime_history_detailed_view.dart';
 import 'package:moniepoint_flutter/app/airtime/views/airtime_view.dart';
 import 'package:moniepoint_flutter/app/billpayments/viewmodels/bill_history_detail_view_model.dart';
 import 'package:moniepoint_flutter/app/billpayments/views/bill_history_detailed_view.dart';
 import 'package:moniepoint_flutter/app/billpayments/views/bill_view.dart';
 import 'package:moniepoint_flutter/app/branches/branch_search_view.dart';
-import 'package:moniepoint_flutter/app/branches/branch_search_view_old.dart';
 import 'package:moniepoint_flutter/app/branches/branches_view.dart';
-import 'package:moniepoint_flutter/app/branches/branches_view_old.dart';
 import 'package:moniepoint_flutter/app/branches/viewmodels/branch_view_model.dart';
 import 'package:moniepoint_flutter/app/cards/viewmodels/single_card_view_model.dart';
 import 'package:moniepoint_flutter/app/cards/views/card_view.dart';
 import 'package:moniepoint_flutter/app/cards/views/unblock_debit_card_view.dart';
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_view.dart';
-import 'package:moniepoint_flutter/app/dashboard/views/dashboard_view_old.dart';
 import 'package:moniepoint_flutter/app/devicemanagement/viewmodels/user_device_view_model.dart';
 import 'package:moniepoint_flutter/app/devicemanagement/views/user_device_list_view.dart';
 import 'package:moniepoint_flutter/app/liveliness/liveliness_verification.dart';
@@ -34,12 +30,10 @@ import 'package:moniepoint_flutter/app/login/viewmodels/login_view_model.dart';
 import 'package:moniepoint_flutter/app/login/views/login_view.dart';
 import 'package:moniepoint_flutter/app/login/views/recovery/recovery_controller_screen.dart';
 import 'package:moniepoint_flutter/app/login/views/support_view.dart';
-import 'package:moniepoint_flutter/app/login/views/support_view_old.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/airtime/views/airtime_select_beneficiary_view.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/bills/views/bill_select_beneficiary_view.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/managed_beneficiary_view.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/views/transfer_select_beneficiary_view.dart';
-import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/existing/existing_account_view.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/new/liveliness_view.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/new/signup_account_view.dart';
@@ -57,6 +51,7 @@ import 'package:moniepoint_flutter/core/viewmodels/system_configuration_view_mod
 import 'package:moniepoint_flutter/core/views/contacts_view.dart';
 import 'package:provider/provider.dart';
 
+import 'app/dashboard/views/dashboard_view_old.dart';
 import 'app/liveliness/viewmodels/liveliness_verification_viewmodel.dart';
 import 'app/settings/settings_view.dart';
 
@@ -126,25 +121,12 @@ class MoniepointApp extends StatelessWidget {
       routes: <String, WidgetBuilder>{
         '/login': (BuildContext context) => LoginScreen(),
         '/sign-up': (BuildContext context) => SignUpAccountScreen(),
-        // Routes.ONBOARDING_PHONE_NUMBER_VALIDATION: (BuildContext context) => ChangeNotifierProvider(
-        //   create: (_) => OnBoardingViewModel(),
-        //   child: PhoneNumberValidationScreen(),
-        // ),
-        Routes.REGISTER_EXISTING_ACCOUNT: (BuildContext context) =>
-            Scaffold(body: ExistingAccountView()),
-        Routes.REGISTER_NEW_ACCOUNT: (BuildContext context) =>
-            Scaffold(body: SignUpAccountScreen()),
-        Routes.ACCOUNT_RECOVERY: (BuildContext context) =>
-            Scaffold(body: RecoveryControllerScreen()),
-        Routes.DASHBOARD_OLD: (BuildContext context) => ChangeNotifierProvider(
-              create: (_) => ServiceProviderViewModel(),
-              child: DashboardScreenOld(),
-            ),
-        Routes.DASHBOARD: (BuildContext context) => DashboardScreen(),
-        Routes.ACCOUNT_UPDATE: (BuildContext context) =>
-            Scaffold(body: AccountUpdateScreen()),
-        Routes.LIVELINESS: (BuildContext context) =>
-            Scaffold(body: LivelinessScreen()),
+        Routes.REGISTER_EXISTING_ACCOUNT: (BuildContext context) => Scaffold(body: ExistingAccountView()),
+        Routes.REGISTER_NEW_ACCOUNT: (BuildContext context) => Scaffold(body: SignUpAccountScreen()),
+        Routes.ACCOUNT_RECOVERY: (BuildContext context) => Scaffold(body: RecoveryControllerScreen()),
+        Routes.DASHBOARD: (BuildContext context) => DashboardScreenOld(),
+        Routes.ACCOUNT_UPDATE: (BuildContext context) => Scaffold(body: AccountUpdateScreen()),
+        Routes.LIVELINESS: (BuildContext context) => Scaffold(body: LivelinessScreen()),
         Routes.TRANSFER: (BuildContext context) => TransferScreen(),
         Routes.TRANSFER_DETAIL: (BuildContext context) =>
             ChangeNotifierProvider(

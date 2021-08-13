@@ -71,13 +71,15 @@ class _EnterBVNScreen extends State<EnterBVNScreen> {
 
       viewModel.setOnboardingKey(validationResponse.onboardingKey ?? "");
 
+      final useEmail = validationResponse.setupType?.hasEmail ?? true;
+
       if(onboardingType == OnBoardingType.ACCOUNT_DOES_NOT_EXIST) {
         //We navigate to account info
-        viewModel.setOnBoardingType(onboardingType!);
+        viewModel.setOnBoardingType(onboardingType!, useEmail);
         Navigator.of(context).pushNamed(SignUpAccountScreen.ACCOUNT_INFO);
       } else if(onboardingType == OnBoardingType.ACCOUNT_EXIST){
         //We navigate to profile info
-        viewModel.setOnBoardingType(onboardingType!);
+        viewModel.setOnBoardingType(onboardingType!, useEmail);
         Navigator.of(context).pushNamed(SignUpAccountScreen.PROFILE);
       } else {
         _showGenericError("Failed to determine account setup type");

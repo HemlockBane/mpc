@@ -165,16 +165,17 @@ class LivelinessMethodHandler : NSObject, FlutterStreamHandler {
                     "event_data" :path?.path
                 ])
                 return
-            case .NoMotionDetectedEvent(path: let path):
+            case .NoMotionDetectedEvent(path: _):
                 self.eventSink?([
                     "event_type": "NoMotionDetectedEvent",
                     "event_data": ""
                 ])
                 return
-            case .FaceDetectedEvent:
+            case .FaceDetectedEvent(exposure: let exposure):
                 self.eventSink?([
                     "event_type":"FaceDetectedEvent",
-                    "event_data" :""
+                    "event_data" :"",
+                    "exposure": exposure
                 ])
                 return
             case .DetectedFaceRectEvent(faceRect: let faceRect):
@@ -195,6 +196,20 @@ class LivelinessMethodHandler : NSObject, FlutterStreamHandler {
                     data["event_data"] = "\(faceRect!.minX),\(faceRect!.minY),\(faceRect!.maxX),\(faceRect!.maxY)"
                 }
                 self.eventSink?(data)
+                return
+            case .ImageUnderExposed(exposure: let exposure):
+                self.eventSink?([
+                    "event_type":"ImageUnderExposed",
+                    "event_data" :exposure,
+                    "exposure": exposure
+                ])
+                return
+            case .ImageOverExposed(exposure: let exposure):
+                self.eventSink?([
+                    "event_type":"ImageOverExposed",
+                    "event_data" :exposure,
+                    "exposure": exposure
+                ])
                 return
             }
         })

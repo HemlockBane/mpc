@@ -9,7 +9,7 @@ part of 'onboarding_validation_service.dart';
 class _OnboardingValidationService implements OnboardingValidationService {
   _OnboardingValidationService(this._dio, {this.baseUrl}) {
     baseUrl ??=
-        'https://core-operations.monnify.development.teamapt.com/api/v2/onboarding-validation/';
+        'https://moniepoint-customer-operations-service-v2.console.teamapt.com/api/v2/onboarding-validation/';
   }
 
   final Dio _dio;
@@ -43,7 +43,7 @@ class _OnboardingValidationService implements OnboardingValidationService {
                     headers: <String, dynamic>{
                       r'Content-Type': 'multipart/form-data',
                       r'client-id': 'ANDROID',
-                      r'appVersion': '0.0.1'
+                      r'appVersion': '1.0.6'
                     },
                     extra: _extra,
                     contentType: 'multipart/form-data')

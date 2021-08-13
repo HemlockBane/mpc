@@ -70,6 +70,7 @@ class TransferBeneficiaryListState extends BeneficiaryListState<TransferBenefici
       child: Pager<int, TransferBeneficiary>(
           pagingConfig: PagingConfig(pageSize: 40, initialPageSize: 40),
           source: _pagingSource,
+          scrollController: _scrollController,
           builder: (context, value, _) {
             return ListViewUtil.handleLoadStates(
                 animationController: _animationController,

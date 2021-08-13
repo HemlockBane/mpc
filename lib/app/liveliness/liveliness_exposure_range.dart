@@ -5,6 +5,7 @@ import 'package:moniepoint_flutter/core/colors.dart';
 
 import 'liveliness_detector.dart';
 
+/// @author Paul Okeke
 class LivelinessExposureRange extends StatefulWidget {
 
   final double start;

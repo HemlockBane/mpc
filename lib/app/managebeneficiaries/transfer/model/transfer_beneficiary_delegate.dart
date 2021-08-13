@@ -40,8 +40,9 @@ class TransferBeneficiaryServiceDelegate with NetworkResource {
     return PagingSource(
         localSource: (LoadParams params) {
           final offset = params.key ?? 0;
+          print("Params Key is ${params.key} ==> Load Size => ${params.loadSize}");
           return _beneficiaryDao.getPagedTransferBeneficiary(offset * params.loadSize, params.loadSize)
-              .map((event) => Page(event, params.key, event.length == params.loadSize ? offset + 1 : null)
+              .map((event) => Page(event, params.key ?? 0, event.length == params.loadSize ? offset + 1 : null)
           );
         },
         remoteMediator: _TransferBeneficiaryMediator(_service, _beneficiaryDao)..customerId = customerId
@@ -55,7 +56,7 @@ class TransferBeneficiaryServiceDelegate with NetworkResource {
           return _beneficiaryDao.searchPagedTransferBeneficiary(search,offset * params.loadSize, params.loadSize)
               .map((event) {
                 print(jsonEncode(event));
-                return Page(event, params.key, event.length == params.loadSize ? offset + 1 : null);
+                return Page(event, params.key ?? 0, event.length == params.loadSize ? offset + 1 : null);
               }
           );
         },

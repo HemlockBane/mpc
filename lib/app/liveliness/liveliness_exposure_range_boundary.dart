@@ -21,14 +21,16 @@ class LivelinessExposureRangeBoundary extends CustomPainter {
     ..color = Colors.white.withOpacity(0.23)
     ..style = PaintingStyle.fill;
 
+  final _path = Path();
+
 
   @override
   void paint(Canvas canvas, Size size) {
 
+    _path.reset();
+
     final rect = Rect.fromLTWH(0, 0, width, height);
     final rRect = RRect.fromRectAndRadius(rect, Radius.circular(13));
-    final _path = Path();
-
     final lineDistanceToCurve = 16;
     
     _path.moveTo(rRect.right - lineDistanceToCurve, rRect.top);

@@ -4,14 +4,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_swipecards/flutter_swipecards.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_status.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
-import 'package:moniepoint_flutter/app/airtime/viewmodels/service_provider_view_model.dart';
 import 'package:moniepoint_flutter/app/customer/customer.dart';
 import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_drawer_view.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/bottom_menu_view.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_container_view.dart';
-import 'package:moniepoint_flutter/app/login/model/data/login_prompt.dart';
+import 'package:moniepoint_flutter/app/dashboard/views/dashboard_view.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/login_mode.dart';
@@ -47,8 +46,7 @@ class _DashboardScreen extends State<DashboardScreenOld>
   late DashboardViewModel _viewModel;
 
   PageController _pageController = PageController(viewportFraction: 1);
-  DrawerScaffoldController _drawerScaffoldController =
-      DrawerScaffoldController();
+  DrawerScaffoldController _drawerScaffoldController = DrawerScaffoldController();
   final pages = [];
   CardController controller = CardController();
 
@@ -63,8 +61,7 @@ class _DashboardScreen extends State<DashboardScreenOld>
         margin: EdgeInsets.only(left: width, right: width, bottom: 8, top: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: InkWell(
-          customBorder:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           onTap: () => (!_hasCompletedAccountUpdate())
               ? Navigator.of(context)
                   .pushNamed(Routes.ACCOUNT_UPDATE)
@@ -79,8 +76,7 @@ class _DashboardScreen extends State<DashboardScreenOld>
                   'res/drawables/ic_upgrade_account_2.svg',
                 ),
                 SizedBox(width: 16),
-                Expanded(
-                    child: Column(
+                Expanded(child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -126,8 +122,7 @@ class _DashboardScreen extends State<DashboardScreenOld>
         margin: EdgeInsets.only(left: width, right: width, bottom: 8, top: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: InkWell(
-          customBorder:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           onTap: () => null,
           child: Container(
               padding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 4),
@@ -162,8 +157,6 @@ class _DashboardScreen extends State<DashboardScreenOld>
 
   void _refreshDashboard() {
     setState(() {});
-    print("refreshing dashboard");
-    // _viewModel.getUserAccountsBalance(useLocal: false).listen((event) {});
     subscribeUiToAccountStatus();
   }
 
@@ -237,8 +230,7 @@ class _DashboardScreen extends State<DashboardScreenOld>
                       child: Padding(
                         padding: EdgeInsets.only(bottom: 24),
                         child: Hero(
-                            tag:
-                                "dashboard-balance-view-${userAccount.customerAccount?.id}",
+                            tag: "dashboard-balance-view-${userAccount.customerAccount?.id}",
                             child: Container(
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(16),
@@ -287,10 +279,11 @@ class _DashboardScreen extends State<DashboardScreenOld>
       extendBodyBehindAppBar: true,
       resizeToAvoidBottomInset: false,
       drawers: [
-        DashboardDrawerView(context, _drawerScaffoldController,
-                refreshCallback: _refreshDashboard,
-                accountName: _viewModel.accountName)
-            .getDrawer()
+        DashboardDrawerView(
+            context, _drawerScaffoldController,
+            refreshCallback: _refreshDashboard,
+            accountName: _viewModel.accountName
+        ).getDrawer()
       ],
       builder: (mContext, a) {
         return SessionedWidget(
@@ -307,9 +300,7 @@ class _DashboardScreen extends State<DashboardScreenOld>
                         child: Column(
                           children: [
                             Divider(color: Colors.dashboardTopBar, height: 4),
-                            SizedBox(
-                                height:
-                                    MediaQuery.of(context).padding.top + 32),
+                            SizedBox(height: MediaQuery.of(context).padding.top + 32),
                             Text(
                               'OVERVIEW',
                               style: TextStyle(
@@ -328,13 +319,14 @@ class _DashboardScreen extends State<DashboardScreenOld>
                             SizedBox(height: 16),
                             AspectRatio(
                               aspectRatio: 3 / 2.8,
-                              //UserInstance().accountStatus?.postNoDebit == true ? 3 / 2.8 : 3 / 2.5,
                               child: _centerDashboardContainer(_viewModel),
                             ),
-                            // SizedBox(height: 110),
                             TextButton(
-                              onPressed: (){
-                                Navigator.pushNamed(context, Routes.DASHBOARD);
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (mContext) => DashboardScreen())
+                                );
                               },
                               child: Text("Text"),
                             ),
@@ -351,8 +343,7 @@ class _DashboardScreen extends State<DashboardScreenOld>
                                 .animate(CurvedAnimation(
                                     parent: _bottomMenuController,
                                     curve: Curves.easeInToLinear)),
-                            child:
-                                DashboardBottomMenu(() => _refreshDashboard()),
+                            child: DashboardBottomMenu(() => _refreshDashboard()),
                           ))
                     ],
                   ),
@@ -376,80 +367,69 @@ class _DashboardScreen extends State<DashboardScreenOld>
     _dashboardCardController.forward();
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
       subscribeUiToAccountStatus();
-      final prompt = LoginPrompt.fromJson(data);
-      final list = [prompt, prompt, prompt];
-
-      final serviceProviderModel =
-          Provider.of<ServiceProviderViewModel>(context, listen: false);
-      // _showLoginPrompts(list, serviceProviderModel);
     });
     //let check if the user should set up finger print
     Future.delayed(Duration(milliseconds: 1400), () => _setupFingerprint());
   }
 
-  void _showLoginPrompts(List<LoginPrompt>? prompts,
-      ServiceProviderViewModel serviceProviderViewModel) {
-    if (prompts != null && prompts.isNotEmpty) {
-      showDialog(
-          context: context,
-          builder: (context) {
-            return GestureDetector(
-              onTap: () {
-                controller.triggerUp();
-              },
-              child: Center(
-                child: Container(
-                  height: MediaQuery.of(context).size.height * 0.81,
-                  child: TinderSwapCard(
-                    swipeDown: true,
-                    swipeUp: true,
-                    orientation: AmassOrientation.bottom,
-                    totalNum: prompts.length,
-                    stackNum: 3,
-                    swipeEdge: 4.0,
-                    maxWidth: MediaQuery.of(context).size.width,
-                    maxHeight: MediaQuery.of(context).size.height * 0.81,
-                    minWidth: MediaQuery.of(context).size.width * 0.8,
-                    minHeight: MediaQuery.of(context).size.height * 0.78,
-                    cardController: controller = CardController(),
-                    swipeCompleteCallback: (orientation, idx) {
-                      if (idx == prompts.length - 1) Navigator.pop(context);
-                    },
-                    cardBuilder: (context, idx) {
-                      final prompt = prompts[idx];
-
-                      return Dialog(
-                        insetPadding:
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                        backgroundColor: Colors.transparent,
-                        child: BottomSheets.displayLoginPrompt(context,
-                            prompt: prompt,
-                            cardController: controller,
-                            serviceProviderViewModel: serviceProviderViewModel),
-                      );
-                    },
-                  ),
-                ),
-              ),
-            );
-          });
-    }
-  }
+  // void _showLoginPrompts(List<LoginPrompt>? prompts,
+  //     ServiceProviderViewModel serviceProviderViewModel) {
+  //   if (prompts != null && prompts.isNotEmpty) {
+  //     showDialog(
+  //         context: context,
+  //         builder: (context) {
+  //           return GestureDetector(
+  //             onTap: () {
+  //               controller.triggerUp();
+  //             },
+  //             child: Center(
+  //               child: Container(
+  //                 height: MediaQuery.of(context).size.height * 0.81,
+  //                 child: TinderSwapCard(
+  //                   swipeDown: true,
+  //                   swipeUp: true,
+  //                   orientation: AmassOrientation.bottom,
+  //                   totalNum: prompts.length,
+  //                   stackNum: 3,
+  //                   swipeEdge: 4.0,
+  //                   maxWidth: MediaQuery.of(context).size.width,
+  //                   maxHeight: MediaQuery.of(context).size.height * 0.81,
+  //                   minWidth: MediaQuery.of(context).size.width * 0.8,
+  //                   minHeight: MediaQuery.of(context).size.height * 0.78,
+  //                   cardController: controller = CardController(),
+  //                   swipeCompleteCallback: (orientation, idx) {
+  //                     if (idx == prompts.length - 1) Navigator.pop(context);
+  //                   },
+  //                   cardBuilder: (context, idx) {
+  //                     final prompt = prompts[idx];
+  //
+  //                     return Dialog(
+  //                       insetPadding:
+  //                           EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+  //                       backgroundColor: Colors.transparent,
+  //                       child: BottomSheets.displayLoginPrompt(context,
+  //                           prompt: prompt,
+  //                           cardController: controller,
+  //                           serviceProviderViewModel: serviceProviderViewModel),
+  //                     );
+  //                   },
+  //                 ),
+  //               ),
+  //             ),
+  //           );
+  //         });
+  //   }
+  // }
 
   void _setupFingerprint() async {
-    final fingerprintRequestCount =
-        PreferenceUtil.getFingerprintRequestCounter();
+    final fingerprintRequestCount = PreferenceUtil.getFingerprintRequestCounter();
 
     //We should only request 3 times from the dashboard
-
-    if (fingerprintRequestCount >= 2 ||
-        PreferenceUtil.getLoginMode() == LoginMode.ONE_TIME) return;
+    if (fingerprintRequestCount >= 2 || PreferenceUtil.getLoginMode() == LoginMode.ONE_TIME) return;
     final biometricHelper = BiometricHelper.getInstance();
-
     final biometricType = await biometricHelper.getBiometricType();
-    final hasFingerprintPassword =
-        (await biometricHelper.getFingerprintPassword()) != null;
-    print("This is the Biometric Type $biometricType");
+    final hasFingerprintPassword = (await biometricHelper.getFingerprintPassword()) != null;
+
     if (biometricType != BiometricType.NONE && !hasFingerprintPassword) {
       PreferenceUtil.setFingerprintRequestCounter(fingerprintRequestCount + 1);
 
@@ -475,9 +455,9 @@ class _DashboardScreen extends State<DashboardScreenOld>
         showSuccess(context,
             title: successTitle,
             message: successMessage,
-            primaryButtonText: "Continue", onPrimaryClick: () {
-          Navigator.of(context).pop(true);
-        });
+            primaryButtonText: "Continue",
+            onPrimaryClick: () => Navigator.of(context).pop(true)
+        );
       } else if (result is Error<bool>) {
         showModalBottomSheet(
             backgroundColor: Colors.transparent,
@@ -496,88 +476,3 @@ class _DashboardScreen extends State<DashboardScreenOld>
     super.dispose();
   }
 }
-
-var data = {
-  "id": 15,
-  "createdOn": "2021-08-02T20:01:10.000+0000",
-  "lastModifiedOn": "2021-08-02T21:01:10",
-  "deleted": false,
-  "createdBy": "SYSTEM",
-  "lastModifiedBy": "SYSTEM",
-  "version": 0,
-  "title": "Holiday",
-  // "image": null,
-  "image": {
-    "id": 1,
-    "createdOn": "2021-07-13T21:28:46.000+0000",
-    "lastModifiedOn": "2021-07-13T22:28:46",
-    "deleted": false,
-    "createdBy": "peguda",
-    "lastModifiedBy": "peguda",
-    "version": 0,
-    "name": "Test",
-    "type": "PNG",
-    "uuidRef": "7fc0dc1b-8ea3-448f-8f23-183b231b71bf",
-    //   "uuidRef": null,
-
-    //   "svgText": ""
-  },
-  // "videoLink":
-  //     "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4",
-  "videoLink": null,
-  "message": "default",
-  "navigationList": [
-    {
-      "title": "Test1",
-      "destination": "https://pub.dev/packages/flutter_swipecards/install",
-      "id": 2,
-      "createdOn": "Jul 29, 2021 2:05:45 PM",
-      "lastModifiedOn": {
-        "date": {"year": 2021, "month": 7, "day": 29},
-        "time": {"hour": 14, "minute": 5, "second": 45, "nano": 0}
-      },
-      "deleted": false,
-      "createdBy": "peguda",
-      "lastModifiedBy": "peguda",
-      "version": 0
-    },
-    {
-      "title": "test2",
-      "destination": "https://pub.dev/packages/flutter_swipecards/install",
-      "id": 3,
-      "createdOn": "Jul 29, 2021 2:05:54 PM",
-      "lastModifiedOn": {
-        "date": {"year": 2021, "month": 7, "day": 29},
-        "time": {"hour": 14, "minute": 5, "second": 54, "nano": 0}
-      },
-      "deleted": false,
-      "createdBy": "peguda",
-      "lastModifiedBy": "peguda",
-      "version": 0
-    }
-  ],
-  "commandPromptHeader": {
-    "id": 1,
-    "createdOn": "2021-08-02T15:13:29.000+0000",
-    "lastModifiedOn": "2021-08-02T16:20:15",
-    "deleted": false,
-    "createdBy": "peguda",
-    "lastModifiedBy": "peguda",
-    "version": 1,
-    "name": "Test",
-    "image": {
-      "id": 2,
-      "createdOn": "2021-07-13T21:30:26.000+0000",
-      "lastModifiedOn": "2021-07-13T22:30:26",
-      "deleted": false,
-      "createdBy": "peguda",
-      "lastModifiedBy": "peguda",
-      "version": 0,
-      "name": "Test1",
-      "type": "PNG",
-      "svgText": null,
-      "uuidRef": "7fc0dc1b-8ea3-448f-8f23-183b231b71bf"
-    },
-    "headerState": "SUCCESS"
-  }
-};

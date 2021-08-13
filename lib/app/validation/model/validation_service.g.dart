@@ -28,7 +28,7 @@ class _ValidationService implements ValidationService {
             headers: <String, dynamic>{
               r'Content-Type': 'multipart/form-data',
               r'client-id': 'ANDROID',
-              r'appVersion': '0.0.6'
+              r'appVersion': '0.0.1'
             },
             extra: _extra,
             contentType: 'multipart/form-data')
@@ -58,7 +58,7 @@ class _ValidationService implements ValidationService {
             headers: <String, dynamic>{
               r'Content-Type': 'multipart/form-data',
               r'client-id': 'ANDROID',
-              r'appVersion': '0.0.6'
+              r'appVersion': '0.0.1'
             },
             extra: _extra,
             contentType: 'multipart/form-data')
@@ -85,7 +85,7 @@ class _ValidationService implements ValidationService {
             headers: <String, dynamic>{
               r'Content-Type': 'application/json',
               r'client-id': 'ANDROID',
-              r'appVersion': '0.0.6'
+              r'appVersion': '0.0.1'
             },
             extra: _extra,
             contentType: 'application/json')
@@ -124,7 +124,7 @@ class _ValidationService implements ValidationService {
             headers: <String, dynamic>{
               r'Content-Type': 'multipart/form-data',
               r'client-id': 'ANDROID',
-              r'appVersion': '0.0.6'
+              r'appVersion': '0.0.1'
             },
             extra: _extra,
             contentType: 'multipart/form-data')

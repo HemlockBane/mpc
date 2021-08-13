@@ -30,7 +30,7 @@ class _AirtimeService implements AirtimeService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.6'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -58,7 +58,7 @@ class _AirtimeService implements AirtimeService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.6'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -84,7 +84,7 @@ class _AirtimeService implements AirtimeService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.6'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -110,7 +110,7 @@ class _AirtimeService implements AirtimeService {
             method: 'GET',
             headers: <String, dynamic>{
               r'client-id': 'ANDROID',
-              r'appVersion': '0.0.6'
+              r'appVersion': '0.0.1'
             },
             extra: _extra,
             responseType: ResponseType.stream)

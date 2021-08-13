@@ -30,7 +30,7 @@ class _AccountService implements AccountService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.6'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -55,7 +55,7 @@ class _AccountService implements AccountService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.6'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -85,7 +85,7 @@ class _AccountService implements AccountService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.6'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -114,7 +114,7 @@ class _AccountService implements AccountService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.6'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')

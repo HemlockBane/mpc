@@ -13,6 +13,7 @@ import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:provider/provider.dart';
+import 'package:moniepoint_flutter/core/strings.dart';
 
 import 'dashboard_account_card.dart';
 
@@ -26,95 +27,85 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   PageController _pageController = PageController(viewportFraction: 1);
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  Stream<Resource<List<TransferBeneficiary>>>? frequentBeneficiaries;
+  Stream<Resource<List<TransferBeneficiary>>>? recentlyPaidBeneficiaries;
   late DashboardViewModel _viewModel;
 
-  Widget _buildRecentlyPaidSection(List<Color> recentlyPaidColors,
-      List<TransferBeneficiary> recentlyPaidBeneficiaries) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 17),
-      decoration: BoxDecoration(
-          color: Color(0xffF9FBFD),
-          borderRadius: BorderRadius.all(Radius.circular(16)),
-          boxShadow: [
-            BoxShadow(
-              offset: Offset(0, 1),
-              blurRadius: 2,
-              color: Color(0xff1F0E4FB1).withOpacity(0.12),
+
+
+
+  Widget _buildRecentlyPaidList(List<Color> recentlyPaidColors,
+      List<TransferBeneficiary> recentlyPaidBeneficiaries){
+    return Column(children: [
+      SizedBox(
+        height: 12,
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            "Recently Paid",
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 13,
+              color: Color(0xff1A0C2F),
             ),
-          ]),
-      child: Column(children: [
-        SizedBox(
-          height: 12,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "Recently Paid",
+          ),
+          InkWell(
+            onTap: () {
+              Navigator.pushNamed(context, Routes.TRANSFER);
+            },
+            child: Text(
+              "View all",
               style: TextStyle(
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
                 fontSize: 13,
-                color: Color(0xff1A0C2F),
+                color: Color(0xff0361F0),
               ),
             ),
-            InkWell(
-              onTap: () {
-                Navigator.pushNamed(context, Routes.TRANSFER);
+          )
+        ],
+      ),
+      SizedBox(height: 25),
+      Container(
+        height: 130,
+        child: Stack(
+          children: [
+            ListView.builder(
+              scrollDirection: Axis.horizontal,
+              shrinkWrap: true,
+              itemCount: recentlyPaidBeneficiaries.length,
+              itemBuilder: (BuildContext context, int index) {
+                final random = Random();
+                final randInt = random.nextInt(9);
+                final color = recentlyPaidColors[randInt];
+                final recentlyPaidBeneficiary = recentlyPaidBeneficiaries[index];
+
+                return Row(
+                  children: [
+                    _buildRecentlyPaidItem(
+                        color: color,
+                        recentlyPaidBeneficiary: recentlyPaidBeneficiary),
+                    SizedBox(width: 25)
+                  ],
+                );
               },
-              child: Text(
-                "View all",
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                  color: Color(0xff0361F0),
-                ),
+            ),
+            Align(
+              alignment: Alignment.topRight,
+              child: Container(
+                height: 112,
+                width: 40,
+                // color: Colors.red,
+                decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                        colors: [Color(0xff00FFFFFF), Colors.white],
+                        stops: [0.48, 1.0])),
               ),
             )
           ],
         ),
-        SizedBox(height: 25),
-        Container(
-          height: 130,
-          child: Stack(
-            children: [
-              ListView.builder(
-                scrollDirection: Axis.horizontal,
-                shrinkWrap: true,
-                itemCount: 10,
-                itemBuilder: (BuildContext context, int index) {
-                  final random = Random();
-                  final randInt = random.nextInt(9);
-                  final color = recentlyPaidColors[randInt];
-                  final recentlyPaidBeneficiary = recentlyPaidBeneficiaries[index];
-
-                  return Row(
-                    children: [
-                      _buildRecentlyPaidItem(
-                          color: color,
-                          recentlyPaidBeneficiary: recentlyPaidBeneficiary),
-                      SizedBox(width: 25)
-                    ],
-                  );
-                },
-              ),
-              Align(
-                alignment: Alignment.topRight,
-                child: Container(
-                  height: 112,
-                  width: 40,
-                  // color: Colors.red,
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                          colors: [Color(0xff00FFFFFF), Colors.white],
-                          stops: [0.48, 1.0])),
-                ),
-              )
-            ],
-          ),
-        )
-      ]),
-    );
+      )
+    ]);
   }
 
   void showComingSoonInfo() {
@@ -240,6 +231,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildRecentlyPaidItem(
       {required Color color,
       required TransferBeneficiary recentlyPaidBeneficiary}) {
+    var firstName = "";
+    var lastName = "";
+
+    final names = recentlyPaidBeneficiary.getAccountName().toLowerCase().capitalizeFirstOfEach.split(" ");
+    if(names.isNotEmpty){
+      if(names.length < 2){
+        firstName = names[0];
+      }else{
+        lastName = names[0];
+        firstName = names[1];
+      }
+    }
+
+
+
+
     return Column(children: [
       Stack(
         clipBehavior: Clip.none,
@@ -257,12 +264,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: Center(
               // alignment: Alignment.center,
               child: Text(
-                'AA',
+                recentlyPaidBeneficiary.getAccountName().abbreviate(2, false, includeMidDot: false),
                 style: TextStyle(
                     fontSize: 19, fontWeight: FontWeight.w700, color: color),
               ),
             ),
           ),
+          if(_viewModel.isIntraTransfer(recentlyPaidBeneficiary))
           Positioned(
             top: -2,
             right: 1,
@@ -274,6 +282,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               color: Colors.white,
             ),
           ),
+          if(_viewModel.isIntraTransfer(recentlyPaidBeneficiary))
           Positioned(
             top: 0,
             right: 3,
@@ -288,7 +297,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       SizedBox(height: 6),
       Text(
-        "Adrian",
+        firstName,
         style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w500,
@@ -297,7 +306,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       SizedBox(height: 4),
       Text(
-        recentlyPaidBeneficiary.accountName,
+        lastName,
         style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w500,
@@ -615,7 +624,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     _viewModel = Provider.of<DashboardViewModel>(context, listen: false);
-    frequentBeneficiaries = _viewModel.getRecentlyPaidBeneficiary();
+    recentlyPaidBeneficiaries = _viewModel.getRecentlyPaidBeneficiary();
     super.initState();
   }
 
@@ -691,42 +700,70 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ],
                     ),
                     SizedBox(height: 32),
-                    StreamBuilder(
-                      builder: (BuildContext context, AsyncSnapshot<Resource<List<TransferBeneficiary>?>>snapshot) {
-                        if (!snapshot.hasData) return Container();
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 17),
+                      decoration: BoxDecoration(
+                          color: Color(0xffF9FBFD),
+                          borderRadius: BorderRadius.all(Radius.circular(16)),
+                          boxShadow: [
+                            BoxShadow(
+                              offset: Offset(0, 1),
+                              blurRadius: 2,
+                              color: Color(0xff1F0E4FB1).withOpacity(0.12),
+                            ),
+                          ]),
+                      child: StreamBuilder(
+                        stream: recentlyPaidBeneficiaries,
+                        builder: (BuildContext context, AsyncSnapshot<Resource<List<TransferBeneficiary>?>>snapshot) {
 
-                        final resource = snapshot.data;
-                        final hasData = resource?.data?.isNotEmpty == true;
-                        final displayLocalData = true;
+                          if (!snapshot.hasData) return Container(height: 50);
 
-                        if ((snapshot.hasError || snapshot.data is Error) &&
-                            (!displayLocalData)) {
-                          return Container(
-                            child: Text('Error'),
-                          );
-                        }
+                          final resource = snapshot.data;
+                          final hasData = resource?.data?.isNotEmpty == true;
+                          final displayLocalData = true;
+                          final currentList = <TransferBeneficiary>[];
 
-                        if (resource == null ||
-                            resource is Loading &&
-                                resource.data?.isEmpty == true) {
-                          return Container(
-                            child: Text('Empty'),
-                          );
-                        }
+                          if(resource is Loading && (displayLocalData && !hasData || !displayLocalData)) {
+                            return  Container(
+                              height: 50, width: double.infinity,
+                              child: Center(child: Text('Loading'),
+                              ),
+                            );
+                          }
 
-                        if (resource is Success && !hasData) {
-                          return Text('Empty Data');
-                        }
+                          if ((snapshot.hasError || snapshot.data is Error) &&
+                              (!displayLocalData || currentList.isEmpty)) {
+                            Container(
+                              height: 50, width: double.infinity,
+                              child: Center(child: Text('Error'),
+                              ),
+                            );
+                          }
 
-                        final beneficiaries = resource.data;
-                        final sortedItems =
-                            BeneficiaryUtils.sortByFrequentlyUsed(resource.data)
-                                .take(5)
-                                .toList();
+                          if (resource == null ||
+                              resource is Loading &&
+                                  resource.data?.isEmpty == true) {
+                            Container(
+                              height: 50, width: double.infinity,
+                              child: Center(child: Text('Empty'),
+                              ),
+                            );
+                          }
 
-                        return _buildRecentlyPaidSection(
-                            recentlyPaidColors, sortedItems);
-                      },
+                          if (resource is Success && !hasData) {
+                            return Container(
+                              height: 50, width: double.infinity,
+                                child: Center(child: Text('Empty Data'),
+                                ),
+                            );
+                          }
+
+                          final beneficiaries = resource?.data;
+
+                          return _buildRecentlyPaidList(
+                              recentlyPaidColors, beneficiaries!);
+                        },
+                      ),
                     ),
                     SizedBox(height: 32),
                     Text(

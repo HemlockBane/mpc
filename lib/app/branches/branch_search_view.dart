@@ -239,31 +239,43 @@ class _BranchSearchScreen extends State<BranchSearchScreen> {
                       if (!a.hasData ||
                           (a.hasData && a.data is Success) &&
                               a.data?.data?.isEmpty == true) {
-                        return _emptyView();
+                        return TweenAnimationBuilder(
+                          tween: Tween<double>(begin: 0.0, end: 1.0),
+                            duration: Duration(milliseconds: 300),
+                            builder: (BuildContext context, double opacity, Widget? child) => Opacity(
+                              opacity: opacity,
+                                child: _emptyView()
+                            )
+                        );
                       }
 
-
-                      return ListView.separated(
-                        padding: EdgeInsets.zero,
-                        shrinkWrap: true,
-                        itemCount: a.data?.data?.length ?? 0,
-                        separatorBuilder: (context, index) => Container(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                          child: Column(
-                            children: [
-                              // SizedBox(height: 15),
-                              Divider(height: 1),
-                            ],
-                          ),
-                        ),
-                        itemBuilder: (context, index) {
-                          return BranchListItem(a.data!.data![index], index,
-                              (item, itemIndex) {
-                            Future.delayed(Duration(milliseconds: 180), () {
-                              Navigator.of(context).pop(item);
-                            });
-                          });
-                        },
+                      return TweenAnimationBuilder(
+                          tween: Tween<double>(begin: 0.0, end: 1.0),
+                          duration: Duration(milliseconds: 300),
+                          builder: (BuildContext context, double opacity, Widget? child) => Opacity(
+                              opacity: opacity,
+                              child: ListView.separated(
+                                padding: EdgeInsets.zero,
+                                shrinkWrap: true,
+                                itemCount: a.data?.data?.length ?? 0,
+                                separatorBuilder: (context, index) => Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 20), child: Column(
+                                  children: [
+                                    // SizedBox(height: 15),
+                                    Divider(height: 1, color: Colors.red),
+                                  ],
+                                ),
+                              ),
+                                itemBuilder: (context, index) {
+                                  return BranchListItem(a.data!.data![index], index,
+                                          (item, itemIndex) {
+                                        Future.delayed(Duration(milliseconds: 180), () {
+                                          Navigator.of(context).pop(item);
+                                        });
+                                      });
+                                },
+                              )
+                          )
                       );
                     }),
               )

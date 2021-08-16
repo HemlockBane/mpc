@@ -106,8 +106,7 @@ class _BranchScreen extends State<BranchScreen> {
         _updateBranchMarkersOnMap(branches,
             shouldForceCenter: shouldForceCenter);
 
-        final location =
-            LatLng(_lastLocation?.latitude ?? 0, _lastLocation?.longitude ?? 0);
+        final location = LatLng(_lastLocation?.latitude ?? 0, _lastLocation?.longitude ?? 0);
         if (selectedLocation.isCurrentLocation(location)) {
           moveCameraToCurrentPosition();
           setState(() {
@@ -130,25 +129,23 @@ class _BranchScreen extends State<BranchScreen> {
     if (branches.isNotEmpty) _displayAbleMarkers.clear();
     List<LatLng?> latLngs = branches
         .map((e) {
-          if (e.location == null ||
-              e.location?.longitude == null ||
-              e.location?.latitude == null) return null;
-          //let's also add the marker
-          _addBranchAsMarker(e);
-          return LatLng(double.parse(e.location!.latitude!),
-              double.parse(e.location!.longitude!));
-        })
-        .where((element) => element != null)
-        .toList();
+      if (e.location == null ||
+          e.location?.longitude == null ||
+          e.location?.latitude == null) return null;
+      //let's also add the marker
+      _addBranchAsMarker(e);
+      return LatLng(double.parse(e.location!.latitude!),
+          double.parse(e.location!.longitude!));
+    }).where((element) => element != null).toList();
 
     if (latLngs.isNotEmpty) {
       setState(() {});
       if (shouldForceCenter) {
-        LatLngBounds bounds = boundsFromLatLngList(latLngs);
-        final mUpdate = CameraUpdate.newLatLngBounds(bounds, 0);
-        _mapController?.animateCamera(mUpdate).then((value) {
-          check(mUpdate, _mapController!);
-        });
+        // LatLngBounds bounds = boundsFromLatLngList(latLngs);
+        // final mUpdate = CameraUpdate.newLatLngBounds(bounds, 0);
+        // _mapController?.animateCamera(mUpdate).then((value) {
+        //   check(mUpdate, _mapController!);
+        // });
       }
     }
   }
@@ -162,13 +159,14 @@ class _BranchScreen extends State<BranchScreen> {
           double.parse(location.longitude ?? "0"));
 
       final markerIcon = selectedLocation.isCurrentLocation(LatLng(
-              _lastLocation?.latitude ?? 0, _lastLocation?.longitude ?? 0))
+          _lastLocation?.latitude ?? 0, _lastLocation?.longitude ?? 0))
           ? locationMarkerIcon!
           : selectedLocation.equalsBranchPosition(branchLocation)
-              ? locationMarkerIcon!
-              : fadedMarkerIcon!;
+          ? locationMarkerIcon!
+          : fadedMarkerIcon!;
 
       final marker = Marker(
+
         markerId: MarkerId(branchInfo.id.toString()),
         position: branchLocation,
         infoWindow: InfoWindow(title: branchInfo.name),
@@ -180,7 +178,7 @@ class _BranchScreen extends State<BranchScreen> {
           );
 
           final isSelectedMarker =
-              selectedLocation.equalsBranchPosition(branchLocation);
+          selectedLocation.equalsBranchPosition(branchLocation);
           if (!isSelectedMarker) {
             selectedLocation = sLocation;
             shouldShowCloseBranches = false;
@@ -215,10 +213,13 @@ class _BranchScreen extends State<BranchScreen> {
   }
 
   void _onSearch() async {
-    final branchInfo =
-        await Navigator.of(context).pushNamed(Routes.BRANCHES_SEARCH);
+    final branchInfo = await Navigator.of(context).pushNamed(Routes.BRANCHES_SEARCH);
+
 
     if (branchInfo != null && branchInfo is BranchInfo) {
+      setState(() {
+        if (shouldShowCloseBranches) shouldShowCloseBranches = false;
+      });
       _displayAbleMarkers.clear();
 
       final location = branchInfo.location;
@@ -231,7 +232,6 @@ class _BranchScreen extends State<BranchScreen> {
       );
 
       updateSelectedLocation(sLocation);
-      if (shouldShowCloseBranches) shouldShowCloseBranches = false;
       getBranchesAroundSelectedLocation();
       await moveCameraToBranchPosition(branchInfo);
       showBranchInfoBottomSheet(branchInfo);
@@ -254,7 +254,7 @@ class _BranchScreen extends State<BranchScreen> {
   Future<void> moveCameraToCurrentPosition() async {
     await Future.delayed(Duration(milliseconds: 1500), () {
       final currentPosition =
-          LatLng(_lastLocation?.latitude ?? 0, _lastLocation?.longitude ?? 0);
+      LatLng(_lastLocation?.latitude ?? 0, _lastLocation?.longitude ?? 0);
 
       CameraUpdate cUpdate = CameraUpdate.newLatLngZoom(currentPosition, 11);
       _mapController?.animateCamera(cUpdate).then((value) {
@@ -264,8 +264,7 @@ class _BranchScreen extends State<BranchScreen> {
   }
 
   void closeVisibleModals() {
-    var hasModalRoute =
-        ModalRoute.of(context)?.willHandlePopInternally ?? false;
+    var hasModalRoute = ModalRoute.of(context)?.willHandlePopInternally ?? false;
     if (hasModalRoute) {
       Navigator.pop(context);
     }
@@ -273,8 +272,7 @@ class _BranchScreen extends State<BranchScreen> {
 
   void showBranchInfoBottomSheet(BranchInfo branchInfo) {
     closeVisibleModals();
-    _scaffoldKey.currentState!.showBottomSheet(
-      (context) {
+    _scaffoldKey.currentState!.showBottomSheet((context) {
         return Container(
           padding: EdgeInsets.symmetric(horizontal: 20),
           height: 300,
@@ -348,7 +346,7 @@ class _BranchScreen extends State<BranchScreen> {
                           padding: MaterialStateProperty.all(EdgeInsets.zero)),
                       child: Container(
                         padding:
-                            EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                        EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                         decoration: BoxDecoration(
                             color: Color(0xFF0361F0).withOpacity(0.2),
                             borderRadius: BorderRadius.all(Radius.circular(4))),
@@ -376,11 +374,14 @@ class _BranchScreen extends State<BranchScreen> {
                       style: ButtonStyle(
                         padding: MaterialStateProperty.all(EdgeInsets.zero),
                       ),
-                      onPressed: () => openUrl(
-                          "geo:${branchInfo.location?.latitude}, ${branchInfo.location?.longitude}"),
+                      onPressed: () =>
+                          openUrl(
+                              "geo:${branchInfo.location
+                                  ?.latitude}, ${branchInfo.location
+                                  ?.longitude}"),
                       child: Container(
                         padding:
-                            EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                        EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                         decoration: BoxDecoration(
                             color: Colors.transparent,
                             borderRadius: BorderRadius.all(Radius.circular(4))),
@@ -406,10 +407,9 @@ class _BranchScreen extends State<BranchScreen> {
     );
   }
 
-  TextStyle _style(
-      {FontWeight fontWeight = FontWeight.normal,
-      double fontSize = 13,
-      Color color = const Color(0xFF1A0C2F)}) {
+  TextStyle _style({FontWeight fontWeight = FontWeight.normal,
+    double fontSize = 13,
+    Color color = const Color(0xFF1A0C2F)}) {
     return TextStyle(fontSize: fontSize, fontWeight: fontWeight, color: color);
   }
 
@@ -547,9 +547,51 @@ class _BranchScreen extends State<BranchScreen> {
             markers: _displayAbleMarkers,
           ),
           Positioned(
-            top: 38,
-            right: 16,
-            left: 16,
+              child: IgnorePointer(
+                ignoring: true,
+                child: Container(
+                  height: MediaQuery.of(context).size.height * 0.4,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                          colors: [Color(0xff0020500).withOpacity(0.4),
+                            Color(0xff00003D9).withOpacity(0.0)
+                          ],
+                          stops: [0.0, 1.0],
+                          begin: Alignment.topCenter, end: Alignment.bottomCenter
+                      )
+                  ),
+                ),
+              )
+          ),
+          Positioned(
+            top: 40,
+            left: 20,
+            child: InkWell(
+              onTap: () => Navigator.pushNamedAndRemoveUntil(
+                  context, Routes.LOGIN, (Route<dynamic> route) => false),
+              child: Container(
+                height: 38,
+                width: 38,
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Color(0xff21FFFFFF).withOpacity(0.13),
+                  shape: BoxShape.circle,
+                ),
+                child: SizedBox(
+                    child: SvgPicture.asset(
+                      "res/drawables/ic_back.svg", height: 18,
+                      width: 18,
+                      color: Colors.white,
+                    )
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 86,
+            right: 20,
+            left: 20,
             child: Container(
               decoration: BoxDecoration(
                   color: Colors.white,
@@ -576,135 +618,142 @@ class _BranchScreen extends State<BranchScreen> {
                 textColor: Color(0xFF9DA1AB),
                 fontSize: 15,
                 startIcon:
-                    Icon(CustomFont.search, color: Color(0xFF9DA1AB), size: 20),
+                Icon(CustomFont.search, color: Color(0xFF9DA1AB), size: 20),
                 onClick: _onSearch,
               ),
             ),
           ),
           if (shouldShowCloseBranches)
-            AnimatedOpacity(
-              duration: Duration(milliseconds: 700),
-              opacity: shouldShowCloseBranches ? 1 : 0,
-              child: DraggableScrollableSheet(
-                  initialChildSize: 0.4,
-                  minChildSize: 0.35,
-                  maxChildSize: 0.68,
-                  builder: (ctx, scrollController) {
-                    return Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(16),
-                        ),
-                        border: Border.all(
-                            width: 1.0,
-                            color: Color(0xff063A4F0D).withOpacity(0.05)),
-                        boxShadow: [
-                          BoxShadow(
-                            blurRadius: 30,
-                            offset: Offset(0, -12),
-                            color: Color(0xFF17063A4F).withOpacity(0.3),
-                          ),
-                        ],
+            DraggableScrollableSheet(
+                initialChildSize: 0.4,
+                minChildSize: 0.35,
+                maxChildSize: 0.68,
+                builder: (ctx, scrollController) {
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(16),
                       ),
-                      child: ListView(
-                        controller: scrollController,
-                        padding: EdgeInsets.zero,
-                        children: [
-                          Column(
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(height: 23),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
+                      border: Border.all(
+                          width: 1.0,
+                          color: Color(0xff063A4F0D).withOpacity(0.05)),
+                      boxShadow: [
+                        BoxShadow(
+                          blurRadius: 30,
+                          offset: Offset(0, -12),
+                          color: Color(0xFF17063A4F).withOpacity(0.3),
+                        ),
+                      ],
+                    ),
+                    child: Stack(
+                      children: [
+                        ListView(
+                          controller: scrollController,
+                          padding: EdgeInsets.only(top: 74),
+                          shrinkWrap: true,
+                          children: [
+                            Column(
+                              children: closeBranches
+                                  .asMap()
+                                  .map((idx, val) {
+                                final divider = Container(
+                                  padding:
+                                  EdgeInsets.symmetric(horizontal: 20),
+                                  child: Column(
                                     children: [
-                                      Container(
-                                        height: 7,
-                                        width: 45,
-                                        decoration: BoxDecoration(
-                                          color: Colors.grey.withOpacity(0.2),
-                                          borderRadius: BorderRadius.circular(16),
-                                        ),
-                                      ),
+                                      // SizedBox(height: 15),
+                                      Divider(height: 1),
                                     ],
                                   ),
-                                  SizedBox(height: 24),
+                                );
+
+                                final branchListitem = BranchListItem(
+                                    closeBranches[idx],
+                                    idx,
+                                        (item, itemIndex) async {
+                                      final branchInfo = closeBranches[idx];
+                                      final location = branchInfo.location;
+
+                                      if (location != null &&
+                                          location.latitude != null &&
+                                          location.longitude != null) {
+                                        final branchLocation = LatLng(
+                                            double.parse(
+                                                location.latitude ?? "0"),
+                                            double.parse(
+                                                location.longitude ?? "0"));
+
+                                        final sLocation = SelectedLocation(
+                                          location: LatLng(
+                                              branchLocation.latitude,
+                                              branchLocation.longitude),
+                                          branchInfo: branchInfo,
+                                        );
+
+                                        updateSelectedLocation(sLocation);
+                                        shouldShowCloseBranches = false;
+                                        getBranchesAroundSelectedLocation();
+                                        await moveCameraToBranchPosition(
+                                            branchInfo);
+                                        showBranchInfoBottomSheet(
+                                        closeBranches[idx]);
+                                      }
+                                    });
+
+                                Widget item = branchListitem;
+
+                                if (idx > 0 && idx < closeBranches.length - 1) {
+                                  item = Column(children: [item, divider],);
+                                }
+                                return MapEntry(idx, item);
+                              }).values.toList(),
+                            ),
+                          ],
+                        ),
+                        IgnorePointer(
+                          ignoring: true,
+                          child: Container(
+                            width: double.infinity,
+                            height: 82, color: Colors.white,
+                          ),
+                        ),
+                        IgnorePointer(
+                          ignoring: true,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(height: 23,),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
                                   Container(
-                                    padding: EdgeInsets.only(left: 20),
-                                    child: Text(
-                                      "BRANCHES CLOSE TO YOU",
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.textColorBlack,
-                                          fontWeight: FontWeight.w600),
+                                    height: 7,
+                                    width: 45,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(16),
                                     ),
                                   ),
-
-                                  Column(
-                                    children: closeBranches.asMap().map((idx, val) {
-                                    final divider = Container(
-                                      padding:
-                                      EdgeInsets.symmetric(horizontal: 20),
-                                      child: Column(
-                                        children: [
-                                          // SizedBox(height: 15),
-                                          Divider(height: 1),
-                                        ],
-                                      ),
-                                    );
-
-                                    final branchListitem = BranchListItem(
-                                        closeBranches[idx], idx,
-                                            (item, itemIndex) async {
-                                          final branchInfo = closeBranches[idx];
-                                          final location = branchInfo.location;
-
-                                          if (location != null &&
-                                              location.latitude != null &&
-                                              location.longitude != null) {
-                                            final branchLocation = LatLng(
-                                                double.parse(
-                                                    location.latitude ?? "0"),
-                                                double.parse(
-                                                    location.longitude ?? "0"));
-
-                                            final sLocation = SelectedLocation(
-                                              location: LatLng(
-                                                  branchLocation.latitude,
-                                                  branchLocation.longitude),
-                                              branchInfo: branchInfo,
-                                            );
-
-                                            updateSelectedLocation(sLocation);
-                                            shouldShowCloseBranches = false;
-                                            getBranchesAroundSelectedLocation();
-                                            await moveCameraToBranchPosition(
-                                                branchInfo);
-                                            showBranchInfoBottomSheet(
-                                                closeBranches[idx]);
-                                          }
-                                        });
-
-                                    Widget item = branchListitem;
-
-                                    if(idx != closeBranches.length - 1){
-                                      item = Column(children: [item, divider],);
-                                    }
-                                    return MapEntry(idx, item);
-                                  }).values.toList(),
-                                  ),
-
                                 ],
                               ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
-            )
+                              SizedBox(height: 24),
+                              Container(
+                                padding: EdgeInsets.only(left: 20),
+                                child: Text(
+                                  "BRANCHES CLOSE TO YOU",
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.textColorBlack,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                            ],),
+                        ),
+                      ],
+                    ),
+                  );
+                })
         ],
       ),
     );

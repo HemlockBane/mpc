@@ -312,6 +312,7 @@ class BranchListItem extends Container {
       child: InkWell(
         borderRadius: BorderRadius.circular(9),
         onTap: () => _onItemClickListener.call(_branchInfo, 0),
+        onDoubleTap: (){},
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           child: Row(

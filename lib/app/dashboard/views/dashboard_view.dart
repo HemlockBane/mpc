@@ -75,9 +75,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               shrinkWrap: true,
               itemCount: recentlyPaidBeneficiaries.length,
               itemBuilder: (BuildContext context, int index) {
-                final random = Random();
-                final randInt = random.nextInt(9);
-                final color = recentlyPaidColors[randInt];
+
+                final colorIdx = getColorIndex(index, recentlyPaidBeneficiaries.length);
+                final color = recentlyPaidColors[colorIdx];
                 final recentlyPaidBeneficiary = recentlyPaidBeneficiaries[index];
 
                 return Row(
@@ -106,6 +106,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       )
     ]);
+  }
+
+  int getColorIndex(int index, int listLength){
+    if(index < listLength - 1){
+      return index;
+    }
+
+    return index % listLength;
   }
 
   void showComingSoonInfo() {

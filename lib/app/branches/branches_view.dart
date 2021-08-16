@@ -581,9 +581,8 @@ class _BranchScreen extends State<BranchScreen> {
               ),
             ),
           ),
-          AbsorbPointer(
-            absorbing: !shouldShowCloseBranches,
-            child: AnimatedOpacity(
+          if (shouldShowCloseBranches)
+            AnimatedOpacity(
               duration: Duration(milliseconds: 700),
               opacity: shouldShowCloseBranches ? 1 : 0,
               child: DraggableScrollableSheet(
@@ -610,86 +609,94 @@ class _BranchScreen extends State<BranchScreen> {
                       ),
                       child: ListView(
                         controller: scrollController,
+                        padding: EdgeInsets.zero,
                         children: [
                           Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              SizedBox(height: 23),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Container(
-                                    height: 7,
-                                    width: 45,
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey.withOpacity(0.2),
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 24),
-                              Container(
-                                padding: EdgeInsets.only(left: 20),
-                                child: Text(
-                                  "BRANCHES CLOSE TO YOU",
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.textColorBlack,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                              ),
-                              Container(
-                                child: ListView.separated(
-                                  shrinkWrap: true,
-                                  controller: scrollController,
-                                  padding: EdgeInsets.zero,
-                                  itemCount: closeBranches.length,
-                                  separatorBuilder: (context, index) =>
+                                  SizedBox(height: 23),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
                                       Container(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 20),
-                                    child: Column(
-                                      children: [
-                                        // SizedBox(height: 15),
-                                        Divider(height: 1),
-                                      ],
+                                        height: 7,
+                                        width: 45,
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey.withOpacity(0.2),
+                                          borderRadius: BorderRadius.circular(16),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 24),
+                                  Container(
+                                    padding: EdgeInsets.only(left: 20),
+                                    child: Text(
+                                      "BRANCHES CLOSE TO YOU",
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.textColorBlack,
+                                          fontWeight: FontWeight.w600),
                                     ),
                                   ),
-                                  itemBuilder: (context, index) {
-                                    return BranchListItem(
-                                        closeBranches[index], index,
-                                        (item, itemIndex) async {
-                                      final branchInfo = closeBranches[index];
-                                      final location = branchInfo.location;
 
-                                      if (location != null &&
-                                          location.latitude != null &&
-                                          location.longitude != null) {
-                                        final branchLocation = LatLng(
-                                            double.parse(
-                                                location.latitude ?? "0"),
-                                            double.parse(
-                                                location.longitude ?? "0"));
+                                  Column(
+                                    children: closeBranches.asMap().map((idx, val) {
+                                    final divider = Container(
+                                      padding:
+                                      EdgeInsets.symmetric(horizontal: 20),
+                                      child: Column(
+                                        children: [
+                                          // SizedBox(height: 15),
+                                          Divider(height: 1),
+                                        ],
+                                      ),
+                                    );
 
-                                        final sLocation = SelectedLocation(
-                                          location: LatLng(
-                                              branchLocation.latitude,
-                                              branchLocation.longitude),
-                                          branchInfo: branchInfo,
-                                        );
+                                    final branchListitem = BranchListItem(
+                                        closeBranches[idx], idx,
+                                            (item, itemIndex) async {
+                                          final branchInfo = closeBranches[idx];
+                                          final location = branchInfo.location;
 
-                                        updateSelectedLocation(sLocation);
-                                        shouldShowCloseBranches = false;
-                                        getBranchesAroundSelectedLocation();
-                                        await moveCameraToBranchPosition(
-                                            branchInfo);
-                                        showBranchInfoBottomSheet(
-                                            closeBranches[index]);
-                                      }
-                                    });
-                                  },
-                                ),
+                                          if (location != null &&
+                                              location.latitude != null &&
+                                              location.longitude != null) {
+                                            final branchLocation = LatLng(
+                                                double.parse(
+                                                    location.latitude ?? "0"),
+                                                double.parse(
+                                                    location.longitude ?? "0"));
+
+                                            final sLocation = SelectedLocation(
+                                              location: LatLng(
+                                                  branchLocation.latitude,
+                                                  branchLocation.longitude),
+                                              branchInfo: branchInfo,
+                                            );
+
+                                            updateSelectedLocation(sLocation);
+                                            shouldShowCloseBranches = false;
+                                            getBranchesAroundSelectedLocation();
+                                            await moveCameraToBranchPosition(
+                                                branchInfo);
+                                            showBranchInfoBottomSheet(
+                                                closeBranches[idx]);
+                                          }
+                                        });
+
+                                    Widget item = branchListitem;
+
+                                    if(idx != closeBranches.length - 1){
+                                      item = Column(children: [item, divider],);
+                                    }
+                                    return MapEntry(idx, item);
+                                  }).values.toList(),
+                                  ),
+
+                                ],
                               ),
                             ],
                           ),
@@ -697,8 +704,7 @@ class _BranchScreen extends State<BranchScreen> {
                       ),
                     );
                   }),
-            ),
-          )
+            )
         ],
       ),
     );

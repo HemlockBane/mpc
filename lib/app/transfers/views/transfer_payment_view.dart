@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 import 'package:moniepoint_flutter/app/transfers/viewmodels/transfer_view_model.dart';
 import 'package:moniepoint_flutter/app/transfers/views/transfer_view.dart';
 import 'package:moniepoint_flutter/core/amount_pill.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/constants.dart';
 import 'package:moniepoint_flutter/core/models/list_item.dart';
@@ -12,6 +11,7 @@ import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/payment_view_model.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:moniepoint_flutter/core/views/transaction_account_source.dart';
@@ -188,14 +188,6 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
     return pills;
   }
 
-
-  void _displayPaymentError(String message) {
-    showModalBottomSheet(
-        backgroundColor: Colors.transparent,
-        context: widget._scaffoldKey.currentContext ?? context,
-        builder: (context) => BottomSheets.displayErrorModal(context, title: "Oops", message: message));
-  }
-
   void subscribeUiToPin() async {
     final viewModel = Provider.of<TransferViewModel>(context, listen: false);
     viewModel.setPin("");
@@ -237,10 +229,13 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
                 })
           );
         } else {
-          _displayPaymentError(result.message ?? "Unable to complete transaction at this time. Please try again later.");
+          showError(
+              widget._scaffoldKey.currentContext ?? context,
+              message: "Unable to complete transaction at this time. Please try again later."
+          );
         }
     } else if(result is Error<TransactionStatus>) {
-      _displayPaymentError(result.message ?? "");
+      showError(widget._scaffoldKey.currentContext ?? context, message: result.message);
     }
   }
 

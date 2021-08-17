@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lottie/lottie.dart';
@@ -339,21 +340,21 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
       _passwordController.clear();
       _topAnimController.reset();
 
-      showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-          builder: (context) {
-            //TODO we might need a better way of identifying how to detect an upgrade
-            if (event.message?.contains("version") == true) {
-              return BottomSheets.displayWarningDialog('Update Moniepoint App', event.message ?? "", () {
-                Navigator.of(context).pop();
-                final viewModel = Provider.of<LoginViewModel>(context, listen: false);
-                openUrl(viewModel.getApplicationPlayStoreUrl());
-              }, buttonText: "Upgrade App");
+      if (event.message?.contains("version") == true) {
+        showInfo(
+            context,
+            title: "Update Moniepoint App",
+            message: event.message ?? "",
+            primaryButtonText: "Upgrade App",
+            onPrimaryClick: () {
+              Navigator.of(context).pop();
+              final viewModel = Provider.of<LoginViewModel>(context, listen: false);
+              openUrl(viewModel.getApplicationPlayStoreUrl());
             }
-            return BottomSheets.displayErrorModal(context, message: event.message);
-          });
+        );
+      } else {
+        showError(context, message: event.message ?? "");
+      }
       _topAnimController.reverse(from: 0.15);
     }
     if (event is Success<User>) {

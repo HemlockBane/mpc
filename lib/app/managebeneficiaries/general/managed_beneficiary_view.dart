@@ -13,6 +13,7 @@ import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:moniepoint_flutter/core/views/transaction_tab.dart';
 import 'package:provider/provider.dart';
@@ -50,20 +51,10 @@ class ManagedBeneficiaryScreen extends StatefulWidget {
           message = "Transfer beneficiary has been removed successfully.";
           break;
       }
-      await showModalBottomSheet(
-          backgroundColor: Colors.transparent,
-          isScrollControlled: true,
-          context: context,
-          builder: (mContext) => BottomSheets.displaySuccessModal(mContext,
-              title: title, message: message));
+      await showSuccess(context, title: title, message: message);
       return true;
     } else if(result is Error) {
-      await showModalBottomSheet(
-          backgroundColor: Colors.transparent,
-          isScrollControlled: true,
-          context: context,
-          builder: (mContext) => BottomSheets.displayErrorModal(mContext, message: result.message)
-      );
+      await showError(context, message: result.message);
       return false;
     }
     return false;

@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/utils/download_util.dart';
 
 import '../colors.dart';
@@ -47,16 +48,7 @@ class _TransactionSuccessDialog extends State<TransactionSuccessDialog> {
         setState(() { _isLoading = false; });
       } catch(e) {
         setState(() { _isLoading = false; });
-        //display Error dialog
-        showModalBottomSheet(
-            backgroundColor: Colors.transparent,
-            context: context,
-            builder: (context) => BottomSheets.displayErrorModal(
-                context,
-                title: "Oops",
-                message: "Failed to download receipt"
-            )
-        );
+        showError(context, message: "Failed to download receipt");
       }
     }
   }

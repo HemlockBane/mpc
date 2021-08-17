@@ -78,7 +78,7 @@ class UserInstance {
     );
   }
 
-  void updateSessionEventReceiver(SessionEventCallback callback) {
+  void updateSessionEventCallback(SessionEventCallback callback) {
     this._sessionEventCallback = callback;
   }
 

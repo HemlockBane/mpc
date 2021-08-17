@@ -61,14 +61,15 @@ class _CardDetailedViewState extends State<CardDetailedView> {
   void _displayForBlockOrUnblock(SingleCardViewModel viewModel) async {
     //User wants to unblock
     if(!_card!.blocked) {
-      dynamic value = await showModalBottomSheet(
-          backgroundColor: Colors.transparent,
-          context: context,
-          isScrollControlled: true,
-          builder: (context) => BottomSheets.displayWarningDialog("Warning!!!", "You will have to visit a branch to unblock your card if needed! Proceed to block?", () {
+      dynamic value = await showInfo(
+          context,
+          title: "Warning!!!",
+          message: "You will have to visit a branch to unblock your card if needed! Proceed to block?",
+          onPrimaryClick: () {
             Navigator.of(context).pop(true);
-          })
+          }
       );
+
       if(value is bool && value) {
         final transactionRequest = CardTransactionRequest()..cardId = _card?.id;
        _openCardTransactionDialog(viewModel, CardAction.BLOCK_CARD, transactionRequest);

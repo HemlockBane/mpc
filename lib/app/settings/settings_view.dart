@@ -12,6 +12,7 @@ import 'package:moniepoint_flutter/core/config/build_config.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/viewmodels/finger_print_alert_view_model.dart';
 import 'package:moniepoint_flutter/core/views/finger_print_alert_dialog.dart';
@@ -40,10 +41,7 @@ class _SettingsScreen extends State<SettingsScreen> {
         )
     );
     if(result is Error<bool>) {
-      showModalBottomSheet(
-          backgroundColor: Colors.transparent,
-          context: _scaffoldKey.currentContext ?? context,
-          builder: (context) => BottomSheets.displayErrorModal(context, title: "Oops", message: result.message));
+      await showError( _scaffoldKey.currentContext ?? context, message: result.message);
     } else if(result is bool && result == true) {
       _displaySuccessMessage("Password Changed", "Password was updated successfully");
     }
@@ -60,10 +58,7 @@ class _SettingsScreen extends State<SettingsScreen> {
         )
     );
     if(result is Error<bool>) {
-      showModalBottomSheet(
-          backgroundColor: Colors.transparent,
-          context: _scaffoldKey.currentContext ?? context,
-          builder: (context) => BottomSheets.displayErrorModal(context, title: "Oops", message: result.message));
+      showError(_scaffoldKey.currentContext ?? context, message: result.message);
     } else if(result is bool && result == true) {
       _displaySuccessMessage("Pin Changed", "Transaction PIN was updated successfully");
     }
@@ -88,30 +83,23 @@ class _SettingsScreen extends State<SettingsScreen> {
           )
       );
       if (fingerprintResult != null && fingerprintResult is bool) {
-        showModalBottomSheet(
-            backgroundColor: Colors.transparent,
-            context: context,
-            builder: (mContext) => BottomSheets.displaySuccessModal(
-                mContext,
-                title: "Fingerprint setup",
-                message: "Fingerprint Setup successfully"
-            )
+        showSuccess(
+            context,
+            title: "Fingerprint setup",
+            message: "Fingerprint Setup successfully"
         );
       }
     }
   }
 
   void _displaySuccessMessage(String title, String message) {
-    showModalBottomSheet(
-        context: _scaffoldKey.currentContext ?? context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (mContext) => BottomSheets.displaySuccessModal(
-            _scaffoldKey.currentContext ?? mContext,
-            title: title,
-            message: message,
-            onClick: () => Navigator.of(_scaffoldKey.currentContext ?? context).pop()
-        )
+    showSuccess(
+        _scaffoldKey.currentContext ?? context,
+        title: title,
+        message: message,
+        onPrimaryClick: () {
+          Navigator.of(_scaffoldKey.currentContext ?? context).pop();
+        }
     );
   }
 

@@ -16,6 +16,7 @@ import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/utils/list_view_util.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:provider/provider.dart';
@@ -157,24 +158,14 @@ class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin{
         )
     );
     if(value != null && value is Tuple<String, String>) {
-      showModalBottomSheet(
-          context: _scaffoldKey.currentContext ?? context,
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-          builder: (mContext) => BottomSheets.displaySuccessModal(
-              _scaffoldKey.currentContext ?? mContext,
-              title: value.first,
-              message: value.second,
-              onClick: () {
-                Navigator.of(_scaffoldKey.currentContext!).pop();
-              }
-          )
+      showSuccess(
+          _scaffoldKey.currentContext ?? context,
+          title: value.first,
+          message: value.second,
+          onPrimaryClick: () => Navigator.of(_scaffoldKey.currentContext!).pop()
       );
     } else if(value is Error) {
-      showModalBottomSheet(
-          backgroundColor: Colors.transparent,
-          context: _scaffoldKey.currentContext ?? context,
-          builder: (context) => BottomSheets.displayErrorModal(context, title: "Oops", message: value.message));
+      showError(_scaffoldKey.currentContext ?? context, message: value.message ?? "");
     }
   }
 

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/utils/download_util.dart';
 
 import '../bottom_sheet.dart';
@@ -86,15 +87,7 @@ class _TransactionOptionsView extends State<TransactionOptionsView> {
     } catch (e) {
       setState(() { _isDownloadingReceipt = false;});
       setState(() { _isDownloadingShareReceipt = false;});
-      showModalBottomSheet(
-          backgroundColor: Colors.transparent,
-          context: context,
-          builder: (context) => BottomSheets.displayErrorModal(
-              context,
-              title: "Oops",
-              message: "Failed to download receipt"
-          )
-      );
+      showError(context, message: "Failed to download receipt");
     }
   }
 

@@ -724,7 +724,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         stream: recentlyPaidBeneficiaries,
                         builder: (BuildContext context, AsyncSnapshot<Resource<List<TransferBeneficiary>?>>snapshot) {
 
-                          if (!snapshot.hasData) return Container(height: 50);
+                          if (snapshot.hasData) return Container();
 
                           final resource = snapshot.data;
                           final hasData = resource?.data?.isNotEmpty == true;
@@ -732,41 +732,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           final currentList = <TransferBeneficiary>[];
 
                           if(resource is Loading && (displayLocalData && !hasData || !displayLocalData)) {
-                            return  Container(
-                              height: 50, width: double.infinity,
-                              child: Center(child: Text('Loading'),
-                              ),
-                            );
+                            return  Container();
                           }
 
                           if ((snapshot.hasError || snapshot.data is Error) &&
                               (!displayLocalData || currentList.isEmpty)) {
-                            Container(
-                              height: 50, width: double.infinity,
-                              child: Center(child: Text('Error'),
-                              ),
-                            );
+                            Container();
                           }
 
                           if (resource == null ||
                               resource is Loading &&
                                   resource.data?.isEmpty == true) {
-                            Container(
-                              height: 50, width: double.infinity,
-                              child: Center(child: Text('Empty'),
-                              ),
-                            );
+                            return Container();
                           }
 
                           if (resource is Success && !hasData) {
-                            return Container(
-                              height: 50, width: double.infinity,
-                                child: Center(child: Text('Empty Data'),
-                                ),
-                            );
+                            return Container();
                           }
 
-                          final beneficiaries = resource?.data;
+                          final beneficiaries = resource.data;
 
                           return _buildRecentlyPaidList(
                               recentlyPaidColors, beneficiaries!);

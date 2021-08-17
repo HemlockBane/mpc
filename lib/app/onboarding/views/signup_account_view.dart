@@ -8,7 +8,6 @@ import 'package:moniepoint_flutter/app/onboarding/views/profile_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:provider/provider.dart';
-
 import 'account_info_view.dart';
 
 class SignUpAccountScreen extends StatelessWidget  {

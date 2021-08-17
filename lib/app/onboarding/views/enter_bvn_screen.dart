@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter/services.dart';
-import 'package:moniepoint_flutter/app/liveliness/liveliness_verification.dart';
+import 'package:moniepoint_flutter/app/liveliness/model/data/liveliness_verification_for.dart';
 import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
 import 'package:moniepoint_flutter/app/validation/model/data/onboarding_liveliness_validation_response.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
@@ -67,19 +67,19 @@ class _EnterBVNScreen extends State<EnterBVNScreen> {
       }
 
       //If everything is successful then we need to decide our next route
-      final onboardingType = validationResponse.setupType?.type;
+      final profileSetupType = validationResponse.setupType;
 
       viewModel.setOnboardingKey(validationResponse.onboardingKey ?? "");
 
-      final useEmail = validationResponse.setupType?.hasEmail ?? true;
+      if(profileSetupType != null) {
+        viewModel.setProfileSetupType(profileSetupType);
+      }
 
-      if(onboardingType == OnBoardingType.ACCOUNT_DOES_NOT_EXIST) {
+      if(profileSetupType?.type == OnBoardingType.ACCOUNT_DOES_NOT_EXIST) {
         //We navigate to account info
-        viewModel.setOnBoardingType(onboardingType!, useEmail);
         Navigator.of(context).pushNamed(SignUpAccountScreen.ACCOUNT_INFO);
-      } else if(onboardingType == OnBoardingType.ACCOUNT_EXIST){
+      } else if(profileSetupType?.type == OnBoardingType.ACCOUNT_EXIST) {
         //We navigate to profile info
-        viewModel.setOnBoardingType(onboardingType!, useEmail);
         Navigator.of(context).pushNamed(SignUpAccountScreen.PROFILE);
       } else {
         _showGenericError("Failed to determine account setup type");

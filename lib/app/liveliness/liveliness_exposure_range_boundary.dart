@@ -23,7 +23,6 @@ class LivelinessExposureRangeBoundary extends CustomPainter {
 
   final _path = Path();
 
-
   @override
   void paint(Canvas canvas, Size size) {
 

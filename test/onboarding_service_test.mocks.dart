@@ -3,13 +3,13 @@
 // Do not manually edit this file.
 
 import 'dart:async' as _i4;
-import 'dart:io' as _i18;
+import 'dart:io' as _i14;
 
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart'
     as _i5;
 import 'package:moniepoint_flutter/app/onboarding/model/account_creation_service.dart'
-    as _i13;
+    as _i15;
 import 'package:moniepoint_flutter/app/onboarding/model/data/account_info_request.dart'
     as _i6;
 import 'package:moniepoint_flutter/app/onboarding/model/data/account_profile_result.dart'
@@ -17,13 +17,13 @@ import 'package:moniepoint_flutter/app/onboarding/model/data/account_profile_res
 import 'package:moniepoint_flutter/app/onboarding/model/data/account_request.dart'
     as _i12;
 import 'package:moniepoint_flutter/app/onboarding/model/data/bvn_otp_result.dart'
-    as _i15;
+    as _i17;
 import 'package:moniepoint_flutter/app/onboarding/model/data/bvn_otp_validation_request.dart'
-    as _i16;
+    as _i18;
 import 'package:moniepoint_flutter/app/onboarding/model/data/bvn_otp_validation_result.dart'
-    as _i19;
+    as _i20;
 import 'package:moniepoint_flutter/app/onboarding/model/data/bvn_validation_request.dart'
-    as _i14;
+    as _i16;
 import 'package:moniepoint_flutter/app/onboarding/model/data/otp.dart' as _i7;
 import 'package:moniepoint_flutter/app/onboarding/model/data/profile_request.dart'
     as _i10;
@@ -34,11 +34,13 @@ import 'package:moniepoint_flutter/app/onboarding/model/data/validation_otp_requ
 import 'package:moniepoint_flutter/app/onboarding/model/onboarding_service.dart'
     as _i3;
 import 'package:moniepoint_flutter/app/securityquestion/model/data/security_question.dart'
-    as _i22;
+    as _i23;
 import 'package:moniepoint_flutter/app/securityquestion/model/security_question_delegate.dart'
-    as _i20;
-import 'package:moniepoint_flutter/core/models/file_uuid.dart' as _i17;
-import 'package:moniepoint_flutter/core/network/resource.dart' as _i21;
+    as _i21;
+import 'package:moniepoint_flutter/app/validation/model/data/onboarding_liveliness_validation_response.dart'
+    as _i13;
+import 'package:moniepoint_flutter/core/models/file_uuid.dart' as _i19;
+import 'package:moniepoint_flutter/core/network/resource.dart' as _i22;
 import 'package:moniepoint_flutter/core/network/service_result.dart' as _i2;
 
 // ignore_for_file: comment_references
@@ -100,87 +102,100 @@ class MockOnBoardingService extends _i1.Mock implements _i3.OnBoardingService {
               returnValue: Future<_i2.ServiceResult<bool>>.value(
                   _FakeServiceResult<bool>()))
           as _i4.Future<_i2.ServiceResult<bool>>);
+  @override
+  _i4.Future<_i2.ServiceResult<_i13.OnboardingLivelinessValidationResponse>>
+      validateLivelinessForOnboarding(
+              _i14.File? firstCapture,
+              _i14.File? motionCapture,
+              String? bvn,
+              String? phoneNumberValidationKey) =>
+          (super.noSuchMethod(
+              Invocation.method(#validateLivelinessForOnboarding,
+                  [firstCapture, motionCapture, bvn, phoneNumberValidationKey]),
+              returnValue: Future<_i2.ServiceResult<_i13.OnboardingLivelinessValidationResponse>>.value(
+                  _FakeServiceResult<_i13.OnboardingLivelinessValidationResponse>())) as _i4
+              .Future<_i2.ServiceResult<_i13.OnboardingLivelinessValidationResponse>>);
 }
 
 /// A class which mocks [AccountCreationService].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockAccountCreationService extends _i1.Mock
-    implements _i13.AccountCreationService {
+    implements _i15.AccountCreationService {
   MockAccountCreationService() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<_i2.ServiceResult<_i14.BVNValidationRequest>> validateBVN(
-          _i14.BVNValidationRequest? validationRequest) =>
+  _i4.Future<_i2.ServiceResult<_i16.BVNValidationRequest>> validateBVN(
+          _i16.BVNValidationRequest? validationRequest) =>
       (super.noSuchMethod(Invocation.method(#validateBVN, [validationRequest]),
               returnValue:
-                  Future<_i2.ServiceResult<_i14.BVNValidationRequest>>.value(
-                      _FakeServiceResult<_i14.BVNValidationRequest>()))
-          as _i4.Future<_i2.ServiceResult<_i14.BVNValidationRequest>>);
+                  Future<_i2.ServiceResult<_i16.BVNValidationRequest>>.value(
+                      _FakeServiceResult<_i16.BVNValidationRequest>()))
+          as _i4.Future<_i2.ServiceResult<_i16.BVNValidationRequest>>);
   @override
-  _i4.Future<_i2.ServiceResult<_i15.BVNOTPResult>> requestBVNOTP(
-          _i16.BVNOTPValidationRequest? otpRequest) =>
+  _i4.Future<_i2.ServiceResult<_i17.BVNOTPResult>> requestBVNOTP(
+          _i18.BVNOTPValidationRequest? otpRequest) =>
       (super.noSuchMethod(Invocation.method(#requestBVNOTP, [otpRequest]),
-              returnValue: Future<_i2.ServiceResult<_i15.BVNOTPResult>>.value(
-                  _FakeServiceResult<_i15.BVNOTPResult>()))
-          as _i4.Future<_i2.ServiceResult<_i15.BVNOTPResult>>);
+              returnValue: Future<_i2.ServiceResult<_i17.BVNOTPResult>>.value(
+                  _FakeServiceResult<_i17.BVNOTPResult>()))
+          as _i4.Future<_i2.ServiceResult<_i17.BVNOTPResult>>);
   @override
-  _i4.Future<_i2.ServiceResult<_i17.FileUUID>> uploadImageForUUID(
-          _i18.File? selfieImage) =>
+  _i4.Future<_i2.ServiceResult<_i19.FileUUID>> uploadImageForUUID(
+          _i14.File? selfieImage) =>
       (super.noSuchMethod(Invocation.method(#uploadImageForUUID, [selfieImage]),
-              returnValue: Future<_i2.ServiceResult<_i17.FileUUID>>.value(
-                  _FakeServiceResult<_i17.FileUUID>()))
-          as _i4.Future<_i2.ServiceResult<_i17.FileUUID>>);
+              returnValue: Future<_i2.ServiceResult<_i19.FileUUID>>.value(
+                  _FakeServiceResult<_i19.FileUUID>()))
+          as _i4.Future<_i2.ServiceResult<_i19.FileUUID>>);
   @override
-  _i4.Future<_i2.ServiceResult<_i19.BVNOTPValidationResult>> validateBVNOTP(
-          _i16.BVNOTPValidationRequest? validationRequest) =>
+  _i4.Future<_i2.ServiceResult<_i20.BVNOTPValidationResult>> validateBVNOTP(
+          _i18.BVNOTPValidationRequest? validationRequest) =>
       (super.noSuchMethod(
               Invocation.method(#validateBVNOTP, [validationRequest]),
               returnValue:
-                  Future<_i2.ServiceResult<_i19.BVNOTPValidationResult>>.value(
-                      _FakeServiceResult<_i19.BVNOTPValidationResult>()))
-          as _i4.Future<_i2.ServiceResult<_i19.BVNOTPValidationResult>>);
+                  Future<_i2.ServiceResult<_i20.BVNOTPValidationResult>>.value(
+                      _FakeServiceResult<_i20.BVNOTPValidationResult>()))
+          as _i4.Future<_i2.ServiceResult<_i20.BVNOTPValidationResult>>);
 }
 
 /// A class which mocks [SecurityQuestionDelegate].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockSecurityQuestionDelegate extends _i1.Mock
-    implements _i20.SecurityQuestionDelegate {
+    implements _i21.SecurityQuestionDelegate {
   MockSecurityQuestionDelegate() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Stream<_i21.Resource<List<_i22.SecurityQuestion>>> getAllQuestions() =>
+  _i4.Stream<_i22.Resource<List<_i23.SecurityQuestion>>> getAllQuestions() =>
       (super.noSuchMethod(Invocation.method(#getAllQuestions, []),
               returnValue:
-                  Stream<_i21.Resource<List<_i22.SecurityQuestion>>>.empty())
-          as _i4.Stream<_i21.Resource<List<_i22.SecurityQuestion>>>);
+                  Stream<_i22.Resource<List<_i23.SecurityQuestion>>>.empty())
+          as _i4.Stream<_i22.Resource<List<_i23.SecurityQuestion>>>);
   @override
-  _i4.Stream<_i21.Resource<_i22.SecurityQuestion>>
+  _i4.Stream<_i22.Resource<_i23.SecurityQuestion>>
       getSecurityQuestionByUsername() => (super.noSuchMethod(
               Invocation.method(#getSecurityQuestionByUsername, []),
-              returnValue: Stream<_i21.Resource<_i22.SecurityQuestion>>.empty())
-          as _i4.Stream<_i21.Resource<_i22.SecurityQuestion>>);
+              returnValue: Stream<_i22.Resource<_i23.SecurityQuestion>>.empty())
+          as _i4.Stream<_i22.Resource<_i23.SecurityQuestion>>);
   @override
-  _i4.Stream<_i21.Resource<_i22.SecurityQuestion>>
+  _i4.Stream<_i22.Resource<_i23.SecurityQuestion>>
       getSecurityQuestionByAccountNumber(String? accountNumber) =>
           (super.noSuchMethod(
                   Invocation.method(
                       #getSecurityQuestionByAccountNumber, [accountNumber]),
                   returnValue:
-                      Stream<_i21.Resource<_i22.SecurityQuestion>>.empty())
-              as _i4.Stream<_i21.Resource<_i22.SecurityQuestion>>);
+                      Stream<_i22.Resource<_i23.SecurityQuestion>>.empty())
+              as _i4.Stream<_i22.Resource<_i23.SecurityQuestion>>);
   @override
-  _i4.Stream<_i21.Resource<K>> networkBoundResource<K>(
+  _i4.Stream<_i22.Resource<K>> networkBoundResource<K>(
           {_i4.Stream<K?> Function()? fetchFromLocal,
           bool Function(K?)? shouldFetchFromRemote,
           bool? shouldFetchLocal = false,
           _i4.Future<_i2.ServiceResult<K>?> Function()? fetchFromRemote,
-          K? Function(_i21.Success<_i2.ServiceResult<K>>)?
+          K? Function(_i22.Success<_i2.ServiceResult<K>>)?
               processRemoteResponse,
           _i4.Future<dynamic> Function(K)? saveRemoteData}) =>
       (super.noSuchMethod(
@@ -192,6 +207,6 @@ class MockSecurityQuestionDelegate extends _i1.Mock
                 #processRemoteResponse: processRemoteResponse,
                 #saveRemoteData: saveRemoteData
               }),
-              returnValue: Stream<_i21.Resource<K>>.empty())
-          as _i4.Stream<_i21.Resource<K>>);
+              returnValue: Stream<_i22.Resource<K>>.empty())
+          as _i4.Stream<_i22.Resource<K>>);
 }

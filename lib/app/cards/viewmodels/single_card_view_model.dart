@@ -9,26 +9,22 @@ class SingleCardViewModel extends BaseViewModel {
 
   late final CardServiceDelegate _delegate;
 
-  Card? _selectedCard;
-  Card? get selectedCard => _selectedCard;
-
   SingleCardViewModel({CardServiceDelegate? delegate}) {
     this._delegate = delegate ?? GetIt.I<CardServiceDelegate>();
   }
-
-  void setSelectedCard(Card card) => this._selectedCard = card;
-
   Stream<Resource<List<Card>>> getCards() {
     // return Stream.value(Resource.success([
-    //   Card(0, "", "", "9999933****342323", "", "23/03", null, null, null, null, "Paul Okeke", null, null, null, null, null, null, null, null, null, null),
-    //   Card(0, "", "", "9999933****342323", "", "23/03", null, null, null, null, "AAAAA Okeke", null, null, null, null, null, null, null, null, null, null),
+    //   Card(id: 0,maskedPan: "514360******4198", expiryDate: "23/03", blocked: false, nameOnCard: "AAAAA Okeke", status: CardStatus.ACTIVE),
+    //   Card(id: 1,maskedPan: "506099******4323", expiryDate: "23/03", blocked: false, nameOnCard: "AAAAA Okeke", status: CardStatus.IN_ACTIVE),
+    //   Card(id: 2,maskedPan: "406099******4323", expiryDate: "23/03", blocked: true, nameOnCard: "Ebun Oluwa", status: CardStatus.ACTIVE),
     // ]));
     return _delegate.getCards(customerId).map((event) {
-      if(event is Success && event.data?.isNotEmpty == true) {
-        _selectedCard = event.data?.first;
-      }
       return event;
     });
+  }
+
+  Future<Card?> getSingleCard(num cardId) {
+    return _delegate.getCard(cardId);
   }
 
   Stream<Resource<bool>> blockCardChannel(CardTransactionRequest cardRequest) {

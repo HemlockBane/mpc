@@ -54,9 +54,6 @@ class AccountForm with ChangeNotifier, Validators{
   final _phoneNumberController = StreamController<String>.broadcast();
   Stream<String> get phoneNumberStream => _phoneNumberController.stream;
 
-  final _emailController = StreamController<String>.broadcast();
-  Stream<String> get emailStream => _emailController.stream;
-
   final _genderController = StreamController<String>.broadcast();
   Stream<String> get genderStream => _genderController.stream;
 
@@ -73,7 +70,6 @@ class AccountForm with ChangeNotifier, Validators{
     this._isBVNNumberValid = Rx.combineLatest([bvnStream], (values) {
       return _isBVNValid(displayError: false);
     }).asBroadcastStream();
-
 
     final accountInfoStreams = [
       stateStream,
@@ -179,9 +175,6 @@ class AccountForm with ChangeNotifier, Validators{
   bool _isStateOfOriginValid({bool displayError = false}) {
     final addressInfo = _requestBody.addressInfo;
     final isValid = addressInfo?.addressCity != null && addressInfo?.addressCity?.isNotEmpty == true;
-    // if (displayError && !isValid) {
-    //   _localGovtController.sink.addError("Local Govt is required");
-    // }
     return isValid;
   }
 
@@ -194,7 +187,9 @@ class AccountForm with ChangeNotifier, Validators{
 
   bool _isLocalGovtValid({bool displayError = false}) {
     final addressInfo = _requestBody.addressInfo;
-    final isValid = addressInfo?.addressLocalGovernmentAreaId != null && addressInfo?.addressLocalGovernmentAreaId != 0;
+    final isValid = addressInfo?.addressLocalGovernmentAreaId != null
+        && addressInfo?.addressLocalGovernmentAreaId != 0;
+
     if (displayError && !isValid) {
       _localGovtController.sink.addError("Local Govt is required");
     }
@@ -212,7 +207,6 @@ class AccountForm with ChangeNotifier, Validators{
   void dispose() {
     _bvnController.close();
     _phoneNumberController.close();
-    _emailController.close();
     _genderController.close();
     _dobStreamController.close();
     _stateController.close();

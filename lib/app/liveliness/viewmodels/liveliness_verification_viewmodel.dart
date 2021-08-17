@@ -3,8 +3,8 @@
 import 'dart:io';
 
 import 'package:get_it/get_it.dart';
-import 'package:moniepoint_flutter/app/liveliness/liveliness_verification.dart';
-import 'package:moniepoint_flutter/app/liveliness/model/liveliness_verification_service_delegate.dart';
+import 'package:moniepoint_flutter/app/liveliness/model/data/liveliness_verification_for.dart';
+import 'package:moniepoint_flutter/app/onboarding/model/onboarding_service_delegate.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/data/forgot_password_request.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/data/recovery_response.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/usermanagement_service_delegate.dart';
@@ -16,23 +16,23 @@ import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 
 class LivelinessVerificationViewModel extends BaseViewModel{
 
-  late final LivelinessVerificationServiceDelegate _verificationServiceDelegate;
+  late final OnBoardingServiceDelegate _onBoardingServiceDelegate;
   late final UserManagementServiceDelegate _userServiceDelegate;
   late final ValidationServiceDelegate _validationServiceDelegate;
 
   LivelinessVerificationViewModel({
-    LivelinessVerificationServiceDelegate? verificationServiceDelegate,
+    OnBoardingServiceDelegate? verificationServiceDelegate,
     UserManagementServiceDelegate? userManagementServiceDelegate,
     ValidationServiceDelegate? validationServiceDelegate,
   }) {
-    this._verificationServiceDelegate = verificationServiceDelegate ?? GetIt.I<LivelinessVerificationServiceDelegate>();
+    this._onBoardingServiceDelegate = verificationServiceDelegate ?? GetIt.I<OnBoardingServiceDelegate>();
     this._userServiceDelegate = userManagementServiceDelegate ?? GetIt.I<UserManagementServiceDelegate>();
     this._validationServiceDelegate = validationServiceDelegate ?? GetIt.I<ValidationServiceDelegate>();
   }
 
   Stream<Resource<OnboardingLivelinessValidationResponse>> validateLivelinessForOnboarding(
       File firstCapture, File motionCapture, String bvn, String phoneNumberValidationKey) {
-    return _verificationServiceDelegate.validateLivelinessForOnboarding(firstCapture, motionCapture, bvn, phoneNumberValidationKey);
+    return _onBoardingServiceDelegate.validateLivelinessForOnboarding(firstCapture, motionCapture, bvn, phoneNumberValidationKey);
   }
 
   Stream<Resource<RecoveryResponse>> validateForRecovery(

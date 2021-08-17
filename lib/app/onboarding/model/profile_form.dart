@@ -41,16 +41,13 @@ class ProfileForm with ChangeNotifier, Validators {
   Stream<String> get emailStream => _emailController.stream;
 
   bool _hasSignature = false;
-  bool _enableEmail = true;
-  bool get enableEmail => _enableEmail;
 
-  OnBoardingType _onBoardingType = OnBoardingType.ACCOUNT_DOES_NOT_EXIST;
+  SetupType _setupType = SetupType();
+  SetupType get setupType => _setupType;
 
   UsernameValidationState _validationState = UsernameValidationState(UsernameValidationStatus.NONE, "");
 
-  ProfileForm() {
-    // _initState();
-  }
+  ProfileForm();
 
   void setRequestBody(ProfileCreationRequestBody requestBody) {
     this._requestBody = requestBody;
@@ -66,7 +63,7 @@ class ProfileForm with ChangeNotifier, Validators {
       ussdPinInputStream,
     ];
 
-    if(enableEmail) formStreams.add(emailStream);
+    if(setupType.hasEmail == false) formStreams.add(emailStream);
 
     this._isValid = Rx.combineLatest(formStreams, (values) {
       print(values);
@@ -78,11 +75,6 @@ class ProfileForm with ChangeNotifier, Validators {
           && _validationState.status == UsernameValidationStatus.AVAILABLE
           && _hasSignature;
     }).asBroadcastStream();
-  }
-
-  /// Initializes the state of the profile form
-  void _initState() {
-
   }
 
   void onUsernameChanged(String? text) {
@@ -157,7 +149,7 @@ class ProfileForm with ChangeNotifier, Validators {
   }
 
   bool _isEmailAddressValid({bool displayError = false}) {
-    if(!enableEmail) return true;
+    if(setupType.hasEmail == true) return true;
     final isValid = isEmailValid(_requestBody.emailAddress);
     if (displayError && !isValid) {
       _emailController.sink.addError(
@@ -183,9 +175,8 @@ class ProfileForm with ChangeNotifier, Validators {
     _signatureController.sink.add(hasSignature);
   }
 
-  void setOnboardingType(OnBoardingType onBoardingType, bool useEmail) {
-    this._onBoardingType = onBoardingType;
-    this._enableEmail = useEmail;
+  void setProfileSetupType(SetupType setupType) {
+    this._setupType = setupType;
   }
 
 

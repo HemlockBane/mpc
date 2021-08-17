@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
 import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
-import 'package:moniepoint_flutter/app/onboarding/views/new/signup_account_view.dart';
+import 'package:moniepoint_flutter/app/onboarding/views/signup_account_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/views/custom_check_box.dart';
@@ -32,6 +32,7 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
   @override
   void initState() {
     super.initState();
+    //TODO check if nationalities has been fetched if not re-fetch
   }
 
   Widget _buildMain(BuildContext context) {

@@ -10,11 +10,9 @@ import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_drawer_view.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/bottom_menu_view.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_container_view.dart';
-import 'package:moniepoint_flutter/app/dashboard/views/dashboard_view.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/login_mode.dart';
-import 'package:moniepoint_flutter/core/login_prompt.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
@@ -36,8 +34,7 @@ class DashboardScreenOld extends StatefulWidget {
   }
 }
 
-class _DashboardScreen extends State<DashboardScreenOld>
-    with TickerProviderStateMixin {
+class _DashboardScreen extends State<DashboardScreenOld> with TickerProviderStateMixin {
   late final AnimationController _bottomMenuController =
       AnimationController(duration: Duration(milliseconds: 700), vsync: this);
   late final AnimationController _dashboardCardController =
@@ -73,9 +70,7 @@ class _DashboardScreen extends State<DashboardScreenOld>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                SvgPicture.asset(
-                  'res/drawables/ic_upgrade_account_2.svg',
-                ),
+                SvgPicture.asset('res/drawables/ic_upgrade_account_2.svg'),
                 SizedBox(width: 16),
                 Expanded(child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,13 +80,16 @@ class _DashboardScreen extends State<DashboardScreenOld>
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Colors.primaryColor,
-                            fontSize: 15)),
+                            fontSize: 15
+                        )
+                    ),
                     SizedBox(height: 2),
                     Text('Upgrade your savings account\nto enjoy higher limits',
                         style: TextStyle(
                             color: Colors.textColorBlack,
                             fontSize: 12,
-                            fontWeight: FontWeight.normal))
+                            fontWeight: FontWeight.normal
+                        ))
                   ],
                 )),
                 SizedBox(width: 16),
@@ -138,8 +136,8 @@ class _DashboardScreen extends State<DashboardScreenOld>
                           fontSize: 17)),
                   SizedBox(height: 2),
                   Text('Remember to stay safe!',
-                      style:
-                          TextStyle(color: Colors.textColorBlack, fontSize: 12))
+                      style: TextStyle(color: Colors.textColorBlack, fontSize: 12)
+                  )
                 ],
               )),
         ),
@@ -157,15 +155,14 @@ class _DashboardScreen extends State<DashboardScreenOld>
   }
 
   void _refreshDashboard() {
-    setState(() {});
+    print("Refresh Dashboard was called!!!!1");
     subscribeUiToAccountStatus();
   }
 
   void subscribeUiToAccountStatus() {
     final viewModel = Provider.of<DashboardViewModel>(context, listen: false);
-    viewModel.fetchAccountStatus().listen((event) {
-      if (event is Success) viewModel.update();
-    });
+    viewModel.update();
+    viewModel.fetchAccountStatus().listen((event) {});
   }
 
   Widget _buildDashboardSlider() {
@@ -212,8 +209,7 @@ class _DashboardScreen extends State<DashboardScreenOld>
           return AnimatedBuilder(
               animation: pageController,
               builder: (mContext, _) {
-                num selectedPage =
-                    (pageController.position.hasContentDimensions)
+                num selectedPage = (pageController.position.hasContentDimensions)
                         ? (pageController.page ?? pageController.initialPage)
                         : 0;
 
@@ -230,42 +226,35 @@ class _DashboardScreen extends State<DashboardScreenOld>
                       origin: Offset(-150, 200),
                       child: Padding(
                         padding: EdgeInsets.only(bottom: 24),
-                        child: Hero(
-                            tag: "dashboard-balance-view-${userAccount.customerAccount?.id}",
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: UserInstance()
-                                                    .accountStatus
-                                                    ?.postNoDebit !=
-                                                true
-                                            ? Colors.primaryColor
-                                                .withOpacity(0.2)
-                                            : Colors.postNoDebitColor,
-                                        offset: Offset(0, 4),
-                                        blurRadius: 5,
-                                        spreadRadius: 1)
-                                  ]),
-                              child: Material(
-                                borderRadius: BorderRadius.circular(16),
-                                child: InkWell(
-                                    customBorder: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(16)),
-                                    onTap: () => _onDashboardItemClicked(
-                                        userAccount, index),
-                                    child: DashboardContainerView(
-                                      key: Key("$index"),
-                                      viewModel: _viewModel,
-                                      //TODO don't pass the view-model
-                                      userAccount: userAccount,
-                                      position: index,
-                                      qualifiedTier: qualifiedTier,
-                                    )),
-                              ),
-                            )),
+                        child: Container(
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                    color: UserInstance().accountStatus?.postNoDebit != true
+                                        ? Colors.primaryColor.withOpacity(0.2)
+                                        : Colors.postNoDebitColor,
+                                    offset: Offset(0, 4),
+                                    blurRadius: 5,
+                                    spreadRadius: 1)
+                              ]),
+                          child: Material(
+                            borderRadius: BorderRadius.circular(16),
+                            child: InkWell(
+                                customBorder: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16)
+                                ),
+                                onTap: () => _onDashboardItemClicked(userAccount, index),
+                                child: DashboardContainerView(
+                                  key: Key("$index"),
+                                  viewModel: _viewModel,
+                                  //TODO don't pass the view-model
+                                  userAccount: userAccount,
+                                  position: index,
+                                  qualifiedTier: qualifiedTier,
+                                )),
+                          ),
+                        ),
                       )),
                 );
               });
@@ -275,21 +264,21 @@ class _DashboardScreen extends State<DashboardScreenOld>
   @override
   Widget build(BuildContext context) {
     _viewModel = Provider.of<DashboardViewModel>(context, listen: false);
-    return DrawerScaffold(
-      controller: _drawerScaffoldController,
-      extendBodyBehindAppBar: true,
-      resizeToAvoidBottomInset: false,
-      drawers: [
-        DashboardDrawerView(
-            context, _drawerScaffoldController,
-            refreshCallback: _refreshDashboard,
-            accountName: _viewModel.accountName
-        ).getDrawer()
-      ],
-      builder: (mContext, a) {
-        return SessionedWidget(
-            context: context,
-            child: StreamBuilder(
+    return SessionedWidget(
+        context: context,
+        child: DrawerScaffold(
+          controller: _drawerScaffoldController,
+          extendBodyBehindAppBar: true,
+          resizeToAvoidBottomInset: false,
+          drawers: [
+            DashboardDrawerView(
+                context, _drawerScaffoldController,
+                refreshCallback: _refreshDashboard,
+                accountName: _viewModel.accountName
+            ).getDrawer()
+          ],
+          builder: (mContext, a) {
+            return StreamBuilder(
               stream: _viewModel.dashboardController,
               builder: (ctx, _) {
                 return Container(
@@ -322,15 +311,6 @@ class _DashboardScreen extends State<DashboardScreenOld>
                               aspectRatio: 3 / 2.8,
                               child: _centerDashboardContainer(_viewModel),
                             ),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (mContext) => DashboardScreen())
-                                );
-                              },
-                              child: Text("Text"),
-                            ),
                           ],
                         ),
                       ),
@@ -340,22 +320,25 @@ class _DashboardScreen extends State<DashboardScreenOld>
                           bottom: 0,
                           child: SlideTransition(
                             position: Tween<Offset>(
-                                    begin: Offset(0, 1), end: Offset(0, 0))
+                                begin: Offset(0, 1), end: Offset(0, 0))
                                 .animate(CurvedAnimation(
-                                    parent: _bottomMenuController,
-                                    curve: Curves.easeInToLinear)),
+                                parent: _bottomMenuController,
+                                curve: Curves.easeInToLinear)),
                             child: DashboardBottomMenu(() => _refreshDashboard()),
                           ))
                     ],
                   ),
                 );
               },
-            ));
-      },
+            );
+          },
+        ),
     );
   }
 
   void _onDashboardStartUp() {
+    UserInstance().startSession(context);
+    UserInstance().updateLastActivityTime();
     _viewModel = Provider.of<DashboardViewModel>(context, listen: false);
     _viewModel.getTiers().listen((event) {});
   }

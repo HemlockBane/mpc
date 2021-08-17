@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart' hide ScrollView,Colors;
 import 'package:flutter/services.dart';
 import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
-import 'package:moniepoint_flutter/app/onboarding/views/new/signup_account_view.dart';
+import 'package:moniepoint_flutter/app/onboarding/views/signup_account_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';

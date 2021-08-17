@@ -5,6 +5,7 @@ import 'package:moniepoint_flutter/core/network/network_bound_resource.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 
 import 'data/card.dart';
+import 'package:collection/collection.dart';
 
 class CardServiceDelegate with NetworkResource {
 
@@ -12,12 +13,51 @@ class CardServiceDelegate with NetworkResource {
 
   CardServiceDelegate(this._service);
 
+  //Internal Cards cache/repository
+  //Since we can't persist cards in DB
+  late final cardA = Card(
+      id: 0,
+      maskedPan: "514360******4198",
+      blocked: false,
+      nameOnCard: "Paul Okeke",
+      channelBlockStatus: TransactionChannelBlockStatus(web: false, atm: false, pos: false)
+  );
+  late final List<Card> _cards = [
+    // cardA,
+    // Card(id: 1,
+    //     maskedPan: "506099******4323",
+    //     expiryDate: "23/03",
+    //     blocked: false,
+    //     nameOnCard: "AAAAA Okeke",
+    //     status: CardStatus.IN_ACTIVE,
+    //     channelBlockStatus: TransactionChannelBlockStatus(web: false, atm: false, pos: false)
+    // ),
+    // Card(id: 2,
+    //     maskedPan: "506099******4323",
+    //     expiryDate: "23/03",
+    //     blocked: false,
+    //     nameOnCard: "AAAAA Okeke",
+    //     status: CardStatus.ACTIVE,
+    //     channelBlockStatus: TransactionChannelBlockStatus(web: false, atm: false, pos: false)
+    // ),
+  ];
 
   Stream<Resource<List<Card>>> getCards(int customerAccountId) {
     return networkBoundResource(
         fetchFromLocal: () => Stream.value(null),
-        fetchFromRemote: () => _service.getCards(customerAccountId)
+        fetchFromRemote: () => _service.getCards(customerAccountId),
+        saveRemoteData: (List<Card> cards) async {
+          _cards.clear();
+          _cards.addAll(cards);
+        }
     );
+  }
+
+  Future<Card?> getCard(num cardId) async {
+    var card = _cards.firstWhereOrNull((element) {
+      return element.id == cardId;
+    });
+    return card;
   }
 
   Stream<Resource<bool>> blockCard(int customerAccountId, CardTransactionRequest cardTransactionRequest) {

@@ -13,6 +13,7 @@ import 'package:moniepoint_flutter/app/onboarding/model/data/profile_request.dar
 import 'package:moniepoint_flutter/app/onboarding/model/data/validation_key.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/validation_otp_request.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/onboarding_service.dart';
+import 'package:moniepoint_flutter/app/validation/model/data/onboarding_liveliness_validation_response.dart';
 import 'package:moniepoint_flutter/core/models/file_uuid.dart';
 import 'package:moniepoint_flutter/core/network/network_bound_resource.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -89,7 +90,8 @@ class OnBoardingServiceDelegate with NetworkResource {
         fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () async {
           return this._accountCreationService.uploadImageForUUID(File(filePath));
-        });
+        }
+    );
   }
 
   Stream<Resource<bool>> checkUsername(String username) {
@@ -97,6 +99,19 @@ class OnBoardingServiceDelegate with NetworkResource {
         fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () async {
           return this._service.checkUsername(username);
-        });
+        }
+    );
+  }
+
+  Stream<Resource<OnboardingLivelinessValidationResponse>> validateLivelinessForOnboarding(
+      File firstCapture, File motionCapture, String bvn, String phoneNumberValidationKey) {
+    return networkBoundResource(
+      fetchFromLocal: () => Stream.value(null),
+      fetchFromRemote: () {
+        return this._service.validateLivelinessForOnboarding(
+            firstCapture, motionCapture, bvn, phoneNumberValidationKey
+        );
+      },
+    );
   }
 }

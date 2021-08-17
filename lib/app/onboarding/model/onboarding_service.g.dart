@@ -175,6 +175,49 @@ class _OnBoardingService implements OnBoardingService {
     return value;
   }
 
+  @override
+  Future<ServiceResult<OnboardingLivelinessValidationResponse>>
+      validateLivelinessForOnboarding(
+          firstCapture, motionCapture, bvn, phoneNumberValidationKey) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _data = FormData();
+    _data.files.add(MapEntry(
+        'image1',
+        MultipartFile.fromFileSync(firstCapture.path,
+            filename: firstCapture.path.split(Platform.pathSeparator).last,
+            contentType: MediaType.parse('application/json'))));
+    _data.files.add(MapEntry(
+        'image2',
+        MultipartFile.fromFileSync(motionCapture.path,
+            filename: motionCapture.path.split(Platform.pathSeparator).last,
+            contentType: MediaType.parse('application/json'))));
+    _data.fields.add(MapEntry('bvn', bvn));
+    _data.fields
+        .add(MapEntry('phoneNumberValidationKey', phoneNumberValidationKey));
+    final _result = await _dio.fetch<Map<String, dynamic>>(_setStreamType<
+        ServiceResult<OnboardingLivelinessValidationResponse>>(Options(
+            method: 'POST',
+            headers: <String, dynamic>{
+              r'Content-Type': 'multipart/form-data',
+              r'client-id': 'ANDROID',
+              r'appVersion': '0.0.1'
+            },
+            extra: _extra,
+            contentType: 'multipart/form-data')
+        .compose(_dio.options,
+            'https://core-operations.monnify.development.teamapt.com/api/v2/onboarding-validation/check-for-liveliness',
+            queryParameters: queryParameters, data: _data)
+        .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value =
+        ServiceResult<OnboardingLivelinessValidationResponse>.fromJson(
+      _result.data!,
+      (json) => OnboardingLivelinessValidationResponse.fromJson(
+          json as Map<String, dynamic>),
+    );
+    return value;
+  }
+
   RequestOptions _setStreamType<T>(RequestOptions requestOptions) {
     if (T != dynamic &&
         !(requestOptions.responseType == ResponseType.bytes ||

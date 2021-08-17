@@ -12,10 +12,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'liveliness_camera_preview.dart';
 import 'liveliness_detection_guide.dart';
 import 'liveliness_detector.dart';
-
-enum LivelinessVerificationFor{
-  ON_BOARDING, USERNAME_RECOVERY, PASSWORD_RECOVERY, REGISTER_DEVICE
-}
+import 'model/data/liveliness_verification_for.dart';
 
 class LivelinessVerification extends StatefulWidget {
 

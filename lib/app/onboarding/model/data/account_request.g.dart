@@ -62,21 +62,21 @@ Map<String, dynamic> _$AccountCreationRequestBodyToJson(
   val['securityAnswers'] = instance.securityAnwsers;
   writeNotNull('deviceId', instance.deviceId);
   writeNotNull('deviceName', instance.deviceName);
-  val['bvn'] = instance.bvn;
-  val['dob'] = instance.dateOfBirth;
-  val['phoneNumber'] = instance.phoneNumber;
-  val['firstName'] = instance.firstName;
-  val['surname'] = instance.surname;
-  val['gender'] = _$GenderEnumMap[instance.gender];
-  val['otherName'] = instance.otherName;
-  val['ussdPin'] = instance.ussdPin;
-  val['transactionPin'] = instance.transactionPin;
+  writeNotNull('bvn', instance.bvn);
+  writeNotNull('dob', instance.dateOfBirth);
+  writeNotNull('phoneNumber', instance.phoneNumber);
+  writeNotNull('firstName', instance.firstName);
+  writeNotNull('surname', instance.surname);
+  writeNotNull('gender', _$GenderEnumMap[instance.gender]);
+  writeNotNull('otherName', instance.otherName);
+  writeNotNull('ussdPin', instance.ussdPin);
+  writeNotNull('transactionPin', instance.transactionPin);
   val['createUssd'] = instance.createUssdPin;
-  val['userImageUUID'] = instance.selfieImageUUID;
-  val['signatureUUID'] = instance.signatureUUID;
-  val['livelinessCheck'] = instance.livelinessCheck;
-  val['addressInfo'] = instance.addressInfo;
-  val['setupType'] = instance.setupType;
+  writeNotNull('userImageUUID', instance.selfieImageUUID);
+  writeNotNull('signatureUUID', instance.signatureUUID);
+  writeNotNull('livelinessCheck', instance.livelinessCheck);
+  writeNotNull('addressInfo', instance.addressInfo);
+  writeNotNull('setupType', instance.setupType);
   return val;
 }
 

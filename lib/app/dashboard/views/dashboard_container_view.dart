@@ -51,6 +51,9 @@ class DashboardContainerViewState extends State<DashboardContainerView> with Wid
   @override
   void initState() {
     hideAccountBalanceKey = "${widget.userAccount.customerAccount?.accountNumber}-${PreferenceUtil.HIDE_ACCOUNT_BAL}";
+    _balanceStream = widget.viewModel.getCustomerAccountBalance(
+        accountId: widget.userAccount.id, useLocal: false
+    );
     super.initState();
   }
 
@@ -234,7 +237,12 @@ class DashboardContainerViewState extends State<DashboardContainerView> with Wid
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text("${widget.qualifiedTier?.name?.replaceAll("Moniepoint Customers ", "").toUpperCase() ?? "--"}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.white),),
+          Text(
+            "${widget.qualifiedTier?.name?.replaceAll("Moniepoint Customers ", "").toUpperCase() ?? "--"}",
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 14, color: Colors.white
+            ),),
           SizedBox(width: 8,),
           Expanded(child: Divider(color: Colors.white.withOpacity(0.21), height: 1, thickness: 0.8,))
         ],
@@ -281,7 +289,14 @@ class DashboardContainerViewState extends State<DashboardContainerView> with Wid
                         color: Colors.red.withOpacity(0.9),
                         borderRadius: BorderRadius.all(Radius.circular(9)),
                       ),
-                      child: Text('Account Restricted', textAlign: TextAlign.center,style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),),
+                      child: Text(
+                        'Account Restricted',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16
+                        ),),
                     ),
                     Positioned(
                         left: 0,
@@ -341,9 +356,11 @@ class DashboardContainerViewState extends State<DashboardContainerView> with Wid
 
   @override
   void didUpdateWidget(covariant DashboardContainerView oldWidget) {
-    print("Balance stream is null ${_balanceStream == null}");
-    _balanceStream = _balanceStream ?? widget.viewModel.getCustomerAccountBalance(accountId: widget.userAccount.id, useLocal: false);
     super.didUpdateWidget(oldWidget);
+    print("Balance stream is null ${_balanceStream == null}");
+    _balanceStream = widget.viewModel.getCustomerAccountBalance(
+        accountId: widget.userAccount.id, useLocal: false
+    );
   }
 
   @override

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter/services.dart';
-import 'package:moniepoint_flutter/app/liveliness/liveliness_verification.dart';
+import 'package:moniepoint_flutter/app/liveliness/model/data/liveliness_verification_for.dart';
 import 'package:moniepoint_flutter/app/login/viewmodels/recovery_view_model.dart';
 import 'package:moniepoint_flutter/app/login/views/dialogs/add_device_dialog.dart';
 import 'package:moniepoint_flutter/app/login/views/recovery/recovery_controller_screen.dart';

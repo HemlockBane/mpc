@@ -24,7 +24,6 @@ dependencies:
   flutter:
     sdk: flutter
   async: ^2.5.0
-  camera: ^0.8.1
   change_app_package_name: ^1.0.0
   chewie: ^1.2.2
   collection: ^1.15.0
@@ -70,6 +69,8 @@ dependencies:
   url_launcher: ^6.0.3
   uuid: ^3.0.4
   video_player: ^2.1.12
+  qr_code_scanner: ^0.5.2
+  cron: ^0.3.2
 
 dependency_overrides:
   retrofit:

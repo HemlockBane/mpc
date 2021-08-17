@@ -1,8 +1,7 @@
 import 'dart:io';
 
 import 'package:json_annotation/json_annotation.dart';
-import 'package:moniepoint_flutter/app/liveliness/liveliness_verification.dart';
-import 'package:moniepoint_flutter/core/models/security_answer.dart';
+import 'package:moniepoint_flutter/app/liveliness/model/data/liveliness_verification_for.dart';
 
 
 part 'forgot_password_request.g.dart';

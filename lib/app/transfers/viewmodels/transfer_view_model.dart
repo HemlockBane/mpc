@@ -61,7 +61,6 @@ class TransferViewModel extends BaseViewModel with PaymentViewModel {
   @override
   void setAmount(double amount) {
     super.setAmount(amount);
-    print("Setting amount $amount");
     this.checkValidity();
   }
 

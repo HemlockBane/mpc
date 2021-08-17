@@ -7,7 +7,7 @@ import 'package:moniepoint_flutter/core/models/security_answer.dart';
 
 part 'account_request.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class AccountCreationRequestBody extends ProfileCreationRequestBody {
   @JsonKey(name: "bvn")
   String? bvn;

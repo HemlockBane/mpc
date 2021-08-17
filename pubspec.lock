@@ -99,20 +99,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "8.0.4"
-  camera:
-    dependency: "direct main"
-    description:
-      name: camera
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.8.1"
-  camera_platform_interface:
-    dependency: transitive
-    description:
-      name: camera_platform_interface
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.0.1"
   change_app_package_name:
     dependency: "direct main"
     description:
@@ -204,13 +190,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.2"
-  cross_file:
-    dependency: transitive
+  cron:
+    dependency: "direct main"
     description:
-      name: cross_file
+      name: cron
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.3.1+1"
+    version: "0.3.2"
   crypto:
     dependency: transitive
     description:
@@ -814,6 +800,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.0"
+  qr_code_scanner:
+    dependency: "direct main"
+    description:
+      name: qr_code_scanner
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.5.2"
   quiver:
     dependency: transitive
     description:

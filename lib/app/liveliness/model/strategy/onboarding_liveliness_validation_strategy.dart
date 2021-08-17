@@ -18,7 +18,13 @@ class OnboardingLivelinessValidationStrategy extends LivelinessValidationStrateg
     final bvn = arguments["bvn"];
     final phoneNumberValidationKey = arguments["phoneNumberValidationKey"];
 
-    final response = viewModel.validateLivelinessForOnboarding(File(firstCapturePath), File(motionCapturePath), bvn, phoneNumberValidationKey);
+    final response = viewModel.validateLivelinessForOnboarding(
+        File(firstCapturePath),
+        File(motionCapturePath),
+        bvn,
+        phoneNumberValidationKey
+    );
+
     OnboardingLivelinessValidationResponse? returnValue;
 
     await for (var value in response) {

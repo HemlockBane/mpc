@@ -150,7 +150,6 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
           animation: _topAnimController,
           builder: (context, child) {
             final alignmentValue = alignmentLogoAnimation.value as Alignment;
-            print(alignmentValue);
             return Align(
               alignment: alignmentValue,
               child: Container(

@@ -42,6 +42,7 @@ class _EnterBVNScreen extends State<EnterBVNScreen> {
 
   void _subscribeUiToLivelinessTest(BuildContext context) async {
     final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
+
     final validationResponse = await Navigator.of(widget._scaffoldKey.currentContext ?? context)
        .pushNamed(Routes.LIVELINESS_DETECTION, arguments: {
          "verificationFor": LivelinessVerificationFor.ON_BOARDING,

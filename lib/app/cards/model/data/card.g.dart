@@ -8,40 +8,41 @@ part of 'card.dart';
 
 Card _$CardFromJson(Map<String, dynamic> json) {
   return Card(
-    json['id'] as int?,
-    json['status'] as String?,
-    json['encryptedPan'] as String?,
-    json['maskedPan'] as String,
-    json['hashedPan'] as String?,
-    json['expiryDate'] as String?,
-    json['branchCode'] as String?,
-    json['dateActivated'] as String?,
-    json['dateIssued'] as String?,
-    json['issuerReference'] as String?,
-    json['nameOnCard'] as String?,
-    json['defaultAccountType'] as String?,
-    json['cardProgram'] as String?,
-    json['transactionChannelBlockStatus'] == null
+    id: json['id'] as int?,
+    status: _$enumDecodeNullable(_$CardStatusEnumMap, json['status']),
+    encryptedPan: json['encryptedPan'] as String?,
+    maskedPan: json['maskedPan'] as String,
+    hashedPan: json['hashedPan'] as String?,
+    expiryDate: json['expiryDate'] as String?,
+    branchCode: json['branchCode'] as String?,
+    dateActivated: json['dateActivated'] as String?,
+    dateIssued: json['dateIssued'] as String?,
+    issuerReference: json['issuerReference'] as String?,
+    nameOnCard: json['nameOnCard'] as String?,
+    defaultAccountType: json['defaultAccountType'] as String?,
+    cardProgram: json['cardProgram'] as String?,
+    channelBlockStatus: json['transactionChannelBlockStatus'] == null
         ? null
         : TransactionChannelBlockStatus.fromJson(
             json['transactionChannelBlockStatus'] as Object),
-    json['cardProduct'] == null
+    cardProduct: json['cardProduct'] == null
         ? null
         : CardProduct.fromJson(json['cardProduct'] as Object),
-    json['sequenceNumber'] as String?,
-    json['cardAccountNumber'] as String?,
-    json['customerAccountCard'] == null
+    sequenceNumber: json['sequenceNumber'] as String?,
+    cardAccountNumber: json['cardAccountNumber'] as String?,
+    customerAccountCard: json['customerAccountCard'] == null
         ? null
         : CustomerAccountCard.fromJson(json['customerAccountCard'] as Object),
-    json['cardRequestBatch'] as String?,
-    json['blockReason'] as String?,
-    json['issued'] as bool?,
-  )..blocked = json['blocked'] as bool;
+    cardRequestBatch: json['cardRequestBatch'] as String?,
+    blockReason: json['blockReason'] as String?,
+    issued: json['issued'] as bool?,
+    blocked: json['blocked'] as bool,
+  );
 }
 
 Map<String, dynamic> _$CardToJson(Card instance) => <String, dynamic>{
       'id': instance.id,
-      'status': instance.status,
+      'status': _$CardStatusEnumMap[instance.status],
       'encryptedPan': instance.encryptedPan,
       'maskedPan': instance.maskedPan,
       'hashedPan': instance.hashedPan,
@@ -63,6 +64,48 @@ Map<String, dynamic> _$CardToJson(Card instance) => <String, dynamic>{
       'blockReason': instance.blockReason,
       'issued': instance.issued,
     };
+
+K _$enumDecode<K, V>(
+  Map<K, V> enumValues,
+  Object? source, {
+  K? unknownValue,
+}) {
+  if (source == null) {
+    throw ArgumentError(
+      'A value must be provided. Supported values: '
+      '${enumValues.values.join(', ')}',
+    );
+  }
+
+  return enumValues.entries.singleWhere(
+    (e) => e.value == source,
+    orElse: () {
+      if (unknownValue == null) {
+        throw ArgumentError(
+          '`$source` is not one of the supported values: '
+          '${enumValues.values.join(', ')}',
+        );
+      }
+      return MapEntry(unknownValue, enumValues.values.first);
+    },
+  ).key;
+}
+
+K? _$enumDecodeNullable<K, V>(
+  Map<K, V> enumValues,
+  dynamic source, {
+  K? unknownValue,
+}) {
+  if (source == null) {
+    return null;
+  }
+  return _$enumDecode<K, V>(enumValues, source, unknownValue: unknownValue);
+}
+
+const _$CardStatusEnumMap = {
+  CardStatus.ACTIVE: 'ACTIVE',
+  CardStatus.IN_ACTIVE: 'IN_ACTIVE',
+};
 
 CardProduct _$CardProductFromJson(Map<String, dynamic> json) {
   return CardProduct()
@@ -107,10 +150,11 @@ Map<String, dynamic> _$CustomerAccountCardToJson(
 
 TransactionChannelBlockStatus _$TransactionChannelBlockStatusFromJson(
     Map<String, dynamic> json) {
-  return TransactionChannelBlockStatus()
-    ..pos = json['pos'] as bool
-    ..web = json['web'] as bool
-    ..atm = json['atm'] as bool;
+  return TransactionChannelBlockStatus(
+    web: json['web'] as bool,
+    pos: json['pos'] as bool,
+    atm: json['atm'] as bool,
+  );
 }
 
 Map<String, dynamic> _$TransactionChannelBlockStatusToJson(

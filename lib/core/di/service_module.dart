@@ -28,8 +28,6 @@ import 'package:moniepoint_flutter/app/devicemanagement/model/user_device_servic
 import 'package:moniepoint_flutter/app/institutions/institution_dao.dart';
 import 'package:moniepoint_flutter/app/institutions/institution_repository.dart';
 import 'package:moniepoint_flutter/app/institutions/institution_service.dart';
-import 'package:moniepoint_flutter/app/liveliness/model/liveliness_verification_service_delegate.dart';
-import 'package:moniepoint_flutter/app/liveliness/model/onboarding_validation_service.dart';
 import 'package:moniepoint_flutter/app/login/model/login_service.dart';
 import 'package:moniepoint_flutter/app/login/model/login_service_delegate.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/airtime/model/airtime_beneficiary_delegate.dart';
@@ -44,8 +42,6 @@ import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/transf
 import 'package:moniepoint_flutter/app/onboarding/model/account_creation_service.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/onboarding_service.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/onboarding_service_delegate.dart';
-import 'package:moniepoint_flutter/app/onboarding/model/services/liveliness_service.dart';
-import 'package:moniepoint_flutter/app/onboarding/model/services/liveliness_service_delegate.dart';
 import 'package:moniepoint_flutter/app/securityquestion/model/security_question_delegate.dart';
 import 'package:moniepoint_flutter/app/securityquestion/model/security_question_service.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/fee_vat_config_dao.dart';
@@ -134,11 +130,6 @@ class ServiceModule {
     /// Location Service
     GetIt.I.registerLazySingleton<LocationServiceDelegate>(() {
       return LocationServiceDelegate(GetIt.I<NationalityDao>(), LocationService(dio));
-    });
-
-    /// Liveliness checks
-    GetIt.I.registerLazySingleton<LivelinessServiceDelegate>(() {
-      return LivelinessServiceDelegate(LivelinessService(dio));
     });
 
     /// Customer checks
@@ -243,12 +234,6 @@ class ServiceModule {
 
     GetIt.I.registerLazySingleton<DeviceInfoPlugin>(() {
       return DeviceInfoPlugin();
-    });
-
-
-    /// LivelinessVerificationServiceDelegate checks
-    GetIt.I.registerLazySingleton<LivelinessVerificationServiceDelegate>(() {
-      return LivelinessVerificationServiceDelegate(OnboardingValidationService(dio));
     });
 
   }

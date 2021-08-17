@@ -78,7 +78,7 @@ class _UserDeviceListView extends State<UserDeviceListView> with SingleTickerPro
           BiometricHelper.getInstance().deleteFingerPrintPassword();
           PreferenceUtil.clearOutFingerPrintSession();
         }
-        UserInstance().sessionTimeOut(context, SessionTimeoutReason.LOGIN_REQUESTED);
+        UserInstance().forceLogout(context, SessionTimeoutReason.LOGIN_REQUESTED);
       } else {
         setState(() {
           _userDevicesStream = viewModel.getUserDevices(PreferenceUtil.getSavedUsername() ?? "");

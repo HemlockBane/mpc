@@ -50,7 +50,10 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
   bool _isSignatureEnabled = false;
   bool _displayPasswordStrength = false;
 
-  final SignatureController _signatureController = SignatureController(penStrokeWidth: 2, penColor: Colors.darkBlue);
+  final SignatureController _signatureController = SignatureController(
+      penStrokeWidth: 2, penColor: Colors.darkBlue
+  );
+
   final TextEditingController _passwordController = TextEditingController();
 
   _ProfileScreenState(this._scaffoldKey);
@@ -93,7 +96,7 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
     if(resource is Success<T>) {
       setState(() => _isLoading = false);
 
-      final message = (viewModel.onBoardingType == OnBoardingType.ACCOUNT_DOES_NOT_EXIST)
+      final message = (viewModel.profileForm.setupType.type == OnBoardingType.ACCOUNT_DOES_NOT_EXIST)
           ? "Your account has been created successfully, login now with your credentials."
           : "Your profile has been created successfully, login now with your credentials.";
       await showSuccess(
@@ -133,10 +136,6 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
     }
   }
 
-  void _defaultFn(bool undefined) {
-    /*do nothing*/
-  }
-
   @override
   void initState() {
     final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
@@ -147,6 +146,7 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
       viewModel.profileForm.setHasSignature(_signatureController.isNotEmpty);
     });
 
+    //TODO Use a PostFrameCallback instead of adding our own delay
     Future.delayed(Duration(milliseconds: 500), () {
       viewModel.profileForm.setHasSignature(false);
       viewModel.profileForm.onEnableUssd(true);
@@ -272,7 +272,8 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                      color: Colors.deepGrey.withOpacity(0.29), width: 1.0))),
+                      color: Colors.deepGrey.withOpacity(0.29), width: 1.0))
+          ),
         ),
         Visibility(
             visible: _isSignatureEnabled == false,
@@ -383,9 +384,9 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
                 ],
               );
             }),
-        SizedBox(height: viewModel.profileForm.enableEmail ? 24 : 0),
+        SizedBox(height: (viewModel.profileForm.setupType.hasEmail == false) ? 24 : 0),
         Visibility(
-            visible: viewModel.profileForm.enableEmail,
+            visible: viewModel.profileForm.setupType.hasEmail == false,
             child: StreamBuilder(
                 stream: viewModel.profileForm.emailStream,
                 builder: (context, snapshot) {

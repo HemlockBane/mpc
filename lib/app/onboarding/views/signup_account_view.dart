@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter/services.dart';
 import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
-import 'package:moniepoint_flutter/app/onboarding/views/new/enter_bvn_screen.dart';
-import 'package:moniepoint_flutter/app/onboarding/views/new/phone_number_validation_view.dart';
-import 'package:moniepoint_flutter/app/onboarding/views/new/verify_phone_number_otp_screen.dart';
+import 'package:moniepoint_flutter/app/onboarding/views/enter_bvn_screen.dart';
+import 'package:moniepoint_flutter/app/onboarding/views/verify_phone_number_otp_screen.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/profile_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:provider/provider.dart';
 import 'account_info_view.dart';
+import 'phone_number_validation_view.dart';
 
 class SignUpAccountScreen extends StatelessWidget  {
   static const OTP_SCREEN = "otp-screen";
   static const COLLECTION_SCREEN = "media-collection-screen";
-  static const ONBOARDING_PHONE_NUMBER_VALIDATION  = "ONBOARDING_PHONE_NUMBER_VALIDATION";
-  static const ONBOARDING_PHONE_NUMBER_VERIFICATION  = "ONBOARDING_PHONE_NUMBER_VERIFICATION";
+  static const ONBOARDING_PHONE_NUMBER_VALIDATION = "ONBOARDING_PHONE_NUMBER_VALIDATION";
+  static const ONBOARDING_PHONE_NUMBER_VERIFICATION = "ONBOARDING_PHONE_NUMBER_VERIFICATION";
   static const ONBOARDING_ENTER_BVN  = "ONBOARDING_ENTER_BVN";
-  static const ACCOUNT_INFO  = "ACCOUNT_INFO";
-  static const PROFILE  = "PROFILE";
+  static const ACCOUNT_INFO = "ACCOUNT_INFO";
+  static const PROFILE = "PROFILE";
 
   final _navigatorKey = GlobalKey<NavigatorState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();

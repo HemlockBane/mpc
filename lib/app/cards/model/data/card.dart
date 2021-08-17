@@ -7,7 +7,7 @@ class Card {
   @JsonKey(name:"id")
   final int? id;
   @JsonKey(name:"status")
-  final String? status;
+  final CardStatus? status;
 //    @JsonKey(name:"createdOn") val createdOn: String? = null,
 //    @JsonKey(name:"lastModifiedOn") val lastModifiedOn: String? = null,
   @JsonKey(name:"encryptedPan")
@@ -59,10 +59,10 @@ class Card {
   final bool? issued;
 
   Card(
-      this.id,
+      {this.id,
       this.status,
       this.encryptedPan,
-      this.maskedPan,
+      required this.maskedPan,
       this.hashedPan,
       this.expiryDate,
       this.branchCode,
@@ -79,11 +79,16 @@ class Card {
       this.customerAccountCard,
       this.cardRequestBatch,
       this.blockReason,
-      this.issued);
+      this.issued,
+      required this.blocked});
 
   factory Card.fromJson(Object? data) => _$CardFromJson(data as Map<String, dynamic>);
   Map<String, dynamic> toJson() => _$CardToJson(this);
 
+}
+
+enum CardStatus {
+  ACTIVE, IN_ACTIVE
 }
 
 @JsonSerializable()
@@ -131,7 +136,7 @@ class TransactionChannelBlockStatus {
   @JsonKey(name:"atm")
   bool atm = false;
 
-  TransactionChannelBlockStatus();
+  TransactionChannelBlockStatus({this.web = false, this.pos = false, this.atm = false});
 
   factory TransactionChannelBlockStatus.fromJson(Object? data) => _$TransactionChannelBlockStatusFromJson(data as Map<String, dynamic>);
   Map<String, dynamic> toJson() => _$TransactionChannelBlockStatusToJson(this);

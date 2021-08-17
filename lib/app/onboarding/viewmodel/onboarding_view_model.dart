@@ -1,10 +1,6 @@
-import 'dart:ffi';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
-import 'package:moniepoint_flutter/app/devicemanagement/model/data/user_device_request_body.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/account_form.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/account_profile_result.dart';
@@ -12,7 +8,6 @@ import 'package:moniepoint_flutter/app/onboarding/model/onboarding_service_deleg
 import 'package:moniepoint_flutter/app/onboarding/model/profile_form.dart';
 import 'package:moniepoint_flutter/app/onboarding/username_validation_state.dart';
 import 'package:moniepoint_flutter/app/securityquestion/model/data/security_question.dart';
-import 'package:moniepoint_flutter/app/securityquestion/model/security_question_delegate.dart';
 import 'package:moniepoint_flutter/app/validation/model/customer_validation_service_delegate.dart';
 import 'package:moniepoint_flutter/app/validation/model/data/onboarding_liveliness_validation_response.dart';
 import 'package:moniepoint_flutter/app/validation/model/data/validate_phone_otp_response.dart';
@@ -46,9 +41,6 @@ class OnBoardingViewModel extends ChangeNotifier {
 
   String? _phoneNumberValidationKey;
   String? get phoneNumberValidationKey => _phoneNumberValidationKey;
-
-  OnBoardingType _onBoardingType = OnBoardingType.ACCOUNT_DOES_NOT_EXIST;
-  OnBoardingType get onBoardingType => _onBoardingType;
 
   OnBoardingViewModel({
     OnBoardingServiceDelegate? delegate,
@@ -102,7 +94,7 @@ class OnBoardingViewModel extends ChangeNotifier {
   Stream<Resource<AccountProfile>> createAccount(String signaturePath) async* {
     accountForm.account
       ..withTransactionPin(accountForm.account.pin ?? "")
-      ..withSetupType(SetupType(type: onBoardingType));
+      ..withSetupType(profileForm.setupType);
 
     final uploadSignature = _delegate.uploadFileForUUID(signaturePath);
 
@@ -152,9 +144,8 @@ class OnBoardingViewModel extends ChangeNotifier {
     });
   }
 
-  void setOnBoardingType(OnBoardingType type, bool useEmail) {
-    this._onBoardingType = type;
-    profileForm.setOnboardingType(type, useEmail);
+  void setProfileSetupType(SetupType setupType) {
+    profileForm.setProfileSetupType(setupType);
   }
 
   void setOnboardingKey(String onboardingKey) {

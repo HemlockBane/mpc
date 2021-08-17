@@ -19,7 +19,7 @@ import 'package:provider/provider.dart';
 
 import 'liveliness_detector.dart';
 import 'liveliness_exposure_range.dart';
-import 'liveliness_verification.dart';
+import 'model/data/liveliness_verification_for.dart';
 import 'model/strategy/liveliness_validation_strategy.dart';
 
 /// @author Paul Okeke

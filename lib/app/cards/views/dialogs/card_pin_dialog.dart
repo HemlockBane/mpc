@@ -34,7 +34,7 @@ class _CardPinDialog extends State<CardPinDialog> {
     final viewModel = Provider.of<SingleCardViewModel>(context, listen: false);
 
     widget.request
-        ..cardId = viewModel.selectedCard?.id
+        ..cardId = widget.request.cardId
         ..transactionPin = pin
         ..description = _reasonController.text;
 
@@ -52,13 +52,13 @@ class _CardPinDialog extends State<CardPinDialog> {
         viewModel.unblockCardChannel(widget.request).listen(_transactionCallback);
         break;
       case CardAction.CHANGE_PIN:
-        final customerAccountCard = viewModel.selectedCard?.customerAccountCard;
-        if(customerAccountCard != null) {
-          widget.request.cardAccountNumber = customerAccountCard.customerAccountNumber;
-        } else {
-          widget.request.cardAccountNumber = "";
-        }
-        widget.request.expiry = viewModel.selectedCard?.expiryDate?.replaceAll("/", "");
+        // final customerAccountCard = viewModel.selectedCard?.customerAccountCard;
+        // if(customerAccountCard != null) {
+        //   widget.request.cardAccountNumber = customerAccountCard.customerAccountNumber;
+        // } else {
+        //   widget.request.cardAccountNumber = "";
+        // }
+        // widget.request.expiry = viewModel.selectedCard?.expiryDate?.replaceAll("/", "");
         viewModel.changeCardPin(widget.request).listen(_transactionCallback);
         break;
     }
@@ -119,7 +119,7 @@ class _CardPinDialog extends State<CardPinDialog> {
                 children: [
                   SizedBox(height: 22),
                   Center(
-                    child: Text('Transaction PIN',
+                    child: Text('Confirm Action',
                         style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w600,

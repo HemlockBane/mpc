@@ -1,41 +1,64 @@
 {
   "project_info": {
-    "project_number": "261984535970",
-    "project_id": "moniepoint-customer-hybrid",
-    "storage_bucket": "moniepoint-customer-hybrid.appspot.com"
+    "project_number": "539671877342",
+    "firebase_url": "https://moniepoint-mobile.firebaseio.com",
+    "project_id": "moniepoint-mobile",
+    "storage_bucket": "moniepoint-mobile.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:261984535970:android:8c0a4cb80dd2e5c626defb",
+        "mobilesdk_app_id": "1:539671877342:android:cfd9d5ed525d592240544f",
         "android_client_info": {
-          "package_name": "com.teamapt.customers.moniepoint"
+          "package_name": "com.teamapt.app.moniepoint"
         }
       },
       "oauth_client": [
         {
-          "client_id": "261984535970-drg6dmrest6pkppl4pocmg151t1g7r67.apps.googleusercontent.com",
+          "client_id": "539671877342-sbb8f4cqfqn9nt67i08tc04bv7efrjtf.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyC2rB25KaoQJ6MUY0S9YaiY5KjoyRX_jEU"
+          "current_key": "AIzaSyBaWvpAZu9ODUJqNMpJ_ycud2BBh-D2HGE"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "261984535970-drg6dmrest6pkppl4pocmg151t1g7r67.apps.googleusercontent.com",
+              "client_id": "539671877342-sbb8f4cqfqn9nt67i08tc04bv7efrjtf.apps.googleusercontent.com",
               "client_type": 3
-            },
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:539671877342:android:4e7701c89b54cd5540544f",
+        "android_client_info": {
+          "package_name": "com.teamapt.customers.moniepoint"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "539671877342-sbb8f4cqfqn9nt67i08tc04bv7efrjtf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBaWvpAZu9ODUJqNMpJ_ycud2BBh-D2HGE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
             {
-              "client_id": "261984535970-7u96thgk3qe9q9vnhujo17dm8j6tnq40.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.teamapt.moniepoint"
-              }
+              "client_id": "539671877342-sbb8f4cqfqn9nt67i08tc04bv7efrjtf.apps.googleusercontent.com",
+              "client_type": 3
             }
           ]
         }

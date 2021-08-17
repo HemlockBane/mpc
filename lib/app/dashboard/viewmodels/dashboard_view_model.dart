@@ -8,6 +8,7 @@ import 'package:moniepoint_flutter/app/accountupdates/model/customer_service_del
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/transfer_beneficiary_delegate.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/utils/candidate_bank_util.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 
 class DashboardViewModel extends BaseViewModel {
@@ -44,6 +45,10 @@ class DashboardViewModel extends BaseViewModel {
 
   Stream<Resource<List<TransferBeneficiary>>> getRecentlyPaidBeneficiary() {
     return _transferBeneficiaryDelegate.getFrequentBeneficiaries();
+  }
+
+  bool isIntraTransfer(TransferBeneficiary beneficiary) {
+    return CandidateBankUtil.isIntra(beneficiary.getBeneficiaryProviderCode() ?? "");
   }
 
   void update() {

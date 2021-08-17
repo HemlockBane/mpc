@@ -13,7 +13,7 @@ extension CapExtension on String {
   String get capitalizeFirstOfEach => this.replaceAll(RegExp(' +'), ' ').split(" ").map((str) => str.inCaps).join(" ");
 
 
-  String abbreviate(int count, bool includeTrailingDot) {
+  String abbreviate(int count, bool includeTrailingDot, {bool includeMidDot = true}) {
     List<String> names = this.split(" ");
     String abbr = "";
     int minimum = min(names.length, count);
@@ -26,7 +26,7 @@ extension CapExtension on String {
             abbr += name[0];
           } else {
             abbr += "${name[0]}";
-            if(i < minimum - 1) abbr +=".";
+            if(i < minimum - 1) abbr += includeMidDot ? "." : "";
           }
         }
       }

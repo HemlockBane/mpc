@@ -731,7 +731,7 @@ class _BranchScreen extends State<BranchScreen> {
 
                                 Widget item = branchListitem;
 
-                                if (idx > 0 && idx < closeBranches.length - 1) {
+                                if (idx < closeBranches.length - 1) {
                                   item = Column(children: [item, divider],);
                                 }
                                 return MapEntry(idx, item);

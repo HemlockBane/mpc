@@ -92,9 +92,9 @@ class UserInstance {
       print("Currently Checking for inactivity...");
       final elapsedTime = DateTime.now().difference(_lastActivityTime).inSeconds;
       if(elapsedTime >= 120/*120 seconds = 2mins*/) {
+        _scheduler?.close();
         print("Inactivity Detected!");
         _sessionEventCallback?.call(SessionTimeoutReason.INACTIVITY);
-        await _scheduler?.close();
       }
     });
   }

@@ -401,8 +401,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
     final viewModel = Provider.of<LoginViewModel>(context, listen: false);
 
     final biometricType = await _biometricHelper?.getBiometricType();
-    final hasFingerPrint =
-        (await _biometricHelper?.getFingerprintPassword()) != null;
+    final hasFingerPrint = (await _biometricHelper?.getFingerprintPassword()) != null;
     if (biometricType != BiometricType.NONE) {
       if (PreferenceUtil.getFingerPrintEnabled() && hasFingerPrint) {
         _biometricHelper?.authenticate(authenticationCallback: (key, msg) {

@@ -92,7 +92,7 @@ class _AddDeviceDialog extends State<AddDeviceDialog> {
                       isValid: true,
                       isLoading: _isLoading,
                       onClick: _subscribeToAddDevice,
-                      text: 'Go to Login'
+                      text: 'Go to Dashboard'
                   ),
                   SizedBox(height: 32)
                 ],

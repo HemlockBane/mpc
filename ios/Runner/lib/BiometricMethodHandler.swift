@@ -155,7 +155,6 @@ struct BiometricMethodHandler {
                 reply(["passwordKey": nil, "extraMessage":"Not initialized"])
                 return
             }
-            print("Attempting to decryptKey \(existingItem)")
             do {
                 let passwordKey = try self.decryptMessage(encryptedMessage: password, encryptionKey: encryptionKey)
                 reply(["passwordKey": passwordKey])

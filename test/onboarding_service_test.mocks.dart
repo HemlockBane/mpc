@@ -197,7 +197,9 @@ class MockSecurityQuestionDelegate extends _i1.Mock
           _i4.Future<_i2.ServiceResult<K>?> Function()? fetchFromRemote,
           K? Function(_i22.Success<_i2.ServiceResult<K>>)?
               processRemoteResponse,
-          _i4.Future<dynamic> Function(K)? saveRemoteData}) =>
+          _i4.Future<dynamic> Function(K)? saveRemoteData,
+          void Function({_i2.ServiceResult<K?>? result, int? statusCode})?
+              onError}) =>
       (super.noSuchMethod(
               Invocation.method(#networkBoundResource, [], {
                 #fetchFromLocal: fetchFromLocal,
@@ -205,7 +207,8 @@ class MockSecurityQuestionDelegate extends _i1.Mock
                 #shouldFetchLocal: shouldFetchLocal,
                 #fetchFromRemote: fetchFromRemote,
                 #processRemoteResponse: processRemoteResponse,
-                #saveRemoteData: saveRemoteData
+                #saveRemoteData: saveRemoteData,
+                #onError: onError
               }),
               returnValue: Stream<_i22.Resource<K>>.empty())
           as _i4.Stream<_i22.Resource<K>>);

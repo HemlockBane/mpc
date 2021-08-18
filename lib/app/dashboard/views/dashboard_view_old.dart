@@ -155,7 +155,6 @@ class _DashboardScreen extends State<DashboardScreenOld> with TickerProviderStat
   }
 
   void _refreshDashboard() {
-    print("Refresh Dashboard was called!!!!1");
     subscribeUiToAccountStatus();
   }
 

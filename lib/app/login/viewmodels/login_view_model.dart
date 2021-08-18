@@ -43,8 +43,8 @@ class LoginViewModel with ChangeNotifier {
       ..withUsername(username)
       ..withPassword(password)
       ..withVersion(BuildConfig.APP_VERSION)
-      ..withDeviceId("74b1dd7571aa0acb"/*_deviceManager.deviceId ?? ""*/)
-      ..withDeviceName("google"/*_deviceManager.deviceName*/);
+      ..withDeviceId(_deviceManager.deviceId)
+      ..withDeviceName(_deviceManager.deviceName);
 
     return doLogin(requestBody);
   }
@@ -74,8 +74,7 @@ class LoginViewModel with ChangeNotifier {
 
   String getApplicationPlayStoreUrl() {
     final key = (Platform.isIOS) ? "ios.appstore.url" : "android.playstore.url";
-    final config  = _systemConfigurations.firstWhere((element)
-    => element.name?.contains(key) == true, orElse: () => SystemConfiguration(value: "https://www.teamapt.com"));
+    final config  = _systemConfigurations.firstWhere((element) => element.name?.contains(key) == true, orElse: () => SystemConfiguration(value: "https://www.teamapt.com"));
     return config.value ?? "";
   }
 
@@ -90,9 +89,11 @@ class LoginViewModel with ChangeNotifier {
   }
 
   Future<bool> canLoginWithBiometric(BiometricHelper? _helper) async {
+    print("This is the helper $_helper");
     final hasFingerPrint = (await _helper?.getFingerprintPassword()) != null;
     final biometricType = await _helper?.getBiometricType();
     final isEnabled = PreferenceUtil.getFingerPrintEnabled();
+    print("HasFingerprint => $hasFingerPrint, BioMetric => $biometricType, IsEnabled => $isEnabled");
     return hasFingerPrint && (biometricType != BiometricType.NONE) && isEnabled;
   }
 

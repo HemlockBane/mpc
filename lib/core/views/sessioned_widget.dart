@@ -13,7 +13,7 @@ class SessionedWidget extends GestureDetector {
   final BuildContext context;
 
   SessionedWidget({required this.context, Widget? child}) : super(child: child) {
-    UserInstance().updateSessionEventReceiver(_onSessionTimeOut);
+    UserInstance().updateSessionEventCallback(_onSessionTimeOut);
   }
 
   void _onSessionTimeOut(SessionTimeoutReason reason) {

@@ -18,6 +18,7 @@ import 'package:moniepoint_flutter/core/lazy.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/views/pie_progress_bar.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:provider/provider.dart';
@@ -198,13 +199,7 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> {
       }
       else if(event is Error<Tier>) {
         _viewModel.setIsLoading(false);
-        showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            builder: (context) {
-              return BottomSheets.displayErrorModal(context, message: event.message);
-            });
+        showError(context, message: event.message);
       }
     });
   }
@@ -220,29 +215,16 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> {
         ));
 
     if(value != null && value is Tier) {
-      await showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-          builder: (context) {
-            return BottomSheets.displaySuccessModal(context,
-              title: "Update Successful",
-              message: "Customer Details updated successfully",
-              onClick: () {
-                Navigator.of(context).pop(context);
-              }
-            );
-          });
+      await showSuccess(
+          context,
+          title: "Update Successful",
+          message: "Customer Details updated successfully",
+          onPrimaryClick: () => Navigator.of(context).pop(context)
+      );
       Navigator.of(context).pop(context);
     }
     if(value != null && value is Error<Tier>) {
-      showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-          builder: (context) {
-            return BottomSheets.displayErrorModal(context, message: value.message);
-          });
+      showError(context, message: value.message);
     }
   }
 

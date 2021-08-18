@@ -239,7 +239,8 @@ Tuple<String, String> formatError(String? errorMessage, String moduleName) {
   }
   else {
     errorTitle = "Oops";
-    errorDescription = errorMessage;
+    errorDescription = "An unknown error occurred. Please try again later.";
+    FirebaseCrashlytics.instance.recordError(errorMessage, null);
   }
   return Tuple(errorTitle, errorDescription);
 }

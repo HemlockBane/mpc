@@ -63,8 +63,15 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
 
   @override
   void initState() {
-    final viewModel = Provider.of<LoginViewModel>(context, listen: false);
+    _setupViewDependencies();
+    super.initState();
+    _initSavedUsername();
+    _animController.forward();
+  }
 
+  void _setupViewDependencies() {
+    this._initializeBiometric();
+    final viewModel = Provider.of<LoginViewModel>(context, listen: false);
     viewModel.getSystemConfigurations().listen((event) {});
 
     _usernameController.addListener(() => validateForm());
@@ -73,12 +80,6 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
     _topAnimController = AnimationController(
         duration: const Duration(milliseconds: 600), vsync: this
     );
-
-    super.initState();
-
-    _initSavedUsername();
-    _animController.forward();
-    _initializeAndStartBiometric();
   }
 
   @override
@@ -194,10 +195,15 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
     );
   }
 
+  Future<bool> checkBiometricStatus(LoginViewModel viewModel) async {
+    if(_biometricHelper == null) await Future.delayed(Duration(milliseconds: 50));
+    return viewModel.canLoginWithBiometric(_biometricHelper);
+  }
+
   Widget _biometricLoginButton() {
     final viewModel = Provider.of<LoginViewModel>(context, listen: false);
     return FutureBuilder(
-        future: viewModel.canLoginWithBiometric(_biometricHelper),
+        future: checkBiometricStatus(viewModel),
         builder: (mContext, AsyncSnapshot<bool> snapShot) {
           if (!snapShot.hasData) return SizedBox();
           if (snapShot.hasData && snapShot.data == false) return SizedBox();
@@ -207,7 +213,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
               Styles.imageButton(
                   onClick: () => _startFingerPrintLoginProcess(),
                   color: Colors.primaryColor.withOpacity(0.1),
-                  padding: EdgeInsets.only(left: 15, right: 15, top: 14, bottom: 14),
+                  padding: EdgeInsets.only(left: 15, right: 15, top: 14.5, bottom: 14.5),
                   image: Platform.isAndroid
                       ? SvgPicture.asset('res/drawables/ic_finger_print.svg')
                       : SvgPicture.asset('res/drawables/ic_login_face.svg')
@@ -217,12 +223,12 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
         });
   }
 
-  void _initializeAndStartBiometric() async {
+  void _initializeBiometric() async {
     _biometricHelper = await BiometricHelper.initialize(
         keyFileName: "moniepoint_iv",
         keyStoreName: "AndroidKeyStore",
-        keyAlias: "teamapt-moniepoint");
-    if (!_alreadyInSessionError) _startFingerPrintLoginProcess();
+        keyAlias: "teamapt-moniepoint"
+    );
   }
 
   void _initSavedUsername() {
@@ -339,21 +345,21 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
       _passwordController.clear();
       _topAnimController.reset();
 
-      showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-          builder: (context) {
-            //TODO we might need a better way of identifying how to detect an upgrade
-            if (event.message?.contains("version") == true) {
-              return BottomSheets.displayWarningDialog('Update Moniepoint App', event.message ?? "", () {
-                Navigator.of(context).pop();
-                final viewModel = Provider.of<LoginViewModel>(context, listen: false);
-                openUrl(viewModel.getApplicationPlayStoreUrl());
-              }, buttonText: "Upgrade App");
+      if (event.message?.contains("version") == true) {
+        showInfo(
+            context,
+            title: "Update Moniepoint App",
+            message: event.message ?? "",
+            primaryButtonText: "Upgrade App",
+            onPrimaryClick: () {
+              Navigator.of(context).pop();
+              final viewModel = Provider.of<LoginViewModel>(context, listen: false);
+              openUrl(viewModel.getApplicationPlayStoreUrl());
             }
-            return BottomSheets.displayErrorModal(context, message: event.message);
-          });
+        );
+      } else {
+        showError(context, message: event.message ?? "");
+      }
       _topAnimController.reverse(from: 0.15);
     }
     if (event is Success<User>) {

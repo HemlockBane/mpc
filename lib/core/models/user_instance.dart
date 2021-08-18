@@ -88,7 +88,7 @@ class UserInstance {
 
   void startSession(BuildContext context) {
     _scheduler = Cron();
-    _scheduler?.schedule(Schedule.parse("*/5 * * * * *"), () async {
+    _scheduler?.schedule(Schedule.parse("*/1 * * * * *"), () async {
       print("Currently Checking for inactivity...");
       final elapsedTime = DateTime.now().difference(_lastActivityTime).inSeconds;
       if(elapsedTime >= 120/*120 seconds = 2mins*/) {

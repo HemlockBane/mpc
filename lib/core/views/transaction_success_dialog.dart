@@ -65,11 +65,11 @@ class _TransactionSuccessDialog extends State<TransactionSuccessDialog> {
       children: [
         Text(
           'METER TOKEN:',
-          style: TextStyle(fontSize: 13, fontWeight: FontWeight.normal, color: Colors.white),
+          style: TextStyle(fontSize: 13, fontWeight: FontWeight.normal, color: Colors.textColorBlack),
         ),
         Text(
           widget.successPayload.token ?? "",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.textColorBlack),
         )
       ],
     );
@@ -79,22 +79,22 @@ class _TransactionSuccessDialog extends State<TransactionSuccessDialog> {
     return Container(
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(4),
-          color: Colors.white.withOpacity(0.01)
+          color: Colors.primaryColor.withOpacity(0.08)
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          highlightColor: Colors.white.withOpacity(0.1),
-          overlayColor: MaterialStateProperty.all(Colors.white.withOpacity(0.2)),
+          highlightColor: Colors.primaryColor.withOpacity(0.1),
+          overlayColor: MaterialStateProperty.all(Colors.primaryColor.withOpacity(0.2)),
           borderRadius: BorderRadius.circular(4),
           onTap: () => Clipboard.setData(ClipboardData(text: widget.successPayload.token ?? "")),
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Column(
               children: [
-                SvgPicture.asset('res/drawables/ic_copy.svg', color: Colors.white,),
+                SvgPicture.asset('res/drawables/ic_copy.svg', color: Colors.primaryColor,),
                 SizedBox(height: 4,),
-                Text('COPY', style: TextStyle(color: Colors.white, fontWeight: FontWeight.normal, fontSize: 12),)
+                Text('COPY', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.normal, fontSize: 12),)
               ],
             ),
           ),
@@ -106,21 +106,24 @@ class _TransactionSuccessDialog extends State<TransactionSuccessDialog> {
   @override
   Widget build(BuildContext context) {
     return BottomSheets.makeAppBottomSheet(
-        curveBackgroundColor: Colors.solidGreen,
-        centerImageBackgroundColor: Colors.white,
-        contentBackgroundColor: Colors.solidGreen,
-        centerImageRes: 'res/drawables/success_modal_check.svg',
+        curveBackgroundColor: Colors.white,
+        centerImageBackgroundColor: Colors.solidGreen.withOpacity(0.1),
+        contentBackgroundColor: Colors.white,
+        centerBackgroundPadding: 10,
+        centerBackgroundHeight: 60,
+        centerBackgroundWidth: 60,
+        centerImageRes: 'res/drawables/ic_circular_check_mark.svg',
         content: Wrap(
           children: [
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              padding: EdgeInsets.only(left: 16, right: 16, top: 2, bottom: 16),
               child: Column(
                 children: [
                   Text(widget.successPayload.title,
                       style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white
+                          color: Colors.textColorBlack
                       )
                   ),
                   SizedBox(height: 16),
@@ -130,7 +133,7 @@ class _TransactionSuccessDialog extends State<TransactionSuccessDialog> {
                           padding: EdgeInsets.symmetric(horizontal: 24, vertical: 24),
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.all(Radius.circular(8)),
-                              color: Colors.solidDarkGreen
+                              color: Colors.solidGreen.withOpacity(0.1)
                           ),
                           child: widget.successPayload.token == null
                               ? Text(widget.successPayload.message,
@@ -139,7 +142,7 @@ class _TransactionSuccessDialog extends State<TransactionSuccessDialog> {
                               style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.normal,
-                                  color: Colors.white
+                                  color: Colors.textColorBlack
                               ), textAlign: TextAlign.center
                           )
                               : _tokenView()
@@ -155,10 +158,10 @@ class _TransactionSuccessDialog extends State<TransactionSuccessDialog> {
                   SizedBox(
                       width: double.infinity,
                       child: Styles.appButton(
+                          elevation: 0.1,
                           onClick: widget.onClick ?? () => Navigator.of(context).pop(),
                           text: 'Continue',
-                          buttonStyle: Styles.whiteButtonStyle.copyWith(
-                              foregroundColor: MaterialStateProperty.all(Colors.solidGreen))
+                          buttonStyle: Styles.primaryButtonStyle
                       )
                   ),
                   SizedBox(height: 32),
@@ -173,7 +176,7 @@ class _TransactionSuccessDialog extends State<TransactionSuccessDialog> {
                             SizedBox(width: 8,),
                             Text(
                               'Share Receipt'.toUpperCase(),
-                              style: TextStyle(fontSize: 14, color: Colors.white),
+                              style: TextStyle(fontSize: 14, color: Colors.primaryColor),
                             )
                           ],
                         ),
@@ -181,7 +184,7 @@ class _TransactionSuccessDialog extends State<TransactionSuccessDialog> {
                   ),
                   Visibility(
                       visible: _isLoading,
-                      child: SpinKitThreeBounce(size: 20.0, color: Colors.white.withOpacity(0.9))
+                      child: SpinKitThreeBounce(size: 20.0, color: Colors.primaryColor.withOpacity(0.9))
                   ),
                   SizedBox(height: 40)
                 ],

@@ -8,6 +8,9 @@ import 'package:moniepoint_flutter/app/login/model/login_service.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/network_bound_resource.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/network/service_result.dart';
+import 'package:moniepoint_flutter/core/utils/biometric_helper.dart';
+import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 
 class LoginServiceDelegate with NetworkResource{
   late final LoginService _service;
@@ -43,8 +46,18 @@ class LoginServiceDelegate with NetworkResource{
     return networkBoundResource(
         fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => this._service.loginWithFingerprint(requestBody as LoginWithFingerprintRequestBody),
-        saveRemoteData: (user) async {
-          _updateSession(user);
+        saveRemoteData: (user) async => _updateSession(user),
+        onError: ({ServiceResult<User?>? result, int? statusCode}) async {
+          final firstError = result?.errors?.first.message;
+          if (firstError == null
+              || firstError.contains("reset your fingerprint") == false) {
+            return;
+          }
+
+          final biometricHelper = BiometricHelper.getInstance();
+          await biometricHelper.deleteFingerPrintPassword();
+          PreferenceUtil.setFingerPrintEnabled(false);
+          PreferenceUtil.setFingerprintRequestCounter(0);
         }
     );
   }

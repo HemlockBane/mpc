@@ -32,6 +32,7 @@ mixin NetworkResource {
     required Future<ServiceResult<K>?> Function() fetchFromRemote,
     K? Function(Success<ServiceResult<K>> response)? processRemoteResponse,
     Future Function(K)? saveRemoteData,
+    void Function({ServiceResult<K?>? result, int? statusCode})? onError
   }) async* {
     shouldFetchFromRemote ??= (T) => true;
     processRemoteResponse ??= (T) => null;
@@ -70,7 +71,7 @@ mixin NetworkResource {
           }
           else yield Resource.success(result ?? response.result);
         } else {
-          //TODO
+          onError?.call(result: response, statusCode: 200);
           yield Resource.error(err: ServiceError(message: response.errors?.first.message ?? ""));
         }
       } catch(e) {
@@ -96,8 +97,9 @@ mixin NetworkResource {
 
           if (errorBody != null) {
             try {
-              result = ServiceResult.fromJson(
-                  jsonDecode(jsonEncode(errorBody)), (a) => null);
+              result = ServiceResult.fromJson(jsonDecode(jsonEncode(errorBody)), (a) => null);
+              //Dispatch the error to anyone that cares
+              onError?.call(result: result, statusCode: e.response?.statusCode);
             } catch (e) {
               if (e is FormatException) _errorString = errorString;
               print(e);
@@ -239,7 +241,8 @@ Tuple<String, String> formatError(String? errorMessage, String moduleName) {
   }
   else {
     errorTitle = "Oops";
-    errorDescription = errorMessage;
+    errorDescription = "An unknown error occurred. Please try again later.";
+    FirebaseCrashlytics.instance.recordError(errorMessage, null);
   }
   return Tuple(errorTitle, errorDescription);
 }

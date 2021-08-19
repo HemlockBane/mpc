@@ -24,6 +24,7 @@ import 'package:moniepoint_flutter/core/paging/paging_source.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/utils/download_util.dart';
 import 'package:moniepoint_flutter/core/utils/list_view_util.dart';
 import 'package:moniepoint_flutter/core/views/filter/date_filter_dialog.dart';
@@ -85,16 +86,15 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
 
     if(result != null && result is String) {
       if(result == "block") {
-        showModalBottomSheet(
-            backgroundColor: Colors.transparent,
-            context: context,
-            builder: (mContext) => BottomSheets.displayWarningDialog(
-                'Warning!!!',
-                'You will have to visit a branch to unblock your account if needed! Proceed to block?', () {
-                  Navigator.of(mContext).pop();
-                  Navigator.of(mContext).pushNamed(Routes.BLOCK_ACCOUNT);
-                }, buttonText: 'Yes, Proceed'
-            )
+        showInfo(
+            context,
+            title: "Warning!!!",
+            message: "You will have to visit a branch to unblock your account if needed! Proceed to block?",
+            primaryButtonText: "Yes, Proceed",
+            onPrimaryClick: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pushNamed(Routes.BLOCK_ACCOUNT);
+            }
         );
       }
     }
@@ -584,14 +584,8 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
       } catch(e) {
         setState(() { _isDownloading = false; });
         FirebaseCrashlytics.instance.recordError(e, null);
-        showModalBottomSheet(
-            backgroundColor: Colors.transparent,
-            context: context,
-            builder: (context) => BottomSheets.displayErrorModal(
-                context,
-                title: "Oops",
-                message: "Failed to download account statement receipt"
-            )
+        showError(
+          context, title: "Oops", message: "Failed to download account statement receipt"
         );
       }
     }

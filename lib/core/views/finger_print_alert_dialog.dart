@@ -4,6 +4,7 @@ import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/biometric_helper.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/viewmodels/finger_print_alert_view_model.dart';
 import 'package:provider/provider.dart';
@@ -57,16 +58,7 @@ class _FingerPrintAlertDialog extends State<FingerPrintAlertDialog> {
       PreferenceUtil.setFingerPrintEnabled(false);
       await BiometricHelper.getInstance().deleteFingerPrintPassword();
       setState(() { _isLoading = false; _hasError = true; });
-
-      //display error dialog
-      showModalBottomSheet(
-          backgroundColor: Colors.transparent,
-          context: context,
-          builder: (mContext) => BottomSheets.displayErrorModal(
-              mContext,
-              message: event.message
-          )
-      );
+      showError(context, message: event.message);
     }
   }
 

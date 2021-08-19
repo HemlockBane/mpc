@@ -156,7 +156,6 @@ class _DashboardScreen extends State<DashboardScreenOld> with TickerProviderStat
   }
 
   void _refreshDashboard() {
-    print("Refresh Dashboard was called!!!!1");
     subscribeUiToAccountStatus();
   }
 
@@ -453,11 +452,7 @@ class _DashboardScreen extends State<DashboardScreenOld> with TickerProviderStat
             onPrimaryClick: () => Navigator.of(context).pop(true)
         );
       } else if (result is Error<bool>) {
-        showModalBottomSheet(
-            backgroundColor: Colors.transparent,
-            context: context,
-            builder: (mContext) => BottomSheets.displayErrorModal(mContext,
-                message: result.message));
+        showError(context, message: result.message);
       }
     }
   }

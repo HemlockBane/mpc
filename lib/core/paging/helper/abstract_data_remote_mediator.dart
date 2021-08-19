@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:moniepoint_flutter/core/models/data_collection.dart';
 import 'package:moniepoint_flutter/core/network/service_result.dart';
 import 'package:moniepoint_flutter/core/paging/paging_state.dart';
@@ -44,7 +45,8 @@ abstract class AbstractDataCollectionMediator<K, V> extends RemoteMediator<K, V>
         print("See status code oo ${e.response?.statusCode}");
         MediatorResult.error(exception: e);
       } else if(e is TypeError){
-        MediatorResult.error(exception: Exception(e.toString()));
+        FirebaseCrashlytics.instance.recordError(e, null);
+        MediatorResult.error(exception: Exception("An error occurred fulfilling your request. Please try again"));
       }
       return MediatorResult.error(exception: e as Exception);
     }

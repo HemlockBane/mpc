@@ -37,7 +37,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       List<TransferBeneficiary> recentlyPaidBeneficiaries){
     return Column(children: [
       SizedBox(
-        height: 12,
+        height: 20,
       ),
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -47,6 +47,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             style: TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 13,
+              // height: 18,
               color: Color(0xff1A0C2F),
             ),
           ),
@@ -724,19 +725,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         stream: recentlyPaidBeneficiaries,
                         builder: (BuildContext context, AsyncSnapshot<Resource<List<TransferBeneficiary>?>>snapshot) {
 
-                          if (snapshot.hasData) return Container();
+                          if (!snapshot.hasData) return Container();
 
                           final resource = snapshot.data;
                           final hasData = resource?.data?.isNotEmpty == true;
-                          final displayLocalData = true;
-                          final currentList = <TransferBeneficiary>[];
 
-                          if(resource is Loading && (displayLocalData && !hasData || !displayLocalData)) {
+                          if(resource is Loading && !hasData) {
                             return  Container();
                           }
 
-                          if ((snapshot.hasError || snapshot.data is Error) &&
-                              (!displayLocalData || currentList.isEmpty)) {
+                          if ((snapshot.hasError || snapshot.data is Error)) {
                             Container();
                           }
 
@@ -751,9 +749,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           }
 
                           final beneficiaries = resource.data;
+                          print('length');
+                          print(beneficiaries!.length);
 
                           return _buildRecentlyPaidList(
-                              recentlyPaidColors, beneficiaries!);
+                              recentlyPaidColors, beneficiaries);
                         },
                       ),
                     ),

@@ -8,35 +8,6 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:539671877342:android:cfd9d5ed525d592240544f",
-        "android_client_info": {
-          "package_name": "com.teamapt.app.moniepoint"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "539671877342-sbb8f4cqfqn9nt67i08tc04bv7efrjtf.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBaWvpAZu9ODUJqNMpJ_ycud2BBh-D2HGE"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "539671877342-sbb8f4cqfqn9nt67i08tc04bv7efrjtf.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
         "mobilesdk_app_id": "1:539671877342:android:4e7701c89b54cd5540544f",
         "android_client_info": {
           "package_name": "com.teamapt.customers.moniepoint"

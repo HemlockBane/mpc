@@ -394,7 +394,7 @@ class _$TransferBeneficiaryDao extends TransferBeneficiaryDao {
   Stream<List<TransferBeneficiary>> getPagedTransferBeneficiary(
       int myOffset, int limit) {
     return _queryAdapter.queryListStream(
-        'SELECT * FROM transfer_beneficiaries ORDER BY frequency DESC LIMIT ?2 OFFSET ?1',
+        'SELECT * FROM transfer_beneficiaries ORDER BY accountName DESC LIMIT ?2 OFFSET ?1',
         mapper: (Map<String, Object?> row) => TransferBeneficiary(
             id: row['id'] as int?,
             accountName: row['accountName'] as String,

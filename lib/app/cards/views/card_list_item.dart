@@ -72,6 +72,26 @@ class CardListItem extends Container {
     return cardNumberWidget;
   }
 
+  Widget _activateCardButton(BuildContext context) {
+    if(card.status != CardStatus.IN_ACTIVE) return SizedBox();
+    return SizedBox(
+      width: double.infinity,
+      child: Styles.appButton(
+          elevation: 0.1,
+          onClick: ()  {
+            Navigator.of(context)
+                .pushNamed(Routes.CARD_ACTIVATION, arguments: {"id": card.id});
+          },
+          text: "Activate Card",
+          buttonStyle: Styles.whiteButtonStyle.copyWith(
+              foregroundColor: MaterialStateProperty.all(Colors.white),
+              backgroundColor: MaterialStateProperty.all(Colors.white.withOpacity(0.45)),
+              overlayColor: MaterialStateProperty.all(Colors.grey.withOpacity(0.2))
+          )
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -99,8 +119,8 @@ class CardListItem extends Container {
             padding: EdgeInsets.only(
                 left: 20,
                 right: 20,
-                top: card.blocked ? 14 : 16,
-                bottom: 16
+                top: card.blocked ? 20 : 22,
+                bottom: 22
             ),
             child: Column(
               children: [
@@ -115,7 +135,8 @@ class CardListItem extends Container {
                 ),
                 SizedBox(height: card.blocked ? 12 : 16,),
                 _cardNumberAndLogo(),
-                // SizedBox(height: (card.status == CardStatus.IN_ACTIVE) ? 16 : 0,),
+                SizedBox(height: (card.status == CardStatus.IN_ACTIVE) ? 16 : 0,),
+                _activateCardButton(context)
               ],
             ),
           ),

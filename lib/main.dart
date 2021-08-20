@@ -10,6 +10,8 @@ import 'package:moniepoint_flutter/app/onboarding/views/signup_account_view.dart
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/di/service_module.dart';
 import 'package:moniepoint_flutter/core/di/db_module.dart';
+import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
+import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
@@ -29,7 +31,7 @@ final defaultAppTheme = ThemeData(
         bodyText2: TextStyle(
             fontFamily: Styles.defaultFont, fontFamilyFallback: ["Roboto"])));
 
-class MoniepointApp extends StatelessWidget {
+class MoniepointApp extends StatelessWidget with CompositeDisposableWidget {
   // This widget is the root of your application
   void _loadSystemConfigurations(SystemConfigurationViewModel viewModel) {
     Rx.combineLatest2(
@@ -37,7 +39,10 @@ class MoniepointApp extends StatelessWidget {
         viewModel.getUSSDConfiguration(), (a, b) {}
     ).listen((event) {
       print("Fetching System Configuration!!!");
-    });
+      if(event is Success || event is Error){
+        disposeAll();
+      }
+    }).disposedBy(this);
   }
 
   @override

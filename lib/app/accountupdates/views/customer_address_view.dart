@@ -295,7 +295,7 @@ class _CustomerAddressScreen extends State<CustomerAddressScreen> with Automatic
                   builder: (BuildContext context, AsyncSnapshot<LocalGovernmentArea?> snapshot) {
                     return Styles.buildDropDown(_customerAddressForm.mailingAddressForm?.localGovt??<LocalGovernmentArea>[], snapshot, (value, i) {
                      _customerAddressForm.mailingAddressForm?.onLocalGovtChange(value as LocalGovernmentArea);
-                    }, hint: 'Local Govt. Area Origin');
+                    }, hint: 'Local Govt. Area');
                   })),
             SizedBox(height: 32),
             Expanded(

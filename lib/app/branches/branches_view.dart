@@ -338,16 +338,16 @@ class _BranchScreen extends State<BranchScreen> {
               ],
             ),
             Text(branchInfo.name ?? "",
-                style: _style(fontWeight: FontWeight.w600, fontSize: 17)),
+                style: Styles.textStyle(context, fontWeight: FontWeight.w600, fontSize: 17)),
             SizedBox(height: 11),
-            Text(branchInfo.location?.address ?? "", style: _style()),
+            Text(branchInfo.location?.address ?? "", style: Styles.textStyle(context)),
             SizedBox(height: 11),
             InkWell(
-                child: Text(branchInfo.phoneNumber ?? "", style: _style()),
+                child: Text(branchInfo.phoneNumber ?? "", style: Styles.textStyle(context)),
                 onTap: () => openUrl("tel:${branchInfo.phoneNumber}")),
             SizedBox(height: 11),
             InkWell(
-              child: Text(branchInfo.email ?? "", style: _style()),
+              child: Text(branchInfo.email ?? "", style: Styles.textStyle(context)),
               onTap: () =>
                   openUrl("mailto:${branchInfo.email}?subject=Moniepoint"),
             ),
@@ -377,7 +377,7 @@ class _BranchScreen extends State<BranchScreen> {
                           SizedBox(width: 14),
                           Text(
                             "Call Branch",
-                            style: _style(
+                            style: Styles.textStyle(context,
                                 color: Color(0xFF0361F0),
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500),
@@ -407,7 +407,7 @@ class _BranchScreen extends State<BranchScreen> {
                       child: Center(
                         child: Text(
                           "Share Location",
-                          style: _style(
+                          style: Styles.textStyle(context,
                               color: Color(0xFF0361F0),
                               fontSize: 14,
                               fontWeight: FontWeight.w500),
@@ -426,11 +426,7 @@ class _BranchScreen extends State<BranchScreen> {
     );
   }
 
-  TextStyle _style({FontWeight fontWeight = FontWeight.normal,
-    double fontSize = 13,
-    Color color = const Color(0xFF1A0C2F)}) {
-    return TextStyle(fontSize: fontSize, fontWeight: fontWeight, color: color);
-  }
+
 
   void check(CameraUpdate u, GoogleMapController c) async {
     c.animateCamera(u);

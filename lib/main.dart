@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart' hide Colors, Card;
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:moniepoint_flutter/app/login/viewmodels/login_view_model.dart';
 import 'package:moniepoint_flutter/app/login/views/login_view.dart';
@@ -18,6 +19,8 @@ import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 //We need to move this to some where else
+
+
 final defaultAppTheme = ThemeData(
     disabledColor: Colors.primaryColor.withOpacity(0.5),
     primaryColor: Colors.primaryColor,

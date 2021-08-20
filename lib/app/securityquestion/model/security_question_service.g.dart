@@ -9,7 +9,7 @@ part of 'security_question_service.dart';
 class _SecurityQuestionService implements SecurityQuestionService {
   _SecurityQuestionService(this._dio, {this.baseUrl}) {
     baseUrl ??=
-        'https://core-operations.monnify.development.teamapt.com/api/v1/security_question';
+        'https://moniepoint-customer-operations-service-v2.console.teamapt.com/api/v1/security_question';
   }
 
   final Dio _dio;
@@ -27,7 +27,7 @@ class _SecurityQuestionService implements SecurityQuestionService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.6'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -56,7 +56,7 @@ class _SecurityQuestionService implements SecurityQuestionService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.6'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -83,7 +83,7 @@ class _SecurityQuestionService implements SecurityQuestionService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.6'
                 },
                 extra: _extra,
                 contentType: 'application/json')

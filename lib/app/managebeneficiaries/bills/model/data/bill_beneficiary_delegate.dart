@@ -91,7 +91,7 @@ class _BillBeneficiaryMediator extends AbstractDataCollectionMediator<int, BillB
 
   @override
   Future<ServiceResult<DataCollection<BillBeneficiary>>> serviceCall(page) {
-    return _service.getBillerBeneficiaries(customerId ?? 0, page, 20);
+    return _service.getBillerBeneficiaries(customerId ?? 0, page, 500);
   }
 }
 

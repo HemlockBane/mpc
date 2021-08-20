@@ -91,7 +91,7 @@ class _AirtimeBeneficiaryMediator extends AbstractDataCollectionMediator<int, Ai
 
   @override
   Future<ServiceResult<DataCollection<AirtimeBeneficiary>>> serviceCall(page) {
-    return _service.getAirtimeBeneficiaries(page: page, pageSize: 20);
+    return _service.getAirtimeBeneficiaries(page: page, pageSize: 500);
   }
 }
 

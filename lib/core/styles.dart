@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/DropDownItem.dart';
 
@@ -121,9 +120,9 @@ class Styles {
       shape: MaterialStateProperty.all(
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))));
 
-  static const String defaultFont = "CircularStd";
+  static const String defaultFont = "Inter";
   static const String ocraExtended = "Ocra";
-
+  static const String circularStd = "CircularStd";
 
   /// A Generic Primary Button
   static ElevatedButton appButton(
@@ -277,8 +276,8 @@ class Styles {
           ),
           border: OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
-              borderSide: BorderSide(color: borderColor ?? Colors.transparent, width: 1.5)
-          ),
+            borderSide: BorderSide(
+                color: borderColor ?? Colors.transparent, width: 1.5)),
       ),
     );
   }
@@ -368,7 +367,6 @@ class Styles {
     );
   }
 
-
   static Widget statefulButton({
     required Stream<bool>? stream,
     required VoidCallback onClick,
@@ -441,21 +439,21 @@ class Styles {
     );
   }
 
-  static TextStyle textStyle(BuildContext context, {FontWeight fontWeight = FontWeight.normal,
-    double fontSize = 13,
-    Color color = const Color(0xFF1A0C2F), double? letterSpacing, double? lineHeight}) {
-
+  static TextStyle textStyle(BuildContext context,
+      {FontWeight fontWeight = FontWeight.normal,
+      double fontSize = 13,
+      Color color = const Color(0xFF1A0C2F),
+      double? letterSpacing,
+      double? lineHeight}) {
     final defaultStyle = Theme.of(context).primaryTextTheme.bodyText2;
-    return GoogleFonts.inter(
-        textStyle: TextStyle(fontSize: fontSize,
-        height: lineHeight?? defaultStyle?.height, 
-        fontWeight: fontWeight, 
-        color: color, 
+    return TextStyle(
+        fontSize: fontSize,
+        height: lineHeight ?? defaultStyle?.height,
+        fontWeight: fontWeight,
+        color: color,
         letterSpacing: letterSpacing ?? defaultStyle?.letterSpacing,
-    
-    ));
+        fontFamily: "Inter");
   }
-
 }
 
 class AlwaysDisabledFocusNode extends FocusNode {

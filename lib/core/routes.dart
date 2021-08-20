@@ -86,7 +86,7 @@ class Routes {
       '/sign-up': (BuildContext context) => SignUpAccountScreen(),
       Routes.REGISTER_NEW_ACCOUNT: (BuildContext context) => Scaffold(body: SignUpAccountScreen()),
       Routes.ACCOUNT_RECOVERY: (BuildContext context) => Scaffold(body: RecoveryControllerScreen()),
-      Routes.DASHBOARD: (BuildContext context) => DashboardScreenOld(),
+      Routes.DASHBOARD: (BuildContext context) => DashboardScreen(),
       Routes.ACCOUNT_UPDATE: (BuildContext context) => Scaffold(body: AccountUpdateScreen()),
       Routes.TRANSFER: (BuildContext context) => TransferScreen(),
       Routes.TRANSFER_DETAIL: (BuildContext context) => ChangeNotifierProvider(

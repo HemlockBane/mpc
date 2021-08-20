@@ -16,6 +16,7 @@ import 'package:provider/provider.dart';
 
 import 'card_list_option_item.dart';
 import 'dialogs/card_pin_dialog.dart';
+import 'dialogs/change_card_pin_dialog.dart';
 
 class CardDetailedView extends StatefulWidget {
 
@@ -33,6 +34,7 @@ class _CardDetailedViewState extends State<CardDetailedView> {
   Card? _card;
 
   late final _cardOptions = List<Widget>.of([]);
+  late SingleCardViewModel _viewModel;
 
   void _makeCardOptions() {
     _cardOptions.clear();
@@ -44,7 +46,7 @@ class _CardDetailedViewState extends State<CardDetailedView> {
           leadingIcon: SvgPicture.asset("res/drawables/ic_card_channels.svg")
       ),
       CardListOptionItem(
-          onClick: () => "",
+          onClick: () => _displayChangePinDialog(_viewModel),
           title: "Card Transaction Limit",
           subTitle: "Set a spending limit on this card",
           leadingIcon: SvgPicture.asset("res/drawables/ic_get_card.svg")
@@ -56,6 +58,12 @@ class _CardDetailedViewState extends State<CardDetailedView> {
           leadingIcon: SvgPicture.asset("res/drawables/ic_number_input.svg", color: Colors.primaryColor,)
       ),
     ]);
+  }
+
+  @override
+  void initState() {
+    _viewModel = Provider.of<SingleCardViewModel>(context, listen: false);
+    super.initState();
   }
 
   void _displayForBlockOrUnblock(SingleCardViewModel viewModel) async {
@@ -76,6 +84,22 @@ class _CardDetailedViewState extends State<CardDetailedView> {
       }
     } else {
       Navigator.of(context).pushNamed(Routes.UNBLOCK_DEBIT_CARD);
+    }
+  }
+
+  void _displayChangePinDialog(SingleCardViewModel viewModel) async {
+    dynamic value = await showModalBottomSheet(
+        backgroundColor: Colors.transparent,
+        context:  context,
+        isScrollControlled: true,
+        builder: (context) => ChangeNotifierProvider.value(
+          value: viewModel,
+          child: ChangeCardPinDialog(),
+        )
+    );
+
+    if (value != null && value is CardTransactionRequest) {
+      _openCardTransactionDialog(viewModel, CardAction.CHANGE_PIN, value);
     }
   }
 

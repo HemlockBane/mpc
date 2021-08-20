@@ -1,20 +1,29 @@
 import 'package:flutter/material.dart';
 
 abstract class PagedForm extends StatefulWidget {
-  int totalItem = 0;
-  int position = 0;
+  final _pageFormState = PageFormState(0, 0);
+
+  int get totalItem => _pageFormState.totalItem;
+  int get position => _pageFormState.position;
 
   void bind(int totalItem, int position) {
-    this.totalItem = totalItem;
-    this.position = position;
+    _pageFormState.totalItem = totalItem;
+    _pageFormState.position = position;
   }
 
   bool isLast() {
     return position == totalItem - 1;
   }
 
-  String getTitle();
+  String getTitle() => "NO_TITLE";
 
   void saveForm() {}
 
+}
+
+class PageFormState {
+  int totalItem = 0;
+  int position = 0;
+
+  PageFormState(this.position, this.totalItem);
 }

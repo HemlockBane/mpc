@@ -102,4 +102,6 @@ const _$LivelinessVerificationForEnumMap = {
   LivelinessVerificationFor.USERNAME_RECOVERY: 'USERNAME_RECOVERY',
   LivelinessVerificationFor.PASSWORD_RECOVERY: 'PASSWORD_RECOVERY',
   LivelinessVerificationFor.REGISTER_DEVICE: 'REGISTER_DEVICE',
+  LivelinessVerificationFor.CARD_LINKING: 'CARD_LINKING',
+  LivelinessVerificationFor.CARD_ACTIVATION: 'CARD_ACTIVATION',
 };

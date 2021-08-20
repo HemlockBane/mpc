@@ -43,8 +43,8 @@ class LoginViewModel with ChangeNotifier {
       ..withUsername(username)
       ..withPassword(password)
       ..withVersion(BuildConfig.APP_VERSION)
-      ..withDeviceId(_deviceManager.deviceId)
-      ..withDeviceName(_deviceManager.deviceName);
+      ..withDeviceId("74b1dd7571aa0acb"/*_deviceManager.deviceId*/)
+      ..withDeviceName("google"/*_deviceManager.deviceName*/);
 
     return doLogin(requestBody);
   }
@@ -89,11 +89,9 @@ class LoginViewModel with ChangeNotifier {
   }
 
   Future<bool> canLoginWithBiometric(BiometricHelper? _helper) async {
-    print("This is the helper $_helper");
     final hasFingerPrint = (await _helper?.getFingerprintPassword()) != null;
     final biometricType = await _helper?.getBiometricType();
     final isEnabled = PreferenceUtil.getFingerPrintEnabled();
-    print("HasFingerprint => $hasFingerPrint, BioMetric => $biometricType, IsEnabled => $isEnabled");
     return hasFingerPrint && (biometricType != BiometricType.NONE) && isEnabled;
   }
 

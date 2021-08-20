@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lottie/lottie.dart';
@@ -10,6 +11,7 @@ import 'package:moniepoint_flutter/app/login/views/recovery/recovery_controller_
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_icons2_icons.dart';
+import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
 import 'package:moniepoint_flutter/core/login_mode.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -31,7 +33,7 @@ class LoginScreen extends StatefulWidget {
   State<StatefulWidget> createState() => _LoginState();
 }
 
-class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
+class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, CompositeDisposableWidget {
   TextEditingController _usernameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   String savedHashUsername = "";
@@ -72,7 +74,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
   void _setupViewDependencies() {
     this._initializeBiometric();
     final viewModel = Provider.of<LoginViewModel>(context, listen: false);
-    viewModel.getSystemConfigurations().listen((event) {});
+    viewModel.getSystemConfigurations().listen((event) {}).disposedBy(this);
 
     _usernameController.addListener(() => validateForm());
     _passwordController.addListener(() => validateForm());
@@ -335,7 +337,9 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
         ? unHashedUsername ?? ""
         : username;
 
-    viewModel.loginWithPassword(loginUsername, password).listen(_loginResponseObserver);
+    viewModel.loginWithPassword(loginUsername, password)
+        .listen(_loginResponseObserver)
+        .disposedBy(this);
   }
 
   void _loginResponseObserver(Resource<User> event) {
@@ -663,6 +667,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin {
     _passwordController.dispose();
     _animController.dispose();
     _topAnimController.dispose();
+    disposeAll();
     super.dispose();
   }
 }

@@ -38,54 +38,6 @@ class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin{
   final List<Card> _currentItems = [];
   final PageController _scrollController = PageController();
 
-  // Widget cardFunctionItem(
-  //     String title,
-  //     String trailingIconRes,
-  //     VoidCallback onClick,
-  //     { String? subtitle, Color? trailingBackground}) {
-  //   return Material(
-  //     color: Colors.transparent,
-  //     child: InkWell(
-  //       onTap: onClick,
-  //       child: ListTile(
-  //         leading: Container(
-  //           height: 50,
-  //           width: 50,
-  //           padding: EdgeInsets.all(10),
-  //           decoration: BoxDecoration(
-  //             color: trailingBackground ?? Colors.primaryColor.withOpacity(0.1),
-  //             shape: BoxShape.circle,
-  //           ),
-  //           child: SvgPicture.asset(trailingIconRes),
-  //         ),
-  //         trailing: SvgPicture.asset(
-  //           'res/drawables/ic_forward_anchor.svg',
-  //           color: Colors.primaryColor,
-  //         ),
-  //         minVerticalPadding: 0,
-  //         contentPadding: EdgeInsets.only(
-  //             top: subtitle == null ? 8 : 0,
-  //             bottom:subtitle == null ? 8 : 0,
-  //             left: 16, right: 16
-  //         ),
-  //         title: Text(
-  //           title,
-  //           style: TextStyle(color: Colors.textColorMainBlack, fontSize: 16),
-  //         ),
-  //         subtitle: (subtitle != null)
-  //             ? Align(
-  //                 alignment: Alignment(-1, -1),
-  //                 child: Text(
-  //                   subtitle,
-  //                   style: TextStyle(color: Colors.deepGrey, fontSize: 12),
-  //                 ),
-  //               )
-  //             : null,
-  //       ),
-  //     ),
-  //   );
-  // }
-
   // void _displayChannelsDialog(SingleCardViewModel viewModel) async {
   //   dynamic value = await showModalBottomSheet(
   //       backgroundColor: Colors.transparent,
@@ -125,28 +77,6 @@ class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin{
     }
   }
 
-  // void _displayForBlockOrUnblock(SingleCardViewModel viewModel) async {
-  //   final card = viewModel.selectedCard;
-  //   if(card == null) return;
-  //
-  //   //User wants to unblock
-  //   if(!card.blocked) {
-  //     dynamic value = await showModalBottomSheet(
-  //         backgroundColor: Colors.transparent,
-  //         context: _scaffoldKey.currentContext ?? context,
-  //         isScrollControlled: true,
-  //         builder: (context) => BottomSheets.displayWarningDialog("Warning!!!", "You will have to visit a branch to unblock your card if needed! Proceed to block?", () {
-  //           Navigator.of(context).pop(true);
-  //         })
-  //     );
-  //     if(value is bool && value) {
-  //       _openCardTransactionDialog(viewModel, CardAction.BLOCK_CARD, CardTransactionRequest());
-  //     }
-  //   }else {
-  //     Navigator.of(context).pushNamed(Routes.UNBLOCK_DEBIT_CARD);
-  //   }
-  // }
-
   void _openCardTransactionDialog(SingleCardViewModel viewModel, CardAction action, CardTransactionRequest request) async {
     dynamic value = await showModalBottomSheet(
         backgroundColor: Colors.transparent,
@@ -168,55 +98,6 @@ class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin{
       showError(_scaffoldKey.currentContext ?? context, message: value.message ?? "");
     }
   }
-
-  // Widget _pagingView(SingleCardViewModel viewModel) {
-  //   bool isSelectedCardBlocked = viewModel.selectedCard?.blocked == true;
-  //   return Column(
-  //     children: [
-  //       SizedBox(height: 16,),
-  //       cardFunctionItem(
-  //           'Card Channels',
-  //           'res/drawables/ic_card_channels.svg', () {
-  //             _displayChannelsDialog(viewModel);
-  //       }, subtitle: 'Manage ATM, POS & Web Channels'),
-  //       Padding(
-  //           padding: EdgeInsets.only(left: 16, right: 16),
-  //         child: Divider(
-  //           height: 1,
-  //           color: Colors.grey.withOpacity(0.2),
-  //         ),
-  //       ),
-  //       // cardFunctionItem(
-  //       //     'Card Transaction Limits',
-  //       //     'res/drawables/ic_card_channels.svg', () {
-  //       // }),
-  //       // Padding(
-  //       //   padding: EdgeInsets.only(left: 16, right: 16),
-  //       //   child: Divider(
-  //       //     height: 1,
-  //       //     color: Colors.grey.withOpacity(0.2),
-  //       //   ),
-  //       // ),
-  //       cardFunctionItem(
-  //           'Change Card PIN',
-  //           'res/drawables/ic_dialog_three_dots.svg', () {
-  //         _displayChangePinDialog(viewModel);
-  //       }),
-  //       Padding(
-  //         padding: EdgeInsets.only(left: 16, right: 16),
-  //         child: Divider(
-  //           height: 1,
-  //           color: Colors.grey.withOpacity(0.2),
-  //         ),
-  //       ),
-  //       cardFunctionItem(
-  //           isSelectedCardBlocked ? 'Unblock Card' : "Block Card",
-  //           isSelectedCardBlocked ? 'res/drawables/ic_card_unlock.svg' : "res/drawables/ic_card_locked_red.svg", () {
-  //               _displayForBlockOrUnblock(viewModel);
-  //       }, trailingBackground: isSelectedCardBlocked ? Colors.solidGreen.withOpacity(0.1) : Colors.red.withOpacity(0.1))
-  //     ],
-  //   );
-  // }
 
   Widget _cardList(BuildContext context, AsyncSnapshot<Resource<List<Card>>> a) {
     return Expanded(
@@ -316,12 +197,15 @@ class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin{
                             'My Cards',
                             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
                           ),
-                          TextButton.icon(
-                              onPressed: () {},
-                              icon: SvgPicture.asset('res/drawables/ic_add.svg'),
-                              label: Text(
-                                'Add Card',
-                                style: TextStyle(color: Colors.primaryColor),
+                          Visibility(
+                              visible: snap.data?.data?.isEmpty == false,
+                              child: TextButton.icon(
+                                  onPressed: () {},
+                                  icon: SvgPicture.asset('res/drawables/ic_add.svg'),
+                                  label: Text(
+                                    'Add Card',
+                                    style: TextStyle(color: Colors.primaryColor),
+                                  )
                               )
                           )
                         ],

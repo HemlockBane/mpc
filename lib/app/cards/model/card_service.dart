@@ -10,6 +10,7 @@ import 'package:http_parser/http_parser.dart';
 
 import 'data/card_activation_response.dart';
 import 'data/card_linking_response.dart';
+import 'data/card_request_balance_response.dart';
 import 'data/card_transaction_request.dart';
 
 part 'card_service.g.dart';
@@ -59,7 +60,7 @@ abstract class CardService {
   );
 
   @GET("check-sufficient-balance")
-  Future<ServiceResult<bool>> confirmAccountBalanceIsSufficient(
+  Future<ServiceResult<CardRequestBalanceResponse>> confirmAccountBalanceIsSufficient(
       @Query("accountNumber") String accountNumber,
   );
 

@@ -17,7 +17,9 @@ import 'package:moniepoint_flutter/app/branches/viewmodels/branch_view_model.dar
 import 'package:moniepoint_flutter/app/cards/model/data/card.dart';
 import 'package:moniepoint_flutter/app/cards/viewmodels/card_activation_view_model.dart';
 import 'package:moniepoint_flutter/app/cards/viewmodels/single_card_view_model.dart';
+import 'package:moniepoint_flutter/app/cards/views/add_card_view.dart';
 import 'package:moniepoint_flutter/app/cards/views/card_detailed_view.dart';
+import 'package:moniepoint_flutter/app/cards/views/card_list_empty_view.dart';
 import 'package:moniepoint_flutter/app/cards/views/card_view.dart';
 import 'package:moniepoint_flutter/app/cards/views/dialogs/manage_card_channels_dialog.dart';
 import 'package:moniepoint_flutter/app/cards/views/issuance/card_activation_view.dart';
@@ -71,6 +73,7 @@ class Routes {
   static const CARDS  = "CARDS";
   static const CARD_DETAIL = "CARD_DETAIL";
   static const CARD_ACTIVATION = "CARD_ACTIVATION";
+  static const ADD_CARD = "ADD_CARD";
   static const MANAGE_CARD_CHANNELS = "MANAGE_CARD_CHANNELS";
   static const CARD_QR_SCANNER = "CARD_QR_SCANNER";
   static const CONTACTS  = "CONTACTS";
@@ -133,6 +136,10 @@ class Routes {
       Routes.CARDS: (BuildContext context) => ChangeNotifierProvider(
         create: (_) => SingleCardViewModel(),
         child: CardScreen(),
+      ),
+      Routes.ADD_CARD: (BuildContext context) => ChangeNotifierProvider(
+        create: (_) => SingleCardViewModel(),
+        child: AddCardScreen(),
       ),
       Routes.CARD_QR_SCANNER: (BuildContext context) => ChangeNotifierProvider(
         create: (_) => SingleCardViewModel(),

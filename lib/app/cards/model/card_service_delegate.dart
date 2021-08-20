@@ -12,6 +12,7 @@ import 'package:collection/collection.dart';
 import 'data/card_activation_response.dart';
 import 'data/card_link_request.dart';
 import 'data/card_linking_response.dart';
+import 'data/card_request_balance_response.dart';
 
 class CardServiceDelegate with NetworkResource {
 
@@ -41,7 +42,7 @@ class CardServiceDelegate with NetworkResource {
     Card(id: 2,
         maskedPan: "506099******4323",
         expiryDate: "23/03",
-        blocked: false,
+        blocked: true,
         nameOnCard: "AAAAA Okeke",
         status: CardStatus.ACTIVE,
         channelBlockStatus: TransactionChannelBlockStatus(web: false, atm: false, pos: false)
@@ -101,7 +102,7 @@ class CardServiceDelegate with NetworkResource {
     );
   }
 
-  Stream<Resource<bool>> isAccountBalanceSufficient(String accountNumber) {
+  Stream<Resource<CardRequestBalanceResponse>> isAccountBalanceSufficient(String accountNumber) {
     return networkBoundResource(
         fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => _service.confirmAccountBalanceIsSufficient(accountNumber)

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:moniepoint_flutter/app/cards/model/data/card_request_balance_response.dart';
 import 'package:moniepoint_flutter/app/cards/viewmodels/single_card_view_model.dart';
 import 'package:moniepoint_flutter/app/cards/views/card_list_option_item.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
@@ -43,16 +44,21 @@ class _CardListEmptyViewState extends State<CardListEmptyView> {
     final viewModel = Provider.of<SingleCardViewModel>(context, listen: false);
     viewModel.isAccountBalanceSufficient().listen((event) {
       if(event is Loading) _showLoadingAccountBalance();
-      else if (event is Success<bool>){
-        if(event.data == true) {
+      else if (event is Success<CardRequestBalanceResponse>){
+        if(event.data?.sufficient == true) {
           Navigator.of(context).pop();
           _getCardDetails();
         } else {
           Navigator.of(context).pop();
-          showError(context, message: "");
+          showError(
+              context,
+              title: "Insufficient Funds",
+              message: "Dear Customer,\nYour balance of ${event.data?.availableBalance} is not enough to cover the cost of the card N${event.data?.cardAmount}.\n\nYou can fund your account by depositing at any agent location or transferring from your bank app/USSD",
+              useTextButton: true
+          );
         }
       }
-      else if(event is Error<bool>){
+      else if(event is Error<CardRequestBalanceResponse>){
         Navigator.of(context).pop();
         showError(context, title: "Insufficient Funds", message: event.message);
       }

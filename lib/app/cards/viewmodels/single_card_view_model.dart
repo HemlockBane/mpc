@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:moniepoint_flutter/app/cards/model/card_service_delegate.dart';
 import 'package:moniepoint_flutter/app/cards/model/data/card.dart';
+import 'package:moniepoint_flutter/app/cards/model/data/card_request_balance_response.dart';
 import 'package:moniepoint_flutter/app/cards/model/data/card_transaction_request.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
@@ -47,7 +48,7 @@ class SingleCardViewModel extends BaseViewModel {
     return _delegate.changeCardPin(customerId, cardRequest);
   }
 
-  Stream<Resource<bool>> isAccountBalanceSufficient() {
+  Stream<Resource<CardRequestBalanceResponse>> isAccountBalanceSufficient() {
     return _delegate.isAccountBalanceSufficient(accountNumber);
   }
 }

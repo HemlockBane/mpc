@@ -4,7 +4,6 @@ import 'package:moniepoint_flutter/app/cards/model/data/card.dart';
 import 'package:moniepoint_flutter/app/cards/model/data/card_transaction_request.dart';
 import 'package:moniepoint_flutter/app/cards/viewmodels/single_card_view_model.dart';
 import 'package:moniepoint_flutter/app/cards/views/card_detailed_item.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
@@ -40,19 +39,19 @@ class _CardDetailedViewState extends State<CardDetailedView> {
     _cardOptions.clear();
     _cardOptions.addAll([
       CardListOptionItem(
-          onClick: () => Navigator.of(context).pushNamed(Routes.MANAGE_CARD_CHANNELS, arguments: {"id": _card?.id}),
+          onClick: _card!.blocked ? null : () => Navigator.of(context).pushNamed(Routes.MANAGE_CARD_CHANNELS, arguments: {"id": _card?.id}),
           title: "Card Channels",
           subTitle: "Manage ATM, POS & Web Channels",
           leadingIcon: SvgPicture.asset("res/drawables/ic_card_channels.svg")
       ),
       CardListOptionItem(
-          onClick: () => _displayChangePinDialog(_viewModel),
+          onClick: _card!.blocked ? null : null,
           title: "Card Transaction Limit",
           subTitle: "Set a spending limit on this card",
           leadingIcon: SvgPicture.asset("res/drawables/ic_get_card.svg")
       ),
       CardListOptionItem(
-          onClick: _card!.blocked ? null : () => "",
+          onClick: _card!.blocked ? null : () => _displayChangePinDialog(_viewModel),
           title: "Change Card PIN",
           subTitle: "Manage ATM, POS & Web Channels",
           leadingIcon: SvgPicture.asset("res/drawables/ic_number_input.svg", color: Colors.primaryColor,)
@@ -192,7 +191,6 @@ class _CardDetailedViewState extends State<CardDetailedView> {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = Provider.of<SingleCardViewModel>(context, listen: false);
     return SessionedWidget(
         context: context,
         child: Scaffold(
@@ -213,7 +211,7 @@ class _CardDetailedViewState extends State<CardDetailedView> {
               elevation: 0
           ),
           body: FutureBuilder(
-            future: viewModel.getSingleCard(widget.cardId),
+            future: _viewModel.getSingleCard(widget.cardId),
             builder: (mContext, AsyncSnapshot<Card?> snapshot) {
               if(!snapshot.hasData || snapshot.data == null) return Container();
               _card = snapshot.data;
@@ -264,7 +262,7 @@ class _CardDetailedViewState extends State<CardDetailedView> {
                       left: 0,
                       right: 0,
                       bottom: 0,
-                      child: blockOrUnblockWidget(viewModel)
+                      child: blockOrUnblockWidget(_viewModel)
                   )
                 ],
               );

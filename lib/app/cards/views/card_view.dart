@@ -38,67 +38,6 @@ class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin{
   final List<Card> _currentItems = [];
   final PageController _scrollController = PageController();
 
-  // void _displayChannelsDialog(SingleCardViewModel viewModel) async {
-  //   dynamic value = await showModalBottomSheet(
-  //       backgroundColor: Colors.transparent,
-  //       context: _scaffoldKey.currentContext ?? context,
-  //       isScrollControlled: true,
-  //       builder: (context) => ChangeNotifierProvider.value(
-  //           value: viewModel,
-  //           child: ManageCardChannelDialog(),
-  //       )
-  //   );
-  //
-  //   if (value != null && value is Tuple<TransactionChannel, bool>) {
-  //     //open card pin dialog
-  //     _openCardTransactionDialog(
-  //         viewModel,
-  //         value.second
-  //             ? CardAction.UNBLOCK_CARD_CHANNEL
-  //             : CardAction.BLOCK_CARD_CHANNEL,
-  //         CardTransactionRequest()..transactionChannel = value.first
-  //     );
-  //   }
-  // }
-
-  void _displayChangePinDialog(SingleCardViewModel viewModel) async {
-    dynamic value = await showModalBottomSheet(
-        backgroundColor: Colors.transparent,
-        context: _scaffoldKey.currentContext ?? context,
-        isScrollControlled: true,
-        builder: (context) => ChangeNotifierProvider.value(
-          value: viewModel,
-          child: ChangeCardPinDialog(),
-        )
-    );
-
-    if (value != null && value is CardTransactionRequest) {
-      _openCardTransactionDialog(viewModel, CardAction.CHANGE_PIN, value);
-    }
-  }
-
-  void _openCardTransactionDialog(SingleCardViewModel viewModel, CardAction action, CardTransactionRequest request) async {
-    dynamic value = await showModalBottomSheet(
-        backgroundColor: Colors.transparent,
-        context: _scaffoldKey.currentContext ?? context,
-        isScrollControlled: true,
-        builder: (context) => ChangeNotifierProvider.value(
-          value: viewModel,
-          child: CardPinDialog(action, request),
-        )
-    );
-    if(value != null && value is Tuple<String, String>) {
-      showSuccess(
-          _scaffoldKey.currentContext ?? context,
-          title: value.first,
-          message: value.second,
-          onPrimaryClick: () => Navigator.of(_scaffoldKey.currentContext!).pop()
-      );
-    } else if(value is Error) {
-      showError(_scaffoldKey.currentContext ?? context, message: value.message ?? "");
-    }
-  }
-
   Widget _cardList(BuildContext context, AsyncSnapshot<Resource<List<Card>>> a) {
     return Expanded(
         child: ListViewUtil.makeListViewWithState(
@@ -125,35 +64,6 @@ class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin{
         )
     );
   }
-
-  // Widget _displayCardOptions(SingleCardViewModel viewModel, AsyncSnapshot<Resource<List<Card>>> snap) {
-  //   final data = snap.data;
-  //   if (data is Success && data?.data?.isEmpty == true) {
-  //     _animationController.forward();
-  //     return FadeTransition(
-  //         opacity: Tween<double>(begin: 0, end: 1).animate(_animationController),
-  //         child: Column(
-  //           mainAxisAlignment: MainAxisAlignment.center,
-  //           children: [
-  //             SvgPicture.asset('res/drawables/ic_empty_record_state.svg'),
-  //             SizedBox(height: 24,),
-  //             Text('You have no Debit Cards yet.', style: TextStyle(color: Colors.colorPrimaryDark, fontSize: 16),),
-  //             SizedBox(height: 200,)
-  //           ],
-  //         ),
-  //     );
-  //   }
-  //   else if(data is Error<bool>) {
-  //     Tuple<String, String> error = formatError((data as Error).message,  "Cards");
-  //     return Column(
-  //       children: [
-  //         ErrorLayoutView(error.first, error.second, (){}),
-  //         SizedBox(height: 200,)
-  //       ],
-  //     );
-  //   }
-  //   return _pagingView(viewModel);
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -200,8 +110,10 @@ class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin{
                           Visibility(
                               visible: snap.data?.data?.isEmpty == false,
                               child: TextButton.icon(
-                                  onPressed: () {},
-                                  icon: SvgPicture.asset('res/drawables/ic_add.svg'),
+                                  onPressed: () {
+                                    Navigator.of(context).pushNamed(Routes.ADD_CARD);
+                                  },
+                                  icon: SvgPicture.asset('res/  drawables/ic_add.svg'),
                                   label: Text(
                                     'Add Card',
                                     style: TextStyle(color: Colors.primaryColor),

@@ -1,6 +1,6 @@
 class ServiceConfig {
 
-  static const ENV = "dev";
+  static const ENV = "live";
 
   static const String ROOT_SERVICE = (ENV == "dev")
       ? "https://core-root.monnify.development.teamapt.com/"

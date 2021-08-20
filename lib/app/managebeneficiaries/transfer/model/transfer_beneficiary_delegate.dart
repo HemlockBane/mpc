@@ -97,7 +97,7 @@ class _TransferBeneficiaryMediator extends AbstractDataCollectionMediator<int, T
 
   @override
   Future<ServiceResult<DataCollection<TransferBeneficiary>>> serviceCall(page) {
-    return _service.getAccountBeneficiaries(page: page, pageSize: 20, customerId: customerId);
+    return _service.getAccountBeneficiaries(page: page, pageSize: 500, customerId: customerId);
   }
 }
 

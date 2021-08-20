@@ -192,7 +192,7 @@ class _CardService implements CardService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'multipart/form-data',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.6'
                 },
                 extra: _extra,
                 contentType: 'multipart/form-data')
@@ -247,7 +247,7 @@ class _CardService implements CardService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'multipart/form-data',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.6'
                 },
                 extra: _extra,
                 contentType: 'multipart/form-data')

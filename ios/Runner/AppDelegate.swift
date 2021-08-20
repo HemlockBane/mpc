@@ -1,11 +1,6 @@
 import UIKit
 import Flutter
 import GoogleMaps
-import Amplify
-import AmplifyPlugins
-import AWSPredictionsPlugin
-import AWSRekognition
-import AWSPredictionsPlugin
 import LocalAuthentication
 
 
@@ -28,17 +23,5 @@ import LocalAuthentication
     BiometricMethodHandler(controller: controller).registerBiometricsMethodHandler()
     LivelinessMethodHandler(controller: controller).registerLivelinessMethodHandler()
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
-  }
-       
-  private func initializeAmplify() {
-    do {
-        Amplify.Logging.logLevel = LogLevel.info
-        try Amplify.add(plugin: AWSCognitoAuthPlugin())
-        try Amplify.add(plugin: AWSPredictionsPlugin())
-        try Amplify.configure()
-        print("Amplify configured with Auth and Predictions plugins")
-    } catch {
-        print("Failed to initialize Amplify with \(error)")
-    }
   }
 }

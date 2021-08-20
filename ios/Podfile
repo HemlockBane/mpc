@@ -33,10 +33,10 @@ target 'Moniepoint' do
   
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   
-  pod 'Amplify'
-  pod 'AmplifyPlugins/AWSCognitoAuthPlugin'
-  pod 'AWSPredictionsPlugin'
-  pod 'CoreMLPredictionsPlugin'
+#  pod 'Amplify'
+#  pod 'AmplifyPlugins/AWSCognitoAuthPlugin'
+#  pod 'AWSPredictionsPlugin'
+#  pod 'CoreMLPredictionsPlugin'
   pod 'RNCryptor', '~> 5.0'
 end
 

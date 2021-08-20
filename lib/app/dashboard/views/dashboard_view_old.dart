@@ -10,6 +10,7 @@ import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_drawer_view.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/bottom_menu_view.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_container_view.dart';
+import 'package:moniepoint_flutter/app/dashboard/views/dashboard_view.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/login_mode.dart';
@@ -290,6 +291,15 @@ class _DashboardScreen extends State<DashboardScreenOld> with TickerProviderStat
                           children: [
                             Divider(color: Colors.dashboardTopBar, height: 4),
                             SizedBox(height: MediaQuery.of(context).padding.top + 32),
+
+                            InkWell(
+                              onTap: (){
+                                Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => DashboardScreen()));
+                              }, child: Text("New Dashboard"),
+                            ),
+
+                            SizedBox(height: 50,),
+
                             Text(
                               'OVERVIEW',
                               style: TextStyle(

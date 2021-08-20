@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -6,6 +7,7 @@ import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
+// import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:moniepoint_flutter/app/branches/branch_search_view.dart';
@@ -17,7 +19,7 @@ import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/call_utils.dart';
-import 'package:permission_handler/permission_handler.dart';
+// import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 import 'dart:ui' as ui;
@@ -29,7 +31,7 @@ class BranchScreen extends StatefulWidget {
 
 class _BranchScreen extends State<BranchScreen> {
   GoogleMapController? _mapController;
-  LocationData? _lastLocation;
+  late Position _lastLocation;
   Set<Marker> _displayAbleMarkers = {};
   double currentZoom = 10.4;
   BitmapDescriptor? locationMarkerIcon;
@@ -78,7 +80,7 @@ class _BranchScreen extends State<BranchScreen> {
     fadedMarkerIcon = BitmapDescriptor.fromBytes(fadedMarkerIconBytes);
   }
 
-  Future<LocationData?> _fetchLastLocation() async {
+  Future<Position> _fetchLastLocation() async {
     // _lastLocation = await Geolocator.getLastKnownPosition(
     //     forceAndroidLocationManager: true);
     //
@@ -87,7 +89,7 @@ class _BranchScreen extends State<BranchScreen> {
     //
     // }
 
-   _lastLocation =  await location.getLocation();
+    _lastLocation =  await Geolocator.getCurrentPosition();
     return _lastLocation;
   }
 
@@ -96,8 +98,6 @@ class _BranchScreen extends State<BranchScreen> {
     final latitude = selectedLocation.location.latitude;
     final longitude = selectedLocation.location.longitude;
     final branchInfo = selectedLocation.branchInfo;
-
-    final location = LatLng(_lastLocation?.latitude ?? 0, _lastLocation?.longitude ?? 0);
 
 
     viewModel
@@ -115,6 +115,8 @@ class _BranchScreen extends State<BranchScreen> {
         }
         _updateBranchMarkersOnMap(branches,
             shouldForceCenter: shouldForceCenter);
+
+        final location = LatLng(_lastLocation.latitude, _lastLocation.longitude);
 
         if (selectedLocation.isCurrentLocation(location) && !isZoomingIn) {
           moveCameraToCurrentPosition();
@@ -168,7 +170,7 @@ class _BranchScreen extends State<BranchScreen> {
           double.parse(location.longitude ?? "0"));
 
       final markerIcon = selectedLocation.isCurrentLocation(LatLng(
-          _lastLocation?.latitude ?? 0, _lastLocation?.longitude ?? 0))
+          _lastLocation.latitude, _lastLocation.longitude))
           ? locationMarkerIcon!
           : selectedLocation.equalsBranchPosition(branchLocation)
           ? locationMarkerIcon!
@@ -207,9 +209,9 @@ class _BranchScreen extends State<BranchScreen> {
     selectedLocation = sLocation;
   }
 
-  Future<bool> _checkLocationPermission() async {
-    return await Permission.location.request().isGranted;
-  }
+  // Future<bool> _checkLocationPermission() async {
+  //   return await Permission.location.request().isGranted;
+  // }
 
   void _onCameraMove(CameraPosition cameraPosition) async {
     final movingZoom = cameraPosition.zoom;
@@ -272,7 +274,7 @@ class _BranchScreen extends State<BranchScreen> {
   Future<void> moveCameraToCurrentPosition() async {
     await Future.delayed(Duration(milliseconds: 1500), () {
       final currentPosition =
-      LatLng(_lastLocation?.latitude ?? 0, _lastLocation?.longitude ?? 0);
+      LatLng(_lastLocation.latitude, _lastLocation.longitude);
 
       CameraUpdate cUpdate = CameraUpdate.newLatLngZoom(currentPosition, 11);
       _mapController?.animateCamera(cUpdate).then((value) {
@@ -320,8 +322,8 @@ class _BranchScreen extends State<BranchScreen> {
                   onTap: () {
                     Navigator.of(context).pop();
                     final sLocation = SelectedLocation(
-                        location: LatLng(_lastLocation?.latitude ?? 0,
-                            _lastLocation?.longitude ?? 0));
+                        location: LatLng(_lastLocation.latitude,
+                            _lastLocation.longitude));
 
                     updateSelectedLocation(sLocation);
                     shouldShowCloseBranches = true;
@@ -336,22 +338,22 @@ class _BranchScreen extends State<BranchScreen> {
               ],
             ),
             Text(branchInfo.name ?? "",
-                style: _style(fontWeight: FontWeight.w600, fontSize: 17)),
+                style: Styles.textStyle(context, fontWeight: FontWeight.w600, fontSize: 17)),
             SizedBox(height: 11),
-            Text(branchInfo.location?.address ?? "", style: _style()),
+            Text(branchInfo.location?.address ?? "", style: Styles.textStyle(context)),
             SizedBox(height: 11),
             InkWell(
-                child: Text(branchInfo.phoneNumber ?? "", style: _style()),
+                child: Text(branchInfo.phoneNumber ?? "", style: Styles.textStyle(context)),
                 onTap: () => openUrl("tel:${branchInfo.phoneNumber}")),
             SizedBox(height: 11),
             InkWell(
-              child: Text(branchInfo.email ?? "", style: _style()),
+              child: Text(branchInfo.email ?? "", style: Styles.textStyle(context)),
               onTap: () =>
                   openUrl("mailto:${branchInfo.email}?subject=Moniepoint"),
             ),
             SizedBox(height: 19),
             Divider(
-              color: Color(0xff0748AB).withOpacity(0.1),
+              color: Color(0xff0748ab).withOpacity(0.1),
             ),
             SizedBox(height: 19),
             Row(
@@ -375,7 +377,7 @@ class _BranchScreen extends State<BranchScreen> {
                           SizedBox(width: 14),
                           Text(
                             "Call Branch",
-                            style: _style(
+                            style: Styles.textStyle(context,
                                 color: Color(0xFF0361F0),
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500),
@@ -405,7 +407,7 @@ class _BranchScreen extends State<BranchScreen> {
                       child: Center(
                         child: Text(
                           "Share Location",
-                          style: _style(
+                          style: Styles.textStyle(context,
                               color: Color(0xFF0361F0),
                               fontSize: 14,
                               fontWeight: FontWeight.w500),
@@ -424,11 +426,7 @@ class _BranchScreen extends State<BranchScreen> {
     );
   }
 
-  TextStyle _style({FontWeight fontWeight = FontWeight.normal,
-    double fontSize = 13,
-    Color color = const Color(0xFF1A0C2F)}) {
-    return TextStyle(fontSize: fontSize, fontWeight: fontWeight, color: color);
-  }
+
 
   void check(CameraUpdate u, GoogleMapController c) async {
     c.animateCamera(u);
@@ -541,8 +539,8 @@ class _BranchScreen extends State<BranchScreen> {
             initialCameraPosition: _kGooglePlex,
             onMapCreated: (GoogleMapController controller) async {
               _mapController = controller;
-              var _isServiceEnabled = await location.serviceEnabled();
 
+              var _isServiceEnabled = await location.serviceEnabled();
               if (!_isServiceEnabled) {
                 _isServiceEnabled = await location.requestService();
                 if (!_isServiceEnabled) {
@@ -550,20 +548,24 @@ class _BranchScreen extends State<BranchScreen> {
                 }
               }
 
-
-              final isGranted = await _checkLocationPermission();
-              if (isGranted) {
-                _lastLocation = await _fetchLastLocation();
-
-                final sLocation = SelectedLocation(
-                    location: LatLng(_lastLocation?.latitude ?? 0,
-                        _lastLocation?.longitude ?? 0));
-                updateSelectedLocation(sLocation);
-
-                getBranchesAroundSelectedLocation(shouldForceCenter: true);
-              } else {
-                Navigator.pop(context);
+              var _permissionGranted = await location.hasPermission();
+              if (_permissionGranted == PermissionStatus.denied) {
+                _permissionGranted = await location.requestPermission();
+                if (_permissionGranted != PermissionStatus.granted) {
+                  Navigator.pop(context);
+                }
               }
+
+
+              _lastLocation = await _fetchLastLocation();
+
+              final sLocation = SelectedLocation(
+                  location: LatLng(_lastLocation.latitude,
+                      _lastLocation.longitude));
+
+              updateSelectedLocation(sLocation);
+              getBranchesAroundSelectedLocation(shouldForceCenter: true);
+
             },
             myLocationButtonEnabled: false,
             myLocationEnabled: true,

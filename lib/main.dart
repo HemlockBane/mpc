@@ -18,6 +18,8 @@ import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 //We need to move this to some where else
+
+
 final defaultAppTheme = ThemeData(
     disabledColor: Colors.primaryColor.withOpacity(0.5),
     primaryColor: Colors.primaryColor,

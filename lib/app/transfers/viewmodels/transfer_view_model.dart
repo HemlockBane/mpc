@@ -14,6 +14,7 @@ import 'package:moniepoint_flutter/core/models/transaction_status.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/network/service_error.dart';
 import 'package:moniepoint_flutter/core/payment_view_model.dart';
+import 'package:moniepoint_flutter/core/utils/candidate_bank_util.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 
 enum TransferTransactionType {
@@ -61,7 +62,6 @@ class TransferViewModel extends BaseViewModel with PaymentViewModel {
   @override
   void setAmount(double amount) {
     super.setAmount(amount);
-    print("Setting amount $amount");
     this.checkValidity();
   }
 
@@ -82,7 +82,7 @@ class TransferViewModel extends BaseViewModel with PaymentViewModel {
   }
 
   bool isIntra() {
-    return beneficiary!.getBeneficiaryProviderCode() == "950515";
+    return CandidateBankUtil.isIntra(beneficiary?.getBeneficiaryProviderCode() ?? "");
   }
 
   String getTransactionType() {

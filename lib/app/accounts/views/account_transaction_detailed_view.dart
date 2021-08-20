@@ -183,40 +183,6 @@ class _AccountTransactionDetailedView extends State<AccountTransactionDetailedVi
                                 ),
                               )
                           )),
-                      // Visibility(
-                      //   visible: transaction.transfer?.sinkAccountName?.isNotEmpty == true,
-                      //   child: Padding(
-                      //     padding: EdgeInsets.only(left: 24, right: 24),
-                      //     child: Divider(height: 1, color: Colors.dashboardDivider.withOpacity(0.1),),
-                      //   )
-                      // ),
-                      // Visibility(
-                      //     visible: transaction.transfer?.sinkAccountName?.isNotEmpty == true,
-                      //     child: Expanded(
-                      //         flex: 0,
-                      //         child: Padding(
-                      //           padding: EdgeInsets.only(top: 12, bottom: 12, left: 24, right: 24),
-                      //           child: Row(
-                      //             crossAxisAlignment: CrossAxisAlignment.center,
-                      //             children: [
-                      //               Expanded(
-                      //                   flex: 1,
-                      //                   child: Text('Recipient:', style: TextStyle(color: Colors.deepGrey, fontSize: 16),)
-                      //               ),
-                      //               Expanded(
-                      //                   flex: 2,
-                      //                   child: Column(
-                      //                     crossAxisAlignment: CrossAxisAlignment.start,
-                      //                     children: [
-                      //                       Text(transaction.transfer?.sinkAccountName ?? "", style: TextStyle(color: Colors.colorPrimaryDark, fontSize: 16),),
-                      //                       Text("${transaction.transfer?.sinkAccountProviderName}   ${transaction.transfer?.sinkAccountNumber}", style: TextStyle(color: Colors.deepGrey, fontSize: 16),),
-                      //                     ],
-                      //                   )
-                      //               ),
-                      //             ],
-                      //           ),
-                      //         )
-                      //     )),
                       Visibility(
                           visible: transaction.transactionRef.isNotEmpty == true,
                           child: Padding(
@@ -295,11 +261,13 @@ class _AccountTransactionDetailedView extends State<AccountTransactionDetailedVi
                       Divider(height: 1, color: Colors.dashboardDivider.withOpacity(0.15)),
                       SizedBox(height: 24),
                       Visibility(
-                          visible: transaction.metaData != null && transaction.metaData?.transactionType != null,
+                          visible: transaction.metaData != null
+                              && transaction.metaData?.transactionType != null
+                              && transaction.type == TransactionType.DEBIT,
                           child: Expanded(child:  TransactionOptionsView(
                             displayReplayTransaction: false,
-                            displayDownloadReceipt: transaction.metaData != null ? downloadTask : null,
-                            displayShareReceipt: transaction.metaData != null ? downloadTask : null,
+                            displayDownloadReceipt: transaction.metaData != null && transaction.type == TransactionType.DEBIT ? downloadTask : null,
+                            displayShareReceipt: transaction.metaData != null && transaction.type == TransactionType.DEBIT  ? downloadTask : null,
                           ))
                       )
                     ],

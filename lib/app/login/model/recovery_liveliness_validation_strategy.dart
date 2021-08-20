@@ -1,6 +1,5 @@
 import 'dart:io';
-
-import 'package:moniepoint_flutter/app/liveliness/liveliness_verification.dart';
+import 'package:moniepoint_flutter/app/liveliness/model/data/liveliness_verification_for.dart';
 import 'package:moniepoint_flutter/app/liveliness/model/strategy/liveliness_validation_strategy.dart';
 import 'package:moniepoint_flutter/app/liveliness/viewmodels/liveliness_verification_viewmodel.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/data/forgot_password_request.dart';

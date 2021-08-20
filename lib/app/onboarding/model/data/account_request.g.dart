@@ -43,34 +43,42 @@ AccountCreationRequestBody _$AccountCreationRequestBodyFromJson(
 }
 
 Map<String, dynamic> _$AccountCreationRequestBodyToJson(
-        AccountCreationRequestBody instance) =>
-    <String, dynamic>{
-      'accountNumber': instance.accountNumber,
-      'referralCode': instance.referralCode,
-      'username': instance.username,
-      'emailAddress': instance.emailAddress,
-      'password': instance.password,
-      'pin': instance.pin,
-      'onboardingKey': instance.onboardingKey,
-      'securityAnswers': instance.securityAnwsers,
-      'deviceId': instance.deviceId,
-      'deviceName': instance.deviceName,
-      'bvn': instance.bvn,
-      'dob': instance.dateOfBirth,
-      'phoneNumber': instance.phoneNumber,
-      'firstName': instance.firstName,
-      'surname': instance.surname,
-      'gender': _$GenderEnumMap[instance.gender],
-      'otherName': instance.otherName,
-      'ussdPin': instance.ussdPin,
-      'transactionPin': instance.transactionPin,
-      'createUssd': instance.createUssdPin,
-      'userImageUUID': instance.selfieImageUUID,
-      'signatureUUID': instance.signatureUUID,
-      'livelinessCheck': instance.livelinessCheck,
-      'addressInfo': instance.addressInfo,
-      'setupType': instance.setupType,
-    };
+    AccountCreationRequestBody instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('accountNumber', instance.accountNumber);
+  writeNotNull('referralCode', instance.referralCode);
+  writeNotNull('username', instance.username);
+  writeNotNull('emailAddress', instance.emailAddress);
+  writeNotNull('password', instance.password);
+  writeNotNull('pin', instance.pin);
+  writeNotNull('onboardingKey', instance.onboardingKey);
+  val['securityAnswers'] = instance.securityAnwsers;
+  writeNotNull('deviceId', instance.deviceId);
+  writeNotNull('deviceName', instance.deviceName);
+  writeNotNull('bvn', instance.bvn);
+  writeNotNull('dob', instance.dateOfBirth);
+  writeNotNull('phoneNumber', instance.phoneNumber);
+  writeNotNull('firstName', instance.firstName);
+  writeNotNull('surname', instance.surname);
+  writeNotNull('gender', _$GenderEnumMap[instance.gender]);
+  writeNotNull('otherName', instance.otherName);
+  writeNotNull('ussdPin', instance.ussdPin);
+  writeNotNull('transactionPin', instance.transactionPin);
+  val['createUssd'] = instance.createUssdPin;
+  writeNotNull('userImageUUID', instance.selfieImageUUID);
+  writeNotNull('signatureUUID', instance.signatureUUID);
+  writeNotNull('livelinessCheck', instance.livelinessCheck);
+  writeNotNull('addressInfo', instance.addressInfo);
+  writeNotNull('setupType', instance.setupType);
+  return val;
+}
 
 K _$enumDecode<K, V>(
   Map<K, V> enumValues,

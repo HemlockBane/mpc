@@ -18,6 +18,7 @@ import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/payment_view_model.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
@@ -183,10 +184,7 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
   }
 
   void _displayPaymentError(String message) {
-    showModalBottomSheet(
-        backgroundColor: Colors.transparent,
-        context: widget._scaffoldKey.currentContext ?? context,
-        builder: (context) => BottomSheets.displayErrorModal(context, title: "Oops", message: message));
+    showError(widget._scaffoldKey.currentContext ?? context, message: message);
   }
 
   void subscribeUiToPin() async {

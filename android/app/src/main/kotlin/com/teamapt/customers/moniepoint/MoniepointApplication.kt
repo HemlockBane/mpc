@@ -8,12 +8,5 @@ import io.flutter.app.FlutterApplication
 class MoniepointApplication : FlutterApplication() {
     override fun onCreate() {
         super.onCreate()
-        try {
-            Amplify.addPlugin(AWSCognitoAuthPlugin())
-            Amplify.addPlugin(AWSPredictionsPlugin())
-            Amplify.configure(applicationContext)
-        } catch (ex: Exception) {
-            ex.printStackTrace()
-        }
     }
 }

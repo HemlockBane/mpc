@@ -1,10 +1,13 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart' hide Card, Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/app/cards/model/data/card.dart';
+import 'package:moniepoint_flutter/app/cards/views/utils/card_view_util.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
-import 'package:moniepoint_flutter/core/utils/card_util.dart';
 
 class CardListItem extends Container {
 
@@ -14,132 +17,109 @@ class CardListItem extends Container {
 
   CardListItem(this.card, this.position, this.onItemClickListener);
 
-  String getFirst6Digits() {
-    String? maskedPan = card.maskedPan;
-    if(maskedPan.length < 6) return "";
-    final first6 = maskedPan.substring(0, 6);
-    return "${first6.substring(0, 4)} ${first6.substring(4, 6)}";
+  final cardNumberStyle = TextStyle(
+      letterSpacing: 1.2,
+      fontSize: 20,
+      fontWeight: FontWeight.normal,
+      color: Colors.white,
+      fontFamily: Styles.ocraExtended
+  );
+
+  Widget _cardName() {
+    final cardNameWidget = Text(
+      card.nameOnCard ?? "",
+      style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
+    );
+    if(card.status == CardStatus.IN_ACTIVE) {
+      return Expanded(child: ImageFiltered(
+        imageFilter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
+        child: cardNameWidget,
+      ));
+    }
+
+    return Expanded(child: cardNameWidget);
   }
 
-  String getLast4Digits() {
-    String? maskedPan = card.maskedPan;
-    if(maskedPan.length < 16) return "";
-    return maskedPan.substring(maskedPan.length - 4, maskedPan.length);
-  }
-
-  String getCardExpiryDate() {
-    String? expiryDate = card.expiryDate;
-      if(expiryDate == null || expiryDate.length < 4) return "";
-      return "${expiryDate.substring(expiryDate.length - 2)}/${expiryDate.substring(0, 2)}";
-  }
-
-  Widget getCardBrandLogo() {
-    if(CardUtil.isMasterCard(card.maskedPan)) return SvgPicture.asset('res/drawables/ic_master_card.svg');
-    if(CardUtil.isVerveCard(card.maskedPan)) return SvgPicture.asset('res/drawables/ic_verve_card.svg');
-    if(CardUtil.isVisaCard(card.maskedPan)) return SvgPicture.asset('res/drawables/ic_visa_card.svg');
-    else return Container();
+  Widget _cardNumberAndLogo() {
+    final cardNumberWidget = Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(CardViewUtil.getFirst6Digits(card), style: cardNumberStyle,),
+            Text(' ** **** ', style: TextStyle(
+              letterSpacing: 1.2,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                fontFamily: Styles.ocraExtended
+            )),
+            Text(CardViewUtil.getLast4Digits(card), style: cardNumberStyle,),
+          ],
+        ),
+        CardViewUtil.getCardBrandLogo(card)
+      ],
+    );
+    if(card.status == CardStatus.IN_ACTIVE) {
+      return ImageFiltered(
+          imageFilter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
+          child: cardNumberWidget,
+      );
+    }
+    return cardNumberWidget;
   }
 
   @override
   Widget build(BuildContext context) {
+
     return Container(
       width: MediaQuery.of(context).size.width * 0.8,
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.5),
-        borderRadius: BorderRadius.all(Radius.circular(20)),
-        image: DecorationImage(
-            image: ExactAssetImage("res/drawables/card_bg.png"),
-            fit: BoxFit.cover
-        ),
+        color: CardViewUtil.getCardBackground(card),
+        borderRadius: BorderRadius.all(Radius.circular(24)),
         boxShadow: [
           BoxShadow(
-            offset: Offset(0, 4),
+            offset: Offset(0, 0),
             color: (!card.blocked) ? Colors.primaryColor.withOpacity(0.48) : Colors.red.withOpacity(0.5),
-            spreadRadius: 0.1,
-            blurRadius: 12
+            spreadRadius: 0,//0.1,
+            blurRadius: 0//12
           )
         ]
       ),
-      child: Stack(
-        children: [
-          Container(
-            padding: EdgeInsets.only(top: 28, left: 24, right: 24, bottom: 12),
+      child: Material(
+        borderRadius: BorderRadius.all(Radius.circular(24)),
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.all(Radius.circular(24)),
+          onTap: () => Navigator.of(context).pushNamed(Routes.CARD_DETAIL, arguments: Map.from({"id":card.id})),
+          child: Container(
+            padding: EdgeInsets.only(
+                left: 20,
+                right: 20,
+                top: card.blocked ? 14 : 16,
+                bottom: 16
+            ),
             child: Column(
               children: [
-                Flexible(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                            card.nameOnCard ?? "",
-                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
-                        ),
-                        Row(
-                          children: [
-                            SvgPicture.asset('res/drawables/ic_moniepoint_cube.svg'),
-                            SizedBox(width: 4,),
-                            SvgPicture.asset('res/drawables/ic_moniepoint_text.svg')
-                          ],
-                        )
-                      ],
-                    )
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    _cardName(),
+                    SizedBox(width: 4),
+                    CardViewUtil.getCardStateBanner(card)
+                  ],
                 ),
-                SizedBox(height: 42,),
-                Flexible(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(getFirst6Digits(), style: TextStyle(fontSize: 24, fontWeight: FontWeight.normal, color: Colors.white),),
-                        Text('** **** ', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
-                        Text(getLast4Digits(), style: TextStyle(fontSize: 24, fontWeight: FontWeight.normal, color: Colors.white),),
-                      ],
-                    )
-                ),
-                SizedBox(height: 42,),
-                Flexible(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text('EXPIRES\nEND', style: TextStyle(fontSize: 7, fontWeight: FontWeight.w600, color: Colors.white),),
-                            SizedBox(width: 4),
-                            SvgPicture.asset('res/drawables/ic_forward_polygon.svg', width: 3, height: 5,),
-                            SizedBox(width: 4),
-                            Text(getCardExpiryDate(), style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
-                          ],
-                        ),
-                        getCardBrandLogo()
-                      ],
-                    )
-                ),
+                SizedBox(height: card.blocked ? 12 : 16,),
+                _cardNumberAndLogo(),
+                // SizedBox(height: (card.status == CardStatus.IN_ACTIVE) ? 16 : 0,),
               ],
             ),
           ),
-          Visibility(
-              visible: card.blocked,
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Color(0XFFE8E94444),
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    SvgPicture.asset('res/drawables/ic_card_locked.svg'),
-                    SizedBox(height: 4,),
-                    Text('Blocked', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),)
-                  ],
-                ),
-              )
-          )
-        ],
+        ),
       ),
     );
   }

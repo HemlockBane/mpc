@@ -24,9 +24,6 @@ class LoginViewModel with ChangeNotifier {
   late SystemConfigurationServiceDelegate _configurationServiceDelegate;
   late DeviceManager _deviceManager;
 
-  // Queue<SecurityFlag>? _securityFlagQueue;
-  // Queue<SecurityFlag>? get securityFlagQueue => _securityFlagQueue;
-
   final List<SystemConfiguration> _systemConfigurations = [];
 
   LoginViewModel({
@@ -40,14 +37,13 @@ class LoginViewModel with ChangeNotifier {
     UserInstance().resetSession();
   }
 
-  //334FD601-3E95-457E-B890-70BCD77B6F76
   Stream<Resource<User>> loginWithPassword(String username, String password) {
     LoginWithPasswordRequestBody requestBody = LoginWithPasswordRequestBody()
       ..authenticationType = AuthenticationMethod.PASSWORD
       ..withUsername(username)
       ..withPassword(password)
       ..withVersion(BuildConfig.APP_VERSION)
-      ..withDeviceId(_deviceManager.deviceId ?? "")
+      ..withDeviceId(_deviceManager.deviceId)
       ..withDeviceName(_deviceManager.deviceName);
 
     return doLogin(requestBody);
@@ -78,8 +74,7 @@ class LoginViewModel with ChangeNotifier {
 
   String getApplicationPlayStoreUrl() {
     final key = (Platform.isIOS) ? "ios.appstore.url" : "android.playstore.url";
-    final config  = _systemConfigurations.firstWhere((element)
-    => element.name?.contains(key) == true, orElse: () => SystemConfiguration(value: "https://www.teamapt.com"));
+    final config  = _systemConfigurations.firstWhere((element) => element.name?.contains(key) == true, orElse: () => SystemConfiguration(value: "https://www.teamapt.com"));
     return config.value ?? "";
   }
 
@@ -94,9 +89,11 @@ class LoginViewModel with ChangeNotifier {
   }
 
   Future<bool> canLoginWithBiometric(BiometricHelper? _helper) async {
+    print("This is the helper $_helper");
     final hasFingerPrint = (await _helper?.getFingerprintPassword()) != null;
     final biometricType = await _helper?.getBiometricType();
     final isEnabled = PreferenceUtil.getFingerPrintEnabled();
+    print("HasFingerprint => $hasFingerPrint, BioMetric => $biometricType, IsEnabled => $isEnabled");
     return hasFingerPrint && (biometricType != BiometricType.NONE) && isEnabled;
   }
 

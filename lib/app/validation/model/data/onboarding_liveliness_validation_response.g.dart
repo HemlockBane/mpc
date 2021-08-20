@@ -48,11 +48,13 @@ Map<String, dynamic> _$OnboardingLivelinessValidationResponseToJson(
 SetupType _$SetupTypeFromJson(Map<String, dynamic> json) {
   return SetupType(
     type: _$enumDecodeNullable(_$OnBoardingTypeEnumMap, json['type']),
+    hasEmail: json['hasEmail'] as bool,
   );
 }
 
 Map<String, dynamic> _$SetupTypeToJson(SetupType instance) => <String, dynamic>{
       'type': _$OnBoardingTypeEnumMap[instance.type],
+      'hasEmail': instance.hasEmail,
     };
 
 K _$enumDecode<K, V>(

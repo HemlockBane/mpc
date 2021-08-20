@@ -9,7 +9,7 @@ part of 'transfer_beneficiary_service.dart';
 class _TransferBeneficiaryService implements TransferBeneficiaryService {
   _TransferBeneficiaryService(this._dio, {this.baseUrl}) {
     baseUrl ??=
-        'https://core-operations.monnify.development.teamapt.com/api/v1/beneficiary/';
+        'https://moniepoint-customer-operations-service-v2.console.teamapt.com/api/v1/beneficiary/';
   }
 
   final Dio _dio;
@@ -18,7 +18,7 @@ class _TransferBeneficiaryService implements TransferBeneficiaryService {
 
   @override
   Future<ServiceResult<TransferBeneficiaryCollection>> getAccountBeneficiaries(
-      {page = 0, pageSize = 20}) async {
+      {customerId, page = 0, pageSize = 20}) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
       r'page': page,
@@ -32,11 +32,11 @@ class _TransferBeneficiaryService implements TransferBeneficiaryService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.6'
                 },
                 extra: _extra,
                 contentType: 'application/json')
-            .compose(_dio.options, 'paged',
+            .compose(_dio.options, '$customerId/paged',
                 queryParameters: queryParameters, data: _data)
             .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = ServiceResult<TransferBeneficiaryCollection>.fromJson(
@@ -59,7 +59,7 @@ class _TransferBeneficiaryService implements TransferBeneficiaryService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.6'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -90,7 +90,7 @@ class _TransferBeneficiaryService implements TransferBeneficiaryService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.6'
                 },
                 extra: _extra,
                 contentType: 'application/json')

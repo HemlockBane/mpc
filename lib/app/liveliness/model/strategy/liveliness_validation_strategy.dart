@@ -1,5 +1,5 @@
-import 'package:moniepoint_flutter/app/liveliness/liveliness_verification.dart';
 import 'package:moniepoint_flutter/app/liveliness/model/data/liveliness_validation_response.dart';
+import 'package:moniepoint_flutter/app/liveliness/model/data/liveliness_verification_for.dart';
 import 'package:moniepoint_flutter/app/liveliness/viewmodels/liveliness_verification_viewmodel.dart';
 import 'package:moniepoint_flutter/app/login/model/device_liveliness_validation_strategy.dart';
 import 'package:moniepoint_flutter/app/login/model/recovery_liveliness_validation_strategy.dart';

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cron/cron.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_status.dart';
@@ -10,6 +11,7 @@ import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/timeout_reason.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
+import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 
 class UserInstance {
   static UserInstance? _instance;
@@ -18,6 +20,10 @@ class UserInstance {
   static List<AccountBalance?> _accountBalance = [];
   static List<UserAccount> _userAccounts = [];
   static Timer? timer;
+  Cron? _scheduler;
+
+  DateTime _lastActivityTime = DateTime.now();
+  SessionEventCallback? _sessionEventCallback;
 
   UserInstance._internal() {
     _instance = this;
@@ -64,18 +70,32 @@ class UserInstance {
 
   List<UserAccount> get userAccounts => _userAccounts;
 
-  void sessionTimeOut(BuildContext context, SessionTimeoutReason reason) {
-    // if(ServiceConfig.ENV != "dev" && ServiceConfig.ENV != "live") {
-      Navigator.of(context)
-          .pushNamedAndRemoveUntil(
-          Routes.LOGIN, (route) => false,
-          arguments: Tuple("reason", reason)
-      );
-    // }
+  void forceLogout(BuildContext context, SessionTimeoutReason reason) {
+    Navigator.of(context)
+        .pushNamedAndRemoveUntil(
+        Routes.LOGIN, (route) => false,
+        arguments: Tuple("reason", reason)
+    );
   }
 
-  void  startSession(BuildContext context) {
-    timer?.cancel();
-    timer = Timer(Duration(seconds: 120), () => sessionTimeOut(context, SessionTimeoutReason.INACTIVITY));
+  void updateSessionEventCallback(SessionEventCallback callback) {
+    this._sessionEventCallback = callback;
+  }
+
+  void updateLastActivityTime() {
+    _lastActivityTime = DateTime.now();
+  }
+
+  void startSession(BuildContext context) {
+    _scheduler = Cron();
+    _scheduler?.schedule(Schedule.parse("*/1 * * * * *"), () async {
+      print("Currently Checking for inactivity...");
+      final elapsedTime = DateTime.now().difference(_lastActivityTime).inSeconds;
+      if(elapsedTime >= 120/*120 seconds = 2mins*/) {
+        _scheduler?.close();
+        print("Inactivity Detected!");
+        _sessionEventCallback?.call(SessionTimeoutReason.INACTIVITY);
+      }
+    });
   }
 }

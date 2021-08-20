@@ -19,6 +19,7 @@ import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/utils/list_view_util.dart';
 import 'package:moniepoint_flutter/core/views/generic_list_placeholder.dart';
 import 'package:provider/provider.dart';
@@ -96,10 +97,7 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
         ..setSaveBeneficiary(result.second);
       Navigator.of(context).pushNamed(TransferScreen.PAYMENT_SCREEN, arguments: withDefaultAmount);
     } else if (result != null && result is Error<TransferBeneficiary>) {
-      showModalBottomSheet(
-          backgroundColor: Colors.transparent,
-          context: widget._scaffoldKey.currentContext ?? context,
-          builder: (context) => BottomSheets.displayErrorModal(context, title: "Oops", message: result.message));
+      showError(widget._scaffoldKey.currentContext ?? context, message: result.message);
     }
   }
 

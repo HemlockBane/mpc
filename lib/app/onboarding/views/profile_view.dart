@@ -50,7 +50,10 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
   bool _isSignatureEnabled = false;
   bool _displayPasswordStrength = false;
 
-  final SignatureController _signatureController = SignatureController(penStrokeWidth: 2, penColor: Colors.darkBlue);
+  final SignatureController _signatureController = SignatureController(
+      penStrokeWidth: 2, penColor: Colors.darkBlue
+  );
+
   final TextEditingController _passwordController = TextEditingController();
 
   _ProfileScreenState(this._scaffoldKey);
@@ -93,7 +96,7 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
     if(resource is Success<T>) {
       setState(() => _isLoading = false);
 
-      final message = (viewModel.onBoardingType == OnBoardingType.ACCOUNT_DOES_NOT_EXIST)
+      final message = (viewModel.profileForm.setupType.type == OnBoardingType.ACCOUNT_DOES_NOT_EXIST)
           ? "Your account has been created successfully, login now with your credentials."
           : "Your profile has been created successfully, login now with your credentials.";
       await showSuccess(
@@ -133,19 +136,17 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
     }
   }
 
-  void _defaultFn(bool undefined) {
-    /*do nothing*/
-  }
-
   @override
   void initState() {
     final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
     super.initState();
+    viewModel.profileForm.initForm();
     _signatureController.addListener(() {
       setState(() {});
       viewModel.profileForm.setHasSignature(_signatureController.isNotEmpty);
     });
 
+    //TODO Use a PostFrameCallback instead of adding our own delay
     Future.delayed(Duration(milliseconds: 500), () {
       viewModel.profileForm.setHasSignature(false);
       viewModel.profileForm.onEnableUssd(true);
@@ -177,7 +178,8 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                             color: Colors.textColorPrimary,
-                          ))),
+                          ))
+                  ),
                   Positioned(
                       top: 66,
                       right: 16,
@@ -185,7 +187,8 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
                       child: Divider(
                         height: 4,
                         color: Colors.colorFaded,
-                      )),
+                      )
+                  ),
                   Positioned(
                       top: 70,
                       bottom: 40,
@@ -201,7 +204,8 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
                               },
                           )//Text(Strings.terms_and_condition),
                         ),
-                      )),
+                      )
+                  ),
                   Positioned(
                       bottom: 32,
                       right: 16,
@@ -209,15 +213,15 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
                       child: Divider(
                         height: 4,
                         color: Colors.colorFaded,
-                      )),
+                      )
+                  ),
                 ],
               ));
         });
   }
 
   Widget _buildTermsLayout() {
-    final txt =
-        'By signing up you agree to our\nTerms & Conditions and Privacy Policy.';
+    final txt = 'By signing up you agree to our\nTerms & Conditions and Privacy Policy.';
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
       decoration: BoxDecoration(
@@ -268,7 +272,8 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                      color: Colors.deepGrey.withOpacity(0.29), width: 1.0))),
+                      color: Colors.deepGrey.withOpacity(0.29), width: 1.0))
+          ),
         ),
         Visibility(
             visible: _isSignatureEnabled == false,
@@ -379,9 +384,9 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
                 ],
               );
             }),
-        SizedBox(height: viewModel.onBoardingType == OnBoardingType.ACCOUNT_DOES_NOT_EXIST ? 24 : 0),
+        SizedBox(height: (viewModel.profileForm.setupType.hasEmail == false) ? 24 : 0),
         Visibility(
-            visible: viewModel.onBoardingType == OnBoardingType.ACCOUNT_DOES_NOT_EXIST,
+            visible: viewModel.profileForm.setupType.hasEmail == false,
             child: StreamBuilder(
                 stream: viewModel.profileForm.emailStream,
                 builder: (context, snapshot) {
@@ -393,8 +398,7 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
                     animateHint: true,
                     drawablePadding: EdgeInsets.only(left: 4, right: 4),
                   );
-                }
-                ),
+                }),
         ),
         SizedBox(height: 24),
         Focus(

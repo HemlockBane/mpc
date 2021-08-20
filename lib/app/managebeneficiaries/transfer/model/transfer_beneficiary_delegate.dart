@@ -5,14 +5,11 @@ import 'dart:convert';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary_dao.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/transfer_beneficiary_service.dart';
-import 'package:moniepoint_flutter/app/transfers/model/data/single_transfer_transaction.dart';
-import 'package:moniepoint_flutter/app/transfers/model/data/transfer_dao.dart';
 import 'package:moniepoint_flutter/core/models/data_collection.dart';
 import 'package:moniepoint_flutter/core/network/network_bound_resource.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/network/service_result.dart';
 import 'package:moniepoint_flutter/core/paging/helper/abstract_data_remote_mediator.dart';
-import 'package:moniepoint_flutter/core/paging/helper/abstract_remote_mediator.dart';
 import 'package:moniepoint_flutter/core/paging/paging_data.dart';
 import 'package:moniepoint_flutter/core/paging/paging_source.dart';
 
@@ -39,30 +36,31 @@ class TransferBeneficiaryServiceDelegate with NetworkResource {
     );
   }
 
-  PagingSource<int, TransferBeneficiary> getTransferBeneficiaries() {
+  PagingSource<int, TransferBeneficiary> getTransferBeneficiaries(int customerId) {
     return PagingSource(
         localSource: (LoadParams params) {
           final offset = params.key ?? 0;
+          print("Params Key is ${params.key} ==> Load Size => ${params.loadSize}");
           return _beneficiaryDao.getPagedTransferBeneficiary(offset * params.loadSize, params.loadSize)
-              .map((event) => Page(event, params.key, event.length == params.loadSize ? offset + 1 : null)
+              .map((event) => Page(event, params.key ?? 0, event.length == params.loadSize ? offset + 1 : null)
           );
         },
-        remoteMediator: _TransferBeneficiaryMediator(_service, _beneficiaryDao)
+        remoteMediator: _TransferBeneficiaryMediator(_service, _beneficiaryDao)..customerId = customerId
     );
   }
 
-  PagingSource<int, TransferBeneficiary> searchTransferBeneficiaries(String search) {
+  PagingSource<int, TransferBeneficiary> searchTransferBeneficiaries(String search, int customerId) {
     return PagingSource(
         localSource: (LoadParams params) {
           final offset = params.key ?? 0;
           return _beneficiaryDao.searchPagedTransferBeneficiary(search,offset * params.loadSize, params.loadSize)
               .map((event) {
                 print(jsonEncode(event));
-                return Page(event, params.key, event.length == params.loadSize ? offset + 1 : null);
+                return Page(event, params.key ?? 0, event.length == params.loadSize ? offset + 1 : null);
               }
           );
         },
-        remoteMediator: _TransferBeneficiaryMediator(_service, _beneficiaryDao)
+        remoteMediator: _TransferBeneficiaryMediator(_service, _beneficiaryDao)..customerId = customerId
     );
   }
 
@@ -83,6 +81,7 @@ class _TransferBeneficiaryMediator extends AbstractDataCollectionMediator<int, T
 
   final TransferBeneficiaryService _service;
   final TransferBeneficiaryDao _transferBeneficiaryDao;
+  int? customerId;
 
   _TransferBeneficiaryMediator(this._service, this._transferBeneficiaryDao);
 
@@ -98,7 +97,7 @@ class _TransferBeneficiaryMediator extends AbstractDataCollectionMediator<int, T
 
   @override
   Future<ServiceResult<DataCollection<TransferBeneficiary>>> serviceCall(page) {
-    return _service.getAccountBeneficiaries(page: page, pageSize: 20);
+    return _service.getAccountBeneficiaries(page: page, pageSize: 500, customerId: customerId);
   }
 }
 

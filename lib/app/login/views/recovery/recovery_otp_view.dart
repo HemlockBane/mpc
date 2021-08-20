@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter/services.dart';
-import 'package:moniepoint_flutter/app/liveliness/liveliness_verification.dart';
+import 'package:moniepoint_flutter/app/liveliness/model/data/liveliness_verification_for.dart';
 import 'package:moniepoint_flutter/app/login/viewmodels/recovery_view_model.dart';
 import 'package:moniepoint_flutter/app/login/views/dialogs/add_device_dialog.dart';
 import 'package:moniepoint_flutter/app/login/views/recovery/recovery_controller_screen.dart';
@@ -38,16 +38,19 @@ class _RecoveryOtpView extends State<RecoveryOtpView> {
 
   @override
   void initState() {
-    _otpController.addListener(() {
-      String otp = _otpController.text;
-      setState(() {
-        _hasOtp = otp.isNotEmpty && otp.length == 6;
-      });
-    });
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
       _subscribeUiToTriggerOtpForDevice();
     });
     super.initState();
+  }
+
+  void _onOtpChanged() {
+    String otp = _otpController.text;
+    _hasOtp = otp.isNotEmpty && otp.length == 6;
+    if(_hasOtp) {
+      FocusManager.instance.primaryFocus?.unfocus();
+    }
+    setState(() {});
   }
 
   void _subscribeUiToTriggerOtpForDevice() {
@@ -106,9 +109,11 @@ class _RecoveryOtpView extends State<RecoveryOtpView> {
     if(validationResponse != null && validationResponse is RecoveryResponse) {
       if(verificationFor == LivelinessVerificationFor.USERNAME_RECOVERY) {
         PreferenceUtil.saveUsername(validationResponse.username!);
-        Navigator.of(context)
-            .pushNamed(RecoveryControllerScreen.USERNAME_DISPLAY_SCREEN,
-            arguments: validationResponse.username);
+        Future.delayed(Duration(milliseconds: 500), (){
+          Navigator.of(context)
+              .pushNamed(RecoveryControllerScreen.USERNAME_DISPLAY_SCREEN,
+              arguments: validationResponse.username);
+        });
       } else if(verificationFor == LivelinessVerificationFor.PASSWORD_RECOVERY) {
         if(validationResponse.livelinessCheckRef == null
             || validationResponse.livelinessCheckRef?.isEmpty == true) {
@@ -117,8 +122,9 @@ class _RecoveryOtpView extends State<RecoveryOtpView> {
           return;
         }
         viewModel.setLivelinessCheckRef(validationResponse.livelinessCheckRef);
-        Navigator.of(context)
-            .pushNamed(RecoveryControllerScreen.SET_PASSWORD);
+        Future.delayed(Duration(milliseconds: 500), (){
+          Navigator.of(context).pushNamed(RecoveryControllerScreen.SET_PASSWORD);
+        });
       }
     }
 
@@ -210,6 +216,7 @@ class _RecoveryOtpView extends State<RecoveryOtpView> {
                             LengthLimitingTextInputFormatter(6),
                             FilteringTextInputFormatter.digitsOnly
                           ],
+                          onChanged: (v) => _onOtpChanged(),
                           animateHint: true,
                           maxLength: 6,
                           startIcon: Icon(CustomFont.numberInput, color:Colors.textFieldIcon.withOpacity(0.2))

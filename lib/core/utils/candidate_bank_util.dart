@@ -1,3 +1,6 @@
+import 'package:moniepoint_flutter/app/managebeneficiaries/beneficiary.dart';
+import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
+
 class CandidateBankUtil {
   static const int BANK_CODE_LENGTH = 6;
   static const int SERIAL_NUMBER_LENGTH = 9;
@@ -87,5 +90,9 @@ class CandidateBankUtil {
 
   static int _charToInt(String c) {
     return int.parse(c);//Integer.parseInt(Character.toString(c));
+  }
+
+  static bool isIntra(String beneficiaryProviderCode) {
+    return beneficiaryProviderCode == "950515";
   }
 }

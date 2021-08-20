@@ -23,6 +23,7 @@ import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/payment_view_model.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
@@ -360,16 +361,9 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
     return pills;
   }
 
-  void _displayPaymentError(String message) {
-    showModalBottomSheet(
-        backgroundColor: Colors.transparent,
-        context: widget._scaffoldKey.currentContext ?? context,
-        builder: (context) => BottomSheets.displayErrorModal(
-            context, title: "Oops", message: message));
-  }
-
   void subscribeUiToPin() async {
     final viewModel = Provider.of<AirtimeViewModel>(context, listen: false);
+    viewModel.setPin("");
     dynamic result = await showModalBottomSheet(
         context: widget._scaffoldKey.currentContext ?? context,
         isScrollControlled: true,
@@ -415,11 +409,13 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
                 })
         );
       } else {
-        _displayPaymentError(result.message ??
-            "Unable to complete transaction at this time. Please try again later.");
+        showError(
+            widget._scaffoldKey.currentContext ?? context,
+            message: "Unable to complete transaction at this time. Please try again later."
+        );
       }
     } else if (result is Error<TransactionStatus>) {
-      _displayPaymentError(result.message ?? "");
+      showError(widget._scaffoldKey.currentContext ?? context, message: result.message ?? "");
     }
   }
 

@@ -28,7 +28,10 @@ User _$UserFromJson(Map<String, dynamic> json) {
         ?.map((e) => Customer.fromJson(e as Object))
         .toList()
     ..email = json['email'] as String?
-    ..username = json['username'] as String?;
+    ..username = json['username'] as String?
+    ..loginPrompts = (json['loginCommandPrompts'] as List<dynamic>?)
+        ?.map((e) => LoginPrompt.fromJson(e as Object))
+        .toList();
 }
 
 Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
@@ -49,4 +52,5 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'customers': instance.customers,
       'email': instance.email,
       'username': instance.username,
+      'loginCommandPrompts': instance.loginPrompts,
     };

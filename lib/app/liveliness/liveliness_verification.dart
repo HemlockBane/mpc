@@ -12,10 +12,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'liveliness_camera_preview.dart';
 import 'liveliness_detection_guide.dart';
 import 'liveliness_detector.dart';
-
-enum LivelinessVerificationFor{
-  ON_BOARDING, USERNAME_RECOVERY, PASSWORD_RECOVERY, REGISTER_DEVICE
-}
+import 'model/data/liveliness_verification_for.dart';
 
 class LivelinessVerification extends StatefulWidget {
 
@@ -143,8 +140,10 @@ class _LivelinessVerification extends State<LivelinessVerification> {
                       elevation: 0,
                       onClick: () {
                         Navigator.of(context).pop();
-                        _livelinessDetector?.startMotionDetection();
-                        _livelinessDetector?.beginCapture();
+                        Future.delayed(Duration(milliseconds: 1300), (){
+                          _livelinessDetector?.startMotionDetection();
+                          _livelinessDetector?.beginCapture();
+                        });
                       },
                       text: 'Start Capture'
                   ),
@@ -158,7 +157,11 @@ class _LivelinessVerification extends State<LivelinessVerification> {
 
   void _requestCameraPermission() async {
     if(await Permission.camera.request().isGranted) {
-      showDialog(context: context, builder: (mContext) => _entryDialog());
+      showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (mContext) => _entryDialog()
+      );
       _initLivelinessDetector();
     } else {
       Navigator.of(context).pop();

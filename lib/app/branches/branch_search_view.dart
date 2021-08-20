@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -31,6 +32,7 @@ class _BranchSearchScreen extends State<BranchSearchScreen> {
       setState(() {});
       return;
     }
+
     debouncer?.cancel();
     debouncer = Timer(Duration(milliseconds: 700), () {
       viewModel.search(text);
@@ -115,7 +117,6 @@ class _BranchSearchScreen extends State<BranchSearchScreen> {
   Widget build(BuildContext context) {
     final viewModel = Provider.of<BranchViewModel>(context, listen: true);
     final minHeight = MediaQuery.of(context).size.height;
-
     return Scaffold(
       backgroundColor: Colors.backgroundWhite,
       body: SingleChildScrollView(
@@ -126,83 +127,21 @@ class _BranchSearchScreen extends State<BranchSearchScreen> {
             mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.max,
             children: [
-              Flexible(
-                child: Container(
-                  margin: EdgeInsets.symmetric(horizontal: 20),
-                  // padding: EdgeInsets.only(top: 19, bottom: 19),
-                  child: TextFormField(
-                      controller: _searchController,
-                      onChanged: (v) => _onSearchFieldChange(viewModel, v),
-                      textAlignVertical: TextAlignVertical.center,
-                      decoration: InputDecoration(
-                          hintText: "Search by branch name",
-                          hintStyle: TextStyle(
-                              color: Color(0xFF4A4A4A).withOpacity(0.2934)),
-                          contentPadding: EdgeInsets.only(top: 19, bottom: 19),
-                          prefixIcon: GestureDetector(
-                            onTap: () {
-                              if (_searchController.text.isNotEmpty)
-                                _onSearchFieldChange(viewModel, "");
-                              else
-                                Navigator.of(context).pop();
-                            },
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                  top: 12, right: 16, bottom: 12, left: 16),
-                              child: Icon(
-                                CustomFont.backArrow,
-                                size: 20,
-                                color: Color(0xFF9DA1AB),
-                              ),
-                            ),
-                          ),
-                          suffixIcon:
-                              _isLoading && _searchController.text.isNotEmpty
-                                  ? Padding(
-                                      padding: EdgeInsets.only(right: 16),
-                                      child: SizedBox(
-                                        height: 10,
-                                        width: 10,
-                                        child: SpinKitThreeBounce(
-                                            size: 20.0,
-                                            color: Colors.primaryColor
-                                                .withOpacity(0.8)),
-                                      ),
-                                    )
-                                  : null,
-                          isCollapsed: true,
-                          disabledBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.transparent)),
-                          enabledBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.transparent)),
-                          focusedBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.transparent)),
-                          border: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.transparent)))),
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(6),
-                      boxShadow: [
-                        BoxShadow(
-                          offset: Offset(0, 1),
-                          color: Colors.grey.withOpacity(0.2),
-                          blurRadius: 6,
-                          spreadRadius: 2,
-                        )
-                      ]),
-                ),
-              ),
+              _buildSearchField(viewModel, context),
               SizedBox(height: 50),
               StreamBuilder(
                   stream: viewModel.searchResultStream,
                   builder:
                       (context, AsyncSnapshot<Resource<List<BranchInfo>>> a) {
-                    if (!a.hasData || _searchController.text == "")
+                    if (_searchController.text == "" || _searchController.text.length <= 2 || _isLoading)
                       return Container();
+
+                    if (!a.hasData ||
+                        (a.hasData && a.data is Success) &&
+                            a.data?.data?.isEmpty == true) {
+                      return Container();
+                    }
+
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
@@ -220,39 +159,55 @@ class _BranchSearchScreen extends State<BranchSearchScreen> {
                     );
                   }),
               SizedBox(height: 5),
+
               Expanded(
                 child: StreamBuilder(
                     stream: viewModel.searchResultStream,
                     builder:
                         (context, AsyncSnapshot<Resource<List<BranchInfo>>> a) {
-                      if (_searchController.text.isEmpty) return Container();
+                      if (_searchController.text.isEmpty || _searchController.text.length <= 2 || _isLoading) return Container();
+
                       if (!a.hasData ||
-                          _searchController.text.length <= 2 ||
                           (a.hasData && a.data is Success) &&
                               a.data?.data?.isEmpty == true) {
-                        return _emptyView();
+                        return TweenAnimationBuilder(
+                          tween: Tween<double>(begin: 0.0, end: 1.0),
+                            duration: Duration(milliseconds: 300),
+                            builder: (BuildContext context, double opacity, Widget? child) => Opacity(
+                              opacity: opacity,
+                                child: _emptyView()
+                            )
+                        );
                       }
-                      return ListView.separated(
-                        padding: EdgeInsets.zero,
-                        shrinkWrap: true,
-                        itemCount: a.data?.data?.length ?? 0,
-                        separatorBuilder: (context, index) => Container(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                          child: Column(
-                            children: [
-                              // SizedBox(height: 15),
-                              Divider(height: 1),
-                            ],
-                          ),
-                        ),
-                        itemBuilder: (context, index) {
-                          return BranchListItem(a.data!.data![index], index,
-                              (item, itemIndex) {
-                            Future.delayed(Duration(milliseconds: 180), () {
-                              Navigator.of(context).pop(item);
-                            });
-                          });
-                        },
+
+                      return TweenAnimationBuilder(
+                          tween: Tween<double>(begin: 0.0, end: 1.0),
+                          duration: Duration(milliseconds: 300),
+                          builder: (BuildContext context, double opacity, Widget? child) => Opacity(
+                              opacity: opacity,
+                              child: Container(
+                                child: ListView.separated(
+                                  padding: EdgeInsets.zero,
+                                  itemCount: a.data?.data?.length ?? 0,
+                                  separatorBuilder: (context, index) => Container(
+                                    padding: EdgeInsets.symmetric(horizontal: 20), child: Column(
+                                    children: [
+                                      // SizedBox(height: 15),
+                                      Divider(height: 1),
+                                    ],
+                                  ),
+                                ),
+                                  itemBuilder: (context, index) {
+                                    return BranchListItem(a.data!.data![index], index,
+                                            (item, itemIndex) {
+                                          Future.delayed(Duration(milliseconds: 180), () {
+                                            Navigator.of(context).pop(item);
+                                          });
+                                        });
+                                  },
+                                ),
+                              )
+                          )
                       );
                     }),
               )
@@ -261,6 +216,78 @@ class _BranchSearchScreen extends State<BranchSearchScreen> {
         ),
       ),
     );
+  }
+
+  Container _buildSearchField(BranchViewModel viewModel, BuildContext context) {
+    return Container(
+                margin: EdgeInsets.symmetric(horizontal: 20),
+                // padding: EdgeInsets.only(top: 19, bottom: 19),
+                child: TextFormField(
+                    controller: _searchController,
+                    onChanged: (v) => _onSearchFieldChange(viewModel, v),
+                    textAlignVertical: TextAlignVertical.center,
+                    autofocus: true,
+                    decoration: InputDecoration(
+                        hintText: "Search by branch name",
+                        hintStyle: TextStyle(
+                            color: Color(0xFF4A4A4A).withOpacity(0.2934)),
+                        contentPadding: EdgeInsets.only(top: 19, bottom: 19),
+                        prefixIcon: GestureDetector(
+                          onTap: () {
+                            if (_searchController.text.isNotEmpty)
+                              _onSearchFieldChange(viewModel, "");
+                            else
+                              Navigator.of(context).pop();
+                          },
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                                top: 12, right: 16, bottom: 12, left: 16),
+                            child: Icon(
+                              CustomFont.backArrow,
+                              size: 20,
+                              color: Color(0xFF9DA1AB),
+                            ),
+                          ),
+                        ),
+                        suffixIcon:
+                            _isLoading && _searchController.text.isNotEmpty
+                                ? Padding(
+                                    padding: EdgeInsets.only(right: 16),
+                                    child: SizedBox(
+                                      height: 10,
+                                      width: 10,
+                                      child: SpinKitThreeBounce(
+                                          size: 20.0,
+                                          color: Colors.primaryColor
+                                              .withOpacity(0.8)),
+                                    ),
+                                  )
+                                : null,
+                        isCollapsed: true,
+                        disabledBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Colors.transparent)),
+                        enabledBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Colors.transparent)),
+                        focusedBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Colors.transparent)),
+                        border: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Colors.transparent)))),
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(6),
+                    boxShadow: [
+                      BoxShadow(
+                        offset: Offset(0, 1),
+                        color: Colors.grey.withOpacity(0.2),
+                        blurRadius: 6,
+                        spreadRadius: 2,
+                      )
+                    ]),
+              );
   }
 
   @override
@@ -301,6 +328,7 @@ class BranchListItem extends Container {
       child: InkWell(
         borderRadius: BorderRadius.circular(9),
         onTap: () => _onItemClickListener.call(_branchInfo, 0),
+        onDoubleTap: (){},
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           child: Row(

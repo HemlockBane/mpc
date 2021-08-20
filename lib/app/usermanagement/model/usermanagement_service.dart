@@ -30,7 +30,7 @@ abstract class UserManagementService {
     "appVersion": BuildConfig.APP_VERSION
   })
   @POST("v2/user/forgot_username")
-  Future<ServiceResult<RecoveryResponse>  > forgotUsername(
+  Future<ServiceResult<RecoveryResponse>> forgotUsername(
       @Part(name: "step") String? step,
       @Part(name: "key") String? key,
       {

@@ -32,6 +32,7 @@ mixin NetworkResource {
     required Future<ServiceResult<K>?> Function() fetchFromRemote,
     K? Function(Success<ServiceResult<K>> response)? processRemoteResponse,
     Future Function(K)? saveRemoteData,
+    void Function({ServiceResult<K?>? result, int? statusCode})? onError
   }) async* {
     shouldFetchFromRemote ??= (T) => true;
     processRemoteResponse ??= (T) => null;
@@ -44,7 +45,6 @@ mixin NetworkResource {
     if(shouldFetchLocal) {
       await for (var value in fetchFromLocal()) {
         localData = value;
-        print(localData);
         yield Resource.loading(localData);
         break;
       }
@@ -71,7 +71,7 @@ mixin NetworkResource {
           }
           else yield Resource.success(result ?? response.result);
         } else {
-          //TODO
+          onError?.call(result: response, statusCode: 200);
           yield Resource.error(err: ServiceError(message: response.errors?.first.message ?? ""));
         }
       } catch(e) {
@@ -97,18 +97,23 @@ mixin NetworkResource {
 
           if (errorBody != null) {
             try {
-              result = ServiceResult.fromJson(
-                  jsonDecode(jsonEncode(errorBody)), (a) => null);
+              result = ServiceResult.fromJson(jsonDecode(jsonEncode(errorBody)), (a) => null);
+              //Dispatch the error to anyone that cares
+              onError?.call(result: result, statusCode: e.response?.statusCode);
             } catch (e) {
               if (e is FormatException) _errorString = errorString;
               print(e);
             }
           } else {
             var error = e.error;
-            _errorString = error.toString();
-            print('In the else branch of error type: ${error.runtimeType}');
-            print('In the else branch of error: $error');
-            print('In the else branch of error: ${e.response?.statusCode}');
+            if(error is TypeError) {
+              _errorString = "We encountered an error fulfilling your request. Please try again later.";//TypeError occurred here
+            } else {
+              _errorString = error.toString();
+              print('In the else branch of error type: ${error.runtimeType}');
+              print('In the else branch of error: $error');
+              print('In the else branch of error: ${e.response?.statusCode}');
+            }
           }
         }
         else if (e is Exception) {
@@ -168,7 +173,7 @@ mixin NetworkResource {
         _errorString = "System Error";
       }
       if (_errorString!.toLowerCase().contains("database error")) {
-        _errorString = "Operation Was Unsuccessful";
+        _errorString = "Operation was Unsuccessful";
       }
       if (_errorString!.toLowerCase().contains("ssl") || _errorString!.toLowerCase().contains("redis")) {
         _errorString = "We are unable to reach the service at this time. Try again";
@@ -236,7 +241,8 @@ Tuple<String, String> formatError(String? errorMessage, String moduleName) {
   }
   else {
     errorTitle = "Oops";
-    errorDescription = errorMessage;
+    errorDescription = "An unknown error occurred. Please try again later.";
+    FirebaseCrashlytics.instance.recordError(errorMessage, null);
   }
   return Tuple(errorTitle, errorDescription);
 }

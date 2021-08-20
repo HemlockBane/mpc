@@ -9,7 +9,7 @@ part of 'onboarding_service.dart';
 class _OnBoardingService implements OnBoardingService {
   _OnBoardingService(this._dio, {this.baseUrl}) {
     baseUrl ??=
-        'https://core-root.monnify.development.teamapt.com/api/v1/onboarding';
+        'https://moniepoint-customer-root-v2.console.teamapt.com/api/v1/onboarding';
   }
 
   final Dio _dio;
@@ -28,7 +28,7 @@ class _OnBoardingService implements OnBoardingService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.6'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -55,7 +55,7 @@ class _OnBoardingService implements OnBoardingService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.6'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -82,7 +82,7 @@ class _OnBoardingService implements OnBoardingService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.6'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -108,7 +108,7 @@ class _OnBoardingService implements OnBoardingService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.6'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -134,12 +134,12 @@ class _OnBoardingService implements OnBoardingService {
             headers: <String, dynamic>{
               r'Content-Type': 'application/json',
               r'client-id': 'ANDROID',
-              r'appVersion': '0.0.1'
+              r'appVersion': '1.0.6'
             },
             extra: _extra,
             contentType: 'application/json')
         .compose(_dio.options,
-            'https://core-root.monnify.development.teamapt.com/api/v2/onboarding/onboard-user',
+            'https://moniepoint-customer-root-v2.console.teamapt.com/api/v2/onboarding/onboard-user',
             queryParameters: queryParameters, data: _data)
         .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = ServiceResult<AccountProfile>.fromJson(
@@ -160,17 +160,60 @@ class _OnBoardingService implements OnBoardingService {
             headers: <String, dynamic>{
               r'Content-Type': 'application/json',
               r'client-id': 'ANDROID',
-              r'appVersion': '0.0.1'
+              r'appVersion': '1.0.6'
             },
             extra: _extra,
             contentType: 'application/json')
         .compose(_dio.options,
-            'https://core-operations.monnify.development.teamapt.com/api/v1/user/check_username',
+            'https://moniepoint-customer-operations-service-v2.console.teamapt.com/api/v1/user/check_username',
             queryParameters: queryParameters, data: _data)
         .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = ServiceResult<bool>.fromJson(
       _result.data!,
       (json) => json as bool,
+    );
+    return value;
+  }
+
+  @override
+  Future<ServiceResult<OnboardingLivelinessValidationResponse>>
+      validateLivelinessForOnboarding(
+          firstCapture, motionCapture, bvn, phoneNumberValidationKey) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _data = FormData();
+    _data.files.add(MapEntry(
+        'image1',
+        MultipartFile.fromFileSync(firstCapture.path,
+            filename: firstCapture.path.split(Platform.pathSeparator).last,
+            contentType: MediaType.parse('application/json'))));
+    _data.files.add(MapEntry(
+        'image2',
+        MultipartFile.fromFileSync(motionCapture.path,
+            filename: motionCapture.path.split(Platform.pathSeparator).last,
+            contentType: MediaType.parse('application/json'))));
+    _data.fields.add(MapEntry('bvn', bvn));
+    _data.fields
+        .add(MapEntry('phoneNumberValidationKey', phoneNumberValidationKey));
+    final _result = await _dio.fetch<Map<String, dynamic>>(_setStreamType<
+        ServiceResult<OnboardingLivelinessValidationResponse>>(Options(
+            method: 'POST',
+            headers: <String, dynamic>{
+              r'Content-Type': 'multipart/form-data',
+              r'client-id': 'ANDROID',
+              r'appVersion': '1.0.6'
+            },
+            extra: _extra,
+            contentType: 'multipart/form-data')
+        .compose(_dio.options,
+            'https://moniepoint-customer-operations-service-v2.console.teamapt.com/api/v2/onboarding-validation/check-for-liveliness',
+            queryParameters: queryParameters, data: _data)
+        .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value =
+        ServiceResult<OnboardingLivelinessValidationResponse>.fromJson(
+      _result.data!,
+      (json) => OnboardingLivelinessValidationResponse.fromJson(
+          json as Map<String, dynamic>),
     );
     return value;
   }

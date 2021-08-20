@@ -14,6 +14,7 @@ import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/timeout_reason.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/biometric_helper.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/utils/list_view_util.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/utils/time_ago.dart';
@@ -64,13 +65,11 @@ class _UserDeviceListView extends State<UserDeviceListView> with SingleTickerPro
           ? "Device has been removed successfully.\nPlease kindly login again to continue using Moniepoint."
           : "Device has been removed successfully.";
 
-      await showModalBottomSheet(
-          backgroundColor: Colors.transparent,
-          isScrollControlled: true,
-          context: context,
-          builder: (mContext) => BottomSheets.displaySuccessModal(mContext,
-              title: "Device Removed", message: message));
-
+      await showSuccess(
+          context,
+          title: "Device Removed",
+          message: message
+      );
       if(viewModel.getCurrentDeviceId() == userDevice.deviceId) {
         //We need to clear out the finger print
         //if the device removed is the fingerprint enabled device
@@ -78,7 +77,7 @@ class _UserDeviceListView extends State<UserDeviceListView> with SingleTickerPro
           BiometricHelper.getInstance().deleteFingerPrintPassword();
           PreferenceUtil.clearOutFingerPrintSession();
         }
-        UserInstance().sessionTimeOut(context, SessionTimeoutReason.LOGIN_REQUESTED);
+        UserInstance().forceLogout(context, SessionTimeoutReason.LOGIN_REQUESTED);
       } else {
         setState(() {
           _userDevicesStream = viewModel.getUserDevices(PreferenceUtil.getSavedUsername() ?? "");
@@ -87,12 +86,7 @@ class _UserDeviceListView extends State<UserDeviceListView> with SingleTickerPro
 
 
     } else if(result is Error) {
-      await showModalBottomSheet(
-          backgroundColor: Colors.transparent,
-          isScrollControlled: true,
-          context: context,
-          builder: (mContext) => BottomSheets.displayErrorModal(mContext, message: result.message)
-      );
+      showError(context, message: result.message ?? "");
     }
   }
 
@@ -257,10 +251,12 @@ class _UserDeviceListItem extends StatelessWidget{
                       children: [
                         Row(
                           children: [
-                            Text(
+                            Flexible(child: Text(
                                 _userDevice.name ?? "--",
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
                                 style: TextStyle(fontSize: 16, color: Colors.darkBlue, fontWeight: FontWeight.bold)
-                            ),
+                            )),
                             SizedBox(width: 8,),
                             Visibility(
                               visible: isLoggedInDevice,

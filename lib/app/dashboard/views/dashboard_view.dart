@@ -34,7 +34,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   Stream<Resource<List<TransferBeneficiary>>>? recentlyPaidBeneficiaries;
   late DashboardViewModel _viewModel;
-  final items = [];
+  final items = <BannerItem>[];
 
   Widget _buildRecentlyPaidList(List<Color> recentlyPaidColors,
       List<TransferBeneficiary> recentlyPaidBeneficiaries) {
@@ -78,10 +78,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ListView.builder(
               scrollDirection: Axis.horizontal,
               shrinkWrap: true,
-              itemCount: recentlyPaidBeneficiaries.length,
+              itemCount: recentlyPaidBeneficiaries.take(10).length,
               itemBuilder: (BuildContext context, int index) {
                 final colorIdx =
-                    getColorIndex(index, recentlyPaidBeneficiaries.length);
+                    getColorIndex(index, recentlyPaidColors.length);
                 final color = recentlyPaidColors[colorIdx];
                 final recentlyPaidBeneficiary =
                     recentlyPaidBeneficiaries[index];
@@ -482,7 +482,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       {double? height,
       double? width,
       bool shouldNavigate = true,
-      VoidCallback? onTapAlt, double spacing = 10}) {
+      VoidCallback? onTapAlt,
+      double spacing = 10}) {
     final onTapDefault = () {
       if (routeName.isNotEmpty) {
         Navigator.pop(context);
@@ -605,18 +606,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       SizedBox(height: 24),
                       _sectionTitle(context, "TRANSACTIONS"),
                       drawerListItem(
-                        "Transfer Money",
-                        "res/drawables/ic_dashboard_transfer_2.svg",
-                        Routes.TRANSFER,
-                        width: 21,
-                        height: 17,
-                        spacing: 5
-                      ),
+                          "Transfer Money",
+                          "res/drawables/ic_dashboard_transfer_2.svg",
+                          Routes.TRANSFER,
+                          width: 21,
+                          height: 17,
+                          spacing: 5),
                       drawerListItem(
                           "Airtime & Data",
                           "res/drawables/ic_dashboard_airtime_2.svg",
-          
-                          Routes.AIRTIME, height: 26),
+                          Routes.AIRTIME,
+                          height: 26),
                       drawerListItem(
                           "Bill Payments",
                           "res/drawables/ic_dashboard_bills_2.svg",
@@ -628,21 +628,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       drawerListItem(
                           "Manage Account",
                           "res/drawables/ic_dashboard_manage_account.svg",
-                          Routes.ACCOUNT_TRANSACTIONS, height: 26, spacing: 5),
+                          Routes.ACCOUNT_TRANSACTIONS,
+                          height: 26,
+                          spacing: 5),
                       drawerListItem(
                           "Manage Cards",
                           "res/drawables/ic_dashboard_manage_cards.svg",
-                          Routes.CARDS, height: 18),
+                          Routes.CARDS,
+                          height: 18),
                       SizedBox(
                         height: 21,
                       ),
                       _sectionTitle(context, "SAVINGS & LOANS"),
                       drawerListItem("Savings",
                           "res/drawables/ic_dashboard_savings.svg", "",
-                          shouldNavigate: false, onTapAlt: showComingSoonInfo, height: 26, spacing: 5),
+                          shouldNavigate: false,
+                          onTapAlt: showComingSoonInfo,
+                          height: 26,
+                          spacing: 5),
                       drawerListItem("Get Loan",
                           "res/drawables/ic_dashboard_manage_cards.svg", "",
-                          shouldNavigate: false, onTapAlt: showComingSoonInfo, height: 18),
+                          shouldNavigate: false,
+                          onTapAlt: showComingSoonInfo,
+                          height: 18),
                     ],
                   ),
                 )
@@ -675,13 +683,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
           Text(
             title,
-            style: Styles.textStyle(
-              context,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Colors.white.withOpacity(0.15),
-              letterSpacing: 1.3
-            ),
+            style: Styles.textStyle(context,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Colors.white.withOpacity(0.15),
+                letterSpacing: 1.3),
           ),
           SizedBox(width: 10),
           Expanded(
@@ -694,39 +700,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildDashboardSlider() {
     //Since we have only a single update page for now we can put it in here
     items.clear();
+    if (!_hasCompletedAccountUpdate()) {
+      return Container();
+    } 
 
-    if (_hasCompletedAccountUpdate()) {
-      // items.add(_greetingItem());
-    } else {
-      items.addAll([
-        BannerItem(
+    items.add(
+      BannerItem(
             svgPath: 'res/drawables/ic_dashboard_edit.svg',
             primaryText: 'Upgrade Account',
             secondaryText:
                 'Upgrade your savings account\nto enjoy higher limits'),
-        BannerItem(
-            svgPath: 'res/drawables/ic_dashboard_edit.svg',
-            primaryText: 'Upgrade Account',
-            secondaryText:
-                'Upgrade your savings account\nto enjoy higher limits'),
-      ]);
-    }
+      );
+    
 
     return SizedBox(
       height: 140,
       child: PageView.builder(
-          itemCount: 2,
+          itemCount: items.length,
           controller: _mPageController,
           itemBuilder: (BuildContext context, int index) {
             // return items[index % items.length];
-            final item = items[index] as BannerItem;
+            final item = items[index];
             return Stack(
               children: [
                 _dashboardUpdateItem(
                   svgPath: item.svgPath,
                   primaryText: item.primaryText,
                   secondaryText: item.secondaryText,
-                  // pageController: _mPageController,
                 ),
                 // if (items.length > 1) SizedBox(height: 19),
                 // if (items.length > 1)
@@ -807,59 +807,63 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   .then((_) => null)
               : setState(() => {}),
           child: Container(
-            padding: EdgeInsets.only(left: 16),
+            // padding: EdgeInsets.only(left: 16),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                SizedBox(
-                  height: 16,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.max,
+                Column(
                   children: [
-                    Container(
-                      height: 86,
-                      width: 86,
-                      child: Image.asset(
-                          "res/drawables/ic_dashboard_calendar.png"),
-                    ),
-                    // SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text(primaryText,
-                              style: Styles.textStyle(context,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.primaryColor,
-                                  fontSize: 14.5)),
-                          SizedBox(height: 4),
-                          Row(
-                            mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.end,
+                    SizedBox(height: 7),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Container(
+                          height: 120,
+                          width: 120,
+                          child: Image.asset(
+                              "res/drawables/ic_dashboard_edit.png"),
+                        ),
+                        // SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              Text(secondaryText,
+                              SizedBox(height: 10),
+                              Text(primaryText,
                                   style: Styles.textStyle(context,
-                                      color: Colors.textColorBlack,
-                                      fontSize: 12.6,
-                                      fontWeight: FontWeight.w300, lineHeight: 1.5)),
-                              Container(
-                                margin: const EdgeInsets.only(
-                                    right: 20, top: 4),
-                                child: SvgPicture.asset(
-                                    'res/drawables/ic_forward_arrow.svg',
-                                    height: 18,
-                                    width: 18,
-                                    color: Colors.primaryColor),
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.primaryColor,
+                                      fontSize: 14.5)),
+                              SizedBox(height: 4),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(secondaryText,
+                                      style: Styles.textStyle(context,
+                                          color: Colors.textColorBlack,
+                                          fontSize: 12.6,
+                                          fontWeight: FontWeight.w300,
+                                          lineHeight: 1.5)),
+                                  Container(
+                                    margin: const EdgeInsets.only(
+                                        right: 20, top: 4),
+                                    child: SvgPicture.asset(
+                                        'res/drawables/ic_forward_arrow.svg',
+                                        height: 18,
+                                        width: 18,
+                                        color: Colors.primaryColor),
+                                  )
+                                ],
                               )
                             ],
-                          )
-                        ],
-                      ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -953,7 +957,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             routeName: Routes.BILL),
                       ],
                     ),
-                    SizedBox(height: 32),
+                    if (_hasCompletedAccountUpdate())
+                       SizedBox(height: 32),
                     _buildDashboardSlider(),
                     SizedBox(height: 32),
                     Container(
@@ -999,7 +1004,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           final beneficiaries = resource.data;
 
                           if ((beneficiaries == null) ||
-                              beneficiaries.length < 3) {
+                              beneficiaries.length < 2) {
                             return Container();
                           }
 

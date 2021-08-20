@@ -12,7 +12,6 @@ import 'package:rxdart/rxdart.dart';
 /// @author Paul Okeke
 class ProfileForm with ChangeNotifier, Validators {
 
-
   Stream<bool>? _isValid;
   var isUsernameVerified = false;
 
@@ -179,8 +178,8 @@ class ProfileForm with ChangeNotifier, Validators {
     this._setupType = setupType;
   }
 
-
   Stream<bool> get isValid => _isValid ?? Stream.value(false);
+
   @override
   void dispose() {
     _usernameController.close();

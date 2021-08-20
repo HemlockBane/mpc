@@ -1,4 +1,6 @@
 
+import 'dart:io';
+
 import 'package:moniepoint_flutter/app/cards/model/card_service.dart';
 import 'package:moniepoint_flutter/app/cards/model/data/card_transaction_request.dart';
 import 'package:moniepoint_flutter/core/network/network_bound_resource.dart';
@@ -6,6 +8,11 @@ import 'package:moniepoint_flutter/core/network/resource.dart';
 
 import 'data/card.dart';
 import 'package:collection/collection.dart';
+
+import 'data/card_activation_response.dart';
+import 'data/card_link_request.dart';
+import 'data/card_linking_response.dart';
+import 'data/card_request_balance_response.dart';
 
 class CardServiceDelegate with NetworkResource {
 
@@ -23,23 +30,23 @@ class CardServiceDelegate with NetworkResource {
       channelBlockStatus: TransactionChannelBlockStatus(web: false, atm: false, pos: false)
   );
   late final List<Card> _cards = [
-    // cardA,
-    // Card(id: 1,
-    //     maskedPan: "506099******4323",
-    //     expiryDate: "23/03",
-    //     blocked: false,
-    //     nameOnCard: "AAAAA Okeke",
-    //     status: CardStatus.IN_ACTIVE,
-    //     channelBlockStatus: TransactionChannelBlockStatus(web: false, atm: false, pos: false)
-    // ),
-    // Card(id: 2,
-    //     maskedPan: "506099******4323",
-    //     expiryDate: "23/03",
-    //     blocked: false,
-    //     nameOnCard: "AAAAA Okeke",
-    //     status: CardStatus.ACTIVE,
-    //     channelBlockStatus: TransactionChannelBlockStatus(web: false, atm: false, pos: false)
-    // ),
+    cardA,
+    Card(id: 1,
+        maskedPan: "506099******4323",
+        expiryDate: "23/03",
+        blocked: false,
+        nameOnCard: "AAAAA Okeke",
+        status: CardStatus.IN_ACTIVE,
+        channelBlockStatus: TransactionChannelBlockStatus(web: false, atm: false, pos: false)
+    ),
+    Card(id: 2,
+        maskedPan: "506099******4323",
+        expiryDate: "23/03",
+        blocked: true,
+        nameOnCard: "AAAAA Okeke",
+        status: CardStatus.ACTIVE,
+        channelBlockStatus: TransactionChannelBlockStatus(web: false, atm: false, pos: false)
+    ),
   ];
 
   Stream<Resource<List<Card>>> getCards(int customerAccountId) {
@@ -92,6 +99,43 @@ class CardServiceDelegate with NetworkResource {
     return networkBoundResource(
         fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => _service.changeCardPin(customerAccountId, cardTransactionRequest)
+    );
+  }
+
+  Stream<Resource<CardRequestBalanceResponse>> isAccountBalanceSufficient(String accountNumber) {
+    return networkBoundResource(
+        fetchFromLocal: () => Stream.value(null),
+        fetchFromRemote: () => _service.confirmAccountBalanceIsSufficient(accountNumber)
+    );
+  }
+
+  Stream<Resource<CardLinkingResponse>> linkCard(CardLinkRequest cardLinkRequest) {
+    return networkBoundResource(
+        fetchFromLocal: () => Stream.value(null),
+        fetchFromRemote: () => _service.linkCard(
+          cardLinkRequest.customerId,
+          cardLinkRequest.customerAccountId,
+          cardLinkRequest.firstCapture,
+          cardLinkRequest.motionCapture,
+          customerCode: cardLinkRequest.customerCode,
+          cardSerial: cardLinkRequest.cardSerial
+        )
+    );
+  }
+
+  Stream<Resource<CardActivationResponse>> activateCard(CardLinkRequest cardLinkRequest) {
+    return networkBoundResource(
+        fetchFromLocal: () => Stream.value(null),
+        fetchFromRemote: () => _service.activateCard(
+            cardLinkRequest.customerId,
+            cardLinkRequest.customerAccountId,
+            cardLinkRequest.firstCapture,
+            cardLinkRequest.motionCapture,
+            cardLinkRequest.customerCode ?? "",
+            cardLinkRequest.cardId,
+            cardLinkRequest.cvv,
+            cardLinkRequest.newPin,
+        )
     );
   }
 

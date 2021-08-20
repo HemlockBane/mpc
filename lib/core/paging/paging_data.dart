@@ -26,22 +26,5 @@ class Page<Key, Value> {
     return PagingData(data, loadStates: CombinedLoadStates(
         LoadState(true), LoadState(true), LoadState(true)
     ));
-    // switch(loadType) {
-    //   case LoadType.REFRESH : {
-    //     return PagingData(data, loadStates: CombinedLoadStates(
-    //         states.refresh, states.append, states.prepend,
-    //     ));
-    //   }
-    //   case LoadType.APPEND:{
-    //     return PagingData(data, loadStates: CombinedLoadStates(
-    //         LoadState(true), LoadState(true), LoadState(true)
-    //     ));
-    //   }
-    //   case LoadType.PREPEND: {
-    //     return PagingData(data, loadStates: CombinedLoadStates(
-    //         LoadState(true), LoadState(true), LoadState(true)
-    //     ));
-    //   }
-    // }
   }
 }

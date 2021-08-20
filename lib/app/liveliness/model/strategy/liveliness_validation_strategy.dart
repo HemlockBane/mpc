@@ -1,3 +1,5 @@
+import 'package:moniepoint_flutter/app/cards/model/card_activation_liveliness_validation_strategy.dart';
+import 'package:moniepoint_flutter/app/cards/model/card_linking_liveliness_validation_strategy.dart';
 import 'package:moniepoint_flutter/app/liveliness/model/data/liveliness_validation_response.dart';
 import 'package:moniepoint_flutter/app/liveliness/model/data/liveliness_verification_for.dart';
 import 'package:moniepoint_flutter/app/liveliness/viewmodels/liveliness_verification_viewmodel.dart';
@@ -33,8 +35,15 @@ abstract class LivelinessValidationStrategy<T extends LivelinessValidationRespon
       case LivelinessVerificationFor.REGISTER_DEVICE:
         strategy = DeviceLivelinessValidationStrategy(viewModel, arguments);
         break;
+      case LivelinessVerificationFor.CARD_LINKING:
+        strategy = CardLinkingLivelinessValidationStrategy(viewModel, arguments);
+        break;
+      case LivelinessVerificationFor.CARD_ACTIVATION:
+        strategy = CardActivationLivelinessValidationStrategy(viewModel, arguments);
+        break;
       default:
         strategy = OnboardingLivelinessValidationStrategy(viewModel, arguments);
+
     }
 
     return strategy as LivelinessValidationStrategy<T>;

@@ -141,6 +141,126 @@ class _CardService implements CardService {
     return value;
   }
 
+  @override
+  Future<ServiceResult<CardRequestBalanceResponse>>
+      confirmAccountBalanceIsSufficient(accountNumber) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{r'accountNumber': accountNumber};
+    final _data = <String, dynamic>{};
+    final _result = await _dio.fetch<Map<String, dynamic>>(
+        _setStreamType<ServiceResult<CardRequestBalanceResponse>>(
+            Options(method: 'GET', headers: <String, dynamic>{}, extra: _extra)
+                .compose(_dio.options, 'check-sufficient-balance',
+                    queryParameters: queryParameters, data: _data)
+                .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = ServiceResult<CardRequestBalanceResponse>.fromJson(
+      _result.data!,
+      (json) =>
+          CardRequestBalanceResponse.fromJson(json as Map<String, dynamic>),
+    );
+    return value;
+  }
+
+  @override
+  Future<ServiceResult<CardLinkingResponse>> linkCard(
+      customerId, customerAccountId, firstCapture, motionCapture,
+      {customerCode, cardSerial}) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{r'customerId': customerId};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _data = FormData();
+    _data.fields.add(MapEntry('customerAccountId', customerAccountId));
+    _data.files.add(MapEntry(
+        'image1',
+        MultipartFile.fromFileSync(firstCapture.path,
+            filename: firstCapture.path.split(Platform.pathSeparator).last,
+            contentType: MediaType.parse('application/json'))));
+    _data.files.add(MapEntry(
+        'image2',
+        MultipartFile.fromFileSync(motionCapture.path,
+            filename: motionCapture.path.split(Platform.pathSeparator).last,
+            contentType: MediaType.parse('application/json'))));
+    if (customerCode != null) {
+      _data.fields.add(MapEntry('customerCode', customerCode));
+    }
+    if (cardSerial != null) {
+      _data.fields.add(MapEntry('cardSerial', cardSerial));
+    }
+    final _result = await _dio.fetch<Map<String, dynamic>>(
+        _setStreamType<ServiceResult<CardLinkingResponse>>(Options(
+                method: 'POST',
+                headers: <String, dynamic>{
+                  r'Content-Type': 'multipart/form-data',
+                  r'client-id': 'ANDROID',
+                  r'appVersion': '0.0.1'
+                },
+                extra: _extra,
+                contentType: 'multipart/form-data')
+            .compose(_dio.options, 'link-card',
+                queryParameters: queryParameters, data: _data)
+            .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = ServiceResult<CardLinkingResponse>.fromJson(
+      _result.data!,
+      (json) => CardLinkingResponse.fromJson(json as Map<String, dynamic>),
+    );
+    return value;
+  }
+
+  @override
+  Future<ServiceResult<CardActivationResponse>> activateCard(
+      customerId,
+      customerAccountId,
+      firstCapture,
+      motionCapture,
+      customerCode,
+      cardId,
+      cvv2,
+      newPin) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{r'customerId': customerId};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _data = FormData();
+    _data.fields.add(MapEntry('customerAccountId', customerAccountId));
+    _data.files.add(MapEntry(
+        'image1',
+        MultipartFile.fromFileSync(firstCapture.path,
+            filename: firstCapture.path.split(Platform.pathSeparator).last,
+            contentType: MediaType.parse('application/json'))));
+    _data.files.add(MapEntry(
+        'image2',
+        MultipartFile.fromFileSync(motionCapture.path,
+            filename: motionCapture.path.split(Platform.pathSeparator).last,
+            contentType: MediaType.parse('application/json'))));
+    _data.fields.add(MapEntry('customerCode', customerCode));
+    if (cardId != null) {
+      _data.fields.add(MapEntry('cardId', cardId.toString()));
+    }
+    if (cvv2 != null) {
+      _data.fields.add(MapEntry('cvv2', cvv2));
+    }
+    if (newPin != null) {
+      _data.fields.add(MapEntry('newPin', newPin));
+    }
+    final _result = await _dio.fetch<Map<String, dynamic>>(
+        _setStreamType<ServiceResult<CardActivationResponse>>(Options(
+                method: 'POST',
+                headers: <String, dynamic>{
+                  r'Content-Type': 'multipart/form-data',
+                  r'client-id': 'ANDROID',
+                  r'appVersion': '0.0.1'
+                },
+                extra: _extra,
+                contentType: 'multipart/form-data')
+            .compose(_dio.options, 'activate-card',
+                queryParameters: queryParameters, data: _data)
+            .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = ServiceResult<CardActivationResponse>.fromJson(
+      _result.data!,
+      (json) => CardActivationResponse.fromJson(json as Map<String, dynamic>),
+    );
+    return value;
+  }
+
   RequestOptions _setStreamType<T>(RequestOptions requestOptions) {
     if (T != dynamic &&
         !(requestOptions.responseType == ResponseType.bytes ||

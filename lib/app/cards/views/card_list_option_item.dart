@@ -8,7 +8,7 @@ class CardListOptionItem extends StatelessWidget {
   final String title;
   final String? subTitle;
   final bool? isEnabled;
-  final SvgPicture leadingIcon;
+  final Widget leadingIcon;
 
   CardListOptionItem({
     required this.onClick,

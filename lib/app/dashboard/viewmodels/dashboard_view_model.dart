@@ -7,6 +7,8 @@ import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/customer_service_delegate.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/transfer_beneficiary_delegate.dart';
+import 'package:moniepoint_flutter/core/models/file_result.dart';
+import 'package:moniepoint_flutter/core/models/services/file_management_service_delegate.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/utils/candidate_bank_util.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
@@ -14,14 +16,18 @@ import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 class DashboardViewModel extends BaseViewModel {
   late final CustomerServiceDelegate _customerServiceDelegate;
   late final TransferBeneficiaryServiceDelegate _transferBeneficiaryDelegate;
+   late final FileManagementServiceDelegate _fileServiceDelegate;
 
   DashboardViewModel({
     AccountServiceDelegate? accountServiceDelegate,
     CustomerServiceDelegate? customerServiceDelegate,
-    TransferBeneficiaryServiceDelegate? transferBeneficiaryDelegate
+    TransferBeneficiaryServiceDelegate? transferBeneficiaryDelegate,
+    FileManagementServiceDelegate? fileServiceDelegate
   }) : super(accountServiceDelegate: accountServiceDelegate) {
     this._customerServiceDelegate = customerServiceDelegate ?? GetIt.I<CustomerServiceDelegate>();
     this._transferBeneficiaryDelegate = transferBeneficiaryDelegate ?? GetIt.I<TransferBeneficiaryServiceDelegate>();
+    this._fileServiceDelegate = fileServiceDelegate ?? GetIt.I<FileManagementServiceDelegate>();
+
   }
 
   final List<Tier> tiers = [];
@@ -45,6 +51,10 @@ class DashboardViewModel extends BaseViewModel {
 
   Stream<Resource<List<TransferBeneficiary>>> getRecentlyPaidBeneficiary() {
     return _transferBeneficiaryDelegate.getFrequentBeneficiaries();
+  }
+
+  Stream<Resource<FileResult>> getFile(String fileUUID) {
+    return _fileServiceDelegate.getFileByUUID(fileUUID);
   }
 
   bool isIntraTransfer(TransferBeneficiary beneficiary) {

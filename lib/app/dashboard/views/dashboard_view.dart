@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart' hide ScrollView, Colors;
@@ -9,6 +10,8 @@ import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_u
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/custom_icons2_icons.dart';
+import 'package:moniepoint_flutter/core/models/file_result.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
@@ -33,6 +36,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   Stream<Resource<List<TransferBeneficiary>>>? recentlyPaidBeneficiaries;
+  Stream<Resource<FileResult>>? _fileResultStream;
+  late String? passportUUID;
+
   late DashboardViewModel _viewModel;
   final items = <BannerItem>[];
 
@@ -403,6 +409,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildTopIcons(BuildContext context) {
     final firstName = UserInstance().getUser()?.firstName ?? "";
+    final passportUUID = UserInstance().getUser()?.customers?[0];
+    Widget? _itemImage;
+
+    final fallbackImage = Container(
+      height: 34,
+      width: 34,
+      decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.white.withOpacity(0.2),
+          border: Border.all(color: Colors.white.withOpacity(0.4))),
+      child: Icon(
+        CustomIcons2.username,
+        color: Color(0xffF5F9FF).withOpacity(0.5),
+        size: 21,
+      ),
+    );
+
+    final backWidget = (String? base64String) => Container(
+          width: 33,
+          height: 33,
+          padding: EdgeInsets.all(2),
+          decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              image: DecorationImage(
+                  image: MemoryImage(
+                    base64Decode(base64String!),
+                  ),
+                  onError: (_, __) => _itemImage = fallbackImage)),
+        );
 
     return Container(
       margin: EdgeInsets.only(
@@ -434,24 +470,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     color: Colors.white),
               ),
               SizedBox(width: 9),
-              Container(
-                height: 32,
-                width: 32,
-                padding: EdgeInsets.all(2),
-                decoration:
-                    BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                child: Container(
-                  height: 30,
-                  width: 30,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: AssetImage("res/drawables/dashboard_icon.png"),
-                    ),
-                  ),
-                ),
-              )
+              StreamBuilder(
+                stream: (passportUUID != null) ? _fileResultStream : null,
+                builder: (ctx, AsyncSnapshot<Resource<FileResult>> snapShot) {
+                  if (!snapShot.hasData ||
+                      snapShot.data == null ||
+                      snapShot.data is Loading ||
+                      (snapShot.data is Error && _itemImage == null))
+                    return fallbackImage;
+
+                  final base64 = snapShot.data?.data;
+                  final base64String = base64?.base64String;
+
+                  if ((base64 == null ||
+                          base64String == null ||
+                          base64String.isEmpty == true) &&
+                      _itemImage == null) {
+                    return fallbackImage;
+                  }
+
+                  if (_itemImage == null) {
+                    _itemImage = backWidget(base64String);
+                  }
+
+                  return _itemImage!;
+                },
+              ),
+              SizedBox(width: 4)
             ],
           )
         ],
@@ -522,155 +567,158 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildDrawer(BuildContext context) {
-    return Drawer(
-      child: Container(
-        color: Colors.colorPrimaryDark,
-        child: Stack(
-          children: [
-            Align(
-              alignment: Alignment.topCenter,
-              child: Container(
-                height: 1,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  // color: Colors.red,
-                  gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Color(0xff0B3275).withOpacity(0.5),
-                        Color(0xff0B3275)
-                      ],
-                      stops: [
-                        0.8,
-                        1.0
-                      ]),
-                ),
-              ),
-            ),
-            Column(
-              children: [
-                SizedBox(height: 58),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 21),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _icon(
-                          svgPath: "res/drawables/ic_moniepoint_cube_2.svg",
-                          width: 40,
-                          height: 40),
-                      Row(
-                        children: [
-                          // Stack(
-                          //   clipBehavior: Clip.none,
-                          //   children: [
-                          //     _icon(
-                          //         svgPath:
-                          //             "res/drawables/ic_dashboard_notifications.svg"),
-                          //     Positioned(
-                          //       top: -13,
-                          //       right: -10,
-                          //       child: Container(
-                          //         padding: EdgeInsets.all(2),
-                          //         decoration: BoxDecoration(
-                          //             color: Colors.darkRed,
-                          //             borderRadius:
-                          //                 BorderRadius.all(Radius.circular(4))),
-                          //         child: Text(
-                          //           "99",
-                          //           style: TextStyle(
-                          //             color: Colors.white,
-                          //             fontSize: 10,
-                          //             fontWeight: FontWeight.w600,
-                          //           ),
-                          //         ),
-                          //       ),
-                          //     )
-                          //   ],
-                          // ),
-                          // SizedBox(width: 29),
-                          _icon(
-                              svgPath:
-                                  "res/drawables/ic_dashboard_settings.svg",
-                              onClick: () => Navigator.pushNamed(
-                                  context, Routes.SETTINGS)),
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      child: Drawer(
+        child: Container(
+          color: Colors.colorPrimaryDark,
+          child: Stack(
+            children: [
+              Align(
+                alignment: Alignment.topCenter,
+                child: Container(
+                  height: 1,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    // color: Colors.red,
+                    gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Color(0xff0B3275).withOpacity(0.5),
+                          Color(0xff0B3275)
                         ],
-                      )
-                    ],
+                        stops: [
+                          0.8,
+                          1.0
+                        ]),
                   ),
                 ),
-                Expanded(
-                  child: ListView(
-                    children: [
-                      SizedBox(height: 24),
-                      _sectionTitle(context, "TRANSACTIONS"),
-                      drawerListItem(
-                          "Transfer Money",
-                          "res/drawables/ic_dashboard_transfer_2.svg",
-                          Routes.TRANSFER,
-                          width: 21,
-                          height: 17,
-                          spacing: 5),
-                      drawerListItem(
-                          "Airtime & Data",
-                          "res/drawables/ic_dashboard_airtime_2.svg",
-                          Routes.AIRTIME,
-                          height: 26),
-                      drawerListItem(
-                          "Bill Payments",
-                          "res/drawables/ic_dashboard_bills_2.svg",
-                          Routes.BILL),
-                      SizedBox(
-                        height: 21,
-                      ),
-                      _sectionTitle(context, "ACCOUNTS & CARDS"),
-                      drawerListItem(
-                          "Manage Account",
-                          "res/drawables/ic_dashboard_manage_account.svg",
-                          Routes.ACCOUNT_TRANSACTIONS,
-                          height: 26,
-                          spacing: 5),
-                      drawerListItem(
-                          "Manage Cards",
-                          "res/drawables/ic_dashboard_manage_cards.svg",
-                          Routes.CARDS,
-                          height: 18),
-                      SizedBox(
-                        height: 21,
-                      ),
-                      _sectionTitle(context, "SAVINGS & LOANS"),
-                      drawerListItem("Savings",
-                          "res/drawables/ic_dashboard_savings.svg", "",
-                          shouldNavigate: false,
-                          onTapAlt: showComingSoonInfo,
-                          height: 26,
-                          spacing: 5),
-                      drawerListItem("Get Loan",
-                          "res/drawables/ic_dashboard_manage_cards.svg", "",
-                          shouldNavigate: false,
-                          onTapAlt: showComingSoonInfo,
-                          height: 18),
-                    ],
-                  ),
-                )
-              ],
-            ),
-            Positioned(
-              bottom: 64,
-              right: 36,
-              child: Container(
-                padding: EdgeInsets.all(15),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withOpacity(0.1),
-                ),
-                child: _icon(
-                    svgPath: "res/drawables/ic_cancel_dashboard.svg",
-                    onClick: () => Navigator.pop(context)),
               ),
-            ),
-          ],
+              Column(
+                children: [
+                  SizedBox(height: 58),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 21),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _icon(
+                            svgPath: "res/drawables/ic_moniepoint_cube_2.svg",
+                            width: 40,
+                            height: 40),
+                        Row(
+                          children: [
+                            // Stack(
+                            //   clipBehavior: Clip.none,
+                            //   children: [
+                            //     _icon(
+                            //         svgPath:
+                            //             "res/drawables/ic_dashboard_notifications.svg"),
+                            //     Positioned(
+                            //       top: -13,
+                            //       right: -10,
+                            //       child: Container(
+                            //         padding: EdgeInsets.all(2),
+                            //         decoration: BoxDecoration(
+                            //             color: Colors.darkRed,
+                            //             borderRadius:
+                            //                 BorderRadius.all(Radius.circular(4))),
+                            //         child: Text(
+                            //           "99",
+                            //           style: TextStyle(
+                            //             color: Colors.white,
+                            //             fontSize: 10,
+                            //             fontWeight: FontWeight.w600,
+                            //           ),
+                            //         ),
+                            //       ),
+                            //     )
+                            //   ],
+                            // ),
+                            // SizedBox(width: 29),
+                            _icon(
+                                svgPath:
+                                    "res/drawables/ic_dashboard_settings.svg",
+                                onClick: () => Navigator.pushNamed(
+                                    context, Routes.SETTINGS)),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView(
+                      children: [
+                        SizedBox(height: 24),
+                        _sectionTitle(context, "TRANSACTIONS"),
+                        drawerListItem(
+                            "Transfer Money",
+                            "res/drawables/ic_dashboard_transfer_2.svg",
+                            Routes.TRANSFER,
+                            width: 21,
+                            height: 17,
+                            spacing: 5),
+                        drawerListItem(
+                            "Airtime & Data",
+                            "res/drawables/ic_dashboard_airtime_2.svg",
+                            Routes.AIRTIME,
+                            height: 26),
+                        drawerListItem(
+                            "Bill Payments",
+                            "res/drawables/ic_dashboard_bills_2.svg",
+                            Routes.BILL),
+                        SizedBox(
+                          height: 21,
+                        ),
+                        _sectionTitle(context, "ACCOUNTS & CARDS"),
+                        drawerListItem(
+                            "Manage Account",
+                            "res/drawables/ic_dashboard_manage_account.svg",
+                            Routes.ACCOUNT_TRANSACTIONS,
+                            height: 26,
+                            spacing: 5),
+                        drawerListItem(
+                            "Manage Cards",
+                            "res/drawables/ic_dashboard_manage_cards.svg",
+                            Routes.CARDS,
+                            height: 18),
+                        SizedBox(
+                          height: 21,
+                        ),
+                        _sectionTitle(context, "SAVINGS & LOANS"),
+                        drawerListItem("Savings",
+                            "res/drawables/ic_dashboard_savings.svg", "",
+                            shouldNavigate: false,
+                            onTapAlt: showComingSoonInfo,
+                            height: 26,
+                            spacing: 5),
+                        drawerListItem("Get Loan",
+                            "res/drawables/ic_dashboard_manage_cards.svg", "",
+                            shouldNavigate: false,
+                            onTapAlt: showComingSoonInfo,
+                            height: 18),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+              Positioned(
+                bottom: 64,
+                right: 36,
+                child: Container(
+                  padding: EdgeInsets.all(15),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.1),
+                  ),
+                  child: _icon(
+                      svgPath: "res/drawables/ic_cancel_dashboard.svg",
+                      onClick: () => Navigator.pop(context)),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -697,21 +745,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildDashboardSlider() {
+  Future<Widget> _buildDashboardSlider() async {
     //Since we have only a single update page for now we can put it in here
-    items.clear();
-    if (!_hasCompletedAccountUpdate()) {
-      return Container();
-    } 
 
-    items.add(
+    if (_hasCompletedAccountUpdate()) {
+      return Container();
+    }
+
+    items.addAll([
       BannerItem(
-            svgPath: 'res/drawables/ic_dashboard_edit.svg',
-            primaryText: 'Upgrade Account',
-            secondaryText:
-                'Upgrade your savings account\nto enjoy higher limits'),
-      );
-    
+          svgPath: 'res/drawables/ic_dashboard_edit.svg',
+          primaryText: 'Upgrade Account',
+          secondaryText:
+              'Upgrade your savings account\nto enjoy higher limits'),
+      // BannerItem(
+      //     svgPath: 'res/drawables/ic_dashboard_edit.svg',
+      //     primaryText: 'Upgrade Account',
+      //     secondaryText: 'Upgrade your savings account\nto enjoy higher limits')
+    ]);
+
+    await Future.delayed(Duration(milliseconds: 100));
 
     return SizedBox(
       height: 140,
@@ -724,15 +777,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
             return Stack(
               children: [
                 _dashboardUpdateItem(
-                  svgPath: item.svgPath,
-                  primaryText: item.primaryText,
-                  secondaryText: item.secondaryText,
-                ),
+                    svgPath: item.svgPath,
+                    primaryText: item.primaryText,
+                    secondaryText: item.secondaryText,
+                    itemCount: items.length),
                 // if (items.length > 1) SizedBox(height: 19),
                 // if (items.length > 1)
                 //   DotIndicator(
+                //     itemCount: items.length,
                 //     controller: _mPageController,
-                //     itemCount: 2,
                 //   ),
               ],
             );
@@ -789,7 +842,62 @@ class _DashboardScreenState extends State<DashboardScreen> {
     required String svgPath,
     required String primaryText,
     required String secondaryText,
+    required int itemCount,
   }) {
+    var column = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SizedBox(height: 10),
+        Text(primaryText,
+            style: Styles.textStyle(context,
+                fontWeight: FontWeight.bold,
+                color: Colors.primaryColor,
+                fontSize: 14.5)),
+        SizedBox(height: 4),
+        Row(
+          mainAxisAlignment: itemCount > 1
+              ? MainAxisAlignment.spaceBetween
+              : MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(secondaryText,
+                style: Styles.textStyle(context,
+                    color: Colors.textColorBlack,
+                    fontSize: 12.6,
+                    fontWeight: FontWeight.w300,
+                    lineHeight: 1.5)),
+            if (itemCount > 1)
+              Container(
+                margin: const EdgeInsets.only(right: 20, top: 4),
+                child: SvgPicture.asset('res/drawables/ic_forward_arrow.svg',
+                    height: 18, width: 18, color: Colors.primaryColor),
+              )
+          ],
+        )
+      ],
+    );
+    final uncentered = Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        SizedBox(
+          height: 125, width: 125,
+          child: Image.asset("res/drawables/ic_dashboard_edit.png", 
+          fit: BoxFit.cover, height: 130, width: 130, 
+          alignment: Alignment.center, scale: 2.0,),
+          ),
+        // SizedBox(width: 10),
+        if (itemCount > 1)
+          Expanded(
+            child: column,
+          ),
+
+        if (itemCount <= 1) column
+      ],
+    );
+
     return Material(
       color: Colors.transparent,
       child: Container(
@@ -813,58 +921,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 Column(
                   children: [
-                    SizedBox(height: 7),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Container(
-                          height: 120,
-                          width: 120,
-                          child: Image.asset(
-                              "res/drawables/ic_dashboard_edit.png"),
-                        ),
-                        // SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              SizedBox(height: 10),
-                              Text(primaryText,
-                                  style: Styles.textStyle(context,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.primaryColor,
-                                      fontSize: 14.5)),
-                              SizedBox(height: 4),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(secondaryText,
-                                      style: Styles.textStyle(context,
-                                          color: Colors.textColorBlack,
-                                          fontSize: 12.6,
-                                          fontWeight: FontWeight.w300,
-                                          lineHeight: 1.5)),
-                                  Container(
-                                    margin: const EdgeInsets.only(
-                                        right: 20, top: 4),
-                                    child: SvgPicture.asset(
-                                        'res/drawables/ic_forward_arrow.svg',
-                                        height: 18,
-                                        width: 18,
-                                        color: Colors.primaryColor),
-                                  )
-                                ],
-                              )
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                    SizedBox(height: itemCount > 1 ? 7 : 12),
+                    uncentered,
                   ],
                 ),
               ],
@@ -879,6 +937,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     _viewModel = Provider.of<DashboardViewModel>(context, listen: false);
     recentlyPaidBeneficiaries = _viewModel.getRecentlyPaidBeneficiary();
+    passportUUID = UserInstance().getUser()?.customers?[0].passportUUID;
+    _fileResultStream =
+        _viewModel.getFile("7fc0dc1b-8ea3-448f-8f23-183b231b71bf");
     super.initState();
   }
 
@@ -957,9 +1018,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             routeName: Routes.BILL),
                       ],
                     ),
-                    if (_hasCompletedAccountUpdate())
-                       SizedBox(height: 32),
-                    _buildDashboardSlider(),
+                    if (!_hasCompletedAccountUpdate()) SizedBox(height: 32),
+                    FutureBuilder(
+                        future: _buildDashboardSlider(),
+                        builder: (ctx, AsyncSnapshot<Widget> snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.done) {
+                            return snapshot.data!;
+                          }
+
+                          return Container();
+                        }),
                     SizedBox(height: 32),
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 17),
@@ -1004,12 +1073,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           final beneficiaries = resource.data;
 
                           if ((beneficiaries == null) ||
-                              beneficiaries.length < 2) {
+                              beneficiaries.length < 3) {
                             return Container();
                           }
 
+
+          final sortedItems = BeneficiaryUtils.sortByFrequentlyUsed(beneficiaries).toList();
+
                           return _buildRecentlyPaidList(
-                              recentlyPaidColors, beneficiaries);
+                              recentlyPaidColors, sortedItems);
                         },
                       ),
                     ),

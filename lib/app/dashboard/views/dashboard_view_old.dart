@@ -11,7 +11,6 @@ import 'package:moniepoint_flutter/app/dashboard/views/dashboard_drawer_view.dar
 import 'package:moniepoint_flutter/app/dashboard/views/bottom_menu_view.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_container_view.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_view.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/login_mode.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';

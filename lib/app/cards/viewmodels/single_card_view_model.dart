@@ -13,6 +13,7 @@ class SingleCardViewModel extends BaseViewModel {
   SingleCardViewModel({CardServiceDelegate? delegate}) {
     this._delegate = delegate ?? GetIt.I<CardServiceDelegate>();
   }
+
   Stream<Resource<List<Card>>> getCards() {
     return Stream.value(Resource.success([
       Card(id: 0,maskedPan: "514360******4198", expiryDate: "23/03", blocked: false, nameOnCard: "AAAAA Okeke", status: CardStatus.ACTIVE),

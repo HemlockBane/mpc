@@ -24,7 +24,6 @@ class CardViewUtil {
     return "${expiryDate.substring(expiryDate.length - 2)}/${expiryDate.substring(0, 2)}";
   }
 
-
   static Color getCardBackground(Card card) {
     if(card.blocked) return Color(0XFFE14E4F).withOpacity(0.88);
     if(card.status == CardStatus.IN_ACTIVE) return Colors.deepGrey;
@@ -40,9 +39,7 @@ class CardViewUtil {
     if (CardUtil.isVerveCard(card.maskedPan))
       return SvgPicture.asset('res/drawables/ic_verve_card.svg');
     if (CardUtil.isVisaCard(card.maskedPan))
-      return SvgPicture.asset(
-        'res/drawables/ic_visa_card.svg',
-      );
+      return SvgPicture.asset('res/drawables/ic_visa_card.svg',);
     else
       return Container();
   }
@@ -95,7 +92,7 @@ class CardViewUtil {
     return Stack(
       children: [
         Container(
-          margin: EdgeInsets.only(right: 20),
+          margin: EdgeInsets.only(right: 25.5),
           padding: EdgeInsets.only(left: 8, right: 16, top: 5, bottom: 5),
           decoration: BoxDecoration(
               color: Color(0XFF122138).withOpacity(0.4),
@@ -112,7 +109,7 @@ class CardViewUtil {
             right: 0,
             top: 0,
             bottom: 0,
-            child: SvgPicture.asset('res/drawables/ic_moniepoint_cube.svg')
+            child: SvgPicture.asset('res/drawables/ic_moniepoint_cube_2.svg')
         ),
       ],
     );

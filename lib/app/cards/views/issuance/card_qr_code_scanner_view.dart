@@ -1,49 +1,39 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart' hide Colors, ScrollView;
-import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:lottie/lottie.dart';
 import 'package:moniepoint_flutter/app/cards/model/data/card_linking_response.dart';
+import 'package:moniepoint_flutter/app/cards/viewmodels/card_issuance_view_model.dart';
 import 'package:moniepoint_flutter/app/cards/views/dialogs/card_activation_code_dialog.dart';
+import 'package:moniepoint_flutter/app/cards/views/dialogs/card_scan_info_dialog.dart';
+import 'package:moniepoint_flutter/app/cards/views/dialogs/card_serial_dialog.dart';
 import 'package:moniepoint_flutter/app/liveliness/model/data/liveliness_verification_for.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
-import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
-import 'package:moniepoint_flutter/core/styles.dart';
-import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class CardQRCodeScannerView extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _CardQRCodeScannerViewState();
 }
-enum CardLinkMode {
-  QR_CODE, CARD_SERIAL
-}
-class _CardQRCodeScannerViewState extends State<CardQRCodeScannerView> {
-  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
-  Barcode? _result;
-  String? _cardSerial;
-  QRViewController? _qrViewController;
 
-  CardLinkMode _cardLinkMode = CardLinkMode.QR_CODE;
-  bool _isCardSerialValid = false;
-  TextEditingController? _cardSerialController;
+class _CardQRCodeScannerViewState extends State<CardQRCodeScannerView> {
+
+  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+  late CardIssuanceViewModel _viewModel;
+
+  QRViewController? _qrViewController;
   StreamSubscription? _qrCodeStreamSubscription;
 
-
   initState() {
-    _cardSerialController = TextEditingController();
+    _viewModel = Provider.of<CardIssuanceViewModel>(context, listen: false);
     super.initState();
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (mContext) => _displayScanBarcodeDialog()
-      );
+      _displayScanBarcodeDialog();
     });
   }
 
@@ -56,202 +46,39 @@ class _CardQRCodeScannerViewState extends State<CardQRCodeScannerView> {
     return false;
   }
 
-  Dialog _displayScanBarcodeDialog() {
-    return Dialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-        child: BottomSheets.makeAppBottomSheet2(
-          curveBackgroundColor: Colors.white,
-          centerBackgroundPadding: 14,
-          centerImageBackgroundColor: Colors.primaryColor.withOpacity(0.1),
-          contentBackgroundColor: Colors.white,
-          dialogIcon: Container(
-            padding: EdgeInsets.all(4),
-            decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.primaryColor
-            ),
-            child: SvgPicture.asset('res/drawables/ic_qr_code.svg'),
-          ),
-          content: ScrollView(
-            maxHeight: 400,
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 27, vertical: 0),
-              child: Column(
-                children: [
-                  SizedBox(height: 24),
-                  Center(
-                    child: Text('Scan QR Code',
-                        style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.textColorBlack)),
-                  ),
-                  SizedBox(height: 30,),
-                  Text(
-                    'Scan the QR code on the card package.\nAlternatively, you can enter the card serial\nnumber on the card package',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: Colors.textColorBlack,
-                        fontSize: 16
-                    ),
-                  ),
-                  SizedBox(height: 26),
-                  Container(
-                    width: double.infinity,
-                    height: 200,
-                    padding: EdgeInsets.all(35),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      color: Colors.primaryColor.withOpacity(0.1)
-                    ),
-                    child: Stack(
-                      children: [
-                        Positioned(
-                            left:0,
-                            right: 0,
-                            top: 0,
-                            bottom: 0,
-                            child: SvgPicture.asset('res/drawables/ic_card_serial.svg')
-                        )
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 36),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Styles.appButton(
-                        elevation: 0,
-                        onClick: () {
-                          Navigator.of(context).pop();
-                          _startScanning();
-                        },
-                        text: 'Start Scan'
-                    ),
-                  ),
-                  SizedBox(height: 24),
-                  TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        showDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (mContext) => _displayCardSerialDialog()
-                        );
-                      },
-                      child: Text(
-                          'Enter Serial Number Instead',
-                          style: TextStyle(color: Colors.primaryColor, fontSize: 16, fontWeight: FontWeight.normal),
-                      )
-                  ),
-                  SizedBox(height: 36,),
-                ],
-              ),
-            ),
-          ),
-        ));
+  void  _displayScanBarcodeDialog() {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (mContext) => CardScanInfoDialog(
+            context: context,
+            onEnterSerial: () {
+              Navigator.of(context).pop();
+              _displayCardSerialDialog();
+            },
+            onScanQR: () {
+              Navigator.of(context).pop();
+              _startScanning();
+              _viewModel.updateIssuanceState(CardIssuanceQRCodeState.PROCESSING);
+            }
+        )
+    );
   }
 
-  Dialog _displayCardSerialDialog() {
-    return Dialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-        child: BottomSheets.makeAppBottomSheet2(
-          curveBackgroundColor: Colors.white,
-          centerBackgroundPadding: 14,
-          centerImageBackgroundColor: Colors.primaryColor.withOpacity(0.1),
-          contentBackgroundColor: Colors.white,
-          dialogIcon: Container(
-            padding: EdgeInsets.all(4),
-            decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.primaryColor
-            ),
-            child: SvgPicture.asset('res/drawables/ic_qr_code.svg'),
-          ),
-          content: ScrollView(
-            maxHeight: 400,
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 27, vertical: 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  SizedBox(height: 24),
-                  Center(
-                    child: Text('Scan QR Code',
-                        style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.textColorBlack)),
-                  ),
-                  SizedBox(height: 30),
-                  Text(
-                    'Scan the QR code on the card package.\nAlternatively, you can enter the card serial\nnumber on the card package',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: Colors.textColorBlack,
-                        fontSize: 16
-                    ),
-                  ),
-                  SizedBox(height: 26),
-                  Container(
-                    width: double.infinity,
-                    height: 200,
-                    padding: EdgeInsets.all(35),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        color: Colors.primaryColor.withOpacity(0.1)
-                    ),
-                    child: Stack(
-                      children: [
-                        Positioned(
-                            left:0,
-                            right: 0,
-                            top: 0,
-                            bottom: 0,
-                            child: SvgPicture.asset('res/drawables/ic_card_serial.svg')
-                        )
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 24),
-                  Text("Enter Serial Number", textAlign: TextAlign.start,),
-                  SizedBox(height: 8),
-                  Styles.appEditText(
-                      controller: _cardSerialController,
-                      hint: 'XXXX-XXXX-XXXX-XXXX',
-                      inputType: TextInputType.number,
-                      inputFormats: [FilteringTextInputFormatter.digitsOnly],
-                      onChanged: (value) {
-                        _cardSerial = value;
-                        _isCardSerialValid = _cardSerial!.length >= 10;
-                        if(_isCardSerialValid) FocusManager.instance.primaryFocus?.unfocus();
-                      },
-                      startIcon: Icon(CustomFont.numberInput, color: Colors.textFieldIcon.withOpacity(0.2), size: 22),
-                      animateHint: true,
-                      maxLength: 10
-                  ),
-                  SizedBox(height: 24,),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Styles.statefulButton2(
-                        isValid: true,
-                        elevation: 0,
-                        onClick: () async {
-                          Navigator.of(context).pop();
-                          await _qrViewController?.pauseCamera();
-                          _startLiveliness();
-                        },
-                        text: 'Continue'
-                    ),
-                  ),
-                  SizedBox(height: 36),
-                ],
-              ),
-            ),
-          ),
-        ));
+  void _displayCardSerialDialog() {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (mContext) => CardSerialDialog(
+            context: context,
+            viewModel: _viewModel,
+            onClick: () async {
+              Navigator.of(context).pop();
+              await _qrViewController?.pauseCamera();
+              _startLiveliness();
+            }
+        )
+    );
   }
 
   void _onQRViewCreated(QRViewController controller) {
@@ -277,11 +104,14 @@ class _CardQRCodeScannerViewState extends State<CardQRCodeScannerView> {
     //and the liveliness detector minimal
     Future.delayed(Duration(milliseconds: 1000), () {
       _qrCodeStreamSubscription = _qrViewController?.scannedDataStream.listen((scanData) async {
+        _viewModel.updateIssuanceState(CardIssuanceQRCodeState.SUCCESS);
         _qrCodeStreamSubscription?.cancel();
         await _qrViewController?.pauseCamera();
-        _result = scanData;
-        _startLiveliness();
-        // Navigator.of(context).pop(scanData.code);
+        _viewModel.setCardSerial(scanData.code);
+
+        Future.delayed(Duration(milliseconds: 500), () {
+          _startLiveliness();
+        });
       });
     });
   }
@@ -289,12 +119,46 @@ class _CardQRCodeScannerViewState extends State<CardQRCodeScannerView> {
   void _startLiveliness() async {
     final validationResponse = await Navigator.of(context).pushNamed(Routes.LIVELINESS_DETECTION, arguments: {
       "verificationFor": LivelinessVerificationFor.CARD_LINKING,
-      "cardSerial": _result?.code ?? _cardSerial
+      "cardSerial": _viewModel.cardSerial
     });
 
     if(validationResponse != null && validationResponse is CardLinkingResponse){
       _showCardActivationCode(validationResponse.issuanceCode ?? "");
     }
+  }
+
+  Widget _cardIssuanceStateView(BuildContext mContext,
+      AsyncSnapshot<CardIssuanceQRCodeState> snapShot){
+    if(!snapShot.hasData) return SizedBox(height: 48 * 2);
+    if(snapShot.data == CardIssuanceQRCodeState.PROCESSING) {
+      return Column(
+        children: [
+          Lottie.asset('res/drawables/progress_bar_lottie.json', width: 48, height: 48),
+          SizedBox(height: 12),
+          Text('Processing, Please wait')
+        ],
+      );
+    }
+    if(snapShot.data == CardIssuanceQRCodeState.SUCCESS) {
+      return Column(
+        children: [
+          SvgPicture.asset(
+              'res/drawables/ic_circular_check_mark.svg',
+              width: 48,
+              height: 48
+          ),
+          SizedBox(height: 12),
+          Text(
+            'Success',
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16
+            ),
+          )
+        ],
+      );
+    }
+    return Column(children: [Text('Waiting to scan QR')]);
   }
 
   @override
@@ -337,6 +201,25 @@ class _CardQRCodeScannerViewState extends State<CardQRCodeScannerView> {
                     ),
                   ),
                 ),
+              ),
+              Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    padding: EdgeInsets.only(left: 24, right: 24, top: 32, bottom: 32),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(20)
+                        ),
+                        color: Colors.white
+                    ),
+                    child: StreamBuilder(
+                      stream: _viewModel.qrIssuanceState,
+                      builder: _cardIssuanceStateView,
+                    ),
+                  )
               ),
             ],
           ),

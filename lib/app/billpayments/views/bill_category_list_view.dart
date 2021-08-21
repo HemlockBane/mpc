@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/billpayments/views/bill_view.dart';
-import 'package:moniepoint_flutter/app/cards/views/empty_list_layout_view.dart';
+import 'package:moniepoint_flutter/core/views/empty_list_layout_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/biller_category.dart';
 import 'package:moniepoint_flutter/app/billpayments/viewmodels/bill_category_view_model.dart';

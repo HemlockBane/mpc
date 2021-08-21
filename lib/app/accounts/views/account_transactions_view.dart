@@ -12,9 +12,8 @@ import 'package:moniepoint_flutter/app/accounts/viewmodels/transaction_list_view
 import 'package:moniepoint_flutter/app/accounts/views/accounts_shimmer_view.dart';
 import 'package:moniepoint_flutter/app/accounts/views/dialogs/account_settings_dialog.dart';
 import 'package:moniepoint_flutter/app/accounts/views/transaction_history_list_item.dart';
-import 'package:moniepoint_flutter/app/cards/views/empty_list_layout_view.dart';
-import 'package:moniepoint_flutter/app/cards/views/error_layout_view.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/views/empty_list_layout_view.dart';
+import 'package:moniepoint_flutter/core/views/error_layout_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/transaction.dart';
 import 'package:moniepoint_flutter/core/paging/page_config.dart';

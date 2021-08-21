@@ -16,6 +16,7 @@ import 'package:moniepoint_flutter/app/branches/branches_view.dart';
 import 'package:moniepoint_flutter/app/branches/viewmodels/branch_view_model.dart';
 import 'package:moniepoint_flutter/app/cards/model/data/card.dart';
 import 'package:moniepoint_flutter/app/cards/viewmodels/card_activation_view_model.dart';
+import 'package:moniepoint_flutter/app/cards/viewmodels/card_issuance_view_model.dart';
 import 'package:moniepoint_flutter/app/cards/viewmodels/single_card_view_model.dart';
 import 'package:moniepoint_flutter/app/cards/views/add_card_view.dart';
 import 'package:moniepoint_flutter/app/cards/views/card_detailed_view.dart';
@@ -119,8 +120,7 @@ class Routes {
           ),
 
       Routes.SETTINGS: (BuildContext context) => SettingsScreen(),
-      Routes.MANAGED_BENEFICIARIES: (BuildContext context) =>
-          ManagedBeneficiaryScreen(),
+      Routes.MANAGED_BENEFICIARIES: (BuildContext context) => ManagedBeneficiaryScreen(),
       Routes.SUPPORT: (BuildContext context) => ChangeNotifierProvider.value(
         value: systemConfigurationViewModel,
         child: SupportScreen(),
@@ -142,7 +142,7 @@ class Routes {
         child: AddCardScreen(),
       ),
       Routes.CARD_QR_SCANNER: (BuildContext context) => ChangeNotifierProvider(
-        create: (_) => SingleCardViewModel(),
+        create: (_) => CardIssuanceViewModel(),
         child: CardQRCodeScannerView(),
       ),
       Routes.SELECT_AIRTIME_BENEFICIARY: (BuildContext context) => AirtimeSelectBeneficiaryScreen(),

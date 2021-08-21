@@ -66,8 +66,7 @@ class _CardDetailedViewState extends State<CardDetailedView> {
   }
 
   void _displayForBlockOrUnblock(SingleCardViewModel viewModel) async {
-    //User wants to unblock
-    if(!_card!.blocked) {
+    if(_card?.blocked != true /*User wants to block*/) {
       dynamic value = await showInfo(
           context,
           title: "Warning!!!",

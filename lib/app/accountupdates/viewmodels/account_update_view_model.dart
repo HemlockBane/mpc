@@ -109,7 +109,7 @@ class AccountUpdateViewModel extends BaseViewModel {
       mailingAddressInfo: (_addressForm.isInitialized)
           ? addressForm.getMailingAddressInfo?.addressCity != null ? addressForm.getMailingAddressInfo : null
           : null,
-      identificationInfo: (_identificationForm.isInitialized)
+      identificationInfo: (_identificationForm.isInitialized && additionalInfoForm.isFormValid)
           ? identificationForm.identificationInfo
           : null,
       nextOfKinInfo: (_nextOfKinForm.isInitialized)
@@ -188,8 +188,13 @@ class AccountUpdateViewModel extends BaseViewModel {
 
   @override
   void dispose() {
+    print("AccountUpdateViewModel ===>> Disposed");
     _loadingStateController.close();
     _pageFormController.close();
+    if(_addressForm.isInitialized) addressForm.dispose();
+    if(_identificationForm.isInitialized) identificationForm.dispose();
+    if(_additionalInfoForm.isInitialized) additionalInfoForm.dispose();
+    if(_nextOfKinForm.isInitialized) nextOfKinForm.dispose();
     super.dispose();
   }
 }

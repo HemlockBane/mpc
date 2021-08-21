@@ -5,7 +5,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_status.dart';
 import 'package:moniepoint_flutter/app/customer/customer.dart';
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
-import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_utils.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
@@ -13,7 +12,6 @@ import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
-import 'package:moniepoint_flutter/core/views/dots_indicator.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:provider/provider.dart';
 import 'package:moniepoint_flutter/core/strings.dart';
@@ -749,42 +747,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return flags.where((element) => element?.status != true).isEmpty;
   }
 
-  Widget _greetingItem() {
-    final viewModel = Provider.of<DashboardViewModel>(context, listen: false);
-    // final width = MediaQuery.of(context).size.width * 0.13;
-
-    return Material(
-      color: Colors.transparent,
-      child: Card(
-        shadowColor: Colors.primaryColor.withOpacity(0.1),
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: InkWell(
-          customBorder:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          onTap: () => null,
-          child: Container(
-              padding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Hello ${viewModel.accountName},',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.textColorBlack,
-                          fontSize: 17)),
-                  SizedBox(height: 2),
-                  Text('Remember to stay safe!',
-                      style:
-                          TextStyle(color: Colors.textColorBlack, fontSize: 12))
-                ],
-              )),
-        ),
-      ),
-    );
-  }
-
   Widget _dashboardUpdateItem({
     required String svgPath,
     required String primaryText,
@@ -914,7 +876,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: SvgPicture.asset(
                   "res/drawables/bg.svg",
                   fit: BoxFit.fill,
-                ),
+                  ),
               ),
               _buildTopIcons(context),
               Container(
@@ -925,8 +887,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     SizedBox(
                       height: height * 0.16,
                     ),
-                    AccountCard(
-                        viewModel: _viewModel, pageController: _pageController),
+                    AccountCard(viewModel: _viewModel, pageController: _pageController),
                     SizedBox(height: 32),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,

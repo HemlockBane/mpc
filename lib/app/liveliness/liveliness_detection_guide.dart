@@ -396,7 +396,7 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    final sheetSize = 1 - 0.67;
+    final sheetSize = 1 - (screenSize.width * 4 / 3.04) / screenSize.height;
     final exposureWidth = screenSize.width * 0.85;
 
     return Container(

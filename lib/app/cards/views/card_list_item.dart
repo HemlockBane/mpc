@@ -1,8 +1,6 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart' hide Card, Colors;
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/app/cards/model/data/card.dart';
 import 'package:moniepoint_flutter/app/cards/views/utils/card_view_util.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
@@ -84,6 +82,7 @@ class CardListItem extends Container {
           },
           text: "Activate Card",
           buttonStyle: Styles.whiteButtonStyle.copyWith(
+              padding: MaterialStateProperty.all(EdgeInsets.only(left:0, right:20, top: 0, bottom: 0)),
               foregroundColor: MaterialStateProperty.all(Colors.white),
               backgroundColor: MaterialStateProperty.all(Colors.white.withOpacity(0.45)),
               overlayColor: MaterialStateProperty.all(Colors.grey.withOpacity(0.2))

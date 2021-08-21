@@ -97,7 +97,7 @@ class ProfileForm with ChangeNotifier, Validators {
   bool _isUsernameValid({bool displayError = false}) {
     final isValid = _requestBody.username != null && _requestBody.username!.isNotEmpty;
     if (displayError && !isValid) _usernameController.addError("Enter username");
-    return isValid && true; //isUsernameVerified;
+    return isValid && true;
   }
 
   void onPasswordChanged(String? text) {

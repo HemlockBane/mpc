@@ -65,15 +65,15 @@ class CustomerAddressForm with ChangeNotifier {
     }
 
     this._isValid = Rx.combineLatest(formStreams, (values) {
-      var isValid = _isAddressValid(displayError: false) &&
+       _isFormValid = _isAddressValid(displayError: false) &&
           _isCityValid(displayError: false) &&
           _isLocalGovtValid(displayError: false);
 
       if (requiresMailingAddress) {
-        isValid = isValid && values.last as bool;
+        _isFormValid = _isFormValid && values.last as bool;
       }
-      
-      return isValid;
+
+      return isFormValid;
     }).asBroadcastStream();
   }
 

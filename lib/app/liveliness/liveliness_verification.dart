@@ -180,7 +180,7 @@ class _LivelinessVerification extends State<LivelinessVerification> {
   void _initLivelinessDetector() {
     final screenSize = MediaQuery.of(context).size;
 
-    var frameRect = Rect.fromLTRB(45, 60, screenSize.width - 45, screenSize.height * 0.65);
+    var frameRect = Rect.fromLTRB(45, 60, screenSize.width - 45, screenSize.width * 4/3.15);
     var previewSize = Size(screenSize.width, screenSize.height * (1/3));
 
     _initializedLiveliness = _livelinessDetector?.initialize(

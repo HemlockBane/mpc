@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart' hide Colors;
-import 'package:moniepoint_flutter/app/cards/views/empty_list_layout_view.dart';
-import 'package:moniepoint_flutter/app/cards/views/error_layout_view.dart';
+import 'package:moniepoint_flutter/core/views/empty_list_layout_view.dart';
+import 'package:moniepoint_flutter/core/views/error_layout_view.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/bills/model/data/bill_beneficiary.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/bills/viewmodels/bill_beneficiary_view_model.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_list_item.dart';

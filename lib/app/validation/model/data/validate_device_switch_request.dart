@@ -12,8 +12,12 @@ class ValidateDeviceSwitchRequestBody {
   String? customerType;
   @JsonKey(name:"validationKey")
   String? validationKey;
-  @JsonKey(name:"authenticationRequest")
-  AuthenticationRequest? authenticationRequest;
+  @JsonKey(name:"otp")
+  String? otp;
+  @JsonKey(name:"userCode")
+  String? userCode;
+  // @JsonKey(name:"authenticationRequest")
+  // AuthenticationRequest? authenticationRequest;
 
   ValidateDeviceSwitchRequestBody();
 
@@ -31,9 +35,20 @@ class ValidateDeviceSwitchRequestBody {
     return this;
   }
 
-  ValidateDeviceSwitchRequestBody withRequest(AuthenticationRequest request) {
-    this.authenticationRequest = request;
+  ValidateDeviceSwitchRequestBody withUserCode(String userCode) {
+    this.userCode = userCode;
     return this;
   }
+
+
+  ValidateDeviceSwitchRequestBody withOtp(String otp) {
+    this.otp = otp;
+    return this;
+  }
+
+  // ValidateDeviceSwitchRequestBody withRequest(AuthenticationRequest request) {
+  //   this.authenticationRequest = request;
+  //   return this;
+  // }
 
 }

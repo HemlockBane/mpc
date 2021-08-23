@@ -121,9 +121,6 @@ class _AirtimeBeneficiaryScreen extends State<AirtimeBeneficiaryScreen> with Aut
               ),
               itemBuilder: (context, index) {
                 return BeneficiaryListItem(items![index], index, (beneficiary, int i) {
-                  // final provider = AccountProvider()
-                  //   ..bankCode = beneficiary.getBeneficiaryProviderCode()
-                  //   ..name = beneficiary.getBeneficiaryProviderName();
                   viewModel.setBeneficiary(beneficiary);
                   Navigator.of(context).pushNamed(AirtimeScreen.PAYMENT_SCREEN);
                 });

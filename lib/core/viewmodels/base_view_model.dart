@@ -29,7 +29,12 @@ abstract class BaseViewModel with ChangeNotifier {
   Stream<Resource<AccountBalance>> getCustomerAccountBalance({int? accountId, bool useLocal = true}) {
     return accountServiceDelegate!.getCustomerAccountBalance(accountId ?? customerAccountId).map((event) {
       if ((event is Loading && event.data != null && useLocal) && !_balanceController.isClosed) _balanceController.sink.add(event.data);
-      if (event is Success && !_balanceController.isClosed) _balanceController.sink.add(event.data);
+
+      if (event is Success && !_balanceController.isClosed){
+        _balanceController.sink.add(event.data);
+      } else if(event is Success && _balanceController.isClosed) {
+        print("I think we have a closed event here");
+      }
       return event;
     });
   }

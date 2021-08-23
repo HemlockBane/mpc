@@ -15,6 +15,7 @@ class OtpUssdInfoView extends StatelessWidget{
 
   final String ussdKey;
   final String? defaultCode;
+  final String? message;
 
   static Tuple<String, String> getUSSDDialingCodeAndPreview(String ussdKey, {String defaultCode = ""}) {
     String? value = PreferenceUtil.getValue(PreferenceUtil.USSD_CONFIG);
@@ -42,7 +43,7 @@ class OtpUssdInfoView extends StatelessWidget{
     return defaultCode;
   }
 
-  OtpUssdInfoView(this.ussdKey, {this.defaultCode});
+  OtpUssdInfoView(this.ussdKey, {this.defaultCode, this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -52,20 +53,24 @@ class OtpUssdInfoView extends StatelessWidget{
       padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
           shape: BoxShape.rectangle,
-          color: Colors.primaryColor.withOpacity(0.1),
+          color: Colors.primaryColor.withOpacity(0.09),
           borderRadius: BorderRadius.circular(8)),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SvgPicture.asset('res/drawables/ic_info.svg'),
           SizedBox(width: 14),
-          Expanded(child: Text('Didn’t get a code? Dial ${codes.second} to get an OTP',
+          //TODO remove text "didn't get code..." - we left it here for compatibility
+          Expanded(child: Text(message?.replaceAll("{}", "${codes.second}") ?? 'Didn’t get a code? Dial ${codes.second} to get an OTP',
               style: TextStyle(
                   fontFamily: Styles.defaultFont,
-                  color: Colors.colorPrimaryDark,
+                  color: Colors.textColorBlack,
                   fontWeight: FontWeight.normal,
-                  fontSize: 14))
+                  fontSize: 15,
+                  height: 1.6
+              ))
               .colorText({
-            codes.second: Tuple(Colors.primaryColor, () => dialNumber("tel:${codes.first}"))
+            codes.second: Tuple(Colors.primaryColor, () => openUrl("tel:${codes.first}"))
           }))
         ],
       ),

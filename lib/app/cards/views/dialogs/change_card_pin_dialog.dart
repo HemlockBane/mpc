@@ -28,19 +28,6 @@ class _ChangeCardPinDialog extends State<ChangeCardPinDialog> {
           ..newPin = _newPin
           ..cvv = _cvv
     );
-    // viewModel.changePin().listen((event) {
-    //   if(event is Loading) setState(() => _isLoading = true);
-    //   else if(event is Success) {
-    //     setState(() {
-    //       _isLoading = false;
-    //       Navigator.of(context).pop(event.data);
-    //     });
-    //   }
-    //   else if(event is Error<bool>) {
-    //     setState(() {_isLoading = false;});
-    //     Navigator.of(context).pop(event);
-    //   }
-    // });
   }
 
   @override

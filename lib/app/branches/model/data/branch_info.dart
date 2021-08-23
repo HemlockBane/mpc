@@ -1,3 +1,4 @@
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'branch_info.g.dart';
@@ -27,9 +28,10 @@ class BranchInfo {
 
   BranchInfo();
 
-  factory BranchInfo.fromJson(Object? data) => _$BranchInfoFromJson(data as Map<String, dynamic>);
-  Map<String, dynamic> toJson() => _$BranchInfoToJson(this);
+  factory BranchInfo.fromJson(Object? data) =>
+      _$BranchInfoFromJson(data as Map<String, dynamic>);
 
+  Map<String, dynamic> toJson() => _$BranchInfoToJson(this);
 }
 
 @JsonSerializable()
@@ -54,7 +56,27 @@ class Locations {
 
   Locations();
 
-  factory Locations.fromJson(Object? data) => _$LocationsFromJson(data as Map<String, dynamic>);
-  Map<String, dynamic> toJson() => _$LocationsToJson(this);
+  String get address => "$streetNumber, $streetName, $city";
 
+  factory Locations.fromJson(Object? data) =>
+      _$LocationsFromJson(data as Map<String, dynamic>);
+
+  Map<String, dynamic> toJson() => _$LocationsToJson(this);
+}
+
+class SelectedLocation {
+  LatLng location;
+  BranchInfo? branchInfo;
+
+  SelectedLocation({required this.location, this.branchInfo});
+
+  bool get isBranch => this.branchInfo != null;
+
+  bool isCurrentLocation(LatLng location) {
+    return this.location == location;
+  }
+
+  bool equalsBranchPosition(LatLng otherBranchLocation) {
+    return this.location == otherBranchLocation;
+  }
 }

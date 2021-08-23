@@ -11,7 +11,7 @@ import 'data/password_login_request.dart';
 
 part 'login_service.g.dart';
 
-@RestApi(baseUrl: "${ServiceConfig.ROOT_SERVICE}api/v1/login")
+@RestApi(baseUrl: "${ServiceConfig.ROOT_SERVICE}api/v2/login")
 abstract class LoginService {
   factory LoginService(Dio dio) = _LoginService;
 

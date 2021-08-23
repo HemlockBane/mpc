@@ -14,8 +14,10 @@ class EditDeviceRequestBody {
   String? type;
   @JsonKey(name:"imei")
   String? imei;
-  @JsonKey(name:"key")
+  @JsonKey(name:"livelinessValidationKey")
   String? key;
+  @JsonKey(name:"username")
+  String? username;
 
   EditDeviceRequestBody();
 

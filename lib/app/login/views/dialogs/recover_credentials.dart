@@ -12,32 +12,26 @@ class RecoverCredentialsDialogLayout {
         SizedBox(height: 22),
         Center(
             child: Text(
-          'What would you like to do?',
+          'Recover Credentials',
           style: TextStyle(
-              color: Colors.colorPrimaryDark,
-              fontWeight: FontWeight.w600,
+              color: Colors.textColorBlack,
+              fontWeight: FontWeight.bold,
               fontSize: 22),
         )),
         SizedBox(height: 30),
-        TextButton.icon(
-            style: ButtonStyle(alignment: Alignment.centerLeft),
-            onPressed: () => {
-              Navigator.of(context).pushNamed(Routes.ACCOUNT_RECOVERY, arguments: RecoveryMode.USERNAME_RECOVERY)
-            },
-            icon: Container(
-              margin: EdgeInsets.only(left: 20, right: 22),
-              //since there's already a padding on the button
-              padding: EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                  color: Colors.primaryColor.withOpacity(0.1),
-                  shape: BoxShape.circle),
-              child: SvgPicture.asset('res/drawables/ic_circular_user.svg', width: 34, height: 34,),
-            ),
-            label: Text('Recover Username',
-                style: TextStyle(
-                    color: Colors.colorPrimaryDark,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold))
+        ListTile(
+          contentPadding: EdgeInsets.only(left: 24, right: 24),
+          title: Text('Recover Username',
+              style: TextStyle(
+                  color: Colors.textColorBlack,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600
+              )
+          ),
+          onTap: () => {
+            Navigator.of(context).pushNamed(Routes.ACCOUNT_RECOVERY, arguments: RecoveryMode.USERNAME_RECOVERY)
+          },
+          trailing: SvgPicture.asset('res/drawables/ic_forward_anchor.svg', color: Colors.primaryColor,),
         ),
         Container(
           height: 0.8,
@@ -45,26 +39,29 @@ class RecoverCredentialsDialogLayout {
           width: double.infinity,
           margin: EdgeInsets.only(left: 24, right: 24, top: 6, bottom: 6),
         ),
-        TextButton.icon(
-            style: ButtonStyle(alignment: Alignment.centerLeft),
-            onPressed: () => {
-              Navigator.of(context).pushNamed(Routes.ACCOUNT_RECOVERY, arguments: RecoveryMode.PASSWORD_RECOVERY)
-            },
-            icon: Container(
-              margin: EdgeInsets.only(left: 20, right: 22),
-              //since there's already a padding on the button
-              padding: EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                  color: Colors.primaryColor.withOpacity(0.1),
-                  shape: BoxShape.circle
-              ),
-              child: SvgPicture.asset('res/drawables/ic_password_lock.svg', width: 23, height: 28,),
-            ),
-            label: Text('Recover Password',
-                style: TextStyle(
-                    color: Colors.colorPrimaryDark,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold))),
+        ListTile(
+          contentPadding: EdgeInsets.only(left: 24, right: 24),
+          title: Text('Recover Password',
+              style: TextStyle(
+                  color: Colors.textColorBlack,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600
+              )
+          ),
+          onTap: () => {
+            Navigator.of(context).pushNamed(Routes.ACCOUNT_RECOVERY, arguments: RecoveryMode.PASSWORD_RECOVERY)
+          },
+          trailing: SvgPicture.asset('res/drawables/ic_forward_anchor.svg', color: Colors.primaryColor,),
+        ),
+        SizedBox(height: 36,),
+        TextButton(
+          child: Text(
+            "Dismiss",
+            style:
+            TextStyle(color: Colors.primaryColor, fontSize: 16),
+          ),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ],
     );
   }

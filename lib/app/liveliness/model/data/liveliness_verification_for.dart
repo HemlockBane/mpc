@@ -1,0 +1,6 @@
+enum LivelinessVerificationFor{
+  ON_BOARDING,
+  USERNAME_RECOVERY,
+  PASSWORD_RECOVERY,
+  REGISTER_DEVICE
+}

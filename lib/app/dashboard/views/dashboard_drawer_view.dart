@@ -22,7 +22,6 @@ class DashboardDrawerView  {
       controller.closeDrawer();
     });
   }
-
   Widget _initialView({Color? backgroundColor, required Widget image}) {
     return Container(
       width: 40,
@@ -37,6 +36,7 @@ class DashboardDrawerView  {
       ),
     );
   }
+
 
   Widget _drawerListItem(String title, Widget res, VoidCallback onClick) {
     return Material(
@@ -105,17 +105,17 @@ class DashboardDrawerView  {
             _closeDrawerWithDelay();
           }),
         ),
-        Padding(
-          padding: EdgeInsets.only(left: 24, right: 16),
-          child: Divider(height: 1, color: Colors.white.withOpacity(0.09),),
-        ),
-        Padding(
-          padding: EdgeInsets.only(right: 16),
-          child: _drawerListItem('Card Management', SvgPicture.asset('res/drawables/ic_drawer_card_management.svg', color: Colors.white,  width: 16, height: 16,), (){
-            Navigator.of(context).pushNamed(Routes.CARDS).then((value) => refreshCallback());
-            _closeDrawerWithDelay();
-          }),
-        ),
+        // Padding(
+        //   padding: EdgeInsets.only(left: 24, right: 16),
+        //   child: Divider(height: 1, color: Colors.white.withOpacity(0.09),),
+        // ),
+        // Padding(
+        //   padding: EdgeInsets.only(right: 16),
+        //   child: _drawerListItem('Card Management', SvgPicture.asset('res/drawables/ic_drawer_card_management.svg', color: Colors.white,  width: 16, height: 16,), (){
+        //     Navigator.of(context).pushNamed(Routes.CARDS).then((value) => refreshCallback());
+        //     _closeDrawerWithDelay();
+        //   }),
+        // ),
       ],
     ),
   );
@@ -177,7 +177,7 @@ class DashboardDrawerView  {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Good ${DashboardUtil.getTimeOfDay()}',
+                      'Good ${DashboardUtil.getTimeOfDay().replaceAll("Sunset", "Evening")}',
                       style: TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.bold),
                     ),
                     Text(

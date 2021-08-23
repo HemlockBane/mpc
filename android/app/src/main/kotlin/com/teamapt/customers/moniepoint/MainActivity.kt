@@ -1,102 +1,40 @@
 package com.teamapt.customers.moniepoint
 
-import android.graphics.BitmapFactory
+import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.amplifyframework.core.Amplify
-import com.amplifyframework.predictions.models.IdentifyActionType
-import com.amplifyframework.predictions.result.IdentifyEntitiesResult
 import com.teamapt.customers.moniepoint.lib.BiometricMethodHandler
+import com.teamapt.customers.moniepoint.lib.LivelinessMethodHandler
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
-import java.util.*
 
 class   MainActivity: FlutterFragmentActivity() {
+
     companion object {
         private const val LIVELINESS_CHANNEL = "moniepoint.flutter.dev/liveliness"
+        private const val LIVELINESS_EVENT_CHANNEL = "moniepoint.flutter.dev/liveliness/events"
         private const val BIOMETRIC_CHANNEL = "moniepoint.flutter.dev/biometric"
         private const val BIOMETRIC_EVENT_CHANNEL = "moniepoint.flutter.dev/biometric_auth"
     }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-
         registerLivelinessDetector(flutterEngine)
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) registerBiometricChannel(flutterEngine)
     }
 
+    @SuppressLint("NewApi")
     private fun registerLivelinessDetector(flutterEngine: FlutterEngine) {
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, LIVELINESS_CHANNEL).setMethodCallHandler { call, reply ->
-            when(call.method) {
-                "analyzeImage" -> {
-                    val byteArray = call.argument<ByteArray>("imageByte")
-                    val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray!!.size)
-                    val mapResult = hashMapOf<String, Any>()
+        //Listens for the motion detection events
+        val livelinessMethodHandler = LivelinessMethodHandler(this, flutterEngine.renderer.createSurfaceTexture())
 
-                    Amplify.Predictions.identify(IdentifyActionType.DETECT_ENTITIES, bitmap, { mResult ->
+        EventChannel(flutterEngine.dartExecutor.binaryMessenger, LIVELINESS_EVENT_CHANNEL)
+                .setStreamHandler(livelinessMethodHandler.LivelinessEvenChannel())
 
-                        val identifyResult = mResult as IdentifyEntitiesResult
-
-                        if(identifyResult.entities.isNullOrEmpty()) {
-                            mapResult["facenotdetected"] = mapOf("value" to true, "confidence" to 100.0)
-                            this.runOnUiThread { reply.success(mapResult) }
-                            return@identify;
-                        }
-
-                        mapResult["numberOfFaces"] = identifyResult.entities.size
-
-                        identifyResult.entities.forEach {
-                            val pose = it.pose
-
-                            if (pose != null) {
-                                mapResult["pose"] = mapOf(
-                                        "yaw" to pose.yaw,
-                                        "roll" to pose.roll,
-                                        "pitch" to pose.pitch,
-                                )
-                            }
-
-//                            it.emotions.forEach { emotion ->
-//                                mapResult[emotion.typeAlias] = mapOf(
-//                                        "value" to emotion.value,
-//                                        "confidence" to emotion.confidence
-//                                )
-//                            }
-
-                            it.values.forEach { feature ->
-                                mapResult[feature.typeAlias.toLowerCase(Locale.ROOT)] = mapOf(
-                                        "value" to feature.value,
-                                        "confidence" to feature.confidence
-                                )
-                            }
-
-                            mapResult["box"] = mapOf(
-                                    "height" to it.box?.height(),
-                                    "width" to it.box?.width(),
-                                    "right" to it.box?.right,
-                                    "left" to it.box?.left,
-                                    "bottom" to it.box?.bottom,
-                                    "top" to it.box?.top,
-                            )
-
-
-                        }
-
-                        this.runOnUiThread {
-                            reply.success(mapResult)
-                        }
-                    }, {
-                        it.printStackTrace()
-                        mapResult["error"] = mapOf("message" to it.message)
-                        this.runOnUiThread {
-                            reply.success(mapResult)
-                        }
-                    })
-                }
-            }
-        }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, LIVELINESS_CHANNEL)
+                .setMethodCallHandler(livelinessMethodHandler)
     }
 
     @RequiresApi(Build.VERSION_CODES.M)

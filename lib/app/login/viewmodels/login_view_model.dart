@@ -1,15 +1,12 @@
-import 'dart:collection';
-import 'dart:convert';
+
 import 'dart:io';
 
-import 'package:device_info/device_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moniepoint_flutter/app/login/model/data/authentication_method.dart';
 import 'package:moniepoint_flutter/app/login/model/data/fingerprint_login_request.dart';
 import 'package:moniepoint_flutter/app/login/model/data/login_request.dart';
 import 'package:moniepoint_flutter/app/login/model/data/password_login_request.dart';
-import 'package:moniepoint_flutter/app/login/model/data/security_flag.dart';
 import 'package:moniepoint_flutter/app/login/model/data/user.dart';
 import 'package:moniepoint_flutter/app/login/model/login_service_delegate.dart';
 import 'package:moniepoint_flutter/core/config/build_config.dart';
@@ -18,6 +15,7 @@ import 'package:moniepoint_flutter/core/models/services/system_configuration_ser
 import 'package:moniepoint_flutter/core/models/system_configuration.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/utils/biometric_helper.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 
 class LoginViewModel with ChangeNotifier {
@@ -25,9 +23,6 @@ class LoginViewModel with ChangeNotifier {
   late LoginServiceDelegate _delegate;
   late SystemConfigurationServiceDelegate _configurationServiceDelegate;
   late DeviceManager _deviceManager;
-
-  Queue<SecurityFlag>? _securityFlagQueue;
-  Queue<SecurityFlag>? get securityFlagQueue => _securityFlagQueue;
 
   final List<SystemConfiguration> _systemConfigurations = [];
 
@@ -40,18 +35,15 @@ class LoginViewModel with ChangeNotifier {
     this._deviceManager = deviceManager ?? GetIt.I<DeviceManager>();
 
     UserInstance().resetSession();
-    // PreferenceUtil.deleteLoggedInUser();
-    // UserInstance().getUser()?.withAccessToken(null);
   }
 
-  //334FD601-3E95-457E-B890-70BCD77B6F76
   Stream<Resource<User>> loginWithPassword(String username, String password) {
     LoginWithPasswordRequestBody requestBody = LoginWithPasswordRequestBody()
       ..authenticationType = AuthenticationMethod.PASSWORD
       ..withUsername(username)
       ..withPassword(password)
       ..withVersion(BuildConfig.APP_VERSION)
-      ..withDeviceId(_deviceManager.deviceId ?? "")
+      ..withDeviceId(_deviceManager.deviceId)
       ..withDeviceName(_deviceManager.deviceName);
 
     return doLogin(requestBody);
@@ -76,17 +68,13 @@ class LoginViewModel with ChangeNotifier {
     return response.map((event) {
       User? user = event.data;
       if(user == null) return event;
-
-      _securityFlagQueue = user.securityFlags?.requiredFlagToQueue();
-
       return event;
     });
   }
 
   String getApplicationPlayStoreUrl() {
     final key = (Platform.isIOS) ? "ios.appstore.url" : "android.playstore.url";
-    final config  = _systemConfigurations.firstWhere((element)
-    => element.name?.contains(key) == true, orElse: () => SystemConfiguration(value: "https://www.teamapt.com"));
+    final config  = _systemConfigurations.firstWhere((element) => element.name?.contains(key) == true, orElse: () => SystemConfiguration(value: "https://www.teamapt.com"));
     return config.value ?? "";
   }
 
@@ -98,6 +86,15 @@ class LoginViewModel with ChangeNotifier {
       }
       return event;
     });
+  }
+
+  Future<bool> canLoginWithBiometric(BiometricHelper? _helper) async {
+    print("This is the helper $_helper");
+    final hasFingerPrint = (await _helper?.getFingerprintPassword()) != null;
+    final biometricType = await _helper?.getBiometricType();
+    final isEnabled = PreferenceUtil.getFingerPrintEnabled();
+    print("HasFingerprint => $hasFingerPrint, BioMetric => $biometricType, IsEnabled => $isEnabled");
+    return hasFingerPrint && (biometricType != BiometricType.NONE) && isEnabled;
   }
 
 }

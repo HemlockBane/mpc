@@ -1,3 +1,6 @@
+include ':livelinessdetector-debug'
+include ':livelinessdetector-debug'
+include ':livelinessdetector-release'
 include ':app'
 
 def localPropertiesFile = new File(rootProject.projectDir, "local.properties")

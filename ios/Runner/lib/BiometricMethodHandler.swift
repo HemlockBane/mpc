@@ -97,6 +97,8 @@ struct BiometricMethodHandler {
         let newPassword =  "\(generatedPassword)_\(generateRandomBytes())"
         encryptedPassword = try encryptMessage(message: newPassword, encryptionKey: encryptionKey)
         
+        let isKeyDeleted = deleteExistingKeys()
+        
         let query : [String: Any] = [
             kSecClass as String: kSecClassInternetPassword,
             kSecAttrAccount as String : username,
@@ -105,6 +107,8 @@ struct BiometricMethodHandler {
             kSecUseAuthenticationContext as String: context,
             kSecValueData as String: encryptedPassword.data(using: String.Encoding.utf8)!
         ];
+        
+        //if we are doing a setup we need to clear existing configuration for the application
         
         let status = SecItemAdd(query as CFDictionary, nil)
         
@@ -160,6 +164,21 @@ struct BiometricMethodHandler {
             }
         }
         return
+    }
+    
+    private func deleteExistingKeys() -> Bool {
+        let query : [String: Any] = [
+            kSecClass as String: kSecClassInternetPassword,
+            kSecAttrServer as String: server,
+            kSecReturnAttributes as String: true,
+        ];
+        
+        let status = SecItemDelete(query as CFDictionary)
+        guard status == errSecSuccess else {
+            print("Failed to delete Key")
+            return false
+        }
+        return true
     }
     
     func encryptMessage(message: String, encryptionKey: String) throws -> String {

@@ -27,7 +27,7 @@ class _CustomerService implements CustomerService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.0.5'
+                  r'appVersion': '1.0.6'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -55,7 +55,7 @@ class _CustomerService implements CustomerService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.0.5'
+                  r'appVersion': '1.0.6'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -82,7 +82,7 @@ class _CustomerService implements CustomerService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.0.5'
+                  r'appVersion': '1.0.6'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -111,7 +111,7 @@ class _CustomerService implements CustomerService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.0.5'
+                  r'appVersion': '1.0.6'
                 },
                 extra: _extra,
                 contentType: 'application/json')

@@ -1,10 +1,12 @@
+import 'dart:io';
+
 import 'package:json_annotation/json_annotation.dart';
-import 'package:moniepoint_flutter/core/models/security_answer.dart';
+import 'package:moniepoint_flutter/app/liveliness/model/data/liveliness_verification_for.dart';
 
 
 part 'forgot_password_request.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class ForgotPasswordRequest {
   @JsonKey(name:"step")
   ForgotPasswordStep? step;
@@ -18,20 +20,20 @@ class ForgotPasswordRequest {
   String? phoneNumber;
   @JsonKey(name:"bvn")
   String? bvn;
-  @JsonKey(name:"activationUserCode")
-  String? activationUserCode;
-  @JsonKey(name:"otpUserCode")
+  @JsonKey(name:"userCode")
   String? otpUserCode;
-  @JsonKey(name:"activationCode")
-  String? activationCode;
+  @JsonKey(name:"otpValidationKey")
+  String? otpValidationKey;
   @JsonKey(name:"otp")
   String? otp;
   @JsonKey(name:"key")
   String? key;
   @JsonKey(name:"password")
   String? password;
-  @JsonKey(name:"securityAnswer")
-  SecurityAnswer? securityAnswer;
+  @JsonKey(name:"livelinessCheckRef")
+  String? livelinessCheckRef;
+
+  LivelinessVerificationFor? livelinessVerificationFor;
 
   ForgotPasswordRequest();
 
@@ -77,5 +79,6 @@ enum ForgotPasswordStep {
   INITIATE,
   VALIDATE_SECURITY_ANSWER,
   VALIDATE_OTP,
+  LIVELINESS_CHECK,
   COMPLETE
 }

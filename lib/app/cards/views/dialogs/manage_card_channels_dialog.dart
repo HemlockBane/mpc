@@ -1,16 +1,24 @@
-
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' hide Colors;
+import 'package:flutter/material.dart' hide Colors, Card;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
+import 'package:moniepoint_flutter/app/cards/model/data/card.dart';
+import 'package:moniepoint_flutter/app/cards/model/data/card_transaction_request.dart';
 import 'package:moniepoint_flutter/app/cards/viewmodels/single_card_view_model.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:provider/provider.dart';
 import 'package:collection/collection.dart';
 
+import 'card_pin_dialog.dart';
+
 class ManageCardChannelDialog extends StatefulWidget{
+
+  final num cardId;
+
+  ManageCardChannelDialog(this.cardId);
 
   @override
   State<StatefulWidget> createState() => _ManageCardChannelDialog();
@@ -18,6 +26,9 @@ class ManageCardChannelDialog extends StatefulWidget{
 }
 
 class _ManageCardChannelDialog extends State<ManageCardChannelDialog> {
+
+  Card? _card;
+
   List<_ChannelItem> transactionChannels = List.unmodifiable([
     _ChannelItem("Enable Web", TransactionChannel.WEB, 'ic_channel_web.svg'),
     _ChannelItem("Enable POS", TransactionChannel.POS, 'ic_channel_pos.svg'),
@@ -28,40 +39,87 @@ class _ManageCardChannelDialog extends State<ManageCardChannelDialog> {
     final viewModel = Provider.of<SingleCardViewModel>(context, listen: false);
     item.isEnabled = enabled;
     setState(() {});
-    if(item.channel == TransactionChannel.WEB) viewModel.selectedCard?.channelBlockStatus?.web = !enabled;
-    if(item.channel == TransactionChannel.POS) viewModel.selectedCard?.channelBlockStatus?.pos = !enabled;
-    if(item.channel == TransactionChannel.ATM) viewModel.selectedCard?.channelBlockStatus?.atm = !enabled;
-    Future.delayed(Duration(milliseconds: 400), (){
-      Navigator.of(context).pop(Tuple(item.channel, enabled));
+
+    _updateCardChannel(enabled, item);
+
+    Future.delayed(Duration(milliseconds: 400), () async {
+      final value  = await _openCardTransactionDialog(
+          viewModel,
+          (enabled) ? CardAction.UNBLOCK_CARD_CHANNEL : CardAction.BLOCK_CARD_CHANNEL,
+          CardTransactionRequest()
+            ..cardId = _card?.id
+            ..transactionChannel = item.channel
+      );
+      if(!value){
+        item.isEnabled = !item.isEnabled;
+        _updateCardChannel(item.isEnabled, item);
+        setState(() {});
+      }
     });
+    // ..cardAccountNumber = _card?.customerAccountCard != null
+    // ? _card?.customerAccountCard?.customerAccountNumber
+    //     : null
+
   }
 
-  bool isCardChannelEnabledForChannel(SingleCardViewModel viewModel, TransactionChannel channel) {
+  void _updateCardChannel(bool enabled, _ChannelItem item) {
+    if(item.channel == TransactionChannel.WEB) _card?.channelBlockStatus?.web = !enabled;
+    if(item.channel == TransactionChannel.POS) _card?.channelBlockStatus?.pos = !enabled;
+    if(item.channel == TransactionChannel.ATM) _card?.channelBlockStatus?.atm = !enabled;
+  }
+
+  bool isChannelEnabledForCard(SingleCardViewModel viewModel, TransactionChannel channel) {
     if(channel == TransactionChannel.WEB) {
-      return viewModel.selectedCard?.channelBlockStatus?.web == false;
+      return _card?.channelBlockStatus?.web == false;
     }
     if(channel == TransactionChannel.POS) {
-      return viewModel.selectedCard?.channelBlockStatus?.pos == false;
+      return _card?.channelBlockStatus?.pos == false;
     }
     if(channel == TransactionChannel.ATM) {
-      return viewModel.selectedCard?.channelBlockStatus?.atm == false;
+      return _card?.channelBlockStatus?.atm == false;
+    }
+    return false;
+  }
+
+  Future<bool> _openCardTransactionDialog(SingleCardViewModel viewModel,
+      CardAction action, CardTransactionRequest request) async {
+
+    dynamic value = await showModalBottomSheet(
+        backgroundColor: Colors.transparent,
+        context: context,
+        isScrollControlled: true,
+        builder: (context) => ChangeNotifierProvider.value(
+          value: viewModel,
+          child: CardPinDialog(action, request),
+        )
+    );
+    if(value != null && value is Tuple<String, String>) {
+      await showSuccess(
+          context,
+          title: value.first,
+          message: value.second,
+          onPrimaryClick: () {
+            Navigator.of(context).pop();
+          }
+      );
+      return true;
+    } else if(value is Error) {
+      await showError(context, title: "Oops", message: value.message);
+      return false;
     }
     return false;
   }
 
   initState() {
-    final viewModel = Provider.of<SingleCardViewModel>(context, listen: false);
-    transactionChannels.forEach((element) {
-      element.isEnabled = isCardChannelEnabledForChannel(viewModel, element.channel);
-    });
     super.initState();
   }
 
   List<Widget> generateTiles() {
     return transactionChannels.map((e) {
       return SwitchListTile(
-          title: Text(e.title, style: TextStyle(color: Color(0XFF4F4F4F), fontSize: 17),),
-          activeColor: Colors.solidOrange,
+          title: Text(e.title, style: TextStyle(
+              color: Colors.textColorMainBlack, fontSize: 17, fontWeight: FontWeight.w600
+          ),),
           secondary: Container(
             width: 60,
             height: 60,
@@ -72,7 +130,8 @@ class _ManageCardChannelDialog extends State<ManageCardChannelDialog> {
             ),
             child: SvgPicture.asset('res/drawables/${e.icon}', color: Colors.primaryColor,),
           ),
-          activeTrackColor: Colors.solidOrange.withOpacity(0.5),
+          activeColor: Colors.primaryColor,
+          activeTrackColor: Colors.deepGrey.withOpacity(0.5),
           inactiveTrackColor: Colors.grey.withOpacity(0.5),
           inactiveThumbColor: Colors.white.withOpacity(0.5),
           value: e.isEnabled,
@@ -89,35 +148,60 @@ class _ManageCardChannelDialog extends State<ManageCardChannelDialog> {
     }).toList();
   }
 
+  void _initTransactionChannels(SingleCardViewModel viewModel) {
+    transactionChannels.forEach((element) {
+      element.isEnabled = isChannelEnabledForCard(viewModel, element.channel);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BottomSheets.makeAppBottomSheet(
-      curveBackgroundColor: Colors.white,
-      centerImageBackgroundColor: Colors.primaryColor.withOpacity(0.1),
-      contentBackgroundColor: Colors.white,
-      centerImageRes: 'res/drawables/ic_card_channels.svg',
-      centerImageHeight: 18,
-      centerImageWidth: 18,
-      centerBackgroundHeight: 74,
-      centerBackgroundWidth: 74,
-      centerBackgroundPadding: 14,
-      height: 500,
-      content: Container(
-        child: Column(
-          children: [
-            SizedBox(height: 22),
-            Center(
-              child: Text('Managed Channels',
-                  style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.solidDarkBlue)),
+    final viewModel = Provider.of<SingleCardViewModel>(context, listen: false);
+    return Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+            centerTitle: false,
+            titleSpacing: -12,
+            iconTheme: IconThemeData(color: Colors.primaryColor),
+            title: Text('Manage Channels',
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    color: Colors.darkBlue,
+                    fontFamily: Styles.defaultFont,
+                    fontSize: 17
+                )
             ),
-            SizedBox(height: 30,),
-            ...generateTiles()
-          ],
+            backgroundColor: Colors.transparent,
+            elevation: 0
         ),
-      )
+      body: FutureBuilder(
+          future: viewModel.getSingleCard(widget.cardId),
+          builder: (mContext, AsyncSnapshot<Card?> snapShot) {
+            if(!snapShot.hasData) return Container();
+            _card = snapShot.data;
+            _initTransactionChannels(viewModel);
+            return Container(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 36),
+                  Padding(
+                    padding: EdgeInsets.only(left: 16),
+                    child: Text('Managed Channels',
+                        style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.textColorBlack
+                        )
+                    ),
+                  ),
+                  SizedBox(height: 30,),
+                  ...generateTiles()
+                ],
+              ),
+            );
+          }
+      ),
     );
   }
 }

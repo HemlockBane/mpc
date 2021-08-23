@@ -16,6 +16,7 @@ import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/utils/list_view_util.dart';
 import 'package:moniepoint_flutter/core/views/generic_list_placeholder.dart';
 import 'package:provider/provider.dart';
@@ -128,10 +129,7 @@ class _BillBeneficiaryScreen extends State<BillBeneficiaryScreen> with TickerPro
       _customerIdController.text = "";
       Navigator.of(context).pushNamed(BillScreen.PAYMENT_SCREEN);
     } else if (result != null && result is Error<BillValidationStatus>) {
-      showModalBottomSheet(
-          backgroundColor: Colors.transparent,
-          context: widget._scaffoldKey.currentContext ?? context,
-          builder: (context) => BottomSheets.displayErrorModal(context, title: "Oops", message: result.message));
+      showError(widget._scaffoldKey.currentContext ?? context, message: result.message ?? "");
     }
 
   }

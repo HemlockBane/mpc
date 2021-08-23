@@ -53,7 +53,7 @@ class ChangePasswordViewModel extends BaseViewModel with Validators {
   bool _isNewPasswordValid({bool displayError = false}) {
     final validator = validatePasswordWithMessage(_requestBody.newPassword);
     if (validator.first) return true;
-    if (displayError && !validator.first) _newPasswordController.sink.addError(validator.second ?? "");
+    if (displayError && !validator.first) _newPasswordController.sink.addError(validator.second?.first ?? "");
     return false;
   }
 

@@ -12,10 +12,8 @@ ValidateDeviceSwitchRequestBody _$ValidateDeviceSwitchRequestBodyFromJson(
     ..username = json['username'] as String?
     ..customerType = json['customerType'] as String?
     ..validationKey = json['validationKey'] as String?
-    ..authenticationRequest = json['authenticationRequest'] == null
-        ? null
-        : AuthenticationRequest.fromJson(
-            json['authenticationRequest'] as Object);
+    ..otp = json['otp'] as String?
+    ..userCode = json['userCode'] as String?;
 }
 
 Map<String, dynamic> _$ValidateDeviceSwitchRequestBodyToJson(
@@ -24,5 +22,6 @@ Map<String, dynamic> _$ValidateDeviceSwitchRequestBodyToJson(
       'username': instance.username,
       'customerType': instance.customerType,
       'validationKey': instance.validationKey,
-      'authenticationRequest': instance.authenticationRequest,
+      'otp': instance.otp,
+      'userCode': instance.userCode,
     };

@@ -4,12 +4,10 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_transaction.dart';
 import 'package:moniepoint_flutter/app/airtime/viewmodels/airtime_history_detail_view_model.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/transaction.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
-import 'package:moniepoint_flutter/core/utils/download_util.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:moniepoint_flutter/core/views/transaction_location_view.dart';
@@ -34,9 +32,9 @@ class _AirtimeHistoryDetailedView extends State<AirtimeHistoryDetailedView> {
     print(transaction.institutionAirtime?.metaData?.location);
     return (transaction.institutionAirtime?.metaData?.location != null)
         ? LatLng(double.tryParse(
-        transaction.institutionAirtime?.metaData?.location?.latitude ?? "0.0") ?? 0.0,
-        double.tryParse(transaction.institutionAirtime?.metaData?.location?.longitude ?? "0.0") ?? 0.0
-    )
+            transaction.institutionAirtime?.metaData?.location?.latitude ?? "0.0") ?? 0.0,
+            double.tryParse(transaction.institutionAirtime?.metaData?.location?.longitude ?? "0.0") ?? 0.0
+          )
         : null;
   }
 
@@ -122,7 +120,7 @@ class _AirtimeHistoryDetailedView extends State<AirtimeHistoryDetailedView> {
                             child: Row(
                               children: [
                                 Expanded(flex:1, child: Text('Trans. Date:', style: TextStyle(color: Colors.deepGrey, fontSize: 16))),
-                                Expanded(flex:2,child: Text(transactionDate, style: TextStyle(color: Colors.colorPrimaryDark, fontSize: 16)))
+                                Expanded(flex:2, child: Text(transactionDate, style: TextStyle(color: Colors.colorPrimaryDark, fontSize: 16)))
                               ],
                             ),
                           )

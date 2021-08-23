@@ -1,11 +1,13 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:moniepoint_flutter/app/accountupdates/model/data/address_info.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/profile_request.dart';
+import 'package:moniepoint_flutter/app/validation/model/data/onboarding_liveliness_validation_response.dart';
 import 'package:moniepoint_flutter/core/models/gender.dart';
 import 'package:moniepoint_flutter/core/models/security_answer.dart';
 
 part 'account_request.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class AccountCreationRequestBody extends ProfileCreationRequestBody {
   @JsonKey(name: "bvn")
   String? bvn;
@@ -16,8 +18,8 @@ class AccountCreationRequestBody extends ProfileCreationRequestBody {
   @JsonKey(name: "phoneNumber")
   String? phoneNumber;
 
-  @JsonKey(name: "emailAddress")
-  String? emailAddress;
+  // @JsonKey(name: "emailAddress")
+  // String? emailAddress;
 
   @JsonKey(name: "firstName")
   String? firstName;
@@ -38,7 +40,7 @@ class AccountCreationRequestBody extends ProfileCreationRequestBody {
   String? transactionPin;
 
   @JsonKey(name: "createUssd")
-  bool createUssdPin = false;
+  bool createUssdPin = true;
 
   @JsonKey(name: "userImageUUID")
   String? selfieImageUUID;
@@ -48,6 +50,12 @@ class AccountCreationRequestBody extends ProfileCreationRequestBody {
 
   @JsonKey(name: "livelinessCheck")
   String? livelinessCheck;
+
+  @JsonKey(name: "addressInfo")
+  AddressInfo? addressInfo;
+
+  @JsonKey(name: "setupType")
+  SetupType? setupType;
 
   AccountCreationRequestBody():super();
 
@@ -116,6 +124,11 @@ class AccountCreationRequestBody extends ProfileCreationRequestBody {
 
   AccountCreationRequestBody withGender(Gender gender) {
     this.gender = gender;
+    return this;
+  }
+
+  AccountCreationRequestBody withSetupType(SetupType setupType) {
+    this.setupType = setupType;
     return this;
   }
 }

@@ -46,8 +46,6 @@ PODS:
     - AWSCore (= 2.24.2)
   - AWSTranslate (2.24.2):
     - AWSCore (= 2.24.2)
-  - camera (0.0.1):
-    - Flutter
   - contacts_service (0.2.2):
     - Flutter
   - CoreMLPredictionsPlugin (1.10.0):
@@ -159,9 +157,12 @@ PODS:
   - libwebp/mux (1.2.0):
     - libwebp/demux
   - libwebp/webp (1.2.0)
+  - location (0.0.1):
+    - Flutter
   - Mantle (2.1.6):
     - Mantle/extobjc (= 2.1.6)
   - Mantle/extobjc (2.1.6)
+  - MTBBarcodeScanner (5.0.11)
   - nanopb (2.30908.0):
     - nanopb/decode (= 2.30908.0)
     - nanopb/encode (= 2.30908.0)
@@ -174,6 +175,9 @@ PODS:
   - "permission_handler (5.1.0+2)":
     - Flutter
   - PromisesObjC (1.2.12)
+  - qr_code_scanner (0.2.0):
+    - Flutter
+    - MTBBarcodeScanner
   - RNCryptor (5.1.0)
   - SDWebImage (5.11.1):
     - SDWebImage/Core (= 5.11.1)
@@ -202,7 +206,6 @@ DEPENDENCIES:
   - Amplify
   - AmplifyPlugins/AWSCognitoAuthPlugin
   - AWSPredictionsPlugin
-  - camera (from `.symlinks/plugins/camera/ios`)
   - contacts_service (from `.symlinks/plugins/contacts_service/ios`)
   - CoreMLPredictionsPlugin
   - device_info (from `.symlinks/plugins/device_info/ios`)
@@ -214,9 +217,11 @@ DEPENDENCIES:
   - flutter_image_compress (from `.symlinks/plugins/flutter_image_compress/ios`)
   - geolocator (from `.symlinks/plugins/geolocator/ios`)
   - google_maps_flutter (from `.symlinks/plugins/google_maps_flutter/ios`)
+  - location (from `.symlinks/plugins/location/ios`)
   - open_file (from `.symlinks/plugins/open_file/ios`)
   - path_provider (from `.symlinks/plugins/path_provider/ios`)
   - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
+  - qr_code_scanner (from `.symlinks/plugins/qr_code_scanner/ios`)
   - RNCryptor (~> 5.0)
   - share (from `.symlinks/plugins/share/ios`)
   - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
@@ -257,6 +262,7 @@ SPEC REPOS:
     - GoogleUtilities
     - libwebp
     - Mantle
+    - MTBBarcodeScanner
     - nanopb
     - PromisesObjC
     - RNCryptor
@@ -265,8 +271,6 @@ SPEC REPOS:
     - SwiftyGif
 
 EXTERNAL SOURCES:
-  camera:
-    :path: ".symlinks/plugins/camera/ios"
   contacts_service:
     :path: ".symlinks/plugins/contacts_service/ios"
   device_info:
@@ -287,12 +291,16 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/geolocator/ios"
   google_maps_flutter:
     :path: ".symlinks/plugins/google_maps_flutter/ios"
+  location:
+    :path: ".symlinks/plugins/location/ios"
   open_file:
     :path: ".symlinks/plugins/open_file/ios"
   path_provider:
     :path: ".symlinks/plugins/path_provider/ios"
   permission_handler:
     :path: ".symlinks/plugins/permission_handler/ios"
+  qr_code_scanner:
+    :path: ".symlinks/plugins/qr_code_scanner/ios"
   share:
     :path: ".symlinks/plugins/share/ios"
   shared_preferences:
@@ -324,7 +332,6 @@ SPEC CHECKSUMS:
   AWSTextract: 59660c5604f486d0be5a475528991793e5dabc3e
   AWSTranscribeStreaming: 03022666d2287fbde9aae470d71fe2aa6a5f63b3
   AWSTranslate: 58f33c36edd38916d42365609346ecd7a6160ba6
-  camera: a0ca5080336f7af47b88436e5e26da3dee5568f0
   contacts_service: 849e1f84281804c8bfbec1b4c3eedcb23c5d3eca
   CoreMLPredictionsPlugin: 13e13c45277682a96e7b5e0a39eae474b6e978c9
   device_info: d7d233b645a32c40dfdc212de5cf646ca482f175
@@ -348,12 +355,15 @@ SPEC CHECKSUMS:
   GoogleMaps: 600e5e69bdf7f4ed7cac4d6aa96c7ec08a5aa254
   GoogleUtilities: f8a43108b38a68eebe8b3540e1f4f2d28843ce20
   libwebp: e90b9c01d99205d03b6bb8f2c8c415e5a4ef66f0
+  location: 3a2eed4dd2fab25e7b7baf2a9efefe82b512d740
   Mantle: 4c0ed6ce47c96eccc4dc3bb071deb3def0e2c3be
+  MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   open_file: 02eb5cb6b21264bd3a696876f5afbfb7ca4f4b7d
   path_provider: abfe2b5c733d04e238b0d8691db0cfd63a27a93c
   permission_handler: ccb20a9fad0ee9b1314a52b70b76b473c5f8dab0
   PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97
+  qr_code_scanner: bb67d64904c3b9658ada8c402e8b4d406d5d796e
   RNCryptor: a369134686cd2ad391323cc856b62e591193ba79
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SDWebImageWebPCoder: f93010f3f6c031e2f8fb3081ca4ee6966c539815
@@ -363,7 +373,7 @@ SPEC CHECKSUMS:
   SwiftyGif: 5d4af95df24caf1c570dbbcb32a3b8a0763bc6d7
   url_launcher: 6fef411d543ceb26efce54b05a0a40bfd74cbbef
   video_player: 9cc823b1d9da7e8427ee591e8438bfbcde500e6e
-  wakelock: b0843b2479edbf6504d8d262c2959446f35373aa
+  wakelock: d0fc7c864128eac40eba1617cb5264d9c940b46f
   webview_flutter: 9f491a9b5a66f2573946a389b2677987b0ff8c0b
 
 PODFILE CHECKSUM: c9673eff43b07b729ee79f4c52439097984ef681

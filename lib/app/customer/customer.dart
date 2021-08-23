@@ -20,6 +20,8 @@ class Customer {
   final String? relationshipManagerNodeGuid;
   final List<CustomerAccountUsers>? customerAccountUsers;
   final String? timeAdded;
+  @JsonKey(name: "passportUUID")
+  final String? passportUUID;
 
   @JsonKey(name:"additionalInfoFlag")
   final AccountUpdateFlag? additionalInfoFlag;
@@ -73,7 +75,8 @@ class Customer {
       this.nextOfKinInfoFlag,
       this.addressVerificationFlag,
       this.identificationVerificationFlag,
-      this.bvnVerificationFlag
+      this.bvnVerificationFlag,
+      this.passportUUID
       );
 
   factory Customer.fromJson(Object? data) => _$CustomerFromJson(data as Map<String, dynamic>);

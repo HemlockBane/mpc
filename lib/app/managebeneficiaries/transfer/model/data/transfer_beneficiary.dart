@@ -6,7 +6,7 @@ part 'transfer_beneficiary.g.dart';
 
 @Entity(tableName:"transfer_beneficiaries", primaryKeys : ["accountName", "accountNumber", "accountProviderCode"])
 @JsonSerializable()
-class TransferBeneficiary implements Beneficiary {
+class TransferBeneficiary extends Beneficiary {
 
   TransferBeneficiary({
     this.id,

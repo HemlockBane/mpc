@@ -207,6 +207,7 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
         if(isSuccessful) {
           final payload = SuccessPayload("Payment Successful",
               "Your payment was successful",
+              token: result.token,
               fileName: "Bill_Receipt_${viewModel.accountName}_${DateFormat("dd MM yyyy").format(DateTime.now())}.pdf",
               downloadTask: (result.customerBillId != null && result.operationStatus != Constants.PENDING)
                   ? () => viewModel.downloadReceipt(result.customerBillId!)

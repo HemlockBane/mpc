@@ -1,216 +1,287 @@
-import 'package:drawerbehavior/drawerbehavior.dart';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
-import 'package:moniepoint_flutter/core/styles.dart';
-import 'package:moniepoint_flutter/core/utils/dashboard_util.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 
-class DashboardDrawerView  {
+/// @author Paul Okeke
+/// @contributor Obinna Igwe
+class DashboardDrawer extends StatelessWidget {
+  final double width;
 
-  final DrawerScaffoldController controller;
-  final String? accountName;
-  final BuildContext context;
-  final void Function() refreshCallback;
+  DashboardDrawer(this.width);
 
-  DashboardDrawerView(this.context, this.controller,
-      {this.accountName, required this.refreshCallback}) : super();
-
-  Future<Null> _closeDrawerWithDelay() {
-    return Future.delayed(Duration(milliseconds: 200), (){
-      controller.closeDrawer();
-    });
-  }
-  Widget _initialView({Color? backgroundColor, required Widget image}) {
+  Container _groupTitle(BuildContext context, String title) {
     return Container(
-      width: 40,
-      height: 40,
-      padding: EdgeInsets.all(0),
-      decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.white.withOpacity(0.1)
-      ),
-      child: Center(
-        child: image,
+      margin: EdgeInsets.only(left: 39, right: 20),
+      child: Row(
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Colors.white.withOpacity(0.15),
+                letterSpacing: 1.3),
+          ),
+          SizedBox(width: 10),
+          Expanded(
+              child: Divider(height: 1, color: Colors.white.withOpacity(0.3))),
+        ],
       ),
     );
   }
 
+  Widget _icon(
+      {required String svgPath,
+      Color? color,
+      double? width,
+      double? height,
+      VoidCallback? onClick}) {
+    return InkWell(
+      highlightColor: Colors.white.withOpacity(0.1),
+      overlayColor: MaterialStateProperty.all(Colors.white.withOpacity(0.02)),
+      onTap: onClick,
+      child: SvgPicture.asset(
+        svgPath,
+        width: width ?? 21,
+        height: height ?? 21,
+        color: color,
+      ),
+    );
+  }
 
-  Widget _drawerListItem(String title, Widget res, VoidCallback onClick) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        highlightColor: Colors.white.withOpacity(0.1),
-        overlayColor: MaterialStateProperty.all(Colors.white.withOpacity(0.02)),
-        onTap: onClick,
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: this.width,
+      child: Drawer(
         child: Container(
-          padding: EdgeInsets.only(left: 24, right: 0, top: 16, bottom: 16),
-          child: Row(
+          color: Colors.colorPrimaryDark,
+          child: Stack(
             children: [
-              _initialView(
-                  image: res
+              Align(
+                alignment: Alignment.topCenter,
+                child: Container(
+                  height: 1,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    // color: Colors.red,
+                    gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.solidDarkBlue.withOpacity(0.5),
+                          Colors.solidDarkBlue
+                        ],
+                        stops: [
+                          0.8,
+                          1.0
+                        ]),
+                  ),
+                ),
               ),
-              SizedBox(width: 20,),
-              Text(title, style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600, fontFamily: Styles.defaultFont),)
+              Column(
+                children: [
+                  SizedBox(height: 58),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 21),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _icon(
+                            svgPath: "res/drawables/ic_moniepoint_cube_2.svg",
+                            width: 40,
+                            height: 40),
+                        Row(
+                          children: [
+                            _icon(
+                                svgPath:
+                                    "res/drawables/ic_dashboard_settings.svg",
+                                onClick: () => Navigator.pushNamed(
+                                    context, Routes.SETTINGS)),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView(
+                      children: [
+                        SizedBox(height: 24),
+                        _groupTitle(context, "TRANSACTIONS"),
+                        _DrawerListItem(
+                          itemIcon: SvgPicture.asset(
+                            "res/drawables/ic_dashboard_transfer_2.svg",
+                            width: 21,
+                            height: 17,
+                          ),
+                          title: "Transfer Money",
+                          routeName: Routes.TRANSFER,
+                          iconSpacing: 9,
+                        ),
+                        _DrawerListItem(
+                          itemIcon: SvgPicture.asset(
+                            "res/drawables/ic_dashboard_airtime_2.svg",
+                            height: 26,
+                          ),
+                          title: "Airtime & Data",
+                          routeName: Routes.AIRTIME,
+                          iconSpacing: 16,
+                        ),
+                        _DrawerListItem(
+                          itemIcon: SvgPicture.asset(
+                            "res/drawables/ic_dashboard_bills_2.svg",
+                          ),
+                          title: "Bill Payments",
+                          routeName: Routes.BILL,
+                          iconSpacing: 15,
+                        ),
+                        SizedBox(height: 21),
+                        _groupTitle(context, "ACCOUNTS & CARDS"),
+                        _DrawerListItem(
+                          itemIcon: SvgPicture.asset(
+                            "res/drawables/ic_dashboard_manage_account.svg",
+                            height: 26,
+                          ),
+                          title: "Manage Account",
+                          routeName: Routes.ACCOUNT_TRANSACTIONS,
+                          iconSpacing: 6.8,
+                        ),
+                        _DrawerListItem(
+                          itemIcon: SvgPicture.asset(
+                            "res/drawables/ic_dashboard_manage_cards.svg",
+                            height: 18,
+                          ),
+                          title: "Manage Cards",
+                          routeName: Routes.CARDS,
+                          iconSpacing: 11.4,
+                        ),
+                        SizedBox(height: 21),
+                        _groupTitle(context, "SAVINGS & LOANS"),
+                        _DrawerListItem(
+                          itemIcon: SvgPicture.asset(
+                            "res/drawables/ic_dashboard_savings.svg",
+                            height: 26,
+                          ),
+                          title: "Savings",
+                          onTap: () => showComingSoon(context),
+                          iconSpacing: 7.5,
+                        ),
+                        _DrawerListItem(
+                          itemIcon: SvgPicture.asset(
+                            "res/drawables/ic_dashboard_manage_cards.svg",
+                            height: 18,
+                          ),
+                          title: "Get Loan",
+                          onTap: () => showComingSoon(context),
+                          iconSpacing: 11,
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+              Positioned(
+                bottom: 64,
+                left: 0,
+                right: 100,
+                child: _DrawerListItem(
+                  itemIcon: SvgPicture.asset("res/drawables/ic_logout.svg"),
+                  title: "Log Out",
+                  onTap: () {
+                    UserInstance().resetSession();
+                    Navigator.of(context).pop();
+                    Navigator.of(context).popAndPushNamed(Routes.LOGIN);
+                  },
+                  iconSpacing: 11,
+                ),
+              ),
+              Positioned(
+                bottom: 64,
+                right: 36,
+                child: Material(
+                  shape: CircleBorder(),
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(40),
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      padding: EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withOpacity(0.1),
+                      ),
+                      child: _icon(
+                        svgPath: "res/drawables/ic_cancel_dashboard.svg",
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
       ),
     );
   }
+}
 
-  Widget? get _child => Container(
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SizedBox(height: 24,),
-        Padding(
-          padding: EdgeInsets.only(right: 16),
-          child: _drawerListItem('Account', SvgPicture.asset('res/drawables/ic_drawer_accounts.svg', color: Colors.white, width: 22, height: 22,), (){
-            Navigator.of(context).pushNamed(Routes.ACCOUNT_TRANSACTIONS).then((value) => refreshCallback());
-            _closeDrawerWithDelay();
-          }),
-        ),
-        Padding(
-          padding: EdgeInsets.only(left: 24, right: 16),
-          child: Divider(height: 1, color: Colors.white.withOpacity(0.09),),
-        ),
-        Padding(
-          padding: EdgeInsets.only(right: 16),
-          child: _drawerListItem('Transfer',  SvgPicture.asset('res/drawables/ic_menu_transfer.svg', color: Colors.white,  width: 20, height: 20,) , (){
-            _closeDrawerWithDelay().then((value) => Navigator.of(context).pushNamed(Routes.TRANSFER).then((value) => refreshCallback()));
-          }),
-        ),
-        Padding(
-          padding: EdgeInsets.only(left: 24, right: 16),
-          child: Divider(height: 1, color: Colors.white.withOpacity(0.09),),
-        ),
-        Padding(
-          padding: EdgeInsets.only(right: 16),
-          child: _drawerListItem('Airtime & Data', SvgPicture.asset('res/drawables/ic_drawer_airtime_data.svg', color: Colors.white, width: 23, height: 23,), (){
-            Navigator.of(context).pushNamed(Routes.AIRTIME).then((value) => refreshCallback());
-            _closeDrawerWithDelay();
-          }),
-        ),
-        Padding(
-          padding: EdgeInsets.only(left: 24, right: 16),
-          child: Divider(height: 1, color: Colors.white.withOpacity(0.09),),
-        ),
-        Padding(
-          padding: EdgeInsets.only(right: 16),
-          child: _drawerListItem('Bill Payment',  SvgPicture.asset('res/drawables/ic_menu_bills.svg', color: Colors.white, width: 23, height: 23,), (){
-            Navigator.of(context).pushNamed(Routes.BILL).then((value) => refreshCallback());
-            _closeDrawerWithDelay();
-          }),
-        ),
-        Padding(
-          padding: EdgeInsets.only(left: 24, right: 16),
-          child: Divider(height: 1, color: Colors.white.withOpacity(0.09),),
-        ),
-        Padding(
-          padding: EdgeInsets.only(right: 16),
-          child: _drawerListItem('Card Management', SvgPicture.asset('res/drawables/ic_drawer_card_management.svg', color: Colors.white,  width: 16, height: 16,), (){
-            Navigator.of(context).pushNamed(Routes.CARDS).then((value) => refreshCallback());
-            _closeDrawerWithDelay();
-          }),
-        ),
-      ],
-    ),
-  );
+/// _DrawListItem
+///
+///
+///
+///
+///
+///
+///
+///
+class _DrawerListItem extends StatelessWidget {
+  final Widget itemIcon;
+  final String title;
+  final VoidCallback? onTap;
+  final String? routeName;
+  final double? iconSpacing;
 
-  Widget? get _footerView => Container(
-    padding: EdgeInsets.only(left: 24, bottom: 55),
-    child: Row(
-      children: [
-        Styles.imageButton(
-            onClick: () {
-              Navigator.of(context).pushNamed(Routes.SETTINGS).then((value) => refreshCallback());
-              _closeDrawerWithDelay();
+  _DrawerListItem(
+      {required this.itemIcon,
+      required this.title,
+      this.routeName,
+      this.onTap,
+      this.iconSpacing});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        highlightColor: Colors.white.withOpacity(0.1),
+        overlayColor: MaterialStateProperty.all(Colors.white.withOpacity(0.02)),
+        onTap: onTap ??
+            () {
+              Navigator.pop(context);
+              if (routeName != null && routeName?.isNotEmpty == true) {
+                Navigator.of(context).pushNamed(routeName!);
+              }
             },
-            color: Colors.white.withOpacity(0.1),
-            padding: EdgeInsets.only(left: 9, right: 9, top: 8, bottom: 8),
-            image: SvgPicture.asset('res/drawables/ic_dashboard_settings.svg', width: 22, height: 22,),
-            borderRadius: BorderRadius.circular(30)
+        child: Container(
+          padding: EdgeInsets.only(left: 40, right: 0, top: 20, bottom: 20),
+          child: Row(
+            children: [
+              itemIcon,
+              SizedBox(width: iconSpacing ?? 10),
+              Text(
+                title,
+                style: TextStyle(
+                    fontSize: 14.5,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600),
+              )
+            ],
+          ),
         ),
-        SizedBox(width: 8,),
-        Styles.imageButton(
-            onClick: () {
-              UserInstance().resetSession();
-              _closeDrawerWithDelay().then((value) => Navigator.of(context).popAndPushNamed(Routes.LOGIN));
-            },
-            color: Colors.white.withOpacity(0.1),
-            padding: EdgeInsets.only(left: 8, right: 8, top: 8, bottom: 8),
-            image: SvgPicture.asset('res/drawables/ic_logout.svg', width: 22, height: 22,),
-            borderRadius: BorderRadius.circular(30)
-        ),
-        SizedBox(width: 8,)
-      ],
-    ),
-  );
-
-  Widget? get _headerView => Container(
-    padding: EdgeInsets.only(left: 24, right: 24, top: 40),
-    child: Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            SvgPicture.asset('res/drawables/ic_moniepoint_cube.svg', width: 50, height: 50,),
-            Styles.imageButton(
-                color: Colors.transparent,
-                image: SvgPicture.asset('res/drawables/ic_cancel_dashboard.svg'),
-                onClick: () => controller.closeDrawer()
-            ),
-          ],
-        ),
-        SizedBox(
-          height: 68,
-        ),
-        Row(
-          children: [
-            DashboardUtil.getGreetingIcon(DashboardUtil.getTimeOfDay()),
-            SizedBox(width: 16,),
-            Flexible(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Good ${DashboardUtil.getTimeOfDay().replaceAll("Sunset", "Evening")}',
-                      style: TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      accountName ?? "",
-                      style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
-                    )
-                  ],
-                )
-            )
-          ],
-        ),
-        SizedBox(height: 32,),
-        Row(
-          children: [
-            Text('NAVIGATION', style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 12, letterSpacing: 0.14, fontWeight: FontWeight.w600),),
-            SizedBox(width: 8,),
-            Flexible(child: Divider(height:1,color: Colors.white.withOpacity(0.3)))
-          ],
-        )
-      ],
-    ),
-  );
-
-  SideDrawer getDrawer(){
-    return SideDrawer(
-      alignment: Alignment.topLeft,
-      direction: Direction.left, // Drawer position, left or right
-      animation: true,
-      color: Colors.colorPrimaryDark,
-      percentage: 0.54,
-      child: _child,
-      footerView: _footerView,
-      headerView: _headerView,
+      ),
     );
   }
 }

@@ -1,3 +1,5 @@
+import 'package:moniepoint_flutter/core/utils/candidate_bank_util.dart';
+
 abstract class Beneficiary {
 
   int getRecordId();
@@ -13,6 +15,10 @@ abstract class Beneficiary {
   String? getBeneficiaryProviderCode();
 
   int? getBeneficiaryColor();
+
+  bool isIntraBank() {
+    return CandidateBankUtil.isIntra(getBeneficiaryProviderCode() ?? "");
+  }
 
   bool isSelected();
 

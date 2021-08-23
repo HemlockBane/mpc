@@ -46,11 +46,12 @@ class CustomerIdentificationForm with ChangeNotifier {
     ];
 
     this._isValid = Rx.combineLatest(formStreams, (values) {
-      return _isIdTypeValid(displayError: false)
+      _isFormValid = _isIdTypeValid(displayError: false)
           && _isIdNumberValid(displayError: false)
           && _isIssueDateValid(displayError: false)
           && _isExpiryDateValid(displayError: false)
           && _isImageReferenceValid(displayError: false);
+      return _isFormValid;
     }).asBroadcastStream();
   }
 

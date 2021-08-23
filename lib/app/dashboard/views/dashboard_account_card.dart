@@ -14,6 +14,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 
+///TODO refactor this code
 class AccountCard extends StatefulWidget {
   const AccountCard({required this.viewModel, required this.pageController});
 
@@ -38,7 +39,7 @@ class _AccountCardState extends State<AccountCard> {
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                  color: Color(0xffF9FBFD),
+                  color: Colors.backgroundWhite,
                   // color: Colors.black,
                   borderRadius: BorderRadius.all(Radius.circular(16)),
                   boxShadow: [
@@ -145,9 +146,9 @@ class _AccountDetailsState extends State<AccountDetails>
 
   @override
   void didUpdateWidget(covariant AccountDetails oldWidget) {
-    _balanceStream = _balanceStream ??
-        widget.viewModel.getCustomerAccountBalance(
-            accountId: widget.userAccount.id, useLocal: false);
+    _balanceStream = widget.viewModel.getCustomerAccountBalance(
+        accountId: widget.userAccount.id, useLocal: false
+    );
     super.didUpdateWidget(oldWidget);
   }
 
@@ -181,27 +182,18 @@ class _AccountDetailsState extends State<AccountDetails>
                   children: [
                     StreamBuilder(
                         stream: _balanceStream,
-                        builder: (ctx,
-                            AsyncSnapshot<Resource<AccountBalance?>> snapshot) {
-                          final bool hideAccountBalance =
-                              PreferenceUtil.getValueForLoggedInUser(
-                                  hideAccountBalanceKey) ??
-                                  false;
-                          final isLoadingBalanceError =
-                              snapshot.hasData && snapshot.data is Error;
-                          final isLoadingBalance =
-                              snapshot.hasData && snapshot.data is Loading;
-                          final AccountBalance? accountBalance =
-                          (snapshot.hasData && snapshot.data != null)
+                        builder: (ctx, AsyncSnapshot<Resource<AccountBalance?>> snapshot) {
+                          final bool hideAccountBalance = PreferenceUtil.getValueForLoggedInUser(hideAccountBalanceKey) ?? false;
+                          final isLoadingBalanceError = snapshot.hasData && snapshot.data is Error;
+                          final isLoadingBalance = snapshot.hasData && snapshot.data is Loading;
+                          final AccountBalance? accountBalance = (snapshot.hasData && snapshot.data != null)
                               ? snapshot.data!.data
                               : null;
 
-                          if (snapshot.hasData &&
-                              (!isLoadingBalance && !isLoadingBalanceError)) {
+                          if (snapshot.hasData && (!isLoadingBalance && !isLoadingBalanceError)) {
                             final balance = hideAccountBalance
                                 ? "* ***"
                                 : "${accountBalance?.availableBalance?.formatCurrencyWithoutSymbolAndDividing}";
-                            // final coloredPrefix = hideAccountBalance ? "* " : "₦";
 
                             return Row(
                               children: [

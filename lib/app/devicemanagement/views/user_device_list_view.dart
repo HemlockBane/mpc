@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/svg.dart';
-import 'package:moniepoint_flutter/app/cards/views/error_layout_view.dart';
+import 'package:moniepoint_flutter/core/views/error_layout_view.dart';
 import 'package:moniepoint_flutter/app/devicemanagement/model/data/user_device.dart';
 import 'package:moniepoint_flutter/app/devicemanagement/viewmodels/user_device_view_model.dart';
 import 'package:moniepoint_flutter/app/devicemanagement/views/dialogs/remove_user_device_dialog.dart';

@@ -89,11 +89,9 @@ class LoginViewModel with ChangeNotifier {
   }
 
   Future<bool> canLoginWithBiometric(BiometricHelper? _helper) async {
-    print("This is the helper $_helper");
     final hasFingerPrint = (await _helper?.getFingerprintPassword()) != null;
     final biometricType = await _helper?.getBiometricType();
     final isEnabled = PreferenceUtil.getFingerPrintEnabled();
-    print("HasFingerprint => $hasFingerPrint, BioMetric => $biometricType, IsEnabled => $isEnabled");
     return hasFingerPrint && (biometricType != BiometricType.NONE) && isEnabled;
   }
 

@@ -7,7 +7,6 @@ import 'package:moniepoint_flutter/app/cards/model/data/card.dart';
 import 'package:moniepoint_flutter/app/cards/views/utils/card_view_util.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
-import 'package:moniepoint_flutter/core/utils/card_util.dart';
 
 class CardDetailedItem extends Container {
 

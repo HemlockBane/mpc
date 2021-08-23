@@ -26,7 +26,9 @@ class CustomerServiceDelegate with NetworkResource {
         saveRemoteData: (data) async {
           await _schemeDao.deleteAllTiers();
           //TODO this is an hack
-          await _schemeDao.insertItems(data.where((element) => element.name?.toLowerCase().contains("owner") != true).toList());
+          await _schemeDao.insertItems(
+              data.where((element) => element.name?.toLowerCase().contains("owner") != true).toList()
+          );
         }
     );
   }

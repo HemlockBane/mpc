@@ -72,6 +72,13 @@ abstract class BaseViewModel with ChangeNotifier {
     return UserInstance().userAccounts;
   }
 
+  String get cbaCustomerId => UserInstance().getUser()
+      ?.customers?.first.customerAccountUsers
+      ?.first.customerAccount?.cbaCustomerId ?? "";
+
+  String get primaryCbaCustomerId => UserInstance().getUser()
+      ?.customers?.first.primaryCbaCustomerId ?? "";
+
   int get customerId => UserInstance().getUser()?.customers?.first.id ?? 0;
   int get customerAccountId => UserInstance().getUser()?.customers?.first.customerAccountUsers?.first.customerAccount?.id ?? 0;
 

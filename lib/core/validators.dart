@@ -13,7 +13,7 @@ mixin Validators {
     if (password != null && password.length < 8) {
       passwordErrors.add("Password must be at least 8 characters");
     }
-    if (password != null && !RegExp(r".*[!@$%^&*()_+=\-\[\]{};':.<>\\/?`~].*").hasMatch(password)) {
+    if (password != null && !RegExp(r".*[!@$%^&*()_+=\-\[\]{};':.<>\\/?`~#|€£¥].*").hasMatch(password)) {
       passwordErrors.add("Password must have at least one special character");
     }
     if (password != null &&  !RegExp(r".*[A-Z].*").hasMatch(password)) {

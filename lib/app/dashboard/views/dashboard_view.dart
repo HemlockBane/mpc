@@ -1,23 +1,25 @@
-import 'dart:math';
+import 'dart:convert';
 
 import 'package:flutter/material.dart' hide ScrollView, Colors;
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:moniepoint_flutter/app/accounts/model/data/account_status.dart';
-import 'package:moniepoint_flutter/app/customer/customer.dart';
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
-import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_utils.dart';
+import 'package:moniepoint_flutter/app/dashboard/views/dashboard_drawer_view.dart';
+import 'package:moniepoint_flutter/app/dashboard/views/dashboard_menu.dart';
+import 'package:moniepoint_flutter/app/dashboard/views/dashboard_recently_paid_view.dart';
+import 'package:moniepoint_flutter/app/dashboard/views/dashboard_slider_view.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
-import 'package:moniepoint_flutter/core/models/user_instance.dart';
+import 'package:moniepoint_flutter/core/custom_icons2_icons.dart';
+import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
+import 'package:moniepoint_flutter/core/models/file_result.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
-import 'package:moniepoint_flutter/core/routes.dart';
-import 'package:moniepoint_flutter/core/styles.dart';
-import 'package:moniepoint_flutter/core/views/dots_indicator.dart';
+import 'package:moniepoint_flutter/core/utils/biometric_helper.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
+import 'package:moniepoint_flutter/core/viewmodels/finger_print_alert_view_model.dart';
+import 'package:moniepoint_flutter/core/views/finger_print_alert_dialog.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
+import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:provider/provider.dart';
-import 'package:moniepoint_flutter/core/strings.dart';
-
 import 'dashboard_account_card.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -27,383 +29,213 @@ class DashboardScreen extends StatefulWidget {
   _DashboardScreenState createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
-  PageController _pageController = PageController(viewportFraction: 1);
-  PageController _mPageController = PageController(viewportFraction: 1);
-
+class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposableWidget {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  Stream<Resource<List<TransferBeneficiary>>>? recentlyPaidBeneficiaries;
   late DashboardViewModel _viewModel;
-  final items = <BannerItem>[];
 
-  Widget _buildRecentlyPaidList(List<Color> recentlyPaidColors,
-      List<TransferBeneficiary> recentlyPaidBeneficiaries) {
-    return Column(children: [
-      SizedBox(
-        height: 20,
-      ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            "Recently Paid",
-            style: Styles.textStyle(
-              context,
-              fontWeight: FontWeight.w700,
-              fontSize: 13.5,
-              // height: 18,
-            ),
+  PageController _pageController = PageController(viewportFraction: 1);
+  Stream<Resource<List<TransferBeneficiary>>> recentlyPaidBeneficiaries = Stream.empty();
+
+  void _setupFingerprint() async {
+    final biometricRequest = await _viewModel.shouldRequestFingerPrintSetup();
+
+    if (biometricRequest.first) {
+      final result = await showModalBottomSheet(
+          backgroundColor: Colors.transparent,
+          isScrollControlled: true,
+          context: context,
+          builder: (mContext) {
+            return ChangeNotifierProvider(
+                create: (_) => FingerPrintAlertViewModel(),
+                child: FingerPrintAlertDialog());
+          });
+
+      if (result != null && result is bool) {
+        final successTitle = (biometricRequest.second == BiometricType.FINGER_PRINT)
+            ? "Fingerprint setup"
+            : "Face ID setup";
+
+        final successMessage = (biometricRequest.second == BiometricType.FINGER_PRINT)
+            ? "Fingerprint Setup successfully"
+            : "Face ID Setup successfully";
+
+        showSuccess(context,
+            title: successTitle,
+            message: successMessage,
+            primaryButtonText: "Continue",
+            onPrimaryClick: () => Navigator.of(context).pop(true)
+        );
+      } else if (result is Error<bool>) {
+        showError(context, message: result.message);
+      }
+    }
+  }
+
+  void subscribeUiToAccountStatus() {
+    Future.delayed(Duration(milliseconds: 1000), (){
+      _viewModel.fetchAccountStatus().listen((event) {
+        if(event is Success) {
+          _viewModel.checkAccountUpdate();
+          _viewModel.update();
+        }
+      }).disposedBy(this);
+    });
+  }
+
+  _backgroundImage() => Positioned(
+      top: 0,
+      bottom: 0,
+      right: 0,
+      left: 0,
+      child: IgnorePointer(
+        child: Opacity(
+          opacity: 0.2,
+          child: FittedBox(
+            fit: BoxFit.fill,
+            child: Image.asset("res/drawables/ic_app_bg.png"),
           ),
-          InkWell(
-            onTap: () {
-              Navigator.pushNamed(context, Routes.TRANSFER);
-            },
-            child: Text(
-              "View all",
-              style: Styles.textStyle(
-                context,
-                fontWeight: FontWeight.w600,
-                fontSize: 13.5,
-                color: Color(0xff0361F0),
-              ),
+        ),
+      ));
+
+  @override
+  void initState() {
+    _viewModel = Provider.of<DashboardViewModel>(context, listen: false);
+    _viewModel.checkAccountUpdate();
+    _viewModel.startSession(context);
+    recentlyPaidBeneficiaries = _viewModel.getRecentlyPaidBeneficiary();
+    super.initState();
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+      subscribeUiToAccountStatus();
+    });
+    Future.delayed(Duration(milliseconds: 1400), () => _setupFingerprint());
+  }
+
+  ///Main Content View of the dashboard
+  _contentView(double width, double height) => Container(
+    width: double.infinity,
+    color: Color(0XFFEBF2FA),
+    child: ScrollView(
+      child: Stack(
+        children: [
+          Container(
+            width: width,
+            height: height * 0.35,
+            child:
+            SvgPicture.asset("res/drawables/bg.svg", fit: BoxFit.fill),
+          ),
+          _DashboardTopMenu(
+              viewModel: _viewModel, scaffoldKey: _scaffoldKey
+          ),
+          _backgroundImage(),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: height * 0.16,),
+                AccountCard(viewModel: _viewModel, pageController: _pageController),
+                SizedBox(height: 32),
+                DashboardMenu(),
+                SizedBox(height: !_viewModel.isAccountUpdateCompleted ? 32 : 0),
+                StreamBuilder(
+                    stream: _viewModel.dashboardController,
+                    builder: (_,__) {
+                      return DashboardSliderView(items: _viewModel.sliderItems);
+                    }),
+                SizedBox(height: 32),
+                DashboardRecentlyPaidView(
+                  beneficiaries: recentlyPaidBeneficiaries,
+                  margin: EdgeInsets.only(bottom: 32),
+                ),
+                //Margin is determined by DashboardRecentlyPaidView
+                Text(
+                  "Suggested for You",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                    color: Colors.textColorBlack.withOpacity(0.6),
+                  ),
+                ),
+                SizedBox(height: 16),
+                SuggestedItems(),
+                SizedBox(height: 42),
+              ],
             ),
           )
         ],
       ),
-      SizedBox(height: 25),
-      Container(
-        height: 120,
-        child: Stack(
-          children: [
-            ListView.builder(
-              scrollDirection: Axis.horizontal,
-              shrinkWrap: true,
-              itemCount: recentlyPaidBeneficiaries.take(10).length,
-              itemBuilder: (BuildContext context, int index) {
-                final colorIdx =
-                    getColorIndex(index, recentlyPaidColors.length);
-                final color = recentlyPaidColors[colorIdx];
-                final recentlyPaidBeneficiary =
-                    recentlyPaidBeneficiaries[index];
+    ),
+  );
 
-                return Row(
-                  children: [
-                    _buildRecentlyPaidItem(
-                        color: color,
-                        recentlyPaidBeneficiary: recentlyPaidBeneficiary),
-                    SizedBox(width: 25)
-                  ],
-                );
-              },
-            ),
-            Align(
-              alignment: Alignment.topRight,
-              child: Container(
-                height: 112,
-                width: 40,
-                // color: Colors.red,
-                decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                        colors: [Color(0xff00FFFFFF), Colors.white],
-                        stops: [0.48, 1.0])),
-              ),
-            )
-          ],
-        ),
-      )
-    ]);
-  }
+  @override
+  Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
 
-  int getColorIndex(int index, int listLength) {
-    if (index < listLength - 1) {
-      return index;
-    }
-
-    return index % listLength;
-  }
-
-  void showComingSoonInfo() {
-    showModalBottomSheet(
-        isScrollControlled: true,
+    return SessionedWidget(
         context: context,
-        backgroundColor: Colors.transparent,
-        builder: (context) {
-          return BottomSheets.makeAppBottomSheet2(
-            height: 300,
-            dialogIcon: SvgPicture.asset(
-              'res/drawables/ic_info.svg',
-              color: Colors.primaryColor,
-              width: 40,
-              height: 40,
-            ),
-            centerImageBackgroundColor: Colors.primaryColor.withOpacity(0.1),
-            centerBackgroundPadding: 15,
-            content: Column(
-              children: [
-                SizedBox(height: 20),
-                Text('Coming Soon',
-                    style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.textColorBlack)),
-                SizedBox(height: 16),
-                Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.symmetric(horizontal: 75),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(8)),
-                  ),
-                  child: Text(
-                      "This feature is currently in development. Not to worry, you’ll be using it sooner than you think. ",
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.normal,
-                          color: Colors.darkBlue),
-                      textAlign: TextAlign.center),
-                ),
-                SizedBox(height: 24),
-                TextButton(
-                  child: Text(
-                    'Dismiss',
-                    style: TextStyle(color: Colors.primaryColor, fontSize: 16),
-                  ),
-                  onPressed: () => Navigator.pop(context),
-                ),
-                SizedBox(height: 32)
-              ],
-            ),
-          );
-        });
-  }
-
-  Widget _buildSuggestedItem(
-      {required String iconPath,
-      required String primaryText,
-      required String secondaryText,
-      required Color color,
-      bool isTarget = false}) {
-    return Expanded(
-      child: InkWell(
-        onTap: () => showComingSoonInfo(),
-        child: Container(
-          decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.all(Radius.circular(16)),
-              boxShadow: [
-                BoxShadow(
-                  offset: Offset(0, 1),
-                  blurRadius: 2,
-                  color: Color(0xff1F0E4FB1).withOpacity(0.12),
-                ),
-              ]),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Container(
-                    height: isTarget ? 115 : 112,
-                    width: 112,
-                    child: Image.asset(iconPath),
-                  )
-                ],
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      primaryText,
-                      style: Styles.textStyle(context,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 17.1,
-                          color: Colors.white),
-                    ),
-                    Text(
-                      secondaryText,
-                      style: Styles.textStyle(context,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 17.1,
-                          color: Colors.white),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 24,
-              )
-            ],
-          ),
+        child: Scaffold(
+          key: _scaffoldKey,
+          drawer: DashboardDrawer(width),
+          body: _contentView(width, height),
         ),
-      ),
     );
   }
+}
 
-  Widget _buildRecentlyPaidItem(
-      {required Color color,
-      required TransferBeneficiary recentlyPaidBeneficiary}) {
-    var firstName = "";
-    var lastName = "";
+///_DashboardTopMenu
+///
+///
+///
+///
+///
+///
+///
+///
+///
+///
+///
+///
+class _DashboardTopMenu extends StatelessWidget {
+  final DashboardViewModel viewModel;
+  final GlobalKey<ScaffoldState> scaffoldKey;
 
-    final names = recentlyPaidBeneficiary
-        .getAccountName()
-        .toLowerCase()
-        .capitalizeFirstOfEach
-        .split(" ");
+  _DashboardTopMenu({required this.viewModel, required this.scaffoldKey})
+      : super(key: Key("_DashboardTopMenu"));
 
-    if (names.isNotEmpty) {
-      if (names.length < 2) {
-        firstName = names[0];
-      } else {
-        lastName = names[0];
-        firstName = names[1];
-      }
-    }
-
-    return Column(children: [
-      Stack(
-        clipBehavior: Clip.none,
-        children: [
-          SvgPicture.asset(
-            "res/drawables/ic_m_bg.svg",
-            fit: BoxFit.cover,
-            height: 59,
-            width: 59,
-            color: color.withOpacity(0.11),
+  ///Container that holds the user image loaded from remote service
+  _userProfileImage(String base64String) => Container(
+      height: 34,
+      width: 34,
+      padding: EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+        image: DecorationImage(
+          fit: BoxFit.cover,
+          image: MemoryImage(
+            base64Decode(base64String),
           ),
-          Container(
-            height: 59,
-            width: 59,
-            child: Center(
-              // alignment: Alignment.center,
-              child: Text(
-                recentlyPaidBeneficiary
-                    .getAccountName()
-                    .abbreviate(2, false, includeMidDot: false),
-                style: Styles.textStyle(context,
-                    fontSize: 19.3, fontWeight: FontWeight.w700, color: color),
-              ),
-            ),
-          ),
-          if (_viewModel.isIntraTransfer(recentlyPaidBeneficiary))
-            Positioned(
-              top: -2,
-              right: 1,
-              child: SvgPicture.asset(
-                "res/drawables/ic_m_bg.svg",
-                fit: BoxFit.cover,
-                height: 20,
-                width: 20,
-                color: Colors.white,
-              ),
-            ),
-          if (_viewModel.isIntraTransfer(recentlyPaidBeneficiary))
-            Positioned(
-              top: 0,
-              right: 3,
-              child: SvgPicture.asset(
-                "res/drawables/ic_moniepoint_cube_alt.svg",
-                fit: BoxFit.cover,
-                height: 16,
-                width: 16,
-              ),
-            ),
-        ],
-      ),
-      SizedBox(height: 6),
-      Text(
-        firstName,
-        style: Styles.textStyle(context,
-            fontSize: 11.4,
-            letterSpacing: -0.2,
-            fontWeight: FontWeight.w500,
-            color: Color(0xff1A0C2F).withOpacity(0.9)),
-        textAlign: TextAlign.center,
-      ),
-      SizedBox(height: 2),
-      Text(
-        lastName,
-        style: Styles.textStyle(context,
-            fontSize: 11.4,
-            letterSpacing: -0.2,
-            fontWeight: FontWeight.w500,
-            color: Color(0xff1A0C2F).withOpacity(0.9)),
-        textAlign: TextAlign.center,
-      ),
-      // SizedBox(height: 19),
-    ]);
-  }
+        ),
+      ));
 
-  Widget _buildItemCard(
-      {required Color color,
-      required String text,
-      required String iconString,
-      required String routeName,
-      double height = 24,
-      double width = 24}) {
-    return InkWell(
-      onTap: () {
-        if (routeName.isNotEmpty) {
-          Navigator.pushNamed(context, routeName);
-        }
-      },
-      child: Container(
+  _userProfilePlaceholder() => Container(
+        height: 34,
+        width: 34,
         decoration: BoxDecoration(
-            color: Color(0xffF9FBFD),
-            borderRadius: BorderRadius.all(Radius.circular(16)),
-            boxShadow: [
-              BoxShadow(
-                offset: Offset(0, 1),
-                blurRadius: 2,
-                color: Color(0xff1F0E4FB1).withOpacity(0.12),
-              ),
-            ]),
-        child: Column(
-          children: [
-            SizedBox(height: 17),
-            Container(
-              height: 50,
-              width: 50,
-              margin: EdgeInsets.symmetric(horizontal: 24),
-              padding: EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: SvgPicture.asset(
-                  iconString,
-                  width: width,
-                  height: height,
-                  color: color,
-                ),
-              ),
-            ),
-            SizedBox(height: 10),
-            Text(
-              text,
-              style: Styles.textStyle(
-                context,
-                fontWeight: FontWeight.w600,
-                letterSpacing: -0.2,
-                fontSize: 12.3,
-                color: Color(0xff1A0C2F).withOpacity(0.8),
-              ),
-            ),
-            SizedBox(height: 11)
-          ],
+            shape: BoxShape.circle,
+            color: Colors.white.withOpacity(0.2),
+            border: Border.all(color: Colors.white.withOpacity(0.4))),
+        child: Icon(
+          CustomIcons2.username,
+          color: Color(0xffF5F9FF).withOpacity(0.5),
+          size: 21,
         ),
-      ),
-    );
-  }
+      );
 
-  Widget _buildTopIcons(BuildContext context) {
-    final firstName = UserInstance().getUser()?.firstName ?? "";
-
+  @override
+  Widget build(BuildContext context) {
+    final firstName = viewModel.getFirstName();
     return Container(
       margin: EdgeInsets.only(
         top: MediaQuery.of(context).size.height * 0.084,
@@ -415,7 +247,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
           InkWell(
             onTap: () {
-              _scaffoldKey.currentState?.openDrawer();
+              scaffoldKey.currentState?.openDrawer();
             },
             child: SvgPicture.asset(
               "res/drawables/ic_dashboard_drawer_menu.svg",
@@ -428,638 +260,143 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               Text(
                 firstName.isEmpty ? "Hello" : "Hello, $firstName",
-                style: Styles.textStyle(context,
-                    fontSize: 13.5,
+                style: TextStyle(
+                    fontSize: 13.8,
                     fontWeight: FontWeight.w600,
                     color: Colors.white),
               ),
               SizedBox(width: 9),
-              Container(
-                height: 32,
-                width: 32,
-                padding: EdgeInsets.all(2),
-                decoration:
-                    BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                child: Container(
-                  height: 30,
-                  width: 30,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: AssetImage("res/drawables/dashboard_icon.png"),
-                    ),
-                  ),
-                ),
-              )
+              StreamBuilder(
+                  stream: viewModel.getProfilePicture(),
+                  builder: (ctx, AsyncSnapshot<Resource<FileResult>> snapShot) {
+                    ///Only if the request is successful or it's loading with data
+                    if (snapShot.hasData && (snapShot.data is Success || snapShot.data is Loading)) {
+                      final data = snapShot.data?.data;
+                      if (data?.base64String?.isNotEmpty == true) {
+                        return _userProfileImage(data!.base64String!);
+                      }
+                    }
+                    final localViewCachedImage = viewModel.userProfileBase64String;
+                    if(localViewCachedImage != null && localViewCachedImage.isNotEmpty == true) {
+                      return _userProfileImage(viewModel.userProfileBase64String!);
+                    }
+                    return _userProfilePlaceholder();
+                  }),
+              SizedBox(width: 4)
             ],
           )
         ],
       ),
     );
   }
+}
 
-  Widget _icon(
-      {required String svgPath,
-      Color? color,
-      double? width,
-      double? height,
-      VoidCallback? onClick}) {
-    return InkWell(
-      highlightColor: Colors.white.withOpacity(0.1),
-      overlayColor: MaterialStateProperty.all(Colors.white.withOpacity(0.02)),
-      onTap: onClick,
-      child: SvgPicture.asset(
-        svgPath,
-        width: width ?? 21,
-        height: height ?? 21,
-        color: color,
-      ),
-    );
-  }
 
-  Widget drawerListItem(String title, String svgPath, String routeName,
-      {double? height,
-      double? width,
-      bool shouldNavigate = true,
-      VoidCallback? onTapAlt,
-      double spacing = 10}) {
-    final onTapDefault = () {
-      if (routeName.isNotEmpty) {
-        Navigator.pop(context);
-        Navigator.pushNamed(context, routeName);
-      }
-    };
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        highlightColor: Colors.white.withOpacity(0.1),
-        overlayColor: MaterialStateProperty.all(Colors.white.withOpacity(0.02)),
-        onTap: shouldNavigate
-            ? onTapDefault
-            : onTapAlt ?? () => Navigator.pop(context),
-        child: Container(
-          padding: EdgeInsets.only(left: 40, right: 0, top: 20, bottom: 20),
-          child: Row(
-            children: [
-              _icon(svgPath: svgPath, height: height, width: width),
-              SizedBox(
-                width: spacing,
-              ),
-              Text(
-                title,
-                style: Styles.textStyle(context,
-                    color: Colors.white,
-                    fontSize: 14.6,
-                    fontWeight: FontWeight.w600),
-              )
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDrawer(BuildContext context) {
-    return Drawer(
-      child: Container(
-        color: Colors.colorPrimaryDark,
-        child: Stack(
-          children: [
-            Align(
-              alignment: Alignment.topCenter,
-              child: Container(
-                height: 1,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  // color: Colors.red,
-                  gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Color(0xff0B3275).withOpacity(0.5),
-                        Color(0xff0B3275)
-                      ],
-                      stops: [
-                        0.8,
-                        1.0
-                      ]),
-                ),
-              ),
-            ),
-            Column(
-              children: [
-                SizedBox(height: 58),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 21),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _icon(
-                          svgPath: "res/drawables/ic_moniepoint_cube_2.svg",
-                          width: 40,
-                          height: 40),
-                      Row(
-                        children: [
-                          // Stack(
-                          //   clipBehavior: Clip.none,
-                          //   children: [
-                          //     _icon(
-                          //         svgPath:
-                          //             "res/drawables/ic_dashboard_notifications.svg"),
-                          //     Positioned(
-                          //       top: -13,
-                          //       right: -10,
-                          //       child: Container(
-                          //         padding: EdgeInsets.all(2),
-                          //         decoration: BoxDecoration(
-                          //             color: Colors.darkRed,
-                          //             borderRadius:
-                          //                 BorderRadius.all(Radius.circular(4))),
-                          //         child: Text(
-                          //           "99",
-                          //           style: TextStyle(
-                          //             color: Colors.white,
-                          //             fontSize: 10,
-                          //             fontWeight: FontWeight.w600,
-                          //           ),
-                          //         ),
-                          //       ),
-                          //     )
-                          //   ],
-                          // ),
-                          // SizedBox(width: 29),
-                          _icon(
-                              svgPath:
-                                  "res/drawables/ic_dashboard_settings.svg",
-                              onClick: () => Navigator.pushNamed(
-                                  context, Routes.SETTINGS)),
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: ListView(
-                    children: [
-                      SizedBox(height: 24),
-                      _sectionTitle(context, "TRANSACTIONS"),
-                      drawerListItem(
-                          "Transfer Money",
-                          "res/drawables/ic_dashboard_transfer_2.svg",
-                          Routes.TRANSFER,
-                          width: 21,
-                          height: 17,
-                          spacing: 5),
-                      drawerListItem(
-                          "Airtime & Data",
-                          "res/drawables/ic_dashboard_airtime_2.svg",
-                          Routes.AIRTIME,
-                          height: 26),
-                      drawerListItem(
-                          "Bill Payments",
-                          "res/drawables/ic_dashboard_bills_2.svg",
-                          Routes.BILL),
-                      SizedBox(
-                        height: 21,
-                      ),
-                      _sectionTitle(context, "ACCOUNTS & CARDS"),
-                      drawerListItem(
-                          "Manage Account",
-                          "res/drawables/ic_dashboard_manage_account.svg",
-                          Routes.ACCOUNT_TRANSACTIONS,
-                          height: 26,
-                          spacing: 5),
-                      drawerListItem(
-                          "Manage Cards",
-                          "res/drawables/ic_dashboard_manage_cards.svg",
-                          Routes.CARDS,
-                          height: 18),
-                      SizedBox(
-                        height: 21,
-                      ),
-                      _sectionTitle(context, "SAVINGS & LOANS"),
-                      drawerListItem("Savings",
-                          "res/drawables/ic_dashboard_savings.svg", "",
-                          shouldNavigate: false,
-                          onTapAlt: showComingSoonInfo,
-                          height: 26,
-                          spacing: 5),
-                      drawerListItem("Get Loan",
-                          "res/drawables/ic_dashboard_manage_cards.svg", "",
-                          shouldNavigate: false,
-                          onTapAlt: showComingSoonInfo,
-                          height: 18),
-                    ],
-                  ),
-                )
-              ],
-            ),
-            Positioned(
-              bottom: 64,
-              right: 36,
-              child: Container(
-                padding: EdgeInsets.all(15),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withOpacity(0.1),
-                ),
-                child: _icon(
-                    svgPath: "res/drawables/ic_cancel_dashboard.svg",
-                    onClick: () => Navigator.pop(context)),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Container _sectionTitle(BuildContext context, String title) {
-    return Container(
-      margin: EdgeInsets.only(left: 39, right: 20),
-      child: Row(
-        children: [
-          Text(
-            title,
-            style: Styles.textStyle(context,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Colors.white.withOpacity(0.15),
-                letterSpacing: 1.3),
-          ),
-          SizedBox(width: 10),
-          Expanded(
-              child: Divider(height: 1, color: Colors.white.withOpacity(0.3))),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDashboardSlider() {
-    //Since we have only a single update page for now we can put it in here
-    items.clear();
-    if (!_hasCompletedAccountUpdate()) {
-      return Container();
-    } 
-
-    items.add(
-      BannerItem(
-            svgPath: 'res/drawables/ic_dashboard_edit.svg',
-            primaryText: 'Upgrade Account',
-            secondaryText:
-                'Upgrade your savings account\nto enjoy higher limits'),
-      );
-    
-
-    return SizedBox(
-      height: 140,
-      child: PageView.builder(
-          itemCount: items.length,
-          controller: _mPageController,
-          itemBuilder: (BuildContext context, int index) {
-            // return items[index % items.length];
-            final item = items[index];
-            return Stack(
-              children: [
-                _dashboardUpdateItem(
-                  svgPath: item.svgPath,
-                  primaryText: item.primaryText,
-                  secondaryText: item.secondaryText,
-                ),
-                // if (items.length > 1) SizedBox(height: 19),
-                // if (items.length > 1)
-                //   DotIndicator(
-                //     controller: _mPageController,
-                //     itemCount: 2,
-                //   ),
-              ],
-            );
-          }),
-    );
-  }
-
-  bool _hasCompletedAccountUpdate() {
-    final viewModel = Provider.of<DashboardViewModel>(context, listen: false);
-    Customer? customer = viewModel.customer;
-    AccountStatus? accountStatus = UserInstance().accountStatus;
-    final flags = accountStatus?.listFlags() ?? customer?.listFlags();
-    if (flags == null) return true;
-    return flags.where((element) => element?.status != true).isEmpty;
-  }
-
-  Widget _greetingItem() {
-    final viewModel = Provider.of<DashboardViewModel>(context, listen: false);
-    // final width = MediaQuery.of(context).size.width * 0.13;
-
-    return Material(
-      color: Colors.transparent,
-      child: Card(
-        shadowColor: Colors.primaryColor.withOpacity(0.1),
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: InkWell(
-          customBorder:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          onTap: () => null,
-          child: Container(
-              padding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Hello ${viewModel.accountName},',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.textColorBlack,
-                          fontSize: 17)),
-                  SizedBox(height: 2),
-                  Text('Remember to stay safe!',
-                      style:
-                          TextStyle(color: Colors.textColorBlack, fontSize: 12))
-                ],
-              )),
-        ),
-      ),
-    );
-  }
-
-  Widget _dashboardUpdateItem({
-    required String svgPath,
-    required String primaryText,
-    required String secondaryText,
-  }) {
-    return Material(
-      color: Colors.transparent,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.primaryColor.withOpacity(0.1),
-          borderRadius: BorderRadius.all(Radius.circular(16)),
-        ),
-        child: InkWell(
-          customBorder:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          onTap: () => (!_hasCompletedAccountUpdate())
-              ? Navigator.of(context)
-                  .pushNamed(Routes.ACCOUNT_UPDATE)
-                  // .then((_) => subscribeUiToAccountStatus())
-                  .then((_) => null)
-              : setState(() => {}),
-          child: Container(
-            // padding: EdgeInsets.only(left: 16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Column(
-                  children: [
-                    SizedBox(height: 7),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Container(
-                          height: 120,
-                          width: 120,
-                          child: Image.asset(
-                              "res/drawables/ic_dashboard_edit.png"),
-                        ),
-                        // SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              SizedBox(height: 10),
-                              Text(primaryText,
-                                  style: Styles.textStyle(context,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.primaryColor,
-                                      fontSize: 14.5)),
-                              SizedBox(height: 4),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(secondaryText,
-                                      style: Styles.textStyle(context,
-                                          color: Colors.textColorBlack,
-                                          fontSize: 12.6,
-                                          fontWeight: FontWeight.w300,
-                                          lineHeight: 1.5)),
-                                  Container(
-                                    margin: const EdgeInsets.only(
-                                        right: 20, top: 4),
-                                    child: SvgPicture.asset(
-                                        'res/drawables/ic_forward_arrow.svg',
-                                        height: 18,
-                                        width: 18,
-                                        color: Colors.primaryColor),
-                                  )
-                                ],
-                              )
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+///
+///
+///
+///
+///
+///
+///
+class SuggestedItems extends Row {
 
   @override
-  void initState() {
-    _viewModel = Provider.of<DashboardViewModel>(context, listen: false);
-    recentlyPaidBeneficiaries = _viewModel.getRecentlyPaidBeneficiary();
-    super.initState();
-  }
+  List<Widget> get children => _contentView();
+
+  _contentView() => [
+    Expanded(
+        child: _SuggestedItem(
+            backgroundColor: Colors.primaryColor,
+            image: Image.asset(
+              "res/drawables/ic_dashboard_target.png",
+              width: 112,
+              height: 115,
+            ),
+            title: "Start\nSaving.")),
+    SizedBox(width: 20.5),
+    Expanded(
+        child: _SuggestedItem(
+            backgroundColor: Colors.solidGreen,
+            image: Image.asset(
+              "res/drawables/ic_dashboard_calendar.png",
+              width: 112,
+              height: 112,
+            ),
+            title: "Get a\nLoan.")),
+  ];
+
+}
+
+
+///_SuggestedItem
+///
+///
+///
+///
+///
+///
+///
+///
+///
+///
+///
+class _SuggestedItem extends StatelessWidget {
+  final Color backgroundColor;
+  final String title;
+  final Widget image;
+
+  _SuggestedItem(
+      {required this.backgroundColor,
+      required this.image,
+      required this.title});
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final height = MediaQuery.of(context).size.height;
-
-    final recentlyPaidColors = [
-      Color(0xff0361F0),
-      Color(0xff51E070),
-      Color(0xffF08922),
-      Color(0xff9B51E0),
-      Color(0xffECAB03),
-      Color(0xff0B3275),
-      Color(0xff1EB12D),
-      Color(0xffE05196),
-      Color(0xff51ADE0),
-    ];
-
-    return Scaffold(
-      key: _scaffoldKey,
-      drawer: _buildDrawer(context),
-      body: Container(
-        width: double.infinity,
-        color: Color(0XFFEBF2FA),
-        child: ScrollView(
-          child: Stack(
+    return Container(
+      decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+          boxShadow: [
+            BoxShadow(
+              offset: Offset(0, 1),
+              blurRadius: 2,
+              color: Color(0xff1F0E4FB1).withOpacity(0.12),
+            ),
+          ]),
+      child: Material(
+        borderRadius: BorderRadius.all(Radius.circular(16)),
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+          overlayColor:
+              MaterialStateProperty.all(backgroundColor.withOpacity(0.1)),
+          highlightColor: backgroundColor.withOpacity(0.04),
+          onTap: () => showComingSoon(context),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: width,
-                height: height * 0.35,
-                child: SvgPicture.asset(
-                  "res/drawables/bg.svg",
-                  fit: BoxFit.fill,
+              SizedBox(
+                height: 12,
+              ),
+              Align(
+                alignment: Alignment.topRight,
+                child: image,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 20, bottom: 24),
+                child: Text(
+                  title,
+                  style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 19,
+                      color: Colors.white),
                 ),
               ),
-              _buildTopIcons(context),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      height: height * 0.16,
-                    ),
-                    AccountCard(
-                        viewModel: _viewModel, pageController: _pageController),
-                    SizedBox(height: 32),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _buildItemCard(
-                            color: Color(0xFF0361F0),
-                            width: 25,
-                            height: 19,
-                            text: "Transfer",
-                            iconString:
-                                "res/drawables/ic_dashboard_transfer_2.svg",
-                            routeName: Routes.TRANSFER),
-                        _buildItemCard(
-                            color: Color(0xffF08922),
-                            width: 19.75,
-                            height: 31,
-                            text: "Airtime",
-                            iconString:
-                                "res/drawables/ic_dashboard_airtime_2.svg",
-                            routeName: Routes.AIRTIME),
-                        _buildItemCard(
-                            color: Color(0xff1EB12D),
-                            width: 22,
-                            height: 25,
-                            text: "Bills",
-                            iconString:
-                                "res/drawables/ic_dashboard_bills_2.svg",
-                            routeName: Routes.BILL),
-                      ],
-                    ),
-                    if (_hasCompletedAccountUpdate())
-                       SizedBox(height: 32),
-                    _buildDashboardSlider(),
-                    SizedBox(height: 32),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 17),
-                      decoration: BoxDecoration(
-                          color: Color(0xffF9FBFD),
-                          borderRadius: BorderRadius.all(Radius.circular(16)),
-                          boxShadow: [
-                            BoxShadow(
-                              offset: Offset(0, 1),
-                              blurRadius: 2,
-                              color: Color(0xff1F0E4FB1).withOpacity(0.12),
-                            ),
-                          ]),
-                      child: StreamBuilder(
-                        stream: recentlyPaidBeneficiaries,
-                        builder: (BuildContext context,
-                            AsyncSnapshot<Resource<List<TransferBeneficiary>?>>
-                                snapshot) {
-                          if (!snapshot.hasData) return Container();
-
-                          final resource = snapshot.data;
-                          final hasData = resource?.data?.isNotEmpty == true;
-
-                          if (resource is Loading && !hasData) {
-                            return Container();
-                          }
-
-                          if ((snapshot.hasError || snapshot.data is Error)) {
-                            Container();
-                          }
-
-                          if (resource == null ||
-                              resource is Loading &&
-                                  resource.data?.isEmpty == true) {
-                            return Container();
-                          }
-
-                          if (resource is Success && !hasData) {
-                            return Container();
-                          }
-
-                          final beneficiaries = resource.data;
-
-                          if ((beneficiaries == null) ||
-                              beneficiaries.length < 2) {
-                            return Container();
-                          }
-
-                          return _buildRecentlyPaidList(
-                              recentlyPaidColors, beneficiaries);
-                        },
-                      ),
-                    ),
-                    SizedBox(height: 32),
-                    Text(
-                      "Suggested for You",
-                      style: Styles.textStyle(
-                        context,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14.2,
-                        color: Color(0xff1A0C2F).withOpacity(0.6),
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                    Row(
-                      children: [
-                        _buildSuggestedItem(
-                          isTarget: true,
-                          iconPath: "res/drawables/ic_dashboard_target.png",
-                          primaryText: "Start",
-                          secondaryText: "Saving.",
-                          color: Color(0xff0361F0),
-                        ),
-                        SizedBox(width: 20.5),
-                        _buildSuggestedItem(
-                            iconPath: "res/drawables/ic_dashboard_calendar.png",
-                            primaryText: "Get a",
-                            secondaryText: "Loan.",
-                            color: Color(0xff1EB12D))
-                      ],
-                    ),
-                    SizedBox(height: 20),
-                  ],
-                ),
-              )
             ],
           ),
         ),
       ),
     );
   }
-}
-
-class BannerItem {
-  final String svgPath;
-  final String primaryText;
-  final String secondaryText;
-
-  BannerItem(
-      {required this.svgPath,
-      required this.primaryText,
-      required this.secondaryText});
 }

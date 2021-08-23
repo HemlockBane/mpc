@@ -14,17 +14,17 @@ import 'package:moniepoint_flutter/app/billpayments/views/bill_view.dart';
 import 'package:moniepoint_flutter/app/branches/branch_search_view.dart';
 import 'package:moniepoint_flutter/app/branches/branches_view.dart';
 import 'package:moniepoint_flutter/app/branches/viewmodels/branch_view_model.dart';
-import 'package:moniepoint_flutter/app/cards/model/data/card.dart';
+import 'package:moniepoint_flutter/app/cards/viewmodels/card_activation_view_model.dart';
 import 'package:moniepoint_flutter/app/cards/viewmodels/card_issuance_view_model.dart';
 import 'package:moniepoint_flutter/app/cards/viewmodels/single_card_view_model.dart';
+import 'package:moniepoint_flutter/app/cards/views/add_card_view.dart';
 import 'package:moniepoint_flutter/app/cards/views/card_detailed_view.dart';
 import 'package:moniepoint_flutter/app/cards/views/card_view.dart';
 import 'package:moniepoint_flutter/app/cards/views/dialogs/manage_card_channels_dialog.dart';
+import 'package:moniepoint_flutter/app/cards/views/issuance/card_activation_view.dart';
 import 'package:moniepoint_flutter/app/cards/views/issuance/card_qr_code_scanner_view.dart';
 import 'package:moniepoint_flutter/app/cards/views/unblock_debit_card_view.dart';
-import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_view.dart';
-import 'package:moniepoint_flutter/app/dashboard/views/dashboard_view_old.dart';
 import 'package:moniepoint_flutter/app/devicemanagement/viewmodels/user_device_view_model.dart';
 import 'package:moniepoint_flutter/app/devicemanagement/views/user_device_list_view.dart';
 import 'package:moniepoint_flutter/app/liveliness/liveliness_verification.dart';
@@ -69,6 +69,8 @@ class Routes {
   static const BRANCHES_SEARCH  = "BRANCHES_SEARCH";
   static const CARDS  = "CARDS";
   static const CARD_DETAIL = "CARD_DETAIL";
+  static const CARD_ACTIVATION = "CARD_ACTIVATION";
+  static const ADD_CARD = "ADD_CARD";
   static const MANAGE_CARD_CHANNELS = "MANAGE_CARD_CHANNELS";
   static const CARD_QR_SCANNER = "CARD_QR_SCANNER";
   static const CONTACTS  = "CONTACTS";
@@ -114,8 +116,7 @@ class Routes {
           ),
 
       Routes.SETTINGS: (BuildContext context) => SettingsScreen(),
-      Routes.MANAGED_BENEFICIARIES: (BuildContext context) =>
-          ManagedBeneficiaryScreen(),
+      Routes.MANAGED_BENEFICIARIES: (BuildContext context) => ManagedBeneficiaryScreen(),
       Routes.SUPPORT: (BuildContext context) => ChangeNotifierProvider.value(
         value: systemConfigurationViewModel,
         child: SupportScreen(),
@@ -131,6 +132,10 @@ class Routes {
       Routes.CARDS: (BuildContext context) => ChangeNotifierProvider(
         create: (_) => SingleCardViewModel(),
         child: CardScreen(),
+      ),
+      Routes.ADD_CARD: (BuildContext context) => ChangeNotifierProvider(
+        create: (_) => SingleCardViewModel(),
+        child: AddCardScreen(),
       ),
       Routes.CARD_QR_SCANNER: (BuildContext context) => ChangeNotifierProvider(
         create: (_) => CardIssuanceViewModel(),
@@ -181,6 +186,15 @@ class Routes {
             builder: (_) => ChangeNotifierProvider(
               create: (_) => SingleCardViewModel(),
               child: ManageCardChannelDialog(cardId),
+            )
+        );
+      case Routes.CARD_ACTIVATION:
+        final args = settings.arguments as Map<dynamic, dynamic>;
+        final cardId = args["id"] as num;
+        return MaterialPageRoute(
+            builder: (_) => ChangeNotifierProvider(
+              create: (_) => CardActivationViewModel(),
+              child: CardActivationView(cardId),
             )
         );
     }

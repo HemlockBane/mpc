@@ -5,6 +5,7 @@ import 'package:moniepoint_flutter/core/colors.dart';
 
 const _left = 45.0;
 const _top = 60.0;
+const aspectRatio = 4/3.15;
 
 class LivelinessFaceOval extends CustomPainter {
 
@@ -20,7 +21,7 @@ class LivelinessFaceOval extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     var margin = 8.0;
-    var frameRect = Rect.fromLTRB(_left + margin, _top+margin, (size.width - _left) - margin, (size.height * 0.65) - margin);
+    var frameRect = Rect.fromLTRB(_left + margin, _top+margin, (size.width - _left) - margin, (size.width *  aspectRatio) - margin);
     canvas.drawRRect(RRect.fromRectAndRadius(frameRect, Radius.circular(6)), _backgroundPaint);
   }
   @override
@@ -88,7 +89,7 @@ class LivelinessCameraFrame extends CustomPainter {
 
     var path = Path();
 
-    _frameRect = Rect.fromLTRB(_left, _top, (size.width - _left), (size.height * 0.65));
+    _frameRect = Rect.fromLTRB(_left, _top, (size.width - _left), (size.width * aspectRatio));
 
     print("ScreenWidth => ${size.width}, ScreenHeight => ${size.height}");
     print("ImageWidth => ${_frameRect.width}, ImageHeight => ${_frameRect.height}");
@@ -108,7 +109,7 @@ class LivelinessCameraFrame extends CustomPainter {
     path.quadraticBezierTo(_frameRect.left, _frameRect.top, _frameRect.left + lineDistanceToCurve, _frameRect.top + 2);
     
     var frameRect = Rect.fromLTRB(_left + 8.0, _top + 8.0,
-        (size.width - _left) - 8.0, (size.height * 0.65) - 8.0
+        (size.width - _left) - 8.0, (size.width * aspectRatio) - 8.0
     );
     canvas.drawRRect(RRect.fromRectAndRadius(frameRect, Radius.circular(6)), _backgroundPaint);
 

@@ -28,17 +28,23 @@ class _PinEntryState extends State<PinEntry> {
 
   Widget makePinEntryView({Color color = Colors.primaryColor}) {
     return Container(
-      width: 11,
-      height: 11,
-      decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(4),
+        color: Colors.primaryColor.withOpacity(0.1)
+      ),
+      child: Container(
+        width: 11,
+        height: 11,
+        decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+      ),
     );
   }
 
   Widget makeLineEntryView() {
-    return VerticalDivider(
-      color: Colors.dividerColor2.withOpacity(0.3),
-      width: 0.5,
-      thickness: 0.5,
+    return Padding(
+      padding: EdgeInsets.only(left: 8.5, right: 8.5),
+      child: SizedBox(width: 1,),
     );
   }
 
@@ -83,20 +89,12 @@ class _PinEntryState extends State<PinEntry> {
   Widget build(BuildContext context) {
     return Container(
       // color: Colors.white,
+      padding: EdgeInsets.only(left: 12, right: 12, top: 4.5, bottom: 4.5),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Color(0XFF0048B7).withOpacity(0.11)),
         color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-              color: Colors.grey.withOpacity(0.16),
-              offset: Offset(0, 3.5),
-              blurRadius: 7
-          )
-        ]
       ),
-      // elevation: 8,
-      // shadowColor: Colors.black.withOpacity(0.2),
-      // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Stack(
         alignment: AlignmentDirectional.bottomCenter,
         children: [

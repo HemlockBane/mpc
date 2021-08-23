@@ -123,6 +123,9 @@ class LivelinessDetector extends ValueNotifier<LiveDetectorValue> implements Liv
           eventType: cameraMotionEvent, eventData: data, exposure: event["exposure"] ?? null
       );
       if(!_motionEventEmitter.isClosed) _motionEventEmitter.sink.add(motionEvent);
+    }).onDone(() {
+      print("Closing Live Detection Stream...");
+      _motionEventEmitter.close();
     });
   }
 

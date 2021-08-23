@@ -12,7 +12,6 @@ import 'package:rxdart/rxdart.dart';
 /// @author Paul Okeke
 class ProfileForm with ChangeNotifier, Validators {
 
-
   Stream<bool>? _isValid;
   var isUsernameVerified = false;
 
@@ -98,7 +97,7 @@ class ProfileForm with ChangeNotifier, Validators {
   bool _isUsernameValid({bool displayError = false}) {
     final isValid = _requestBody.username != null && _requestBody.username!.isNotEmpty;
     if (displayError && !isValid) _usernameController.addError("Enter username");
-    return isValid && true; //isUsernameVerified;
+    return isValid && true;
   }
 
   void onPasswordChanged(String? text) {
@@ -179,8 +178,8 @@ class ProfileForm with ChangeNotifier, Validators {
     this._setupType = setupType;
   }
 
-
   Stream<bool> get isValid => _isValid ?? Stream.value(false);
+
   @override
   void dispose() {
     _usernameController.close();

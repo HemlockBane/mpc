@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:moniepoint_flutter/app/cards/views/empty_list_layout_view.dart';
-import 'package:moniepoint_flutter/app/cards/views/error_layout_view.dart';
+import 'package:moniepoint_flutter/core/views/empty_list_layout_view.dart';
+import 'package:moniepoint_flutter/core/views/error_layout_view.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/single_transfer_transaction.dart';
 import 'package:moniepoint_flutter/app/transfers/viewmodels/transfer_history_view_model.dart';
 import 'package:moniepoint_flutter/app/transfers/views/transfer_history_list_item.dart';

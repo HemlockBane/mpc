@@ -74,13 +74,6 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> {
 
   void _displayBottomSheet() {
     if(_viewModel.tiers.isEmpty) return;
-    // Scaffold.of(context).showBottomSheet(
-    //     (context) => TierRequirementDialog(
-    //         _viewModel.tiers,
-    //         _viewModel.getFormWeightedProgress(),
-    //         Tuple(0, BottomSheetState.COLLAPSED)
-    //     ),
-    // );
   }
 
   List<PagedForm> _getDisplayableFormsForAccountUpdate() {

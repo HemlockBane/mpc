@@ -233,7 +233,7 @@ class _AccountDetailsState extends State<AccountDetails>
                                         fontWeight: FontWeight.w800,
                                         color: Colors.textColorBlack.withOpacity(0.5))),
                                 SizedBox(width: 4),
-                                Text('* ***',
+                                Text('***',
                                     style: TextStyle(
                                         fontSize: 23.5,
                                         fontWeight: FontWeight.w800,

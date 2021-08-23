@@ -52,6 +52,7 @@ Customer _$CustomerFromJson(Map<String, dynamic> json) {
     json['bvnVerificationFlag'] == null
         ? null
         : AccountUpdateFlag.fromJson(json['bvnVerificationFlag'] as Object),
+    json['passportUUID'] as String?,
   );
 }
 
@@ -68,6 +69,7 @@ Map<String, dynamic> _$CustomerToJson(Customer instance) => <String, dynamic>{
       'relationshipManagerNodeGuid': instance.relationshipManagerNodeGuid,
       'customerAccountUsers': instance.customerAccountUsers,
       'timeAdded': instance.timeAdded,
+      'passportUUID': instance.passportUUID,
       'additionalInfoFlag': instance.additionalInfoFlag,
       'identificationInfoFlag': instance.identificationInfoFlag,
       'identificationProofFlag': instance.identificationProofFlag,

@@ -10,7 +10,7 @@ part 'bill_beneficiary.g.dart';
 
 @Entity(tableName: "bill_beneficiaries")
 @JsonSerializable()
-class BillBeneficiary implements Beneficiary {
+class BillBeneficiary extends Beneficiary {
 
   @JsonKey(name:"id")
   @PrimaryKey()
@@ -105,5 +105,4 @@ class BillBeneficiary implements Beneficiary {
   void setSelected(bool selected) {
     // TODO: implement setSelected
   }
-
 }

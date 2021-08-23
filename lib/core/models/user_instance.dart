@@ -36,6 +36,8 @@ class UserInstance {
     _accountStatus = null;
     _accountBalance = [];
     _userAccounts = [];
+    _scheduler?.close();
+    _scheduler = null;
     PreferenceUtil.deleteLoggedInUser();
   }
 
@@ -83,10 +85,13 @@ class UserInstance {
   }
 
   void updateLastActivityTime() {
+    print("Updating Last Activity Time");
     _lastActivityTime = DateTime.now();
   }
 
   void startSession(BuildContext context) {
+    print("Attempting to start session!!!!");
+    if(_scheduler != null) return;//There's already a session running
     _scheduler = Cron();
     _scheduler?.schedule(Schedule.parse("*/1 * * * * *"), () async {
       print("Currently Checking for inactivity...");
@@ -94,7 +99,9 @@ class UserInstance {
       if(elapsedTime >= 120/*120 seconds = 2mins*/) {
         _scheduler?.close();
         print("Inactivity Detected!");
+        print("Is SessionEventCallback Null => ${_sessionEventCallback == null}");
         _sessionEventCallback?.call(SessionTimeoutReason.INACTIVITY);
+        _scheduler = null;
       }
     });
   }

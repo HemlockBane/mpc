@@ -63,6 +63,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
 
   @override
   void initState() {
+    UserInstance().resetSession();
     _setupViewDependencies();
     super.initState();
     _initSavedUsername();

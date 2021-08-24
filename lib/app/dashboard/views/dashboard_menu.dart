@@ -2,10 +2,16 @@ import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
+import 'package:moniepoint_flutter/core/styles.dart';
 
 ///@author Paul Okeke
 ///@Contributor Obinna Igwe
 class DashboardMenu extends StatelessWidget {
+
+  final OnItemClickListener<String, int> onItemClick;
+
+  DashboardMenu(this.onItemClick);
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -13,6 +19,7 @@ class DashboardMenu extends StatelessWidget {
       children: [
         _DashboardMenuItem(
           itemName: "Transfer",
+          onItemClick: onItemClick,
           itemIcon: SvgPicture.asset(
             "res/drawables/ic_dashboard_transfer_2.svg",
             width: 25,
@@ -24,6 +31,7 @@ class DashboardMenu extends StatelessWidget {
         ),
         _DashboardMenuItem(
           itemName: "Airtime",
+          onItemClick: onItemClick,
           itemIcon: SvgPicture.asset(
             "res/drawables/ic_dashboard_airtime_2.svg",
             width: 19.75,
@@ -35,6 +43,7 @@ class DashboardMenu extends StatelessWidget {
         ),
         _DashboardMenuItem(
           itemName: "Bills",
+          onItemClick: onItemClick,
           itemIcon: SvgPicture.asset(
             "res/drawables/ic_dashboard_bills_2.svg",
             width: 22,
@@ -64,10 +73,12 @@ class _DashboardMenuItem extends StatelessWidget {
   final String routeName;
   final Widget itemIcon;
   final Color circleBackgroundColor;
+  final OnItemClickListener<String, int> onItemClick;
 
   _DashboardMenuItem({
     required this.itemName,
     required this.routeName,
+    required this.onItemClick,
     required this.itemIcon,
     required this.circleBackgroundColor
   });
@@ -92,11 +103,7 @@ class _DashboardMenuItem extends StatelessWidget {
           highlightColor: circleBackgroundColor.withOpacity(0.025),
           overlayColor: MaterialStateProperty.all(circleBackgroundColor),
           borderRadius: BorderRadius.all(Radius.circular(16)),
-          onTap: () {
-            if (routeName.isNotEmpty) {
-              Navigator.pushNamed(context, routeName);
-            }
-          },
+          onTap: () => onItemClick.call(routeName, 0),
           child: Container(
             child: Column(
               children: [

@@ -19,6 +19,9 @@ class TransferScreen extends StatefulWidget {
   static const BENEFICIARY_SCREEN = "main";
   static const PAYMENT_SCREEN = "payment";
 
+  static const REPLAY_TRANSFER = "REPLAY_TRANSFER";
+  static const START_TRANSFER = "START_TRANSFER";
+
   TransferScreen();
 
   @override
@@ -31,6 +34,7 @@ class TransferScreen extends StatefulWidget {
 class TransferScreenState extends State<TransferScreen> {
   @override
   Widget build(BuildContext context) {
+    final parentArgs = ModalRoute.of(context)?.settings.arguments;
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (v) => TransferViewModel()),
@@ -71,12 +75,8 @@ class TransferScreenState extends State<TransferScreen> {
                                 color: Colors.primaryColor),
                             unselectedLabelColor: Color(0XFF8030424C),
                             tabs: [
-                              Tab(
-                                text: "Transfer",
-                              ),
-                              Tab(
-                                text: "History",
-                              )
+                              Tab(text: "Transfer",),
+                              Tab(text: "History",)
                             ],
                           ),
                           Colors.tabBackground.withOpacity(0.16)),
@@ -84,7 +84,10 @@ class TransferScreenState extends State<TransferScreen> {
                           child: TabBarView(
                               controller: DefaultTabController.of(mContext),
                               children: [
-                                _TransferViewNavigator(widget._scaffoldKey, widget._navigatorKey),
+                                _TransferViewNavigator(
+                                    widget._scaffoldKey,
+                                    widget._navigatorKey
+                                ),
                                 TransferHistoryScreen(
                                   widget._scaffoldKey,
                                   replayTransactionCallback: (transaction) {
@@ -124,14 +127,18 @@ class _TransferViewNavigator extends StatelessWidget {
 
   final GlobalKey<NavigatorState> _navigatorKey;
   final GlobalKey<ScaffoldState> _scaffoldKey;
+  final Map routeState = {"count": 0};
 
-  _TransferViewNavigator(this._scaffoldKey, this._navigatorKey);
+  _TransferViewNavigator(this._scaffoldKey, this._navigatorKey):super(key: Key("_TransferViewNavigator"));
 
-  Route _generateRoute(RouteSettings settings) {
+
+  Route _generateRoute(RouteSettings settings, Object? parentArguments) {
     late Widget page;
     switch (settings.name) {
       case TransferScreen.BENEFICIARY_SCREEN:
-        page = TransferBeneficiaryScreen(_scaffoldKey, arguments: settings.arguments,);
+        final parentArgs = routeState["count"] == 0 ? parentArguments : null;
+        routeState["count"] = 1;
+        page = TransferBeneficiaryScreen(_scaffoldKey, arguments: settings.arguments ?? parentArgs);
         break;
       case TransferScreen.PAYMENT_SCREEN:
         final defaultAmount = settings.arguments != null ? settings.arguments as double : 0.0;
@@ -149,13 +156,13 @@ class _TransferViewNavigator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("rebuild");
+    final parentArgs = ModalRoute.of(context)?.settings.arguments;
     return WillPopScope(
       onWillPop: _onBackPressed,
       child: Navigator(
         key: _navigatorKey,
         initialRoute: "main",
-        onGenerateRoute: _generateRoute,
+        onGenerateRoute: (setting) => _generateRoute(setting, parentArgs),
       ),
     );
   }

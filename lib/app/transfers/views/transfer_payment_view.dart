@@ -225,7 +225,8 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
               builder: (mContext) => TransactionSuccessDialog(
                 payload, onClick: () {
                   Navigator.of(mContext).pop();
-                  Navigator.of(context).pushNamedAndRemoveUntil(TransferScreen.BENEFICIARY_SCREEN, (route) => false);
+                  Navigator.of(context)
+                      .pushNamedAndRemoveUntil(TransferScreen.BENEFICIARY_SCREEN,  (route) => false, arguments: {});
                 })
           );
         } else {

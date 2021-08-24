@@ -93,15 +93,16 @@ class UserInstance {
     print("Attempting to start session!!!!");
     if(_scheduler != null) return;//There's already a session running
     _scheduler = Cron();
-    _scheduler?.schedule(Schedule.parse("*/1 * * * * *"), () async {
-      print("Currently Checking for inactivity...");
+    _scheduler?.schedule(Schedule.parse("*/3 * * * * *"), () async {
       final elapsedTime = DateTime.now().difference(_lastActivityTime).inSeconds;
-      if(elapsedTime >= 120/*120 seconds = 2mins*/) {
-        _scheduler?.close();
-        print("Inactivity Detected!");
+      print("Currently Checking for inactivity... $elapsedTime");
+      print("Elapsed Time is greater ${elapsedTime >= 120}");
+      if(elapsedTime >= 120) {
         print("Is SessionEventCallback Null => ${_sessionEventCallback == null}");
         _sessionEventCallback?.call(SessionTimeoutReason.INACTIVITY);
+        _scheduler?.close();
         _scheduler = null;
+        print("Inactivity Detected!");
       }
     });
   }

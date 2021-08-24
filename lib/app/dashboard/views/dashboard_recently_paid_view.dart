@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/beneficiary.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_utils.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
+import 'package:moniepoint_flutter/app/transfers/views/transfer_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
@@ -39,6 +40,15 @@ class DashboardRecentlyPaidView extends StatefulWidget {
   State<StatefulWidget> createState() => _DashboardRecentlyPaidState();
 }
 
+
+
+///_DashboardRecentlyPaidState
+///
+///
+///
+///
+///
+///
 ///
 class _DashboardRecentlyPaidState extends State<DashboardRecentlyPaidView> {
 
@@ -56,8 +66,13 @@ class _DashboardRecentlyPaidState extends State<DashboardRecentlyPaidView> {
             ),
           ),
           TextButton(
-            onPressed: () {
-              Navigator.pushNamed(context, Routes.TRANSFER);
+            onPressed: () async {
+              final beneficiary = await Navigator.pushNamed(context, Routes.SELECT_TRANSFER_BENEFICIARY);
+              if(beneficiary != null && beneficiary is TransferBeneficiary) {
+                Navigator.of(context).pushNamed(Routes.TRANSFER, arguments: {
+                  TransferScreen.START_TRANSFER: beneficiary
+                });
+              }
             },
             child: Text(
               "View all",
@@ -151,6 +166,17 @@ class _RecentlyPaidListView extends Stack {
 
   List<Widget> _contentView() {
     return [
+      Align(
+        alignment: Alignment.topLeft,
+        child: Container(
+          height: 112,
+          width: 40,
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  colors: [Color(0xff00FFFFFF), Colors.white],
+                  stops: [0.48, 1.0])),
+        ),
+      ),
       ListView.separated(
         separatorBuilder: (ctx, index) => SizedBox(width: 25),
         scrollDirection: Axis.horizontal,
@@ -193,17 +219,25 @@ class _RecentlyPaidBeneficiaryItem extends StatelessWidget {
   _RecentlyPaidBeneficiaryItem(
       {required this.backgroundColor, required this.beneficiary});
 
+  _beneficiaryNames() => beneficiary
+      .getAccountName()
+      .toLowerCase()
+      .capitalizeFirstOfEach
+      .split(" ");
+
+  _onItemClicked(BuildContext context, Beneficiary beneficiary) {
+    Navigator.of(context).pushNamed(Routes.TRANSFER, arguments: {
+      TransferScreen.START_TRANSFER: beneficiary
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     //TODO requires more refactoring
     var firstName = "";
     var lastName = "";
 
-    final names = beneficiary
-        .getAccountName()
-        .toLowerCase()
-        .capitalizeFirstOfEach
-        .split(" ");
+    final names = _beneficiaryNames();
 
     if (names.isNotEmpty) {
       if (names.length < 2) {
@@ -228,16 +262,24 @@ class _RecentlyPaidBeneficiaryItem extends StatelessWidget {
           Container(
             height: 64,
             width: 64,
-            child: Center(
-              // alignment: Alignment.center,
-              child: Text(
-                beneficiary
-                    .getAccountName()
-                    .abbreviate(2, false, includeMidDot: false),
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: backgroundColor),
+            child: Material(
+              borderRadius: BorderRadius.circular(17),
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(17),
+                overlayColor: MaterialStateProperty.all(backgroundColor.withOpacity(0.1)),
+                highlightColor: backgroundColor.withOpacity(0.05),
+                onTap: () => _onItemClicked(context, beneficiary),
+                child: Center(
+                  child: Text(
+                    beneficiary.getAccountName().abbreviate(2, false, includeMidDot: false),
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: backgroundColor
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
@@ -276,7 +318,8 @@ class _RecentlyPaidBeneficiaryItem extends StatelessWidget {
             letterSpacing: -0.2,
             height: 1.3,
             fontWeight: FontWeight.w500,
-            color: Colors.textColorBlack.withOpacity(0.9)),
+            color: Colors.textColorBlack.withOpacity(0.9)
+        ),
         textAlign: TextAlign.center,
       ),
     ]);

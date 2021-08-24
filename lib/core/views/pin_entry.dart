@@ -43,7 +43,7 @@ class _PinEntryState extends State<PinEntry> {
 
   Widget makeLineEntryView() {
     return Padding(
-      padding: EdgeInsets.only(left: 8.5, right: 8.5),
+      padding: EdgeInsets.only(left: 2.5, right: 2.5),
       child: SizedBox(width: 1,),
     );
   }

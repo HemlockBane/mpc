@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:get_it/get_it.dart';
@@ -103,8 +104,8 @@ class AccountUpdateViewModel extends BaseViewModel {
     }
 
     return AccountUpdate(
-      customerDetailInfo: (_additionalInfoForm.isInitialized)
-          ? additionalInfoForm.customerInfo
+      customerDetailInfo: (_additionalInfoForm.isInitialized || customerDetailInfo != null)
+          ? customerDetailInfo
           : null,
       mailingAddressInfo: (_addressForm.isInitialized)
           ? addressForm.getMailingAddressInfo?.addressCity != null ? addressForm.getMailingAddressInfo : null
@@ -124,6 +125,7 @@ class AccountUpdateViewModel extends BaseViewModel {
 
   Stream<Resource<Tier>> checkCustomerEligibility({AccountUpdate? accountUpdate}) {
     final mAccountUpdate = accountUpdate ?? _buildAccountUpdateRequest();
+    print(jsonEncode(mAccountUpdate));
     return _customerServiceDelegate.checkCustomerEligibility(customerId, mAccountUpdate);
   }
 
@@ -188,7 +190,6 @@ class AccountUpdateViewModel extends BaseViewModel {
 
   @override
   void dispose() {
-    print("AccountUpdateViewModel ===>> Disposed");
     _loadingStateController.close();
     _pageFormController.close();
     if(_addressForm.isInitialized) addressForm.dispose();

@@ -432,7 +432,7 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
             stream: viewModel.profileForm.pinInputStream,
             builder: (context, snapshot) {
               return Styles.appEditText(
-                  hint: 'Mobile App PIN',
+                  hint: 'Set Transaction PIN',
                   onChanged: viewModel.profileForm.onPinChanged,
                   errorText: snapshot.hasError ? snapshot.error.toString() : null,
                   animateHint: true,

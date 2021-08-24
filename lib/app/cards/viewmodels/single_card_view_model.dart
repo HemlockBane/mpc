@@ -15,11 +15,11 @@ class SingleCardViewModel extends BaseViewModel {
   }
 
   Stream<Resource<List<Card>>> getCards() {
-    return Stream.value(Resource.success([
-      Card(id: 0,maskedPan: "514360******4198", expiryDate: "23/03", blocked: false, nameOnCard: "AAAAA Okeke", status: CardStatus.ACTIVE),
-      Card(id: 1,maskedPan: "506099******4323", expiryDate: "23/03", blocked: false, nameOnCard: "AAAAA Okeke", status: CardStatus.IN_ACTIVE),
-      Card(id: 2,maskedPan: "406099******4323", expiryDate: "23/03", blocked: true, nameOnCard: "Ebun Oluwa", status: CardStatus.ACTIVE),
-    ]));
+    // return Stream.value(Resource.success([
+    //   Card(id: 0,maskedPan: "514360******4198", expiryDate: "23/03", blocked: false, nameOnCard: "AAAAA Okeke", status: CardStatus.ACTIVE),
+    //   Card(id: 1,maskedPan: "506099******4323", expiryDate: "23/03", blocked: false, nameOnCard: "AAAAA Okeke", status: CardStatus.IN_ACTIVE),
+    //   Card(id: 2,maskedPan: "406099******4323", expiryDate: "23/03", blocked: true, nameOnCard: "Ebun Oluwa", status: CardStatus.ACTIVE),
+    // ]));
     return _delegate.getCards(customerId).map((event) {
       return event;
     });

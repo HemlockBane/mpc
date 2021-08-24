@@ -59,6 +59,7 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> {
 
   Widget setupPageView() {
     _pages = _getDisplayableForms();
+    if(_pages.isEmpty) return Container(color: Colors.white);
     this._pageView = PageView.builder(
         physics: NeverScrollableScrollPhysics(),
         itemCount: _pages.length,

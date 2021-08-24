@@ -12,7 +12,9 @@ import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_icons2_icons.dart';
 import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
 import 'package:moniepoint_flutter/core/models/file_result.dart';
+import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/utils/biometric_helper.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/viewmodels/finger_print_alert_view_model.dart';
@@ -20,6 +22,7 @@ import 'package:moniepoint_flutter/core/views/finger_print_alert_dialog.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:moniepoint_flutter/core/strings.dart';
 import 'dashboard_account_card.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -100,8 +103,8 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
   @override
   void initState() {
     _viewModel = Provider.of<DashboardViewModel>(context, listen: false);
-    _viewModel.checkAccountUpdate();
     _viewModel.startSession(context);
+    _viewModel.checkAccountUpdate();
     recentlyPaidBeneficiaries = _viewModel.getRecentlyPaidBeneficiary();
     super.initState();
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
@@ -135,12 +138,15 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
                 SizedBox(height: height * 0.16,),
                 AccountCard(viewModel: _viewModel, pageController: _pageController),
                 SizedBox(height: 32),
-                DashboardMenu(),
+                DashboardMenu(_onDrawerItemClickListener),
                 SizedBox(height: !_viewModel.isAccountUpdateCompleted ? 32 : 0),
                 StreamBuilder(
                     stream: _viewModel.dashboardController,
                     builder: (_,__) {
-                      return DashboardSliderView(items: _viewModel.sliderItems);
+                      return DashboardSliderView(
+                          items: _viewModel.sliderItems,
+                          onItemClick: _onDrawerItemClickListener,
+                      );
                     }),
                 SizedBox(height: 32),
                 DashboardRecentlyPaidView(
@@ -157,7 +163,10 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
                   ),
                 ),
                 SizedBox(height: 16),
-                SuggestedItems(),
+                Expanded(
+                    flex: 0,
+                    child: SuggestedItems()
+                ),
                 SizedBox(height: 42),
               ],
             ),
@@ -166,6 +175,33 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
       ),
     ),
   );
+
+  void _onDrawerItemClickListener(String routeName, position) async {
+    switch(routeName) {
+      case Routes.ACCOUNT_UPDATE:{
+        await Navigator.of(context).pushNamed(routeName);
+        subscribeUiToAccountStatus();
+        break;
+      }
+      case "LOGOUT":{
+        UserInstance().resetSession();
+        Navigator.of(context).pop();
+        Navigator.of(context).popAndPushNamed(Routes.LOGIN);
+        break;
+      }
+      case "COMING_SOON":{
+        showComingSoon(context);
+        break;
+      }
+      default: {
+        if(_scaffoldKey.currentState?.isDrawerOpen == true) {
+          Navigator.of(context).pop();
+        }
+        await Navigator.of(context).pushNamed(routeName);
+        _viewModel.update();
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -176,7 +212,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
         context: context,
         child: Scaffold(
           key: _scaffoldKey,
-          drawer: DashboardDrawer(width),
+          drawer: DashboardDrawer(width, _onDrawerItemClickListener),
           body: _contentView(width, height),
         ),
     );
@@ -238,7 +274,7 @@ class _DashboardTopMenu extends StatelessWidget {
     final firstName = viewModel.getFirstName();
     return Container(
       margin: EdgeInsets.only(
-        top: MediaQuery.of(context).size.height * 0.084,
+        top: MediaQuery.of(context).size.height * 0.074,
         left: 16,
         right: 16,
       ),
@@ -259,7 +295,7 @@ class _DashboardTopMenu extends StatelessWidget {
           Row(
             children: [
               Text(
-                firstName.isEmpty ? "Hello" : "Hello, $firstName",
+                firstName.isEmpty ? "Hello" : "Hello, ${firstName.toLowerCase().capitalizeFirstOfEach}",
                 style: TextStyle(
                     fontSize: 13.8,
                     fontWeight: FontWeight.w600,
@@ -309,9 +345,9 @@ class SuggestedItems extends Row {
         child: _SuggestedItem(
             backgroundColor: Colors.primaryColor,
             image: Image.asset(
-              "res/drawables/ic_dashboard_target.png",
-              width: 112,
-              height: 115,
+              "res/drawables/ic_target.png",
+              width: 150,
+              height: 150,
             ),
             title: "Start\nSaving.")),
     SizedBox(width: 20.5),
@@ -320,8 +356,8 @@ class SuggestedItems extends Row {
             backgroundColor: Colors.solidGreen,
             image: Image.asset(
               "res/drawables/ic_dashboard_calendar.png",
-              width: 112,
-              height: 112,
+              width: 150,
+              height: 150,
             ),
             title: "Get a\nLoan.")),
   ];
@@ -354,6 +390,8 @@ class _SuggestedItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: double.infinity,
+      height: 198,
       decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.all(Radius.circular(16)),
@@ -369,29 +407,27 @@ class _SuggestedItem extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.all(Radius.circular(16)),
-          overlayColor:
-              MaterialStateProperty.all(backgroundColor.withOpacity(0.1)),
+          overlayColor: MaterialStateProperty.all(backgroundColor.withRed(190)),
           highlightColor: backgroundColor.withOpacity(0.04),
           onTap: () => showComingSoon(context),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Stack(
+            // crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                height: 12,
-              ),
-              Align(
-                alignment: Alignment.topRight,
+              Positioned(
+                top: 4,
+                right: 0,
                 child: image,
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 20, bottom: 24),
-                child: Text(
-                  title,
-                  style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 19,
-                      color: Colors.white),
-                ),
+              Positioned(
+                  left: 20,
+                  bottom: 24,
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 19,
+                        color: Colors.white),
+                  )
               ),
             ],
           ),

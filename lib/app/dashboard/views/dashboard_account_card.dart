@@ -209,12 +209,18 @@ class _AccountDetailsState extends State<AccountDetails> with CompositeDisposabl
 
                           if (snapshot.hasData && (!isLoadingBalance && !isLoadingBalanceError)) {
                             final balance = hideAccountBalance
-                                ? "* ***"
+                                ? "***"
                                 : "${accountBalance?.availableBalance?.formatCurrencyWithoutSymbolAndDividing}";
 
                             return Row(
                               children: [
-                                SvgPicture.asset("res/drawables/ic_naira.svg", width: 20, height: 17,),
+                                hideAccountBalance 
+                                ? Text('*',
+                                    style: Styles.textStyle(context,
+                                        fontSize: 23.5,
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.textColorBlack.withOpacity(0.5))) 
+                                :  SvgPicture.asset("res/drawables/ic_naira.svg", width: 20, height: 17,),
                                 SizedBox(width: 4),
                                 Text('$balance',
                                     style: Styles.textStyle(context,
@@ -243,11 +249,21 @@ class _AccountDetailsState extends State<AccountDetails> with CompositeDisposabl
                           }
 
                           if (hideAccountBalance) {
-                            return Text('* ***',
-                                style: TextStyle(
-                                    fontSize: 23,
-                                    fontWeight: FontWeight.w800,
-                                    color: Colors.textColorBlack));
+                            return Row(
+                              children: [
+                                Text('*',
+                                    style: Styles.textStyle(context,
+                                        fontSize: 23.5,
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.textColorBlack.withOpacity(0.5))),
+                                SizedBox(width: 4),
+                                Text('***',
+                                    style: TextStyle(
+                                        fontSize: 23.5,
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.textColorBlack)),
+                              ],
+                            );
                           }
 
                           return Shimmer.fromColors(

@@ -281,15 +281,25 @@ class _DashboardTopMenu extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          InkWell(
-            onTap: () {
-              scaffoldKey.currentState?.openDrawer();
-            },
-            child: SvgPicture.asset(
-              "res/drawables/ic_dashboard_drawer_menu.svg",
-              height: 16,
-              width: 24,
-              color: Colors.white,
+          Material(
+            color: Colors.transparent,
+            shape: CircleBorder(),
+            child: InkWell(
+              onTap: () {
+                scaffoldKey.currentState?.openDrawer();
+              },
+              child: Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                ),
+                child: SvgPicture.asset(
+                  "res/drawables/ic_dashboard_drawer_menu.svg",
+                  height: 16,
+                  width: 24,
+                  color: Colors.white,
+                ),
+              ),
             ),
           ),
           Row(

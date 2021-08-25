@@ -137,7 +137,7 @@ class _TransferPinDialog extends TransactionPinDialogState<TransferPinDialog> {
                 ),
                 SizedBox(height: 30),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 50),
+                  padding: EdgeInsets.symmetric(horizontal: 30),
                   child: Text('Enter Transaction PIN',
                       textAlign: TextAlign.start,
                       style: TextStyle(
@@ -146,7 +146,7 @@ class _TransferPinDialog extends TransactionPinDialogState<TransferPinDialog> {
                 ),
                 SizedBox(height: 8),
                 Padding(
-                  padding: EdgeInsets.only(left: 50, right: 50, bottom: MediaQuery.of(context).viewInsets.bottom * 0.7),
+                  padding: EdgeInsets.only(left: 30, right: 30, bottom: MediaQuery.of(context).viewInsets.bottom * 0.7),
                   child: PinEntry(onChange: (value) {
                     setState(() {
                       viewModel.setPin(value);

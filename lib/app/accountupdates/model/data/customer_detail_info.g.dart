@@ -26,10 +26,7 @@ CustomerDetailInfo _$CustomerDetailInfoFromJson(Map<String, dynamic> json) {
 }
 
 Map<String, dynamic> _$CustomerDetailInfoToJson(CustomerDetailInfo instance) {
-  final val = <String, dynamic>{
-    'title': instance.title,
-    'maritalStatus': instance.maritalStatus,
-  };
+  final val = <String, dynamic>{};
 
   void writeNotNull(String key, dynamic value) {
     if (value != null) {
@@ -37,13 +34,16 @@ Map<String, dynamic> _$CustomerDetailInfoToJson(CustomerDetailInfo instance) {
     }
   }
 
+  writeNotNull('title', instance.title);
+  writeNotNull('maritalStatus', instance.maritalStatus);
   writeNotNull('mothersMaidenName', instance.mothersMaidenName);
-  val['nationality'] = instance.nationality;
-  val['religion'] = instance.religion;
-  val['localGovernmentAreaOfOriginId'] = instance.localGovernmentAreaOfOriginId;
+  writeNotNull('nationality', instance.nationality);
+  writeNotNull('religion', instance.religion);
+  writeNotNull(
+      'localGovernmentAreaOfOriginId', instance.localGovernmentAreaOfOriginId);
   writeNotNull('gender', instance.gender);
   writeNotNull('accountOpeningFormRef', instance.accountOpeningFormRef);
-  val['employmentStatus'] = instance.employmentStatus;
+  writeNotNull('employmentStatus', instance.employmentStatus);
   writeNotNull('natureOfBusiness', instance.natureOfBusiness);
   writeNotNull('addressInfo', instance.addressInfo);
   return val;

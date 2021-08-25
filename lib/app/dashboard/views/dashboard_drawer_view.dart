@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
-import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
-import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
+import 'package:moniepoint_flutter/core/styles.dart';
 
 /// @author Paul Okeke
 /// @contributor Obinna Igwe
 class DashboardDrawer extends StatelessWidget {
-  final double width;
 
-  DashboardDrawer(this.width);
+  final double width;
+  final OnItemClickListener<String, int> onItemClick;
+
+  DashboardDrawer(this.width, this.onItemClick);
 
   Container _groupTitle(BuildContext context, String title) {
     return Container(
@@ -120,6 +121,7 @@ class DashboardDrawer extends StatelessWidget {
                           title: "Transfer Money",
                           routeName: Routes.TRANSFER,
                           iconSpacing: 9,
+                          onTap: onItemClick,
                         ),
                         _DrawerListItem(
                           itemIcon: SvgPicture.asset(
@@ -129,6 +131,7 @@ class DashboardDrawer extends StatelessWidget {
                           title: "Airtime & Data",
                           routeName: Routes.AIRTIME,
                           iconSpacing: 16,
+                          onTap: onItemClick,
                         ),
                         _DrawerListItem(
                           itemIcon: SvgPicture.asset(
@@ -137,6 +140,7 @@ class DashboardDrawer extends StatelessWidget {
                           title: "Bill Payments",
                           routeName: Routes.BILL,
                           iconSpacing: 15,
+                          onTap: onItemClick,
                         ),
                         SizedBox(height: 21),
                         _groupTitle(context, "ACCOUNTS & CARDS"),
@@ -148,16 +152,18 @@ class DashboardDrawer extends StatelessWidget {
                           title: "Manage Account",
                           routeName: Routes.ACCOUNT_TRANSACTIONS,
                           iconSpacing: 6.8,
+                          onTap: onItemClick,
                         ),
-                        _DrawerListItem(
-                          itemIcon: SvgPicture.asset(
-                            "res/drawables/ic_dashboard_manage_cards.svg",
-                            height: 18,
-                          ),
-                          title: "Manage Cards",
-                          routeName: Routes.CARDS,
-                          iconSpacing: 11.4,
-                        ),
+                        // _DrawerListItem(
+                        //   itemIcon: SvgPicture.asset(
+                        //     "res/drawables/ic_dashboard_manage_cards.svg",
+                        //     height: 18,
+                        //   ),
+                        //   title: "Manage Cards",
+                        //   routeName: Routes.CARDS,
+                        //   iconSpacing: 11.4,
+                        //   onTap: onItemClick,
+                        // ),
                         SizedBox(height: 21),
                         _groupTitle(context, "SAVINGS & LOANS"),
                         _DrawerListItem(
@@ -166,7 +172,8 @@ class DashboardDrawer extends StatelessWidget {
                             height: 26,
                           ),
                           title: "Savings",
-                          onTap: () => showComingSoon(context),
+                          onTap: onItemClick,
+                          routeName: "COMING_SOON",
                           iconSpacing: 7.5,
                         ),
                         _DrawerListItem(
@@ -174,13 +181,15 @@ class DashboardDrawer extends StatelessWidget {
                             "res/drawables/ic_dashboard_manage_cards.svg",
                             height: 18,
                           ),
+                          routeName: "COMING_SOON",
                           title: "Get Loan",
-                          onTap: () => showComingSoon(context),
+                          onTap: onItemClick,
                           iconSpacing: 11,
                         ),
                       ],
                     ),
-                  )
+                  ),
+                  SizedBox(height: 120)
                 ],
               ),
               Positioned(
@@ -190,11 +199,8 @@ class DashboardDrawer extends StatelessWidget {
                 child: _DrawerListItem(
                   itemIcon: SvgPicture.asset("res/drawables/ic_logout.svg"),
                   title: "Log Out",
-                  onTap: () {
-                    UserInstance().resetSession();
-                    Navigator.of(context).pop();
-                    Navigator.of(context).popAndPushNamed(Routes.LOGIN);
-                  },
+                  routeName: "LOGOUT",
+                  onTap: onItemClick,
                   iconSpacing: 11,
                 ),
               ),
@@ -240,7 +246,7 @@ class DashboardDrawer extends StatelessWidget {
 class _DrawerListItem extends StatelessWidget {
   final Widget itemIcon;
   final String title;
-  final VoidCallback? onTap;
+  final OnItemClickListener<String, int>? onTap;
   final String? routeName;
   final double? iconSpacing;
 
@@ -258,13 +264,7 @@ class _DrawerListItem extends StatelessWidget {
       child: InkWell(
         highlightColor: Colors.white.withOpacity(0.1),
         overlayColor: MaterialStateProperty.all(Colors.white.withOpacity(0.02)),
-        onTap: onTap ??
-            () {
-              Navigator.pop(context);
-              if (routeName != null && routeName?.isNotEmpty == true) {
-                Navigator.of(context).pushNamed(routeName!);
-              }
-            },
+        onTap: () => onTap?.call(routeName ?? "", 0),
         child: Container(
           padding: EdgeInsets.only(left: 40, right: 0, top: 20, bottom: 20),
           child: Row(

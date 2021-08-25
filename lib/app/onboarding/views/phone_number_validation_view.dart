@@ -96,7 +96,7 @@ class _PhoneNumberValidationScreen extends State<PhoneNumberValidationScreen> {
                               stream: viewModel.accountForm.phoneNumberStream,
                               builder: (context, snapshot) {
                                 return Styles.appEditText(
-                                    hint: 'Phone Number',
+                                    hint: 'e.g. 0800 000 0000',
                                     controller: _phoneNumberController,
                                     inputFormats: [FilteringTextInputFormatter.digitsOnly],
                                     inputType: TextInputType.number,

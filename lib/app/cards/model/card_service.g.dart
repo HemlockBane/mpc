@@ -9,7 +9,7 @@ part of 'card_service.dart';
 class _CardService implements CardService {
   _CardService(this._dio, {this.baseUrl}) {
     baseUrl ??=
-        'https://core-root.monnify.development.teamapt.com/api/v1/card/';
+        'https://moniepoint-customer-root-v2.console.teamapt.com/api/v1/card/';
   }
 
   final Dio _dio;
@@ -27,7 +27,7 @@ class _CardService implements CardService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.6'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -192,7 +192,7 @@ class _CardService implements CardService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'multipart/form-data',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.6'
                 },
                 extra: _extra,
                 contentType: 'multipart/form-data')
@@ -247,7 +247,7 @@ class _CardService implements CardService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'multipart/form-data',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.0.6'
                 },
                 extra: _extra,
                 contentType: 'multipart/form-data')

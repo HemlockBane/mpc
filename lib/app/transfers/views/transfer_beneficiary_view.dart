@@ -161,6 +161,16 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
         doNameEnquiry(provider, beneficiary, withDefaultAmount: replay["amount"]);
       });
     }
+
+    final beneficiary = obj[TransferScreen.START_TRANSFER];
+    if(beneficiary != null && beneficiary is TransferBeneficiary) {
+      final provider =AccountProvider()
+          ..bankCode = beneficiary.accountProviderCode
+          ..name = beneficiary.accountProviderName;
+      Future.delayed(Duration(milliseconds: 200), (){
+        doNameEnquiry(provider, beneficiary, saveBeneficiary: false);
+      });
+    }
   }
 
   @override

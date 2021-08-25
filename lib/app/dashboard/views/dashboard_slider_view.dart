@@ -8,15 +8,16 @@ import 'package:moniepoint_flutter/core/views/dots_indicator.dart';
 
 class DashboardSliderView extends StatelessWidget {
 
-  DashboardSliderView({required this.items});
+  DashboardSliderView({required this.items, this.onItemClick});
 
   late final BuildContext context;
   final List<SliderItem> items;
+  final OnItemClickListener<String, int>? onItemClick;
   final PageController _mPageController = PageController(viewportFraction: 1);
 
   void _onItemClickListener(SliderItem item, int position) {
-    if(item.key == "account_update") {
-      Navigator.of(context).pushNamed(Routes.ACCOUNT_UPDATE);
+    if(onItemClick != null) {
+      onItemClick?.call(Routes.ACCOUNT_UPDATE, position);
     }
   }
 
@@ -25,7 +26,7 @@ class DashboardSliderView extends StatelessWidget {
     this.context = context;
     if(items.length == 0) return SizedBox();
     return Container(
-        height: 150,
+        height: 139,
         decoration: BoxDecoration(
           color: Colors.primaryColor.withOpacity(0.1),
           borderRadius: BorderRadius.all(Radius.circular(16)),
@@ -51,11 +52,8 @@ class DashboardSliderView extends StatelessWidget {
               right: 20,
               top: 0,
               bottom: 0,
-              child: Visibility(
-                  visible: items.length > 1,
-                  child: SvgPicture.asset('res/drawables/ic_forward_arrow.svg',
-                        height: 18, width: 18, color: Colors.primaryColor
-                  ),
+              child: SvgPicture.asset('res/drawables/ic_forward_arrow.svg',
+                  height: 18, width: 18, color: Colors.primaryColor
               )
           ),
           Positioned(
@@ -114,32 +112,35 @@ class _DashboardSliderItem extends StatelessWidget {
               child: itemIcon,
             ),
             SizedBox(width: 0/*TODO modify */,),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                    item.primaryText,
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.primaryColor,
-                        fontSize: 15
-                    )
-                ),
-                SizedBox(height: 4),
-                if(item.secondaryText != null)
-                  Text(
-                      item.secondaryText ?? "",
-                      style: TextStyle(
-                        color: Colors.textColorBlack,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w300,
-                        height: 1.5
-                      )
-                  ),
-                SizedBox(height: totalItems == 1 ? 4 : 0),
-              ],
-            )
+            Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                        item.primaryText,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.primaryColor,
+                            fontSize: 15
+                        )
+                    ),
+                    SizedBox(height: 4),
+                    if(item.secondaryText != null)
+                      Text(
+                          item.secondaryText ?? "",
+                          style: TextStyle(
+                              color: Colors.textColorBlack,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w300,
+                              height: 1.5
+                          )
+                      ),
+                    SizedBox(height: totalItems == 1 ? 4 : 0),
+                  ],
+                )
+            ),
+            SizedBox(width: 60/*TODO modify */,),
           ],
         ),
       ),

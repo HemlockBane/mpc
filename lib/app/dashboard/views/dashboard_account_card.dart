@@ -5,14 +5,18 @@ import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart'
 import 'package:moniepoint_flutter/app/customer/customer_account.dart';
 import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
+import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/views/dots_indicator.dart';
 import 'package:share/share.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
+import 'package:moniepoint_flutter/core/utils/text_utils.dart';
 
 ///TODO refactor this code
 class AccountCard extends StatefulWidget {
@@ -53,7 +57,7 @@ class _AccountCardState extends State<AccountCard> {
                 children: [
                   SizedBox(height: 30),
                   SizedBox(
-                    height: 132,
+                    height: 130,
                     child: PageView.builder(
                         itemCount:
                         viewModel.customer?.customerAccountUsers?.length ?? 0,
@@ -62,10 +66,21 @@ class _AccountCardState extends State<AccountCard> {
                           final userAccount = viewModel.userAccounts[idx];
                           final customerAccount = userAccount.customerAccount;
 
-                          return AccountDetails(
-                            customerAccount: customerAccount,
-                            userAccount: userAccount,
-                            viewModel: viewModel,
+                          return Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              overlayColor: MaterialStateProperty.all(Colors.darkLightBlue.withOpacity(0.1)),
+                              onTap: () {
+                                Navigator.of(context).pushNamed(Routes.ACCOUNT_TRANSACTIONS, arguments: {
+                                  "customerAccountId": userAccount.customerAccount?.id
+                                }).then((_) => widget.viewModel.update());
+                              },
+                              child: AccountDetails(
+                                customerAccount: customerAccount,
+                                userAccount: userAccount,
+                                viewModel: viewModel,
+                              ),
+                            ),
                           );
                         }),
                   ),
@@ -128,8 +143,7 @@ class AccountDetails extends StatefulWidget {
   _AccountDetailsState createState() => _AccountDetailsState();
 }
 
-class _AccountDetailsState extends State<AccountDetails>
-    with WidgetsBindingObserver {
+class _AccountDetailsState extends State<AccountDetails> with CompositeDisposableWidget, WidgetsBindingObserver {
   String hideAccountBalanceKey = PreferenceUtil.HIDE_ACCOUNT_BAL;
   Stream<Resource<AccountBalance>>? _balanceStream;
 
@@ -137,11 +151,13 @@ class _AccountDetailsState extends State<AccountDetails>
   void initState() {
     hideAccountBalanceKey =
     "${widget.customerAccount?.accountNumber}-${PreferenceUtil.HIDE_ACCOUNT_BAL}";
-    _balanceStream = _balanceStream ??
-        widget.viewModel.getCustomerAccountBalance(
-            accountId: widget.userAccount.id, useLocal: false);
-
     super.initState();
+    widget.viewModel.dashboardController.listen((event) {
+      print("Updating  balance Stream ooo");
+      _balanceStream = widget.viewModel
+          .getCustomerAccountBalance(accountId: widget.userAccount.id, useLocal: false);
+      setState(() {});
+    }).disposedBy(this);
   }
 
   @override
@@ -171,10 +187,11 @@ class _AccountDetailsState extends State<AccountDetails>
                 SizedBox(height: 8),
                 Text(
                   "Available Balance",
-                  style: Styles.textStyle(context,
+                  style: TextStyle(
                       fontSize: 12.3,letterSpacing: -0.2,
                       fontWeight: FontWeight.w600,
-                      color: Colors.textColorBlack.withOpacity(0.9)),
+                      color: Colors.textColorBlack.withOpacity(0.9)
+                  ),
                 ),
                 SizedBox(height: 4),
                 Row(
@@ -211,11 +228,18 @@ class _AccountDetailsState extends State<AccountDetails>
                           if (isLoadingBalanceError && !hideAccountBalance) {
                             return Padding(
                                 padding: EdgeInsets.only(right: 8, bottom: 8),
-                                child: Text('Error Loading balance',
+                                child: Text('Error Loading balance\nTry Again',
                                     style: TextStyle(
-                                        fontSize: 23,
-                                        fontWeight: FontWeight.w800,
-                                        color: Colors.textColorBlack)));
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.textColorBlack
+                                    )
+                                ).colorText({
+                                  "Try Again": Tuple(Colors.primaryColor, () {
+                                    widget.viewModel.update();
+                                  })
+                                })
+                            );
                           }
 
                           if (hideAccountBalance) {
@@ -290,8 +314,9 @@ class _AccountDetailsState extends State<AccountDetails>
                   color: Colors.transparent,
                   borderRadius: BorderRadius.circular(30),
                   onClick: () => Share.share(
-                      widget.customerAccount?.accountNumber ?? "",
-                      subject: 'Moniepoint'),
+                      "Moniepoint MFB\n${widget.customerAccount?.accountNumber}\n${widget.customerAccount?.customer?.name}",
+                      subject: 'Moniepoint MFB'
+                  ),
                   image: SvgPicture.asset(
                     'res/drawables/ic_share.svg',
                     fit: BoxFit.contain,

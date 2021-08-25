@@ -19,7 +19,6 @@ class AuthInterceptor extends Interceptor {
     options.headers["client-id"] = (Platform.isAndroid) ? "ANDROID" : (Platform.isIOS) ? "IOS" : "UNKNOWN";
     options.headers["deviceOS"] = (Platform.isAndroid) ? "ANDROID" : (Platform.isIOS) ? "IOS" : "UNKNOWN";
     options.headers["deviceId"] = deviceManager.deviceId;
-    options.headers["deviceSerial"] = deviceManager.deviceId;
     options.headers["deviceVersion"] = deviceManager.deviceVersion;
     options.headers["deviceName"] = deviceManager.deviceBrandName;
     super.onRequest(options, handler);

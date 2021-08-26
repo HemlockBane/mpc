@@ -2,7 +2,9 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' hide Colors, Page;
+import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
@@ -277,14 +279,15 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               TextButton.icon(
-                icon: SvgPicture.asset('res/drawables/ic_account_filter.svg'),
+                icon: SvgPicture.asset('res/drawables/ic_account_filter_2.svg'),
                 onPressed: () => setState(() => isInFilterMode = true),
                 label: Text(
                   'Filter',
                   style: TextStyle(
-                      color: Colors.darkBlue,
+                      color: Colors.primaryColor,
                       fontSize: 13,
-                      fontWeight: FontWeight.bold),
+                      fontWeight: FontWeight.w600,
+                  ),
                 ),
                 style: ButtonStyle(
                     minimumSize: MaterialStateProperty.all(Size(40, 0)),
@@ -292,18 +295,18 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
                     overlayColor: MaterialStateProperty.all(
                         Colors.darkBlue.withOpacity(0.2)),
                     padding: MaterialStateProperty.all(
-                        EdgeInsets.symmetric(horizontal: 12, vertical: 6.8)),
+                        EdgeInsets.symmetric(horizontal: 22, vertical: 8)),
                     shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20))),
+                        borderRadius: BorderRadius.circular(41))),
                     backgroundColor: MaterialStateProperty.all(
-                        Colors.solidDarkBlue.withOpacity(0.05))),
+                        Colors.primaryColor.withOpacity(0.2))),
               ),
               TextButton.icon(
                   onPressed:
                       (!_isDownloading) ? _downloadAccountStatement : null,
                   icon: (!_isDownloading)
                       ? SvgPicture.asset(
-                          'res/drawables/ic_account_download.svg')
+                          'res/drawables/ic_account_download.svg', width: 8.5, height: 11.5)
                       : SizedBox(
                           width: 12,
                           height: 12,
@@ -320,8 +323,8 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
                         color: (!_isDownloading)
                             ? Colors.primaryColor
                             : Colors.grey.withOpacity(0.5),
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold),
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w600),
                   ),
                   style: ButtonStyle(
                     minimumSize: MaterialStateProperty.all(Size(40, 0)),
@@ -417,29 +420,29 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
       Tuple<String, String>? error) {
     return Column(
       children: [
-        Visibility(
-          visible: isInFilterMode && error == null,
-          child: Flexible(
-            flex: 0,
-            child: FilterLayout(
-              _scaffoldKey,
-              viewModel.filterableItems,
-              dateFilterCallback: _dateFilterDateChanged,
-              typeFilterCallback: _typeFilterChanged,
-              channelFilterCallback: _channelFilterChanged,
-              onCancel: _onCancelFilter,
-              isPreviouslyOpened: _isFilterOpened,
-              onOpen: () {
-                _isFilterOpened = true;
-              },
-            ),
-          ),
-        ),
-        Visibility(
-            visible: !isInFilterMode && error == null, child: filterMenu()),
-        SizedBox(
-          height: 12,
-        ),
+        // Visibility(
+        //   visible: isInFilterMode && error == null,
+        //   child: Flexible(
+        //     flex: 0,
+        //     child: FilterLayout(
+        //       _scaffoldKey,
+        //       viewModel.filterableItems,
+        //       dateFilterCallback: _dateFilterDateChanged,
+        //       typeFilterCallback: _typeFilterChanged,
+        //       channelFilterCallback: _channelFilterChanged,
+        //       onCancel: _onCancelFilter,
+        //       isPreviouslyOpened: _isFilterOpened,
+        //       onOpen: () {
+        //         _isFilterOpened = true;
+        //       },
+        //     ),
+        //   ),
+        // ),
+        // Visibility(
+        //     visible: !isInFilterMode && error == null, child: filterMenu()),
+        // SizedBox(
+        //   height: 12,
+        // ),
         Visibility(
             visible: isEmpty,
             child: Expanded(
@@ -493,7 +496,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
     );
   }
 
-  Widget _pagingView(TransactionHistoryViewModel viewModel) {
+  Widget _pagingView(TransactionHistoryViewModel viewModel, ScrollController _scrollController) {
     return Pager<int, AccountTransaction>(
         pagingConfig: PagingConfig(pageSize: 800, initialPageSize: 800),
         source: _pagingSource,
@@ -504,7 +507,110 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
               pagingData: value,
               shimmer: AccountListShimmer(),
               listCallback: (PagingData data, bool isEmpty, error) {
-                return _mainPageContent(value, viewModel, isEmpty, error);
+
+                bool isAccountLiened = true;
+
+                return DraggableScrollableSheet(
+                    initialChildSize: 0.4,
+                    minChildSize: 0.4,
+                    maxChildSize: 0.7,
+                    // expand: false,
+                    builder: (ctx, ScrollController controller){
+                      return Container(
+                        // padding: EdgeInsets.only(top: 27),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(22),
+                            ),
+                          ),
+                          child: Stack(
+                            children: [
+                              ListView(
+                                shrinkWrap: true,
+                                controller: controller,
+                                children: [
+                                  if (isAccountLiened) SizedBox(height: 40),
+                                  if (!isEmpty && error == null) SizedBox(height: isAccountLiened ? 133 : 108),
+                                  Container(
+                                    height: 600,
+                                    child: _mainPageContent(value, viewModel, isEmpty, error),
+                                  ),
+                                ],
+                              ),
+
+                              IgnorePointer(
+                                ignoring: true,
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      width: double.infinity,
+                                      height: isAccountLiened ? 155 : 88,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.vertical(
+                                          top: Radius.circular(22),
+                                        ),
+                                      ),
+                                    ),
+                                    // SizedBox(height: 15),
+                                    Divider(height: 2, color: Colors.black.withOpacity(0.15),)
+                                  ],
+                                ),
+                              ),
+
+
+                              Column(children: [
+                                SizedBox(height: 27),
+                                if(isAccountLiened)
+                                  Container(
+                                    margin: EdgeInsets.symmetric(horizontal: 20),
+                                    padding: EdgeInsets.fromLTRB(12, 12, 17, 12),
+                                      decoration: BoxDecoration(
+                                      color: Color(0xff2BF0AA22),
+                                      borderRadius: BorderRadius.all(Radius.circular(9))
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Row(children: [
+                                          SvgPicture.asset('res/drawables/ic_info.svg', color: Color(0xffF08922),),
+                                          SizedBox(width: 12),
+                                          Text("Account Liened. Learn More", style: TextStyle(fontSize: 12,color: Color(0xffF08922)),)
+                                        ],),
+                                        SvgPicture.asset('res/drawables/ic_forward_anchor.svg',
+                                          color: Color(0xffF08922),
+                                          height: 16.75, width: 10,
+                                        )
+                                      ],
+                                    )
+                                  ),
+                                if (isAccountLiened) SizedBox(height: 18),
+                                Visibility(
+                                  visible: isInFilterMode && error == null,
+                                  child: Flexible(
+                                    flex: 0,
+                                    child: FilterLayout(
+                                      _scaffoldKey,
+                                      viewModel.filterableItems,
+                                      dateFilterCallback: _dateFilterDateChanged,
+                                      typeFilterCallback: _typeFilterChanged,
+                                      channelFilterCallback: _channelFilterChanged,
+                                      onCancel: _onCancelFilter,
+                                      isPreviouslyOpened: _isFilterOpened,
+                                      onOpen: () {
+                                        _isFilterOpened = true;
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                Visibility(
+                                    visible: !isInFilterMode && error == null, child: filterMenu()),
+                              ],)
+                            ],
+                          )
+                      );
+                    });
               });
         });
   }
@@ -528,7 +634,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
         right: 0,
         left: 0,
         child:
-            _listContainer(viewModel, value.dy, child: _pagingView(viewModel)));
+            _listContainer(viewModel, value.dy, child: _pagingView(viewModel, _scrollController)));
 
     final balanceContainerPosition = Positioned(
         key: Key("dashboard-balance-${widget.customerAccountId}"),
@@ -639,9 +745,19 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
                       AccountDetailsCard(
                         viewModel: viewModel,
                         userAccount: widget.userAccount,
-                      )
+                      ),
+                      // Hero(
+                      //   tag: "dashboard-balance-view-${widget.customerAccountId}",
+                      //   child: Flexible(
+                      //     child: AccountDetailsCard(
+                      //       viewModel: viewModel,
+                      //       userAccount: widget.userAccount,
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
+                  _pagingView(viewModel, _scrollController)
                 ],
               ),
             );
@@ -714,6 +830,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
     }
   }
 
+
   @override
   void dispose() {
     _animationController.dispose();
@@ -739,43 +856,39 @@ class _AccountDetailsCardState extends State<AccountDetailsCard> {
     final userAccount = widget.userAccount;
     return Stack(
       children: [
-        Column(
-          children: [
-            SizedBox(height: 0.8),
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 19),
-              width: double.infinity,
-              decoration: BoxDecoration(
-                  color: Colors.backgroundWhite,
-                  // color: Colors.black,
-                  borderRadius: BorderRadius.all(Radius.circular(16)),
-                  boxShadow: [
-                    BoxShadow(
-                      offset: Offset(0, 13),
-                      blurRadius: 21,
-                      color: Color(0xff1F0E4FB1).withOpacity(0.12),
-                    ),
-                  ]),
-              child: Column(
-                children: [
-                  SizedBox(height: 30),
-                  Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      overlayColor: MaterialStateProperty.all(
-                          Colors.darkLightBlue.withOpacity(0.1)),
-                      onTap: () {},
-                      child: AccountDetails(
-                        customerAccount: userAccount.customerAccount,
-                        userAccount: userAccount,
-                        viewModel: viewModel,
-                      ),
-                    ),
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 19),
+          constraints: BoxConstraints(maxHeight: 305),
+          width: double.infinity,
+          decoration: BoxDecoration(
+              color: Colors.backgroundWhite,
+              // color: Colors.black,
+              borderRadius: BorderRadius.all(Radius.circular(16)),
+              boxShadow: [
+                BoxShadow(
+                  offset: Offset(0, 13),
+                  blurRadius: 21,
+                  color: Color(0xff1F0E4FB1).withOpacity(0.12),
+                ),
+              ]),
+          child: Column(
+            children: [
+              SizedBox(height: 30),
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  overlayColor: MaterialStateProperty.all(
+                      Colors.darkLightBlue.withOpacity(0.1)),
+                  onTap: () {},
+                  child: AccountDetails(
+                    customerAccount: userAccount.customerAccount,
+                    userAccount: userAccount,
+                    viewModel: viewModel,
                   ),
-                ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         Align(
           alignment: Alignment(0.0, -1.5),
@@ -857,9 +970,16 @@ class _AccountDetailsState extends State<AccountDetails>
     super.dispose();
   }
 
+
+  int getQualifiedTierIndex(){
+    final tiers = widget.viewModel.tiers;
+    return Tier.getQualifiedTierIndex(tiers);
+  }
+
   @override
   Widget build(BuildContext context) {
     final customerAccount = widget.customerAccount;
+    final qualifiedTierIndex = getQualifiedTierIndex();
     return Column(children: [
       Stack(
         children: [
@@ -987,20 +1107,20 @@ class _AccountDetailsState extends State<AccountDetails>
           ),
           Positioned(top: 2, right: 13,
               child: SvgPicture.asset("res/drawables/account_tier_bg.svg",
-                height: 33, width: 16, color: getTierColor(1).withOpacity(0.2),
+                height: 33, width: 16, color: getTierColor(qualifiedTierIndex).withOpacity(0.2),
               ),
           ),
-          Positioned(top: 6.5, right: 18,
+          Positioned(top: 6, right: 17,
             child: Container(
-              height: 23.5, width: 23.5,
-              decoration: BoxDecoration(color: getTierColor(1),
+              height: 24.6, width: 24.6,
+              decoration: BoxDecoration(color: getTierColor(getQualifiedTierIndex()),
                   shape: BoxShape.circle,
               ),
-              child: Center(child: text("1", color: Colors.white, fontSize: 17)),
+              child: Center(child: text("$qualifiedTierIndex", color: Colors.white, fontSize: 17)),
             ),
           ),
           Positioned(top: 12, right: 50,
-            child: text("TIER", color: getTierColor(1), fontSize: 10),
+            child: text("TIER", color: getTierColor(qualifiedTierIndex), fontSize: 9.2),
           )
         ],
       ),
@@ -1017,18 +1137,23 @@ class _AccountDetailsState extends State<AccountDetails>
               padding: EdgeInsets.symmetric(horizontal: 14.5),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                  Expanded(
                    child: Column(
                      crossAxisAlignment: CrossAxisAlignment.start,
+                     mainAxisAlignment: MainAxisAlignment.start,
                      children: [
                      label("Account Name"),
                      SizedBox(height: 4),
                      text(customerAccount?.accountName?.toLowerCase().capitalizeFirstOfEach ?? ""),
+                     // text("Isah Leslie Williams James Amen" ?? ""),
 
-                   ],),
+
+                     ],),
                  ),
                   Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                     label("Scheme"), SizedBox(height: 4),
@@ -1051,10 +1176,13 @@ class _AccountDetailsState extends State<AccountDetails>
             ),
             Container(
               padding: EdgeInsets.symmetric(horizontal: 14.5),
+              margin: EdgeInsets.only(top: 4),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   text(customerAccount?.accountNumber ?? ""),
+                  // text("50002347702" ?? ""),
+
                   if(widget.viewModel.isAccountUpdateCompleted)
                     Styles.imageButton(
                       padding: EdgeInsets.all(9),
@@ -1100,35 +1228,34 @@ class _AccountDetailsState extends State<AccountDetails>
           ],
         ),
       ),
-      SizedBox(height: 21)
-
     ]);
   }
-  
-  
+
+
   Widget label(String label){
     return Text(
       label,
-      style: Styles.textStyle(context,
+      style: TextStyle(
           fontWeight: FontWeight.w400,
-          fontSize: 13,
+          fontSize: 12.8,
           color: Colors.textColorBlack),
     );
   }
 
   Widget text(String text, {Color? color, double? fontSize}){
     return Text(
-      text,
-      style: Styles.textStyle(context,
+      text, overflow: TextOverflow.ellipsis, maxLines: 2,
+      style: TextStyle(
           fontWeight: FontWeight.w600,
-          fontSize: fontSize ?? 15.5,
-          color: color ?? Colors.textColorBlack),
+          fontSize: fontSize ?? 15.54,
+          color: color ?? Colors.textColorBlack,
+      ),
     );
   }
 
 
   Color getTierColor(int tier){
-    if (tier == 1) return Color(0xff905E24);
+    if (tier <= 1) return Color(0xff905E24);
     if (tier == 2) return Color(0xff8A8A8A);
     return Color(0xffCCA004);
 

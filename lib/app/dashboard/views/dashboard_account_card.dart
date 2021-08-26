@@ -76,10 +76,13 @@ class _AccountCardState extends State<AccountCard> {
                                   "userAccount": userAccount
                                 }).then((_) => widget.viewModel.update());
                               },
-                              child: AccountDetails(
-                                customerAccount: customerAccount,
-                                userAccount: userAccount,
-                                viewModel: viewModel,
+                              child: Hero(
+                                tag: "dashboard-balance-view-${userAccount.customerAccount?.id}",
+                                child: AccountDetails(
+                                  customerAccount: customerAccount,
+                                  userAccount: userAccount,
+                                  viewModel: viewModel,
+                                ),
                               ),
                             ),
                           );

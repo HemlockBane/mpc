@@ -508,12 +508,12 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
               shimmer: AccountListShimmer(),
               listCallback: (PagingData data, bool isEmpty, error) {
 
-                bool isAccountLiened = true;
+                bool isAccountLiened = false;
 
                 return DraggableScrollableSheet(
                     initialChildSize: 0.4,
                     minChildSize: 0.4,
-                    maxChildSize: 0.7,
+                    maxChildSize: 0.686,
                     // expand: false,
                     builder: (ctx, ScrollController controller){
                       return Container(
@@ -531,7 +531,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
                                 controller: controller,
                                 children: [
                                   if (isAccountLiened) SizedBox(height: 40),
-                                  if (!isEmpty && error == null) SizedBox(height: isAccountLiened ? 133 : 108),
+                                  if (!isEmpty && error == null) SizedBox(height: isAccountLiened ? 133 : 90),
                                   Container(
                                     height: 600,
                                     child: _mainPageContent(value, viewModel, isEmpty, error),

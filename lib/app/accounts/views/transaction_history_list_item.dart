@@ -84,8 +84,8 @@ class TransactionHistoryListItem extends Container {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Visibility(
-                        // visible: _transaction.transactionChannel != null,
-                      visible: true,
+                        visible: _transaction.transactionChannel != null,
+                      // visible: true,
                         child: Container(
                           padding: EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                           decoration: BoxDecoration(
@@ -93,7 +93,7 @@ class TransactionHistoryListItem extends Container {
                             borderRadius: BorderRadius.circular(4)
                           ),
                           child: Text(
-                            _transaction.transactionChannel ?? "POS",
+                            _transaction.transactionChannel ?? "",
                             style: TextStyle(fontSize: 9.3, color: Colors.primaryColor, fontWeight: FontWeight.bold),),
                         )
                     ),

@@ -7,6 +7,7 @@ import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.d
 import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/accounts/viewmodels/account_transaction_detail_view_model.dart';
 import 'package:moniepoint_flutter/app/accounts/viewmodels/transaction_list_view_model.dart';
+import 'package:moniepoint_flutter/app/accounts/views/clippers/account_ticket_clipper.dart';
 import 'package:moniepoint_flutter/app/accounts/views/dialogs/account_settings_dialog.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/transaction.dart';
@@ -326,23 +327,31 @@ class _AccountTransactionDetailedView
                                             color: Colors.primaryColor
                                                 .withOpacity(0.3),
                                           )),
-                                    SizedBox(height: 14),
-                                    _label("Recipient"),
-                                    SizedBox(height: 3),
-                                    _text("Beyonce Giselle Knowles-Carter"),
-                                    SizedBox(height: 3),
-                                    Row(
-                                      children: [
-                                        _text("First Bank",
-                                            fontSize: 11.3,
-                                            color: Colors.deepGrey),
-                                        SizedBox(width: 6),
-                                        _text("00113577716",
-                                            fontSize: 11.3,
-                                            color: Colors.deepGrey)
-                                      ],
-                                    ),
+                                    if (transaction.metaData != null && transaction.metaData?.recipient != null) 
+                                      SizedBox(height: 14),
+                                    if (transaction.metaData != null && transaction.metaData?.recipient != null) 
+                                      _label("Recipient"),
+                                    if (transaction.metaData != null && transaction.metaData?.recipient != null) 
+                                      SizedBox(height: 3),
+                                    if (transaction.metaData != null && transaction.metaData?.recipient != null) 
+                                      _text(transaction.metaData?.recipient?.name ?? ""),
+                                    if (transaction.metaData != null && transaction.metaData?.recipient != null) 
+                                      SizedBox(height: 3),
+                                    if (transaction.metaData != null && transaction.metaData?.recipient != null) 
+                                      Row(
+                                        children: [
+                                          _text(transaction.metaData?.recipient?.bankName ?? "",
+                                              fontSize: 11.3,
+                                              color: Colors.deepGrey),
+                                          SizedBox(width: 6),
+                                          _text(transaction.metaData?.recipient?.accountNumber ?? "",
+                                              fontSize: 11.3,
+                                              color: Colors.deepGrey)
+                                        ],
+                                      ),
+                                  if (transaction.metaData != null && transaction.metaData?.recipient != null) 
                                     SizedBox(height: 18),
+                                  if (transaction.metaData != null && transaction.metaData?.recipient != null) 
                                     Container(
                                         width: double.infinity,
                                         child: Divider(
@@ -615,34 +624,4 @@ class _AccountTransactionDetailedView
           color: color ?? Colors.textColorBlack),
     );
   }
-}
-
-class TicketClipper extends CustomClipper<Path> {
-
-
-  Path getPath(Size size) {
-    Path path = Path();
-    path.lineTo(0, size.height);
-    var curXPos = 0.0;
-    var curYPos = size.height;
-    var xIncrement = size.width / 29;
-    while (curXPos < size.width) {
-      curXPos += xIncrement;
-      curYPos = curYPos == size.height ? size.height - 21 : size.height;
-      path.lineTo(curXPos, curYPos);
-    }
-    path.lineTo(size.width, 0);
-
-    return path;
-  }
-
-
-  @override
-  Path getClip(Size size) {
-    Path path = getPath(size);
-    return path;
-  }
-
-  @override
-  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 }

@@ -123,6 +123,7 @@ class Styles {
   static const String defaultFont = "Inter";
   static const String ocraExtended = "Ocra";
   static const String circularStd = "CircularStd";
+  static const String rubik = "Rubik";
 
   /// A Generic Primary Button
   static ElevatedButton appButton(

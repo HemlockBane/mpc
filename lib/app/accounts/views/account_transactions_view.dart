@@ -284,9 +284,9 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
                 label: Text(
                   'Filter',
                   style: TextStyle(
-                      color: Colors.primaryColor,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                    color: Colors.primaryColor,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 style: ButtonStyle(
@@ -306,7 +306,9 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
                       (!_isDownloading) ? _downloadAccountStatement : null,
                   icon: (!_isDownloading)
                       ? SvgPicture.asset(
-                          'res/drawables/ic_account_download.svg', width: 8.5, height: 11.5)
+                          'res/drawables/ic_account_download.svg',
+                          width: 8.5,
+                          height: 11.5)
                       : SizedBox(
                           width: 12,
                           height: 12,
@@ -496,49 +498,51 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
     );
   }
 
-  Widget _pagingView(TransactionHistoryViewModel viewModel, ScrollController _scrollController) {
-    return Pager<int, AccountTransaction>(
-        pagingConfig: PagingConfig(pageSize: 800, initialPageSize: 800),
-        source: _pagingSource,
-        scrollController: _scrollController,
-        builder: (context, value, _) {
-          return ListViewUtil.handleLoadStates(
-              animationController: _animationController,
-              pagingData: value,
-              shimmer: AccountListShimmer(),
-              listCallback: (PagingData data, bool isEmpty, error) {
-
-                bool isAccountLiened = false;
-
-                return DraggableScrollableSheet(
-                    initialChildSize: 0.4,
-                    minChildSize: 0.4,
-                    maxChildSize: 0.686,
-                    // expand: false,
-                    builder: (ctx, ScrollController controller){
-                      return Container(
-                        // padding: EdgeInsets.only(top: 27),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(22),
-                            ),
-                          ),
-                          child: Stack(
+  Widget _pagingView(TransactionHistoryViewModel viewModel,
+      ScrollController _scrollController) {
+    return DraggableScrollableSheet(
+        initialChildSize: 0.4,
+        minChildSize: 0.4,
+        maxChildSize: 0.686,
+        // expand: false,
+        builder: (ctx, ScrollController scrollController) {
+          // pageViewController = controller;
+          return Container(
+              // padding: EdgeInsets.only(top: 27),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(22),
+                ),
+              ),
+              child: Pager<int, AccountTransaction>(
+                  pagingConfig:
+                      PagingConfig(pageSize: 800, initialPageSize: 800),
+                  source: _pagingSource,
+                  scrollController: scrollController,
+                  builder: (context, value, _) {
+                    return ListViewUtil.handleLoadStates(
+                        animationController: _animationController,
+                        pagingData: value,
+                        shimmer: AccountListShimmer(),
+                        listCallback: (PagingData data, bool isEmpty, error) {
+                          bool isAccountLiened = false;
+                          return Stack(
                             children: [
                               ListView(
-                                shrinkWrap: true,
-                                controller: controller,
+                                controller: scrollController,
                                 children: [
                                   if (isAccountLiened) SizedBox(height: 40),
-                                  if (!isEmpty && error == null) SizedBox(height: isAccountLiened ? 133 : 90),
+                                  if (!isEmpty && error == null)
+                                    SizedBox(
+                                        height: isAccountLiened ? 133 : 90),
                                   Container(
-                                    height: 600,
-                                    child: _mainPageContent(value, viewModel, isEmpty, error),
+                                    height: 800,
+                                    child: _mainPageContent(
+                                        value, viewModel, isEmpty, error),
                                   ),
                                 ],
                               ),
-
                               IgnorePointer(
                                 ignoring: true,
                                 child: Column(
@@ -554,72 +558,91 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
                                       ),
                                     ),
                                     // SizedBox(height: 15),
-                                    Divider(height: 2, color: Colors.black.withOpacity(0.15),)
+                                    Divider(
+                                      height: 2,
+                                      color: Colors.black.withOpacity(0.15),
+                                    )
                                   ],
                                 ),
                               ),
-
-
-                              Column(children: [
-                                SizedBox(height: 27),
-                                if(isAccountLiened)
-                                  Container(
-                                    margin: EdgeInsets.symmetric(horizontal: 20),
-                                    padding: EdgeInsets.fromLTRB(12, 12, 17, 12),
-                                      decoration: BoxDecoration(
-                                      color: Color(0xff2BF0AA22),
-                                      borderRadius: BorderRadius.all(Radius.circular(9))
+                              Column(
+                                children: [
+                                  SizedBox(height: 27),
+                                  if (isAccountLiened)
+                                    Container(
+                                        margin: EdgeInsets.symmetric(
+                                            horizontal: 20),
+                                        padding:
+                                            EdgeInsets.fromLTRB(12, 12, 17, 12),
+                                        decoration: BoxDecoration(
+                                            color: Color(0xff2BF0AA22),
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(9))),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                SvgPicture.asset(
+                                                  'res/drawables/ic_info.svg',
+                                                  color: Color(0xffF08922),
+                                                ),
+                                                SizedBox(width: 12),
+                                                Text(
+                                                  "Account Liened. Learn More",
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Color(0xffF08922)),
+                                                )
+                                              ],
+                                            ),
+                                            SvgPicture.asset(
+                                              'res/drawables/ic_forward_anchor.svg',
+                                              color: Color(0xffF08922),
+                                              height: 16.75,
+                                              width: 10,
+                                            )
+                                          ],
+                                        )),
+                                  if (isAccountLiened) SizedBox(height: 18),
+                                  Visibility(
+                                    visible: isInFilterMode && error == null,
+                                    child: Flexible(
+                                      flex: 0,
+                                      child: FilterLayout(
+                                        _scaffoldKey,
+                                        viewModel.filterableItems,
+                                        dateFilterCallback:
+                                            _dateFilterDateChanged,
+                                        typeFilterCallback: _typeFilterChanged,
+                                        channelFilterCallback:
+                                            _channelFilterChanged,
+                                        onCancel: _onCancelFilter,
+                                        isPreviouslyOpened: _isFilterOpened,
+                                        onOpen: () {
+                                          _isFilterOpened = true;
+                                        },
+                                      ),
                                     ),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Row(children: [
-                                          SvgPicture.asset('res/drawables/ic_info.svg', color: Color(0xffF08922),),
-                                          SizedBox(width: 12),
-                                          Text("Account Liened. Learn More", style: TextStyle(fontSize: 12,color: Color(0xffF08922)),)
-                                        ],),
-                                        SvgPicture.asset('res/drawables/ic_forward_anchor.svg',
-                                          color: Color(0xffF08922),
-                                          height: 16.75, width: 10,
-                                        )
-                                      ],
-                                    )
                                   ),
-                                if (isAccountLiened) SizedBox(height: 18),
-                                Visibility(
-                                  visible: isInFilterMode && error == null,
-                                  child: Flexible(
-                                    flex: 0,
-                                    child: FilterLayout(
-                                      _scaffoldKey,
-                                      viewModel.filterableItems,
-                                      dateFilterCallback: _dateFilterDateChanged,
-                                      typeFilterCallback: _typeFilterChanged,
-                                      channelFilterCallback: _channelFilterChanged,
-                                      onCancel: _onCancelFilter,
-                                      isPreviouslyOpened: _isFilterOpened,
-                                      onOpen: () {
-                                        _isFilterOpened = true;
-                                      },
-                                    ),
-                                  ),
-                                ),
-                                Visibility(
-                                    visible: !isInFilterMode && error == null, child: filterMenu()),
-                              ],)
+                                  Visibility(
+                                      visible: !isInFilterMode && error == null,
+                                      child: filterMenu()),
+                                ],
+                              )
                             ],
-                          )
-                      );
-                    });
-              });
+                          );
+                        });
+                  }));
         });
   }
 
   void _onScroll() {
-    yOffset = _scrollController.offset;
-    if (yOffset >= 0 && yOffset <= 1000) {
-      setState(() {});
-    }
+    // yOffset = _scrollController.offset;
+    // if (yOffset >= 0 && yOffset <= 1000) {
+    //   setState(() {});
+    // }
   }
 
   List<Widget> _positionalWidgets(
@@ -633,8 +656,8 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
         bottom: 0,
         right: 0,
         left: 0,
-        child:
-            _listContainer(viewModel, value.dy, child: _pagingView(viewModel, _scrollController)));
+        child: _listContainer(viewModel, value.dy,
+            child: _pagingView(viewModel, _scrollController)));
 
     final balanceContainerPosition = Positioned(
         key: Key("dashboard-balance-${widget.customerAccountId}"),
@@ -746,15 +769,6 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
                         viewModel: viewModel,
                         userAccount: widget.userAccount,
                       ),
-                      // Hero(
-                      //   tag: "dashboard-balance-view-${widget.customerAccountId}",
-                      //   child: Flexible(
-                      //     child: AccountDetailsCard(
-                      //       viewModel: viewModel,
-                      //       userAccount: widget.userAccount,
-                      //     ),
-                      //   ),
-                      // ),
                     ],
                   ),
                   _pagingView(viewModel, _scrollController)
@@ -829,7 +843,6 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
       }
     }
   }
-
 
   @override
   void dispose() {
@@ -970,8 +983,7 @@ class _AccountDetailsState extends State<AccountDetails>
     super.dispose();
   }
 
-
-  int getQualifiedTierIndex(){
+  int getQualifiedTierIndex() {
     final tiers = widget.viewModel.tiers;
     return Tier.getQualifiedTierIndex(tiers);
   }
@@ -1016,9 +1028,10 @@ class _AccountDetailsState extends State<AccountDetails>
 
                           if (snapshot.hasData &&
                               (!isLoadingBalance && !isLoadingBalanceError)) {
-                            final availableBalance = "${accountBalance?.availableBalance?.formatCurrencyWithoutSymbolAndDividing}";
-                            final ledgerBalance = "${accountBalance?.ledgerBalance?.formatCurrencyWithoutSymbolAndDividing}";
-
+                            final availableBalance =
+                                "${accountBalance?.availableBalance?.formatCurrencyWithoutSymbolAndDividing}";
+                            final ledgerBalance =
+                                "${accountBalance?.ledgerBalance?.formatCurrencyWithoutSymbolAndDividing}";
 
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1026,10 +1039,10 @@ class _AccountDetailsState extends State<AccountDetails>
                                 Row(
                                   children: [
                                     SvgPicture.asset(
-                                            "res/drawables/ic_naira.svg",
-                                            width: 20,
-                                            height: 17,
-                                          ),
+                                      "res/drawables/ic_naira.svg",
+                                      width: 20,
+                                      height: 17,
+                                    ),
                                     SizedBox(width: 4),
                                     Text('$availableBalance',
                                         style: Styles.textStyle(context,
@@ -1044,7 +1057,6 @@ class _AccountDetailsState extends State<AccountDetails>
                                         fontSize: 12,
                                         fontWeight: FontWeight.w400,
                                         color: Colors.deepGrey)),
-
                               ],
                             );
                           }
@@ -1074,12 +1086,15 @@ class _AccountDetailsState extends State<AccountDetails>
                                         width: 90,
                                         height: 30,
                                         decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(10),
-                                            color: Colors.white.withOpacity(0.3),
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            color:
+                                                Colors.white.withOpacity(0.3),
                                             shape: BoxShape.rectangle),
                                       )),
                                   baseColor: Colors.white.withOpacity(0.6),
-                                  highlightColor: Colors.deepGrey.withOpacity(0.6)),
+                                  highlightColor:
+                                      Colors.deepGrey.withOpacity(0.6)),
                               SizedBox(height: 5),
                               Shimmer.fromColors(
                                   period: Duration(milliseconds: 1000),
@@ -1089,12 +1104,15 @@ class _AccountDetailsState extends State<AccountDetails>
                                         width: 90,
                                         height: 14,
                                         decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(10),
-                                            color: Colors.white.withOpacity(0.3),
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            color:
+                                                Colors.white.withOpacity(0.3),
                                             shape: BoxShape.rectangle),
                                       )),
                                   baseColor: Colors.white.withOpacity(0.6),
-                                  highlightColor: Colors.deepGrey.withOpacity(0.6))
+                                  highlightColor:
+                                      Colors.deepGrey.withOpacity(0.6))
                             ],
                           );
                         }),
@@ -1105,22 +1123,36 @@ class _AccountDetailsState extends State<AccountDetails>
               ],
             ),
           ),
-          Positioned(top: 2, right: 13,
-              child: SvgPicture.asset("res/drawables/account_tier_bg.svg",
-                height: 33, width: 16, color: getTierColor(qualifiedTierIndex).withOpacity(0.2),
-              ),
-          ),
-          Positioned(top: 6, right: 17,
-            child: Container(
-              height: 24.6, width: 24.6,
-              decoration: BoxDecoration(color: getTierColor(getQualifiedTierIndex()),
-                  shape: BoxShape.circle,
-              ),
-              child: Center(child: text("$qualifiedTierIndex", color: Colors.white, fontSize: 17)),
+          Positioned(
+            top: 2,
+            right: 13,
+            child: SvgPicture.asset(
+              "res/drawables/account_tier_bg.svg",
+              height: 33,
+              width: 16,
+              color: getTierColor(qualifiedTierIndex).withOpacity(0.2),
             ),
           ),
-          Positioned(top: 12, right: 50,
-            child: text("TIER", color: getTierColor(qualifiedTierIndex), fontSize: 9.2),
+          Positioned(
+            top: 6,
+            right: 17,
+            child: Container(
+              height: 24.6,
+              width: 24.6,
+              decoration: BoxDecoration(
+                color: getTierColor(getQualifiedTierIndex()),
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                  child: text("$qualifiedTierIndex",
+                      color: Colors.white, fontSize: 17)),
+            ),
+          ),
+          Positioned(
+            top: 12,
+            right: 50,
+            child: text("TIER",
+                color: getTierColor(qualifiedTierIndex), fontSize: 9.2),
           )
         ],
       ),
@@ -1139,40 +1171,49 @@ class _AccountDetailsState extends State<AccountDetails>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                 Expanded(
-                   child: Column(
-                     crossAxisAlignment: CrossAxisAlignment.start,
-                     mainAxisAlignment: MainAxisAlignment.start,
-                     children: [
-                     label("Account Name"),
-                     SizedBox(height: 4),
-                     text(customerAccount?.accountName?.toLowerCase().capitalizeFirstOfEach ?? ""),
-                     // text("Isah Leslie Williams James Amen" ?? ""),
-
-
-                     ],),
-                 ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        label("Account Name"),
+                        SizedBox(height: 4),
+                        text(customerAccount?.accountName
+                                ?.toLowerCase()
+                                .capitalizeFirstOfEach ??
+                            ""),
+                        // text("Isah Leslie Williams James Amen" ?? ""),
+                      ],
+                    ),
+                  ),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                    label("Scheme"), SizedBox(height: 4),
-                    text(customerAccount?.schemeCode?.code ?? "")
-                  ],)
+                      label("Scheme"),
+                      SizedBox(height: 4),
+                      text(customerAccount?.schemeCode?.code ?? "")
+                    ],
+                  )
                 ],
               ),
             ),
             SizedBox(height: 18),
-            Container(width: double.infinity,
-                child: Divider(height: 1, color: Colors.primaryColor.withOpacity(0.3),)),
+            Container(
+                width: double.infinity,
+                child: Divider(
+                  height: 1,
+                  color: Colors.primaryColor.withOpacity(0.3),
+                )),
             SizedBox(height: 18),
             Container(
               padding: EdgeInsets.symmetric(horizontal: 14.5),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                label("Account Number"),
-              ],),
+                  label("Account Number"),
+                ],
+              ),
             ),
             Container(
               padding: EdgeInsets.symmetric(horizontal: 14.5),
@@ -1183,15 +1224,14 @@ class _AccountDetailsState extends State<AccountDetails>
                   text(customerAccount?.accountNumber ?? ""),
                   // text("50002347702" ?? ""),
 
-                  if(widget.viewModel.isAccountUpdateCompleted)
+                  if (widget.viewModel.isAccountUpdateCompleted)
                     Styles.imageButton(
                       padding: EdgeInsets.all(9),
                       color: Colors.transparent,
                       borderRadius: BorderRadius.circular(30),
                       onClick: () => Share.share(
                           "Moniepoint MFB\n${widget.customerAccount?.accountNumber}\n${widget.customerAccount?.customer?.name}",
-                          subject: 'Moniepoint MFB'
-                      ),
+                          subject: 'Moniepoint MFB'),
                       image: SvgPicture.asset(
                         'res/drawables/ic_share.svg',
                         fit: BoxFit.contain,
@@ -1200,39 +1240,43 @@ class _AccountDetailsState extends State<AccountDetails>
                         color: Color(0xffB8003382).withOpacity(0.4),
                       ),
                     ),
-                  if(!widget.viewModel.isAccountUpdateCompleted)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
+                  if (!widget.viewModel.isAccountUpdateCompleted)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
                         InkWell(
-                          onTap: () => Navigator.of(context).pushNamed(Routes.ACCOUNT_UPDATE),
-                            child: text("Upgrade Account", color: Colors.primaryColor, fontSize: 14),
+                          onTap: () => Navigator.of(context)
+                              .pushNamed(Routes.ACCOUNT_UPDATE),
+                          child: text("Upgrade Account",
+                              color: Colors.primaryColor, fontSize: 14),
                         ),
                         SizedBox(width: 2),
                         Styles.imageButton(
-                          onClick: () => Navigator.of(context).pushNamed(Routes.ACCOUNT_UPDATE),
-                          color: Colors.white.withOpacity(0.2),
-                          padding:
-                          EdgeInsets.symmetric(horizontal: 5.2, vertical: 4),
-                          borderRadius: BorderRadius.circular(4),
-                          image: SvgPicture.asset(
-                            'res/drawables/ic_forward_anchor.svg',
-                            width: 8.13,
-                            height: 13.47, color: Colors.primaryColor,
-                          ))],
-                      ),
-                ],),
+                            onClick: () => Navigator.of(context)
+                                .pushNamed(Routes.ACCOUNT_UPDATE),
+                            color: Colors.white.withOpacity(0.2),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 5.2, vertical: 4),
+                            borderRadius: BorderRadius.circular(4),
+                            image: SvgPicture.asset(
+                              'res/drawables/ic_forward_anchor.svg',
+                              width: 8.13,
+                              height: 13.47,
+                              color: Colors.primaryColor,
+                            ))
+                      ],
+                    ),
+                ],
+              ),
             ),
             SizedBox(height: 17)
-
           ],
         ),
       ),
     ]);
   }
 
-
-  Widget label(String label){
+  Widget label(String label) {
     return Text(
       label,
       style: TextStyle(
@@ -1242,23 +1286,23 @@ class _AccountDetailsState extends State<AccountDetails>
     );
   }
 
-  Widget text(String text, {Color? color, double? fontSize}){
+  Widget text(String text, {Color? color, double? fontSize}) {
     return Text(
-      text, overflow: TextOverflow.ellipsis, maxLines: 2,
+      text,
+      overflow: TextOverflow.ellipsis,
+      maxLines: 2,
       style: TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: fontSize ?? 15.54,
-          color: color ?? Colors.textColorBlack,
+        fontWeight: FontWeight.w600,
+        fontSize: fontSize ?? 15.54,
+        color: color ?? Colors.textColorBlack,
       ),
     );
   }
 
-
-  Color getTierColor(int tier){
+  Color getTierColor(int tier) {
     if (tier <= 1) return Color(0xff905E24);
     if (tier == 2) return Color(0xff8A8A8A);
     return Color(0xffCCA004);
-
   }
 
   // Widget _buildVisibilityIcon() {

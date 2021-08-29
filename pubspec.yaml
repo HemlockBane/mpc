@@ -167,6 +167,11 @@ flutter:
           weight: 200
         - asset: res/fonts/Inter-Thin.ttf
           weight: 100
+
+    - family: Rubik
+      fonts:
+        - asset: res/fonts/Rubik-Medium.ttf
+          weight: 500
     - family: CustomFont
       fonts:
         - asset: res/fonts/custom_icons.ttf

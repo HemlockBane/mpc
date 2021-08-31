@@ -187,7 +187,7 @@ class _AccountTransactionDetailedView
                       ),
                       SizedBox(height: 37),
                       ClipPath(
-                        clipper: TicketClipper(),
+                        clipper: AccountTransactionsTicketClipper(),
                         child: Container(
                           margin: EdgeInsets.symmetric(horizontal: 19),
                           padding: EdgeInsets.symmetric(horizontal: 19),

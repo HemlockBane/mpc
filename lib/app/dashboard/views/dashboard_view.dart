@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart' hide ScrollView, Colors;
@@ -38,6 +39,14 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
 
   PageController _pageController = PageController(viewportFraction: 1);
   Stream<Resource<List<TransferBeneficiary>>> recentlyPaidBeneficiaries = Stream.empty();
+
+
+  Future<Null>_onRefresh(){
+    return Future.delayed(Duration(milliseconds: 0), (){
+      _viewModel.update();
+      return null;
+    });
+  }
 
   void _setupFingerprint() async {
     final biometricRequest = await _viewModel.shouldRequestFingerPrintSetup();
@@ -117,61 +126,64 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
   _contentView(double width, double height) => Container(
     width: double.infinity,
     color: Color(0XFFEBF2FA),
-    child: ScrollView(
-      child: Stack(
-        children: [
-          Container(
-            width: width,
-            height: height * 0.35,
-            child:
-            SvgPicture.asset("res/drawables/bg.svg", fit: BoxFit.fill),
-          ),
-          _DashboardTopMenu(
-              viewModel: _viewModel, scaffoldKey: _scaffoldKey
-          ),
-          _backgroundImage(),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: height * 0.16,),
-                AccountCard(viewModel: _viewModel, pageController: _pageController),
-                SizedBox(height: 32),
-                DashboardMenu(_onDrawerItemClickListener),
-                SizedBox(height: !_viewModel.isAccountUpdateCompleted ? 32 : 0),
-                StreamBuilder(
-                    stream: _viewModel.dashboardController,
-                    builder: (_,__) {
-                      return DashboardSliderView(
-                          items: _viewModel.sliderItems,
-                          onItemClick: _onDrawerItemClickListener,
-                      );
-                    }),
-                SizedBox(height: 32),
-                DashboardRecentlyPaidView(
-                  beneficiaries: recentlyPaidBeneficiaries,
-                  margin: EdgeInsets.only(bottom: 32),
-                ),
-                //Margin is determined by DashboardRecentlyPaidView
-                Text(
-                  "Suggested for You",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 15,
-                    color: Colors.textColorBlack.withOpacity(0.6),
-                  ),
-                ),
-                SizedBox(height: 16),
-                Expanded(
-                    flex: 0,
-                    child: SuggestedItems()
-                ),
-                SizedBox(height: 42),
-              ],
+    child: RefreshIndicator(
+      onRefresh: _onRefresh,
+      child: ScrollView(
+        child: Stack(
+          children: [
+            Container(
+              width: width,
+              height: height * 0.35,
+              child:
+              SvgPicture.asset("res/drawables/bg.svg", fit: BoxFit.fill),
             ),
-          )
-        ],
+            _DashboardTopMenu(
+                viewModel: _viewModel, scaffoldKey: _scaffoldKey
+            ),
+            _backgroundImage(),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: height * 0.16,),
+                  AccountCard(viewModel: _viewModel, pageController: _pageController),
+                  SizedBox(height: 32),
+                  DashboardMenu(_onDrawerItemClickListener),
+                  SizedBox(height: !_viewModel.isAccountUpdateCompleted ? 32 : 0),
+                  StreamBuilder(
+                      stream: _viewModel.dashboardController,
+                      builder: (_,__) {
+                        return DashboardSliderView(
+                            items: _viewModel.sliderItems,
+                            onItemClick: _onDrawerItemClickListener,
+                        );
+                      }),
+                  SizedBox(height: 32),
+                  DashboardRecentlyPaidView(
+                    beneficiaries: recentlyPaidBeneficiaries,
+                    margin: EdgeInsets.only(bottom: 32),
+                  ),
+                  //Margin is determined by DashboardRecentlyPaidView
+                  Text(
+                    "Suggested for You",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                      color: Colors.textColorBlack.withOpacity(0.6),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Expanded(
+                      flex: 0,
+                      child: SuggestedItems()
+                  ),
+                  SizedBox(height: 42),
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     ),
   );

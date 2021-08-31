@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class TicketClipper extends CustomClipper<Path> {
+class AccountTransactionsTicketClipper extends CustomClipper<Path> {
 
 
   Path getPath(Size size) {

@@ -25,10 +25,12 @@ class AccountTransactionsAccountCard extends StatefulWidget {
   final UserAccount userAccount;
 
   @override
-  _AccountTransactionsAccountCardState createState() => _AccountTransactionsAccountCardState();
+  _AccountTransactionsAccountCardState createState() =>
+      _AccountTransactionsAccountCardState();
 }
 
-class _AccountTransactionsAccountCardState extends State<AccountTransactionsAccountCard> {
+class _AccountTransactionsAccountCardState
+    extends State<AccountTransactionsAccountCard> {
   @override
   Widget build(BuildContext context) {
     final viewModel = widget.viewModel;
@@ -37,7 +39,6 @@ class _AccountTransactionsAccountCardState extends State<AccountTransactionsAcco
       children: [
         Container(
           margin: EdgeInsets.symmetric(horizontal: 19),
-          constraints: BoxConstraints(maxHeight: 305),
           width: double.infinity,
           decoration: BoxDecoration(
               color: Colors.backgroundWhite,
@@ -59,13 +60,41 @@ class _AccountTransactionsAccountCardState extends State<AccountTransactionsAcco
                   overlayColor: MaterialStateProperty.all(
                       Colors.darkLightBlue.withOpacity(0.1)),
                   onTap: () {},
-                  child: AccountDetails(
-                    customerAccount: userAccount.customerAccount,
-                    userAccount: userAccount,
-                    viewModel: viewModel,
+                  child: Hero(
+                    tag:
+                        "dashboard-balance-view-${userAccount.customerAccount?.id}",
+                    flightShuttleBuilder: (BuildContext flightContext,
+                        Animation<double> animation,
+                        HeroFlightDirection flightDirection,
+                        BuildContext fromHeroContext,
+                        BuildContext toHeroContext) {
+                      return SingleChildScrollView(child: toHeroContext.widget,);
+                    },
+                    child: Material(
+                      type: MaterialType.transparency,
+                      child: AccountDetails(
+                        customerAccount: userAccount.customerAccount,
+                        userAccount: userAccount,
+                        viewModel: viewModel,
+                      ),
+                    ),
                   ),
                 ),
               ),
+              SizedBox(height: 21),
+              //  Material(
+              //   color: Colors.transparent,
+              //   child: InkWell(
+              //     overlayColor: MaterialStateProperty.all(
+              //         Colors.darkLightBlue.withOpacity(0.1)),
+              //     onTap: () {},
+              //     child: AccountDetails(
+              //       customerAccount: userAccount.customerAccount,
+              //       userAccount: userAccount,
+              //       viewModel: viewModel,
+              //     ),
+              //   ),
+              // ),
             ],
           ),
         ),
@@ -151,6 +180,8 @@ class _AccountDetailsState extends State<AccountDetails>
 
   int getQualifiedTierIndex() {
     final tiers = widget.viewModel.tiers;
+    print("tiers");
+    print("length: ${tiers.length}");
     return Tier.getQualifiedTierIndex(tiers);
   }
 
@@ -441,6 +472,7 @@ class _AccountDetailsState extends State<AccountDetails>
       ),
     ]);
   }
+
   Widget label(String label) {
     return Text(
       label,
@@ -470,7 +502,7 @@ class _AccountDetailsState extends State<AccountDetails>
     return Color(0xffCCA004);
   }
 
-    // Widget _buildVisibilityIcon() {
+  // Widget _buildVisibilityIcon() {
   //   final bool hideAccountBalance =
   //       PreferenceUtil.getValueForLoggedInUser(hideAccountBalanceKey) ?? false;
   //

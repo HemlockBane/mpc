@@ -23,7 +23,7 @@ class TransactionOptionsView extends StatefulWidget {
     this.displayShareReceipt,
     this.displayDownloadReceipt,
     this.displayReplayTransaction = true,
-    this.displayInitiateDispute = true,
+    this.displayInitiateDispute = false,
     this.onItemClickListener,
     this.padding = 24
   });
@@ -91,7 +91,7 @@ class _TransactionOptionsView extends State<TransactionOptionsView> {
     }
   }
 
-  Widget _makeItem(String title, String res, {Color? color, Tuple<double, double>? iconSize}) {
+  Widget _makeItem(String title, String res, {Color? color, Size? iconSize}) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -103,8 +103,8 @@ class _TransactionOptionsView extends State<TransactionOptionsView> {
               initialView(backgroundColor: color?.withOpacity(0.11),
                 image: SvgPicture.asset(res, 
                   color: color ?? Colors.primaryColor, 
-                  width: iconSize?.first ?? null, 
-                  height: iconSize?.second ?? null,
+                  width: iconSize?.width ?? null, 
+                  height: iconSize?.height ?? null,
                 ),
               ),
               SizedBox(width: 16,),
@@ -116,7 +116,7 @@ class _TransactionOptionsView extends State<TransactionOptionsView> {
     );
   }
 
-  Widget _downloadItem(String title, String res, isDownloading, {Tuple<double, double>? size}) {
+  Widget _downloadItem(String title, String res, isDownloading, {Size? size}) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -135,7 +135,7 @@ class _TransactionOptionsView extends State<TransactionOptionsView> {
                     ),
                   ),
                   initialView(
-                      image: SvgPicture.asset(res, width: size?.first ?? null, height: size?.second ?? null,
+                      image: SvgPicture.asset(res, width: size?.width ?? null, height: size?.height ?? null,
                       color: isDownloading ? Colors.grey.withOpacity(0.5) :Colors.primaryColor,),
                       backgroundColor: isDownloading ? Colors.grey.withOpacity(0.1) : null
                   )
@@ -164,14 +164,14 @@ class _TransactionOptionsView extends State<TransactionOptionsView> {
       children: [
         Padding( 
           padding: EdgeInsets.only(left: widget.padding, right: widget.padding),
-          child: Text('Options', style: TextStyle(fontSize: 13.5, color: Color(0xff0B3275), fontWeight: FontWeight.w500, fontFamily: Styles.rubik),),
+          child: Text('Options', style: TextStyle(fontSize: 13.5, color: Colors.textColorPrimary, fontWeight: FontWeight.w700),),
         ),
         SizedBox(height: 7,),
         Visibility(
             visible: widget.displayShareReceipt != null,
             child: Expanded(
                 flex: 0,
-                child: _downloadItem('Share Receipt', 'res/drawables/ic_share_receipt.svg', _isDownloadingShareReceipt, size: Tuple(22, 23))
+                child: _downloadItem('Share Receipt', 'res/drawables/ic_share_receipt.svg', _isDownloadingShareReceipt, size: Size(22, 23))
             )),
         Visibility(
             visible: widget.displayDownloadReceipt != null,
@@ -184,7 +184,7 @@ class _TransactionOptionsView extends State<TransactionOptionsView> {
             visible: widget.displayDownloadReceipt != null,
             child: Expanded(
                 flex: 0,
-                child: _downloadItem('Download Receipt', 'res/drawables/ic_download_receipt.svg', _isDownloadingReceipt, size: Tuple(25, 26))
+                child: _downloadItem('Download Receipt', 'res/drawables/ic_download_receipt.svg', _isDownloadingReceipt, size: Size(25, 26))
             )),
         Visibility(
             visible: widget.displayReplayTransaction,
@@ -197,7 +197,7 @@ class _TransactionOptionsView extends State<TransactionOptionsView> {
             visible: widget.displayReplayTransaction,
             child: Expanded(
                 flex: 0,
-                child: _makeItem('Replay this Transaction', 'res/drawables/ic_replay_transaction.svg', iconSize: Tuple(25, 25))
+                child: _makeItem('Replay this Transaction', 'res/drawables/ic_replay_transaction.svg', iconSize: Size(25, 25))
             )),
         Visibility(
           visible: widget.displayInitiateDispute,
@@ -212,7 +212,7 @@ class _TransactionOptionsView extends State<TransactionOptionsView> {
                   ),
                    SizedBox(height: 4),
                   _makeItem('Initiate Dispute', 'res/drawables/ic_initiate_dispute.svg', 
-                    iconSize: Tuple(18, 18), color: Color(0xffE94444)
+                    iconSize: Size(18, 18), color: Color(0xffE94444)
                   ),
                 ],
               )

@@ -176,7 +176,7 @@ class BottomSheets {
                         borderRadius: BorderRadius.all(Radius.circular(8)),
                         color: Colors.red.withOpacity(0.1)),
                     child: Text(message ?? "",
-                        maxLines: 4,
+                        maxLines: 6,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                             fontSize: 16,
@@ -369,8 +369,12 @@ class BottomSheets {
                               style: TextStyle(
                                   color: Colors.primaryColor,
                                   fontSize: 16,
-                                  fontWeight: FontWeight.normal)))),
-                  SizedBox(height: 16),
+                                  fontWeight: FontWeight.normal
+                              )
+                          )
+                      )
+                  ),
+                  SizedBox(height: 32),
                 ],
               ),
             )

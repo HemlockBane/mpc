@@ -9,7 +9,7 @@ import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/transf
 import 'package:moniepoint_flutter/app/transfers/model/data/fee_vat_config.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/transfer_request_body.dart';
 import 'package:moniepoint_flutter/app/transfers/model/transfer_service_delegate.dart';
-import 'package:moniepoint_flutter/core/device_manager.dart';
+import 'package:moniepoint_flutter/app/devicemanagement/model/data/device_manager.dart';
 import 'package:moniepoint_flutter/core/models/transaction_status.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/network/service_error.dart';

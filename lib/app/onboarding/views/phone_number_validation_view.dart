@@ -36,6 +36,7 @@ class _PhoneNumberValidationScreen extends State<PhoneNumberValidationScreen> {
         setState(() => _isLoading = false);
         showError(
             widget._scaffoldKey.currentContext ?? context,
+            title: "Phone Number Validation Failed",
             message: event.message
         );
       }
@@ -99,6 +100,7 @@ class _PhoneNumberValidationScreen extends State<PhoneNumberValidationScreen> {
                                     hint: 'e.g. 0800 000 0000',
                                     controller: _phoneNumberController,
                                     inputFormats: [FilteringTextInputFormatter.digitsOnly],
+                                    textInputAction: TextInputAction.done,
                                     inputType: TextInputType.number,
                                     onChanged: viewModel.accountForm.onPhoneNumberChanged,
                                     errorText: snapshot.hasError ? snapshot.error.toString() : null,

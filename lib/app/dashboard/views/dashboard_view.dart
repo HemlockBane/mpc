@@ -58,23 +58,25 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
                 child: FingerPrintAlertDialog());
           });
 
+      final actionTitle = (biometricRequest.second == BiometricType.FINGER_PRINT)
+          ? "Fingerprint setup"
+          : "Face ID setup";
+
       if (result != null && result is bool) {
-        final successTitle = (biometricRequest.second == BiometricType.FINGER_PRINT)
-            ? "Fingerprint setup"
-            : "Face ID setup";
+
 
         final successMessage = (biometricRequest.second == BiometricType.FINGER_PRINT)
-            ? "Fingerprint Setup successfully"
-            : "Face ID Setup successfully";
+            ? "Fingerprint has been setup successfully"
+            : "Face ID has been setup successfully";
 
         showSuccess(context,
-            title: successTitle,
+            title: actionTitle,
             message: successMessage,
             primaryButtonText: "Continue",
             onPrimaryClick: () => Navigator.of(context).pop(true)
         );
       } else if (result is Error<bool>) {
-        showError(context, message: result.message);
+        showError(context, title: "$actionTitle Failed", message: result.message);
       }
     }
   }

@@ -232,11 +232,16 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
         } else {
           showError(
               widget._scaffoldKey.currentContext ?? context,
+              title: "Transfer Failed!",
               message: "Unable to complete transaction at this time. Please try again later."
           );
         }
     } else if(result is Error<TransactionStatus>) {
-      showError(widget._scaffoldKey.currentContext ?? context, message: result.message);
+      showError(
+          widget._scaffoldKey.currentContext ?? context,
+          title: "Transfer Failed!",
+          message: result.message
+      );
     }
   }
 

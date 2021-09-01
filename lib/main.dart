@@ -19,6 +19,7 @@ import 'package:moniepoint_flutter/core/viewmodels/system_configuration_view_mod
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
+
 //We need to move this to some where else
 
 final GlobalKey<NavigatorState> navigatorKey = new GlobalKey<NavigatorState>();
@@ -30,7 +31,11 @@ final defaultAppTheme = ThemeData(
     fontFamily: Styles.defaultFont,
     textTheme: TextTheme(
         bodyText2: TextStyle(
-            fontFamily: Styles.defaultFont, fontFamilyFallback: ["Roboto"])));
+            fontFamily: Styles.defaultFont,
+            fontFamilyFallback: ["Roboto"]
+        )
+    )
+);
 
 class MoniepointApp extends StatelessWidget with CompositeDisposableWidget {
   // This widget is the root of your application
@@ -57,6 +62,7 @@ class MoniepointApp extends StatelessWidget with CompositeDisposableWidget {
 
     String? savedUsername = PreferenceUtil.getSavedUsername();
     return MaterialApp(
+      restorationScopeId: "root",
       title: 'Moniepoint Customers',
       theme: defaultAppTheme,
       navigatorKey: navigatorKey,

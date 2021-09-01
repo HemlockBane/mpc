@@ -86,7 +86,7 @@ class _UserDeviceListView extends State<UserDeviceListView> with SingleTickerPro
 
 
     } else if(result is Error) {
-      showError(context, message: result.message ?? "");
+      showError(context, title: "Failed Removing Device", message: result.message ?? "");
     }
   }
 

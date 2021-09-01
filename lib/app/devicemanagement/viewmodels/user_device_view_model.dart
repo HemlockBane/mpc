@@ -3,7 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:moniepoint_flutter/app/devicemanagement/model/data/user_device.dart';
 import 'package:moniepoint_flutter/app/devicemanagement/model/data/user_device_request_body.dart';
 import 'package:moniepoint_flutter/app/devicemanagement/model/user_device_service_delegate.dart';
-import 'package:moniepoint_flutter/core/device_manager.dart';
+import 'package:moniepoint_flutter/app/devicemanagement/model/data/device_manager.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';

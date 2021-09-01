@@ -1,10 +1,12 @@
 import 'dart:ui';
 
+import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -164,7 +166,15 @@ class _LivelinessVerification extends State<LivelinessVerification> {
       );
       _initLivelinessDetector();
     } else {
-      Navigator.of(context).pop();
+      showInfo(
+          context,
+          title: "Camera Access Disabled",
+          message: "Navigate to phone settings to enable camera access",
+          primaryButtonText: "Enable Camera Access",
+          onPrimaryClick: () {
+            AppSettings.openAppSettings();
+          }
+      );
     }
   }
 

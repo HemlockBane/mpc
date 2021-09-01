@@ -87,7 +87,11 @@ class _TransactionOptionsView extends State<TransactionOptionsView> {
     } catch (e) {
       setState(() { _isDownloadingReceipt = false;});
       setState(() { _isDownloadingShareReceipt = false;});
-      showError(context, message: "Failed to download receipt");
+      showError(
+          context,
+          title: "Download Receipt Failed!",
+          message: "Failed downloading receipt, please try again later."
+      );
     }
   }
 

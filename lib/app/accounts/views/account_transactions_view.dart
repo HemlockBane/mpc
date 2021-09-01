@@ -790,9 +790,9 @@ ScrollController _scrollController) {
           _isDownloading = false;
         });
         FirebaseCrashlytics.instance.recordError(e, null);
-        showError(context,
-            title: "Oops",
-            message: "Failed to download account statement receipt");
+        showError(
+          context, title: "Statement Download Failed", message: "Failed to download account statement receipt"
+        );
       }
     }
   }

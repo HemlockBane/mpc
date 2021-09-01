@@ -411,11 +411,16 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
       } else {
         showError(
             widget._scaffoldKey.currentContext ?? context,
+            title: "Airtime Purchase Failed",
             message: "Unable to complete transaction at this time. Please try again later."
         );
       }
     } else if (result is Error<TransactionStatus>) {
-      showError(widget._scaffoldKey.currentContext ?? context, message: result.message ?? "");
+      showError(
+          widget._scaffoldKey.currentContext ?? context,
+          title: "Airtime Purchase Failed",
+          message: result.message ?? ""
+      );
     }
   }
 

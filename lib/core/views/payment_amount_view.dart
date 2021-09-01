@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -54,7 +56,9 @@ class _PaymentAmountView extends State<PaymentAmountView> {
               cursorColor: Colors.darkBlue,
               cursorRadius: Radius.circular(28),
               maxLines: 1,
-              keyboardType: TextInputType.number,
+              textInputAction: TextInputAction.done,
+              //On iOS with "TextInputType.number" the done/next option is not displayed
+              keyboardType: Platform.isIOS ? TextInputType.text : TextInputType.number,
               enabled: widget.isAmountFixed != true,
               onChanged: (v) => widget._valueChanged.call(int.parse(MoneyInputFormatter.clearCurrencyToNumberString(v))),
               inputFormatters: [

@@ -8,7 +8,6 @@ import 'package:moniepoint_flutter/core/views/empty_list_layout_view.dart';
 import 'package:moniepoint_flutter/core/views/error_layout_view.dart';
 import 'package:moniepoint_flutter/app/transfers/views/history_shimmer_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
-import 'package:moniepoint_flutter/core/models/filter_item.dart';
 import 'package:moniepoint_flutter/core/paging/page_config.dart';
 import 'package:moniepoint_flutter/core/paging/pager.dart';
 import 'package:moniepoint_flutter/core/paging/paging_data.dart';
@@ -29,7 +28,7 @@ class BillHistoryScreen extends StatefulWidget {
 }
 
 class _BillHistoryScreen extends State<BillHistoryScreen> with AutomaticKeepAliveClientMixin, SingleTickerProviderStateMixin {
-
+  late final BillHistoryViewModel _viewModel;
   late ScrollController _scrollController;
   bool isInFilterMode = false;
   bool _isFilterOpened = false;
@@ -42,8 +41,8 @@ class _BillHistoryScreen extends State<BillHistoryScreen> with AutomaticKeepAliv
 
   @override
   void initState() {
-    final viewModel = Provider.of<BillHistoryViewModel>(context, listen: false);
-    _pagingSource = viewModel.getPagedHistoryTransaction();
+    _viewModel = Provider.of<BillHistoryViewModel>(context, listen: false);
+    _pagingSource = _viewModel.getPagedHistoryTransaction();
     _scrollController = ScrollController();
     super.initState();
   }
@@ -69,26 +68,23 @@ class _BillHistoryScreen extends State<BillHistoryScreen> with AutomaticKeepAliv
 
   void _retry() {
     setState(() {
-      final viewModel = Provider.of<BillHistoryViewModel>(context, listen: false);
-      _pagingSource = viewModel.getPagedHistoryTransaction();
+      _pagingSource = _viewModel.getPagedHistoryTransaction();
     });
   }
 
   void _dateFilterDateChanged(int startDate, int endDate) {
-    final viewModel = Provider.of<BillHistoryViewModel>(context, listen: false);
     setState(() {
-      viewModel.setStartAndEndDate(startDate, endDate);
-      _pagingSource = viewModel.getPagedHistoryTransaction();
+      _viewModel.setStartAndEndDate(startDate, endDate);
+      _pagingSource = _viewModel.getPagedHistoryTransaction();
     });
   }
 
   void _onCancelFilter() {
-    final viewModel = Provider.of<BillHistoryViewModel>(context, listen: false);
     setState(() {
       isInFilterMode = false;
       _isFilterOpened = false;
-      viewModel.resetFilter();
-      _pagingSource = viewModel.getPagedHistoryTransaction();
+      _viewModel.resetFilter();
+      _pagingSource = _viewModel.getPagedHistoryTransaction();
     });
   }
 
@@ -96,7 +92,6 @@ class _BillHistoryScreen extends State<BillHistoryScreen> with AutomaticKeepAliv
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final viewModel = Provider.of<BillHistoryViewModel>(context, listen: false);
     return Container(
       margin: EdgeInsets.only(top: 24),
       padding: EdgeInsets.only(top: 24),
@@ -129,7 +124,7 @@ class _BillHistoryScreen extends State<BillHistoryScreen> with AutomaticKeepAliv
                         flex: 0,
                         child: FilterLayout(
                             widget._scaffoldKey,
-                            viewModel.filterableItems,
+                          _viewModel.filterableItems,
                             dateFilterCallback: _dateFilterDateChanged,
                             onCancel: _onCancelFilter,
                             isPreviouslyOpened: _isFilterOpened,
@@ -151,7 +146,7 @@ class _BillHistoryScreen extends State<BillHistoryScreen> with AutomaticKeepAliv
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              EmptyLayoutView(viewModel.isFilteredList()
+                              EmptyLayoutView(_viewModel.isFilteredList()
                                   ? 'You have no bill purchase within this date range.'
                                   : "You have no bill purchase history yet.",
                               )

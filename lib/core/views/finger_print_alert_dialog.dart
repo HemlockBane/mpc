@@ -25,6 +25,8 @@ class _FingerPrintAlertDialog extends State<FingerPrintAlertDialog> {
 
   BiometricHelper? biometricHelper;
 
+  BiometricType? _biometricType;
+
   @override
   void initState() {
     biometricHelper = BiometricHelper.getInstance();
@@ -58,7 +60,16 @@ class _FingerPrintAlertDialog extends State<FingerPrintAlertDialog> {
       PreferenceUtil.setFingerPrintEnabled(false);
       await BiometricHelper.getInstance().deleteFingerPrintPassword();
       setState(() { _isLoading = false; _hasError = true; });
-      showError(context, message: event.message);
+
+      final actionTitle = (_biometricType == BiometricType.FINGER_PRINT)
+          ? "Fingerprint Setup Failed!"
+          : "Face ID Setup Failed!";
+
+      showError(
+          context,
+          title: actionTitle,
+          message: event.message
+      );
     }
   }
 
@@ -77,13 +88,13 @@ class _FingerPrintAlertDialog extends State<FingerPrintAlertDialog> {
           builder: (mContext, AsyncSnapshot<BiometricType> snapshot) {
             if(!snapshot.hasData) return Text("Initializing");
 
-            final type = snapshot.data;
+            _biometricType = snapshot.data;
 
-            final titleMessage = (type == BiometricType.FINGER_PRINT)
+            final titleMessage = (_biometricType == BiometricType.FINGER_PRINT)
                 ? "Login with Fingerprint"
                 : "Login with Face ID";
 
-            final infoMessage = (type == BiometricType.FINGER_PRINT)
+            final infoMessage = (_biometricType == BiometricType.FINGER_PRINT)
                 ? "Enable fingerprint login on your device?"
                 : "Enable Face ID login on your device?";
 

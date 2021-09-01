@@ -255,7 +255,7 @@ class _AirtimeBeneficiaryScreen extends State<AirtimeBeneficiaryScreen> with Aut
             SizedBox(height: 18),
             Padding(
               padding : EdgeInsets.only(left: 16, right: 16),
-              child: Text('Select a Beneficiary', style: TextStyle(color: Colors.deepGrey, fontSize: 14, fontWeight: FontWeight.w200)),
+              child: Text('Select a Beneficiary', style: TextStyle(color: Colors.deepGrey, fontSize: 14, fontWeight: FontWeight.w400)),
             ),
             SizedBox(height: 10),
             Expanded(child: Container(

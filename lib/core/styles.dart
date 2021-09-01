@@ -243,7 +243,7 @@ class Styles {
           hintText: (!animateHint) ? hint : null,
           labelText: labelText,
           contentPadding: padding,
-          hintStyle: TextStyle(fontFamily: Styles.defaultFont, fontWeight: FontWeight.w200, fontSize : hintSize ?? fontSize ?? 16, color: Colors.textHintColor.withOpacity(0.29)),
+          hintStyle: TextStyle(fontFamily: Styles.defaultFont, fontWeight: FontWeight.w400, fontSize : hintSize ?? fontSize ?? 16, color: Colors.textHintColor.withOpacity(0.3)),
           labelStyle: TextStyle(
               fontFamily: Styles.defaultFont,
               fontSize: fontSize ?? 16,

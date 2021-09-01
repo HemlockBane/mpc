@@ -97,7 +97,11 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
         ..setSaveBeneficiary(result.second);
       Navigator.of(context).pushNamed(TransferScreen.PAYMENT_SCREEN, arguments: withDefaultAmount);
     } else if (result != null && result is Error<TransferBeneficiary>) {
-      showError(widget._scaffoldKey.currentContext ?? context, message: result.message);
+      showError(
+          widget._scaffoldKey.currentContext ?? context,
+          title: "Account Enquiry Failed!",
+          message: result.message
+      );
     }
   }
 
@@ -227,7 +231,7 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
             SizedBox(height: 18),
             Padding(
               padding : EdgeInsets.only(left: 16, right: 16),
-              child: Text('Select a Beneficiary', style: TextStyle(color: Colors.deepGrey, fontSize: 14, fontWeight: FontWeight.w200)),
+              child: Text('Select a Beneficiary', style: TextStyle(color: Colors.deepGrey, fontSize: 14, fontWeight: FontWeight.w400)),
             ),
             SizedBox(height: 10),
             Expanded(child: Container(

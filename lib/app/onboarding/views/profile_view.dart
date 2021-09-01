@@ -5,7 +5,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lottie/lottie.dart';
+import 'package:moniepoint_flutter/app/login/viewmodels/login_view_model.dart';
+import 'package:moniepoint_flutter/app/onboarding/model/data/account_profile_result.dart';
 import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
+import 'package:moniepoint_flutter/app/onboarding/views/dialogs/account_created_dialog.dart';
 import 'package:moniepoint_flutter/app/validation/model/data/onboarding_liveliness_validation_response.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -91,30 +94,32 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
     );
   }
 
-  void handleCreationResponse<T>(Resource<T> resource) async {
+  void handleCreationResponse(Resource<AccountProfile> resource) async {
     final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
-    if(resource is Success<T>) {
+    if(resource is Success<AccountProfile>) {
       setState(() => _isLoading = false);
 
-      final message = (viewModel.profileForm.setupType.type == OnBoardingType.ACCOUNT_DOES_NOT_EXIST)
-          ? "Your account has been created successfully, login now with your credentials."
-          : "Your profile has been created successfully, login now with your credentials.";
-      await showSuccess(
-          widget._scaffoldKey.currentContext ?? context,
-          title: "Profile Created Successfully",
-          message: message,
-          useText: false,
-          primaryButtonText: "Proceed to Login",
-          onPrimaryClick: () {
-            Navigator.of(context).pop(true);
-            PreferenceUtil.saveUsername(viewModel.profileForm.profile.username ?? "");
-            Navigator.pushNamedAndRemoveUntil(_scaffoldKey.currentContext!, Routes.LOGIN, (route) => false);
+      final accountProfile = resource.data as AccountProfile;
+
+      showModalBottomSheet(
+          isDismissible: false,
+          context: widget._scaffoldKey.currentContext ?? context,
+          builder: (mContext) {
+            return ChangeNotifierProvider(
+                create: (_) => LoginViewModel(),
+                child: AccountCreatedDialog(
+                    accountProfile,
+                    viewModel.profileForm.profile.username ?? "",
+                    viewModel.profileForm.profile.password ?? ""
+                ),
+            );
           }
       );
-    } else if(resource is Error<T>) {
+    } else if(resource is Error<AccountProfile>) {
       setState(() => _isLoading = false);
       showError(
           widget._scaffoldKey.currentContext ?? context,
+          title: "Profile Creation Failed!",
           message: resource.message,
           primaryButtonText: "Try Again?"
       );
@@ -437,6 +442,7 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
                   errorText: snapshot.hasError ? snapshot.error.toString() : null,
                   animateHint: true,
                   maxLength: 4,
+                  textInputAction: TextInputAction.done,
                   inputType: TextInputType.number,
                   inputFormats: [FilteringTextInputFormatter.digitsOnly],
                   drawablePadding: EdgeInsets.only(left: 4, right: 4),
@@ -479,6 +485,7 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
                                   hint: 'USSD PIN',
                                   maxLength: 4,
                                   inputType: TextInputType.number,
+                                  textInputAction: TextInputAction.done,
                                   inputFormats: [FilteringTextInputFormatter.digitsOnly],
                                   onChanged: viewModel.profileForm.onUssdPinChanged,
                                   errorText: snapshot.hasError ? snapshot.error.toString() : null,

@@ -81,7 +81,7 @@ class _ProofOfAddressScreen extends State<ProofOfAddressScreen> with AutomaticKe
 
     FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ["jpg", "png", "pdf"]
+        allowedExtensions: [".jpg", ".png", ".pdf"]
     );
     PlatformFile? file = result?.files.single;
 

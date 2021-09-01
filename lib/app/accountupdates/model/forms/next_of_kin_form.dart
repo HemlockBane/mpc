@@ -102,9 +102,9 @@ class NextOfKinForm with ChangeNotifier, Validators {
   }
 
   bool _isMiddleNameValid({bool displayError = false}) {
-    final isValid = _info.nextOfKinMiddleName != null && _info.nextOfKinMiddleName?.isNotEmpty == true;
-    if (displayError && !isValid) _middleNameController.sink.addError("Middle name is required");
-    return isValid;
+    // final isValid = _info.nextOfKinMiddleName != null && _info.nextOfKinMiddleName?.isNotEmpty == true;
+    // if (displayError && !isValid) _middleNameController.sink.addError("Middle name is required");
+    return true;
   }
 
   void onPhoneNumberChange(String? phoneNumber) {

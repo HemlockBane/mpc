@@ -48,7 +48,11 @@ class _TransactionSuccessDialog extends State<TransactionSuccessDialog> {
         setState(() { _isLoading = false; });
       } catch(e) {
         setState(() { _isLoading = false; });
-        showError(context, message: "Failed to download receipt");
+        showError(
+            context,
+            title: "Download Receipt Failed!",
+            message: "Failed to download receipt, please try again later."
+        );
       }
     }
   }

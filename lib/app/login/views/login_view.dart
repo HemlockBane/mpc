@@ -1,12 +1,15 @@
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart' hide Colors, ScrollView;
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lottie/lottie.dart';
 import 'package:moniepoint_flutter/app/login/model/data/user.dart';
 import 'package:moniepoint_flutter/app/login/viewmodels/login_view_model.dart';
 import 'package:moniepoint_flutter/app/login/views/dialogs/recover_credentials.dart';
 import 'package:moniepoint_flutter/app/login/views/recovery/recovery_controller_screen.dart';
+import 'package:moniepoint_flutter/app/onboarding/model/data/account_profile_result.dart';
+import 'package:moniepoint_flutter/app/onboarding/views/dialogs/account_created_dialog.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_icons2_icons.dart';
@@ -222,7 +225,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
             }
         );
       } else {
-        showError(context, message: event.message ?? "");
+        showError(context, title: "Login Failed!", message: event.message ?? "");
       }
       _topAnimController.reverse(from: 0.15);
     }
@@ -464,10 +467,10 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
       Future.delayed(Duration(milliseconds: 150), () {
         showError(context,
           title: "Logged Out",
-          message: "your session timed out due to inactivity. Please re-login to continue",
+          message: "You were automatically logged out to protect your account when we saw no activity. Please re-login to continue",
           onPrimaryClick: () {
             Navigator.of(context).pop();
-            _startFingerPrintLoginProcess();
+            // _startFingerPrintLoginProcess();
           }
         );
       });
@@ -480,7 +483,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
             message: "A Re-Login was needed for you to continue",
             onPrimaryClick: () {
               Navigator.of(context).pop();
-              _startFingerPrintLoginProcess();
+              // _startFingerPrintLoginProcess();
             }
         );
       });

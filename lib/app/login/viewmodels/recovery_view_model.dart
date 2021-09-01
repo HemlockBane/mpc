@@ -7,13 +7,12 @@ import 'package:moniepoint_flutter/app/usermanagement/model/data/password_recove
 import 'package:moniepoint_flutter/app/usermanagement/model/data/recovery_response.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/data/username_recovery_form.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/usermanagement_service_delegate.dart';
-import 'package:moniepoint_flutter/app/validation/model/data/authentication_request.dart';
 import 'package:moniepoint_flutter/app/validation/model/data/edit_device_request.dart';
 import 'package:moniepoint_flutter/app/validation/model/data/trigger_otp_request.dart';
 import 'package:moniepoint_flutter/app/validation/model/data/validate_answer_response.dart';
 import 'package:moniepoint_flutter/app/validation/model/data/validate_device_switch_request.dart';
 import 'package:moniepoint_flutter/app/validation/model/validation_service_delegate.dart';
-import 'package:moniepoint_flutter/core/device_manager.dart';
+import 'package:moniepoint_flutter/app/devicemanagement/model/data/device_manager.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/otp.dart';

@@ -54,7 +54,9 @@ class ManagedBeneficiaryScreen extends StatefulWidget {
       await showSuccess(context, title: title, message: message);
       return true;
     } else if(result is Error) {
-      await showError(context, message: result.message);
+      await showError(
+          context, title: "Failed Removing Beneficiary", message: result.message
+      );
       return false;
     }
     return false;

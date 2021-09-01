@@ -584,7 +584,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
         setState(() { _isDownloading = false; });
         FirebaseCrashlytics.instance.recordError(e, null);
         showError(
-          context, title: "Oops", message: "Failed to download account statement receipt"
+          context, title: "Statement Download Failed", message: "Failed to download account statement receipt"
         );
       }
     }

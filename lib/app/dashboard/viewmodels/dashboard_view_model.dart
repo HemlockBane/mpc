@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moniepoint_flutter/app/accounts/model/account_service_delegate.dart';
@@ -27,15 +28,18 @@ class DashboardViewModel extends BaseViewModel {
   bool _isAccountUpdateCompleted = true;
   bool get isAccountUpdateCompleted => _isAccountUpdateCompleted;
 
-  DashboardViewModel({
-    AccountServiceDelegate? accountServiceDelegate,
-    CustomerServiceDelegate? customerServiceDelegate,
-    TransferBeneficiaryServiceDelegate? transferBeneficiaryDelegate,
-    FileManagementServiceDelegate? fileServiceDelegate
-  }) : super(accountServiceDelegate: accountServiceDelegate) {
-    this._customerServiceDelegate = customerServiceDelegate ?? GetIt.I<CustomerServiceDelegate>();
-    this._transferBeneficiaryDelegate = transferBeneficiaryDelegate ?? GetIt.I<TransferBeneficiaryServiceDelegate>();
-    this._fileServiceDelegate = fileServiceDelegate ?? GetIt.I<FileManagementServiceDelegate>();
+  DashboardViewModel(
+      {AccountServiceDelegate? accountServiceDelegate,
+      CustomerServiceDelegate? customerServiceDelegate,
+      TransferBeneficiaryServiceDelegate? transferBeneficiaryDelegate,
+      FileManagementServiceDelegate? fileServiceDelegate})
+      : super(accountServiceDelegate: accountServiceDelegate) {
+    this._customerServiceDelegate =
+        customerServiceDelegate ?? GetIt.I<CustomerServiceDelegate>();
+    this._transferBeneficiaryDelegate = transferBeneficiaryDelegate ??
+        GetIt.I<TransferBeneficiaryServiceDelegate>();
+    this._fileServiceDelegate =
+        fileServiceDelegate ?? GetIt.I<FileManagementServiceDelegate>();
   }
 
   final List<Tier> tiers = [];
@@ -48,6 +52,16 @@ class DashboardViewModel extends BaseViewModel {
   StreamController<bool> _dashboardController = StreamController.broadcast();
   Stream<bool> get dashboardController => _dashboardController.stream;
 
+  final double indicatorOffset = 70;
+  double get indicatorOffsetValue => _indicatorController.value * 70;
+
+  IndicatorController _indicatorController = IndicatorController();
+  IndicatorController get indicatorController => _indicatorController;
+  void updateIndicatorController(IndicatorController controller) {
+    _indicatorController = controller;
+    update();
+  }
+
   Stream<Resource<AccountStatus>> fetchAccountStatus() {
     return this.accountServiceDelegate!.getAccountStatus(customerAccountId);
   }
@@ -59,8 +73,11 @@ class DashboardViewModel extends BaseViewModel {
   }
 
   Stream<Resource<List<Tier>>> getTiers() {
-    return _customerServiceDelegate.getSchemes(fetchFromRemote: false).map((event) {
-      if((event is Success || event is Loading) && event.data?.isNotEmpty == true) {
+    return _customerServiceDelegate
+        .getSchemes(fetchFromRemote: false)
+        .map((event) {
+      if ((event is Success || event is Loading) &&
+          event.data?.isNotEmpty == true) {
         this.tiers.clear();
         this.tiers.addAll(event.data ?? []);
       }
@@ -69,7 +86,9 @@ class DashboardViewModel extends BaseViewModel {
   }
 
   Stream<Resource<List<TransferBeneficiary>>> getRecentlyPaidBeneficiary() {
-    return _transferBeneficiaryDelegate.getFrequentBeneficiaries().asBroadcastStream();
+    return _transferBeneficiaryDelegate
+        .getFrequentBeneficiaries()
+        .asBroadcastStream();
   }
 
   String getFirstName() {
@@ -77,9 +96,11 @@ class DashboardViewModel extends BaseViewModel {
   }
 
   Stream<Resource<FileResult>> getProfilePicture() {
-    if(customer?.passportUUID == null) return Stream.empty();
-    return _fileServiceDelegate.getFileByUUID(customer?.passportUUID ?? "").map((event) {
-      if(event is Success || event is Loading) {
+    if (customer?.passportUUID == null) return Stream.empty();
+    return _fileServiceDelegate
+        .getFileByUUID(customer?.passportUUID ?? "")
+        .map((event) {
+      if (event is Success || event is Loading) {
         _userProfileBase64String = event.data?.base64String;
       }
       return event;
@@ -94,33 +115,37 @@ class DashboardViewModel extends BaseViewModel {
     AccountStatus? accountStatus = UserInstance().accountStatus;
     final flags = accountStatus?.listFlags() ?? customer?.listFlags();
     if (flags == null) return;
-    _isAccountUpdateCompleted = flags.where((element) => element?.status != true).isEmpty;
+    _isAccountUpdateCompleted =
+        flags.where((element) => element?.status != true).isEmpty;
     _populateSliderItems();
   }
 
   void _populateSliderItems() {
     sliderItems.clear();
-    if(isAccountUpdateCompleted) return;
+    if (isAccountUpdateCompleted) return;
     sliderItems.add(SliderItem(
         key: "account_update",
         primaryText: "Upgrade Account",
         secondaryText: "Upgrade your savings account\nto enjoy higher limits",
-        iconPath: "res/drawables/ic_dashboard_edit.png"
-    ));
+        iconPath: "res/drawables/ic_dashboard_edit.png"));
   }
 
   Future<Tuple<bool, BiometricType>> shouldRequestFingerPrintSetup() async {
-    final fingerprintRequestCount = PreferenceUtil.getFingerprintRequestCounter();
+    final fingerprintRequestCount =
+        PreferenceUtil.getFingerprintRequestCounter();
     //We should only request 3 times from the dashboard
-    if (fingerprintRequestCount >= 2 || PreferenceUtil.getLoginMode() == LoginMode.ONE_TIME) {
+    if (fingerprintRequestCount >= 2 ||
+        PreferenceUtil.getLoginMode() == LoginMode.ONE_TIME) {
       return Tuple(false, BiometricType.NONE);
     }
     final biometricHelper = BiometricHelper.getInstance();
     final biometricType = await biometricHelper.getBiometricType();
-    final hasFingerprintPassword = (await biometricHelper.getFingerprintPassword()) != null;
+    final hasFingerprintPassword =
+        (await biometricHelper.getFingerprintPassword()) != null;
 
-    final shouldRequest = biometricType != BiometricType.NONE && !hasFingerprintPassword;
-    if(shouldRequest) {
+    final shouldRequest =
+        biometricType != BiometricType.NONE && !hasFingerprintPassword;
+    if (shouldRequest) {
       PreferenceUtil.setFingerprintRequestCounter(fingerprintRequestCount + 1);
     }
     return Tuple(shouldRequest, biometricType);
@@ -131,5 +156,4 @@ class DashboardViewModel extends BaseViewModel {
     _dashboardController.close();
     super.dispose();
   }
-
 }

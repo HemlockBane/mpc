@@ -72,6 +72,7 @@ dependencies:
   qr_code_scanner: ^0.5.2
   cron: ^0.3.2
   location: ^4.2.0
+  custom_refresh_indicator: ^1.0.0
 
 dependency_overrides:
   retrofit:

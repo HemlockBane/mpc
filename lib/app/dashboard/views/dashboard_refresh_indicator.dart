@@ -7,13 +7,11 @@ import 'package:moniepoint_flutter/core/colors.dart';
 
 class DashboardRefreshIndicator extends StatefulWidget {
   final Widget child;
-  final VoidCallback onRefresh;
   final DashboardViewModel viewModel;
 
   const DashboardRefreshIndicator(
       {Key? key,
       required this.child,
-      required this.onRefresh,
       required this.viewModel})
       : super(key: key);
 
@@ -29,11 +27,10 @@ class _DashboardRefreshIndicatorState extends State<DashboardRefreshIndicator>
 
   ScrollDirection prevScrollDirection = ScrollDirection.idle;
 
-  Future<Null> _onRefresh() {
-    return Future.delayed(Duration(milliseconds: 0), () {
-      widget.onRefresh();
+  Future<Null> _onRefresh()async {
+    await for (final _  in widget.viewModel.accBalanceStream){
       return null;
-    });
+    }
   }
 
   @override

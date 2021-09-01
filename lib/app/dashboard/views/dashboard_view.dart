@@ -124,7 +124,6 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
         color: Color(0XFFEBF2FA),
         child: DashboardRefreshIndicator(
           viewModel: _viewModel,
-          onRefresh: () => _viewModel.update(),
           child: SingleChildScrollView(
             child: Stack(
               children: [

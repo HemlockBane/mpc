@@ -156,12 +156,26 @@ class _AccountDetailsState extends State<AccountDetails> with CompositeDisposabl
     hideAccountBalanceKey =
     "${widget.customerAccount?.accountNumber}-${PreferenceUtil.HIDE_ACCOUNT_BAL}";
     super.initState();
-    widget.viewModel.dashboardController.listen((event) {
+    widget.viewModel.dashboardUpdateStream.listen((event) {
       print("Updating  balance Stream ooo");
-      _balanceStream = widget.viewModel
-          .getCustomerAccountBalance(accountId: widget.userAccount.id, useLocal: false);
+      _balanceStream = widget.viewModel.getCustomerAccountBalance(accountId: widget.userAccount.id, useLocal: false);
       setState(() {});
     }).disposedBy(this);
+
+    widget.viewModel.refreshStartStream.listen((event) {
+      _balanceStream = widget.viewModel.getCustomerAccountBalance(accountId: widget.userAccount.id, useLocal: false);
+      setState(() {});
+      widget.viewModel.finishRefresh();
+    }).disposedBy(this);
+
+
+
+
+
+
+
+
+
   }
 
   @override

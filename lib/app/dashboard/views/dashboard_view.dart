@@ -124,7 +124,6 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
         color: Color(0XFFEBF2FA),
         child: DashboardRefreshIndicator(
           viewModel: _viewModel,
-          onRefresh: () => _viewModel.update(),
           child: SingleChildScrollView(
             child: Stack(
               children: [
@@ -154,7 +153,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
                           height:
                               !_viewModel.isAccountUpdateCompleted ? 32 : 0),
                       StreamBuilder(
-                          stream: _viewModel.dashboardController,
+                          stream: _viewModel.dashboardUpdateStream,
                           builder: (_, __) {
                             return DashboardSliderView(
                               items: _viewModel.sliderItems,
@@ -277,7 +276,7 @@ class RefreshSizedBox extends StatefulWidget {
 class _RefreshSizedBoxState extends State<RefreshSizedBox> {
   @override
   void initState() {
-    widget._viewModel.dashboardController.listen((event) {
+    widget._viewModel.dashboardUpdateStream.listen((event) {
       setState(() {});
     });
     super.initState();
@@ -353,7 +352,7 @@ class __DashboardTopMenuState extends State<_DashboardTopMenu> {
 
   @override
   void initState() {
-    widget.viewModel.dashboardController.listen((event) {
+    widget.viewModel.dashboardUpdateStream.listen((event) {
       setState(() {});
     });
     super.initState();

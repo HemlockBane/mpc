@@ -50,7 +50,13 @@ class DashboardViewModel extends BaseViewModel {
   String? get userProfileBase64String => _userProfileBase64String;
 
   StreamController<bool> _dashboardController = StreamController.broadcast();
-  Stream<bool> get dashboardController => _dashboardController.stream;
+  Stream<bool> get dashboardUpdateStream => _dashboardController.stream;
+
+  StreamController<bool> _refreshDoneStreamController = StreamController.broadcast();
+  Stream<bool> get refreshDoneStream => _refreshDoneStreamController.stream;
+
+  StreamController<bool> _refreshStartStreamController = StreamController.broadcast();
+  Stream<bool> get refreshStartStream => _refreshStartStreamController.stream;
 
   final double indicatorOffset = 70;
   double get indicatorOffsetValue => _indicatorController.value * 70;
@@ -111,6 +117,14 @@ class DashboardViewModel extends BaseViewModel {
     _dashboardController.sink.add(true);
   }
 
+  void startRefresh() {
+    _refreshStartStreamController.sink.add(true);
+  }
+
+  void finishRefresh() {
+    _refreshDoneStreamController.sink.add(true);
+  }
+
   void checkAccountUpdate() {
     AccountStatus? accountStatus = UserInstance().accountStatus;
     final flags = accountStatus?.listFlags() ?? customer?.listFlags();
@@ -119,6 +133,7 @@ class DashboardViewModel extends BaseViewModel {
         flags.where((element) => element?.status != true).isEmpty;
     _populateSliderItems();
   }
+
 
   void _populateSliderItems() {
     sliderItems.clear();
@@ -154,6 +169,8 @@ class DashboardViewModel extends BaseViewModel {
   @override
   void dispose() {
     _dashboardController.close();
+    _refreshStartStreamController.close();
+    _refreshDoneStreamController.close();
     super.dispose();
   }
 }

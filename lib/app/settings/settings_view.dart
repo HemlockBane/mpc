@@ -41,7 +41,11 @@ class _SettingsScreen extends State<SettingsScreen> {
         )
     );
     if(result is Error<bool>) {
-      await showError( _scaffoldKey.currentContext ?? context, message: result.message);
+      await showError(
+          _scaffoldKey.currentContext ?? context,
+          title: "Password Change Failed!",
+          message: result.message
+      );
     } else if(result is bool && result == true) {
       _displaySuccessMessage("Password Changed", "Password was updated successfully");
     }
@@ -58,7 +62,11 @@ class _SettingsScreen extends State<SettingsScreen> {
         )
     );
     if(result is Error<bool>) {
-      showError(_scaffoldKey.currentContext ?? context, message: result.message);
+      showError(
+          _scaffoldKey.currentContext ?? context,
+          title: "PIN Change Failed!",
+          message: result.message
+      );
     } else if(result is bool && result == true) {
       _displaySuccessMessage("Pin Changed", "Transaction PIN was updated successfully");
     }

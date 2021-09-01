@@ -183,10 +183,6 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
     return pills;
   }
 
-  void _displayPaymentError(String message) {
-    showError(widget._scaffoldKey.currentContext ?? context, message: message);
-  }
-
   void subscribeUiToPin() async {
     final viewModel = Provider.of<BillPurchaseViewModel>(context, listen: false);
     dynamic result = await showModalBottomSheet(
@@ -225,11 +221,19 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
               })
           );
         } else {
-          _displayPaymentError(result.message ?? "Unable to complete transaction at this time. Please try again later.");
+          showError(
+              widget._scaffoldKey.currentContext ?? context,
+              title: "Bill Payment Failed",
+              message: "Unable to complete transaction at this time. Please try again later."
+          );
         }
 
     } else if(result is Error<TransactionStatus>) {
-      _displayPaymentError(result.message ?? "");
+      showError(
+          widget._scaffoldKey.currentContext ?? context,
+          title: "Bill Payment Failed",
+          message: result.message ?? ""
+      );
     }
   }
 

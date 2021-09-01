@@ -193,7 +193,7 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> {
       }
       else if(event is Error<Tier>) {
         _viewModel.setIsLoading(false);
-        showError(context, message: event.message);
+        showError(context, title: "Failed verifying customer eligibility", message: event.message);
       }
     });
   }
@@ -218,7 +218,9 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> {
       Navigator.of(context).pop(context);
     }
     if(value != null && value is Error<Tier>) {
-      showError(context, message: value.message);
+      showError(
+          context, title: "Account Upgrade Failed", message: value.message
+      );
     }
   }
 

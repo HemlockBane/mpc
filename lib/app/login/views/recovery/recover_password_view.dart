@@ -51,6 +51,7 @@ class _RecoverPasswordScreen extends State<RecoverPasswordScreen> {
     } else {
       showError(
           widget._scaffoldKey.currentContext ?? context,
+          title: "Password Recovery Failed!",
           message: message,
           primaryButtonText: "Dismiss",
           useTextButton: true

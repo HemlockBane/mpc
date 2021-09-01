@@ -10,7 +10,7 @@ import 'package:moniepoint_flutter/app/login/model/data/password_login_request.d
 import 'package:moniepoint_flutter/app/login/model/data/user.dart';
 import 'package:moniepoint_flutter/app/login/model/login_service_delegate.dart';
 import 'package:moniepoint_flutter/core/config/build_config.dart';
-import 'package:moniepoint_flutter/core/device_manager.dart';
+import 'package:moniepoint_flutter/app/devicemanagement/model/data/device_manager.dart';
 import 'package:moniepoint_flutter/core/models/services/system_configuration_service_delegate.dart';
 import 'package:moniepoint_flutter/core/models/system_configuration.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
@@ -61,6 +61,7 @@ class LoginViewModel with ChangeNotifier {
   }
 
   Stream<Resource<User>> doLogin(LoginRequestBody requestBody) {
+    UserInstance().resetSession();
     var response = (requestBody is LoginWithFingerprintRequestBody)
         ? _delegate.loginWithFingerprint(requestBody)
         : _delegate.loginWithPassword(requestBody);

@@ -110,7 +110,7 @@ class AccountUpdateViewModel extends BaseViewModel {
       mailingAddressInfo: (_addressForm.isInitialized)
           ? addressForm.getMailingAddressInfo?.addressCity != null ? addressForm.getMailingAddressInfo : null
           : null,
-      identificationInfo: (_identificationForm.isInitialized && additionalInfoForm.isFormValid)
+      identificationInfo: (_identificationForm.isInitialized && identificationForm.isFormValid)
           ? identificationForm.identificationInfo
           : null,
       nextOfKinInfo: (_nextOfKinForm.isInitialized)

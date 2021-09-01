@@ -49,6 +49,7 @@ class _RecoverUsernameScreen extends State<RecoverUsernameBVNScreen> {
     } else {
       showError(
           widget._scaffoldKey.currentContext ?? context,
+          title: "Username Recovery Failed!",
           message: message,
           primaryButtonText: "Dismiss",
           useTextButton: true

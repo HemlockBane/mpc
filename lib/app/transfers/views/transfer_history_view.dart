@@ -70,6 +70,8 @@ class _TransferHistoryScreen extends State<TransferHistoryScreen> with Automatic
   }
 
   void _retry() {
+    final viewModel = Provider.of<TransferHistoryViewModel>(context, listen: false);
+    setState(() => _pagingSource = viewModel.getPagedHistoryTransaction());
   }
 
   void _dateFilterDateChanged(int startDate, int endDate) {

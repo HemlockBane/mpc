@@ -24,12 +24,12 @@ class IdentificationType extends DropDownItem {
   }
 }
 
-const identificationTypes = [
+final identificationTypes = [
   const IdentificationType("National ID"),
   const IdentificationType("Drivers License"),
   const IdentificationType("International Passport"),
   const IdentificationType("Voters Card"),
-];
+]..sort((a, b) => a.idType.compareTo(b.idType));
 
 
 class MaritalStatus extends DropDownItem {
@@ -50,13 +50,13 @@ class MaritalStatus extends DropDownItem {
   }
 }
 
-const maritalStatuses = [
+final maritalStatuses = [
   const MaritalStatus("SINGLE"),
   const MaritalStatus("MARRIED"),
   const MaritalStatus("WIDOWED"),
   const MaritalStatus("SEPARATED"),
   const MaritalStatus("DIVORCED"),
-];
+]..sort((a, b) => a.maritalStatus.compareTo(b.maritalStatus));
 
 class Religion extends DropDownItem {
   final String religion;
@@ -220,9 +220,9 @@ class EmploymentStatus extends DropDownItem {
 }
 
 const employmentStatus = [
-  const EmploymentStatus("UNEMPLOYED"),
   const EmploymentStatus("EMPLOYED"),
   const EmploymentStatus("SELF_EMPLOYED"),
+  const EmploymentStatus("UNEMPLOYED"),
 ];
 
 class Titles extends DropDownItem {
@@ -297,7 +297,7 @@ const titles = [
   const Titles("Turaki"),
   const Titles("Yerima"),
   const Titles("Eze"),
-];
+];//..sort((a, b) => a.title.compareTo(b.title));
 
 
 class Relationship extends DropDownItem {
@@ -316,7 +316,7 @@ class Relationship extends DropDownItem {
   }
 }
 
-const relationships = [
+final relationships = [
   const Relationship("Husband"),
   const Relationship("Wife"),
   const Relationship("Daughter"),
@@ -330,4 +330,4 @@ const relationships = [
   const Relationship("Aunt"),
   const Relationship("Nephew"),
   const Relationship("Niece"),
-];
+]..sort((a, b) => a.relationship.compareTo(b.relationship));

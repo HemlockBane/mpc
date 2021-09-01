@@ -49,6 +49,7 @@ class _SetPasswordRecoveryView extends State<SetPasswordRecoveryView> with Valid
       setState(() => _isLoading = false);
       showError(
           widget._scaffoldKey.currentContext ?? context,
+          title: "Password Update Failed!",
           message: event.message,
           useTextButton: true,
           primaryButtonText: "Dismiss",

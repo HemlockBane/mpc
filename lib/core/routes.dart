@@ -24,6 +24,7 @@ import 'package:moniepoint_flutter/app/cards/views/dialogs/manage_card_channels_
 import 'package:moniepoint_flutter/app/cards/views/issuance/card_activation_view.dart';
 import 'package:moniepoint_flutter/app/cards/views/issuance/card_qr_code_scanner_view.dart';
 import 'package:moniepoint_flutter/app/cards/views/unblock_debit_card_view.dart';
+import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_view.dart';
 import 'package:moniepoint_flutter/app/devicemanagement/viewmodels/user_device_view_model.dart';
 import 'package:moniepoint_flutter/app/devicemanagement/views/user_device_list_view.dart';
@@ -157,11 +158,14 @@ class Routes {
     switch (settings.name) {
       case Routes.ACCOUNT_TRANSACTIONS:
         final customerAccountId = (settings.arguments as Map?)?["customerAccountId"];
+        final args = settings.arguments as Map<dynamic, dynamic>;
+        final userAccount = args["userAccount"] as UserAccount;
+      
         return MaterialPageRoute(
             builder: (_) => ChangeNotifierProvider(
               create: (_) => TransactionHistoryViewModel(),
               child: AccountTransactionScreen(
-                  customerAccountId: customerAccountId),
+                  customerAccountId: customerAccountId, userAccount: userAccount,),
             ));
       case Routes.LIVELINESS_DETECTION:
         return MaterialPageRoute(

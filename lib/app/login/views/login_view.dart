@@ -514,23 +514,39 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
           height: minHeight,
           child: Stack(
             children: [
-              Column(
-                children: [
-                  SizedBox(height: minHeight * 0.35,),
-                  Expanded(
-                    child: Container(
-                      padding: EdgeInsets.only(left: 0, right: 0, top: 34, bottom: 0),
-                      child: _buildMidSection(context),
-                    ),
-                  ),
-                  // _buildBottomSection(context),
-                ],
-              ),
               _LoginTopMenuView(
                 context: context,
                 controller: _topAnimController,
                 isLoading: _isLoading,
               ),
+              Positioned(
+                top: 0,
+                bottom: 0,
+                right: 0,
+                left: 0,
+                child: IgnorePointer(
+                  child: Opacity(
+                    opacity: 0.2,
+                    child: FittedBox(
+                      fit: BoxFit.fill,
+                      child: Image.asset("res/drawables/ic_app_bg.png"),
+                    ),
+                  ),
+                ),
+              ),
+              if (!_isLoading)
+                Column(
+                  children: [
+                    SizedBox(height: minHeight * 0.35,),
+                    Expanded(
+                      child: Container(
+                        padding: EdgeInsets.only(left: 0, right: 0, top: 34, bottom: 0),
+                        child: _buildMidSection(context),
+                      ),
+                    ),
+                    // _buildBottomSection(context),
+                  ],
+                ),
             ],
           ),
         ),

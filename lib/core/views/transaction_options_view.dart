@@ -23,7 +23,7 @@ class TransactionOptionsView extends StatefulWidget {
     this.displayShareReceipt,
     this.displayDownloadReceipt,
     this.displayReplayTransaction = true,
-    this.displayInitiateDispute = true,
+    this.displayInitiateDispute = false,
     this.onItemClickListener,
     this.padding = 24
   });
@@ -44,7 +44,7 @@ class _TransactionOptionsView extends State<TransactionOptionsView> {
       padding: EdgeInsets.all(0),
       decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: backgroundColor ?? Colors.primaryColor.withOpacity(0.1)
+          color: backgroundColor ?? Colors.primaryColor.withOpacity(0.11)
       ),
       child: Center(
         child: image,
@@ -95,7 +95,7 @@ class _TransactionOptionsView extends State<TransactionOptionsView> {
     }
   }
 
-  Widget _makeItem(String title, String res) {
+  Widget _makeItem(String title, String res, {Color? color, Size? iconSize}) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -104,9 +104,15 @@ class _TransactionOptionsView extends State<TransactionOptionsView> {
           padding: EdgeInsets.only(left: widget.padding, right: widget.padding, top: 10, bottom: 10),
           child: Row(
             children: [
-              initialView(image: SvgPicture.asset(res, color: Colors.primaryColor,)),
+              initialView(backgroundColor: color?.withOpacity(0.11),
+                image: SvgPicture.asset(res, 
+                  color: color ?? Colors.primaryColor, 
+                  width: iconSize?.width ?? null, 
+                  height: iconSize?.height ?? null,
+                ),
+              ),
               SizedBox(width: 16,),
-              Text(title, style: TextStyle(color: Colors.colorPrimaryDark, fontSize: 16),)
+              Text(title, style: TextStyle(color: Colors.textColorBlack, fontSize: 13.7, fontWeight: FontWeight.w600),)
             ],
           ),
         ),
@@ -114,7 +120,7 @@ class _TransactionOptionsView extends State<TransactionOptionsView> {
     );
   }
 
-  Widget _downloadItem(String title, String res, isDownloading) {
+  Widget _downloadItem(String title, String res, isDownloading, {Size? size}) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -133,19 +139,20 @@ class _TransactionOptionsView extends State<TransactionOptionsView> {
                     ),
                   ),
                   initialView(
-                      image: SvgPicture.asset(res, color: isDownloading ? Colors.grey.withOpacity(0.5) :Colors.primaryColor,),
+                      image: SvgPicture.asset(res, width: size?.width ?? null, height: size?.height ?? null,
+                      color: isDownloading ? Colors.grey.withOpacity(0.5) :Colors.primaryColor,),
                       backgroundColor: isDownloading ? Colors.grey.withOpacity(0.1) : null
                   )
                 ],
               ),
-              SizedBox(width: 16,),
+              SizedBox(width: 18,),
               Text(
                 title,
                 style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 13.7, fontWeight: FontWeight.w600,
                     color: isDownloading
                         ? Colors.grey.withOpacity(0.5)
-                        : Colors.colorPrimaryDark,
+                        : Colors.textColorBlack,
                 ),)
             ],
           ),
@@ -159,16 +166,16 @@ class _TransactionOptionsView extends State<TransactionOptionsView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
+        Padding( 
           padding: EdgeInsets.only(left: widget.padding, right: widget.padding),
-          child: Text('Options', style: TextStyle(fontSize: 14, color: Colors.colorPrimaryDark, fontWeight: FontWeight.bold),),
+          child: Text('Options', style: TextStyle(fontSize: 13.5, color: Colors.textColorPrimary, fontWeight: FontWeight.w700),),
         ),
         SizedBox(height: 7,),
         Visibility(
             visible: widget.displayShareReceipt != null,
             child: Expanded(
                 flex: 0,
-                child: _downloadItem('Share Receipt', 'res/drawables/ic_share_receipt.svg', _isDownloadingShareReceipt)
+                child: _downloadItem('Share Receipt', 'res/drawables/ic_share_receipt.svg', _isDownloadingShareReceipt, size: Size(22, 23))
             )),
         Visibility(
             visible: widget.displayDownloadReceipt != null,
@@ -181,7 +188,7 @@ class _TransactionOptionsView extends State<TransactionOptionsView> {
             visible: widget.displayDownloadReceipt != null,
             child: Expanded(
                 flex: 0,
-                child: _downloadItem('Download Receipt', 'res/drawables/ic_download_receipt.svg', _isDownloadingReceipt)
+                child: _downloadItem('Download Receipt', 'res/drawables/ic_download_receipt.svg', _isDownloadingReceipt, size: Size(25, 26))
             )),
         Visibility(
             visible: widget.displayReplayTransaction,
@@ -194,8 +201,27 @@ class _TransactionOptionsView extends State<TransactionOptionsView> {
             visible: widget.displayReplayTransaction,
             child: Expanded(
                 flex: 0,
-                child: _makeItem('Replay this Transaction', 'res/drawables/ic_replay_transaction.svg')
+                child: _makeItem('Replay this Transaction', 'res/drawables/ic_replay_transaction.svg', iconSize: Size(25, 25))
             )),
+        Visibility(
+          visible: widget.displayInitiateDispute,
+          child: Expanded(
+              flex: 0,
+              child: Column(
+                children: [
+                  SizedBox(height: 180),
+                  Padding(
+                    padding: EdgeInsets.only(left: widget.padding, right: widget.padding),
+                    child: Divider(height: 1, color: Colors.dashboardDivider.withOpacity(0.15),),
+                  ),
+                   SizedBox(height: 4),
+                  _makeItem('Initiate Dispute', 'res/drawables/ic_initiate_dispute.svg', 
+                    iconSize: Size(18, 18), color: Color(0xffE94444)
+                  ),
+                ],
+              )
+          ),
+        ),
       ],
     );
   }

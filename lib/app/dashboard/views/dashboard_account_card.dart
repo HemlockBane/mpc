@@ -72,13 +72,17 @@ class _AccountCardState extends State<AccountCard> {
                               overlayColor: MaterialStateProperty.all(Colors.darkLightBlue.withOpacity(0.1)),
                               onTap: () {
                                 Navigator.of(context).pushNamed(Routes.ACCOUNT_TRANSACTIONS, arguments: {
-                                  "customerAccountId": userAccount.customerAccount?.id
+                                  "customerAccountId": userAccount.customerAccount?.id,
+                                  "userAccount": userAccount
                                 }).then((_) => widget.viewModel.update());
                               },
-                              child: AccountDetails(
-                                customerAccount: customerAccount,
-                                userAccount: userAccount,
-                                viewModel: viewModel,
+                              child: Hero(
+                                tag: "dashboard-balance-view-${userAccount.customerAccount?.id}",
+                                child: AccountDetails(
+                                  customerAccount: customerAccount,
+                                  userAccount: userAccount,
+                                  viewModel: viewModel,
+                                ),
                               ),
                             ),
                           );
@@ -152,17 +156,31 @@ class _AccountDetailsState extends State<AccountDetails> with CompositeDisposabl
     hideAccountBalanceKey =
     "${widget.customerAccount?.accountNumber}-${PreferenceUtil.HIDE_ACCOUNT_BAL}";
     super.initState();
-    widget.viewModel.dashboardController.listen((event) {
+    widget.viewModel.dashboardUpdateStream.listen((event) {
       print("Updating  balance Stream ooo");
-      _balanceStream = widget.viewModel
-          .getCustomerAccountBalance(accountId: widget.userAccount.id, useLocal: false);
+      _balanceStream = widget.viewModel.getCustomerAccountBalance(accountId: widget.userAccount.id, useLocal: false);
       setState(() {});
     }).disposedBy(this);
+
+    widget.viewModel.refreshStartStream.listen((event) {
+      _balanceStream = widget.viewModel.getCustomerAccountBalance(accountId: widget.userAccount.id, useLocal: false);
+      setState(() {});
+      widget.viewModel.finishRefresh();
+    }).disposedBy(this);
+
+
+
+
+
+
+
+
+
   }
 
   @override
   void didUpdateWidget(covariant AccountDetails oldWidget) {
-    _balanceStream = widget.viewModel.getCustomerAccountBalance(
+    widget.viewModel.getCustomerAccountBalance(
         accountId: widget.userAccount.id, useLocal: false
     );
     super.didUpdateWidget(oldWidget);
@@ -198,7 +216,7 @@ class _AccountDetailsState extends State<AccountDetails> with CompositeDisposabl
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     StreamBuilder(
-                        stream: _balanceStream,
+                        stream: widget.viewModel.accBalanceStream,
                         builder: (ctx, AsyncSnapshot<Resource<AccountBalance?>> snapshot) {
                           final bool hideAccountBalance = PreferenceUtil.getValueForLoggedInUser(hideAccountBalanceKey) ?? false;
                           final isLoadingBalanceError = snapshot.hasData && snapshot.data is Error;
@@ -209,12 +227,18 @@ class _AccountDetailsState extends State<AccountDetails> with CompositeDisposabl
 
                           if (snapshot.hasData && (!isLoadingBalance && !isLoadingBalanceError)) {
                             final balance = hideAccountBalance
-                                ? "* ***"
+                                ? "***"
                                 : "${accountBalance?.availableBalance?.formatCurrencyWithoutSymbolAndDividing}";
 
                             return Row(
                               children: [
-                                SvgPicture.asset("res/drawables/ic_naira.svg", width: 20, height: 17,),
+                                hideAccountBalance 
+                                ? Text('*',
+                                    style: Styles.textStyle(context,
+                                        fontSize: 23.5,
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.textColorBlack.withOpacity(0.5))) 
+                                :  SvgPicture.asset("res/drawables/ic_naira.svg", width: 20, height: 17,),
                                 SizedBox(width: 4),
                                 Text('$balance',
                                     style: Styles.textStyle(context,
@@ -243,11 +267,21 @@ class _AccountDetailsState extends State<AccountDetails> with CompositeDisposabl
                           }
 
                           if (hideAccountBalance) {
-                            return Text('* ***',
-                                style: TextStyle(
-                                    fontSize: 23,
-                                    fontWeight: FontWeight.w800,
-                                    color: Colors.textColorBlack));
+                            return Row(
+                              children: [
+                                Text('*',
+                                    style: Styles.textStyle(context,
+                                        fontSize: 23.5,
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.textColorBlack.withOpacity(0.5))),
+                                SizedBox(width: 4),
+                                Text('***',
+                                    style: TextStyle(
+                                        fontSize: 23.5,
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.textColorBlack)),
+                              ],
+                            );
                           }
 
                           return Shimmer.fromColors(
@@ -310,7 +344,7 @@ class _AccountDetailsState extends State<AccountDetails> with CompositeDisposabl
             Padding(
               padding: EdgeInsets.only(right: 10),
               child: Styles.imageButton(
-                  padding: EdgeInsets.all(8),
+                  padding: EdgeInsets.all(9),
                   color: Colors.transparent,
                   borderRadius: BorderRadius.circular(30),
                   onClick: () => Share.share(
@@ -323,7 +357,8 @@ class _AccountDetailsState extends State<AccountDetails> with CompositeDisposabl
                     width: 20,
                     height: 21,
                     color: Color(0xffB8003382).withOpacity(0.4),
-                  )),
+                  ),
+                  ),
             )
           ],
         ),
@@ -338,7 +373,7 @@ class _AccountDetailsState extends State<AccountDetails> with CompositeDisposabl
     return Padding(
       padding: EdgeInsets.only(right: 16),
       child: Styles.imageButton(
-          padding: EdgeInsets.all(8),
+          padding: EdgeInsets.all(9),
           color: Colors.transparent,
           disabledColor: Colors.transparent,
           image: SvgPicture.asset(

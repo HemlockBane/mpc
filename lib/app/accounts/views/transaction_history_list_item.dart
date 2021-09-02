@@ -18,6 +18,7 @@ class TransactionHistoryListItem extends Container {
 
 
   Widget initialView() {
+
     final imageName = (_transaction.type == TransactionType.CREDIT) ? "ic_transaction_credit.svg" : "ic_transaction_debit.svg";
     return Container(
       width: 40,
@@ -35,6 +36,11 @@ class TransactionHistoryListItem extends Container {
     );
   }
 
+
+  String getArithmeticSign(AccountTransaction trans){
+    return trans.type == TransactionType.CREDIT ? "+" : "-";
+  }
+
   @override
   Widget build(BuildContext context) => Material(
     color: Colors.transparent,
@@ -48,26 +54,26 @@ class TransactionHistoryListItem extends Container {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             initialView(),
-            SizedBox(width: 16),
+            SizedBox(width: 14),
             Expanded(
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                          _transaction.getAmount().formatCurrency,
+                         " ${getArithmeticSign(_transaction)}${_transaction.getAmount().formatCurrency}",
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                              fontSize: 18.5,
+                              fontSize: 17,
                               color: Colors.darkBlue,
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w800,
                           )
                       ),
-                      SizedBox(height: 0),
+                      SizedBox(height: 7),
                       Text(
                           "${_transaction.narration}",
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontSize: 13, color: Colors.deepGrey, fontWeight: FontWeight.normal)
+                          style: TextStyle(fontSize: 10, color: Colors.deepGrey, fontWeight: FontWeight.normal)
                       )
                     ]
                 )),
@@ -79,20 +85,22 @@ class TransactionHistoryListItem extends Container {
                   children: [
                     Visibility(
                         visible: _transaction.transactionChannel != null,
+                      // visible: true,
                         child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                          padding: EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                           decoration: BoxDecoration(
-                            color: Colors.primaryColor.withOpacity(0.05),
+                            color: Colors.primaryColor.withOpacity(0.15),
                             borderRadius: BorderRadius.circular(4)
                           ),
                           child: Text(
                             _transaction.transactionChannel ?? "",
-                            style: TextStyle(fontSize: 12, color: Colors.primaryColor, fontWeight: FontWeight.bold),),
+                            style: TextStyle(fontSize: 9.3, color: Colors.primaryColor, fontWeight: FontWeight.bold),),
                         )
                     ),
+                    SizedBox(height: 10),
                     Text(TimeAgo.formatDuration(_transaction.getInitiatedDate()),
                         style: TextStyle(
-                            color: Colors.deepGrey, fontSize: 13
+                            color: Colors.deepGrey, fontSize: 10
                         ))
                   ],
                 )

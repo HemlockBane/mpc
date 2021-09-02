@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart' hide ScrollView, Colors;
 import 'package:intl/intl.dart';
-import 'package:moniepoint_flutter/app/accountupdates/model/data/next_of_kin_info.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/forms/next_of_kin_form.dart';
 import 'package:moniepoint_flutter/app/accountupdates/viewmodels/account_update_view_model.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
-import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:provider/provider.dart';
 
@@ -27,6 +25,7 @@ class NextOfKinScreen extends PagedForm {
 
 class _NextOfKinScreen extends State<NextOfKinScreen> with AutomaticKeepAliveClientMixin {
 
+  late final AccountUpdateViewModel _viewModel;
   NextOfKinForm? _nextOfKinForm;
 
   bool _isLoading = false;
@@ -41,71 +40,70 @@ class _NextOfKinScreen extends State<NextOfKinScreen> with AutomaticKeepAliveCli
   final TextEditingController _houseAddressController = TextEditingController();
   final TextEditingController _cityController = TextEditingController();
 
-
-  void saveForm() {
-    final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
-    final info = viewModel.nextOfKinForm.nextOfKinInfo;
-    PreferenceUtil.saveDataForLoggedInUser("account-update-next-of-kin-info", info);
-  }
-
-  void onRestoreForm() {
-    final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
-    final savedInfo = PreferenceUtil.getDataForLoggedInUser("account-update-next-of-kin-info");
-    final info = NextOfKinInfo.fromJson(savedInfo);
-
-    if(info.nextOfKinFirstName != null || info.nextOfKinFirstName?.isNotEmpty == true) {
-      _firstNameController.text = info.nextOfKinFirstName ?? "";
-      _nextOfKinForm?.onFirstNameChange(_firstNameController.text);
-    }
-
-    if(info.nextOfKinMiddleName != null || info.nextOfKinMiddleName?.isNotEmpty == true) {
-      _middleNameController.text = info.nextOfKinMiddleName ?? "";
-      _nextOfKinForm?.onMiddleNameChange(_middleNameController.text);
-    }
-
-    if(info.nextOfKinLastName != null || info.nextOfKinLastName?.isNotEmpty == true) {
-      _lastNameController.text = info.nextOfKinLastName ?? "";
-      _nextOfKinForm?.onLastNameChange(_lastNameController.text);
-    }
-
-    if(info.nextOfKinPhoneNumber != null || info.nextOfKinPhoneNumber?.isNotEmpty == true) {
-      _phoneNumberController.text = info.nextOfKinPhoneNumber ?? "";
-      _nextOfKinForm?.onPhoneNumberChange(_phoneNumberController.text);
-    }
-
-    if(info.nextOfKinEmail != null || info.nextOfKinEmail?.isNotEmpty == true) {
-      _emailAddressController.text = info.nextOfKinEmail ?? "";
-      _nextOfKinForm?.onEmailAddressChange(_emailAddressController.text);
-    }
-
-    if(info.nextOfKinRelationship != null || info.nextOfKinRelationship?.isNotEmpty == true) {
-      _nextOfKinForm?.onRelationshipChange(Relationship.fromString(info.nextOfKinRelationship));
-    }
-
-    if(info.nextOfKinDOB != null || info.nextOfKinDOB?.isNotEmpty == true) {
-      _dateOfBirthController.text = info.nextOfKinDOB ?? "";
-      _nextOfKinForm?.onDateOfBirthChange(_dateOfBirthController.text);
-    }
-
-    if(info.addressInfo?.addressLine != null || info.addressInfo?.addressLine?.isNotEmpty == true) {
-      _houseAddressController.text = info.addressInfo?.addressLine ?? "";
-      _nextOfKinForm?.addressForm.onAddressChange(_houseAddressController.text);
-    }
-
-    if(info.addressInfo?.addressCity != null || info.addressInfo?.addressCity?.isNotEmpty == true) {
-      _cityController.text = info.addressInfo?.addressCity ?? "";
-      _nextOfKinForm?.addressForm.onCityChange(_cityController.text);
-    }
-
-    final nationality = viewModel.nationalities.first;
-
-    final state = StateOfOrigin.fromLocalGovtId(info.addressInfo?.addressLocalGovernmentAreaId, nationality.states ?? []);
-    _nextOfKinForm?.addressForm.onStateChange(state);
-
-    _nextOfKinForm?.addressForm.onLocalGovtChange(
-        LocalGovernmentArea.fromId(info.addressInfo?.addressLocalGovernmentAreaId, state?.localGovernmentAreas ?? [])
-    );
-  }
+  // void saveForm() {
+  //   final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
+  //   final info = viewModel.nextOfKinForm.nextOfKinInfo;
+  //   PreferenceUtil.saveDataForLoggedInUser("account-update-next-of-kin-info", info);
+  // }
+  //
+  // void onRestoreForm() {
+  //   final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
+  //   final savedInfo = PreferenceUtil.getDataForLoggedInUser("account-update-next-of-kin-info");
+  //   final info = NextOfKinInfo.fromJson(savedInfo);
+  //
+  //   if(info.nextOfKinFirstName != null || info.nextOfKinFirstName?.isNotEmpty == true) {
+  //     _firstNameController.text = info.nextOfKinFirstName ?? "";
+  //     _nextOfKinForm?.onFirstNameChange(_firstNameController.text);
+  //   }
+  //
+  //   if(info.nextOfKinMiddleName != null || info.nextOfKinMiddleName?.isNotEmpty == true) {
+  //     _middleNameController.text = info.nextOfKinMiddleName ?? "";
+  //     _nextOfKinForm?.onMiddleNameChange(_middleNameController.text);
+  //   }
+  //
+  //   if(info.nextOfKinLastName != null || info.nextOfKinLastName?.isNotEmpty == true) {
+  //     _lastNameController.text = info.nextOfKinLastName ?? "";
+  //     _nextOfKinForm?.onLastNameChange(_lastNameController.text);
+  //   }
+  //
+  //   if(info.nextOfKinPhoneNumber != null || info.nextOfKinPhoneNumber?.isNotEmpty == true) {
+  //     _phoneNumberController.text = info.nextOfKinPhoneNumber ?? "";
+  //     _nextOfKinForm?.onPhoneNumberChange(_phoneNumberController.text);
+  //   }
+  //
+  //   if(info.nextOfKinEmail != null || info.nextOfKinEmail?.isNotEmpty == true) {
+  //     _emailAddressController.text = info.nextOfKinEmail ?? "";
+  //     _nextOfKinForm?.onEmailAddressChange(_emailAddressController.text);
+  //   }
+  //
+  //   if(info.nextOfKinRelationship != null || info.nextOfKinRelationship?.isNotEmpty == true) {
+  //     _nextOfKinForm?.onRelationshipChange(Relationship.fromString(info.nextOfKinRelationship));
+  //   }
+  //
+  //   if(info.nextOfKinDOB != null || info.nextOfKinDOB?.isNotEmpty == true) {
+  //     _dateOfBirthController.text = info.nextOfKinDOB ?? "";
+  //     _nextOfKinForm?.onDateOfBirthChange(_dateOfBirthController.text);
+  //   }
+  //
+  //   if(info.addressInfo?.addressLine != null || info.addressInfo?.addressLine?.isNotEmpty == true) {
+  //     _houseAddressController.text = info.addressInfo?.addressLine ?? "";
+  //     _nextOfKinForm?.addressForm.onAddressChange(_houseAddressController.text);
+  //   }
+  //
+  //   if(info.addressInfo?.addressCity != null || info.addressInfo?.addressCity?.isNotEmpty == true) {
+  //     _cityController.text = info.addressInfo?.addressCity ?? "";
+  //     _nextOfKinForm?.addressForm.onCityChange(_cityController.text);
+  //   }
+  //
+  //   final nationality = viewModel.nationalities.first;
+  //
+  //   final state = StateOfOrigin.fromLocalGovtId(info.addressInfo?.addressLocalGovernmentAreaId, nationality.states ?? []);
+  //   _nextOfKinForm?.addressForm.onStateChange(state);
+  //
+  //   _nextOfKinForm?.addressForm.onLocalGovtChange(
+  //       LocalGovernmentArea.fromId(info.addressInfo?.addressLocalGovernmentAreaId, state?.localGovernmentAreas ?? [])
+  //   );
+  // }
 
   void displayDatePicker(BuildContext context) async {
     final selectedDate = await showDatePicker(
@@ -122,7 +120,6 @@ class _NextOfKinScreen extends State<NextOfKinScreen> with AutomaticKeepAliveCli
     }
   }
 
-
   void _startListeningToLoadingState() {
     final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
     if(widget.isLast()) {
@@ -134,25 +131,18 @@ class _NextOfKinScreen extends State<NextOfKinScreen> with AutomaticKeepAliveCli
     }
   }
 
-
   @override
   void initState() {
+    _viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
+    this._nextOfKinForm = _viewModel.nextOfKinForm
+      ..addressForm.setStates(_viewModel.nationalities.first.states ?? []);
     super.initState();
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      Future.delayed(Duration(milliseconds: 200),() {
-        onRestoreForm();
-      });
-    });
     _startListeningToLoadingState();
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-
-    final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
-    this._nextOfKinForm = viewModel.nextOfKinForm
-      ..addressForm.setStates(viewModel.nationalities.first.states ?? []);
 
     return ScrollView(
       child: Container(
@@ -303,8 +293,7 @@ class _NextOfKinScreen extends State<NextOfKinScreen> with AutomaticKeepAliveCli
                       child: Styles.statefulButton(
                         stream: _nextOfKinForm?.isValid,
                           onClick: () {
-                            saveForm();
-                            viewModel.moveToNext(widget.position);
+                            _viewModel.moveToNext(widget.position);
                           },
                         text: widget.isLast() ? 'Proceed' : 'Next',
                         isLoading: _isLoading

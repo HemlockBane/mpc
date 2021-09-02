@@ -69,8 +69,20 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
     UserInstance().resetSession();
     _setupViewDependencies();
     super.initState();
+    _extraRouteArguments();
     _initSavedUsername();
     _animController.forward();
+  }
+
+  void _extraRouteArguments() {
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+      Future.delayed(Duration.zero, () {
+        final arguments = ModalRoute.of(context)!.settings.arguments;
+        if(arguments is Tuple<String, SessionTimeoutReason>?) {
+          _onSessionReason(arguments);
+        }
+      });
+    });
   }
 
   void _setupViewDependencies() {
@@ -467,7 +479,8 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
       Future.delayed(Duration(milliseconds: 150), () {
         showError(context,
           title: "Logged Out",
-          message: "You were automatically logged out to protect your account when we saw no activity. Please re-login to continue",
+          message: "You were automatically logged out to protect your account when we saw no activity. "
+              "Please re-login to continue",
           onPrimaryClick: () {
             Navigator.of(context).pop();
             // _startFingerPrintLoginProcess();
@@ -492,9 +505,6 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
 
   Widget build(BuildContext context) {
     final minHeight = MediaQuery.of(context).size.height;
-
-    final sessionReason = ModalRoute.of(context)!.settings.arguments as Tuple<String, SessionTimeoutReason>?;
-    _onSessionReason(sessionReason);
 
     return Scaffold(
       backgroundColor: Colors.transparent,

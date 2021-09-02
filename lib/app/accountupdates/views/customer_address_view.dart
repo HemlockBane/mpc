@@ -5,7 +5,6 @@ import 'package:moniepoint_flutter/app/accountupdates/model/forms/customer_addre
 import 'package:moniepoint_flutter/app/accountupdates/viewmodels/account_update_view_model.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
-import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/views/radio_button.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:provider/provider.dart';
@@ -26,6 +25,7 @@ class CustomerAddressScreen extends PagedForm {
 }
 
 class _CustomerAddressScreen extends State<CustomerAddressScreen> with AutomaticKeepAliveClientMixin {
+  late final AccountUpdateViewModel _viewModel;
   late CustomerAddressForm _customerAddressForm;
 
   TextEditingController? _addressController;
@@ -36,61 +36,61 @@ class _CustomerAddressScreen extends State<CustomerAddressScreen> with Automatic
 
   bool displayMailingAddress = false;
 
-  void saveForm() {
-    final info = _customerAddressForm.getAddressInfo;
-    final mailingAddress = _customerAddressForm.getMailingAddressInfo;
-    PreferenceUtil.saveDataForLoggedInUser("account-update-address-info", info);
-    PreferenceUtil.saveDataForLoggedInUser("account-update-mailing-address-info", mailingAddress);
-    PreferenceUtil.saveValueForLoggedInUser<bool>("account-update-address-info-mailing-default", _customerAddressForm.useAddressAsMailingAddress);
-  }
+  // void saveForm() {
+  //   final info = _customerAddressForm.getAddressInfo;
+  //   final mailingAddress = _customerAddressForm.getMailingAddressInfo;
+  //   PreferenceUtil.saveDataForLoggedInUser("account-update-address-info", info);
+  //   PreferenceUtil.saveDataForLoggedInUser("account-update-mailing-address-info", mailingAddress);
+  //   PreferenceUtil.saveValueForLoggedInUser<bool>("account-update-address-info-mailing-default", _customerAddressForm.useAddressAsMailingAddress);
+  // }
 
-  void onRestoreForm() {
-    final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
-
-    final savedInfo = PreferenceUtil.getDataForLoggedInUser("account-update-address-info");
-    final mailingAddress = PreferenceUtil.getDataForLoggedInUser("account-update-mailing-address-info");
-    final mailingAddressDefault = PreferenceUtil.getValueForLoggedInUser<bool>("account-update-address-info-mailing-default");
-
-    final info = AddressInfo.fromJson(savedInfo);
-
-    if(info.addressLine != null || info.addressLine?.isNotEmpty == true) {
-      _addressController?.text = info.addressLine ?? "";
-      _customerAddressForm.onAddressChange(_addressController?.text);
-    }
-
-    if(info.addressCity != null || info.addressCity?.isNotEmpty == true) {
-      _cityController?.text = info.addressCity ?? "";
-      _customerAddressForm.onCityChange(_cityController?.text);
-    }
-
-    if(info.addressLocalGovernmentAreaId != null && info.addressLocalGovernmentAreaId != 0) {
-      final nationality = viewModel.nationalities.first;
-
-      final state = StateOfOrigin.fromLocalGovtId(
-          info.addressLocalGovernmentAreaId, nationality.states ?? []
-      );
-      _customerAddressForm.onStateChange(state);
-
-      _customerAddressForm.onLocalGovtChange(
-          LocalGovernmentArea.fromId(info.addressLocalGovernmentAreaId,
-              state?.localGovernmentAreas ?? [])
-      );
-    }
-
-    if(mailingAddressDefault == false) {
-      setState(() {
-        displayMailingAddress = true;
-        _customerAddressForm.setDefaultAsMailingAddress(false);
-        _setMailingAddressValues(AddressInfo.fromJson(mailingAddress));
-      });
-    }
-  }
+  // void onRestoreForm() {
+  //   final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
+  //
+  //   final savedInfo = PreferenceUtil.getDataForLoggedInUser("account-update-address-info");
+  //   final mailingAddress = PreferenceUtil.getDataForLoggedInUser("account-update-mailing-address-info");
+  //   final mailingAddressDefault = PreferenceUtil.getValueForLoggedInUser<bool>("account-update-address-info-mailing-default");
+  //
+  //   final info = AddressInfo.fromJson(savedInfo);
+  //
+  //   if(info.addressLine != null || info.addressLine?.isNotEmpty == true) {
+  //     _addressController?.text = info.addressLine ?? "";
+  //     _customerAddressForm.onAddressChange(_addressController?.text);
+  //   }
+  //
+  //   if(info.addressCity != null || info.addressCity?.isNotEmpty == true) {
+  //     _cityController?.text = info.addressCity ?? "";
+  //     _customerAddressForm.onCityChange(_cityController?.text);
+  //   }
+  //
+  //   if(info.addressLocalGovernmentAreaId != null && info.addressLocalGovernmentAreaId != 0) {
+  //     final nationality = viewModel.nationalities.first;
+  //
+  //     final state = StateOfOrigin.fromLocalGovtId(
+  //         info.addressLocalGovernmentAreaId, nationality.states ?? []
+  //     );
+  //     _customerAddressForm.onStateChange(state);
+  //
+  //     _customerAddressForm.onLocalGovtChange(
+  //         LocalGovernmentArea.fromId(info.addressLocalGovernmentAreaId,
+  //             state?.localGovernmentAreas ?? [])
+  //     );
+  //   }
+  //
+  //   if(mailingAddressDefault == false) {
+  //     setState(() {
+  //       displayMailingAddress = true;
+  //       _customerAddressForm.setDefaultAsMailingAddress(false);
+  //       _setMailingAddressValues(AddressInfo.fromJson(mailingAddress));
+  //     });
+  //   }
+  // }
 
   void _setMailingAddressValues(AddressInfo info, {bool triggerUpstream = true}) {
     final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
 
     //Give a little time for the ui to rebuild
-    Future.delayed(Duration(milliseconds: 80), (){
+    Future.delayed(Duration(milliseconds: 80), () {
       if(info.addressLine != null || info.addressLine?.isNotEmpty == true) {
         _mailingAddressController?.text = info.addressLine ?? "";
         if(triggerUpstream) {
@@ -176,26 +176,19 @@ class _CustomerAddressScreen extends State<CustomerAddressScreen> with Automatic
 
   @override
   void initState() {
+    _viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
+    _customerAddressForm = _viewModel.addressForm..setStates(_viewModel.nationalities.first.states ?? []);
+
     super.initState();
     _addressController = TextEditingController();
     _cityController = TextEditingController();
     _mailingAddressController = TextEditingController();
     _mailingCityController = TextEditingController();
-
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      Future.delayed(Duration(milliseconds: 200),() {
-        onRestoreForm();
-      });
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
-    this._customerAddressForm = viewModel.addressForm
-      ..setStates(viewModel.nationalities.first.states ?? []); //TODO remove from here
-
     return ScrollView(
       child: Container(
         padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
@@ -207,7 +200,7 @@ class _CustomerAddressScreen extends State<CustomerAddressScreen> with Automatic
                 stream: _customerAddressForm.addressStream,
                 builder: (context, AsyncSnapshot<String?> snapshot) {
                   return Styles.appEditText(
-                      controller: _addressController,
+                      controller: _addressController?..text = snapshot.data ?? "",
                       errorText: snapshot.hasError ? snapshot.error.toString() : null,
                       onChanged: _customerAddressForm.onAddressChange,
                       hint: 'House Address',
@@ -309,8 +302,7 @@ class _CustomerAddressScreen extends State<CustomerAddressScreen> with Automatic
                           child: Styles.statefulButton(
                               stream: _customerAddressForm.isValid,
                               onClick: () {
-                                saveForm();
-                                viewModel.moveToNext(widget.position);
+                                _viewModel.moveToNext(widget.position);
                               },
                               text: widget.isLast() ? 'Proceed' : 'Next',
                               isLoading: false

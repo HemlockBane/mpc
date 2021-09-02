@@ -14,6 +14,7 @@ import 'package:moniepoint_flutter/app/accountupdates/views/next_of_kin_view.dar
 import 'package:moniepoint_flutter/app/accountupdates/views/proof_of_address_view.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
 import 'package:moniepoint_flutter/core/lazy.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -27,27 +28,6 @@ import 'account_restriction_view.dart';
 import 'document_verification_view.dart';
 
 class AccountUpdateScreen extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() {
-    return _AccountUpdateScreen();
-  }
-}
-
-class _AccountUpdateScreen extends State<AccountUpdateScreen> {
-
-  late AccountUpdateViewModel _viewModel;
-
-  late PageView _pageView;
-  final _pageController = PageController();
-  final pageChangeDuration = const Duration(milliseconds: 250);
-  final pageCurve = Curves.linear;
-
-  PersistentBottomSheetController? _bottomSheetController;
-
-
-  int _currentPage = 0;
-  List<PagedForm> _pages = [];
-  bool _displayPageProgress = true;
 
   final Map<String, Lazy<PagedForm>> _formsMap =  Map.unmodifiable({
     Flags.ADDITIONAL_INFO: lazy(() => AdditionalInfoScreen()),
@@ -56,6 +36,31 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> {
     Flags.ADDRESS_PROOF : lazy(() => ProofOfAddressScreen()),
     Flags.NEXT_OF_KIN_INFO : lazy(() => NextOfKinScreen()),
   });
+
+  @override
+  State<StatefulWidget> createState() {
+    return _AccountUpdateScreen();
+  }
+}
+///
+///
+///
+///
+///
+///
+class _AccountUpdateScreen extends State<AccountUpdateScreen> with CompositeDisposableWidget{
+
+  late AccountUpdateViewModel _viewModel;
+  late PageView _pageView;
+
+  final _pageController = PageController();
+  final pageChangeDuration = const Duration(milliseconds: 250);
+  final pageCurve = Curves.linear;
+
+  int _currentPage = 0;
+  List<PagedForm> _pages = [];
+
+  bool _displayPageProgress = true;
 
   Widget setupPageView() {
     _pages = _getDisplayableForms();
@@ -73,25 +78,16 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> {
     return _pageView;
   }
 
-  void _displayBottomSheet() {
-    if(_viewModel.tiers.isEmpty) return;
-  }
-
-  List<PagedForm> _getDisplayableFormsForAccountUpdate() {
+  List<PagedForm> _getPagedForms(List<AccountUpdateFlag?> flags) {
+    final _formsMap = widget._formsMap;
     final forms = <PagedForm>[];
-    final mCustomer = _viewModel.customer;
-    final mAccountStatus = UserInstance().accountStatus;
-
-    final flags = mAccountStatus?.listFlags() ?? mCustomer?.listFlags();
-
-    if(flags == null) return forms;
 
     AccountUpdateFlag? idVerificationFlag;
     AccountUpdateFlag? addressVerification;
 
     flags.where((element) => element != null).forEach((flag) {
       //if the flag status is false and it's required then we need to add it up
-      if(!flag!.status && _formsMap.containsKey(flag.flagName)) {
+      if((!flag!.status && flag.required) && _formsMap.containsKey(flag.flagName)) {
         final pageForm = _formsMap[flag.flagName];
         if(pageForm != null) forms.add(pageForm.value);
       }
@@ -108,8 +104,17 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> {
           )
       );
     }
-
     return forms;
+  }
+
+  List<PagedForm> _getDisplayableFormsForAccountUpdate() {
+    final mCustomer = _viewModel.customer;
+    final mAccountStatus = UserInstance().accountStatus;
+    final flags = mAccountStatus?.listFlags() ?? mCustomer?.listFlags();
+
+    if(flags == null) return [];
+
+    return _getPagedForms(flags);
   }
 
   List<PagedForm> _getDisplayableForms() {
@@ -123,43 +128,12 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> {
     //depend on the customerObject which isn't updated until re-login
     if(mAccountStatus.postNoDebit == false) return _getDisplayableFormsForAccountUpdate();
 
-    List<PagedForm> forms = [];
-
     //now if the status value is available and we are on pnd we need to get the scheme that will lift the pnd
     Tier? pndLiftScheme = mAccountStatus.pndLiftScheme;
 
     List<AccountUpdateFlag>? updateFlagsForScheme = pndLiftScheme?.alternateSchemeRequirement?.toAccountUpdateFlag();
 
-    AccountUpdateFlag? idVerificationFlag;
-    AccountUpdateFlag? addressVerification;
-
-    updateFlagsForScheme?.forEach((flag) {
-      //if the flag status is false and it's required then we need to add it up
-      if((!flag.status && flag.required) && _formsMap.containsKey(flag.flagName))  {
-        final pageForm = _formsMap[flag.flagName];
-        if(pageForm != null) forms.add(pageForm.value);
-      }
-      else if(flag.flagName == Flags.IDENTIFICATION_VERIFIED) idVerificationFlag = flag;
-      else if(flag.flagName == Flags.ADDRESS_VERIFIED) addressVerification = flag;
-    });
-
-    if(forms.isEmpty && _isAwaitingVerification(idVerificationFlag, addressVerification)) {
-      _displayPageProgress = false;
-      forms.add(
-          DocumentVerificationScreen(
-              idVerificationFlag,
-              addressVerification
-          )
-      );
-    }
-
-    return forms;
-  }
-
-  void _updatePageProgress() {
-    setState(() {
-
-    });
+    return _getPagedForms(updateFlagsForScheme ?? []);
   }
 
   bool _isAwaitingVerification(AccountUpdateFlag? idVerification, AccountUpdateFlag? addressVerification) {
@@ -178,8 +152,7 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> {
         //submit form
         _subscribeUiToAccountEligibility();
       }
-      _updatePageProgress();
-    });
+    }).disposedBy(this);
   }
 
   void _subscribeUiToAccountEligibility() {
@@ -195,7 +168,7 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> {
         _viewModel.setIsLoading(false);
         showError(context, title: "Failed verifying customer eligibility", message: event.message);
       }
-    });
+    }).disposedBy(this);
   }
 
   void _subscribeUiToAccountUpgrade(Resource<Tier> event) async {
@@ -228,7 +201,7 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> {
   void initState() {
     _viewModel = AccountUpdateViewModel();
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      _viewModel.fetchCountries().listen((event) {});
+      _viewModel.fetchCountries().listen((event) {}).disposedBy(this);
     });
     _registerPageChange();
     super.initState();
@@ -256,77 +229,56 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> {
           providers: [
             ChangeNotifierProvider.value(value: _viewModel),
           ],
-          child: StreamBuilder(
-            stream: _viewModel.getOnBoardingSchemes(),
-            builder: (context, AsyncSnapshot<Resource<List<Tier>>> snap) {
-              if(!snap.hasData) return Container();
-              final resource = snap.data;
-              if(resource is Loading && resource?.data?.isEmpty == true) {
-                return Center(
-                  child: SizedBox(
-                    width: 70,
-                    height: 70,
-                    child: CircularProgressIndicator(),
+          child: SessionedWidget(
+            context: context,
+            child: Scaffold(
+              resizeToAvoidBottomInset: false,
+              appBar: AppBar(
+                  centerTitle: false,
+                  titleSpacing: -12,
+                  title: Text(
+                      'Account Status',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 17, color: Colors.darkBlue
+                      )
                   ),
-                );
-              }
-              if((resource is Success || resource is Loading) && resource?.data?.isNotEmpty == true) {
-                SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
-                  _displayBottomSheet();
-                });
-              }
-              return SessionedWidget(
-                  context: context,
-                  child: Scaffold(
-                    resizeToAvoidBottomInset: false,
-                    // bottomSheet: TierRequirementDialog(
-                    //     _viewModel.tiers,
-                    //     _viewModel.getFormWeightedProgress(),
-                    //     Tuple(0, BottomSheetState.COLLAPSED)
-                    // ),
-                    appBar: AppBar(
-                        centerTitle: false,
-                        titleSpacing: -12,
-                        title: Text('Account Status', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.darkBlue)),
-                        elevation: 0,
-                        backgroundColor: Colors.backgroundWhite,
-                        iconTheme: IconThemeData(color: Colors.primaryColor)
-                    ),
-                    body: Container(
-                      color: Colors.backgroundWhite,
-                      child: Column(
-                        // mainAxisAlignment: MainAxisAlignment.,
-                        children: [
-                          if(UserInstance().accountStatus?.postNoDebit == true )
-                            Expanded(
-                                flex:0,
-                                child: Padding(
-                                  padding: EdgeInsets.only(left: 16, right: 16),
-                                  child: AccountRestrictionView(),
-                                )
-                            ),
-                          SizedBox(height: UserInstance().accountStatus?.postNoDebit == true ? 8 : 0,),
-                          FutureBuilder(
-                            future: Future.value(true),
-                            builder: (BuildContext mContext, AsyncSnapshot<void> snap) {
-                              return (snap.hasData && _displayPageProgress) ? Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                child: PieProgressBar(
-                                  viewPager: _pageController,
-                                  totalItemCount: _pages.length,
-                                  pageTitles: getPageTitles(),
-                                ),
-                              ) : SizedBox();
-                            },
-                          ),
-                          SizedBox(height: 32,),
-                          Expanded(child: setupPageView())
-                        ],
+                  elevation: 0,
+                  backgroundColor: Colors.backgroundWhite,
+                  iconTheme: IconThemeData(color: Colors.primaryColor)
+              ),
+              body: Container(
+                color: Colors.backgroundWhite,
+                child: Column(
+                  children: [
+                    if(UserInstance().accountStatus?.postNoDebit == true )
+                      Expanded(
+                          flex:0,
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 16, right: 16),
+                            child: AccountRestrictionView(),
+                          )
                       ),
+                    SizedBox(height: UserInstance().accountStatus?.postNoDebit == true ? 8 : 0,),
+                    FutureBuilder(
+                      future: Future.value(true),
+                      builder: (BuildContext mContext, AsyncSnapshot<void> snap) {
+                        return (snap.hasData && _displayPageProgress) ? Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          child: PieProgressBar(
+                            viewPager: _pageController,
+                            totalItemCount: _pages.length,
+                            pageTitles: getPageTitles(),
+                          ),
+                        ) : SizedBox();
+                      },
                     ),
-                  ),
-              );
-            },
+                    SizedBox(height: 32,),
+                    Expanded(child: setupPageView())
+                  ],
+                ),
+              ),
+            ),
           ),
     ));
   }
@@ -337,3 +289,4 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> {
     super.dispose();
   }
 }
+

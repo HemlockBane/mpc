@@ -48,6 +48,7 @@ class AdditionalInfoForm with ChangeNotifier {
   bool _isFormValid = false;
   bool get isFormValid => _isFormValid;
 
+  Timer? _debouncer;
 
   /// Initializes the state of the profile form
   void _initState() {
@@ -61,7 +62,7 @@ class AdditionalInfoForm with ChangeNotifier {
     ];
 
     this._isValid = Rx.combineLatest(formStreams, (values) {
-      _isFormValid =  _isTitleValid(displayError: false)
+      _isFormValid = _isTitleValid(displayError: false)
           && _isMaritalStatusValid(displayError: false)
           && _isReligionValid(displayError: false)
           && _isNationalityValid(displayError: false)
@@ -71,10 +72,18 @@ class AdditionalInfoForm with ChangeNotifier {
     }).asBroadcastStream();
   }
 
+  void _saveCurrentState() {
+    _debouncer?.cancel();
+    _debouncer = Timer(Duration(milliseconds: 600), (){
+
+    });
+  }
+
   void onTitleChange(Titles? title) {
     _info.title = title?.title;
     _titleController.sink.add(title ?? titles.first);
     _isTitleValid(displayError: true);
+    _saveCurrentState();
   }
 
   bool _isTitleValid({bool displayError = false}) {
@@ -87,6 +96,7 @@ class AdditionalInfoForm with ChangeNotifier {
     _info.maritalStatus = mStatus?.maritalStatus;
     _maritalStatusController.sink.add(mStatus ?? maritalStatuses.first);
     _isMaritalStatusValid(displayError: true);
+    _saveCurrentState();
   }
 
   bool _isMaritalStatusValid({bool displayError = false}) {
@@ -99,6 +109,7 @@ class AdditionalInfoForm with ChangeNotifier {
     _info.religion = mReligion?.religion;
     _religionController.sink.add(mReligion ?? religions.first);
     _isReligionValid(displayError: true);
+    _saveCurrentState();
   }
 
   bool _isReligionValid({bool displayError = false}) {
@@ -118,6 +129,7 @@ class AdditionalInfoForm with ChangeNotifier {
     _states.clear();
     _states.addAll(mNationality.states ?? []);
     onStateOfOriginChange(null);
+    _saveCurrentState();
   }
 
   bool _isNationalityValid({bool displayError = false}) {
@@ -134,12 +146,14 @@ class AdditionalInfoForm with ChangeNotifier {
     _localGovt.clear();
     _localGovt.addAll(mStateOfOrigin?.localGovernmentAreas ?? []);
     onLocalGovtChange(null);
+    _saveCurrentState();
   }
 
   void onLocalGovtChange(LocalGovernmentArea? localGovernmentArea) {
     _info.localGovernmentAreaOfOriginId = localGovernmentArea?.id;
     _localGovtAreaController.sink.add(localGovernmentArea);
     _isLocalGovtValid(displayError: true);
+    _saveCurrentState();
   }
 
   bool _isLocalGovtValid({bool displayError = false}) {
@@ -155,6 +169,7 @@ class AdditionalInfoForm with ChangeNotifier {
     _info.employmentStatus = mEmploymentStatus?.empStatus;
     if(mEmploymentStatus != null) _employmentStatusController.sink.add(mEmploymentStatus);
     _isEmploymentStatusValid(displayError: true);
+    _saveCurrentState();
   }
 
   bool _isEmploymentStatusValid({bool displayError = false}) {
@@ -180,6 +195,7 @@ class AdditionalInfoForm with ChangeNotifier {
     _stateOfOriginController.close();
     _localGovtAreaController.close();
     _employmentStatusController.close();
+    _debouncer?.cancel();
     super.dispose();
   }
 

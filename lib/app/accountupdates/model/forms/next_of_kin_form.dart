@@ -50,7 +50,7 @@ class NextOfKinForm with ChangeNotifier, Validators {
     final formStreams = [
       firstNameStream,
       lastNameStream,
-      middleNameStream,
+      // middleNameStream,
       phoneNumberStream,
       emailStream,
       relationshipStream,

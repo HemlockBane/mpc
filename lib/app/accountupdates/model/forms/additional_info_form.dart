@@ -1,19 +1,24 @@
   import 'dart:async';
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/data/address_info.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/data/customer_detail_info.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
+import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:rxdart/rxdart.dart';
 
 class AdditionalInfoForm with ChangeNotifier {
+
+  static const FORM_KEY = "account-update-additional-info";
 
   AdditionalInfoForm() {
     _initState();
   }
 
   CustomerDetailInfo _info = CustomerDetailInfo();
+
+  final List<Nationality> _nationalities =  [];
+  List<Nationality> get nationalities => List.unmodifiable(_nationalities);
 
   final List<StateOfOrigin> _states =  [];
   List<StateOfOrigin> get states => List.unmodifiable(_states);
@@ -72,13 +77,6 @@ class AdditionalInfoForm with ChangeNotifier {
     }).asBroadcastStream();
   }
 
-  void _saveCurrentState() {
-    _debouncer?.cancel();
-    _debouncer = Timer(Duration(milliseconds: 600), (){
-
-    });
-  }
-
   void onTitleChange(Titles? title) {
     _info.title = title?.title;
     _titleController.sink.add(title ?? titles.first);
@@ -120,7 +118,8 @@ class AdditionalInfoForm with ChangeNotifier {
     return isValid;
   }
 
-  void onNationalityChange(Nationality? mNationality) {
+  void onNationalityChange(Nationality? mNationality,
+      {StateOfOrigin? defaultStateOfOrigin, LocalGovernmentArea? defaultLocalGovt}) {
     if(_info.nationality == mNationality?.nationality) return;
     _info.nationality = mNationality?.code;
     _nationalityController.sink.add(mNationality!);
@@ -128,7 +127,7 @@ class AdditionalInfoForm with ChangeNotifier {
 
     _states.clear();
     _states.addAll(mNationality.states ?? []);
-    onStateOfOriginChange(null);
+    onStateOfOriginChange(defaultStateOfOrigin, defaultLocalGovt: defaultLocalGovt);
     _saveCurrentState();
   }
 
@@ -140,12 +139,12 @@ class AdditionalInfoForm with ChangeNotifier {
     return isValid;
   }
 
-  void onStateOfOriginChange(StateOfOrigin? mStateOfOrigin) {
+  void onStateOfOriginChange(StateOfOrigin? mStateOfOrigin, {LocalGovernmentArea? defaultLocalGovt}) {
     _stateOfOriginController.sink.add(mStateOfOrigin);
 
     _localGovt.clear();
     _localGovt.addAll(mStateOfOrigin?.localGovernmentAreas ?? []);
-    onLocalGovtChange(null);
+    onLocalGovtChange(defaultLocalGovt);
     _saveCurrentState();
   }
 
@@ -185,6 +184,43 @@ class AdditionalInfoForm with ChangeNotifier {
   }
 
   CustomerDetailInfo get customerInfo => _info;
+
+  void setNationalities(List<Nationality> nationalities) {
+    this._nationalities.clear();
+    this._nationalities.addAll(nationalities);
+  }
+
+  void _saveCurrentState() {
+    _debouncer?.cancel();
+    _debouncer = Timer(Duration(milliseconds: 600), (){
+      PreferenceUtil.saveDataForLoggedInUser(FORM_KEY, customerInfo);
+    });
+  }
+
+  void restoreFormState() {
+    final savedInfo = PreferenceUtil.getDataForLoggedInUser(FORM_KEY);
+    final savedCustomerInfo = CustomerDetailInfo.fromJson(savedInfo);
+
+    if(savedCustomerInfo.title != null) {
+      onTitleChange(Titles.fromTitle(savedCustomerInfo.title));
+    }
+    if(savedCustomerInfo.maritalStatus != null) {
+      onMaritalStatusChange(MaritalStatus.fromString(savedCustomerInfo.maritalStatus));
+    }
+
+    if(savedCustomerInfo.nationality != null) {
+      final nationality = Nationality.fromNationalityName(
+          savedCustomerInfo.nationality, nationalities
+      );
+      final state = StateOfOrigin.fromLocalGovtId(
+          savedCustomerInfo.localGovernmentAreaOfOriginId, nationality?.states ?? []
+      );
+      final localGovt = LocalGovernmentArea.fromId(
+          savedCustomerInfo.localGovernmentAreaOfOriginId, state?.localGovernmentAreas ?? []
+      );
+      onNationalityChange(nationality, defaultStateOfOrigin: state, defaultLocalGovt: localGovt);
+    }
+  }
 
   @override
   void dispose() {

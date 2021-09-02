@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart' hide ScrollView, Colors;
 import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
+import 'package:moniepoint_flutter/app/accountupdates/model/forms/additional_info_form.dart';
 import 'package:moniepoint_flutter/app/accountupdates/viewmodels/account_update_view_model.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/account_update_form_view.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
@@ -18,6 +19,7 @@ class AdditionalInfoScreen extends PagedForm {
 class _AdditionalInfoScreen extends State<AdditionalInfoScreen> with AutomaticKeepAliveClientMixin {
 
   late final AccountUpdateViewModel _viewModel;
+  late final AdditionalInfoForm _additionalInfoForm;
 
   // void saveForm() {
   //   final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
@@ -49,7 +51,13 @@ class _AdditionalInfoScreen extends State<AdditionalInfoScreen> with AutomaticKe
   @override
   void initState() {
     _viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
+    _additionalInfoForm = _viewModel.additionalInfoForm..setNationalities(_viewModel.nationalities);
     super.initState();
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+      Future.delayed(Duration.zero, (){
+        _additionalInfoForm.restoreFormState();
+      });
+    });
   }
 
   @override
@@ -93,7 +101,7 @@ class _AdditionalInfoScreen extends State<AdditionalInfoScreen> with AutomaticKe
                   builder: (BuildContext context, AsyncSnapshot<Nationality> snapshot) {
                     return Styles.buildDropDown(vm.nationalities, snapshot, (value, i) {
                       _viewModel.additionalInfoForm.onNationalityChange(value as Nationality);
-                      setState(() {});
+                      // setState(() {});
                     },hint: 'Nationality');
                   });
             }),
@@ -103,7 +111,7 @@ class _AdditionalInfoScreen extends State<AdditionalInfoScreen> with AutomaticKe
                 builder: (BuildContext context, AsyncSnapshot<StateOfOrigin?> snapshot) {
                   return Styles.buildDropDown(_viewModel.additionalInfoForm.states, snapshot, (value, i) {
                     _viewModel.additionalInfoForm.onStateOfOriginChange(value as StateOfOrigin);
-                    setState(() {});
+                    // setState(() {});
                   }, hint: 'State of Origin');
                 }),
             SizedBox(height: 16,),

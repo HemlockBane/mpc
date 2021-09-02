@@ -167,20 +167,12 @@ class _AccountDetailsState extends State<AccountDetails> with CompositeDisposabl
       setState(() {});
       widget.viewModel.finishRefresh();
     }).disposedBy(this);
-
-
-
-
-
-
-
-
-
   }
+  
 
   @override
   void didUpdateWidget(covariant AccountDetails oldWidget) {
-    widget.viewModel.getCustomerAccountBalance(
+    _balanceStream = widget.viewModel.getCustomerAccountBalance(
         accountId: widget.userAccount.id, useLocal: false
     );
     super.didUpdateWidget(oldWidget);
@@ -216,7 +208,7 @@ class _AccountDetailsState extends State<AccountDetails> with CompositeDisposabl
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     StreamBuilder(
-                        stream: widget.viewModel.accBalanceStream,
+                        stream: _balanceStream,
                         builder: (ctx, AsyncSnapshot<Resource<AccountBalance?>> snapshot) {
                           final bool hideAccountBalance = PreferenceUtil.getValueForLoggedInUser(hideAccountBalanceKey) ?? false;
                           final isLoadingBalanceError = snapshot.hasData && snapshot.data is Error;

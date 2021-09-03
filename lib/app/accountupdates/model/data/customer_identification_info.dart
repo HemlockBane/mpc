@@ -9,12 +9,15 @@ class CustomerIdentificationInfo {
   String? identityIssueDate;
   String? identityExpiryDate;
   String? scannedImageRef;
+  String? uploadedFileName;//internal use only
 
-  CustomerIdentificationInfo({this.identificationType,
+  CustomerIdentificationInfo({
+    this.identificationType,
     this.registrationNumber,
     this.identityIssueDate,
     this.identityExpiryDate,
-    this.scannedImageRef});
+    this.scannedImageRef
+  });
 
   factory CustomerIdentificationInfo.fromJson(Object? data) => _$CustomerIdentificationInfoFromJson(data as Map<String, dynamic>);
   Map<String, dynamic> toJson() => _$CustomerIdentificationInfoToJson(this);

@@ -34,92 +34,42 @@ class _CustomerAddressScreen extends State<CustomerAddressScreen> with Automatic
   TextEditingController? _mailingAddressController;
   TextEditingController? _mailingCityController;
 
-  bool displayMailingAddress = false;
+  bool displayMailingAddress = true;
 
-  // void saveForm() {
-  //   final info = _customerAddressForm.getAddressInfo;
-  //   final mailingAddress = _customerAddressForm.getMailingAddressInfo;
-  //   PreferenceUtil.saveDataForLoggedInUser("account-update-address-info", info);
-  //   PreferenceUtil.saveDataForLoggedInUser("account-update-mailing-address-info", mailingAddress);
-  //   PreferenceUtil.saveValueForLoggedInUser<bool>("account-update-address-info-mailing-default", _customerAddressForm.useAddressAsMailingAddress);
-  // }
-
-  // void onRestoreForm() {
+  // void _setMailingAddressValues(AddressInfo info, {bool triggerUpstream = true}) {
   //   final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
   //
-  //   final savedInfo = PreferenceUtil.getDataForLoggedInUser("account-update-address-info");
-  //   final mailingAddress = PreferenceUtil.getDataForLoggedInUser("account-update-mailing-address-info");
-  //   final mailingAddressDefault = PreferenceUtil.getValueForLoggedInUser<bool>("account-update-address-info-mailing-default");
+  //   //Give a little time for the ui to rebuild
+  //   Future.delayed(Duration(milliseconds: 80), () {
+  //     if(info.addressLine != null || info.addressLine?.isNotEmpty == true) {
+  //       _mailingAddressController?.text = info.addressLine ?? "";
+  //       if(triggerUpstream) {
+  //         _customerAddressForm.mailingAddressForm?.onAddressChange(
+  //             _mailingAddressController?.text);
+  //       }
+  //     }
   //
-  //   final info = AddressInfo.fromJson(savedInfo);
+  //     if(info.addressCity != null || info.addressCity?.isNotEmpty == true) {
+  //       _mailingCityController?.text = info.addressCity ?? "";
+  //       if(triggerUpstream) {
+  //         _customerAddressForm.mailingAddressForm?.onCityChange(
+  //             _mailingCityController?.text);
+  //       }
+  //     }
   //
-  //   if(info.addressLine != null || info.addressLine?.isNotEmpty == true) {
-  //     _addressController?.text = info.addressLine ?? "";
-  //     _customerAddressForm.onAddressChange(_addressController?.text);
-  //   }
+  //     if(info.addressLocalGovernmentAreaId != null && triggerUpstream) {
+  //       final nationality = viewModel.nationalities.first;
   //
-  //   if(info.addressCity != null || info.addressCity?.isNotEmpty == true) {
-  //     _cityController?.text = info.addressCity ?? "";
-  //     _customerAddressForm.onCityChange(_cityController?.text);
-  //   }
-  //
-  //   if(info.addressLocalGovernmentAreaId != null && info.addressLocalGovernmentAreaId != 0) {
-  //     final nationality = viewModel.nationalities.first;
-  //
-  //     final state = StateOfOrigin.fromLocalGovtId(
-  //         info.addressLocalGovernmentAreaId, nationality.states ?? []
-  //     );
-  //     _customerAddressForm.onStateChange(state);
-  //
-  //     _customerAddressForm.onLocalGovtChange(
-  //         LocalGovernmentArea.fromId(info.addressLocalGovernmentAreaId,
-  //             state?.localGovernmentAreas ?? [])
-  //     );
-  //   }
-  //
-  //   if(mailingAddressDefault == false) {
-  //     setState(() {
-  //       displayMailingAddress = true;
-  //       _customerAddressForm.setDefaultAsMailingAddress(false);
-  //       _setMailingAddressValues(AddressInfo.fromJson(mailingAddress));
-  //     });
-  //   }
+  //       final state = StateOfOrigin.fromLocalGovtId(
+  //           info.addressLocalGovernmentAreaId, nationality.states ?? []);
+  //       _customerAddressForm.mailingAddressForm?.onStateChange(state);
+  //       _customerAddressForm.mailingAddressForm?.onLocalGovtChange(
+  //           LocalGovernmentArea.fromId(info.addressLocalGovernmentAreaId,
+  //               state?.localGovernmentAreas ?? [])
+  //       );
+  //     }
+  //   });
   // }
-
-  void _setMailingAddressValues(AddressInfo info, {bool triggerUpstream = true}) {
-    final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
-
-    //Give a little time for the ui to rebuild
-    Future.delayed(Duration(milliseconds: 80), () {
-      if(info.addressLine != null || info.addressLine?.isNotEmpty == true) {
-        _mailingAddressController?.text = info.addressLine ?? "";
-        if(triggerUpstream) {
-          _customerAddressForm.mailingAddressForm?.onAddressChange(
-              _mailingAddressController?.text);
-        }
-      }
-
-      if(info.addressCity != null || info.addressCity?.isNotEmpty == true) {
-        _mailingCityController?.text = info.addressCity ?? "";
-        if(triggerUpstream) {
-          _customerAddressForm.mailingAddressForm?.onCityChange(
-              _mailingCityController?.text);
-        }
-      }
-
-      if(info.addressLocalGovernmentAreaId != null && triggerUpstream) {
-        final nationality = viewModel.nationalities.first;
-
-        final state = StateOfOrigin.fromLocalGovtId(
-            info.addressLocalGovernmentAreaId, nationality.states ?? []);
-        _customerAddressForm.mailingAddressForm?.onStateChange(state);
-        _customerAddressForm.mailingAddressForm?.onLocalGovtChange(
-            LocalGovernmentArea.fromId(info.addressLocalGovernmentAreaId,
-                state?.localGovernmentAreas ?? [])
-        );
-      }
-    });
-  }
 
   Widget yesOrNoView() {
     return Row(
@@ -167,7 +117,7 @@ class _CustomerAddressScreen extends State<CustomerAddressScreen> with Automatic
                             setState(() {
                               displayMailingAddress = true;
                             });
-                            _setMailingAddressValues(_customerAddressForm.getMailingAddressInfo!, triggerUpstream: false);
+                            // _setMailingAddressValues(_customerAddressForm.getMailingAddressInfo!, triggerUpstream: false);
                           }))
                 ]))
       ],
@@ -178,12 +128,19 @@ class _CustomerAddressScreen extends State<CustomerAddressScreen> with Automatic
   void initState() {
     _viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
     _customerAddressForm = _viewModel.addressForm..setStates(_viewModel.nationalities.first.states ?? []);
+    _customerAddressForm.mailingAddressForm?..setStates(_viewModel.nationalities.first.states ?? []);
 
     super.initState();
     _addressController = TextEditingController();
     _cityController = TextEditingController();
     _mailingAddressController = TextEditingController();
     _mailingCityController = TextEditingController();
+
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+      Future.delayed(Duration.zero, (){
+        _customerAddressForm.restoreFormState();
+      });
+    });
   }
 
   @override
@@ -200,7 +157,10 @@ class _CustomerAddressScreen extends State<CustomerAddressScreen> with Automatic
                 stream: _customerAddressForm.addressStream,
                 builder: (context, AsyncSnapshot<String?> snapshot) {
                   return Styles.appEditText(
-                      controller: _addressController?..text = snapshot.data ?? "",
+                      controller: _addressController?..value = TextEditingValue(
+                        text: snapshot.data ?? "",
+                        selection: TextSelection.collapsed(offset: snapshot.data?.length ?? -1)
+                      ),
                       errorText: snapshot.hasError ? snapshot.error.toString() : null,
                       onChanged: _customerAddressForm.onAddressChange,
                       hint: 'House Address',
@@ -212,7 +172,10 @@ class _CustomerAddressScreen extends State<CustomerAddressScreen> with Automatic
                 stream: _customerAddressForm.cityStream,
                 builder: (context, AsyncSnapshot<String?> snapshot) {
                   return Styles.appEditText(
-                      controller: _cityController,
+                      controller: _cityController?..value = TextEditingValue(
+                          text: snapshot.data ?? "",
+                          selection: TextSelection.collapsed(offset: snapshot.data?.length ?? -1)
+                      ),
                       errorText: snapshot.hasError ? snapshot.error.toString() : null,
                       onChanged: _customerAddressForm.onCityChange,
                       hint: 'City Town',
@@ -233,7 +196,7 @@ class _CustomerAddressScreen extends State<CustomerAddressScreen> with Automatic
                 builder: (BuildContext context, AsyncSnapshot<LocalGovernmentArea?> snapshot) {
                   return Styles.buildDropDown(_customerAddressForm.localGovt, snapshot, (value, i) {
                     _customerAddressForm.onLocalGovtChange(value as LocalGovernmentArea);
-                  }, hint: 'Local Govt. Area Origin');
+                  }, hint: 'Local Govt. Area');
                 }),
             SizedBox(height: 16),
             Expanded(
@@ -247,7 +210,10 @@ class _CustomerAddressScreen extends State<CustomerAddressScreen> with Automatic
                   stream: _customerAddressForm.mailingAddressForm?.addressStream,
                   builder: (context, AsyncSnapshot<String?> snapshot) {
                     return Styles.appEditText(
-                        controller: _mailingAddressController,
+                        controller: _mailingAddressController?..value = TextEditingValue(
+                            text: snapshot.data ?? "",
+                            selection: TextSelection.collapsed(offset: snapshot.data?.length ?? -1)
+                        ),
                         errorText: snapshot.hasError ? snapshot.error.toString() : null,
                         onChanged: _customerAddressForm.mailingAddressForm?.onAddressChange,
                         hint: 'House Address',
@@ -261,20 +227,24 @@ class _CustomerAddressScreen extends State<CustomerAddressScreen> with Automatic
                     stream: _customerAddressForm.mailingAddressForm?.cityStream,
                     builder: (context, AsyncSnapshot<String?> snapshot) {
                       return Styles.appEditText(
-                          controller: _mailingCityController,
+                          controller: _mailingCityController?..value = TextEditingValue(
+                              text: snapshot.data ?? "",
+                              selection: TextSelection.collapsed(offset: snapshot.data?.length ?? -1)
+                          ),
                           errorText: snapshot.hasError ? snapshot.error.toString() : null,
                           onChanged:  _customerAddressForm.mailingAddressForm?.onCityChange,
                           hint: 'City Town',
                           animateHint: false,
                           fontSize: 15);
-                    })),
+                    })
+            ),
             SizedBox(height: 16),
             Visibility(
                 visible: displayMailingAddress,
                 child: StreamBuilder(
                   stream: _customerAddressForm.mailingAddressForm?.stateStream,
                   builder: (BuildContext context, AsyncSnapshot<StateOfOrigin?> snapshot) {
-                    return Styles.buildDropDown(_customerAddressForm.states, snapshot, (value, i) {
+                    return Styles.buildDropDown(_customerAddressForm.mailingAddressForm?.states??<StateOfOrigin>[], snapshot, (value, i) {
                       _customerAddressForm.mailingAddressForm?.onStateChange(value as StateOfOrigin);
                     }, hint: 'State of Origin');
                   })),
@@ -286,7 +256,7 @@ class _CustomerAddressScreen extends State<CustomerAddressScreen> with Automatic
                 child: StreamBuilder(
                   stream: _customerAddressForm.mailingAddressForm?.localGovtStream,
                   builder: (BuildContext context, AsyncSnapshot<LocalGovernmentArea?> snapshot) {
-                    return Styles.buildDropDown(_customerAddressForm.mailingAddressForm?.localGovt??<LocalGovernmentArea>[], snapshot, (value, i) {
+                    return Styles.buildDropDown(_customerAddressForm.mailingAddressForm?.localGovt ?? <LocalGovernmentArea>[], snapshot, (value, i) {
                      _customerAddressForm.mailingAddressForm?.onLocalGovtChange(value as LocalGovernmentArea);
                     }, hint: 'Local Govt. Area');
                   })),

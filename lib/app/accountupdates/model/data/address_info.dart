@@ -6,6 +6,7 @@ part 'address_info.g.dart';
 class AddressInfo {
   String? addressLine;
   String? addressCity;
+  int? stateId;
   int? addressLocalGovernmentAreaId;
   @JsonKey(name: "utilityBillUUID", includeIfNull: false)
   String? utilityBillUUID;

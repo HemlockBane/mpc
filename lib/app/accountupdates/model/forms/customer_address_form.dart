@@ -3,17 +3,25 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/data/address_info.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
+import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:rxdart/rxdart.dart';
 
 class CustomerAddressForm with ChangeNotifier {
 
-  CustomerAddressForm({bool requiresMailingAddress = true, List<StateOfOrigin>? states}) {
+  final String formKey;
+  static const USE_AS_MAIL_ADDRESS_KEY = "USE_AS_MAIL_ADDRESS_KEY";
+
+  CustomerAddressForm({
+    bool requiresMailingAddress = true,
+    List<StateOfOrigin>? states, this.formKey = "account-update-address-info"
+  }) {
     this.requiresMailingAddress = requiresMailingAddress;
     this._states.addAll(states ?? []);
     if(requiresMailingAddress) {
       this.mailingAddressForm = CustomerAddressForm(
           requiresMailingAddress: false,
-          states: this._states
+          states: this._states,
+          formKey: "account-update-mailing-address-info"
       );
     }
     _initState();
@@ -51,11 +59,13 @@ class CustomerAddressForm with ChangeNotifier {
   final _utilityBillController = StreamController<String>.broadcast();
   Stream<String> get utilityBillStream => _utilityBillController.stream;
 
-  bool _useAddressAsMailingAddress = true;
+  bool _useAddressAsMailingAddress = false;
   bool get useAddressAsMailingAddress => _useAddressAsMailingAddress;
 
   bool _isFormValid = false;
   bool get isFormValid => _isFormValid;
+
+  Timer? _debouncer;
 
   void _initState() {
     var formStreams = [addressStream, cityStream, stateStream, localGovtStream];
@@ -70,11 +80,14 @@ class CustomerAddressForm with ChangeNotifier {
           _isLocalGovtValid(displayError: false);
 
       if (requiresMailingAddress) {
-        _isFormValid = _isFormValid && values.last as bool;
+        _isFormValid = _isFormValid && mailingAddressForm?.isFormValid == true;
       }
 
       return isFormValid;
     }).asBroadcastStream();
+
+    //subscribe
+    this._subscribeFormToAutoSave(formStreams);
   }
 
   void onAddressChange(String? address) {
@@ -107,12 +120,14 @@ class CustomerAddressForm with ChangeNotifier {
     return isValid;
   }
 
-  void onStateChange(StateOfOrigin? stateOfOrigin) {
+  void onStateChange(StateOfOrigin? stateOfOrigin, {LocalGovernmentArea? localGovt}) {
+    _info.stateId = stateOfOrigin?.id;//only required for saving state
     _stateController.sink.add(stateOfOrigin);
     this.stateOfOrigin = stateOfOrigin;
+
     _localGovt.clear();
     _localGovt.addAll(stateOfOrigin?.localGovernmentAreas ?? []);
-    onLocalGovtChange(null);
+    onLocalGovtChange(localGovt);
     if(requiresMailingAddress && useAddressAsMailingAddress) {
       mailingAddressForm?.onStateChange(stateOfOrigin);
     }
@@ -175,6 +190,47 @@ class CustomerAddressForm with ChangeNotifier {
   void setStates(List<StateOfOrigin> states) {
     this._states.clear();
     this._states.addAll(states);
+  }
+
+  void _subscribeFormToAutoSave(List<Stream<dynamic>> streams) {
+    streams.forEach((element) {
+      element.listen((event) {
+        _debouncer?.cancel();
+        _debouncer = Timer(Duration(milliseconds: 600), () {
+          PreferenceUtil.saveDataForLoggedInUser(formKey, _info);
+          PreferenceUtil.saveValueForLoggedInUser(USE_AS_MAIL_ADDRESS_KEY, useAddressAsMailingAddress);
+        });
+      }, onError: (a) {
+        //Do nothing
+      });
+    });
+  }
+
+  void restoreFormState() {
+    final savedInfo = PreferenceUtil.getDataForLoggedInUser(formKey);
+    final savedAddressInfo = AddressInfo.fromJson(savedInfo);
+    final mailingAddressDefault = PreferenceUtil.getValueForLoggedInUser<bool>(USE_AS_MAIL_ADDRESS_KEY);
+
+    _useAddressAsMailingAddress = this.requiresMailingAddress && mailingAddressDefault == true;
+
+    if(savedAddressInfo.addressLine != null) {
+      onAddressChange(savedAddressInfo.addressLine);
+    }
+    if(savedAddressInfo.addressCity != null) {
+      onCityChange(savedAddressInfo.addressCity);
+    }
+
+    if(savedAddressInfo.stateId != null) {
+      final state = StateOfOrigin.fromId(savedAddressInfo.stateId, states);
+      final localGovt = LocalGovernmentArea.fromId(
+          savedAddressInfo.addressLocalGovernmentAreaId, state?.localGovernmentAreas ?? []
+      );
+      onStateChange(state, localGovt: localGovt);
+    }
+
+    if(this.requiresMailingAddress && _useAddressAsMailingAddress == false) {
+      mailingAddressForm?.restoreFormState();
+    }
   }
 
   @override

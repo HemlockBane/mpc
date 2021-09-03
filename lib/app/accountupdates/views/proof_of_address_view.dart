@@ -3,6 +3,7 @@ import 'package:flutter/material.dart' hide ScrollView, Colors;
 import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/accountupdates/viewmodels/account_update_view_model.dart';
+import 'package:moniepoint_flutter/app/accountupdates/views/dialogs/upload_request_dialog.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
@@ -79,46 +80,34 @@ class _ProofOfAddressScreen extends State<ProofOfAddressScreen> with AutomaticKe
   void _chooseIdentificationImage() async  {
     final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
 
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: [".jpg", ".png", ".pdf"]
-    );
-    PlatformFile? file = result?.files.single;
+    final file = await requestUpload(context);
 
-    if(file == null) {
-      //display error
-      return;
-    }
+    if(file == null) return;
 
-    int fileSize = file.size!;
-
-    if (((fileSize / 1024) / 1024) > 2/*mb*/) {
-      print("File Size $fileSize");
-      return;
-    }
-
-    viewModel.uploadAddressProof(file.path ?? "").listen((event) {
-      if(event is Loading) setState(() {
-        uploadedFileName = file.name ?? uploadedFileName;
-        _fileUploadState = UploadState.LOADING;
-      });
-      if(event is Success) {
-        viewModel.addressForm.onUtilityBillChange(event.data?.UUID);
-        setState(() {
-          _fileUploadState = UploadState.SUCCESS;
+    if(file is PlatformFile) {
+      viewModel.uploadAddressProof(file.path ?? "").listen((event) {
+        if (event is Loading) setState(() {
+          uploadedFileName = file.name ?? uploadedFileName;
+          _fileUploadState = UploadState.LOADING;
         });
-      }
-      if(event is Error) {
-        setState(() {
-          _fileUploadState = UploadState.ERROR;
-        });
-        Future.delayed(Duration(seconds: 10), () {
+        if (event is Success) {
+          viewModel.addressForm.onUtilityBillChange(event.data?.UUID);
           setState(() {
-            _fileUploadState = UploadState.NONE;
+            _fileUploadState = UploadState.SUCCESS;
           });
-        });
-      }
-    });
+        }
+        if (event is Error) {
+          setState(() {
+            _fileUploadState = UploadState.ERROR;
+          });
+          Future.delayed(Duration(seconds: 10), () {
+            setState(() {
+              _fileUploadState = UploadState.NONE;
+            });
+          });
+        }
+      });
+    }
   }
 
   void _startListeningToLoadingState() {

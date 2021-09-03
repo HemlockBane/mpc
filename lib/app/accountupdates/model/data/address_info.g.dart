@@ -12,13 +12,14 @@ AddressInfo _$AddressInfoFromJson(Map<String, dynamic> json) {
     addressCity: json['addressCity'] as String?,
     addressLocalGovernmentAreaId: json['addressLocalGovernmentAreaId'] as int?,
     utilityBillUUID: json['utilityBillUUID'] as String?,
-  );
+  )..stateId = json['stateId'] as int?;
 }
 
 Map<String, dynamic> _$AddressInfoToJson(AddressInfo instance) {
   final val = <String, dynamic>{
     'addressLine': instance.addressLine,
     'addressCity': instance.addressCity,
+    'stateId': instance.stateId,
     'addressLocalGovernmentAreaId': instance.addressLocalGovernmentAreaId,
   };
 

@@ -8,6 +8,7 @@ import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/network/service_error.dart';
 import 'package:moniepoint_flutter/core/network/service_result.dart';
+import 'package:moniepoint_flutter/core/timeout_reason.dart';
 import 'package:retrofit/dio.dart';
 
 import '../tuple.dart';
@@ -81,8 +82,10 @@ mixin NetworkResource {
         if (e is DioError) {
 
           if(e.response?.statusCode == 401) {
-            //TODO auto logout the user here
+            //TODO check if the user is in session first
             print("Logout since we are in a 401");
+            // UserInstance().forceLogout(null, SessionTimeoutReason.SESSION_TIMEOUT);
+            // return;
           }
           else if(e.response?.statusCode == 404) {
             _errorString = "404";
@@ -106,7 +109,7 @@ mixin NetworkResource {
             }
           } else {
             var error = e.error;
-            if(error is TypeError) {
+            if(error is TypeError/**/) {
               _errorString = "We encountered an error fulfilling your request. Please try again later.";//TypeError occurred here
             } else {
               _errorString = error.toString();

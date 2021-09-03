@@ -1,15 +1,12 @@
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart' hide Colors, ScrollView;
-import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lottie/lottie.dart';
 import 'package:moniepoint_flutter/app/login/model/data/user.dart';
 import 'package:moniepoint_flutter/app/login/viewmodels/login_view_model.dart';
 import 'package:moniepoint_flutter/app/login/views/dialogs/recover_credentials.dart';
 import 'package:moniepoint_flutter/app/login/views/recovery/recovery_controller_screen.dart';
-import 'package:moniepoint_flutter/app/onboarding/model/data/account_profile_result.dart';
-import 'package:moniepoint_flutter/app/onboarding/views/dialogs/account_created_dialog.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_icons2_icons.dart';
@@ -79,7 +76,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
       Future.delayed(Duration.zero, () {
         final arguments = ModalRoute.of(context)!.settings.arguments;
         if(arguments is Tuple<String, SessionTimeoutReason>?) {
-          _onSessionReason(arguments);
+          _onAutoLogout(arguments);
         }
       });
     });
@@ -471,33 +468,17 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
     );
   }
 
-  void _onSessionReason(Tuple<String, SessionTimeoutReason>? reason) {
+  void _onAutoLogout(Tuple<String, SessionTimeoutReason>? reason) {
     if (reason == null) return;
-    if (reason.second == SessionTimeoutReason.INACTIVITY && !_alreadyInSessionError) {
+    //TODO this check is no longer needed
+    if (!_alreadyInSessionError) {
       _alreadyInSessionError = true;
       UserInstance().resetSession();
       Future.delayed(Duration(milliseconds: 150), () {
         showError(context,
           title: "Logged Out",
-          message: "You were automatically logged out to protect your account when we saw no activity. "
-              "Please re-login to continue",
-          onPrimaryClick: () {
-            Navigator.of(context).pop();
-            // _startFingerPrintLoginProcess();
-          }
-        );
-      });
-    } else if (reason.second == SessionTimeoutReason.LOGIN_REQUESTED && !_alreadyInSessionError) {
-      _alreadyInSessionError = true;
-      UserInstance().resetSession();
-      Future.delayed(Duration(milliseconds: 150), () {
-        showError(context,
-            title: "Logged Out",
-            message: "A Re-Login was needed for you to continue",
-            onPrimaryClick: () {
-              Navigator.of(context).pop();
-              // _startFingerPrintLoginProcess();
-            }
+          message: AutoLogoutMessages[reason.second] ?? "",
+          onPrimaryClick: () => Navigator.of(context).pop()
         );
       });
     }
@@ -641,24 +622,6 @@ class _LoginTopMenuView extends Stack {
           );
         },
       ),
-      //TODO adjust the height and the opacity
-      // AnimatedBuilder(
-      //   animation: controller,
-      //   child: FittedBox(
-      //     fit: BoxFit.cover,
-      //     child: Image.asset("res/drawables/ic_app_bg.png"),
-      //   ),
-      //   builder: (ctx, child) {
-      //     final xScale = max(0.25, sizeBlueBgAnimation.value/3);
-      //     return Positioned(
-      //         top: 0,
-      //         bottom: height - (height * xScale),
-      //         right: 0,
-      //         left: 0,
-      //         child: child ?? SizedBox()
-      //     );
-      //   },
-      // ),
       if (!isLoading) ...[
         Container(
           margin: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.074, right: 17),

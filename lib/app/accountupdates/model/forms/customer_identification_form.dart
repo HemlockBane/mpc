@@ -5,9 +5,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/data/customer_identification_info.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
+import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:rxdart/rxdart.dart';
 
 class CustomerIdentificationForm with ChangeNotifier {
+
+  static const FORM_KEY = "account-update-identification-info";
+  static const FORM_FILE_NAME_KEY = "account-update-identification-info-filename";
 
   CustomerIdentificationForm() {
     _initState();
@@ -36,6 +40,8 @@ class CustomerIdentificationForm with ChangeNotifier {
   bool _isFormValid = false;
   bool get isFormValid => _isFormValid;
 
+  Timer? _debouncer;
+
   void _initState() {
     final formStreams = [
       idTypeStream,
@@ -53,6 +59,9 @@ class CustomerIdentificationForm with ChangeNotifier {
           && _isImageReferenceValid(displayError: false);
       return _isFormValid;
     }).asBroadcastStream();
+
+    //Subscribe
+    this._subscribeFormToAutoSave(formStreams);
   }
 
   void onIdentificationTypeChange(IdentificationType? type) {
@@ -103,7 +112,7 @@ class CustomerIdentificationForm with ChangeNotifier {
     return isValid;
   }
 
-  void onImageReferenceChanged(String? imageReference) {
+  void onImageReferenceChanged(String? imageReference, String? fileName) {
     _info.scannedImageRef = imageReference;
     _idImageReferenceController.sink.add(imageReference ?? "");
     _isImageReferenceValid(displayError: true);
@@ -116,6 +125,41 @@ class CustomerIdentificationForm with ChangeNotifier {
   }
 
   CustomerIdentificationInfo get identificationInfo => _info;
+
+  void _subscribeFormToAutoSave(List<Stream<dynamic>> streams) {
+    streams.forEach((element) {
+      element.listen((event) {
+        _debouncer?.cancel();
+        _debouncer = Timer(Duration(milliseconds: 600), () {
+          PreferenceUtil.saveDataForLoggedInUser(FORM_KEY, _info);
+          PreferenceUtil.saveValueForLoggedInUser<String>(FORM_FILE_NAME_KEY, "");
+        });
+      }, onError: (a) {
+        //Do nothing
+      });
+    });
+  }
+
+  void restoreFormState() {
+    final savedInfo = PreferenceUtil.getDataForLoggedInUser(FORM_KEY);
+    final savedIdentificationInfo = CustomerIdentificationInfo.fromJson(savedInfo);
+
+    if(savedIdentificationInfo.identificationType != null) {
+      onIdentificationTypeChange(IdentificationType.fromString(savedIdentificationInfo.identificationType));
+    }
+    if(savedIdentificationInfo.identityExpiryDate != null) {
+      onExpiryDateChange(savedIdentificationInfo.identityExpiryDate);
+    }
+    if(savedIdentificationInfo.identityIssueDate != null) {
+      onIssueDateChange(savedIdentificationInfo.identityIssueDate);
+    }
+    if(savedIdentificationInfo.registrationNumber != null) {
+      onIdentificationNumberChange(savedIdentificationInfo.registrationNumber);
+    }
+    if(savedIdentificationInfo.scannedImageRef != null) {
+      onImageReferenceChanged(savedIdentificationInfo.scannedImageRef);
+    }
+  }
   
   @override
   void dispose() {
@@ -124,6 +168,7 @@ class CustomerIdentificationForm with ChangeNotifier {
     _issueDateController.close();
     _expiryDateController.close();
     _idImageReferenceController.close();
+    _debouncer?.cancel();
     super.dispose();
   }
 }

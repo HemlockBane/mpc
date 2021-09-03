@@ -75,13 +75,15 @@ class AdditionalInfoForm with ChangeNotifier {
           && _isEmploymentStatusValid(displayError: false);
       return _isFormValid;
     }).asBroadcastStream();
+
+    //Register auto-save
+    this._subscribeFormToAutoSave([...formStreams]);
   }
 
   void onTitleChange(Titles? title) {
     _info.title = title?.title;
     _titleController.sink.add(title ?? titles.first);
     _isTitleValid(displayError: true);
-    _saveCurrentState();
   }
 
   bool _isTitleValid({bool displayError = false}) {
@@ -94,7 +96,6 @@ class AdditionalInfoForm with ChangeNotifier {
     _info.maritalStatus = mStatus?.maritalStatus;
     _maritalStatusController.sink.add(mStatus ?? maritalStatuses.first);
     _isMaritalStatusValid(displayError: true);
-    _saveCurrentState();
   }
 
   bool _isMaritalStatusValid({bool displayError = false}) {
@@ -107,7 +108,6 @@ class AdditionalInfoForm with ChangeNotifier {
     _info.religion = mReligion?.religion;
     _religionController.sink.add(mReligion ?? religions.first);
     _isReligionValid(displayError: true);
-    _saveCurrentState();
   }
 
   bool _isReligionValid({bool displayError = false}) {
@@ -120,7 +120,7 @@ class AdditionalInfoForm with ChangeNotifier {
 
   void onNationalityChange(Nationality? mNationality,
       {StateOfOrigin? defaultStateOfOrigin, LocalGovernmentArea? defaultLocalGovt}) {
-    if(_info.nationality == mNationality?.nationality) return;
+    if(_info.nationality == mNationality?.code) return;
     _info.nationality = mNationality?.code;
     _nationalityController.sink.add(mNationality!);
     _isNationalityValid(displayError: true);
@@ -128,7 +128,6 @@ class AdditionalInfoForm with ChangeNotifier {
     _states.clear();
     _states.addAll(mNationality.states ?? []);
     onStateOfOriginChange(defaultStateOfOrigin, defaultLocalGovt: defaultLocalGovt);
-    _saveCurrentState();
   }
 
   bool _isNationalityValid({bool displayError = false}) {
@@ -141,18 +140,17 @@ class AdditionalInfoForm with ChangeNotifier {
 
   void onStateOfOriginChange(StateOfOrigin? mStateOfOrigin, {LocalGovernmentArea? defaultLocalGovt}) {
     _stateOfOriginController.sink.add(mStateOfOrigin);
+    _info.stateId = mStateOfOrigin?.id;//only needed for auto-save and restoring
 
     _localGovt.clear();
     _localGovt.addAll(mStateOfOrigin?.localGovernmentAreas ?? []);
     onLocalGovtChange(defaultLocalGovt);
-    _saveCurrentState();
   }
 
   void onLocalGovtChange(LocalGovernmentArea? localGovernmentArea) {
     _info.localGovernmentAreaOfOriginId = localGovernmentArea?.id;
     _localGovtAreaController.sink.add(localGovernmentArea);
     _isLocalGovtValid(displayError: true);
-    _saveCurrentState();
   }
 
   bool _isLocalGovtValid({bool displayError = false}) {
@@ -160,7 +158,6 @@ class AdditionalInfoForm with ChangeNotifier {
     if (displayError && !isValid) {
       _localGovtAreaController.sink.addError("Local Govt is required");
     }
-
     return isValid;
   }
 
@@ -168,7 +165,6 @@ class AdditionalInfoForm with ChangeNotifier {
     _info.employmentStatus = mEmploymentStatus?.empStatus;
     if(mEmploymentStatus != null) _employmentStatusController.sink.add(mEmploymentStatus);
     _isEmploymentStatusValid(displayError: true);
-    _saveCurrentState();
   }
 
   bool _isEmploymentStatusValid({bool displayError = false}) {
@@ -190,10 +186,16 @@ class AdditionalInfoForm with ChangeNotifier {
     this._nationalities.addAll(nationalities);
   }
 
-  void _saveCurrentState() {
-    _debouncer?.cancel();
-    _debouncer = Timer(Duration(milliseconds: 600), (){
-      PreferenceUtil.saveDataForLoggedInUser(FORM_KEY, customerInfo);
+  void _subscribeFormToAutoSave(List<Stream<dynamic>> streams) {
+    streams.forEach((element) {
+      element.listen((event) {
+        _debouncer?.cancel();
+        _debouncer = Timer(Duration(milliseconds: 600), (){
+          PreferenceUtil.saveDataForLoggedInUser(FORM_KEY, customerInfo);
+        });
+      }, onError: (a) {
+        //Do nothing
+      });
     });
   }
 
@@ -207,13 +209,19 @@ class AdditionalInfoForm with ChangeNotifier {
     if(savedCustomerInfo.maritalStatus != null) {
       onMaritalStatusChange(MaritalStatus.fromString(savedCustomerInfo.maritalStatus));
     }
+    if(savedCustomerInfo.religion != null) {
+      onReligionChange(Religion.fromString(savedCustomerInfo.religion));
+    }
+    if(savedCustomerInfo.employmentStatus != null) {
+      onEmploymentStatusChange(EmploymentStatus.fromString(savedCustomerInfo.employmentStatus));
+    }
 
     if(savedCustomerInfo.nationality != null) {
-      final nationality = Nationality.fromNationalityName(
+      final nationality = Nationality.fromNationalityCode(
           savedCustomerInfo.nationality, nationalities
       );
-      final state = StateOfOrigin.fromLocalGovtId(
-          savedCustomerInfo.localGovernmentAreaOfOriginId, nationality?.states ?? []
+      final state = StateOfOrigin.fromId(
+          savedCustomerInfo.stateId, nationality?.states ?? []
       );
       final localGovt = LocalGovernmentArea.fromId(
           savedCustomerInfo.localGovernmentAreaOfOriginId, state?.localGovernmentAreas ?? []

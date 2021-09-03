@@ -72,13 +72,14 @@ class AccountUpdateInfoDialog extends Dialog {
                 child: Row(
                   children: [
                     SvgPicture.asset("res/drawables/ic_bank_number_input.svg"),
+                    SizedBox(height: 15),
                     Column(
                       children: [
                         Text(
                           'Identification',
                           style: TextStyle(color: Colors.textColorBlack, fontSize: 15, fontWeight: FontWeight.w600),
                         ),
-                        SizedBox(width: 5),
+                        SizedBox(height: 5),
                         Text(
                           '\u2022\t\tUtility Bills (e.g. electricity bills)\n\u2022\t\tTenancy Agreements\n\u2022\t\tResident Permits',
                           style: TextStyle(color: Colors.textColorBlack, fontSize: 13, fontWeight: FontWeight.w400),

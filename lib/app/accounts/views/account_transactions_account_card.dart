@@ -131,6 +131,8 @@ class _AccountTransactionsAccountCardState
   }
 }
 
+
+
 class AccountDetails extends StatefulWidget {
   const AccountDetails(
       {Key? key,
@@ -154,15 +156,19 @@ class _AccountDetailsState extends State<AccountDetails>
   @override
   void initState() {
     super.initState();
-    // widget.viewModel.tranasactionListController.listen((event) {
-    //   setState(() {});
-    // }).disposedBy(this);
-    // print("Updating  balance Stream ooo");
 
     _balanceStream = widget.viewModel.getCustomerAccountBalance(
         accountId: widget.userAccount.id, useLocal: false);
-
     widget.viewModel.checkAccountUpdate();
+
+    widget.viewModel.transactionHistoryUpdateStream.listen((event) {
+      print("bool: $event");
+      print("update account transactions card");
+      _balanceStream = widget.viewModel.getCustomerAccountBalance(
+          accountId: widget.userAccount.id, useLocal: false);
+      setState(() {});
+    });
+
   }
 
   @override

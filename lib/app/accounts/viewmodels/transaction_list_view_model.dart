@@ -20,14 +20,17 @@ class TransactionHistoryViewModel extends BaseViewModel {
   late final TransactionServiceDelegate _delegate;
   late final CustomerServiceDelegate _customerServiceDelegate;
 
-  StreamController<bool> _tranasactionListController = StreamController.broadcast();
-  Stream<bool> get tranasactionListController => _tranasactionListController.stream;
 
   final FilterResults _filterResults = FilterResults.defaultFilter();
   final List<Tier> tiers = [];
 
   bool _isAccountUpdateCompleted = true;
   bool get isAccountUpdateCompleted => _isAccountUpdateCompleted;
+
+  TransactionHistoryViewModel({TransactionServiceDelegate? delegate, CustomerServiceDelegate? customerServiceDelegate}) {
+    this._delegate = delegate ?? GetIt.I<TransactionServiceDelegate>();
+    this._customerServiceDelegate = customerServiceDelegate ?? GetIt.I<CustomerServiceDelegate>();
+  }
 
   final _filterableItems = List<FilterItem>.unmodifiable([
     FilterItem(title: "Date"),
@@ -37,10 +40,9 @@ class TransactionHistoryViewModel extends BaseViewModel {
 
   List<FilterItem> get filterableItems => _filterableItems;
 
-  TransactionHistoryViewModel({TransactionServiceDelegate? delegate, CustomerServiceDelegate? customerServiceDelegate}) {
-    this._delegate = delegate ?? GetIt.I<TransactionServiceDelegate>();
-    this._customerServiceDelegate = customerServiceDelegate ?? GetIt.I<CustomerServiceDelegate>();
-  }
+  StreamController<bool> _transactionHistoryController = StreamController.broadcast();
+  Stream<bool> get transactionHistoryUpdateStream => _transactionHistoryController.stream;
+
 
   PagingSource<int, AccountTransaction> getPagedHistoryTransaction({int? accountId}) {
     return _delegate.getPageAccountTransactions(accountId ?? customerAccountId, _filterResults);
@@ -103,7 +105,7 @@ class TransactionHistoryViewModel extends BaseViewModel {
   }
 
   void update() {
-    _tranasactionListController.sink.add(true);
+    _transactionHistoryController.add(true);
   }
 
   void checkAccountUpdate() {
@@ -115,7 +117,7 @@ class TransactionHistoryViewModel extends BaseViewModel {
 
   @override
   void dispose() {
-    _tranasactionListController.close();
+    _transactionHistoryController.close();
     super.dispose();
   }
 

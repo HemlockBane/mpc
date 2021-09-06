@@ -1,18 +1,20 @@
-import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
+import 'package:moniepoint_flutter/app/dashboard/views/custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+typedef DashboardRefreshIndicatorBuilder = Widget Function(BuildContext context, IndicatorController controller);
+
 
 class DashboardRefreshIndicator extends StatefulWidget {
-  final Widget child;
   final DashboardViewModel viewModel;
+  final DashboardRefreshIndicatorBuilder builder;
+  final double indicatorOffset;
 
   const DashboardRefreshIndicator(
       {Key? key,
-      required this.child,
-      required this.viewModel})
+      required this.viewModel, required this.builder, required this.indicatorOffset})
       : super(key: key);
 
   @override
@@ -30,7 +32,7 @@ class _DashboardRefreshIndicatorState extends State<DashboardRefreshIndicator>
 
   @override
   Widget build(BuildContext context) {
-    final _indicatorOffset = widget.viewModel.indicatorOffset;
+    final _indicatorOffset = widget.indicatorOffset;
     return CustomRefreshIndicator(
       offsetToArmed: _indicatorOffset,
       onRefresh: () async{
@@ -40,25 +42,25 @@ class _DashboardRefreshIndicatorState extends State<DashboardRefreshIndicator>
           return null;
         }
       },
-      child: widget.child,
+      childBuilder: widget.builder,
       builder: (
         BuildContext context,
         Widget child,
         IndicatorController controller,
       ) {
-        widget.viewModel.updateIndicatorController(controller);
         return Stack(
           children: <Widget>[
             child,
             AnimatedBuilder(
               animation: controller,
               builder: (context, _) {
+                final indicatorOffsetValue = controller.value * widget.indicatorOffset;
                 return Container(
                   child: SvgPicture.asset(
                       "res/drawables/refresh_indicator_bg.svg",
                       fit: BoxFit.fill,
                       color: Colors.black.withOpacity(0.75)),
-                  height: widget.viewModel.indicatorOffsetValue,
+                  height: indicatorOffsetValue,
                   width: double.infinity,
                 );
               },
@@ -81,7 +83,7 @@ class _DashboardRefreshIndicatorState extends State<DashboardRefreshIndicator>
                   showLoadingIndicator = true;
                 }
 
-                final containerHeight = widget.viewModel.indicatorOffsetValue;
+                final containerHeight = controller.value * widget.indicatorOffset;
 
 
                 return !showLoadingIndicator

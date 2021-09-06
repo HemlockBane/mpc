@@ -77,6 +77,12 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
         .getCustomerAccountBalance(accountId: widget.customerAccountId)
         .listen((event) {});
     _refresh(viewModel);
+
+
+    viewModel.transactionHistoryUpdateStream.listen((event) {
+      print('update history');
+    });
+
     _animationController.forward();
     _scrollController.addListener(_onScroll);
     super.initState();
@@ -342,28 +348,6 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
         ));
   }
 
-  Widget _listContainer(TransactionHistoryViewModel viewModel, double yOffset,
-      {Widget? child}) {
-    final double topPadding = min(100, 100 - min(76, (yOffset - 1) * 0.2));
-
-    return Container(
-      padding: EdgeInsets.only(top: topPadding),
-      height: double.infinity,
-      decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-              topRight: Radius.circular(30), topLeft: Radius.circular(30)),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.primaryColor.withOpacity(0.01),
-                offset: Offset(0, -1),
-                blurRadius: 3,
-                spreadRadius: 0)
-          ]),
-      child: child,
-    );
-  }
-
   void _refresh(TransactionHistoryViewModel viewModel) {
     _pagingSource = viewModel.getPagedHistoryTransaction(
         accountId: widget.customerAccountId);
@@ -420,7 +404,8 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
       PagingData value,
       TransactionHistoryViewModel viewModel,
       bool isEmpty,
-      Tuple<String, String>? error) {
+      Tuple<String, String>? error,
+      ScrollController scrollController) {
     return Column(
       children: [
         Visibility(
@@ -454,7 +439,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
           visible: !isEmpty && error == null,
           child: Expanded(
               child: ListView.separated(
-            controller: _scrollController,
+            controller: scrollController,
             itemCount: value.data.length,
             separatorBuilder: (context, index) => Padding(
               padding: EdgeInsets.only(left: 24, right: 24),
@@ -495,9 +480,9 @@ ScrollController _scrollController) {
               ),
               child: Pager<int, AccountTransaction>(
                   pagingConfig:
-                      PagingConfig(pageSize: 800, initialPageSize: 800),
+                      PagingConfig(pageSize: 500, initialPageSize: 500),
                   source: _pagingSource,
-                  scrollController: scrollController,
+                  scrollController: _scrollController,
                   builder: (context, value, _) {
                     return ListViewUtil.handleLoadStates(
                         animationController: _animationController,
@@ -511,18 +496,17 @@ ScrollController _scrollController) {
                                 controller: scrollController,
                                 children: [
                                   if (isAccountLiened) SizedBox(height: 40),
-                                  if (!isEmpty && error == null)
-                                    SizedBox(height: isAccountLiened ? 133 : 90),
+                                  SizedBox(height: isAccountLiened ? 133 : 90),
                                   Container(
-                                    height: 800,
+                                    height: (error == null && !isEmpty) ? 800 : 400,
                                     child: _mainPageContent(
-                                        value, viewModel, isEmpty, error),
+                                        value, viewModel, isEmpty, error, _scrollController),
                                   ),
                                 ],
                               ),
                               IgnorePointer(
                                 ignoring: true,
-                                child: Column(
+                                child: (error == null && !isEmpty) ? Column(
                                   children: [
                                     Container(
                                       width: double.infinity,
@@ -540,7 +524,7 @@ ScrollController _scrollController) {
                                       color: Colors.black.withOpacity(0.15),
                                     )
                                   ],
-                                ),
+                                ) : SizedBox()
                               ),
                               Column(
                                 children: [
@@ -622,39 +606,6 @@ ScrollController _scrollController) {
     }
   }
 
-  List<Widget> _positionalWidgets(
-      TransactionHistoryViewModel viewModel, Offset value) {
-    final double listTop = min(170, 170 - min(60, (value.dy - 1) * 0.2));
-    final double balanceViewSides = min(42, 42 - min(42, (value.dy - 1) * 0.2));
-
-    final listPagePosition = Positioned(
-        key: Key("list-view-0"),
-        top: listTop,
-        bottom: 0,
-        right: 0,
-        left: 0,
-        child: _listContainer(viewModel, value.dy,
-            child: _pagingView(viewModel, _scrollController)));
-
-    final balanceContainerPosition = Positioned(
-        key: Key("dashboard-balance-${widget.customerAccountId}"),
-        right: balanceViewSides,
-        left: balanceViewSides,
-        top: balanceViewSides,
-        child: Hero(
-          tag: "dashboard-balance-view-${widget.customerAccountId}",
-          child: balanceView(viewModel, value.dy),
-        ));
-
-    final _listItems = <Widget>[];
-    _listItems.insert(0,
-        (balanceViewSides != 0) ? listPagePosition : balanceContainerPosition);
-    _listItems.insert(1,
-        (balanceViewSides != 0) ? balanceContainerPosition : listPagePosition);
-
-    return _listItems;
-  }
-
   @override
   Widget build(BuildContext context) {
     final viewModel =
@@ -665,21 +616,6 @@ ScrollController _scrollController) {
           duration: Duration(milliseconds: 430),
           tween: Tween<Offset>(begin: Offset(0, 0), end: Offset(0, yOffset)),
           builder: (mContext, Offset value, _) {
-            final appBarColorTween =
-                ColorTween(begin: Colors.primaryColor, end: Colors.transparent)
-                    .evaluate(AlwaysStoppedAnimation(
-                        min(100, 100 - min(100, (value.dy - 1) * 0.5)) / 100));
-
-            final appBarIconTween =
-                ColorTween(begin: Colors.white, end: Colors.primaryColor)
-                    .evaluate(AlwaysStoppedAnimation(
-                        min(100, 100 - min(100, (value.dy - 1) * 0.5)) / 100));
-
-            final appBarTextTween =
-                ColorTween(begin: Colors.white, end: Colors.darkBlue).evaluate(
-                    AlwaysStoppedAnimation(
-                        min(100, 100 - min(100, (value.dy - 1) * 0.5)) / 100));
-
             return Scaffold(
               backgroundColor: Color(0XFFEBF2FA),
               body: Stack(

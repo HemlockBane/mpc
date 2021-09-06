@@ -161,6 +161,7 @@ class _AccountDetailsState extends State<AccountDetails> with CompositeDisposabl
       _balanceStream = widget.viewModel.getCustomerAccountBalance(accountId: widget.userAccount.id, useLocal: false);
       setState(() {});
     }).disposedBy(this);
+    widget.viewModel.update();
 
     widget.viewModel.refreshStartStream.listen((event) {
       _balanceStream = widget.viewModel.getCustomerAccountBalance(accountId: widget.userAccount.id, useLocal: false);

@@ -79,14 +79,9 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
     _refresh(viewModel);
 
 
-    viewModel.transactionHistoryUpdateStream.listen((event) {
-      print('update history');
-    });
-
     _animationController.forward();
     _scrollController.addListener(_onScroll);
     super.initState();
-    viewModel.getTiers().listen((event) {});
   }
 
   void _displaySettingsDialog() async {
@@ -292,7 +287,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
                   'Filter',
                   style: TextStyle(
                     color: Colors.primaryColor,
-                    fontSize: 13,
+                    fontSize: 12.5,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -302,7 +297,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
                     overlayColor: MaterialStateProperty.all(
                         Colors.darkBlue.withOpacity(0.2)),
                     padding: MaterialStateProperty.all(
-                        EdgeInsets.symmetric(horizontal: 22, vertical: 8)),
+                        EdgeInsets.fromLTRB(16, 7.2, 25, 7.2)),
                     shape: MaterialStateProperty.all(RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(41))),
                     backgroundColor: MaterialStateProperty.all(
@@ -464,9 +459,9 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
   Widget _pagingView(TransactionHistoryViewModel viewModel,
 ScrollController _scrollController) {
     return DraggableScrollableSheet(
-        initialChildSize: 0.4,
-        minChildSize: 0.4,
-        maxChildSize: 0.686,
+        initialChildSize: 0.445,
+        minChildSize: 0.445,
+        maxChildSize: 0.71,
         // expand: false,
         builder: (ctx, ScrollController scrollController) {
           // pageViewController = controller;
@@ -487,16 +482,21 @@ ScrollController _scrollController) {
                     return ListViewUtil.handleLoadStates(
                         animationController: _animationController,
                         pagingData: value,
-                        shimmer: AccountListShimmer(),
+                        shimmer: Column(
+                          children: [
+                            SizedBox(height: 20),
+                            AccountListShimmer(),
+                          ],
+                        ),
                         listCallback: (PagingData data, bool isEmpty, error) {
-                          bool isAccountLiened = false;
+                          bool isAccountLiened = getAccountLienStatus();
                           return Stack(
                             children: [
                               ListView(
                                 controller: scrollController,
                                 children: [
-                                  if (isAccountLiened) SizedBox(height: 40),
-                                  SizedBox(height: isAccountLiened ? 133 : 90),
+                                  if (isAccountLiened) SizedBox(height: 27),
+                                  SizedBox(height: isAccountLiened ? 122 : 79),
                                   Container(
                                     height: (error == null && !isEmpty) ? 800 : 400,
                                     child: _mainPageContent(
@@ -510,7 +510,7 @@ ScrollController _scrollController) {
                                   children: [
                                     Container(
                                       width: double.infinity,
-                                      height: isAccountLiened ? 155 : 88,
+                                      height: isAccountLiened ? 142 : 75,
                                       decoration: BoxDecoration(
                                         color: Colors.white,
                                         borderRadius: BorderRadius.vertical(
@@ -518,7 +518,6 @@ ScrollController _scrollController) {
                                         ),
                                       ),
                                     ),
-                                    // SizedBox(height: 15),
                                     Divider(
                                       height: 2,
                                       color: Colors.black.withOpacity(0.15),
@@ -528,7 +527,7 @@ ScrollController _scrollController) {
                               ),
                               Column(
                                 children: [
-                                  SizedBox(height: 27),
+                                  SizedBox(height: 19),
                                   if (isAccountLiened)
                                     Container(
                                         margin: EdgeInsets.symmetric(
@@ -606,6 +605,10 @@ ScrollController _scrollController) {
     }
   }
 
+  bool getAccountLienStatus(){
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewModel =
@@ -628,7 +631,7 @@ ScrollController _scrollController) {
                   ),
                   Column(
                     children: [
-                      SizedBox(height: 57),
+                      SizedBox(height: 37),
                       Container(
                         margin: EdgeInsets.symmetric(horizontal: 16),
                         child: Row(
@@ -677,7 +680,7 @@ ScrollController _scrollController) {
                           ],
                         ),
                       ),
-                      SizedBox(height: 37),
+                      SizedBox(height: 26),
                       AccountTransactionsAccountCard(
                         viewModel: viewModel,
                         userAccount: widget.userAccount,

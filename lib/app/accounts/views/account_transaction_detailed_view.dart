@@ -136,7 +136,7 @@ class _AccountTransactionDetailedView
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(height: 57),
+                      SizedBox(height: 37),
                       Container(
                         margin: EdgeInsets.symmetric(horizontal: 16),
                         child: Row(
@@ -169,23 +169,23 @@ class _AccountTransactionDetailedView
                                 )
                               ],
                             ),
-                            Styles.imageButton(
-                              padding: EdgeInsets.all(9),
-                              color: Colors.transparent,
-                              borderRadius: BorderRadius.circular(30),
-                              onClick: _displaySettingsDialog,
-                              image: SvgPicture.asset(
-                                'res/drawables/ic_dashboard_settings.svg',
-                                fit: BoxFit.contain,
-                                width: 22,
-                                height: 22.56,
-                                color: Colors.primaryColor,
-                              ),
-                            ),
+                            // Styles.imageButton(
+                            //   padding: EdgeInsets.all(9),
+                            //   color: Colors.transparent,
+                            //   borderRadius: BorderRadius.circular(30),
+                            //   onClick: _displaySettingsDialog,
+                            //   image: SvgPicture.asset(
+                            //     'res/drawables/ic_dashboard_settings.svg',
+                            //     fit: BoxFit.contain,
+                            //     width: 22,
+                            //     height: 22.56,
+                            //     color: Colors.primaryColor,
+                            //   ),
+                            // ),
                           ],
                         ),
                       ),
-                      SizedBox(height: 37),
+                      SizedBox(height: 30),
                       ClipPath(
                         clipper: AccountTransactionsTicketClipper(),
                         child: Container(
@@ -237,10 +237,8 @@ class _AccountTransactionDetailedView
                                   ),
                                 ),
                               ]),
-                              SizedBox(
-                                height: 5,
-                              ),
                               Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text('Balance before: $balanceBefore',
@@ -250,17 +248,17 @@ class _AccountTransactionDetailedView
                                           color: Colors.textColorBlack)),
                                   Container(
                                     padding: EdgeInsets.symmetric(
-                                        horizontal: 8.4, vertical: 4),
+                                        horizontal: 8.4, vertical: 2.5),
                                     decoration: BoxDecoration(
                                         color: (transaction.type ==
                                                 TransactionType.CREDIT)
-                                            ? Colors.solidGreen.withOpacity(0.2)
+                                            ? Colors.solidGreen.withOpacity(0.25)
                                             : Color(0xff24F00303),
                                         borderRadius: BorderRadius.circular(4)),
                                     child: Text(
                                       transactionType,
                                       style: TextStyle(
-                                          fontSize: 11.3,
+                                          fontSize: 11.2,
                                           color: (transaction.type ==
                                                   TransactionType.CREDIT)
                                               ? Colors.solidGreen
@@ -327,17 +325,17 @@ class _AccountTransactionDetailedView
                                             color: Colors.primaryColor
                                                 .withOpacity(0.3),
                                           )),
-                                    if (transaction.metaData != null && transaction.metaData?.recipient != null) 
+                                    if (transaction.metaData != null && transaction.metaData?.recipient != null)
                                       SizedBox(height: 14),
-                                    if (transaction.metaData != null && transaction.metaData?.recipient != null) 
+                                    if (transaction.metaData != null && transaction.metaData?.recipient != null)
                                       _label("Recipient"),
-                                    if (transaction.metaData != null && transaction.metaData?.recipient != null) 
+                                    if (transaction.metaData != null && transaction.metaData?.recipient != null)
                                       SizedBox(height: 3),
-                                    if (transaction.metaData != null && transaction.metaData?.recipient != null) 
+                                    if (transaction.metaData != null && transaction.metaData?.recipient != null)
                                       _text(transaction.metaData?.recipient?.name ?? ""),
-                                    if (transaction.metaData != null && transaction.metaData?.recipient != null) 
+                                    if (transaction.metaData != null && transaction.metaData?.recipient != null)
                                       SizedBox(height: 3),
-                                    if (transaction.metaData != null && transaction.metaData?.recipient != null) 
+                                    if (transaction.metaData != null && transaction.metaData?.recipient != null)
                                       Row(
                                         children: [
                                           _text(transaction.metaData?.recipient?.bankName ?? "",
@@ -349,9 +347,9 @@ class _AccountTransactionDetailedView
                                               color: Colors.deepGrey)
                                         ],
                                       ),
-                                  if (transaction.metaData != null && transaction.metaData?.recipient != null) 
+                                  if (transaction.metaData != null && transaction.metaData?.recipient != null)
                                     SizedBox(height: 18),
-                                  if (transaction.metaData != null && transaction.metaData?.recipient != null) 
+                                  if (transaction.metaData != null && transaction.metaData?.recipient != null)
                                     Container(
                                         width: double.infinity,
                                         child: Divider(

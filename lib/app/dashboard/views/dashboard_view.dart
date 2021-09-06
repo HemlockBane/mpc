@@ -329,7 +329,6 @@ class _DashboardTopMenu extends StatelessWidget {
       width: 34,
       padding: EdgeInsets.all(2),
       decoration: BoxDecoration(
-        color: Colors.white,
         shape: BoxShape.circle,
         image: DecorationImage(
           fit: BoxFit.cover,

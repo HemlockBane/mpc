@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:mixpanel_flutter/mixpanel_flutter.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:flutter/material.dart' hide ScrollView, Colors;
 import 'package:flutter_html/shims/dart_ui.dart';
@@ -16,6 +17,7 @@ import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/t
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_icons2_icons.dart';
 import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
+import 'package:moniepoint_flutter/core/mix_panel_analytics.dart';
 import 'package:moniepoint_flutter/core/models/file_result.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -45,6 +47,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
   PageController _pageController = PageController(viewportFraction: 1);
   Stream<Resource<List<TransferBeneficiary>>> recentlyPaidBeneficiaries = Stream.empty();
   final double refreshIndicatorOffset = 70;
+
 
   void _setupFingerprint() async {
     final biometricRequest = await _viewModel.shouldRequestFingerPrintSetup();
@@ -159,7 +162,8 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
                         ),
                         AccountCard(
                             viewModel: _viewModel,
-                            pageController: _pageController),
+                            pageController: _pageController,
+                        ),
                         SizedBox(height: 32),
                         DashboardMenu(_onDrawerItemClickListener),
                         SizedBox(

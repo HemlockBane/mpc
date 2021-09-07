@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide Card;
+import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
 import 'package:moniepoint_flutter/app/accounts/viewmodels/account_transaction_detail_view_model.dart';
 import 'package:moniepoint_flutter/app/accounts/viewmodels/transaction_list_view_model.dart';
 import 'package:moniepoint_flutter/app/accounts/views/account_transaction_detailed_view.dart';
@@ -160,12 +161,13 @@ class Routes {
         final customerAccountId = (settings.arguments as Map?)?["customerAccountId"];
         final args = settings.arguments as Map<dynamic, dynamic>;
         final userAccount = args["userAccount"] as UserAccount;
+        final accountBalance = args["accountBalance"] as AccountBalance?;
       
         return MaterialPageRoute(
             builder: (_) => ChangeNotifierProvider(
               create: (_) => TransactionHistoryViewModel(),
               child: AccountTransactionScreen(
-                  customerAccountId: customerAccountId, userAccount: userAccount,),
+                  customerAccountId: customerAccountId, userAccount: userAccount, accountBalance: accountBalance,),
             ));
       case Routes.LIVELINESS_DETECTION:
         return MaterialPageRoute(

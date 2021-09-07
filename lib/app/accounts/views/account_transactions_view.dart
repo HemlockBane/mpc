@@ -48,8 +48,9 @@ import 'package:shimmer/shimmer.dart';
 class AccountTransactionScreen extends StatefulWidget {
   final int? customerAccountId;
   final UserAccount userAccount;
+  final AccountBalance? accountBalance;
 
-  AccountTransactionScreen({this.customerAccountId, required this.userAccount});
+  AccountTransactionScreen({this.customerAccountId, required this.userAccount, required this.accountBalance});
 
   @override
   State<StatefulWidget> createState() => _AccountTransactionScreen();
@@ -77,10 +78,10 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
         .getCustomerAccountBalance(accountId: widget.customerAccountId)
         .listen((event) {});
     _refresh(viewModel);
+
     _animationController.forward();
     _scrollController.addListener(_onScroll);
     super.initState();
-    viewModel.getTiers().listen((event) {});
   }
 
   void _displaySettingsDialog() async {
@@ -286,7 +287,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
                   'Filter',
                   style: TextStyle(
                     color: Colors.primaryColor,
-                    fontSize: 13,
+                    fontSize: 12.5,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -296,7 +297,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
                     overlayColor: MaterialStateProperty.all(
                         Colors.darkBlue.withOpacity(0.2)),
                     padding: MaterialStateProperty.all(
-                        EdgeInsets.symmetric(horizontal: 22, vertical: 8)),
+                        EdgeInsets.fromLTRB(16, 7.2, 25, 7.2)),
                     shape: MaterialStateProperty.all(RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(41))),
                     backgroundColor: MaterialStateProperty.all(
@@ -340,28 +341,6 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
             ],
           ),
         ));
-  }
-
-  Widget _listContainer(TransactionHistoryViewModel viewModel, double yOffset,
-      {Widget? child}) {
-    final double topPadding = min(100, 100 - min(76, (yOffset - 1) * 0.2));
-
-    return Container(
-      padding: EdgeInsets.only(top: topPadding),
-      height: double.infinity,
-      decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-              topRight: Radius.circular(30), topLeft: Radius.circular(30)),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.primaryColor.withOpacity(0.01),
-                offset: Offset(0, -1),
-                blurRadius: 3,
-                spreadRadius: 0)
-          ]),
-      child: child,
-    );
   }
 
   void _refresh(TransactionHistoryViewModel viewModel) {
@@ -420,7 +399,8 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
       PagingData value,
       TransactionHistoryViewModel viewModel,
       bool isEmpty,
-      Tuple<String, String>? error) {
+      Tuple<String, String>? error,
+      ScrollController scrollController) {
     return Column(
       children: [
         Visibility(
@@ -454,7 +434,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
           visible: !isEmpty && error == null,
           child: Expanded(
               child: ListView.separated(
-            controller: _scrollController,
+            controller: scrollController,
             itemCount: value.data.length,
             separatorBuilder: (context, index) => Padding(
               padding: EdgeInsets.only(left: 24, right: 24),
@@ -478,141 +458,179 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
 
   Widget _pagingView(TransactionHistoryViewModel viewModel,
 ScrollController _scrollController) {
-    return DraggableScrollableSheet(
-        initialChildSize: 0.4,
-        minChildSize: 0.4,
-        maxChildSize: 0.686,
-        // expand: false,
-        builder: (ctx, ScrollController scrollController) {
-          // pageViewController = controller;
-          return Container(
+    bool showDropShadow = false;
+    final maxExtent = 0.719;
+    final minExtent = 0.445;
+
+
+    return StatefulBuilder(builder: (ctx, setState){
+      return NotificationListener<DraggableScrollableNotification>(
+        onNotification: (DraggableScrollableNotification notification) {
+          if(notification.extent == maxExtent){
+            setState(() {
+              showDropShadow = true;
+            });
+            return false;
+          }
+          if (showDropShadow && notification.extent != maxExtent){
+            setState(() {
+              showDropShadow = false;
+            });
+            return false;
+          }
+
+          return false;
+
+        },
+        child: DraggableScrollableSheet(
+          initialChildSize: minExtent,
+          minChildSize: minExtent,
+          maxChildSize: maxExtent,
+          builder: (ctx, ScrollController scrollController) {
+            return AnimatedContainer(
+              duration: Duration(milliseconds: 200),
               // padding: EdgeInsets.only(top: 27),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.vertical(
                   top: Radius.circular(22),
                 ),
+                border: Border.all(
+                  width: 1.0,
+                  color: Color(0xff063A4F0D).withOpacity(0.05)),
+                boxShadow: showDropShadow ? [
+                BoxShadow(
+                  blurRadius: 30,
+                  offset: Offset(0, -5),
+                  color: Color(0xFFC4C4C4).withOpacity(0.5),
+                ),
+                ] : null,
               ),
               child: Pager<int, AccountTransaction>(
-                  pagingConfig:
-                      PagingConfig(pageSize: 800, initialPageSize: 800),
-                  source: _pagingSource,
-                  scrollController: scrollController,
-                  builder: (context, value, _) {
-                    return ListViewUtil.handleLoadStates(
-                        animationController: _animationController,
-                        pagingData: value,
-                        shimmer: AccountListShimmer(),
-                        listCallback: (PagingData data, bool isEmpty, error) {
-                          bool isAccountLiened = false;
-                          return Stack(
+                pagingConfig:
+                PagingConfig(pageSize: 500, initialPageSize: 500),
+                source: _pagingSource,
+                scrollController: _scrollController,
+                builder: (context, value, _) {
+                  return ListViewUtil.handleLoadStates(
+                    animationController: _animationController,
+                    pagingData: value,
+                    shimmer: Column(
+                      children: [
+                        SizedBox(height: 20),
+                        AccountListShimmer(),
+                      ],
+                    ),
+                    listCallback: (PagingData data, bool isEmpty, error) {
+                      bool isAccountLiened = getAccountLienStatus();
+                      return Stack(
+                        children: [
+                          ListView(
+                            controller: scrollController,
                             children: [
-                              ListView(
-                                controller: scrollController,
-                                children: [
-                                  if (isAccountLiened) SizedBox(height: 40),
-                                  if (!isEmpty && error == null)
-                                    SizedBox(height: isAccountLiened ? 133 : 90),
-                                  Container(
-                                    height: 800,
-                                    child: _mainPageContent(
-                                        value, viewModel, isEmpty, error),
-                                  ),
-                                ],
+                              if (isAccountLiened) SizedBox(height: 27),
+                              SizedBox(height: isAccountLiened ? 122 : 79),
+                              Container(
+                                height: (error == null && !isEmpty) ? 500 : 400,
+                                child: _mainPageContent(
+                                  value, viewModel, isEmpty, error, _scrollController),
                               ),
-                              IgnorePointer(
-                                ignoring: true,
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      width: double.infinity,
-                                      height: isAccountLiened ? 155 : 88,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.vertical(
-                                          top: Radius.circular(22),
-                                        ),
-                                      ),
+                            ],
+                          ),
+                          IgnorePointer(
+                            ignoring: true,
+                            child: (error == null && !isEmpty) ? Column(
+                              children: [
+                                Container(
+                                  width: double.infinity,
+                                  height: isAccountLiened ? 142 : 75,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.vertical(
+                                      top: Radius.circular(22),
                                     ),
-                                    // SizedBox(height: 15),
-                                    Divider(
-                                      height: 2,
-                                      color: Colors.black.withOpacity(0.15),
-                                    )
-                                  ],
+                                  ),
+                                ),
+                                Divider(
+                                  height: 2,
+                                  color: Colors.black.withOpacity(0.15),
+                                )
+                              ],
+                            ) : SizedBox()
+                          ),
+                          Column(
+                            children: [
+                              SizedBox(height: 19),
+                              if (isAccountLiened)
+                                Container(
+                                  margin: EdgeInsets.symmetric(
+                                    horizontal: 20),
+                                  padding:
+                                  EdgeInsets.fromLTRB(12, 12, 17, 12),
+                                  decoration: BoxDecoration(
+                                    color: Color(0xff2BF0AA22),
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(9))),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          SvgPicture.asset(
+                                            'res/drawables/ic_info.svg',
+                                            color: Color(0xffF08922),
+                                          ),
+                                          SizedBox(width: 12),
+                                          Text(
+                                            "Account Liened. Learn More",
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Color(0xffF08922)),
+                                          )
+                                        ],
+                                      ),
+                                      SvgPicture.asset(
+                                        'res/drawables/ic_forward_anchor.svg',
+                                        color: Color(0xffF08922),
+                                        height: 16.75,
+                                        width: 10,
+                                      )
+                                    ],
+                                  )),
+                              if (isAccountLiened) SizedBox(height: 18),
+                              Visibility(
+                                visible: isInFilterMode && error == null,
+                                child: Flexible(
+                                  flex: 0,
+                                  child: FilterLayout(
+                                    _scaffoldKey,
+                                    viewModel.filterableItems,
+                                    dateFilterCallback:
+                                    _dateFilterDateChanged,
+                                    typeFilterCallback: _typeFilterChanged,
+                                    channelFilterCallback:
+                                    _channelFilterChanged,
+                                    onCancel: _onCancelFilter,
+                                    isPreviouslyOpened: _isFilterOpened,
+                                    onOpen: () {
+                                      _isFilterOpened = true;
+                                    },
+                                  ),
                                 ),
                               ),
-                              Column(
-                                children: [
-                                  SizedBox(height: 27),
-                                  if (isAccountLiened)
-                                    Container(
-                                        margin: EdgeInsets.symmetric(
-                                            horizontal: 20),
-                                        padding:
-                                            EdgeInsets.fromLTRB(12, 12, 17, 12),
-                                        decoration: BoxDecoration(
-                                            color: Color(0xff2BF0AA22),
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(9))),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                SvgPicture.asset(
-                                                  'res/drawables/ic_info.svg',
-                                                  color: Color(0xffF08922),
-                                                ),
-                                                SizedBox(width: 12),
-                                                Text(
-                                                  "Account Liened. Learn More",
-                                                  style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: Color(0xffF08922)),
-                                                )
-                                              ],
-                                            ),
-                                            SvgPicture.asset(
-                                              'res/drawables/ic_forward_anchor.svg',
-                                              color: Color(0xffF08922),
-                                              height: 16.75,
-                                              width: 10,
-                                            )
-                                          ],
-                                        )),
-                                  if (isAccountLiened) SizedBox(height: 18),
-                                  Visibility(
-                                    visible: isInFilterMode && error == null,
-                                    child: Flexible(
-                                      flex: 0,
-                                      child: FilterLayout(
-                                        _scaffoldKey,
-                                        viewModel.filterableItems,
-                                        dateFilterCallback:
-                                            _dateFilterDateChanged,
-                                        typeFilterCallback: _typeFilterChanged,
-                                        channelFilterCallback:
-                                            _channelFilterChanged,
-                                        onCancel: _onCancelFilter,
-                                        isPreviouslyOpened: _isFilterOpened,
-                                        onOpen: () {
-                                          _isFilterOpened = true;
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                  Visibility(
-                                      visible: !isInFilterMode && error == null,
-                                      child: filterMenu()),
-                                ],
-                              )
+                              Visibility(
+                                visible: !isInFilterMode && error == null,
+                                child: filterMenu()),
                             ],
-                          );
-                        });
-                  }));
-        });
+                          )
+                        ],
+                      );
+                    });
+                }));
+          }),
+      );
+    });
   }
 
   void _onScroll() {
@@ -622,37 +640,8 @@ ScrollController _scrollController) {
     }
   }
 
-  List<Widget> _positionalWidgets(
-      TransactionHistoryViewModel viewModel, Offset value) {
-    final double listTop = min(170, 170 - min(60, (value.dy - 1) * 0.2));
-    final double balanceViewSides = min(42, 42 - min(42, (value.dy - 1) * 0.2));
-
-    final listPagePosition = Positioned(
-        key: Key("list-view-0"),
-        top: listTop,
-        bottom: 0,
-        right: 0,
-        left: 0,
-        child: _listContainer(viewModel, value.dy,
-            child: _pagingView(viewModel, _scrollController)));
-
-    final balanceContainerPosition = Positioned(
-        key: Key("dashboard-balance-${widget.customerAccountId}"),
-        right: balanceViewSides,
-        left: balanceViewSides,
-        top: balanceViewSides,
-        child: Hero(
-          tag: "dashboard-balance-view-${widget.customerAccountId}",
-          child: balanceView(viewModel, value.dy),
-        ));
-
-    final _listItems = <Widget>[];
-    _listItems.insert(0,
-        (balanceViewSides != 0) ? listPagePosition : balanceContainerPosition);
-    _listItems.insert(1,
-        (balanceViewSides != 0) ? balanceContainerPosition : listPagePosition);
-
-    return _listItems;
+  bool getAccountLienStatus(){
+    return false;
   }
 
   @override
@@ -665,21 +654,6 @@ ScrollController _scrollController) {
           duration: Duration(milliseconds: 430),
           tween: Tween<Offset>(begin: Offset(0, 0), end: Offset(0, yOffset)),
           builder: (mContext, Offset value, _) {
-            final appBarColorTween =
-                ColorTween(begin: Colors.primaryColor, end: Colors.transparent)
-                    .evaluate(AlwaysStoppedAnimation(
-                        min(100, 100 - min(100, (value.dy - 1) * 0.5)) / 100));
-
-            final appBarIconTween =
-                ColorTween(begin: Colors.white, end: Colors.primaryColor)
-                    .evaluate(AlwaysStoppedAnimation(
-                        min(100, 100 - min(100, (value.dy - 1) * 0.5)) / 100));
-
-            final appBarTextTween =
-                ColorTween(begin: Colors.white, end: Colors.darkBlue).evaluate(
-                    AlwaysStoppedAnimation(
-                        min(100, 100 - min(100, (value.dy - 1) * 0.5)) / 100));
-
             return Scaffold(
               backgroundColor: Color(0XFFEBF2FA),
               body: Stack(
@@ -692,7 +666,7 @@ ScrollController _scrollController) {
                   ),
                   Column(
                     children: [
-                      SizedBox(height: 57),
+                      SizedBox(height: 37),
                       Container(
                         margin: EdgeInsets.symmetric(horizontal: 16),
                         child: Row(
@@ -741,10 +715,13 @@ ScrollController _scrollController) {
                           ],
                         ),
                       ),
-                      SizedBox(height: 37),
+                      SizedBox(height: 26),
                       AccountTransactionsAccountCard(
                         viewModel: viewModel,
                         userAccount: widget.userAccount,
+                        accountBalance: widget.accountBalance,
+
+
                       ),
                     ],
                   ),

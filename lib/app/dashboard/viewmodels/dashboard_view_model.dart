@@ -1,10 +1,8 @@
 import 'dart:async';
 
-import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moniepoint_flutter/app/accounts/model/account_service_delegate.dart';
-import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_status.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/customer_service_delegate.dart';
@@ -59,18 +57,6 @@ class DashboardViewModel extends BaseViewModel {
   StreamController<bool> _refreshStartStreamController = StreamController.broadcast();
   Stream<bool> get refreshStartStream => _refreshStartStreamController.stream;
 
-  StreamController<Resource<AccountBalance?>> _accBalanceController = StreamController.broadcast();
-  Stream<Resource<AccountBalance?>> get accBalanceStream => _accBalanceController.stream;
-
-  final double indicatorOffset = 70;
-  double get indicatorOffsetValue => _indicatorController.value * 70;
-
-  IndicatorController _indicatorController = IndicatorController();
-  IndicatorController get indicatorController => _indicatorController;
-  void updateIndicatorController(IndicatorController controller) {
-    _indicatorController = controller;
-    update();
-  }
 
   Stream<Resource<AccountStatus>> fetchAccountStatus() {
     return this.accountServiceDelegate!.getAccountStatus(customerAccountId);
@@ -168,12 +154,6 @@ class DashboardViewModel extends BaseViewModel {
       PreferenceUtil.setFingerprintRequestCounter(fingerprintRequestCount + 1);
     }
     return Tuple(shouldRequest, biometricType);
-  }
-
-  Stream<Resource<AccountBalance>> getCustomerAccountBalance({int? accountId, bool useLocal = false}) {
-    final result = super.getCustomerAccountBalance(accountId: accountId, useLocal: useLocal);
-    result.map((event) => _accBalanceController.sink.add(event));
-    return result;
   }
 
   @override

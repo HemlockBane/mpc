@@ -1,11 +1,13 @@
 
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/svg.dart';
+import 'package:mixpanel_flutter/mixpanel_flutter.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
 import 'package:moniepoint_flutter/app/customer/customer_account.dart';
 import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
+import 'package:moniepoint_flutter/core/mix_panel_analytics.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
@@ -20,7 +22,8 @@ import 'package:moniepoint_flutter/core/utils/text_utils.dart';
 
 ///TODO refactor this code
 class AccountCard extends StatefulWidget {
-  const AccountCard({required this.viewModel, required this.pageController});
+  const AccountCard({required this.viewModel,
+    required this.pageController});
 
   final DashboardViewModel viewModel;
   final PageController pageController;
@@ -30,6 +33,9 @@ class AccountCard extends StatefulWidget {
 }
 
 class _AccountCardState extends State<AccountCard> {
+
+  AccountBalance? accountBalance;
+
   @override
   Widget build(BuildContext context) {
     final viewModel = widget.viewModel;
@@ -70,10 +76,12 @@ class _AccountCardState extends State<AccountCard> {
                             color: Colors.transparent,
                             child: InkWell(
                               overlayColor: MaterialStateProperty.all(Colors.darkLightBlue.withOpacity(0.1)),
-                              onTap: () {
+                              onTap: () async{
+                               final mixpanel = await MixpanelManager.initAsync();
+                                mixpanel.track("dashboard-account-clicked");
                                 Navigator.of(context).pushNamed(Routes.ACCOUNT_TRANSACTIONS, arguments: {
                                   "customerAccountId": userAccount.customerAccount?.id,
-                                  "userAccount": userAccount
+                                  "userAccount": userAccount, "accountBalance": accountBalance
                                 }).then((_) => widget.viewModel.update());
                               },
                               child: Hero(
@@ -82,6 +90,9 @@ class _AccountCardState extends State<AccountCard> {
                                   customerAccount: customerAccount,
                                   userAccount: userAccount,
                                   viewModel: viewModel,
+                                  onBalanceLoaded: (balance){
+                                    accountBalance = balance;
+                                  },
                                 ),
                               ),
                             ),
@@ -136,12 +147,13 @@ class AccountDetails extends StatefulWidget {
       {Key? key,
         required this.customerAccount,
         required this.userAccount,
-        required this.viewModel})
+        required this.viewModel, required this.onBalanceLoaded})
       : super(key: key);
 
   final CustomerAccount? customerAccount;
   final UserAccount userAccount;
   final DashboardViewModel viewModel;
+  final void Function(AccountBalance?) onBalanceLoaded;
 
   @override
   _AccountDetailsState createState() => _AccountDetailsState();
@@ -161,6 +173,7 @@ class _AccountDetailsState extends State<AccountDetails> with CompositeDisposabl
       _balanceStream = widget.viewModel.getCustomerAccountBalance(accountId: widget.userAccount.id, useLocal: false);
       setState(() {});
     }).disposedBy(this);
+    widget.viewModel.update();
 
     widget.viewModel.refreshStartStream.listen((event) {
       _balanceStream = widget.viewModel.getCustomerAccountBalance(accountId: widget.userAccount.id, useLocal: false);
@@ -221,6 +234,7 @@ class _AccountDetailsState extends State<AccountDetails> with CompositeDisposabl
                             final balance = hideAccountBalance
                                 ? "***"
                                 : "${accountBalance?.availableBalance?.formatCurrencyWithoutSymbolAndDividing}";
+                            widget.onBalanceLoaded(accountBalance);
 
                             return Row(
                               children: [

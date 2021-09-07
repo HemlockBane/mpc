@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:mixpanel_flutter/mixpanel_flutter.dart';
+import 'package:moniepoint_flutter/app/dashboard/views/custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:flutter/material.dart' hide ScrollView, Colors;
 import 'package:flutter_html/shims/dart_ui.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -15,6 +17,7 @@ import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/t
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_icons2_icons.dart';
 import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
+import 'package:moniepoint_flutter/core/mix_panel_analytics.dart';
 import 'package:moniepoint_flutter/core/models/file_result.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -43,6 +46,8 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
 
   PageController _pageController = PageController(viewportFraction: 1);
   Stream<Resource<List<TransferBeneficiary>>> recentlyPaidBeneficiaries = Stream.empty();
+  final double refreshIndicatorOffset = 70;
+
 
   void _setupFingerprint() async {
     final biometricRequest = await _viewModel.shouldRequestFingerPrintSetup();
@@ -126,65 +131,76 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
         color: Color(0XFFEBF2FA),
         child: DashboardRefreshIndicator(
           viewModel: _viewModel,
-          child: SingleChildScrollView(
-            child: Stack(
-              children: [
-                _DashboardBackground(
-                    viewModel: _viewModel, 
-                    width: width, 
-                    height: height
-                ),
-                _DashboardTopMenu(
-                    viewModel: _viewModel, scaffoldKey: _scaffoldKey),
-                _backgroundImage(),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        height: height * 0.16,
-                      ),
-                      RefreshSizedBox(viewModel: _viewModel),
-                      AccountCard(
-                          viewModel: _viewModel,
-                          pageController: _pageController),
-                      SizedBox(height: 32),
-                      DashboardMenu(_onDrawerItemClickListener),
-                      SizedBox(
-                          height:
-                              !_viewModel.isAccountUpdateCompleted ? 32 : 0),
-                      StreamBuilder(
-                          stream: _viewModel.dashboardUpdateStream,
-                          builder: (_, __) {
-                            return DashboardSliderView(
-                              items: _viewModel.sliderItems,
-                              onItemClick: _onDrawerItemClickListener,
-                            );
-                          }),
-                      SizedBox(height: 32),
-                      DashboardRecentlyPaidView(
-                        beneficiaries: recentlyPaidBeneficiaries,
-                        margin: EdgeInsets.only(bottom: 32),
-                      ),
-                      //Margin is determined by DashboardRecentlyPaidView
-                      Text(
-                        "Suggested for You",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 15,
-                          color: Colors.textColorBlack.withOpacity(0.6),
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      Expanded(flex: 0, child: SuggestedItems()),
-                      SizedBox(height: 42),
-                    ],
+          indicatorOffset: refreshIndicatorOffset,
+          builder: (context, indicatorController){
+            return SingleChildScrollView(
+              child: Stack(
+                children: [
+                  _DashboardBackground(
+                     indicatorController: indicatorController,
+                      width: width,
+                      height: height,
                   ),
-                )
-              ],
-            ),
-          ),
+                  _DashboardTopMenu(
+                      viewModel: _viewModel,
+                      scaffoldKey: _scaffoldKey,
+                      indicatorController: indicatorController,
+                      indicatorOffset: refreshIndicatorOffset,
+                  ),
+                  _backgroundImage(),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          height: height * 0.16,
+                        ),
+                        RefreshSizedBox(
+                          indicatorController: indicatorController,
+                          indicatorOffset: refreshIndicatorOffset
+                        ),
+                        AccountCard(
+                            viewModel: _viewModel,
+                            pageController: _pageController,
+                        ),
+                        SizedBox(height: 32),
+                        DashboardMenu(_onDrawerItemClickListener),
+                        SizedBox(
+                            height:
+                            !_viewModel.isAccountUpdateCompleted ? 32 : 0),
+                        StreamBuilder(
+                            stream: _viewModel.dashboardUpdateStream,
+                            builder: (_, __) {
+                              return DashboardSliderView(
+                                items: _viewModel.sliderItems,
+                                onItemClick: _onDrawerItemClickListener,
+                              );
+                            }),
+                        SizedBox(height: 32),
+                        DashboardRecentlyPaidView(
+                          beneficiaries: recentlyPaidBeneficiaries,
+                          margin: EdgeInsets.only(bottom: 32),
+                        ),
+                        //Margin is determined by DashboardRecentlyPaidView
+                        Text(
+                          "Suggested for You",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                            color: Colors.textColorBlack.withOpacity(0.6),
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        Expanded(flex: 0, child: SuggestedItems()),
+                        SizedBox(height: 42),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            );
+          },
         ),
       );
 
@@ -234,21 +250,22 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
 class _DashboardBackground extends StatelessWidget {
   const _DashboardBackground({
     Key? key,
-    required DashboardViewModel viewModel, required this.height, required this.width,
-  })  : _viewModel = viewModel,
-        super(key: key);
+    required this.indicatorController, required this.height, required this.width,
+  })  : super(key: key);
 
-  final DashboardViewModel _viewModel;
+
+  final IndicatorController indicatorController;
   final double height;
   final double width;
 
   @override
   Widget build(BuildContext context) {
+    final animation = indicatorController;
+
     return AnimatedBuilder(
-        animation: _viewModel.indicatorController,
+        animation: animation,
         child: SizedBox(),
         builder: (ctx, child) {
-          final animation = _viewModel.indicatorController;
           final yScale = (animation.value * 0.25) + 1.0;
           return Transform(
             transform: Matrix4.diagonal3Values(1.0, yScale, 1.0),
@@ -262,36 +279,26 @@ class _DashboardBackground extends StatelessWidget {
   }
 }
 
-class RefreshSizedBox extends StatefulWidget {
-  const RefreshSizedBox({
-    Key? key,
-    required DashboardViewModel viewModel,
-  })  : _viewModel = viewModel,
+class RefreshSizedBox extends StatelessWidget {
+  final IndicatorController indicatorController;
+  final double indicatorOffset;
+
+  RefreshSizedBox({Key? key, required this.indicatorController, required this.indicatorOffset}):
         super(key: key);
 
-  final DashboardViewModel _viewModel;
-
-  @override
-  _RefreshSizedBoxState createState() => _RefreshSizedBoxState();
-}
-
-class _RefreshSizedBoxState extends State<RefreshSizedBox> {
-  @override
-  void initState() {
-    widget._viewModel.dashboardUpdateStream.listen((event) {
-      setState(() {});
-    });
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
+
+    final animation = indicatorController;
+
     return AnimatedBuilder(
-        animation: widget._viewModel.indicatorController,
+        animation: animation,
         child: SizedBox(),
         builder: (ctx, child) {
+          final offsetValue = indicatorController.value * indicatorOffset;
           return Container(
-            height: widget._viewModel.indicatorOffsetValue,
+            height: offsetValue,
           );
         });
   }
@@ -310,25 +317,22 @@ class _RefreshSizedBoxState extends State<RefreshSizedBox> {
 ///
 ///
 ///
-class _DashboardTopMenu extends StatefulWidget {
+class _DashboardTopMenu extends StatelessWidget {
   final DashboardViewModel viewModel;
   final GlobalKey<ScaffoldState> scaffoldKey;
+  final IndicatorController indicatorController;
+  final double indicatorOffset;
 
-  _DashboardTopMenu({required this.viewModel, required this.scaffoldKey})
+  _DashboardTopMenu({required this.viewModel, required this.scaffoldKey,
+    required this.indicatorController, required this.indicatorOffset})
       : super(key: Key("_DashboardTopMenu"));
 
-  @override
-  __DashboardTopMenuState createState() => __DashboardTopMenuState();
-}
-
-class __DashboardTopMenuState extends State<_DashboardTopMenu> {
   ///Container that holds the user image loaded from remote service
   _userProfileImage(String base64String) => Container(
       height: 34,
       width: 34,
       padding: EdgeInsets.all(2),
       decoration: BoxDecoration(
-        color: Colors.white,
         shape: BoxShape.circle,
         image: DecorationImage(
           fit: BoxFit.cover,
@@ -352,17 +356,11 @@ class __DashboardTopMenuState extends State<_DashboardTopMenu> {
         ),
       );
 
-  @override
-  void initState() {
-    widget.viewModel.dashboardUpdateStream.listen((event) {
-      setState(() {});
-    });
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
-    final firstName = widget.viewModel.getFirstName();
+    final firstName = viewModel.getFirstName();
+    final animation = indicatorController;
 
     return Container(
       margin: EdgeInsets.only(
@@ -373,12 +371,13 @@ class __DashboardTopMenuState extends State<_DashboardTopMenu> {
       child: Column(
         children: [
           AnimatedBuilder(
-              animation: widget.viewModel.indicatorController,
+              animation: animation,
               child: SizedBox(),
               builder: (ctx, child) {
+               final offsetValue = indicatorController.value * indicatorOffset;
                 
                 return Container(
-                  height: widget.viewModel.indicatorOffsetValue,
+                  height: offsetValue
                 );
               }),
           Row(
@@ -389,7 +388,7 @@ class __DashboardTopMenuState extends State<_DashboardTopMenu> {
                 shape: CircleBorder(),
                 child: InkWell(
                   onTap: () {
-                    widget.scaffoldKey.currentState?.openDrawer();
+                    scaffoldKey.currentState?.openDrawer();
                   },
                   child: Container(
                     padding: EdgeInsets.all(10),
@@ -418,7 +417,7 @@ class __DashboardTopMenuState extends State<_DashboardTopMenu> {
                   ),
                   SizedBox(width: 9),
                   StreamBuilder(
-                      stream: widget.viewModel.getProfilePicture(),
+                      stream: viewModel.getProfilePicture(),
                       builder:
                           (ctx, AsyncSnapshot<Resource<FileResult>> snapShot) {
                         ///Only if the request is successful or it's loading with data
@@ -431,11 +430,11 @@ class __DashboardTopMenuState extends State<_DashboardTopMenu> {
                           }
                         }
                         final localViewCachedImage =
-                            widget.viewModel.userProfileBase64String;
+                            viewModel.userProfileBase64String;
                         if (localViewCachedImage != null &&
                             localViewCachedImage.isNotEmpty == true) {
                           return _userProfileImage(
-                              widget.viewModel.userProfileBase64String!);
+                              viewModel.userProfileBase64String!);
                         }
                         return _userProfilePlaceholder();
                       }),

@@ -19,10 +19,11 @@ import 'package:moniepoint_flutter/core/strings.dart';
 
 class AccountTransactionsAccountCard extends StatefulWidget {
   const AccountTransactionsAccountCard(
-      {required this.viewModel, required this.userAccount});
+      {required this.viewModel, required this.userAccount, required this.accountBalance});
 
   final TransactionHistoryViewModel viewModel;
   final UserAccount userAccount;
+  final AccountBalance? accountBalance;
 
   @override
   _AccountTransactionsAccountCardState createState() =>
@@ -76,6 +77,7 @@ class _AccountTransactionsAccountCardState
                         customerAccount: userAccount.customerAccount,
                         userAccount: userAccount,
                         viewModel: viewModel,
+                        accountBalance: widget.accountBalance,
                       ),
                     ),
                   ),
@@ -131,17 +133,20 @@ class _AccountTransactionsAccountCardState
   }
 }
 
+
+
 class AccountDetails extends StatefulWidget {
   const AccountDetails(
       {Key? key,
       required this.customerAccount,
       required this.userAccount,
-      required this.viewModel})
+      required this.viewModel, required this.accountBalance})
       : super(key: key);
 
   final CustomerAccount? customerAccount;
   final UserAccount userAccount;
   final TransactionHistoryViewModel viewModel;
+  final AccountBalance? accountBalance;
 
   @override
   _AccountDetailsState createState() => _AccountDetailsState();
@@ -154,15 +159,20 @@ class _AccountDetailsState extends State<AccountDetails>
   @override
   void initState() {
     super.initState();
-    // widget.viewModel.tranasactionListController.listen((event) {
-    //   setState(() {});
-    // }).disposedBy(this);
-    // print("Updating  balance Stream ooo");
 
+    widget.viewModel.getTiers().listen((event) { });
     _balanceStream = widget.viewModel.getCustomerAccountBalance(
         accountId: widget.userAccount.id, useLocal: false);
-
     widget.viewModel.checkAccountUpdate();
+
+    widget.viewModel.transactionHistoryUpdateStream.listen((event) {
+      print("bool: $event");
+      print("update account transactions card");
+      _balanceStream = widget.viewModel.getCustomerAccountBalance(
+          accountId: widget.userAccount.id, useLocal: false);
+      setState(() {});
+    });
+
   }
 
   @override
@@ -210,109 +220,110 @@ class _AccountDetailsState extends State<AccountDetails>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    StreamBuilder(
-                        stream: _balanceStream,
-                        builder: (ctx,
-                            AsyncSnapshot<Resource<AccountBalance?>> snapshot) {
-                          final isLoadingBalanceError =
-                              snapshot.hasData && snapshot.data is Error;
-                          final isLoadingBalance =
-                              snapshot.hasData && snapshot.data is Loading;
-                          final AccountBalance? accountBalance =
-                              (snapshot.hasData && snapshot.data != null)
-                                  ? snapshot.data!.data
-                                  : null;
+                    if (widget.accountBalance != null)
+                      balanceView(widget.accountBalance),
 
-                          if (snapshot.hasData &&
-                              (!isLoadingBalance && !isLoadingBalanceError)) {
-                            final availableBalance =
-                                "${accountBalance?.availableBalance?.formatCurrencyWithoutSymbolAndDividing}";
-                            final ledgerBalance =
-                                "${accountBalance?.ledgerBalance?.formatCurrencyWithoutSymbolAndDividing}";
+                    if (widget.accountBalance == null)
+                      StreamBuilder(
+                          stream: _balanceStream,
+                          builder: (ctx,
+                              AsyncSnapshot<Resource<AccountBalance?>> snapshot) {
+                            final isLoadingBalanceError =
+                                snapshot.hasData && snapshot.data is Error;
+                            final isLoadingBalance =
+                                snapshot.hasData && snapshot.data is Loading;
+                            final AccountBalance? accountBalance =
+                                (snapshot.hasData && snapshot.data != null)
+                                    ? snapshot.data!.data
+                                    : null;
+
+                            if (snapshot.hasData &&
+                                (!isLoadingBalance && !isLoadingBalanceError)) {
+                              return balanceView(accountBalance);
+
+                              // return Column(
+                              //   crossAxisAlignment: CrossAxisAlignment.start,
+                              //   children: [
+                              //     Row(
+                              //       children: [
+                              //         SvgPicture.asset(
+                              //           "res/drawables/ic_naira.svg",
+                              //           width: 20,
+                              //           height: 17,
+                              //         ),
+                              //         SizedBox(width: 4),
+                              //         Text('$availableBalance',
+                              //             style: Styles.textStyle(context,
+                              //                 fontSize: 23.5,
+                              //                 fontWeight: FontWeight.w800,
+                              //                 color: Colors.textColorBlack)),
+                              //       ],
+                              //     ),
+                              //     SizedBox(height: 5),
+                              //     Text('Ledger Balance: N $ledgerBalance',
+                              //         style: Styles.textStyle(context,
+                              //             fontSize: 12,
+                              //             fontWeight: FontWeight.w400,
+                              //             color: Colors.deepGrey)),
+                              //   ],
+                              // );
+                            }
+
+                            if (isLoadingBalanceError) {
+                              return Padding(
+                                  padding: EdgeInsets.only(right: 8, bottom: 8),
+                                  child: Text('Error Loading balance\nTry Again',
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w700,
+                                              color: Colors.textColorBlack))
+                                      .colorText({
+                                    "Try Again": Tuple(Colors.primaryColor, () {
+                                      widget.viewModel.update();
+                                    })
+                                  }));
+                            }
 
                             return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(
-                                  children: [
-                                    SvgPicture.asset(
-                                      "res/drawables/ic_naira.svg",
-                                      width: 20,
-                                      height: 17,
-                                    ),
-                                    SizedBox(width: 4),
-                                    Text('$availableBalance',
-                                        style: Styles.textStyle(context,
-                                            fontSize: 23.5,
-                                            fontWeight: FontWeight.w800,
-                                            color: Colors.textColorBlack)),
-                                  ],
-                                ),
+                                Shimmer.fromColors(
+                                    period: Duration(milliseconds: 1000),
+                                    child: Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Container(
+                                          width: 90,
+                                          height: 30,
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              color:
+                                                  Colors.white.withOpacity(0.3),
+                                              shape: BoxShape.rectangle),
+                                        )),
+                                    baseColor: Colors.white.withOpacity(0.6),
+                                    highlightColor:
+                                        Colors.deepGrey.withOpacity(0.6)),
                                 SizedBox(height: 5),
-                                Text('Ledger Balance: N $ledgerBalance',
-                                    style: Styles.textStyle(context,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w400,
-                                        color: Colors.deepGrey)),
+                                Shimmer.fromColors(
+                                    period: Duration(milliseconds: 1000),
+                                    child: Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Container(
+                                          width: 90,
+                                          height: 14,
+                                          decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              color:
+                                                  Colors.white.withOpacity(0.3),
+                                              shape: BoxShape.rectangle),
+                                        )),
+                                    baseColor: Colors.white.withOpacity(0.6),
+                                    highlightColor:
+                                        Colors.deepGrey.withOpacity(0.6))
                               ],
                             );
-                          }
-
-                          if (isLoadingBalanceError) {
-                            return Padding(
-                                padding: EdgeInsets.only(right: 8, bottom: 8),
-                                child: Text('Error Loading balance\nTry Again',
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w700,
-                                            color: Colors.textColorBlack))
-                                    .colorText({
-                                  "Try Again": Tuple(Colors.primaryColor, () {
-                                    widget.viewModel.update();
-                                  })
-                                }));
-                          }
-
-                          return Column(
-                            children: [
-                              Shimmer.fromColors(
-                                  period: Duration(milliseconds: 1000),
-                                  child: Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Container(
-                                        width: 90,
-                                        height: 30,
-                                        decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            color:
-                                                Colors.white.withOpacity(0.3),
-                                            shape: BoxShape.rectangle),
-                                      )),
-                                  baseColor: Colors.white.withOpacity(0.6),
-                                  highlightColor:
-                                      Colors.deepGrey.withOpacity(0.6)),
-                              SizedBox(height: 5),
-                              Shimmer.fromColors(
-                                  period: Duration(milliseconds: 1000),
-                                  child: Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: Container(
-                                        width: 90,
-                                        height: 14,
-                                        decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            color:
-                                                Colors.white.withOpacity(0.3),
-                                            shape: BoxShape.rectangle),
-                                      )),
-                                  baseColor: Colors.white.withOpacity(0.6),
-                                  highlightColor:
-                                      Colors.deepGrey.withOpacity(0.6))
-                            ],
-                          );
-                        }),
+                          }),
                     // _buildVisibilityIcon()
                   ],
                 ),
@@ -365,7 +376,6 @@ class _AccountDetailsState extends State<AccountDetails>
             Container(
               padding: EdgeInsets.symmetric(horizontal: 14.5),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
@@ -379,98 +389,129 @@ class _AccountDetailsState extends State<AccountDetails>
                                 ?.toLowerCase()
                                 .capitalizeFirstOfEach ??
                             ""),
-                        // text("Isah Leslie Williams James Amen" ?? ""),
+                        // text("Isah Leslie Williamsffffffffff" ?? ""),
                       ],
                     ),
                   ),
+                  SizedBox(width: 8),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      label("Scheme"),
+                      label("Account Number"),
                       SizedBox(height: 4),
-                      text(customerAccount?.schemeCode?.code ?? "")
+                      text(customerAccount?.accountNumber ?? ""),
                     ],
                   )
                 ],
               ),
             ),
             SizedBox(height: 18),
-            Container(
-                width: double.infinity,
-                child: Divider(
-                  height: 1,
-                  color: Colors.primaryColor.withOpacity(0.3),
-                )),
-            SizedBox(height: 18),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 14.5),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+            if (!widget.viewModel.isAccountUpdateCompleted)
+              Container(
+                  width: double.infinity,
+                  child: Divider(
+                    height: 1,
+                    color: Colors.primaryColor.withOpacity(0.3),
+                  )),
+            if (!widget.viewModel.isAccountUpdateCompleted) SizedBox(height: 15),
+            if (!widget.viewModel.isAccountUpdateCompleted)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  label("Account Number"),
-                ],
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 14.5),
-              margin: EdgeInsets.only(top: 4),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  text(customerAccount?.accountNumber ?? ""),
-                  // text("50002347702" ?? ""),
-
-                  if (widget.viewModel.isAccountUpdateCompleted)
-                    Styles.imageButton(
-                      padding: EdgeInsets.all(9),
-                      color: Colors.transparent,
-                      borderRadius: BorderRadius.circular(30),
-                      onClick: () => Share.share(
-                          "Moniepoint MFB\n${widget.customerAccount?.accountNumber}\n${widget.customerAccount?.customer?.name}",
-                          subject: 'Moniepoint MFB'),
-                      image: SvgPicture.asset(
-                        'res/drawables/ic_share.svg',
-                        fit: BoxFit.contain,
-                        width: 20,
-                        height: 21,
-                        color: Color(0xffB8003382).withOpacity(0.4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      InkWell(
+                        onTap: () => Navigator.of(context)
+                          .pushNamed(Routes.ACCOUNT_UPDATE),
+                        child: text("Upgrade Account",
+                          color: Colors.primaryColor, fontSize: 14),
                       ),
-                    ),
-                  if (!widget.viewModel.isAccountUpdateCompleted)
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        InkWell(
-                          onTap: () => Navigator.of(context)
-                              .pushNamed(Routes.ACCOUNT_UPDATE),
-                          child: text("Upgrade Account",
-                              color: Colors.primaryColor, fontSize: 14),
-                        ),
-                        SizedBox(width: 2),
-                        Styles.imageButton(
-                            onClick: () => Navigator.of(context)
-                                .pushNamed(Routes.ACCOUNT_UPDATE),
-                            color: Colors.white.withOpacity(0.2),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 5.2, vertical: 4),
-                            borderRadius: BorderRadius.circular(4),
-                            image: SvgPicture.asset(
-                              'res/drawables/ic_forward_anchor.svg',
-                              width: 8.13,
-                              height: 13.47,
-                              color: Colors.primaryColor,
-                            ))
-                      ],
-                    ),
-                ],
-              ),
-            ),
-            SizedBox(height: 17)
+                      SizedBox(width: 2),
+                      Styles.imageButton(
+                        onClick: () => Navigator.of(context)
+                          .pushNamed(Routes.ACCOUNT_UPDATE),
+                        color: Colors.white.withOpacity(0.2),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 5.2, vertical: 4),
+                        borderRadius: BorderRadius.circular(4),
+                        image: SvgPicture.asset(
+                          'res/drawables/ic_forward_anchor.svg',
+                          width: 8.13,
+                          height: 13.47,
+                          color: Colors.primaryColor,
+                        ))
+                    ],
+                  ),
+              ],),
+
+            if (!widget.viewModel.isAccountUpdateCompleted) SizedBox(height: 15)
           ],
         ),
       ),
     ]);
+  }
+
+  Widget balanceView(AccountBalance? accountBalance){
+    final availableBalance =
+      "${accountBalance?.availableBalance?.formatCurrencyWithoutSymbolAndDividing}";
+    final ledgerBalance =
+      "${accountBalance?.ledgerBalance?.formatCurrencyWithoutSymbolAndDividing}";
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            SvgPicture.asset(
+              "res/drawables/ic_naira.svg",
+              width: 20,
+              height: 17,
+            ),
+            SizedBox(width: 4),
+            Text('$availableBalance',
+              style: Styles.textStyle(context,
+                fontSize: 23.5,
+                fontWeight: FontWeight.w800,
+                color: Colors.textColorBlack)),
+          ],
+        ),
+        SizedBox(height: 5),
+        Text('Ledger Balance: N $ledgerBalance',
+          style: Styles.textStyle(context,
+            fontSize: 12,
+            fontWeight: FontWeight.w400,
+            color: Colors.deepGrey)),
+      ],
+    );
+  }
+
+
+  Widget getAccountNumberView(CustomerAccount? customerAccount){
+    return Column(
+      children: [
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 14.5),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              label("Account Number"),
+            ],
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 14.5),
+          margin: EdgeInsets.only(top: 4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              text(customerAccount?.accountNumber ?? ""),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   Widget label(String label) {
@@ -490,7 +531,7 @@ class _AccountDetailsState extends State<AccountDetails>
       maxLines: 2,
       style: TextStyle(
         fontWeight: FontWeight.w600,
-        fontSize: fontSize ?? 15.54,
+        fontSize: fontSize ?? 15,
         color: color ?? Colors.textColorBlack,
       ),
     );

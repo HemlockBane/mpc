@@ -53,7 +53,7 @@ class RecoverCredentialsDialogLayout {
           },
           trailing: SvgPicture.asset('res/drawables/ic_forward_anchor.svg', color: Colors.primaryColor,),
         ),
-        SizedBox(height: 36,),
+        SizedBox(height: 33,),
         TextButton(
           child: Text(
             "Dismiss",

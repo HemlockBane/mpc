@@ -61,7 +61,7 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
         height: widget.height ?? 49,
         child: TextButton(
           onPressed: () {
-            widget.onSelect(true);
+            widget.onSelect(!widget.isSelected);
           },
           child: Center(
             child: selectedState()

@@ -38,6 +38,7 @@ class UserInstance {
     _userAccounts = [];
     _scheduler?.close();
     _scheduler = null;
+    _sessionEventCallback = null;
     PreferenceUtil.deleteLoggedInUser();
   }
 
@@ -72,12 +73,15 @@ class UserInstance {
 
   List<UserAccount> get userAccounts => _userAccounts;
 
-  void forceLogout(BuildContext context, SessionTimeoutReason reason) {
-    Navigator.of(context)
-        .pushNamedAndRemoveUntil(
-        Routes.LOGIN, (route) => false,
-        arguments: Tuple("reason", reason)
-    );
+  void forceLogout(BuildContext? context, SessionTimeoutReason reason) {
+    if(context == null) {
+      this._sessionEventCallback?.call(reason);
+    } else {
+      Navigator.of(context).pushNamedAndRemoveUntil(
+          Routes.LOGIN, (route) => false,
+          arguments: Tuple("reason", reason)
+      );
+    }
   }
 
   void updateSessionEventCallback(SessionEventCallback callback) {
@@ -90,15 +94,12 @@ class UserInstance {
   }
 
   void startSession(BuildContext context) {
-    print("Attempting to start session!!!!");
     if(_scheduler != null) return;//There's already a session running
     _scheduler = Cron();
-    _scheduler?.schedule(Schedule.parse("*/3 * * * * *"), () async {
+    _scheduler?.schedule(Schedule.parse("*/2 * * * * *"), () async {
       final elapsedTime = DateTime.now().difference(_lastActivityTime).inSeconds;
       print("Currently Checking for inactivity... $elapsedTime");
-      print("Elapsed Time is greater ${elapsedTime >= 120}");
       if(elapsedTime >= 120) {
-        print("Is SessionEventCallback Null => ${_sessionEventCallback == null}");
         _sessionEventCallback?.call(SessionTimeoutReason.INACTIVITY);
         _scheduler?.close();
         _scheduler = null;

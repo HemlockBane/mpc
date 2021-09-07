@@ -14,6 +14,7 @@ CustomerIdentificationInfo _$CustomerIdentificationInfoFromJson(
     identityIssueDate: json['identityIssueDate'] as String?,
     identityExpiryDate: json['identityExpiryDate'] as String?,
     scannedImageRef: json['scannedImageRef'] as String?,
+    uploadedFileName: json['uploadedFileName'] as String?,
   );
 }
 
@@ -25,4 +26,5 @@ Map<String, dynamic> _$CustomerIdentificationInfoToJson(
       'identityIssueDate': instance.identityIssueDate,
       'identityExpiryDate': instance.identityExpiryDate,
       'scannedImageRef': instance.scannedImageRef,
+      'uploadedFileName': instance.uploadedFileName,
     };

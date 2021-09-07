@@ -1,9 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:moniepoint_flutter/app/customer/customer.dart';
 import 'package:moniepoint_flutter/app/login/model/data/login_prompt.dart';
-import 'dart:developer' as developer;
-import 'dart:convert';
 
 
 import 'security_flag.dart';
@@ -31,9 +28,8 @@ class User {
   List<Customer>? customers;
   String? email;
   String? username;
-   @JsonKey(name: "loginCommandPrompts")
+  @JsonKey(name: "loginCommandPrompts")
   List<LoginPrompt>? loginPrompts;
-
 
   User();
 
@@ -41,23 +37,6 @@ class User {
     this.accessToken = token;
     return this;
   }
-
-  // User.init({this.accessToken,
-  //   this.tokenType,
-  //   this.expiresIn,
-  //   this.scope,
-  //   this.lastLogin,
-  //   this.lastName,
-  //   this.securityFlags,
-  //   this.fullName,
-  //   this.firstName,
-  //   this.phoneNumber,
-  //   this.isValidated,
-  //   this.response,
-  //   this.middleName,
-  //   this.customers,
-  //   this.email,
-  //   this.username});
 
   factory User.fromJson(Object? data) =>
       _$UserFromJson(data as Map<String, dynamic>);

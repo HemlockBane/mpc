@@ -154,16 +154,16 @@ class DashboardDrawer extends StatelessWidget {
                           iconSpacing: 6.8,
                           onTap: onItemClick,
                         ),
-                        // _DrawerListItem(
-                        //   itemIcon: SvgPicture.asset(
-                        //     "res/drawables/ic_dashboard_manage_cards.svg",
-                        //     height: 18,
-                        //   ),
-                        //   title: "Manage Cards",
-                        //   routeName: Routes.CARDS,
-                        //   iconSpacing: 11.4,
-                        //   onTap: onItemClick,
-                        // ),
+                        _DrawerListItem(
+                          itemIcon: SvgPicture.asset(
+                            "res/drawables/ic_dashboard_manage_cards.svg",
+                            height: 18,
+                          ),
+                          title: "Manage Cards",
+                          routeName: Routes.CARDS,
+                          iconSpacing: 11.4,
+                          onTap: onItemClick,
+                        ),
                         SizedBox(height: 21),
                         _groupTitle(context, "SAVINGS & LOANS"),
                         _DrawerListItem(

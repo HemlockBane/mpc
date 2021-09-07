@@ -166,17 +166,6 @@ class _RecentlyPaidListView extends Stack {
 
   List<Widget> _contentView() {
     return [
-      Align(
-        alignment: Alignment.topLeft,
-        child: Container(
-          height: 112,
-          width: 40,
-          decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  colors: [Color(0xff00FFFFFF), Colors.white],
-                  stops: [0.48, 1.0])),
-        ),
-      ),
       ListView.separated(
         separatorBuilder: (ctx, index) => SizedBox(width: 25),
         scrollDirection: Axis.horizontal,
@@ -243,8 +232,8 @@ class _RecentlyPaidBeneficiaryItem extends StatelessWidget {
       if (names.length < 2) {
         firstName = names[0];
       } else {
-        lastName = names[0];
-        firstName = names[1];
+        firstName = names[0];
+        lastName = names[1];
       }
     }
 

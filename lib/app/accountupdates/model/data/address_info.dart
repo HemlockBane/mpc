@@ -10,11 +10,14 @@ class AddressInfo {
   int? addressLocalGovernmentAreaId;
   @JsonKey(name: "utilityBillUUID", includeIfNull: false)
   String? utilityBillUUID;
+  String? uploadedFileName;
 
   AddressInfo({this.addressLine,
     this.addressCity,
     this.addressLocalGovernmentAreaId,
-    this.utilityBillUUID});
+    this.utilityBillUUID,
+    this.uploadedFileName
+  });
 
   factory AddressInfo.fromJson(Object? data) => _$AddressInfoFromJson(data as Map<String, dynamic>);
   Map<String, dynamic> toJson() => _$AddressInfoToJson(this);

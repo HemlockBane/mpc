@@ -17,6 +17,7 @@ import 'package:moniepoint_flutter/core/lazy.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
+import 'package:moniepoint_flutter/core/views/error_layout_view.dart';
 import 'package:moniepoint_flutter/core/views/pie_progress_bar.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:provider/provider.dart';
@@ -55,6 +56,8 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> with CompositeDisp
   final pageChangeDuration = const Duration(milliseconds: 250);
   final pageCurve = Curves.linear;
 
+  Stream<Resource<bool>> _loadPageDependencies = Stream.empty();
+
   int _currentPage = 0;
   List<PagedForm> _pages = [];
 
@@ -86,12 +89,10 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> with CompositeDisp
     flags.where((element) => element != null).forEach((flag) {
       final isRequired = (enforceRequired) ? flag!.required : true;
       //if the flag status is false and it's required then we need to add it up
-      // if((!flag!.status && isRequired) && _formsMap.containsKey(flag.flagName)) {
-      //   final pageForm = _formsMap[flag.flagName];
-      //   if(pageForm != null) forms.add(pageForm.value);
-      // }
-      final pageForm = _formsMap[flag!.flagName];
-      if(pageForm != null) forms.add(pageForm.value);
+      if((!flag!.status && isRequired) && _formsMap.containsKey(flag.flagName)) {
+        final pageForm = _formsMap[flag.flagName];
+        if(pageForm != null) forms.add(pageForm.value);
+      }
 
       else if(flag.flagName == Flags.IDENTIFICATION_VERIFIED) idVerificationFlag = flag;
       else if(flag.flagName == Flags.ADDRESS_VERIFIED) addressVerification = flag;
@@ -202,8 +203,8 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> with CompositeDisp
   @override
   void initState() {
     _viewModel = AccountUpdateViewModel();
-    _viewModel.fetchCountries().listen((event) {}).disposedBy(this);
     _registerPageChange();
+    _loadPageDependencies = _viewModel.loadPageDependencies();
     super.initState();
   }
 
@@ -229,15 +230,29 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> with CompositeDisp
           providers: [
             ChangeNotifierProvider.value(value: _viewModel),
           ],
-          child: FutureBuilder(
-              future: Future.delayed(Duration(seconds: 2), () => true),
-              builder: (context, AsyncSnapshot<dynamic> snapshot) {
-                if(!snapshot.hasData || _viewModel.nationalities.isEmpty == true) {
+          child: StreamBuilder(
+              stream: _loadPageDependencies,
+              builder: (context, AsyncSnapshot<Resource<bool>> snapshot) {
+                if(!snapshot.hasData || snapshot.data is Loading) {
                   return Center(
                     child: SizedBox(
                       width: 70,
                       height: 70,
                       child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
+                final data = snapshot.data;
+                if(data is Error<bool>) {
+                  return Center(
+                    child: ErrorLayoutView(
+                        "Error Setting up account update",
+                        data.message ?? "",
+                        () {
+                          setState(() {
+                            _loadPageDependencies = _viewModel.loadPageDependencies();
+                          });
+                        }
                     ),
                   );
                 }
@@ -272,20 +287,25 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> with CompositeDisp
                                 )
                             ),
                           SizedBox(height: UserInstance().accountStatus?.postNoDebit == true ? 8 : 0,),
-                          FutureBuilder(
-                            future: Future.value(true),
-                            builder: (BuildContext mContext, AsyncSnapshot<void> snap) {
-                              return (snap.hasData && _displayPageProgress) ? Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                child: PieProgressBar(
-                                  viewPager: _pageController,
-                                  totalItemCount: _pages.length,
-                                  pageTitles: getPageTitles(),
-                                ),
-                              ) : SizedBox();
-                            },
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: FutureBuilder(
+                              future: Future.value(true),
+                              builder: (BuildContext mContext, AsyncSnapshot<void> snap) {
+                                if(!snap.hasData || !_displayPageProgress) return SizedBox();
+                                return Padding(
+                                  padding: EdgeInsets.only(left: 16,right: 16,  top: 8, bottom: 16),
+                                  child: PieProgressBar(
+                                    viewPager: _pageController,
+                                    totalItemCount: _pages.length,
+                                    pageTitles: getPageTitles(),
+                                    displayTitle: false,
+                                  ),
+                                );
+                              },
+                            ),
                           ),
-                          SizedBox(height: 32,),
+                          // SizedBox(height: 32,),
                           Expanded(child: setupPageView())
                         ],
                       ),

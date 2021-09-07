@@ -16,7 +16,8 @@ class CustomerIdentificationInfo {
     this.registrationNumber,
     this.identityIssueDate,
     this.identityExpiryDate,
-    this.scannedImageRef
+    this.scannedImageRef,
+    this.uploadedFileName
   });
 
   factory CustomerIdentificationInfo.fromJson(Object? data) => _$CustomerIdentificationInfoFromJson(data as Map<String, dynamic>);

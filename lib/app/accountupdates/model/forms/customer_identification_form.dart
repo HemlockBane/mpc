@@ -40,6 +40,9 @@ class CustomerIdentificationForm with ChangeNotifier {
   bool _isFormValid = false;
   bool get isFormValid => _isFormValid;
 
+  bool _isSkipped = false;
+  bool get isSkipped => _isSkipped;
+
   Timer? _debouncer;
 
   void _initState() {
@@ -114,6 +117,7 @@ class CustomerIdentificationForm with ChangeNotifier {
 
   void onImageReferenceChanged(String? imageReference, String? fileName) {
     _info.scannedImageRef = imageReference;
+    _info.uploadedFileName = fileName;
     _idImageReferenceController.sink.add(imageReference ?? "");
     _isImageReferenceValid(displayError: true);
   }
@@ -126,13 +130,20 @@ class CustomerIdentificationForm with ChangeNotifier {
 
   CustomerIdentificationInfo get identificationInfo => _info;
 
+  void skipForm(bool skip) {
+    this._isSkipped = skip;
+  }
+
   void _subscribeFormToAutoSave(List<Stream<dynamic>> streams) {
     streams.forEach((element) {
       element.listen((event) {
         _debouncer?.cancel();
         _debouncer = Timer(Duration(milliseconds: 600), () {
           PreferenceUtil.saveDataForLoggedInUser(FORM_KEY, _info);
-          PreferenceUtil.saveValueForLoggedInUser<String>(FORM_FILE_NAME_KEY, "");
+          if(_info.uploadedFileName != null) {
+            PreferenceUtil.saveValueForLoggedInUser<String>(
+                FORM_FILE_NAME_KEY, _info.uploadedFileName ?? "");
+          }
         });
       }, onError: (a) {
         //Do nothing
@@ -143,6 +154,10 @@ class CustomerIdentificationForm with ChangeNotifier {
   void restoreFormState() {
     final savedInfo = PreferenceUtil.getDataForLoggedInUser(FORM_KEY);
     final savedIdentificationInfo = CustomerIdentificationInfo.fromJson(savedInfo);
+
+    if(savedIdentificationInfo.uploadedFileName != null) {
+      _info.uploadedFileName = savedIdentificationInfo.uploadedFileName;
+    }
 
     if(savedIdentificationInfo.identificationType != null) {
       onIdentificationTypeChange(IdentificationType.fromString(savedIdentificationInfo.identificationType));
@@ -157,7 +172,10 @@ class CustomerIdentificationForm with ChangeNotifier {
       onIdentificationNumberChange(savedIdentificationInfo.registrationNumber);
     }
     if(savedIdentificationInfo.scannedImageRef != null) {
-      onImageReferenceChanged(savedIdentificationInfo.scannedImageRef);
+      onImageReferenceChanged(
+          savedIdentificationInfo.scannedImageRef,
+          savedIdentificationInfo.uploadedFileName
+      );
     }
   }
   

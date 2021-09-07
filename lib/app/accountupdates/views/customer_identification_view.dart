@@ -1,24 +1,21 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart' hide ScrollView, Colors;
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
-import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
-import 'package:moniepoint_flutter/app/accountupdates/model/data/customer_identification_info.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/forms/customer_identification_form.dart';
 import 'package:moniepoint_flutter/app/accountupdates/viewmodels/account_update_view_model.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/account_update_file_upload_state.dart';
+import 'package:moniepoint_flutter/app/accountupdates/views/account_update_upload_button.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
-import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
-import 'package:moniepoint_flutter/core/utils/text_utils.dart';
 import 'package:provider/provider.dart';
 
 import 'account_update_form_view.dart';
 import 'dialogs/upload_request_dialog.dart';
+import 'package:moniepoint_flutter/core/utils/text_utils.dart';
 
 /// @author Paul Okeke
 class CustomerIdentificationScreen extends PagedForm {
@@ -140,6 +137,14 @@ class _CustomerIdentificationScreen extends State<CustomerIdentificationScreen> 
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            Text(widget.getTitle(),
+                style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: Colors.textColorBlack,
+                    fontSize: 21
+                )
+            ),
+            SizedBox(height: 22,),
             StreamBuilder(
                 stream: _identificationForm.idTypeStream,
                 builder: (BuildContext context, AsyncSnapshot<IdentificationType?> snapshot) {
@@ -147,14 +152,13 @@ class _CustomerIdentificationScreen extends State<CustomerIdentificationScreen> 
                     _identificationForm.onIdentificationTypeChange(value as IdentificationType);
                   }, hint: 'Identification Type');
                 }),
-            SizedBox(height: 16),
+            SizedBox(height: 20),
             StreamBuilder(
                 stream: _identificationForm.idNumberStream,
                 builder: (context, AsyncSnapshot<String?> snapshot) {
                   return Styles.appEditText(
-                      controller: _registrationNumberController..value = TextEditingValue(
-                          text: snapshot.data ?? "",
-                          selection: TextSelection.collapsed(offset: snapshot.data?.length ?? -1)
+                      controller: _registrationNumberController.withDefaultValueFromStream(
+                          snapshot, _identificationForm.identificationInfo.registrationNumber
                       ),
                       errorText: snapshot.hasError ? snapshot.error.toString() : null,
                       onChanged: _identificationForm.onIdentificationNumberChange,
@@ -163,7 +167,7 @@ class _CustomerIdentificationScreen extends State<CustomerIdentificationScreen> 
                       fontSize: 15
                   );
                 }),
-            SizedBox(height: 16),
+            SizedBox(height: 20),
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -171,16 +175,15 @@ class _CustomerIdentificationScreen extends State<CustomerIdentificationScreen> 
                     stream: _identificationForm.issueDateStream,
                     builder: (context, AsyncSnapshot<String?> snapshot) {
                       return Styles.appEditText(
-                          controller: _issueDateController..value = TextEditingValue(
-                              text: snapshot.data ?? "",
-                              selection: TextSelection.collapsed(offset: snapshot.data?.length ?? -1)
+                          controller: _issueDateController.withDefaultValueFromStream(
+                              snapshot, _identificationForm.identificationInfo.identityIssueDate
                           ),
                           onClick: () => displayDatePicker(context),
                           errorText: snapshot.hasError ? snapshot.error.toString() : null,
                           hint: 'Issue Date',
                           animateHint: false,
                           readOnly: true,
-                          startIcon: Icon(CustomFont.calendar, color: Colors.colorFaded),
+                          startIcon: Icon(CustomFont.calendar, color: Colors.textFieldIcon.withOpacity(0.4)),
                           fontSize: 15
                       );
                     })
@@ -190,62 +193,33 @@ class _CustomerIdentificationScreen extends State<CustomerIdentificationScreen> 
                     stream: _identificationForm.expiryDateStream,
                     builder: (context, AsyncSnapshot<String?> snapshot) {
                       return Styles.appEditText(
-                          controller: _expiryDateController..value = TextEditingValue(
-                              text: snapshot.data ?? "",
-                              selection: TextSelection.collapsed(offset: snapshot.data?.length ?? -1)
+                          controller: _expiryDateController.withDefaultValueFromStream(
+                              snapshot, _identificationForm.identificationInfo.identityExpiryDate
                           ),
                           onClick: () => displayDatePicker(context, dateType: "expiry"),
                           errorText: snapshot.hasError ? snapshot.error.toString() : null,
                           hint: 'Expiry Date',
                           animateHint: false,
                           readOnly: true,
-                          startIcon: Icon(CustomFont.calendar, color: Colors.colorFaded),
+                          startIcon: Icon(CustomFont.calendar, color: Colors.textFieldIcon.withOpacity(0.4)),
                           fontSize: 15
                       );
                     })
                 ),
               ],
             ),
-            SizedBox(height: 16),
-            Container(
-              padding: EdgeInsets.only(left: 16, right: 8, top: 16, bottom: 16),
-              decoration: BoxDecoration(
-                  color: Color(0XFFF2F7FE),
-                  borderRadius: BorderRadius.circular(5),
-                  border: Border.all(color: Colors.textFieldColor.withOpacity(0.15), width: 0.75)
-              ),
-              child: Row(
-                children: [
-                  SvgPicture.asset('res/drawables/ic_file.svg', width: 26, height: 26,),
-                  SizedBox(width: 16),
-                  Flexible(flex: 1,child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      StreamBuilder(
-                          stream: _identificationForm.idTypeStream,
-                          builder: (context, AsyncSnapshot<IdentificationType?> snapshot) {
-                            final idType = snapshot.hasData ? snapshot.data : null;
-                            return Text(
-                                (idType != null) ? "Upload ${idType.idType}" : uploadedFileName,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: TextStyle(color: Colors.primaryColor, fontSize: 15, fontWeight: FontWeight.w600)
-                            );
-                          }
-                      ),
-                      SizedBox(height: 1),
-                      Text(
-                          'Tap to upload. PNG, JPG, GIF, PDF accepted',
-                          style: TextStyle(
-                              color: Colors.deepGrey,
-                              fontFamily: Styles.defaultFont, fontSize: 12
-                          )
-                      ),
-                    ],
-                  )),
-                ],
-              ),
+            SizedBox(height: 40),
+            StreamBuilder(
+                stream: _identificationForm.idTypeStream,
+                builder: (context, AsyncSnapshot<IdentificationType?> snapshot) {
+                  final idType = snapshot.hasData ? snapshot.data : null;
+                  final idTypeName = (idType != null) ? "Upload ${idType.idType}" : "Upload Identification Document";
+                  final previousFileName = _identificationForm.identificationInfo.uploadedFileName;
+                  return AccountUpdateUploadButton(
+                    title: previousFileName ?? idTypeName,
+                    onClick: _chooseIdentificationImage,
+                  );
+                }
             ),
             SizedBox(height: 12),
             Expanded(child: Row(
@@ -268,6 +242,7 @@ class _CustomerIdentificationScreen extends State<CustomerIdentificationScreen> 
                 stream: _identificationForm.isValid,
                 onClick: () {
                   _viewModel.moveToNext(widget.position);
+                  _identificationForm.skipForm(false);
                 },
                 text: widget.isLast() ? 'Submit' : 'Next',
                 isLoading: false
@@ -277,7 +252,7 @@ class _CustomerIdentificationScreen extends State<CustomerIdentificationScreen> 
               TextButton(
                   onPressed: () {
                     _viewModel.moveToNext(widget.position);
-                    //TODO skip
+                    _identificationForm.skipForm(true);
                   },
                   child: Text(
                     "Skip for now",

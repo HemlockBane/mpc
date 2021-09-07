@@ -4,6 +4,7 @@ import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/forms/additional_info_form.dart';
 import 'package:moniepoint_flutter/app/accountupdates/viewmodels/account_update_view_model.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/account_update_form_view.dart';
+import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:provider/provider.dart';
@@ -44,6 +45,14 @@ class _AdditionalInfoScreen extends State<AdditionalInfoScreen> with AutomaticKe
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            Text(widget.getTitle(),
+                style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: Colors.textColorBlack,
+                    fontSize: 21
+                )
+            ),
+            SizedBox(height: 22,),
             StreamBuilder(
                 stream: _additionalInfoForm.titleStream,
                 builder: (BuildContext context, AsyncSnapshot<Titles> snapshot) {
@@ -51,7 +60,7 @@ class _AdditionalInfoScreen extends State<AdditionalInfoScreen> with AutomaticKe
                 _additionalInfoForm.onTitleChange(value as Titles);
               }, hint: 'Title');
             }),
-            SizedBox(height: 16,),
+            SizedBox(height: 20,),
             StreamBuilder(
                 stream: _additionalInfoForm.maritalStatusStream,
                 builder: (BuildContext context, AsyncSnapshot<MaritalStatus> snapshot) {
@@ -59,7 +68,7 @@ class _AdditionalInfoScreen extends State<AdditionalInfoScreen> with AutomaticKe
                     _additionalInfoForm.onMaritalStatusChange(value as MaritalStatus);
                   },hint: 'Marital Status');
                 }),
-            SizedBox(height: 16,),
+            SizedBox(height: 20,),
             StreamBuilder(
                 stream: _additionalInfoForm.religionStream,
                 builder: (BuildContext context, AsyncSnapshot<Religion> snapshot) {
@@ -67,7 +76,7 @@ class _AdditionalInfoScreen extends State<AdditionalInfoScreen> with AutomaticKe
                     _additionalInfoForm.onReligionChange(value as Religion);
                   },hint: 'Religion');
                 }, ),
-            SizedBox(height: 16,),
+            SizedBox(height: 20,),
             StreamBuilder(
                 stream: _additionalInfoForm.nationalityStream,
                 builder: (BuildContext context, AsyncSnapshot<Nationality> snapshot) {
@@ -75,7 +84,7 @@ class _AdditionalInfoScreen extends State<AdditionalInfoScreen> with AutomaticKe
                     _additionalInfoForm.onNationalityChange(value as Nationality);
                   },hint: 'Nationality');
                 }),
-            SizedBox(height: 16),
+            SizedBox(height: 20),
             StreamBuilder(
                 stream: _additionalInfoForm.stateOfOriginStream,
                 builder: (BuildContext context, AsyncSnapshot<StateOfOrigin?> snapshot) {
@@ -83,7 +92,7 @@ class _AdditionalInfoScreen extends State<AdditionalInfoScreen> with AutomaticKe
                     _additionalInfoForm.onStateOfOriginChange(value as StateOfOrigin);
                   }, hint: 'State of Origin');
                 }),
-            SizedBox(height: 16,),
+            SizedBox(height: 20,),
             StreamBuilder(
                 stream: _additionalInfoForm.localGovtAreaStream,
                 builder: (BuildContext context, AsyncSnapshot<LocalGovernmentArea?> snapshot) {
@@ -91,7 +100,7 @@ class _AdditionalInfoScreen extends State<AdditionalInfoScreen> with AutomaticKe
                     _additionalInfoForm.onLocalGovtChange(value as LocalGovernmentArea);
                   }, hint: 'Local Govt. Area');
                 }),
-            SizedBox(height: 16,),
+            SizedBox(height: 20,),
             StreamBuilder(
                 stream: _additionalInfoForm.employmentStatusStream,
                 builder: (BuildContext context, AsyncSnapshot<EmploymentStatus> snapshot) {
@@ -100,26 +109,16 @@ class _AdditionalInfoScreen extends State<AdditionalInfoScreen> with AutomaticKe
                   }, hint: 'Employment Status');
                 }),
             SizedBox(height: 32),
-            Expanded(child: Row(
-              children: [
-                (widget.isLast()) ? SizedBox() : Flexible(child: Container()),
-                Flexible(
-                    flex: 1,
-                    child: Align(
-                      alignment: Alignment.bottomRight,
-                      child: Styles.statefulButton(
-                          stream: _additionalInfoForm.isValid,
-                          onClick: () {
-                            _viewModel.moveToNext(widget.position);
-                          },
-                          text: widget.isLast() ? 'Proceed' : 'Next',
-                          isLoading: false
-                      ),
-                    ))
-              ],
-            )),
+            Spacer(),
+            Styles.statefulButton(
+                stream: _additionalInfoForm.isValid,
+                onClick: () {
+                  _viewModel.moveToNext(widget.position);
+                },
+                text: widget.isLast() ? 'Submit' : 'Next',
+                isLoading: false
+            ),
             SizedBox(height: 32),
-            // SizedBox(height: 100),
           ],
         ),
       ),

@@ -10,6 +10,7 @@ class CustomerAddressForm with ChangeNotifier {
 
   final String formKey;
   static const USE_AS_MAIL_ADDRESS_KEY = "USE_AS_MAIL_ADDRESS_KEY";
+  static const FILE_NAME_KEY = "account-update-address-proof-filename";
 
   CustomerAddressForm({
     bool requiresMailingAddress = true,
@@ -59,11 +60,17 @@ class CustomerAddressForm with ChangeNotifier {
   final _utilityBillController = StreamController<String>.broadcast();
   Stream<String> get utilityBillStream => _utilityBillController.stream;
 
+  final _useAsMailingAddressController = StreamController<bool>.broadcast();
+  Stream<bool> get useAsMailingAddressStream => _useAsMailingAddressController.stream;
+
   bool _useAddressAsMailingAddress = false;
   bool get useAddressAsMailingAddress => _useAddressAsMailingAddress;
 
   bool _isFormValid = false;
   bool get isFormValid => _isFormValid;
+
+  bool _skippedProofOfAddress = false;
+  bool get skippedProofOfAddress => _skippedProofOfAddress;
 
   Timer? _debouncer;
 
@@ -78,7 +85,6 @@ class CustomerAddressForm with ChangeNotifier {
        _isFormValid = _isAddressValid(displayError: false) &&
           _isCityValid(displayError: false) &&
           _isLocalGovtValid(displayError: false);
-
       if (requiresMailingAddress) {
         _isFormValid = _isFormValid && mailingAddressForm?.isFormValid == true;
       }
@@ -87,7 +93,7 @@ class CustomerAddressForm with ChangeNotifier {
     }).asBroadcastStream();
 
     //subscribe
-    this._subscribeFormToAutoSave(formStreams);
+    this._subscribeFormToAutoSave([...formStreams, utilityBillStream]);
   }
 
   void onAddressChange(String? address) {
@@ -129,7 +135,7 @@ class CustomerAddressForm with ChangeNotifier {
     _localGovt.addAll(stateOfOrigin?.localGovernmentAreas ?? []);
     onLocalGovtChange(localGovt);
     if(requiresMailingAddress && useAddressAsMailingAddress) {
-      mailingAddressForm?.onStateChange(stateOfOrigin);
+      mailingAddressForm?.onStateChange(stateOfOrigin, localGovt: localGovt);
     }
   }
 
@@ -151,12 +157,13 @@ class CustomerAddressForm with ChangeNotifier {
     return isValid;
   }
 
-  void onUtilityBillChange(String? utilityBill) {
+  void onUtilityBillChange(String? utilityBill, String? fileName) {
     _info.utilityBillUUID = utilityBill;
+    _info.uploadedFileName = fileName;
     _utilityBillController.sink.add(utilityBill ?? "");
     _isUtilityBillValid(displayError: true);
     if(requiresMailingAddress && useAddressAsMailingAddress) {
-      mailingAddressForm?.onUtilityBillChange(utilityBill);
+      mailingAddressForm?.onUtilityBillChange(utilityBill, fileName);
     }
   }
 
@@ -171,19 +178,28 @@ class CustomerAddressForm with ChangeNotifier {
   AddressInfo get getAddressInfo => _info;
   AddressInfo? get getMailingAddressInfo => mailingAddressForm?._info;
 
+  void skipProofOfAddress(bool skip) {
+    this._skippedProofOfAddress = skip;
+  }
+
   void setDefaultAsMailingAddress(bool? isDefault) async {
-    _useAddressAsMailingAddress = isDefault ?? false;
-    if(isDefault == true) {
-      mailingAddressForm?.onAddressChange(_info.addressLine);
-      mailingAddressForm?.onCityChange(_info.addressCity);
-      mailingAddressForm?.onStateChange(stateOfOrigin);
-      mailingAddressForm?.onLocalGovtChange(localGovernmentArea);
-    } else {
-      final localGovt = mailingAddressForm?.localGovernmentArea;
-      mailingAddressForm?.onAddressChange(mailingAddressForm?.getAddressInfo.addressLine);
-      mailingAddressForm?.onCityChange(mailingAddressForm?.getAddressInfo.addressCity);
-      mailingAddressForm?.onStateChange(mailingAddressForm?.stateOfOrigin);
-      mailingAddressForm?.onLocalGovtChange(localGovt);
+    if(isDefault != _useAddressAsMailingAddress) {
+      _useAddressAsMailingAddress = isDefault ?? false;
+      _useAsMailingAddressController.sink.add(_useAddressAsMailingAddress);
+      Future.delayed(Duration(milliseconds: 200), () {
+        if(isDefault == true) {
+          mailingAddressForm?.onAddressChange(_info.addressLine);
+          mailingAddressForm?.onCityChange(_info.addressCity);
+          mailingAddressForm?.onStateChange(stateOfOrigin);
+          mailingAddressForm?.onLocalGovtChange(localGovernmentArea);
+        } else {
+          final localGovt = mailingAddressForm?.localGovernmentArea;
+          mailingAddressForm?.onAddressChange(mailingAddressForm?.getAddressInfo.addressLine);
+          mailingAddressForm?.onCityChange(mailingAddressForm?.getAddressInfo.addressCity);
+          mailingAddressForm?.onStateChange(mailingAddressForm?.stateOfOrigin);
+          mailingAddressForm?.onLocalGovtChange(localGovt);
+        }
+      });
     }
   }
 
@@ -198,7 +214,12 @@ class CustomerAddressForm with ChangeNotifier {
         _debouncer?.cancel();
         _debouncer = Timer(Duration(milliseconds: 600), () {
           PreferenceUtil.saveDataForLoggedInUser(formKey, _info);
-          PreferenceUtil.saveValueForLoggedInUser(USE_AS_MAIL_ADDRESS_KEY, useAddressAsMailingAddress);
+          if(requiresMailingAddress) {
+            PreferenceUtil.saveValueForLoggedInUser(USE_AS_MAIL_ADDRESS_KEY, useAddressAsMailingAddress);
+          }
+          if(_info.uploadedFileName != null && _info.uploadedFileName?.isNotEmpty == true) {
+            PreferenceUtil.saveValueForLoggedInUser(FILE_NAME_KEY, _info.uploadedFileName);
+          }
         });
       }, onError: (a) {
         //Do nothing
@@ -209,15 +230,19 @@ class CustomerAddressForm with ChangeNotifier {
   void restoreFormState() {
     final savedInfo = PreferenceUtil.getDataForLoggedInUser(formKey);
     final savedAddressInfo = AddressInfo.fromJson(savedInfo);
+    final fileName = PreferenceUtil.getValueForLoggedInUser<String>(FILE_NAME_KEY);
     final mailingAddressDefault = PreferenceUtil.getValueForLoggedInUser<bool>(USE_AS_MAIL_ADDRESS_KEY);
 
-    _useAddressAsMailingAddress = this.requiresMailingAddress && mailingAddressDefault == true;
 
     if(savedAddressInfo.addressLine != null) {
+      print(savedAddressInfo.addressLine);
       onAddressChange(savedAddressInfo.addressLine);
     }
     if(savedAddressInfo.addressCity != null) {
       onCityChange(savedAddressInfo.addressCity);
+    }
+    if(savedAddressInfo.utilityBillUUID != null) {
+      onUtilityBillChange(savedAddressInfo.utilityBillUUID, fileName);
     }
 
     if(savedAddressInfo.stateId != null) {
@@ -225,11 +250,23 @@ class CustomerAddressForm with ChangeNotifier {
       final localGovt = LocalGovernmentArea.fromId(
           savedAddressInfo.addressLocalGovernmentAreaId, state?.localGovernmentAreas ?? []
       );
+      print(state?.name);
       onStateChange(state, localGovt: localGovt);
     }
 
-    if(this.requiresMailingAddress && _useAddressAsMailingAddress == false) {
-      mailingAddressForm?.restoreFormState();
+    _useAddressAsMailingAddress = this.requiresMailingAddress && mailingAddressDefault == true;
+
+    if(this.requiresMailingAddress) {
+      _useAsMailingAddressController.sink.add(_useAddressAsMailingAddress);
+    }
+
+    if(this.requiresMailingAddress) {
+      //TODO find alternative place to put this, though a delay is needed
+      //due to flutter rebuilding the widget that depends on this, but placing this
+      //here could be an Anti-Pattern
+      Future.delayed(Duration(milliseconds: 350), () {
+        mailingAddressForm?.restoreFormState();
+      });
     }
   }
 
@@ -240,7 +277,7 @@ class CustomerAddressForm with ChangeNotifier {
     _stateController.close();
     _localGovtController.close();
     _utilityBillController.close();
-
+    _useAsMailingAddressController.close();
     mailingAddressForm?.dispose();
     super.dispose();
   }

@@ -28,13 +28,14 @@ class CustomFont {
   static const IconData call = IconData(0xe803, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData email = IconData(0xe804, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData gender = IconData(0xe806, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData calendar = IconData(0xe807, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  // static const IconData calendar = IconData(0xe807, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData refresh_question = IconData(0xe808, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData question_mark = IconData(0xe809, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData search = IconData(0xe80a, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData backArrow = IconData(0xe80b, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData numberInput = IconData(0xe80c, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData bankNumberInput = IconData(0xe80d, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData calendar = IconData(0xe80e, fontFamily: _kFontFam, fontPackage: _kFontPkg);
 
 
 }

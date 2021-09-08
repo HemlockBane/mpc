@@ -47,10 +47,9 @@ import 'package:shimmer/shimmer.dart';
 
 class AccountTransactionScreen extends StatefulWidget {
   final int? customerAccountId;
-  final UserAccount userAccount;
-  final AccountBalance? accountBalance;
+  final accountUserIdx;
 
-  AccountTransactionScreen({this.customerAccountId, required this.userAccount, required this.accountBalance});
+  AccountTransactionScreen({this.customerAccountId, required this.accountUserIdx});
 
   @override
   State<StatefulWidget> createState() => _AccountTransactionScreen();
@@ -67,6 +66,8 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
   String? accountStatementDownloadDir;
   double yOffset = 0.0;
 
+  late final UserAccount userAccount;
+
   late final AnimationController _animationController =
       AnimationController(vsync: this, duration: Duration(milliseconds: 1000));
   PagingSource<int, AccountTransaction> _pagingSource = PagingSource.empty();
@@ -78,6 +79,8 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
         .getCustomerAccountBalance(accountId: widget.customerAccountId)
         .listen((event) {});
     _refresh(viewModel);
+
+    userAccount = viewModel.userAccounts[widget.accountUserIdx];
 
     _animationController.forward();
     _pagerScrollController.addListener(_onScroll);
@@ -553,8 +556,8 @@ ScrollController _scrollController) {
                 SizedBox(height: 26),
                 AccountTransactionsAccountCard(
                   viewModel: viewModel,
-                  userAccount: widget.userAccount,
-                  accountBalance: widget.accountBalance,
+                  userAccount: userAccount,
+                  accountBalance: userAccount.accountBalance,
 
 
                 ),

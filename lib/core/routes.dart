@@ -159,16 +159,18 @@ class Routes {
     switch (settings.name) {
       case Routes.ACCOUNT_TRANSACTIONS:
         final customerAccountId = (settings.arguments as Map?)?["customerAccountId"];
-        final args = settings.arguments as Map<dynamic, dynamic>;
-        final userAccount = args["userAccount"] as UserAccount;
-        final accountBalance = args["accountBalance"] as AccountBalance?;
+        final args = settings.arguments as Map;
+        final userAccountIdx = args["accountUserIdx"] as int;
       
         return MaterialPageRoute(
             builder: (_) => ChangeNotifierProvider(
               create: (_) => TransactionHistoryViewModel(),
               child: AccountTransactionScreen(
-                  customerAccountId: customerAccountId, userAccount: userAccount, accountBalance: accountBalance,),
-            ));
+                customerAccountId: customerAccountId,
+                accountUserIdx: userAccountIdx,
+              ),
+            ),
+        );
       case Routes.LIVELINESS_DETECTION:
         return MaterialPageRoute(
             builder: (_) => ChangeNotifierProvider(

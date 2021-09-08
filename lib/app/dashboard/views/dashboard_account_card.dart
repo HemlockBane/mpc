@@ -79,10 +79,12 @@ class _AccountCardState extends State<AccountCard> {
                               onTap: () async{
                                final mixpanel = await MixpanelManager.initAsync();
                                 mixpanel.track("dashboard-account-clicked");
-                                Navigator.of(context).pushNamed(Routes.ACCOUNT_TRANSACTIONS, arguments: {
+                                final routeArgs = {
                                   "customerAccountId": userAccount.customerAccount?.id,
-                                  "userAccount": userAccount, "accountBalance": accountBalance
-                                }).then((_) => widget.viewModel.update());
+                                  "accountUserIdx": idx,
+                                };
+                                Navigator.of(context).pushNamed(Routes.ACCOUNT_TRANSACTIONS,
+                                  arguments: routeArgs ).then((_) => widget.viewModel.update());
                               },
                               child: Hero(
                                 tag: "dashboard-balance-view-${userAccount.customerAccount?.id}",

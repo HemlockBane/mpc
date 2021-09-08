@@ -212,6 +212,17 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
         subscribeUiToAccountStatus();
         break;
       }
+      case Routes.ACCOUNT_TRANSACTIONS:{
+        // Get first user account by default
+       final userAccount = _viewModel.userAccounts[0];
+       final routeArgs = {
+         "customerAccountId": userAccount.customerAccount?.id,
+         "accountUserIdx": 0,
+       };
+
+        await Navigator.of(context).pushNamed(routeName, arguments: routeArgs);
+        break;
+      }
       case "LOGOUT":{
         UserInstance().resetSession();
         Navigator.of(context).pop();

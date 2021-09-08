@@ -368,12 +368,11 @@ ScrollController _scrollController) {
                           ListView(
                             controller: draggableScrollController,
                             children: [
-                              if (isAccountLiened) SizedBox(height: 27),
-                              SizedBox(height: isAccountLiened ? 122 : 79),
+                              SizedBox(height: isAccountLiened ? 120 : 63),
                               Container(
                                 height: (error == null && !isEmpty) ? 500 : 400,
                                 child: _mainPageContent(
-                                  value, viewModel, isEmpty, error, _scrollController),
+                                  value, viewModel, isEmpty, error, draggableScrollController),
                               ),
                             ],
                           ),
@@ -490,86 +489,82 @@ ScrollController _scrollController) {
         Provider.of<TransactionHistoryViewModel>(context, listen: false);
     return SessionedWidget(
       context: context,
-      child: TweenAnimationBuilder(
-          duration: Duration(milliseconds: 430),
-          tween: Tween<Offset>(begin: Offset(0, 0), end: Offset(0, yOffset)),
-          builder: (mContext, Offset value, _) {
-            return Scaffold(
-              backgroundColor: Color(0XFFEBF2FA),
-              body: Stack(
-                children: [
-                  Positioned.fill(
-                    child: Image.asset(
-                      "res/drawables/ic_app_bg_dark.png",
-                      fit: BoxFit.fill,
-                    ),
-                  ),
-                  Column(
+      child: Scaffold(
+        backgroundColor: Color(0XFFEBF2FA),
+        body: Stack(
+          children: [
+            Positioned.fill(
+              child: Image.asset(
+                "res/drawables/ic_app_bg_dark.png",
+                fit: BoxFit.fill,
+              ),
+            ),
+            Column(
+              children: [
+                SizedBox(height: 37),
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      SizedBox(height: 37),
-                      Container(
-                        margin: EdgeInsets.symmetric(horizontal: 16),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Styles.imageButton(
-                                  padding: EdgeInsets.all(9),
-                                  color: Colors.transparent,
-                                  borderRadius: BorderRadius.circular(30),
-                                  onClick: () => Navigator.of(context).pop(),
-                                  image: SvgPicture.asset(
-                                    'res/drawables/ic_back_arrow.svg',
-                                    fit: BoxFit.contain,
-                                    width: 19.5,
-                                    height: 19.02,
-                                    color: Colors.primaryColor,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Text(
-                                  "Account Details",
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.textColorBlack),
-                                )
-                              ],
+                      Row(
+                        children: [
+                          Styles.imageButton(
+                            padding: EdgeInsets.all(9),
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(30),
+                            onClick: () => Navigator.of(context).pop(),
+                            image: SvgPicture.asset(
+                              'res/drawables/ic_back_arrow.svg',
+                              fit: BoxFit.contain,
+                              width: 19.5,
+                              height: 19.02,
+                              color: Colors.primaryColor,
                             ),
-                            Styles.imageButton(
-                              padding: EdgeInsets.all(9),
-                              color: Colors.transparent,
-                              borderRadius: BorderRadius.circular(30),
-                              onClick: _displaySettingsDialog,
-                              image: SvgPicture.asset(
-                                'res/drawables/ic_dashboard_settings.svg',
-                                fit: BoxFit.contain,
-                                width: 22,
-                                height: 22.56,
-                                color: Colors.primaryColor,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Text(
+                            "Account Details",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.textColorBlack),
+                          )
+                        ],
                       ),
-                      SizedBox(height: 26),
-                      AccountTransactionsAccountCard(
-                        viewModel: viewModel,
-                        userAccount: widget.userAccount,
-                        accountBalance: widget.accountBalance,
-
-
+                      Styles.imageButton(
+                        padding: EdgeInsets.all(9),
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(30),
+                        onClick: _displaySettingsDialog,
+                        image: SvgPicture.asset(
+                          'res/drawables/ic_dashboard_settings.svg',
+                          fit: BoxFit.contain,
+                          width: 22,
+                          height: 22.56,
+                          color: Colors.primaryColor,
+                        ),
                       ),
                     ],
                   ),
-                  _pagingView(viewModel, _pagerScrollController)
-                ],
-              ),
-            );
-          }),
+                ),
+                SizedBox(height: 26),
+                AccountTransactionsAccountCard(
+                  viewModel: viewModel,
+                  userAccount: widget.userAccount,
+                  accountBalance: widget.accountBalance,
+
+
+                ),
+              ],
+            ),
+            _pagingView(viewModel, _pagerScrollController)
+          ],
+        ),
+      )
+
     );
   }
 

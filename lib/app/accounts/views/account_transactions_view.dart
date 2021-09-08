@@ -58,7 +58,7 @@ class AccountTransactionScreen extends StatefulWidget {
 
 class _AccountTransactionScreen extends State<AccountTransactionScreen>
     with TickerProviderStateMixin {
-  ScrollController _scrollController = ScrollController();
+  ScrollController _pagerScrollController = ScrollController();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   bool _isDownloading = false;
   bool isInFilterMode = false;
@@ -80,7 +80,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
     _refresh(viewModel);
 
     _animationController.forward();
-    _scrollController.addListener(_onScroll);
+    _pagerScrollController.addListener(_onScroll);
     super.initState();
   }
 
@@ -109,166 +109,6 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
         });
       }
     }
-  }
-
-  Widget balanceView(TransactionHistoryViewModel viewModel, double yOffset) {
-    double cardRadius = min(20, 20 - min(20, (yOffset - 1) * 0.1));
-    double borderTop = min(26, 26 - min(26, (yOffset - 1) * 0.1));
-    double opacityValue = min(100, 100 - min(100, (yOffset - 1) * 0.4)) / 100;
-
-    return Container(
-      padding: EdgeInsets.only(top: borderTop, bottom: 26, left: 16, right: 16),
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(cardRadius),
-          color: Colors.primaryColor,
-          boxShadow: [
-            BoxShadow(
-                color: Colors.primaryColor.withOpacity(0.1),
-                offset: Offset(0, 8),
-                blurRadius: 4,
-                spreadRadius: 0)
-          ]),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Flexible(
-              child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Available Balance',
-                style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.colorFaded,
-                    fontWeight: FontWeight.normal),
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Container(
-                  padding:
-                      EdgeInsets.only(left: 9, right: 9, top: 5, bottom: 5),
-                  decoration: BoxDecoration(
-                      color: Colors.darkBlue.withOpacity(0.5),
-                      borderRadius: BorderRadius.all(Radius.circular(16))),
-                  child: Center(
-                    child: Text('SAVINGS',
-                        style: TextStyle(color: Colors.white, fontSize: 12)),
-                  ),
-                ),
-              )
-            ],
-          )),
-          SizedBox(height: 5),
-          Flexible(
-              child: StreamBuilder(
-            stream: viewModel.balanceStream,
-            builder: (context, AsyncSnapshot<AccountBalance?> snapShot) {
-              final accountBalance = snapShot.hasData
-                  ? snapShot.data?.availableBalance?.formatCurrency ?? "--"
-                  : '--';
-              return Text(
-                accountBalance,
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold),
-              );
-            },
-          )),
-          SizedBox(height: 5),
-          Flexible(
-              child: StreamBuilder(
-            stream: viewModel.balanceStream,
-            builder: (context, AsyncSnapshot<AccountBalance?> snapShot) {
-              final accountBalance = snapShot.hasData
-                  ? snapShot.data?.ledgerBalance?.formatCurrency ?? "--"
-                  : '--';
-              return Text(
-                'Ledger Balance: $accountBalance',
-                style: TextStyle(
-                    color: Colors.colorFaded,
-                    fontSize: 12,
-                    fontFamily: Styles.defaultFont,
-                    fontWeight: FontWeight.normal,
-                    fontFamilyFallback: ["Roboto"]),
-              ).colorText({accountBalance: Tuple(Colors.white, null)},
-                  bold: false, underline: false);
-            },
-          )),
-          SizedBox(height: 2),
-          Flexible(
-            child: Opacity(
-              opacity: opacityValue,
-              child: Row(
-                children: [
-                  Expanded(
-                      child: Divider(
-                    color: Colors.white.withOpacity(0.2),
-                    height: 1,
-                  )),
-                  SizedBox(width: 6),
-                  Styles.imageButton(
-                      onClick: _displaySettingsDialog,
-                      color: Colors.white.withOpacity(0.2),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 5.2, vertical: 4),
-                      borderRadius: BorderRadius.circular(4),
-                      image: SvgPicture.asset(
-                        'res/drawables/ic_settings.svg',
-                        width: 20,
-                        height: 20,
-                      ))
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: 6),
-          Flexible(
-              child: Opacity(
-            opacity: opacityValue,
-            child: Row(
-              children: [
-                Flexible(
-                    child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('A/C No.',
-                        style:
-                            TextStyle(color: Colors.colorFaded, fontSize: 13)),
-                    Text(
-                        viewModel.customerAccountNumber(
-                            accountId: widget.customerAccountId),
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: Colors.white, fontSize: 14))
-                  ],
-                )),
-                SizedBox(
-                  width: 32,
-                ),
-                Flexible(
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                      Text('Account Name',
-                          style: TextStyle(
-                              color: Colors.colorFaded, fontSize: 13)),
-                      Text(
-                          viewModel.customerAccountName(
-                              accountId: widget.customerAccountId),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: TextStyle(color: Colors.white, fontSize: 14))
-                    ])),
-              ],
-            ),
-          ))
-        ],
-      ),
-    );
   }
 
   Widget filterMenu() {
@@ -486,7 +326,7 @@ ScrollController _scrollController) {
           initialChildSize: minExtent,
           minChildSize: minExtent,
           maxChildSize: maxExtent,
-          builder: (ctx, ScrollController scrollController) {
+          builder: (ctx, ScrollController draggableScrollController) {
             return AnimatedContainer(
               duration: Duration(milliseconds: 200),
               // padding: EdgeInsets.only(top: 27),
@@ -510,7 +350,7 @@ ScrollController _scrollController) {
                 pagingConfig:
                 PagingConfig(pageSize: 500, initialPageSize: 500),
                 source: _pagingSource,
-                scrollController: _scrollController,
+                scrollController: draggableScrollController,
                 builder: (context, value, _) {
                   return ListViewUtil.handleLoadStates(
                     animationController: _animationController,
@@ -526,7 +366,7 @@ ScrollController _scrollController) {
                       return Stack(
                         children: [
                           ListView(
-                            controller: scrollController,
+                            controller: draggableScrollController,
                             children: [
                               if (isAccountLiened) SizedBox(height: 27),
                               SizedBox(height: isAccountLiened ? 122 : 79),
@@ -634,7 +474,7 @@ ScrollController _scrollController) {
   }
 
   void _onScroll() {
-    yOffset = _scrollController.offset;
+    yOffset = _pagerScrollController.offset;
     if (yOffset >= 0 && yOffset <= 1000) {
       setState(() {});
     }
@@ -725,7 +565,7 @@ ScrollController _scrollController) {
                       ),
                     ],
                   ),
-                  _pagingView(viewModel, _scrollController)
+                  _pagingView(viewModel, _pagerScrollController)
                 ],
               ),
             );

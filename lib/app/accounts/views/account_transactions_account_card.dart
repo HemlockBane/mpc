@@ -84,19 +84,6 @@ class _AccountTransactionsAccountCardState
                 ),
               ),
               SizedBox(height: 21),
-              //  Material(
-              //   color: Colors.transparent,
-              //   child: InkWell(
-              //     overlayColor: MaterialStateProperty.all(
-              //         Colors.darkLightBlue.withOpacity(0.1)),
-              //     onTap: () {},
-              //     child: AccountDetails(
-              //       customerAccount: userAccount.customerAccount,
-              //       userAccount: userAccount,
-              //       viewModel: viewModel,
-              //     ),
-              //   ),
-              // ),
             ],
           ),
         ),
@@ -240,33 +227,6 @@ class _AccountDetailsState extends State<AccountDetails>
                             if (snapshot.hasData &&
                                 (!isLoadingBalance && !isLoadingBalanceError)) {
                               return balanceView(accountBalance);
-
-                              // return Column(
-                              //   crossAxisAlignment: CrossAxisAlignment.start,
-                              //   children: [
-                              //     Row(
-                              //       children: [
-                              //         SvgPicture.asset(
-                              //           "res/drawables/ic_naira.svg",
-                              //           width: 20,
-                              //           height: 17,
-                              //         ),
-                              //         SizedBox(width: 4),
-                              //         Text('$availableBalance',
-                              //             style: Styles.textStyle(context,
-                              //                 fontSize: 23.5,
-                              //                 fontWeight: FontWeight.w800,
-                              //                 color: Colors.textColorBlack)),
-                              //       ],
-                              //     ),
-                              //     SizedBox(height: 5),
-                              //     Text('Ledger Balance: N $ledgerBalance',
-                              //         style: Styles.textStyle(context,
-                              //             fontSize: 12,
-                              //             fontWeight: FontWeight.w400,
-                              //             color: Colors.deepGrey)),
-                              //   ],
-                              // );
                             }
 
                             if (isLoadingBalanceError) {

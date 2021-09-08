@@ -155,7 +155,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(
-                          height: height * 0.16,
+                          height: height * 0.135,
                         ),
                         RefreshSizedBox(
                           indicatorController: indicatorController,
@@ -272,7 +272,7 @@ class _DashboardBackground extends StatelessWidget {
             transform: Matrix4.diagonal3Values(1.0, yScale, 1.0),
             child: Container(
               width: width,
-              height: height * 0.35,
+              height: height * 0.32,
               child: SvgPicture.asset("res/drawables/bg.svg", fit: BoxFit.fill),
             ),
           );
@@ -365,8 +365,8 @@ class _DashboardTopMenu extends StatelessWidget {
 
     return Container(
       margin: EdgeInsets.only(
-        top: MediaQuery.of(context).size.height * 0.074,
-        left: 16,
+        top: MediaQuery.of(context).size.height * 0.05,
+        left: 11,
         right: 16,
       ),
       child: Column(
@@ -392,7 +392,7 @@ class _DashboardTopMenu extends StatelessWidget {
                     scaffoldKey.currentState?.openDrawer();
                   },
                   child: Container(
-                    padding: EdgeInsets.all(10),
+                    padding: EdgeInsets.only(top: 10, bottom: 15, right: 15, left: 15),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                     ),
@@ -430,6 +430,7 @@ class _DashboardTopMenu extends StatelessWidget {
                             return _userProfileImage(data!.base64String!);
                           }
                         }
+
                         final localViewCachedImage =
                             viewModel.userProfileBase64String;
                         if (localViewCachedImage != null &&
@@ -437,6 +438,7 @@ class _DashboardTopMenu extends StatelessWidget {
                           return _userProfileImage(
                               viewModel.userProfileBase64String!);
                         }
+
                         return _userProfilePlaceholder();
                       }),
                   SizedBox(width: 4)

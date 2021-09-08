@@ -59,7 +59,7 @@ class _DashboardRefreshIndicatorState extends State<DashboardRefreshIndicator>
                   child: SvgPicture.asset(
                       "res/drawables/refresh_indicator_bg.svg",
                       fit: BoxFit.fill,
-                      color: Colors.black.withOpacity(0.75)),
+                      color: Color(0xFFF5F9FF).withOpacity(0.2)),
                   height: indicatorOffsetValue,
                   width: double.infinity,
                 );

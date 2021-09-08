@@ -28,7 +28,7 @@ class CardListItem extends Container {
       card.nameOnCard ?? "",
       style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
     );
-    if(card.status == CardStatus.IN_ACTIVE) {
+    if(!card.isActivated) {
       return Expanded(child: ImageFiltered(
         imageFilter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
         child: cardNameWidget,
@@ -61,7 +61,7 @@ class CardListItem extends Container {
         CardViewUtil.getCardBrandLogo(card)
       ],
     );
-    if(card.status == CardStatus.IN_ACTIVE) {
+    if(!card.isActivated) {
       return ImageFiltered(
           imageFilter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
           child: cardNumberWidget,
@@ -71,7 +71,7 @@ class CardListItem extends Container {
   }
 
   Widget _activateCardButton(BuildContext context) {
-    if(card.status != CardStatus.IN_ACTIVE) return SizedBox();
+    if(card.isActivated) return SizedBox();
     return SizedBox(
       width: double.infinity,
       child: Styles.appButton(
@@ -134,7 +134,7 @@ class CardListItem extends Container {
                 ),
                 SizedBox(height: card.blocked ? 12 : 16,),
                 _cardNumberAndLogo(),
-                SizedBox(height: (card.status == CardStatus.IN_ACTIVE) ? 16 : 0,),
+                SizedBox(height: (!card.isActivated) ? 16 : 0,),
                 _activateCardButton(context)
               ],
             ),

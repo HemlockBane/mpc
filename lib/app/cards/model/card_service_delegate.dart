@@ -36,7 +36,7 @@ class CardServiceDelegate with NetworkResource {
         expiryDate: "23/03",
         blocked: false,
         nameOnCard: "AAAAA Okeke",
-        status: CardStatus.IN_ACTIVE,
+        isActivated: false,
         channelBlockStatus: TransactionChannelBlockStatus(web: false, atm: false, pos: false)
     ),
     Card(id: 2,
@@ -44,7 +44,7 @@ class CardServiceDelegate with NetworkResource {
         expiryDate: "23/03",
         blocked: true,
         nameOnCard: "AAAAA Okeke",
-        status: CardStatus.ACTIVE,
+        isActivated: true,
         channelBlockStatus: TransactionChannelBlockStatus(web: false, atm: false, pos: false)
     ),
   ];

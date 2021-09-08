@@ -6,8 +6,9 @@ part 'card.g.dart';
 class Card {
   @JsonKey(name:"id")
   final int? id;
+
   @JsonKey(name:"status")
-  final CardStatus? status;
+  // final CardStatus? status;
 //    @JsonKey(name:"createdOn") val createdOn: String? = null,
 //    @JsonKey(name:"lastModifiedOn") val lastModifiedOn: String? = null,
   @JsonKey(name:"encryptedPan")
@@ -18,20 +19,28 @@ class Card {
 
   @JsonKey(name:"hashedPan")
   final String? hashedPan;
+
   @JsonKey(name:"expiryDate")
   final String? expiryDate;
+
   @JsonKey(name:"branchCode")
   final String? branchCode;
+
   @JsonKey(name:"dateActivated")
   final String? dateActivated;
+
   @JsonKey(name:"dateIssued")
   final String? dateIssued;
+
   @JsonKey(name:"issuerReference")
   final String? issuerReference;
+
   @JsonKey(name:"nameOnCard")
   final String? nameOnCard;
+
   @JsonKey(name:"defaultAccountType")
   final String? defaultAccountType;
+
   @JsonKey(name:"cardProgram")
   final String? cardProgram;
 
@@ -49,18 +58,25 @@ class Card {
 
   @JsonKey(name:"customerAccountCard")
   final CustomerAccountCard? customerAccountCard;
+
   @JsonKey(name:"cardRequestBatch")
   final String? cardRequestBatch;
+
   @JsonKey(name:"blocked")
   bool blocked = false;
+
+  @JsonKey(name:"isActivated")
+  bool isActivated = false;
+
   @JsonKey(name:"blockReason")
   final String? blockReason;
+
   @JsonKey(name:"issued")
   final bool? issued;
 
   Card(
       {this.id,
-      this.status,
+      // this.status,
       this.encryptedPan,
       required this.maskedPan,
       this.hashedPan,
@@ -80,7 +96,9 @@ class Card {
       this.cardRequestBatch,
       this.blockReason,
       this.issued,
-      required this.blocked});
+      this.isActivated = false,
+      required this.blocked,
+      });
 
   factory Card.fromJson(Object? data) => _$CardFromJson(data as Map<String, dynamic>);
   Map<String, dynamic> toJson() => _$CardToJson(this);

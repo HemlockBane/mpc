@@ -1,9 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/cards/model/data/card_request_balance_response.dart';
 import 'package:moniepoint_flutter/app/cards/viewmodels/single_card_view_model.dart';
 import 'package:moniepoint_flutter/app/cards/views/card_list_option_item.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/app/cards/views/dialogs/insufficient_funds_dialog.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
@@ -19,11 +21,17 @@ class CardListEmptyView extends StatefulWidget {
 
 class _CardListEmptyViewState extends State<CardListEmptyView> {
 
+  late final SingleCardViewModel _viewModel;
+
+  final StreamController<Resource<CardRequestBalanceResponse>> _getCardController = StreamController.broadcast();
+  Stream<Resource<CardRequestBalanceResponse>> get _processingProxy => _getCardController.stream;
+
   late final _emptyCardOptions = List<Widget>.of([
     CardListOptionItem(
         onClick: _checkAccountBalance,
         title: "Get Card Now",
         subTitle: "Look for Agent Locations",
+        processStream: _processingProxy,
         leadingIcon: SvgPicture.asset("res/drawables/ic_get_card.svg")
     ),
     CardListOptionItem(
@@ -41,25 +49,26 @@ class _CardListEmptyViewState extends State<CardListEmptyView> {
   ]);
 
   void _checkAccountBalance() {
-    final viewModel = Provider.of<SingleCardViewModel>(context, listen: false);
-    viewModel.isAccountBalanceSufficient().listen((event) {
-      if(event is Loading) _showLoadingAccountBalance();
-      else if (event is Success<CardRequestBalanceResponse>){
+    _viewModel.isAccountBalanceSufficient().listen((event) {
+      _getCardController.sink.add(event);
+      if (event is Success<CardRequestBalanceResponse>){
         if(event.data?.sufficient == true) {
-          Navigator.of(context).pop();
           _getCardDetails();
         } else {
-          Navigator.of(context).pop();
-          showError(
-              context,
-              title: "Insufficient Funds",
-              message: "Dear Customer,\nYour balance of ${event.data?.availableBalance} is not enough to cover the cost of the card N${event.data?.cardAmount}.\n\nYou can fund your account by depositing at any agent location or transferring from your bank app/USSD",
-              useTextButton: true
+          showModalBottomSheet(
+              backgroundColor: Colors.transparent,
+              isScrollControlled: true,
+              context: context,
+              builder: (ctx) {
+                return InsufficientFundsDialog(
+                    accountBalance: event.data?.availableBalance ?? "0.0",
+                    cardCost: event.data?.cardAmount ?? ""
+                );
+              }
           );
         }
       }
       else if(event is Error<CardRequestBalanceResponse>){
-        Navigator.of(context).pop();
         showError(context, title: "Insufficient Funds", message: event.message);
       }
     });
@@ -67,55 +76,13 @@ class _CardListEmptyViewState extends State<CardListEmptyView> {
 
   void _getCardDetails() async {
     await Future.delayed(Duration(milliseconds: 400), () => true);
-
     final serialCode = await Navigator.of(context).pushNamed(Routes.CARD_QR_SCANNER);
   }
 
-  void _showLoadingAccountBalance() {
-    showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (mContext) {
-          return BottomSheets.makeAppBottomSheet2(
-              curveBackgroundColor: Colors.white,
-              centerImageBackgroundColor: Colors.primaryColor.withOpacity(0.1),
-              contentBackgroundColor: Colors.white,
-              centerBackgroundPadding: 12,
-              dialogIcon: SvgPicture.asset(
-                'res/drawables/ic_info_italic.svg',
-                color: Colors.primaryColor,
-                width: 40,
-                height: 40,
-              ),
-              content: Wrap(
-                children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 100),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Center(
-                          child: SizedBox(
-                              height: 25,
-                              width: 25,
-                              child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation(Colors.darkBlue)
-                              )
-                          ),
-                        ),
-                        SizedBox(height: 8,),
-                        Text('Checking account balance... '),
-                        SizedBox(height: 18,),
-                      ],
-                    ),
-                  )
-                ],
-              ));
-        }
-    );
+  @override
+  void initState() {
+    _viewModel = Provider.of<SingleCardViewModel>(context, listen: false);
+    super.initState();
   }
 
   @override
@@ -181,6 +148,12 @@ class _CardListEmptyViewState extends State<CardListEmptyView> {
         )
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    _getCardController.close();
+    super.dispose();
   }
 
 }

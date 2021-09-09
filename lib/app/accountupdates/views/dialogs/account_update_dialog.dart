@@ -56,18 +56,18 @@ class _AccountUpdateDialog extends State<AccountUpdateDialog> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  SizedBox(height: 20,),
+                  SizedBox(height: 20),
                   Text(
                     'Based on information provided,\nYou will be upgraded to',
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Color(0XFF4F4F4F)),
                   ),
-                  SizedBox(height: 8,),
+                  SizedBox(height: 8),
                   Text(
                     '${widget.tier.name?.replaceAll("Customers", "")}',
                     style: TextStyle(color: Colors.darkBlue, fontSize: 18,fontWeight: FontWeight.w600),
                   ),
-                  SizedBox(height: 24,),
+                  SizedBox(height: 24),
                   Container(
                     margin: EdgeInsets.only(left: 16,right: 16),
                     padding: EdgeInsets.all(16),
@@ -115,7 +115,7 @@ class _AccountUpdateDialog extends State<AccountUpdateDialog> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 24,),
+                  SizedBox(height: 24),
                   Padding(
                       padding: EdgeInsets.only(left: 16, right: 16),
                     child: Styles.statefulButton2(

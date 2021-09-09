@@ -12,13 +12,17 @@ class LocationServiceDelegate with NetworkResource {
 
   LocationServiceDelegate(this._nationalityDao, this._locationService);
 
-  Stream<Resource<List<Nationality>>> getCountries() {
+  Stream<Resource<List<Nationality>>> getCountries({bool? fetchFromRemote = true}) {
     return networkBoundResource(
         shouldFetchLocal: true,
+        shouldFetchFromRemote: (List<Nationality>? localData) {
+          if(localData == null || localData.isEmpty == true) return true;
+          return localData.isNotEmpty && fetchFromRemote == true;
+        },
         fetchFromLocal: () => Stream.fromFuture(_nationalityDao.getNationalities()),
         fetchFromRemote: () => _locationService.getCountries(),
-        processRemoteResponse: (v) {
-          _nationalityDao.insertItems(v.data!.result!);
+        saveRemoteData: (List<Nationality> nationalities) async {
+          _nationalityDao.insertItems(nationalities);
         }
     );
   }

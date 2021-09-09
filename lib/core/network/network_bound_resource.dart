@@ -8,8 +8,8 @@ import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/network/service_error.dart';
 import 'package:moniepoint_flutter/core/network/service_result.dart';
-import 'package:retrofit/dio.dart';
 
+import '../timeout_reason.dart';
 import '../tuple.dart';
 
 // -------------------------------------------------------------------
@@ -81,8 +81,9 @@ mixin NetworkResource {
         if (e is DioError) {
 
           if(e.response?.statusCode == 401) {
-            //TODO auto logout the user here
-            print("Logout since we are in a 401");
+            //TODO check if the user is in session first
+            UserInstance().forceLogout(null, SessionTimeoutReason.SESSION_TIMEOUT);
+            return;
           }
           else if(e.response?.statusCode == 404) {
             _errorString = "404";
@@ -106,7 +107,7 @@ mixin NetworkResource {
             }
           } else {
             var error = e.error;
-            if(error is TypeError) {
+            if(error is TypeError/**/) {
               _errorString = "We encountered an error fulfilling your request. Please try again later.";//TypeError occurred here
             } else {
               _errorString = error.toString();
@@ -131,7 +132,7 @@ mixin NetworkResource {
     //we need to be able to use a single form
     final httpStatusCode = response?.statusCode;
     if(httpStatusCode != null && httpStatusCode >= 502 && httpStatusCode <= 504) {
-
+      _errorString = "$httpStatusCode";
     }
     if(result?.errors != null && result!.errors!.length > 0) {
         _errorString = result.errors!.first.message;
@@ -168,7 +169,13 @@ mixin NetworkResource {
         _errorString =
         "We are unable to reach the server at this time. Please confirm your internet connection and try again later.";
       }
-      if (_errorString!.toLowerCase().contains("exception")) {
+      else if (_errorString != null &&
+          (_errorString!.toLowerCase().contains("502") ||
+              _errorString!.toLowerCase().contains("503") ||
+              _errorString!.toLowerCase().contains("504"))) {
+        _errorString = "We are unable to reach the service at this time. Please, Try again";
+      }
+      else if (_errorString!.toLowerCase().contains("exception")) {
         FirebaseCrashlytics.instance.recordError(Exception(_errorString), null);
         _errorString = "System Error";
       }
@@ -180,12 +187,6 @@ mixin NetworkResource {
       }
       if (_errorString!.toLowerCase().contains("org.springframework")) {
         _errorString = "An unknown error occurred";
-      }
-      if (_errorString != null &&
-          (_errorString!.toLowerCase().contains("502") ||
-              _errorString!.toLowerCase().contains("503") ||
-              _errorString!.toLowerCase().contains("504"))) {
-        _errorString = "We are unable to reach the service at this time. Please, Try again";
       }
     }
     print('Error String : $_errorString');
@@ -207,6 +208,7 @@ Tuple<String, String> formatError(String? errorMessage, String moduleName) {
           errorMessage.toLowerCase().contains("failed to connect") ||
           errorMessage.toLowerCase().contains("failed host lookup") ||
           errorMessage.toLowerCase().contains("network is unreachable") ||
+          errorMessage.toLowerCase().contains("internet connection") ||
           errorMessage.toLowerCase().contains("an unknown error occurred"))) {
     errorTitle = "No Network Connection";
     errorDescription =
@@ -245,4 +247,37 @@ Tuple<String, String> formatError(String? errorMessage, String moduleName) {
     FirebaseCrashlytics.instance.recordError(errorMessage, null);
   }
   return Tuple(errorTitle, errorDescription);
+}
+
+
+/// @author Paul Okeke
+///
+/// Applies a re-try mechanism and delay for loading
+/// resources (network bound resource) within the application
+///
+///
+///
+///
+Stream<Resource<T>> streamWithExponentialBackoff<T>({
+  int retries = 3,
+  Duration delay = const Duration(seconds: 3),
+  required Stream<Resource<T>> stream,
+}) async* {
+  await for (var response in stream) {
+    if(response is Loading || response is Success) yield response;
+    
+    if(response is Error<T>) {
+      if(retries > 1) {
+        print("Awaiting Exponential Delay....");
+        await Future.delayed(delay, () => true);
+        print("Retrying Exponential Backoff....");
+        yield* streamWithExponentialBackoff(
+            stream: stream,
+            retries: retries - 1
+        );
+      } else {
+        yield response;
+      }
+    }
+  }
 }

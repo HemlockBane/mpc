@@ -12,14 +12,16 @@ typedef SessionEventCallback<T extends SessionTimeoutReason> = Function(T value)
 class SessionedWidget extends GestureDetector {
 
   final BuildContext context;
+  final int sessionTime;
 
-  SessionedWidget({required this.context, Widget? child}) : super(child: child) {
+  SessionedWidget({required this.context, Widget? child, this.sessionTime = 120}) : super(child: child) {
     UserInstance().updateSessionEventCallback(_onSessionTimeOut);
-    UserInstance().startSession(context);
+    UserInstance().startSession(context, sessionTime: sessionTime);
   }
 
   void _onSessionTimeOut(SessionTimeoutReason reason) {
-    print("Attempting to auto logout");
+    if(UserInstance().getUser() == null) return;
+
     if(navigatorKey.currentState?.canPop() == true) {
       navigatorKey.currentState?.pop();
     }

@@ -6,10 +6,13 @@ import 'package:moniepoint_flutter/app/cards/views/card_list_empty_view.dart';
 import 'package:moniepoint_flutter/app/cards/views/card_list_item.dart';
 import 'package:moniepoint_flutter/app/cards/views/card_view_shimmer.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/network/network_bound_resource.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/list_view_util.dart';
+import 'package:moniepoint_flutter/core/views/error_layout_view.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -28,11 +31,18 @@ class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin{
   );
 
   late SingleCardViewModel _viewModel;
+  Stream<Resource<List<Card>>> _cardListSource = Stream.empty();
 
   final List<Card> _currentItems = [];
   final PageController _scrollController = PageController();
 
   Widget _cardList(BuildContext context, AsyncSnapshot<Resource<List<Card>>> a) {
+    Tuple<String?, String?>? errorMessage;
+
+    if(a.data is Error) {
+      errorMessage = formatError((a.data as Error).message, "Cards");
+    }
+
     return Expanded(
         child: ListViewUtil.makeListViewWithState(
             context: context,
@@ -40,6 +50,11 @@ class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin{
             animationController: _animationController,
             currentList: _currentItems,
             emptyPlaceholder: CardListEmptyView(),
+            errorLayoutView: ErrorLayoutView(
+                errorMessage?.first ?? "Oops",
+                errorMessage?.second ?? "",
+                () => setState(() {_cardListSource = _viewModel.getCards();})
+            ),
             listView: (List<Card>? items) {
               return ListView.separated(
                   padding: EdgeInsets.only(left: 16, right: 16),
@@ -62,6 +77,7 @@ class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin{
   @override
   void initState() {
     _viewModel = Provider.of<SingleCardViewModel>(context, listen: false);
+    _cardListSource = _viewModel.getCards();
     super.initState();
   }
 
@@ -74,21 +90,21 @@ class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin{
           backgroundColor: Color(0XFFEAF4FF),
           appBar: AppBar(
               centerTitle: false,
-              titleSpacing: -12,
+              titleSpacing: 0,
               iconTheme: IconThemeData(color: Colors.primaryColor),
               title: Text('Card Management',
                   textAlign: TextAlign.start,
                   style: TextStyle(
-                      color: Colors.darkBlue,
-                      fontFamily: Styles.defaultFont,
-                      fontSize: 17
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.textColorBlack
                   )
               ),
               backgroundColor: Color(0XFFEAF4FF),
               elevation: 0
           ),
           body: StreamBuilder(
-              stream: _viewModel.getCards(),
+              stream: _cardListSource,
               builder: (BuildContext context, AsyncSnapshot<Resource<List<Card>>> snap) {
                 if(!snap.hasData || snap.data is Loading) {
                   return CardViewShimmer();

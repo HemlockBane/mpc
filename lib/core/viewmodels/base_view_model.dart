@@ -98,6 +98,13 @@ abstract class BaseViewModel with ChangeNotifier {
     return mCustomerAccountUser?.customerAccount?.accountName ?? accountName;
   }
 
+  String? getUserQualifiedTierName(int accountId) {
+    final customerAccountUsers = customer?.customerAccountUsers?.where((element) => element.customerAccount?.id ==accountId).firstOrNull;
+    if(customerAccountUsers == null || customerAccountUsers.customerAccount == null) return null;
+    final customerAccount = customerAccountUsers.customerAccount;
+    return customerAccount?.schemeCode?.name;
+  }
+
   @override
   void dispose() {
     _balanceController.close();

@@ -23,15 +23,14 @@ class TransferSelectBeneficiaryScreen extends StatelessWidget {
           key: _scaffoldKey,
           appBar: AppBar(
               centerTitle: false,
-              titleSpacing: -12,
+              titleSpacing: 0,
               iconTheme: IconThemeData(color: Colors.primaryColor),
               title: Text('Beneficiaries',
                   textAlign: TextAlign.start,
                   style: TextStyle(
-                      color: Colors.darkBlue,
-                      fontFamily: Styles.defaultFont,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 17
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.textColorBlack
                   )
               ),
               backgroundColor: Colors.backgroundWhite,

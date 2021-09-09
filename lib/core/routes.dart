@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide Card;
+import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
 import 'package:moniepoint_flutter/app/accounts/viewmodels/account_transaction_detail_view_model.dart';
 import 'package:moniepoint_flutter/app/accounts/viewmodels/transaction_list_view_model.dart';
 import 'package:moniepoint_flutter/app/accounts/views/account_transaction_detailed_view.dart';
@@ -24,6 +25,7 @@ import 'package:moniepoint_flutter/app/cards/views/dialogs/manage_card_channels_
 import 'package:moniepoint_flutter/app/cards/views/issuance/card_activation_view.dart';
 import 'package:moniepoint_flutter/app/cards/views/issuance/card_qr_code_scanner_view.dart';
 import 'package:moniepoint_flutter/app/cards/views/unblock_debit_card_view.dart';
+import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_view.dart';
 import 'package:moniepoint_flutter/app/devicemanagement/viewmodels/user_device_view_model.dart';
 import 'package:moniepoint_flutter/app/devicemanagement/views/user_device_list_view.dart';
@@ -157,12 +159,18 @@ class Routes {
     switch (settings.name) {
       case Routes.ACCOUNT_TRANSACTIONS:
         final customerAccountId = (settings.arguments as Map?)?["customerAccountId"];
+        final args = settings.arguments as Map;
+        final userAccountIdx = args["accountUserIdx"] as int;
+      
         return MaterialPageRoute(
             builder: (_) => ChangeNotifierProvider(
               create: (_) => TransactionHistoryViewModel(),
               child: AccountTransactionScreen(
-                  customerAccountId: customerAccountId),
-            ));
+                customerAccountId: customerAccountId,
+                accountUserIdx: userAccountIdx,
+              ),
+            ),
+        );
       case Routes.LIVELINESS_DETECTION:
         return MaterialPageRoute(
             builder: (_) => ChangeNotifierProvider(

@@ -74,6 +74,7 @@ dependencies:
   location: ^4.2.0
   keyboard_actions: "^3.3.1+1"
   app_settings: 4.1.1
+  mixpanel_flutter: ^1.0.0
 
 dependency_overrides:
   retrofit:

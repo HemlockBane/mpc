@@ -22,7 +22,7 @@ CustomerDetailInfo _$CustomerDetailInfoFromJson(Map<String, dynamic> json) {
     addressInfo: json['addressInfo'] == null
         ? null
         : AddressInfo.fromJson(json['addressInfo'] as Object),
-  );
+  )..stateId = json['stateId'] as int?;
 }
 
 Map<String, dynamic> _$CustomerDetailInfoToJson(CustomerDetailInfo instance) {
@@ -37,8 +37,9 @@ Map<String, dynamic> _$CustomerDetailInfoToJson(CustomerDetailInfo instance) {
   writeNotNull('title', instance.title);
   writeNotNull('maritalStatus', instance.maritalStatus);
   writeNotNull('mothersMaidenName', instance.mothersMaidenName);
-  writeNotNull('nationality', instance.nationality);
   writeNotNull('religion', instance.religion);
+  writeNotNull('nationality', instance.nationality);
+  writeNotNull('stateId', instance.stateId);
   writeNotNull(
       'localGovernmentAreaOfOriginId', instance.localGovernmentAreaOfOriginId);
   writeNotNull('gender', instance.gender);

@@ -238,7 +238,7 @@ class Styles {
       autocorrect: (isPassword) ? false : true,
       decoration: InputDecoration(
           filled: fillColor != null,
-          fillColor: fillColor?.withOpacity(0.2) ?? null,
+          fillColor: fillColor?.withOpacity(0.15) ?? null,
           errorText: errorText,
           hintText: (!animateHint) ? hint : null,
           labelText: labelText,
@@ -326,7 +326,7 @@ class Styles {
         InputDecorator(
           decoration: InputDecoration(
             filled: fillColor != null,
-            fillColor: fillColor?.withOpacity(0.2) ?? null,
+            fillColor: fillColor?.withOpacity(0.15) ?? null,
             border: OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.transparent),
                 borderRadius: BorderRadius.circular(2)),

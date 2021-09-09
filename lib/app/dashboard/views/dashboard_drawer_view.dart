@@ -62,51 +62,9 @@ class DashboardDrawer extends StatelessWidget {
           color: Colors.colorPrimaryDark,
           child: Stack(
             children: [
-              Align(
-                alignment: Alignment.topCenter,
-                child: Container(
-                  height: 1,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    // color: Colors.red,
-                    gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.solidDarkBlue.withOpacity(0.5),
-                          Colors.solidDarkBlue
-                        ],
-                        stops: [
-                          0.8,
-                          1.0
-                        ]),
-                  ),
-                ),
-              ),
               Column(
                 children: [
-                  SizedBox(height: 58),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 21),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _icon(
-                            svgPath: "res/drawables/ic_moniepoint_cube_2.svg",
-                            width: 40,
-                            height: 40),
-                        Row(
-                          children: [
-                            _icon(
-                                svgPath:
-                                    "res/drawables/ic_dashboard_settings.svg",
-                                onClick: () => Navigator.pushNamed(
-                                    context, Routes.SETTINGS)),
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
+                  SizedBox(height: 100),
                   Expanded(
                     child: ListView(
                       children: [
@@ -154,16 +112,16 @@ class DashboardDrawer extends StatelessWidget {
                           iconSpacing: 6.8,
                           onTap: onItemClick,
                         ),
-                        // _DrawerListItem(
-                        //   itemIcon: SvgPicture.asset(
-                        //     "res/drawables/ic_dashboard_manage_cards.svg",
-                        //     height: 18,
-                        //   ),
-                        //   title: "Manage Cards",
-                        //   routeName: Routes.CARDS,
-                        //   iconSpacing: 11.4,
-                        //   onTap: onItemClick,
-                        // ),
+                        _DrawerListItem(
+                          itemIcon: SvgPicture.asset(
+                            "res/drawables/ic_dashboard_manage_cards.svg",
+                            height: 18,
+                          ),
+                          title: "Manage Cards",
+                          routeName: Routes.CARDS,
+                          iconSpacing: 11.4,
+                          onTap: onItemClick,
+                        ),
                         SizedBox(height: 21),
                         _groupTitle(context, "SAVINGS & LOANS"),
                         _DrawerListItem(
@@ -186,11 +144,94 @@ class DashboardDrawer extends StatelessWidget {
                           onTap: onItemClick,
                           iconSpacing: 11,
                         ),
+
                       ],
                     ),
                   ),
                   SizedBox(height: 120)
                 ],
+              ),
+              Align(
+                alignment: Alignment.topCenter,
+                child: Container(
+                  height: 110,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.solidDarkBlue,
+                        Colors.solidDarkBlue.withOpacity(0.5)
+                      ],
+                      stops: [
+                        0.85,
+                        1.0
+                      ]),
+                  ),
+                ),
+              ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  height: 150,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                      colors: [
+                        Colors.solidDarkBlue,
+                        Colors.solidDarkBlue.withOpacity(0.5)
+                      ],
+                      stops: [
+                        0.85,
+                        1.0
+                      ]),
+                  ),
+                ),
+              ),
+              Align(
+                alignment: Alignment.topCenter,
+                child: Column(
+                  children: [
+                    SizedBox(height: 45),
+                    Container(
+                      padding: EdgeInsets.only(left: 21, right: 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _icon(
+                            svgPath: "res/drawables/ic_moniepoint_cube_2.svg",
+                            width: 40,
+                            height: 40),
+                          Row(
+                            children: [
+                              Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  onTap: (){
+                                    Navigator.pushNamed(context, Routes.SETTINGS);
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.only(right: 15, left: 15, bottom: 15, top: 10),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: _icon(
+                                      svgPath:
+                                      "res/drawables/ic_dashboard_settings.svg",
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                )
               ),
               Positioned(
                 bottom: 64,

@@ -95,6 +95,7 @@ class AccountUpdateViewModel extends BaseViewModel {
     if(customerDetailInfo != null && _addressForm.isInitialized) {
       customerDetailInfo..addressInfo = addressForm.getAddressInfo;
     } else if(_addressForm.isInitialized && !_additionalInfoForm.isInitialized) {
+      //TODO check that this isn't skipped, that's the proof of address
       customerDetailInfo = CustomerDetailInfo(addressInfo: addressForm.getAddressInfo);
     }
 
@@ -103,6 +104,11 @@ class AccountUpdateViewModel extends BaseViewModel {
       customerDetailInfo..addressInfo = AddressInfo();
     }
 
+    //The customerID is present and the form is valid and isn't skipped
+    final isCustomerIdValid = _identificationForm.isInitialized
+        && identificationForm.isFormValid
+        && !identificationForm.isSkipped;
+
     return AccountUpdate(
       customerDetailInfo: (_additionalInfoForm.isInitialized || customerDetailInfo != null)
           ? customerDetailInfo
@@ -110,9 +116,7 @@ class AccountUpdateViewModel extends BaseViewModel {
       mailingAddressInfo: (_addressForm.isInitialized)
           ? addressForm.getMailingAddressInfo?.addressCity != null ? addressForm.getMailingAddressInfo : null
           : null,
-      identificationInfo: (_identificationForm.isInitialized && identificationForm.isFormValid)
-          ? identificationForm.identificationInfo
-          : null,
+      identificationInfo: isCustomerIdValid ? identificationForm.identificationInfo : null,
       nextOfKinInfo: (_nextOfKinForm.isInitialized)
           ? nextOfKinForm.nextOfKinInfo
           : null
@@ -139,16 +143,28 @@ class AccountUpdateViewModel extends BaseViewModel {
     }
   }
 
-  Stream<Resource<List<Nationality>>> fetchCountries() {
-    return _locationServiceDelegate.getCountries().map((event) {
-      if(event is Success || event is Loading) {
-        if(nationalities.isNotEmpty) return event;
-        nationalities.clear();
-        nationalities.addAll(event.data ?? []);
-        notifyListeners();
+  Stream<Resource<bool>> loadPageDependencies() async* {
+    final countriesStream = _locationServiceDelegate.getCountries(fetchFromRemote: false);
+    await for(var resource in countriesStream) {
+      if(resource is Success || resource is Loading) {
+        if(resource.data?.isNotEmpty == true) {
+          //Save nationalities
+          nationalities.clear();
+          nationalities.addAll(resource.data ?? []);
+
+          yield* getOnBoardingSchemes().map((event) {
+            if(event is Success) return Resource.success(true);
+            else if (event is Loading) return Resource.loading(false);
+            final error = event as Error<List<Tier>>;
+            return Resource.error(err: ServiceError(message: error.message ?? ""));
+          });
+        } else {
+          yield Resource.loading(false);
+        }
+      } else if(resource is Error<List<Nationality>>){
+        yield Resource.error(err: ServiceError(message: resource.message ?? ""));
       }
-      return event;
-    });
+    }
   }
 
   double getFormWeightedProgress() {

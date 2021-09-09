@@ -11,6 +11,7 @@ import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/di/service_module.dart';
 import 'package:moniepoint_flutter/core/di/db_module.dart';
 import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
+import 'package:moniepoint_flutter/core/mix_panel_analytics.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
@@ -95,4 +96,5 @@ Future<void> _onCreate() async {
 
   await Firebase.initializeApp();
   await PreferenceUtil.initAsync();
+  await MixpanelManager.initAsync();
 }

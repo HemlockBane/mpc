@@ -3,17 +3,26 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/data/address_info.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
+import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:rxdart/rxdart.dart';
 
 class CustomerAddressForm with ChangeNotifier {
 
-  CustomerAddressForm({bool requiresMailingAddress = true, List<StateOfOrigin>? states}) {
+  final String formKey;
+  static const USE_AS_MAIL_ADDRESS_KEY = "USE_AS_MAIL_ADDRESS_KEY";
+  static const FILE_NAME_KEY = "account-update-address-proof-filename";
+
+  CustomerAddressForm({
+    bool requiresMailingAddress = true,
+    List<StateOfOrigin>? states, this.formKey = "account-update-address-info"
+  }) {
     this.requiresMailingAddress = requiresMailingAddress;
     this._states.addAll(states ?? []);
     if(requiresMailingAddress) {
       this.mailingAddressForm = CustomerAddressForm(
           requiresMailingAddress: false,
-          states: this._states
+          states: this._states,
+          formKey: "account-update-mailing-address-info"
       );
     }
     _initState();
@@ -51,11 +60,19 @@ class CustomerAddressForm with ChangeNotifier {
   final _utilityBillController = StreamController<String>.broadcast();
   Stream<String> get utilityBillStream => _utilityBillController.stream;
 
-  bool _useAddressAsMailingAddress = true;
+  final _useAsMailingAddressController = StreamController<bool>.broadcast();
+  Stream<bool> get useAsMailingAddressStream => _useAsMailingAddressController.stream;
+
+  bool _useAddressAsMailingAddress = false;
   bool get useAddressAsMailingAddress => _useAddressAsMailingAddress;
 
   bool _isFormValid = false;
   bool get isFormValid => _isFormValid;
+
+  bool _skippedProofOfAddress = false;
+  bool get skippedProofOfAddress => _skippedProofOfAddress;
+
+  Timer? _debouncer;
 
   void _initState() {
     var formStreams = [addressStream, cityStream, stateStream, localGovtStream];
@@ -68,13 +85,15 @@ class CustomerAddressForm with ChangeNotifier {
        _isFormValid = _isAddressValid(displayError: false) &&
           _isCityValid(displayError: false) &&
           _isLocalGovtValid(displayError: false);
-
       if (requiresMailingAddress) {
-        _isFormValid = _isFormValid && values.last as bool;
+        _isFormValid = _isFormValid && mailingAddressForm?.isFormValid == true;
       }
 
       return isFormValid;
     }).asBroadcastStream();
+
+    //subscribe
+    this._subscribeFormToAutoSave([...formStreams, utilityBillStream]);
   }
 
   void onAddressChange(String? address) {
@@ -107,14 +126,16 @@ class CustomerAddressForm with ChangeNotifier {
     return isValid;
   }
 
-  void onStateChange(StateOfOrigin? stateOfOrigin) {
+  void onStateChange(StateOfOrigin? stateOfOrigin, {LocalGovernmentArea? localGovt}) {
+    _info.stateId = stateOfOrigin?.id;//only required for saving state
     _stateController.sink.add(stateOfOrigin);
     this.stateOfOrigin = stateOfOrigin;
+
     _localGovt.clear();
     _localGovt.addAll(stateOfOrigin?.localGovernmentAreas ?? []);
-    onLocalGovtChange(null);
+    onLocalGovtChange(localGovt);
     if(requiresMailingAddress && useAddressAsMailingAddress) {
-      mailingAddressForm?.onStateChange(stateOfOrigin);
+      mailingAddressForm?.onStateChange(stateOfOrigin, localGovt: localGovt);
     }
   }
 
@@ -136,12 +157,13 @@ class CustomerAddressForm with ChangeNotifier {
     return isValid;
   }
 
-  void onUtilityBillChange(String? utilityBill) {
+  void onUtilityBillChange(String? utilityBill, String? fileName) {
     _info.utilityBillUUID = utilityBill;
+    _info.uploadedFileName = fileName;
     _utilityBillController.sink.add(utilityBill ?? "");
     _isUtilityBillValid(displayError: true);
     if(requiresMailingAddress && useAddressAsMailingAddress) {
-      mailingAddressForm?.onUtilityBillChange(utilityBill);
+      mailingAddressForm?.onUtilityBillChange(utilityBill, fileName);
     }
   }
 
@@ -156,25 +178,96 @@ class CustomerAddressForm with ChangeNotifier {
   AddressInfo get getAddressInfo => _info;
   AddressInfo? get getMailingAddressInfo => mailingAddressForm?._info;
 
+  void skipProofOfAddress(bool skip) {
+    this._skippedProofOfAddress = skip;
+  }
+
   void setDefaultAsMailingAddress(bool? isDefault) async {
-    _useAddressAsMailingAddress = isDefault ?? false;
-    if(isDefault == true) {
-      mailingAddressForm?.onAddressChange(_info.addressLine);
-      mailingAddressForm?.onCityChange(_info.addressCity);
-      mailingAddressForm?.onStateChange(stateOfOrigin);
-      mailingAddressForm?.onLocalGovtChange(localGovernmentArea);
-    } else {
-      final localGovt = mailingAddressForm?.localGovernmentArea;
-      mailingAddressForm?.onAddressChange(mailingAddressForm?.getAddressInfo.addressLine);
-      mailingAddressForm?.onCityChange(mailingAddressForm?.getAddressInfo.addressCity);
-      mailingAddressForm?.onStateChange(mailingAddressForm?.stateOfOrigin);
-      mailingAddressForm?.onLocalGovtChange(localGovt);
+    if(isDefault != _useAddressAsMailingAddress) {
+      _useAddressAsMailingAddress = isDefault ?? false;
+      _useAsMailingAddressController.sink.add(_useAddressAsMailingAddress);
+      Future.delayed(Duration(milliseconds: 200), () {
+        if(isDefault == true) {
+          mailingAddressForm?.onAddressChange(_info.addressLine);
+          mailingAddressForm?.onCityChange(_info.addressCity);
+          mailingAddressForm?.onStateChange(stateOfOrigin);
+          mailingAddressForm?.onLocalGovtChange(localGovernmentArea);
+        } else {
+          final localGovt = mailingAddressForm?.localGovernmentArea;
+          mailingAddressForm?.onAddressChange(mailingAddressForm?.getAddressInfo.addressLine);
+          mailingAddressForm?.onCityChange(mailingAddressForm?.getAddressInfo.addressCity);
+          mailingAddressForm?.onStateChange(mailingAddressForm?.stateOfOrigin);
+          mailingAddressForm?.onLocalGovtChange(localGovt);
+        }
+      });
     }
   }
 
   void setStates(List<StateOfOrigin> states) {
     this._states.clear();
     this._states.addAll(states);
+  }
+
+  void _subscribeFormToAutoSave(List<Stream<dynamic>> streams) {
+    streams.forEach((element) {
+      element.listen((event) {
+        _debouncer?.cancel();
+        _debouncer = Timer(Duration(milliseconds: 600), () {
+          PreferenceUtil.saveDataForLoggedInUser(formKey, _info);
+          if(requiresMailingAddress) {
+            PreferenceUtil.saveValueForLoggedInUser(USE_AS_MAIL_ADDRESS_KEY, useAddressAsMailingAddress);
+          }
+          if(_info.uploadedFileName != null && _info.uploadedFileName?.isNotEmpty == true) {
+            PreferenceUtil.saveValueForLoggedInUser(FILE_NAME_KEY, _info.uploadedFileName);
+          }
+        });
+      }, onError: (a) {
+        //Do nothing
+      });
+    });
+  }
+
+  void restoreFormState() {
+    final savedInfo = PreferenceUtil.getDataForLoggedInUser(formKey);
+    final savedAddressInfo = AddressInfo.fromJson(savedInfo);
+    final fileName = PreferenceUtil.getValueForLoggedInUser<String>(FILE_NAME_KEY);
+    final mailingAddressDefault = PreferenceUtil.getValueForLoggedInUser<bool>(USE_AS_MAIL_ADDRESS_KEY);
+
+
+    if(savedAddressInfo.addressLine != null) {
+      print(savedAddressInfo.addressLine);
+      onAddressChange(savedAddressInfo.addressLine);
+    }
+    if(savedAddressInfo.addressCity != null) {
+      onCityChange(savedAddressInfo.addressCity);
+    }
+    if(savedAddressInfo.utilityBillUUID != null) {
+      onUtilityBillChange(savedAddressInfo.utilityBillUUID, fileName);
+    }
+
+    if(savedAddressInfo.stateId != null) {
+      final state = StateOfOrigin.fromId(savedAddressInfo.stateId, states);
+      final localGovt = LocalGovernmentArea.fromId(
+          savedAddressInfo.addressLocalGovernmentAreaId, state?.localGovernmentAreas ?? []
+      );
+      print(state?.name);
+      onStateChange(state, localGovt: localGovt);
+    }
+
+    _useAddressAsMailingAddress = this.requiresMailingAddress && mailingAddressDefault == true;
+
+    if(this.requiresMailingAddress) {
+      _useAsMailingAddressController.sink.add(_useAddressAsMailingAddress);
+    }
+
+    if(this.requiresMailingAddress) {
+      //TODO find alternative place to put this, though a delay is needed
+      //due to flutter rebuilding the widget that depends on this, but placing this
+      //here could be an Anti-Pattern
+      Future.delayed(Duration(milliseconds: 350), () {
+        mailingAddressForm?.restoreFormState();
+      });
+    }
   }
 
   @override
@@ -184,7 +277,7 @@ class CustomerAddressForm with ChangeNotifier {
     _stateController.close();
     _localGovtController.close();
     _utilityBillController.close();
-
+    _useAsMailingAddressController.close();
     mailingAddressForm?.dispose();
     super.dispose();
   }

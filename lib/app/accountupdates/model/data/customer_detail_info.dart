@@ -9,8 +9,10 @@ class CustomerDetailInfo {
   String? maritalStatus;
   @JsonKey(name: "mothersMaidenName", includeIfNull: false)
   String? mothersMaidenName;
-  String? nationality;
   String? religion;
+  String? nationality;
+  @JsonKey(name: "stateId", includeIfNull: false)
+  int? stateId;
   int? localGovernmentAreaOfOriginId;
   @JsonKey(name: "gender", includeIfNull: false)
   String? gender;

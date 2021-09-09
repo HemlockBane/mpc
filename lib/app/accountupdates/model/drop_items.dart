@@ -137,6 +137,11 @@ class Nationality extends DropDownItem {
     return (nationalityList.isNotEmpty) ? nationalityList.first : null;
   }
 
+  static Nationality? fromNationalityCode(String? code, List<Nationality> nationalities) {
+    final nationalityList = nationalities.where((element) => element.code == code);
+    return (nationalityList.isNotEmpty) ? nationalityList.first : null;
+  }
+
   @override
   String getTitle() {
     return this.name;
@@ -161,6 +166,11 @@ class StateOfOrigin extends DropDownItem {
   factory StateOfOrigin.fromName(String? name, List<StateOfOrigin> states) {
     return states.firstWhere((element) => element.name == name,
         orElse: () => states.first);
+  }
+
+  static StateOfOrigin? fromId(int? id, List<StateOfOrigin> states) {
+    final filteredStates = states.where((element) => element.id == id);
+    return (filteredStates.isNotEmpty) ? filteredStates.first : null;
   }
 
   static StateOfOrigin? fromLocalGovtId(int? localGovtId, List<StateOfOrigin> states) {

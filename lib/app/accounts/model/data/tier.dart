@@ -5,6 +5,8 @@ import 'package:moniepoint_flutter/app/accounts/model/data/scheme_requirement.da
 import 'package:moniepoint_flutter/core/database/type_converters.dart';
 import 'dart:math';
 
+import 'package:moniepoint_flutter/core/models/user_instance.dart';
+
 part 'tier.g.dart';
 
 @Entity(tableName: "tiers", primaryKeys: ["id"])
@@ -77,6 +79,8 @@ class Tier {
         weightOfTotalSupplied >= sumOfRequiredWeight;
   }
 
+  ///@deprecated
+  ///Don't use
   static int getQualifiedTierIndex(List<Tier> tiers) {
     // We put into cognisance that the number of tiers is likely to be more than three
     if (tiers.isEmpty) return 0;

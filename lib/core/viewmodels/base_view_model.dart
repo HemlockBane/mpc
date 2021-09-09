@@ -105,6 +105,42 @@ abstract class BaseViewModel with ChangeNotifier {
     return customerAccount?.schemeCode?.name;
   }
 
+  int? getCurrentAccountTierNumber(int userAccountId) {
+    final validWords = ["one", "two", "three"];
+    final validDigits = [1, 2, 3];
+    final tierName = getUserQualifiedTierName(userAccountId);
+    print("tiername: $tierName");
+
+    if (tierName == null || tierName.isEmpty || !tierName.contains(" ")) return null;
+    final values = tierName.toLowerCase().split(" ");
+    if(values.isEmpty) return null;
+
+    final tier = values.last;
+    var tierIdx = int.tryParse(tier);
+
+    if (tierIdx != null) {
+      return validDigits.contains(tierIdx) ? tierIdx : null;
+    }else{
+      if (!validWords.contains(tier)) return null;
+      else{
+        switch(tier){
+          case "one":
+            tierIdx = 1;
+            break;
+          case "two":
+            tierIdx = 2;
+            break;
+          case "three":
+            tierIdx = 3;
+            break;
+        }
+      }
+    }
+
+
+    return tierIdx;
+  }
+
   @override
   void dispose() {
     _balanceController.close();

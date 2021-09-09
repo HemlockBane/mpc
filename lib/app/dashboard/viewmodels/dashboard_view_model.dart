@@ -94,7 +94,7 @@ class DashboardViewModel extends BaseViewModel {
   Stream<Resource<FileResult>> getProfilePicture() {
     if (customer?.passportUUID == null) return Stream.empty();
     return _fileServiceDelegate
-        .getFileByUUID(customer?.passportUUID ?? "")
+        .getFileByUUID(customer?.passportUUID ?? "", shouldFetchRemote: false)
         .map((event) {
       if (event is Success || event is Loading) {
         _userProfileBase64String = event.data?.base64String;

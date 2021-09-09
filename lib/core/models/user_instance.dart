@@ -17,7 +17,7 @@ class UserInstance {
   static UserInstance? _instance;
   static User? _user;
   static AccountStatus? _accountStatus;
-  static List<AccountBalance?> _accountBalance = [];
+  static List<AccountBalance?> _accountBalanceList = [];
   static List<UserAccount> _userAccounts = [];
   static Timer? timer;
   Cron? _scheduler;
@@ -34,7 +34,7 @@ class UserInstance {
   void resetSession() {
     _user = null;
     _accountStatus = null;
-    _accountBalance = [];
+    _accountBalanceList = [];
     _userAccounts = [];
     _scheduler?.close();
     _scheduler = null;
@@ -57,18 +57,18 @@ class UserInstance {
 
   AccountStatus? get accountStatus => _accountStatus;
 
-  void setAccountBalance(List<AccountBalance?> accountBalance) {
-    _accountBalance = accountBalance;
+  void setAccountBalanceList(List<AccountBalance?> accountBalanceList) {
+    _accountBalanceList = accountBalanceList;
   }
 
-  List<AccountBalance?> get accountBalance => _accountBalance;
+  List<AccountBalance?> get accountBalanceList => _accountBalanceList;
 
   void setUserAccounts(List<UserAccount> userAccounts) {
     _userAccounts.clear();
     _userAccounts.addAll(userAccounts);
 
-    _accountBalance.clear();
-    _accountBalance.addAll(_userAccounts.map((e) => e.accountBalance));
+    _accountBalanceList.clear();
+    _accountBalanceList.addAll(_userAccounts.map((e) => e.accountBalance));
   }
 
   List<UserAccount> get userAccounts => _userAccounts;

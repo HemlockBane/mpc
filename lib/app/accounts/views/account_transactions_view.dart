@@ -47,10 +47,9 @@ import 'package:shimmer/shimmer.dart';
 
 class AccountTransactionScreen extends StatefulWidget {
   final int? customerAccountId;
-  final UserAccount userAccount;
-  final AccountBalance? accountBalance;
+  final accountUserIdx;
 
-  AccountTransactionScreen({this.customerAccountId, required this.userAccount, required this.accountBalance});
+  AccountTransactionScreen({this.customerAccountId, required this.accountUserIdx});
 
   @override
   State<StatefulWidget> createState() => _AccountTransactionScreen();
@@ -58,7 +57,7 @@ class AccountTransactionScreen extends StatefulWidget {
 
 class _AccountTransactionScreen extends State<AccountTransactionScreen>
     with TickerProviderStateMixin {
-  ScrollController _scrollController = ScrollController();
+  ScrollController _pagerScrollController = ScrollController();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   bool _isDownloading = false;
   bool isInFilterMode = false;
@@ -66,6 +65,8 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
   String accountStatementFileName = "MoniepointAccountStatement.pdf";
   String? accountStatementDownloadDir;
   double yOffset = 0.0;
+
+  late final UserAccount userAccount;
 
   late final AnimationController _animationController =
       AnimationController(vsync: this, duration: Duration(milliseconds: 1000));
@@ -79,8 +80,10 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
         .listen((event) {});
     _refresh(viewModel);
 
+    userAccount = viewModel.userAccounts[widget.accountUserIdx];
+
     _animationController.forward();
-    _scrollController.addListener(_onScroll);
+    _pagerScrollController.addListener(_onScroll);
     super.initState();
   }
 
@@ -109,166 +112,6 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen>
         });
       }
     }
-  }
-
-  Widget balanceView(TransactionHistoryViewModel viewModel, double yOffset) {
-    double cardRadius = min(20, 20 - min(20, (yOffset - 1) * 0.1));
-    double borderTop = min(26, 26 - min(26, (yOffset - 1) * 0.1));
-    double opacityValue = min(100, 100 - min(100, (yOffset - 1) * 0.4)) / 100;
-
-    return Container(
-      padding: EdgeInsets.only(top: borderTop, bottom: 26, left: 16, right: 16),
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(cardRadius),
-          color: Colors.primaryColor,
-          boxShadow: [
-            BoxShadow(
-                color: Colors.primaryColor.withOpacity(0.1),
-                offset: Offset(0, 8),
-                blurRadius: 4,
-                spreadRadius: 0)
-          ]),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Flexible(
-              child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Available Balance',
-                style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.colorFaded,
-                    fontWeight: FontWeight.normal),
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Container(
-                  padding:
-                      EdgeInsets.only(left: 9, right: 9, top: 5, bottom: 5),
-                  decoration: BoxDecoration(
-                      color: Colors.darkBlue.withOpacity(0.5),
-                      borderRadius: BorderRadius.all(Radius.circular(16))),
-                  child: Center(
-                    child: Text('SAVINGS',
-                        style: TextStyle(color: Colors.white, fontSize: 12)),
-                  ),
-                ),
-              )
-            ],
-          )),
-          SizedBox(height: 5),
-          Flexible(
-              child: StreamBuilder(
-            stream: viewModel.balanceStream,
-            builder: (context, AsyncSnapshot<AccountBalance?> snapShot) {
-              final accountBalance = snapShot.hasData
-                  ? snapShot.data?.availableBalance?.formatCurrency ?? "--"
-                  : '--';
-              return Text(
-                accountBalance,
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold),
-              );
-            },
-          )),
-          SizedBox(height: 5),
-          Flexible(
-              child: StreamBuilder(
-            stream: viewModel.balanceStream,
-            builder: (context, AsyncSnapshot<AccountBalance?> snapShot) {
-              final accountBalance = snapShot.hasData
-                  ? snapShot.data?.ledgerBalance?.formatCurrency ?? "--"
-                  : '--';
-              return Text(
-                'Ledger Balance: $accountBalance',
-                style: TextStyle(
-                    color: Colors.colorFaded,
-                    fontSize: 12,
-                    fontFamily: Styles.defaultFont,
-                    fontWeight: FontWeight.normal,
-                    fontFamilyFallback: ["Roboto"]),
-              ).colorText({accountBalance: Tuple(Colors.white, null)},
-                  bold: false, underline: false);
-            },
-          )),
-          SizedBox(height: 2),
-          Flexible(
-            child: Opacity(
-              opacity: opacityValue,
-              child: Row(
-                children: [
-                  Expanded(
-                      child: Divider(
-                    color: Colors.white.withOpacity(0.2),
-                    height: 1,
-                  )),
-                  SizedBox(width: 6),
-                  Styles.imageButton(
-                      onClick: _displaySettingsDialog,
-                      color: Colors.white.withOpacity(0.2),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 5.2, vertical: 4),
-                      borderRadius: BorderRadius.circular(4),
-                      image: SvgPicture.asset(
-                        'res/drawables/ic_settings.svg',
-                        width: 20,
-                        height: 20,
-                      ))
-                ],
-              ),
-            ),
-          ),
-          SizedBox(height: 6),
-          Flexible(
-              child: Opacity(
-            opacity: opacityValue,
-            child: Row(
-              children: [
-                Flexible(
-                    child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('A/C No.',
-                        style:
-                            TextStyle(color: Colors.colorFaded, fontSize: 13)),
-                    Text(
-                        viewModel.customerAccountNumber(
-                            accountId: widget.customerAccountId),
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: Colors.white, fontSize: 14))
-                  ],
-                )),
-                SizedBox(
-                  width: 32,
-                ),
-                Flexible(
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                      Text('Account Name',
-                          style: TextStyle(
-                              color: Colors.colorFaded, fontSize: 13)),
-                      Text(
-                          viewModel.customerAccountName(
-                              accountId: widget.customerAccountId),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: TextStyle(color: Colors.white, fontSize: 14))
-                    ])),
-              ],
-            ),
-          ))
-        ],
-      ),
-    );
   }
 
   Widget filterMenu() {
@@ -486,7 +329,7 @@ ScrollController _scrollController) {
           initialChildSize: minExtent,
           minChildSize: minExtent,
           maxChildSize: maxExtent,
-          builder: (ctx, ScrollController scrollController) {
+          builder: (ctx, ScrollController draggableScrollController) {
             return AnimatedContainer(
               duration: Duration(milliseconds: 200),
               // padding: EdgeInsets.only(top: 27),
@@ -510,7 +353,7 @@ ScrollController _scrollController) {
                 pagingConfig:
                 PagingConfig(pageSize: 500, initialPageSize: 500),
                 source: _pagingSource,
-                scrollController: _scrollController,
+                scrollController: draggableScrollController,
                 builder: (context, value, _) {
                   return ListViewUtil.handleLoadStates(
                     animationController: _animationController,
@@ -526,14 +369,13 @@ ScrollController _scrollController) {
                       return Stack(
                         children: [
                           ListView(
-                            controller: scrollController,
+                            controller: draggableScrollController,
                             children: [
-                              if (isAccountLiened) SizedBox(height: 27),
-                              SizedBox(height: isAccountLiened ? 122 : 79),
+                              SizedBox(height: isAccountLiened ? 120 : 63),
                               Container(
                                 height: (error == null && !isEmpty) ? 500 : 400,
                                 child: _mainPageContent(
-                                  value, viewModel, isEmpty, error, _scrollController),
+                                  value, viewModel, isEmpty, error, draggableScrollController),
                               ),
                             ],
                           ),
@@ -634,7 +476,7 @@ ScrollController _scrollController) {
   }
 
   void _onScroll() {
-    yOffset = _scrollController.offset;
+    yOffset = _pagerScrollController.offset;
     if (yOffset >= 0 && yOffset <= 1000) {
       setState(() {});
     }
@@ -650,86 +492,82 @@ ScrollController _scrollController) {
         Provider.of<TransactionHistoryViewModel>(context, listen: false);
     return SessionedWidget(
       context: context,
-      child: TweenAnimationBuilder(
-          duration: Duration(milliseconds: 430),
-          tween: Tween<Offset>(begin: Offset(0, 0), end: Offset(0, yOffset)),
-          builder: (mContext, Offset value, _) {
-            return Scaffold(
-              backgroundColor: Color(0XFFEBF2FA),
-              body: Stack(
-                children: [
-                  Positioned.fill(
-                    child: Image.asset(
-                      "res/drawables/ic_app_bg_dark.png",
-                      fit: BoxFit.fill,
-                    ),
-                  ),
-                  Column(
+      child: Scaffold(
+        backgroundColor: Color(0XFFEBF2FA),
+        body: Stack(
+          children: [
+            Positioned.fill(
+              child: Image.asset(
+                "res/drawables/ic_app_bg_dark.png",
+                fit: BoxFit.fill,
+              ),
+            ),
+            Column(
+              children: [
+                SizedBox(height: 37),
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      SizedBox(height: 37),
-                      Container(
-                        margin: EdgeInsets.symmetric(horizontal: 16),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Styles.imageButton(
-                                  padding: EdgeInsets.all(9),
-                                  color: Colors.transparent,
-                                  borderRadius: BorderRadius.circular(30),
-                                  onClick: () => Navigator.of(context).pop(),
-                                  image: SvgPicture.asset(
-                                    'res/drawables/ic_back_arrow.svg',
-                                    fit: BoxFit.contain,
-                                    width: 19.5,
-                                    height: 19.02,
-                                    color: Colors.primaryColor,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Text(
-                                  "Account Details",
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.textColorBlack),
-                                )
-                              ],
+                      Row(
+                        children: [
+                          Styles.imageButton(
+                            padding: EdgeInsets.all(9),
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(30),
+                            onClick: () => Navigator.of(context).pop(),
+                            image: SvgPicture.asset(
+                              'res/drawables/ic_back_arrow.svg',
+                              fit: BoxFit.contain,
+                              width: 19.5,
+                              height: 19.02,
+                              color: Colors.primaryColor,
                             ),
-                            Styles.imageButton(
-                              padding: EdgeInsets.all(9),
-                              color: Colors.transparent,
-                              borderRadius: BorderRadius.circular(30),
-                              onClick: _displaySettingsDialog,
-                              image: SvgPicture.asset(
-                                'res/drawables/ic_dashboard_settings.svg',
-                                fit: BoxFit.contain,
-                                width: 22,
-                                height: 22.56,
-                                color: Colors.primaryColor,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Text(
+                            "Account Details",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.textColorBlack),
+                          )
+                        ],
                       ),
-                      SizedBox(height: 26),
-                      AccountTransactionsAccountCard(
-                        viewModel: viewModel,
-                        userAccount: widget.userAccount,
-                        accountBalance: widget.accountBalance,
-
-
+                      Styles.imageButton(
+                        padding: EdgeInsets.all(9),
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(30),
+                        onClick: _displaySettingsDialog,
+                        image: SvgPicture.asset(
+                          'res/drawables/ic_dashboard_settings.svg',
+                          fit: BoxFit.contain,
+                          width: 22,
+                          height: 22.56,
+                          color: Colors.primaryColor,
+                        ),
                       ),
                     ],
                   ),
-                  _pagingView(viewModel, _scrollController)
-                ],
-              ),
-            );
-          }),
+                ),
+                SizedBox(height: 26),
+                AccountTransactionsAccountCard(
+                  viewModel: viewModel,
+                  userAccount: userAccount,
+                  accountBalance: userAccount.accountBalance,
+
+
+                ),
+              ],
+            ),
+            _pagingView(viewModel, _pagerScrollController)
+          ],
+        ),
+      )
+
     );
   }
 

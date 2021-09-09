@@ -79,10 +79,12 @@ class _AccountCardState extends State<AccountCard> {
                               onTap: () async{
                                final mixpanel = await MixpanelManager.initAsync();
                                 mixpanel.track("dashboard-account-clicked");
-                                Navigator.of(context).pushNamed(Routes.ACCOUNT_TRANSACTIONS, arguments: {
+                                final routeArgs = {
                                   "customerAccountId": userAccount.customerAccount?.id,
-                                  "userAccount": userAccount, "accountBalance": accountBalance
-                                }).then((_) => widget.viewModel.update());
+                                  "accountUserIdx": idx,
+                                };
+                                Navigator.of(context).pushNamed(Routes.ACCOUNT_TRANSACTIONS,
+                                  arguments: routeArgs ).then((_) => widget.viewModel.update());
                               },
                               child: Hero(
                                 tag: "dashboard-balance-view-${userAccount.customerAccount?.id}",
@@ -199,125 +201,59 @@ class _AccountDetailsState extends State<AccountDetails> with CompositeDisposabl
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      Stack(
-        children: [
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 19),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 8),
-                Text(
-                  "Available Balance",
-                  style: TextStyle(
-                      fontSize: 12.3,letterSpacing: -0.2,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.textColorBlack.withOpacity(0.9)
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: EdgeInsets.only(left: 19),
+          child: StreamBuilder(
+            stream: _balanceStream,
+            builder: (ctx, AsyncSnapshot<Resource<AccountBalance?>> snapshot){
+              final bool hideAccountBalance = PreferenceUtil.getValueForLoggedInUser(hideAccountBalanceKey) ?? false;
+              final isLoadingBalanceError = snapshot.hasData && snapshot.data is Error;
+              final isLoadingBalance = snapshot.hasData && snapshot.data is Loading;
+              final AccountBalance? accountBalance = (snapshot.hasData && snapshot.data != null)
+                  ? snapshot.data!.data
+                  : null;
+
+              return Stack(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 8),
+                      if (snapshot.hasData && (!isLoadingBalance && !isLoadingBalanceError))
+                        Text(
+                          "Available Balance",
+                          style: TextStyle(
+                              fontSize: 12.3,letterSpacing: -0.2,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.textColorBlack.withOpacity(0.9)
+                          ),
+                        ),
+                      if (snapshot.hasData && (!isLoadingBalance && !isLoadingBalanceError))
+                        SizedBox(height: 4),
+                      getChild(
+                        snapshot: snapshot,
+                        accountBalance: accountBalance,
+                        hideAccountBalance: hideAccountBalance,
+                        isLoadingBalance: isLoadingBalance,
+                        isLoadingBalanceError: isLoadingBalanceError
+                      ),
+                      SizedBox(height: 16),
+                    ],
                   ),
-                ),
-                SizedBox(height: 4),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    StreamBuilder(
-                        stream: _balanceStream,
-                        builder: (ctx, AsyncSnapshot<Resource<AccountBalance?>> snapshot) {
-                          final bool hideAccountBalance = PreferenceUtil.getValueForLoggedInUser(hideAccountBalanceKey) ?? false;
-                          final isLoadingBalanceError = snapshot.hasData && snapshot.data is Error;
-                          final isLoadingBalance = snapshot.hasData && snapshot.data is Loading;
-                          final AccountBalance? accountBalance = (snapshot.hasData && snapshot.data != null)
-                              ? snapshot.data!.data
-                              : null;
+                  if (snapshot.hasData && (!isLoadingBalance && !isLoadingBalanceError))
+                    Positioned(
+                      top: 23, right: 14,
+                      child: _buildVisibilityIcon()
+                    )
+                ],
+              );
 
-                          if (snapshot.hasData && (!isLoadingBalance && !isLoadingBalanceError)) {
-                            final balance = hideAccountBalance
-                                ? "***"
-                                : "${accountBalance?.availableBalance?.formatCurrencyWithoutSymbolAndDividing}";
-                            widget.onBalanceLoaded(accountBalance);
-
-                            return Row(
-                              children: [
-                                hideAccountBalance 
-                                ? Text('*',
-                                    style: Styles.textStyle(context,
-                                        fontSize: 23.5,
-                                        fontWeight: FontWeight.w800,
-                                        color: Colors.textColorBlack.withOpacity(0.5))) 
-                                :  SvgPicture.asset("res/drawables/ic_naira.svg", width: 20, height: 17,),
-                                SizedBox(width: 4),
-                                Text('$balance',
-                                    style: Styles.textStyle(context,
-                                        fontSize: 23.5,
-                                        fontWeight: FontWeight.w800,
-                                        color: Colors.textColorBlack)),
-                              ],
-                            );
-                          }
-
-                          if (isLoadingBalanceError && !hideAccountBalance) {
-                            return Padding(
-                                padding: EdgeInsets.only(right: 8, bottom: 8),
-                                child: Text('Error Loading balance\nTry Again',
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w700,
-                                        color: Colors.textColorBlack
-                                    )
-                                ).colorText({
-                                  "Try Again": Tuple(Colors.primaryColor, () {
-                                    widget.viewModel.update();
-                                  })
-                                })
-                            );
-                          }
-
-                          if (hideAccountBalance) {
-                            return Row(
-                              children: [
-                                Text('*',
-                                    style: Styles.textStyle(context,
-                                        fontSize: 23.5,
-                                        fontWeight: FontWeight.w800,
-                                        color: Colors.textColorBlack.withOpacity(0.5))),
-                                SizedBox(width: 4),
-                                Text('***',
-                                    style: TextStyle(
-                                        fontSize: 23.5,
-                                        fontWeight: FontWeight.w800,
-                                        color: Colors.textColorBlack)),
-                              ],
-                            );
-                          }
-
-                          return Shimmer.fromColors(
-                              period: Duration(milliseconds: 1000),
-                              child: Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Container(
-                                    width: 90,
-                                    height: 30,
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        color: Colors.white.withOpacity(0.3),
-                                        shape: BoxShape.rectangle),
-                                  )),
-                              baseColor: Colors.white.withOpacity(0.6),
-                              highlightColor: Colors.deepGrey.withOpacity(0.6));
-                        }),
-                    // _buildVisibilityIcon()
-                  ],
-                ),
-                SizedBox(height: 16)
-              ],
-            ),
+            },
           ),
-          Positioned(
-            top: 23, right: 13,
-            child: _buildVisibilityIcon()
-            )
-        ],
-      ),
+        ),
       Container(
         margin: EdgeInsets.symmetric(horizontal: 19),
         padding: EdgeInsets.fromLTRB(11, 6, 0, 6),
@@ -397,4 +333,119 @@ class _AccountDetailsState extends State<AccountDetails> with CompositeDisposabl
           }),
     );
   }
+
+  Widget getChild({required AsyncSnapshot<Resource<AccountBalance?>> snapshot,
+    required bool hideAccountBalance, required bool isLoadingBalanceError,
+    required bool isLoadingBalance, required AccountBalance? accountBalance}){
+    if (snapshot.hasData && (!isLoadingBalance && !isLoadingBalanceError)) {
+      final balance = hideAccountBalance
+        ? "***"
+        : "${accountBalance?.availableBalance?.formatCurrencyWithoutSymbolAndDividing}";
+      widget.onBalanceLoaded(accountBalance);
+
+      return Row(
+        children: [
+          hideAccountBalance
+            ? Text('*',
+            style: Styles.textStyle(context,
+              fontSize: 23.5,
+              fontWeight: FontWeight.w800,
+              color: Colors.textColorBlack.withOpacity(0.5)))
+            :  SvgPicture.asset("res/drawables/ic_naira.svg", width: 20, height: 17,),
+          SizedBox(width: 4),
+          Text('$balance',
+            style: Styles.textStyle(context,
+              fontSize: 23.5,
+              fontWeight: FontWeight.w800,
+              color: Colors.textColorBlack)),
+        ],
+      );
+    }
+
+    if (isLoadingBalanceError && !hideAccountBalance) {
+      return Container(
+        padding: EdgeInsets.only(right: 19),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text('We can’t get your balance right now.\nCount to ten and try again',
+                style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.textColorBlack
+                )
+              ),
+            ),
+            TextButton(
+              onPressed: (){
+                widget.viewModel.update();
+              },
+              child: Text('Try Again',
+                style: TextStyle(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.primaryColor
+                )
+              ),
+            )
+          ],
+        ),
+      );
+    }
+
+    if (hideAccountBalance) {
+      return Row(
+        children: [
+          Text('*',
+            style: Styles.textStyle(context,
+              fontSize: 23.5,
+              fontWeight: FontWeight.w800,
+              color: Colors.textColorBlack.withOpacity(0.5))),
+          SizedBox(width: 4),
+          Text('***',
+            style: TextStyle(
+              fontSize: 23.5,
+              fontWeight: FontWeight.w800,
+              color: Colors.textColorBlack)),
+        ],
+      );
+    }
+
+    return Column(
+      children: [
+        Shimmer.fromColors(
+          period: Duration(milliseconds: 1000),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Container(
+              width: 90,
+              height: 10,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.white.withOpacity(0.3),
+                shape: BoxShape.rectangle),
+            )),
+          baseColor: Colors.white.withOpacity(0.6),
+          highlightColor: Colors.deepGrey.withOpacity(0.6)
+        ),
+        SizedBox(height: 4),
+        Shimmer.fromColors(
+          period: Duration(milliseconds: 1000),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Container(
+              width: 90,
+              height: 32,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.white.withOpacity(0.3),
+                shape: BoxShape.rectangle),
+            )),
+          baseColor: Colors.white.withOpacity(0.6),
+          highlightColor: Colors.deepGrey.withOpacity(0.6)
+        ),
+      ],
+    );
+  }
+
 }

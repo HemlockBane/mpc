@@ -23,6 +23,7 @@ import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:provider/provider.dart';
 
 import 'account_restriction_view.dart';
+import 'dialogs/account_update_info_dialog.dart';
 import 'document_verification_view.dart';
 
 class AccountUpdateScreen extends StatefulWidget {
@@ -206,6 +207,14 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> with CompositeDisp
     _registerPageChange();
     _loadPageDependencies = _viewModel.loadPageDependencies();
     super.initState();
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+      showDialog(
+          context: context,
+          builder: (ctx) {
+            return AccountUpdateInfoDialog(context: context);
+          }
+      );
+    });
   }
 
   Future<bool> _onBackPressed() async {

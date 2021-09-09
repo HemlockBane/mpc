@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/account_update_form_view.dart';
 import 'package:moniepoint_flutter/app/cards/model/data/card.dart';
 import 'package:moniepoint_flutter/app/cards/model/data/card_activation_response.dart';
-import 'package:moniepoint_flutter/app/cards/model/data/card_linking_response.dart';
 import 'package:moniepoint_flutter/app/cards/viewmodels/card_activation_view_model.dart';
 import 'package:moniepoint_flutter/app/cards/views/card_detailed_item.dart';
 import 'package:moniepoint_flutter/app/liveliness/model/data/liveliness_verification_for.dart';
@@ -58,7 +57,6 @@ class _CardActivationViewState extends State<CardActivationView> with CompositeD
     });
 
     if(response != null && response is CardActivationResponse){
-      //TODO show dem success
       if(response.status == true) {
         showSuccess(
             context,
@@ -313,7 +311,7 @@ class _CardCVVPagePageState extends State<_CardCVVPage> with AutomaticKeepAliveC
                 borderRadius: BorderRadius.circular(8),
                 color: Colors.primaryColor.withOpacity(0.1)
             ),
-            child: Image.asset("res/drawables/ic_card_in_envelop.png"),
+            child: Image.asset("res/drawables/ic_card_activation_cvv.png"),
           ),
           SizedBox(height: 32),
           Padding(

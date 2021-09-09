@@ -3,7 +3,7 @@ import 'package:flutter/material.dart' hide ScrollView, Colors;
 import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/forms/customer_address_form.dart';
 import 'package:moniepoint_flutter/app/accountupdates/viewmodels/account_update_view_model.dart';
-import 'package:moniepoint_flutter/app/accountupdates/views/dialogs/upload_request_dialog.dart';
+import 'package:moniepoint_flutter/core/views/upload_request_dialog.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';

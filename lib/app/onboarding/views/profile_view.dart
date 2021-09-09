@@ -103,6 +103,7 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
 
       showModalBottomSheet(
           isDismissible: false,
+          backgroundColor: Colors.transparent,
           context: widget._scaffoldKey.currentContext ?? context,
           builder: (mContext) {
             return ChangeNotifierProvider(

@@ -28,7 +28,7 @@ class CardDetailedItem extends Container {
       style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
     );
 
-    if(card.status == CardStatus.IN_ACTIVE) {
+    if(card.isActivated == false) {
       return Expanded(child: ImageFiltered(
         imageFilter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
         child: cardNameWidget,
@@ -54,7 +54,7 @@ class CardDetailedItem extends Container {
         Text(CardViewUtil.getLast4Digits(card), style: cardNumberStyle,),
       ],
     );
-    if(card.status == CardStatus.IN_ACTIVE) {
+    if(card.isActivated == false) {
       return ImageFiltered(
           imageFilter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
           child: cardNumberWidget,

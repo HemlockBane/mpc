@@ -14,7 +14,7 @@ import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:provider/provider.dart';
 
 import 'account_update_form_view.dart';
-import 'dialogs/upload_request_dialog.dart';
+import '../../../core/views/upload_request_dialog.dart';
 import 'package:moniepoint_flutter/core/utils/text_utils.dart';
 
 /// @author Paul Okeke

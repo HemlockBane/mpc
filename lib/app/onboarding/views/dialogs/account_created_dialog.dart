@@ -104,14 +104,15 @@ class _AccountCreatedDialog extends State<AccountCreatedDialog> with CompositeDi
                     child: Column(
                       children: [
                         Text("Your Account Number is"),
-                        SizedBox(height: 17),
+                        SizedBox(height: 11),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
+                            Flexible(child: Text(
                               widget.accountProfile.accountNumber ?? "",
                               style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700),
-                            ),
+                            )),
+                            SizedBox(width: 4,),
                             TextButton.icon(
                                 onPressed: () {
                                   Clipboard.setData(ClipboardData(text:widget.accountProfile.accountNumber  ?? ""));
@@ -134,6 +135,7 @@ class _AccountCreatedDialog extends State<AccountCreatedDialog> with CompositeDi
                   SizedBox(
                       width: double.infinity,
                       child: Styles.statefulButton2(
+                        isValid: true,
                         isLoading: _isLoading,
                         elevation: 0.5,
                         onClick: _subscribeUiToLogin,

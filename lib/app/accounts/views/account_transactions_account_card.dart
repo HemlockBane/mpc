@@ -175,11 +175,20 @@ class _AccountDetailsState extends State<AccountDetails>
     super.dispose();
   }
 
-  int getQualifiedTierIndex() {
-    final tiers = widget.viewModel.tiers;
-    print("tiers");
-    print("length: ${tiers.length}");
-    return Tier.getQualifiedTierIndex(tiers);
+  int? getQualifiedTierIndex() {
+    final tierName = widget.viewModel.getUserQualifiedTierName(widget.userAccount.id!);
+    print("tiername: $tierName");
+
+    if (tierName == null || tierName.isEmpty || !tierName.contains(" ")) return null;
+
+    final values = tierName.toLowerCase().split(" ");
+    if(values.isEmpty || values.length < 4) return null;
+
+    final tier = values[3];
+    final tierIdx = int.tryParse(tier);
+    if (tierIdx == null || !([1, 2, 3].contains(tierIdx))) return null;
+
+    return tierIdx;
   }
 
   @override
@@ -291,37 +300,40 @@ class _AccountDetailsState extends State<AccountDetails>
               ],
             ),
           ),
-          Positioned(
-            top: 2,
-            right: 13,
-            child: SvgPicture.asset(
-              "res/drawables/account_tier_bg.svg",
-              height: 33,
-              width: 16,
-              color: getTierColor(qualifiedTierIndex).withOpacity(0.2),
-            ),
-          ),
-          Positioned(
-            top: 6,
-            right: 17,
-            child: Container(
-              height: 24.6,
-              width: 24.6,
-              decoration: BoxDecoration(
-                color: getTierColor(getQualifiedTierIndex()),
-                shape: BoxShape.circle,
+          if (qualifiedTierIndex != null)
+            Positioned(
+              top: 2,
+              right: 13,
+              child: SvgPicture.asset(
+                "res/drawables/account_tier_bg.svg",
+                height: 33,
+                width: 16,
+                color: getTierColor(qualifiedTierIndex).withOpacity(0.2),
               ),
-              child: Center(
-                  child: text("$qualifiedTierIndex",
-                      color: Colors.white, fontSize: 17)),
             ),
-          ),
-          Positioned(
-            top: 12,
-            right: 50,
-            child: text("TIER",
-                color: getTierColor(qualifiedTierIndex), fontSize: 9.2),
-          )
+          if (qualifiedTierIndex != null)
+            Positioned(
+              top: 6,
+              right: 17,
+              child: Container(
+                height: 24.6,
+                width: 24.6,
+                decoration: BoxDecoration(
+                  color: getTierColor(getQualifiedTierIndex()!),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                    child: text("$qualifiedTierIndex",
+                        color: Colors.white, fontSize: 17)),
+              ),
+            ),
+          if (qualifiedTierIndex != null)
+            Positioned(
+              top: 12,
+              right: 50,
+              child: text("TIER",
+                  color: getTierColor(qualifiedTierIndex), fontSize: 9.2),
+            )
         ],
       ),
       Container(
@@ -374,8 +386,8 @@ class _AccountDetailsState extends State<AccountDetails>
                     height: 1,
                     color: Colors.primaryColor.withOpacity(0.3),
                   )),
-            if (!widget.viewModel.isAccountUpdateCompleted) SizedBox(height: 15),
-            if (!widget.viewModel.isAccountUpdateCompleted)
+            if (widget.viewModel.isAccountUpdateCompleted) SizedBox(height: 15),
+            if (widget.viewModel.isAccountUpdateCompleted)
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -406,7 +418,7 @@ class _AccountDetailsState extends State<AccountDetails>
                   ),
               ],),
 
-            if (!widget.viewModel.isAccountUpdateCompleted) SizedBox(height: 15)
+            if (widget.viewModel.isAccountUpdateCompleted) SizedBox(height: 15)
           ],
         ),
       ),

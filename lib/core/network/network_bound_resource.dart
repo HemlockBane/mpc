@@ -208,6 +208,7 @@ Tuple<String, String> formatError(String? errorMessage, String moduleName) {
           errorMessage.toLowerCase().contains("failed to connect") ||
           errorMessage.toLowerCase().contains("failed host lookup") ||
           errorMessage.toLowerCase().contains("network is unreachable") ||
+          errorMessage.toLowerCase().contains("internet connection") ||
           errorMessage.toLowerCase().contains("an unknown error occurred"))) {
     errorTitle = "No Network Connection";
     errorDescription =
@@ -246,4 +247,37 @@ Tuple<String, String> formatError(String? errorMessage, String moduleName) {
     FirebaseCrashlytics.instance.recordError(errorMessage, null);
   }
   return Tuple(errorTitle, errorDescription);
+}
+
+
+/// @author Paul Okeke
+///
+/// Applies a re-try mechanism and delay for loading
+/// resources (network bound resource) within the application
+///
+///
+///
+///
+Stream<Resource<T>> streamWithExponentialBackoff<T>({
+  int retries = 3,
+  Duration delay = const Duration(seconds: 3),
+  required Stream<Resource<T>> stream,
+}) async* {
+  await for (var response in stream) {
+    if(response is Loading || response is Success) yield response;
+    
+    if(response is Error<T>) {
+      if(retries > 1) {
+        print("Awaiting Exponential Delay....");
+        await Future.delayed(delay, () => true);
+        print("Retrying Exponential Backoff....");
+        yield* streamWithExponentialBackoff(
+            stream: stream,
+            retries: retries - 1
+        );
+      } else {
+        yield response;
+      }
+    }
+  }
 }

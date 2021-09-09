@@ -6,7 +6,6 @@ import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart'
 import 'package:moniepoint_flutter/app/accounts/model/data/account_status.dart';
 import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/login/model/data/user.dart';
-import 'package:moniepoint_flutter/core/config/service_config.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/timeout_reason.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
@@ -22,8 +21,10 @@ class UserInstance {
   static Timer? timer;
   Cron? _scheduler;
 
+  int _sessionTime = 120;
   DateTime _lastActivityTime = DateTime.now();
   SessionEventCallback? _sessionEventCallback;
+
 
   UserInstance._internal() {
     _instance = this;
@@ -93,13 +94,14 @@ class UserInstance {
     _lastActivityTime = DateTime.now();
   }
 
-  void startSession(BuildContext context) {
+  void startSession(BuildContext context, {int sessionTime = 120}) {
+    _sessionTime = sessionTime;
     if(_scheduler != null) return;//There's already a session running
     _scheduler = Cron();
     _scheduler?.schedule(Schedule.parse("*/2 * * * * *"), () async {
       final elapsedTime = DateTime.now().difference(_lastActivityTime).inSeconds;
       print("Currently Checking for inactivity... $elapsedTime");
-      if(elapsedTime >= 120) {
+      if(elapsedTime >= _sessionTime) {
         _sessionEventCallback?.call(SessionTimeoutReason.INACTIVITY);
         _scheduler?.close();
         _scheduler = null;

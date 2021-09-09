@@ -26,16 +26,18 @@ class AccountUpdateInfoDialog extends Dialog {
   Widget _contentView() {
     return BottomSheets.makeAppBottomSheet2(
       curveBackgroundColor: Colors.white,
-      centerBackgroundPadding: 14,
+      centerBackgroundPadding: 15,
       centerImageBackgroundColor: Colors.primaryColor.withOpacity(0.1),
       contentBackgroundColor: Colors.white,
       dialogIcon: Container(
-        padding: EdgeInsets.all(4),
+        height:46,
+        width: 46,
+        padding: EdgeInsets.all(8),
         decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: Colors.primaryColor
         ),
-        child: SvgPicture.asset('res/drawables/ic_info_italic.svg'),
+        child: SvgPicture.asset('res/drawables/ic_info_italic.svg', color: Colors.white,),
       ),
       content: ScrollView(
         maxHeight: 400,
@@ -43,56 +45,268 @@ class AccountUpdateInfoDialog extends Dialog {
           padding: EdgeInsets.symmetric(horizontal: 27, vertical: 0),
           child: Column(
             children: [
-              SizedBox(height: 24),
+              SizedBox(height: 26),
               Center(
                 child: Text('Before you begin...',
                     style: TextStyle(
-                        fontSize: 22,
+                        fontSize: 21,
                         fontWeight: FontWeight.bold,
                         color: Colors.textColorBlack)),
               ),
-              SizedBox(height: 30,),
+              SizedBox(height: 29,),
               Text(
                 'To completely upgrade your account, you \nwill need to provide the following \ndocuments:',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     color: Colors.textColorBlack,
-                    fontSize: 16
+                    fontSize: 15,
+                    fontWeight: FontWeight.normal
                 ),
               ),
               SizedBox(height: 26),
-              Container(
+              _IdentificationRequirement(),
+              SizedBox(height: 14,),
+              _ProofOfAddressRequirement(),
+              SizedBox(height: 22),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                      "*",
+                      style: TextStyle(
+                          color: Colors.colorFaded,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold
+                      )
+                  ),
+                  SizedBox(width: 6,),
+                  Flexible(
+                      child: Text(
+                          "All documents should be valid at the time of registration",
+                          style: TextStyle(
+                              color: Colors.darkBlue,
+                              fontSize: 12,
+                              fontWeight: FontWeight.normal
+                          )
+                      )
+                  )
+                ],
+              ),
+              SizedBox(height: 29),
+              SizedBox(
                 width: double.infinity,
-                height: 200,
-                padding: EdgeInsets.all(35),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: Colors.primaryColor.withOpacity(0.1)
-                ),
-                child: Row(
-                  children: [
-                    SvgPicture.asset("res/drawables/ic_bank_number_input.svg"),
-                    SizedBox(height: 15),
-                    Column(
-                      children: [
-                        Text(
-                          'Identification',
-                          style: TextStyle(color: Colors.textColorBlack, fontSize: 15, fontWeight: FontWeight.w600),
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          '\u2022\t\tUtility Bills (e.g. electricity bills)\n\u2022\t\tTenancy Agreements\n\u2022\t\tResident Permits',
-                          style: TextStyle(color: Colors.textColorBlack, fontSize: 13, fontWeight: FontWeight.w400),
-                        )
-                      ],
-                    )
-                  ],
+                child: Styles.appButton(
+                    elevation: 0.5,
+                    onClick: () => Navigator.of(context).pop(),
+                    text: "Proceed"
                 ),
               ),
-              SizedBox(height: 36),
+              SizedBox(height: 22),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+}
+
+///
+///
+///
+///
+///
+///
+class _IdentificationRequirement extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.only(left: 18, right: 18, top: 18, bottom: 24),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          color: Colors.primaryColor.withOpacity(0.1)
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SvgPicture.asset("res/drawables/ic_bank_number_input.svg", color: Colors.primaryColor, width: 26, height: 21,),
+          SizedBox(width: 15),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(
+                'Identification',
+                style: TextStyle(color: Colors.textColorBlack, fontSize: 15, fontWeight: FontWeight.w600),
+              ),
+              SizedBox(height: 8),
+              Row(
+                children: [
+                  Container(
+                    height: 7,
+                    width: 7,
+                    decoration: BoxDecoration(color: Colors.textColorBlack, shape: BoxShape.circle),
+                  ),
+                  SizedBox(width: 6,),
+                  Text(
+                    'National ID / NIN',
+                    style: TextStyle(
+                        color: Colors.textColorBlack,
+                        fontSize: 13,
+                        fontWeight: FontWeight.normal
+                    ),)
+                ],
+              ),
+              SizedBox(height: 8),
+              Row(
+                children: [
+                  Container(
+                    height: 7,
+                    width: 7,
+                    decoration: BoxDecoration(color: Colors.textColorBlack, shape: BoxShape.circle),
+                  ),
+                  SizedBox(width: 6,),
+                  Text(
+                    'Driver’s License',
+                    style: TextStyle(
+                        color: Colors.textColorBlack,
+                        fontSize: 13,
+                        fontWeight: FontWeight.normal
+                    ),)
+                ],
+              ),
+              SizedBox(height: 8),
+              Row(
+                children: [
+                  Container(
+                    height: 7,
+                    width: 7,
+                    decoration: BoxDecoration(color: Colors.textColorBlack, shape: BoxShape.circle),
+                  ),
+                  SizedBox(width: 6,),
+                  Text(
+                    'International Passport',
+                    style: TextStyle(
+                        color: Colors.textColorBlack,
+                        fontSize: 13,
+                        fontWeight: FontWeight.normal
+                    ),)
+                ],
+              ),
+              SizedBox(height: 8),
+              Row(
+                children: [
+                  Container(
+                    height: 7,
+                    width: 7,
+                    decoration: BoxDecoration(color: Colors.textColorBlack, shape: BoxShape.circle),
+                  ),
+                  SizedBox(width: 6,),
+                  Text(
+                    'Voter’s Card',
+                    style: TextStyle(
+                        color: Colors.textColorBlack,
+                        fontSize: 13,
+                        fontWeight: FontWeight.normal
+                    ),)
+                ],
+              ),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+}
+
+///
+///
+///
+///
+///
+///
+class _ProofOfAddressRequirement extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.only(left: 18, right: 18, top: 18, bottom: 24),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          color: Colors.primaryColor.withOpacity(0.1)
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SvgPicture.asset("res/drawables/ic_location.svg", color: Colors.primaryColor, width: 26, height: 21,),
+          SizedBox(width: 15),
+          Expanded(child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(
+                'Proof of Address',
+                style: TextStyle(color: Colors.textColorBlack, fontSize: 15, fontWeight: FontWeight.w600),
+              ),
+              SizedBox(height: 8),
+              Row(
+                children: [
+                  Container(
+                    height: 7,
+                    width: 7,
+                    decoration: BoxDecoration(color: Colors.textColorBlack, shape: BoxShape.circle),
+                  ),
+                  SizedBox(width: 6,),
+                  Flexible(child: Text(
+                    'Utility Bills (e.g. electricity bills)',
+                    style: TextStyle(
+                        color: Colors.textColorBlack,
+                        fontSize: 13,
+                        fontWeight: FontWeight.normal
+                    ),))
+                ],
+              ),
+              SizedBox(height: 8),
+              Row(
+                children: [
+                  Container(
+                    height: 7,
+                    width: 7,
+                    decoration: BoxDecoration(color: Colors.textColorBlack, shape: BoxShape.circle),
+                  ),
+                  SizedBox(width: 6,),
+                  Text(
+                    'Tenency Agreements',
+                    style: TextStyle(
+                        color: Colors.textColorBlack,
+                        fontSize: 13,
+                        fontWeight: FontWeight.normal
+                    ),)
+                ],
+              ),
+              SizedBox(height: 8),
+              Row(
+                children: [
+                  Container(
+                    height: 7,
+                    width: 7,
+                    decoration: BoxDecoration(color: Colors.textColorBlack, shape: BoxShape.circle),
+                  ),
+                  SizedBox(width: 6,),
+                  Text(
+                    'Resident Permits',
+                    style: TextStyle(
+                        color: Colors.textColorBlack,
+                        fontSize: 13,
+                        fontWeight: FontWeight.normal
+                    ),)
+                ],
+              ),
+            ],
+          ))
+        ],
       ),
     );
   }

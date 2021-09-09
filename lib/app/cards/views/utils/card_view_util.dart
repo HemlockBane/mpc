@@ -26,7 +26,7 @@ class CardViewUtil {
 
   static Color getCardBackground(Card card) {
     if(card.blocked) return Color(0XFFE14E4F).withOpacity(0.88);
-    if(card.status == CardStatus.IN_ACTIVE) return Colors.deepGrey;
+    if(!card.isActivated) return Colors.deepGrey;
     return Colors.primaryColor;
   }
 
@@ -118,7 +118,7 @@ class CardViewUtil {
 
   static Widget getCardStateBanner(Card card) {
     if(card.blocked) return getBlockedCardBanner();
-    if(card.status == CardStatus.IN_ACTIVE) return getInactiveCardBanner();
+    if(!card.isActivated) return getInactiveCardBanner();
     return Row(
       children: [
         SvgPicture.asset('res/drawables/ic_moniepoint_cube.svg'),

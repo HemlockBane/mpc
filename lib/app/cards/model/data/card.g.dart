@@ -9,8 +9,7 @@ part of 'card.dart';
 Card _$CardFromJson(Map<String, dynamic> json) {
   return Card(
     id: json['id'] as int?,
-    status: _$enumDecodeNullable(_$CardStatusEnumMap, json['status']),
-    encryptedPan: json['encryptedPan'] as String?,
+    encryptedPan: json['status'] as String?,
     maskedPan: json['maskedPan'] as String,
     hashedPan: json['hashedPan'] as String?,
     expiryDate: json['expiryDate'] as String?,
@@ -36,14 +35,14 @@ Card _$CardFromJson(Map<String, dynamic> json) {
     cardRequestBatch: json['cardRequestBatch'] as String?,
     blockReason: json['blockReason'] as String?,
     issued: json['issued'] as bool?,
+    isActivated: json['isActivated'] as bool,
     blocked: json['blocked'] as bool,
   );
 }
 
 Map<String, dynamic> _$CardToJson(Card instance) => <String, dynamic>{
       'id': instance.id,
-      'status': _$CardStatusEnumMap[instance.status],
-      'encryptedPan': instance.encryptedPan,
+      'status': instance.encryptedPan,
       'maskedPan': instance.maskedPan,
       'hashedPan': instance.hashedPan,
       'expiryDate': instance.expiryDate,
@@ -61,51 +60,10 @@ Map<String, dynamic> _$CardToJson(Card instance) => <String, dynamic>{
       'customerAccountCard': instance.customerAccountCard,
       'cardRequestBatch': instance.cardRequestBatch,
       'blocked': instance.blocked,
+      'isActivated': instance.isActivated,
       'blockReason': instance.blockReason,
       'issued': instance.issued,
     };
-
-K _$enumDecode<K, V>(
-  Map<K, V> enumValues,
-  Object? source, {
-  K? unknownValue,
-}) {
-  if (source == null) {
-    throw ArgumentError(
-      'A value must be provided. Supported values: '
-      '${enumValues.values.join(', ')}',
-    );
-  }
-
-  return enumValues.entries.singleWhere(
-    (e) => e.value == source,
-    orElse: () {
-      if (unknownValue == null) {
-        throw ArgumentError(
-          '`$source` is not one of the supported values: '
-          '${enumValues.values.join(', ')}',
-        );
-      }
-      return MapEntry(unknownValue, enumValues.values.first);
-    },
-  ).key;
-}
-
-K? _$enumDecodeNullable<K, V>(
-  Map<K, V> enumValues,
-  dynamic source, {
-  K? unknownValue,
-}) {
-  if (source == null) {
-    return null;
-  }
-  return _$enumDecode<K, V>(enumValues, source, unknownValue: unknownValue);
-}
-
-const _$CardStatusEnumMap = {
-  CardStatus.ACTIVE: 'ACTIVE',
-  CardStatus.IN_ACTIVE: 'IN_ACTIVE',
-};
 
 CardProduct _$CardProductFromJson(Map<String, dynamic> json) {
   return CardProduct()

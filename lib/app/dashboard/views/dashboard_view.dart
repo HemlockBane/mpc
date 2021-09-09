@@ -213,6 +213,10 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
         break;
       }
       case Routes.ACCOUNT_TRANSACTIONS:{
+        if(_scaffoldKey.currentState?.isDrawerOpen == true) {
+          Navigator.of(context).pop();
+        }
+
         // Get first user account by default
        final userAccount = _viewModel.userAccounts[0];
        final routeArgs = {

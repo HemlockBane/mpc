@@ -61,7 +61,7 @@ class TransactionHistoryListItem extends Container {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                         " ${getArithmeticSign(_transaction)}${_transaction.getAmount().formatCurrency}",
+                         "${getArithmeticSign(_transaction)}${_transaction.getAmount().formatCurrency}",
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                               fontSize: 17,

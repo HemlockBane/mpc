@@ -57,19 +57,11 @@ class _CardActivationViewState extends State<CardActivationView> with CompositeD
     });
 
     if(response != null && response is CardActivationResponse){
-      if(response.status == true) {
-        showSuccess(
-            context,
-            title: "Card Activated!",
-            message: "Your Card has been activated successfully!"
-        );
-      }else {
-        showError(
-            context,
-            title: "Card Activation Failed",
-            message: "Your Card has been activated successfully!"
-        );
-      }
+      showSuccess(
+          context,
+          title: "Card Activated!",
+          message: "Your Card has been activated successfully!"
+      );
     }
   }
 
@@ -203,65 +195,68 @@ class _CardActivationInfoPageState extends State<_CardActivationInfoPage> {
   @override
   Widget build(BuildContext context) {
 
-    return ScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: 4),
-          Center(child: Text("Card Activation",
-              style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.textColorBlack)
-          ),),
-          SizedBox(height: 21),
-          Container(
-            width: double.infinity,
-            height: 230,
-            padding: EdgeInsets.only(left: 70, right: 70, top: 60, bottom: 60),
-            margin: EdgeInsets.only(left: 20, right: 20),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: Colors.primaryColor.withOpacity(0.1)
-            ),
-            child: Image.asset("res/drawables/ic_card_in_envelop.png", width: 117, height: 117,),
-          ),
-          SizedBox(height: 32),
-          Padding(
-              padding: EdgeInsets.only(left: 20),
-              child: Text(
-                'Take out the card from the Package',
-                style: TextStyle(color: Colors.textColorBlack),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: 4),
+        Center(
+            child: Text("Card Activation",
+            style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.textColorBlack
+            )
+        )),
+        SizedBox(height: 21),
+        AspectRatio(
+            aspectRatio: 6,
+            child: Container(
+              width: double.infinity,
+              // height: 230,
+              padding: EdgeInsets.only(left: 70, right: 70, top: 10, bottom: 10),
+              margin: EdgeInsets.only(left: 20, right: 20),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.primaryColor.withOpacity(0.1)
               ),
+              child: Image.asset("res/drawables/ic_card_in_envelop.png", width: 117, height: 117,),
+            ),
+        ),
+        SizedBox(height: 32),
+        Padding(
+          padding: EdgeInsets.only(left: 20),
+          child: Text(
+            'Take out the card from the Package',
+            style: TextStyle(color: Colors.textColorBlack),
           ),
-          Spacer(),
-          Row(
-            children: [
-              Flexible(child: Container()),
-              Flexible(
-                  flex: 1,
-                  child: Align(
-                    alignment: Alignment.bottomRight,
-                    child: Padding(
-                      padding: EdgeInsets.only(right: 20),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: Styles.appButton(
-                            elevation: 0.2,
-                            onClick: () {
-                              _viewModel.movePage(widget.position);
-                            },
-                            text: "Next"
-                        ),
+        ),
+        Spacer(),
+        Row(
+          children: [
+            Flexible(child: Container()),
+            Flexible(
+                flex: 1,
+                child: Align(
+                  alignment: Alignment.bottomRight,
+                  child: Padding(
+                    padding: EdgeInsets.only(right: 20),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: Styles.appButton(
+                          elevation: 0.2,
+                          onClick: () {
+                            _viewModel.movePage(widget.position);
+                          },
+                          text: "Next"
                       ),
                     ),
-                  )
-              )
-            ],
-          ),
-          SizedBox(height: 45)
-        ],
-      ),
+                  ),
+                )
+            )
+          ],
+        ),
+        SizedBox(height: 45)
+      ],
     );
   }
 

@@ -9,7 +9,6 @@ import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/network_bound_resource.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
-import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/list_view_util.dart';
 import 'package:moniepoint_flutter/core/views/error_layout_view.dart';
@@ -62,7 +61,7 @@ class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin{
                   itemCount: items?.length ?? 0,
                   separatorBuilder: (context, index) => Padding(
                     padding: EdgeInsets.only(top: 12, bottom: 12),
-                    child: SizedBox(height: 0,),
+                    child: SizedBox(height: 0),
                   ),
                   itemBuilder: (context, index) {
                     return CardListItem(items![index], index, (card, i) {
@@ -122,7 +121,7 @@ class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin{
                             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
                           ),
                           Visibility(
-                              visible: snap.data?.data?.isEmpty == false,
+                              visible: snap.data?.data?.isEmpty == true,
                               child: TextButton.icon(
                                   onPressed: () {
                                     Navigator.of(context).pushNamed(Routes.ADD_CARD);

@@ -9,6 +9,7 @@ part of 'card.dart';
 Card _$CardFromJson(Map<String, dynamic> json) {
   return Card(
     id: json['id'] as int?,
+    idFromCardService: json['idFromCardService'] as int?,
     encryptedPan: json['status'] as String?,
     maskedPan: json['maskedPan'] as String,
     hashedPan: json['hashedPan'] as String?,
@@ -42,6 +43,7 @@ Card _$CardFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$CardToJson(Card instance) => <String, dynamic>{
       'id': instance.id,
+      'idFromCardService': instance.idFromCardService,
       'status': instance.encryptedPan,
       'maskedPan': instance.maskedPan,
       'hashedPan': instance.hashedPan,

@@ -7,7 +7,6 @@ import 'package:flutter/material.dart' hide Colors, Page;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
-import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/accounts/viewmodels/transaction_list_view_model.dart';
@@ -15,12 +14,7 @@ import 'package:moniepoint_flutter/app/accounts/views/account_transactions_accou
 import 'package:moniepoint_flutter/app/accounts/views/accounts_shimmer_view.dart';
 import 'package:moniepoint_flutter/app/accounts/views/dialogs/account_settings_dialog.dart';
 import 'package:moniepoint_flutter/app/accounts/views/transaction_history_list_item.dart';
-import 'package:moniepoint_flutter/app/customer/customer_account.dart';
 import 'package:moniepoint_flutter/app/customer/user_account.dart';
-import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
-import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
-import 'package:moniepoint_flutter/core/network/resource.dart';
-import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/views/empty_list_layout_view.dart';
 import 'package:moniepoint_flutter/core/views/error_layout_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
@@ -237,6 +231,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  SizedBox(height: 100,),
                   EmptyLayoutView(viewModel.isFilteredList()
                       ? "You have no transactions with these search criteria"
                       : "You have no transaction history yet.")
@@ -250,10 +245,8 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  SizedBox(height: 50),
                   ErrorLayoutView(error?.first ?? "", error?.second ?? "", _retry),
-                  SizedBox(
-                    height: 50,
-                  )
                 ],
               ),
             )),
@@ -355,7 +348,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
                             child: Container(
                               height: isAccountLiened ? 142 : 67,
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: error == null ? Colors.white : Colors.transparent,
                                 borderRadius: BorderRadius.vertical(
                                   top: Radius.circular(22),
                                 ),
@@ -389,11 +382,14 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
                                   child: filterMenu()
                               ),
                               SizedBox(height: 13,),
-                              Divider(
-                                height: 0.8,
-                                thickness: 0.4,
-                                color: Colors.black.withOpacity(0.1),
-                              )
+                              Visibility(
+                                  visible: !isInFilterMode && error == null,
+                                  child: Divider(
+                                    height: 0.8,
+                                    thickness: 0.4,
+                                    color: Colors.black.withOpacity(0.1),
+                                  )
+                              ),
                             ],
                           ),
                         ],

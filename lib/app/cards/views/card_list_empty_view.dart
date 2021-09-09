@@ -30,7 +30,7 @@ class _CardListEmptyViewState extends State<CardListEmptyView> {
     CardListOptionItem(
         onClick: _checkAccountBalance,
         title: "Get Card Now",
-        subTitle: "Look for Agent Locations",
+        subTitle: "From Agent Location",
         processStream: _processingProxy,
         leadingIcon: SvgPicture.asset("res/drawables/ic_get_card.svg")
     ),

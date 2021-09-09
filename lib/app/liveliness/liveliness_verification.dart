@@ -5,6 +5,7 @@ import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 
@@ -93,7 +94,7 @@ class _LivelinessVerification extends State<LivelinessVerification> {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(flex:1, child: SvgPicture.asset('res/drawables/ic_face_match_brightness.svg')),
+                            Expanded(flex: 1, child: SvgPicture.asset('res/drawables/ic_face_match_brightness.svg')),
                             SizedBox(width: 16,),
                             Expanded(flex:8, child: Text(
                                 'Stay in a brightly lit environment',
@@ -111,7 +112,7 @@ class _LivelinessVerification extends State<LivelinessVerification> {
                           children: [
                             Expanded(flex:1, child: SvgPicture.asset('res/drawables/ic_face_match_sunglasses.svg')),
                             SizedBox(width: 16,),
-                            Expanded(flex:8, child: Text(
+                            Expanded(flex: 8, child: Text(
                                 'Remove glasses, hats, hijabs, face masks or any other face coverings',
                                 style: TextStyle(
                                     fontSize: 15,
@@ -124,7 +125,7 @@ class _LivelinessVerification extends State<LivelinessVerification> {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(flex:1, child: SvgPicture.asset('res/drawables/ic_face_match_gesture.svg')),
+                            Expanded(flex: 1, child: SvgPicture.asset('res/drawables/ic_face_match_gesture.svg')),
                             SizedBox(width: 16,),
                             Expanded(flex:8, child: Text('Remain neutral - don’t smile, don’t open your mouth',
                                 style: TextStyle(
@@ -180,6 +181,9 @@ class _LivelinessVerification extends State<LivelinessVerification> {
   @override
   void initState() {
     _livelinessDetector = LivelinessDetector();
+    if(UserInstance().getUser() != null) {
+      UserInstance().updateLastActivityTime();
+    }
     super.initState();
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
       _requestCameraPermission();

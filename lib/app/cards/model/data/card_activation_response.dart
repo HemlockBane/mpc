@@ -8,9 +8,9 @@ part 'card_activation_response.g.dart';
 
 @JsonSerializable()
 class CardActivationResponse extends LivelinessValidationResponse {
-
-  @JsonKey(name: "status")
-  bool? status;
+  //
+  // @JsonKey(name: "status")
+  // bool? status;
 
   @JsonKey(name: "message")
   String? message;

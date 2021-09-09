@@ -22,7 +22,32 @@ class CardServiceDelegate with NetworkResource {
 
   //Internal Cards cache/repository
   //Since we can't persist cards in DB
-  late final List<Card> _cards = [];
+  late final cardA = Card(
+      id: 0,
+      maskedPan: "514360******4198",
+      blocked: false,
+      nameOnCard: "Paul Okeke",
+      channelBlockStatus: TransactionChannelBlockStatus(web: false, atm: false, pos: false)
+  );
+  late final List<Card> _cards = [
+    cardA,
+    Card(id: 1,
+        maskedPan: "506099******4323",
+        expiryDate: "23/03",
+        blocked: false,
+        nameOnCard: "AAAAA Okeke",
+        isActivated: false,
+        channelBlockStatus: TransactionChannelBlockStatus(web: false, atm: false, pos: false)
+    ),
+    Card(id: 2,
+        maskedPan: "506099******4323",
+        expiryDate: "23/03",
+        blocked: true,
+        nameOnCard: "AAAAA Okeke",
+        isActivated: true,
+        channelBlockStatus: TransactionChannelBlockStatus(web: false, atm: false, pos: false)
+    ),
+  ];
 
   Stream<Resource<List<Card>>> getCards(int customerAccountId) {
     return networkBoundResource(

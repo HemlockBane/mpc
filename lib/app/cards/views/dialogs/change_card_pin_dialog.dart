@@ -58,7 +58,7 @@ class _ChangeCardPinDialog extends State<ChangeCardPinDialog> {
                 ),
                 SizedBox(height: 24),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 50),
+                  padding: EdgeInsets.symmetric(horizontal: 30),
                   child: Text('Enter Current PIN',
                       textAlign: TextAlign.start,
                       style: TextStyle(
@@ -67,7 +67,7 @@ class _ChangeCardPinDialog extends State<ChangeCardPinDialog> {
                 ),
                 SizedBox(height: 8),
                 Padding(
-                  padding: EdgeInsets.only(left: 50, right: 50),
+                  padding: EdgeInsets.only(left: 30, right: 30),
                   child: PinEntry(onChange: (v) {
                     setState(() {
                       _oldPin = v;
@@ -76,7 +76,7 @@ class _ChangeCardPinDialog extends State<ChangeCardPinDialog> {
                 ),
                 SizedBox(height: 24),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 50),
+                  padding: EdgeInsets.symmetric(horizontal: 30),
                   child: Text('Enter New PIN',
                       textAlign: TextAlign.start,
                       style: TextStyle(
@@ -85,14 +85,14 @@ class _ChangeCardPinDialog extends State<ChangeCardPinDialog> {
                 ),
                 SizedBox(height: 8),
                 Padding(
-                  padding: EdgeInsets.only(left: 50, right: 50),
+                  padding: EdgeInsets.only(left: 30, right: 30),
                   child: PinEntry(onChange: (v){
                     _newPin = v;
                   }),
                 ),
                 SizedBox(height: 24),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 50),
+                  padding: EdgeInsets.symmetric(horizontal: 30),
                   child: Text('CVV',
                       textAlign: TextAlign.start,
                       style: TextStyle(
@@ -101,7 +101,7 @@ class _ChangeCardPinDialog extends State<ChangeCardPinDialog> {
                 ),
                 SizedBox(height: 8),
                 Padding(
-                  padding: EdgeInsets.only(left: 50, right: 50, bottom: MediaQuery.of(context).viewInsets.bottom * 0.6),
+                  padding: EdgeInsets.only(left: 30, right: 30, bottom: MediaQuery.of(context).viewInsets.bottom * 0.6),
                   child: PinEntry(numEntries :3 ,onChange: (v) {
                     _cvv = v;
                   }),

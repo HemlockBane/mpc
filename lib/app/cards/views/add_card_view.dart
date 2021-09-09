@@ -1,25 +1,8 @@
 import 'package:flutter/material.dart' hide Colors, Card;
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
-import 'package:moniepoint_flutter/app/cards/model/data/card.dart';
-import 'package:moniepoint_flutter/app/cards/model/data/card_transaction_request.dart';
-import 'package:moniepoint_flutter/app/cards/viewmodels/single_card_view_model.dart';
 import 'package:moniepoint_flutter/app/cards/views/card_list_empty_view.dart';
-import 'package:moniepoint_flutter/app/cards/views/card_list_item.dart';
-import 'package:moniepoint_flutter/app/cards/views/card_view_shimmer.dart';
-import 'package:moniepoint_flutter/app/cards/views/dialogs/card_pin_dialog.dart';
-import 'package:moniepoint_flutter/app/cards/views/dialogs/change_card_pin_dialog.dart';
-import 'package:moniepoint_flutter/app/cards/views/dialogs/manage_card_channels_dialog.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
-import 'package:moniepoint_flutter/core/network/resource.dart';
-import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
-import 'package:moniepoint_flutter/core/tuple.dart';
-import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
-import 'package:moniepoint_flutter/core/utils/list_view_util.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
-import 'package:provider/provider.dart';
 
 class AddCardScreen extends StatefulWidget {
 

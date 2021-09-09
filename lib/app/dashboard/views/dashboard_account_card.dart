@@ -368,7 +368,7 @@ class _AccountDetailsState extends State<AccountDetails> with CompositeDisposabl
         child: Row(
           children: [
             Expanded(
-              child: Text('We can’t get your balance right now.\nCount to ten and try again',
+              child: Text('We can’t get your balance right now.\nCount to ten and please try again',
                 style: TextStyle(
                   fontSize: 12.5,
                   fontWeight: FontWeight.w600,

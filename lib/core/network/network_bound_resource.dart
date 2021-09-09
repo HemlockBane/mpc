@@ -208,6 +208,7 @@ Tuple<String, String> formatError(String? errorMessage, String moduleName) {
           errorMessage.toLowerCase().contains("failed to connect") ||
           errorMessage.toLowerCase().contains("failed host lookup") ||
           errorMessage.toLowerCase().contains("network is unreachable") ||
+          errorMessage.toLowerCase().contains("internet connection") ||
           errorMessage.toLowerCase().contains("an unknown error occurred"))) {
     errorTitle = "No Network Connection";
     errorDescription =

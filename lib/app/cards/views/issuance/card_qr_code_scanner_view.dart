@@ -164,6 +164,8 @@ class _CardQRCodeScannerViewState extends State<CardQRCodeScannerView> {
     if(validationResponse != null && validationResponse is CardLinkingResponse){
       _showCardActivationCode(validationResponse.issuanceCode ?? "");
     }
+
+    if(validationResponse == null) Navigator.of(context).pop();
   }
 
   Widget _cardIssuanceStateView(BuildContext mContext,

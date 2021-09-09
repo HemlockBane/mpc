@@ -7,6 +7,9 @@ class Card {
   @JsonKey(name:"id")
   final int? id;
 
+  @JsonKey(name:"idFromCardService")
+  final int? idFromCardService;
+
   @JsonKey(name:"status")
   // final CardStatus? status;
 //    @JsonKey(name:"createdOn") val createdOn: String? = null,
@@ -76,6 +79,7 @@ class Card {
 
   Card(
       {this.id,
+        this.idFromCardService,
       // this.status,
       this.encryptedPan,
       required this.maskedPan,

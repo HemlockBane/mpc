@@ -17,7 +17,7 @@ class CardListItem extends Container {
 
   final cardNumberStyle = TextStyle(
       letterSpacing: 1.2,
-      fontSize: 20,
+      fontSize: 19.5,
       fontWeight: FontWeight.normal,
       color: Colors.white,
       fontFamily: Styles.ocraExtended
@@ -49,8 +49,8 @@ class CardListItem extends Container {
           children: [
             Text(CardViewUtil.getFirst6Digits(card), style: cardNumberStyle,),
             Text(' ** **** ', style: TextStyle(
-              letterSpacing: 1.2,
-                fontSize: 20,
+                letterSpacing: 1.2, //TODO factor in screen width
+                fontSize: 19.5,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
                 fontFamily: Styles.ocraExtended

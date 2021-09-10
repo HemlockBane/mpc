@@ -47,7 +47,7 @@ class _CardDetailedViewState extends State<CardDetailedView> {
       CardListOptionItem(
           onClick: _card!.blocked ? null : null,
           title: "Card Transaction Limit",
-          subTitle: "Set a spending limit on this card",
+          subTitle: "Coming soon",
           leadingIcon: SvgPicture.asset("res/drawables/ic_get_card.svg")
       ),
       CardListOptionItem(

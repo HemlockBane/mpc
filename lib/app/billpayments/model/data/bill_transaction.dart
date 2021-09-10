@@ -11,7 +11,7 @@ part 'bill_transaction.g.dart';
 
 @Entity(tableName: "bill_transactions", primaryKeys: ['batch_id', 'history_id'])
 @JsonSerializable()
-class BillTransaction implements Transaction {
+class BillTransaction extends Transaction {
 
   String? username = "";
 

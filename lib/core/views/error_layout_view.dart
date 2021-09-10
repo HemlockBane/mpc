@@ -39,15 +39,14 @@ class ErrorLayoutView extends Container {
         SizedBox(
           height: 32,
         ),
-        ElevatedButton.icon(
-            icon: SizedBox(),
+        TextButton(
             onPressed: retry,
-            label: Text('Retry'),
+            child: Text('Retry'),
             style: ButtonStyle(
                 elevation: MaterialStateProperty.all(0),
                 shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(5)),
-                  side: BorderSide(color: Colors.primaryColor, width: 2)
+                    borderRadius: BorderRadius.all(Radius.circular(5)),
+                    side: BorderSide(color: Colors.primaryColor, width: 2)
                 )),
                 padding: MaterialStateProperty.all(EdgeInsets.only(left: 16, right: 16, top: 7, bottom: 7)),
                 textStyle: MaterialStateProperty.all(TextStyle(
@@ -57,14 +56,15 @@ class ErrorLayoutView extends Container {
                     fontFamily: Styles.defaultFont)),
                 foregroundColor: MaterialStateProperty.all(Colors.colorAccent),
                 backgroundColor:
-                    MaterialStateProperty.resolveWith<Color>((states) {
+                MaterialStateProperty.resolveWith<Color>((states) {
                   if (states.contains(MaterialState.disabled))
                     return Colors.deepGrey.withOpacity(0.5);
                   else if (states.contains(MaterialState.pressed))
                     return Colors.primaryColor.withOpacity(0.1);
                   else
                     return Colors.white;
-                })))
+                }))
+        )
       ],
     );
   }

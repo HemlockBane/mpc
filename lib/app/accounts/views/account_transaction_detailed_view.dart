@@ -30,66 +30,30 @@ class AccountTransactionDetailedView extends StatefulWidget {
   State<StatefulWidget> createState() => _AccountTransactionDetailedView();
 }
 
-class _AccountTransactionDetailedView
-    extends State<AccountTransactionDetailedView> {
+class _AccountTransactionDetailedView extends State<AccountTransactionDetailedView> {
   String? _transactionReference;
-
-
+  late final AccountTransactionDetailViewModel _viewModel;
 
   LatLng? _transactionLocation(AccountTransaction transaction) {
-    print(transaction.metaData?.location);
-    return (transaction.metaData?.location != null)
-        ? LatLng(
-            double.tryParse(
-                    transaction.metaData?.location?.latitude ?? "0.0") ??
-                0.0,
-            double.tryParse(
-                    transaction.metaData?.location?.longitude ?? "0.0") ??
-                0.0)
-        : null;
-  }
-
-
-  void _displaySettingsDialog() async {
-    final viewModel = Provider.of<AccountTransactionDetailViewModel>(context, listen: false);
-    final tiers = viewModel.tiers;
-    final qualifiedTierIndex = Tier.getQualifiedTierIndex(tiers);
-    if (tiers.isEmpty) return;
-
-    final result = await showModalBottomSheet(
-        backgroundColor: Colors.transparent,
-        context: context,
-        builder: (mContext) =>
-            AccountSettingsDialog(tiers[qualifiedTierIndex]));
-
-    if (result != null && result is String) {
-      if (result == "block") {
-        showInfo(context,
-            title: "Warning!!!",
-            message:
-                "You will have to visit a branch to unblock your account if needed! Proceed to block?",
-            primaryButtonText: "Yes, Proceed", onPrimaryClick: () {
-          Navigator.of(context).pop();
-          Navigator.of(context).pushNamed(Routes.BLOCK_ACCOUNT);
-        });
-      }
+    if(transaction.metaData?.location != null) {
+      return LatLng(
+          double.tryParse(transaction.metaData?.location?.latitude ?? "0.0") ?? 0.0,
+          double.tryParse(transaction.metaData?.location?.longitude ?? "0.0") ?? 0.0
+      );
     }
+    return null;
   }
-
 
   @override
   void initState() {
-   final viewModel =
-        Provider.of<AccountTransactionDetailViewModel>(context, listen: false);
+    _viewModel = Provider.of<AccountTransactionDetailViewModel>(context, listen: false);
     super.initState();
-    viewModel.getTiers().listen((event) {});
+    _viewModel.getTiers().listen((event) {});
   }
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = Provider.of<AccountTransactionDetailViewModel>(context);
-    this._transactionReference =
-        ModalRoute.of(context)!.settings.arguments as String?;
+    this._transactionReference = ModalRoute.of(context)!.settings.arguments as String?;
 
     return Scaffold(
       backgroundColor: Color(0XFFEBF2FA),
@@ -98,39 +62,20 @@ class _AccountTransactionDetailedView
         child: Stack(
           children: [
             Positioned.fill(
-              child: Image.asset(
-                "res/drawables/ic_app_bg_dark.png",
-                fit: BoxFit.fill,
-              ),
+              child: Image.asset("res/drawables/ic_app_bg_dark.png", fit: BoxFit.fill),
             ),
             ScrollView(
               child: FutureBuilder(
-                future: viewModel
-                    .getSingleTransactionById(this._transactionReference ?? ""),
-                builder: (BuildContext context,
-                    AsyncSnapshot<AccountTransaction?> snapshot) {
-                  if (!snapshot.hasData || snapshot.data == null)
-                    return Container();
+                future: _viewModel.getSingleTransactionById(this._transactionReference ?? ""),
+                builder: (BuildContext context, AsyncSnapshot<AccountTransaction?> snapshot) {
+                  if (!snapshot.hasData || snapshot.data == null) return Container();
                   final transaction = snapshot.data!;
-                  final transactionDate = DateFormat("d MMM. yy | h:mm a")
-                      .format(DateTime.fromMillisecondsSinceEpoch(
-                          transaction.getInitiatedDate()));
-                  final balanceBefore =
-                      double.tryParse(transaction.balanceBefore ?? "")
-                              ?.formatCurrency ??
-                          "";
-                  final balanceAfter =
-                      double.tryParse(transaction.balanceAfter ?? "")
-                              ?.formatCurrency ??
-                          "";
-                  final downloadTask = Tuple(
-                      () => viewModel.downloadTransactionReceipt(transaction),
-                      "AccountTransaction_Receipt_${viewModel.accountName}_${DateFormat("dd_MM_yyyy_h_m_s").format(DateTime.now())}.pdf");
+                  final transactionDate = transaction.transactionDateToString();
+                  final balanceBefore = double.tryParse(transaction.balanceBefore ?? "")?.formatCurrency ?? "";
+
+                  final downloadTask = Tuple(() => _viewModel.downloadTransactionReceipt(transaction), "AccountTransaction_Receipt_${_viewModel.accountName}_${DateFormat("dd_MM_yyyy_h_m_s").format(DateTime.now())}.pdf");
                   final transactionLocation = _transactionLocation(transaction);
-                  final transactionType =
-                      transaction.type == TransactionType.CREDIT
-                          ? "CREDIT"
-                          : "DEBIT";
+                  final transactionType = describeEnum(transaction.type ??  TransactionType.UNKNOWN);
 
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -157,9 +102,7 @@ class _AccountTransactionDetailedView
                                     color: Colors.primaryColor,
                                   ),
                                 ),
-                                SizedBox(
-                                  width: 10,
-                                ),
+                                SizedBox(width: 10),
                                 Text(
                                   "Transaction Details",
                                   style: TextStyle(
@@ -169,19 +112,6 @@ class _AccountTransactionDetailedView
                                 )
                               ],
                             ),
-                            // Styles.imageButton(
-                            //   padding: EdgeInsets.all(9),
-                            //   color: Colors.transparent,
-                            //   borderRadius: BorderRadius.circular(30),
-                            //   onClick: _displaySettingsDialog,
-                            //   image: SvgPicture.asset(
-                            //     'res/drawables/ic_dashboard_settings.svg',
-                            //     fit: BoxFit.contain,
-                            //     width: 22,
-                            //     height: 22.56,
-                            //     color: Colors.primaryColor,
-                            //   ),
-                            // ),
                           ],
                         ),
                       ),
@@ -362,8 +292,7 @@ class _AccountTransactionDetailedView
                                                 .withOpacity(0.3),
                                             )),
                                         SizedBox(height: 14),
-                                        if (transaction.narration != null &&
-                                          transaction.narration!.isNotEmpty)
+                                        if (transaction.narration != null && transaction.narration!.isNotEmpty)
                                           _label('Narration'),
                                         if (transaction.narration != null &&
                                           transaction.narration!.isNotEmpty)
@@ -477,7 +406,7 @@ class _AccountTransactionDetailedView
                                   SizedBox(height: 17),
                                   Container(
                                     width: double.infinity,
-                                    padding: EdgeInsets.symmetric(horizontal: 15),
+                                    padding: EdgeInsets.only(left: 15, right: 15, top: 17, bottom: 14),
                                     decoration: BoxDecoration(
                                       color: Colors.primaryColor.withOpacity(0.05),
                                       borderRadius:
@@ -486,7 +415,6 @@ class _AccountTransactionDetailedView
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        SizedBox(height: 17),
                                         _label('Transaction Date'),
                                         SizedBox(height: 3),
                                         _text(transactionDate),

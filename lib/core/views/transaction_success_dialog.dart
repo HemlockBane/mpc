@@ -176,8 +176,8 @@ class _TransactionSuccessDialog extends State<TransactionSuccessDialog> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            SvgPicture.asset('res/drawables/ic_share.svg'),
-                            SizedBox(width: 8,),
+                            SvgPicture.asset('res/drawables/ic_share.svg', color: Colors.primaryColor),
+                            SizedBox(width: 8),
                             Text(
                               'Share Receipt'.toUpperCase(),
                               style: TextStyle(fontSize: 14, color: Colors.primaryColor),

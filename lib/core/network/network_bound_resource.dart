@@ -164,10 +164,11 @@ mixin NetworkResource {
       if (_errorString!.contains("resolve host")
           || _errorString!.toLowerCase().contains("failed to connect")
           || _errorString!.toLowerCase().contains("host lookup")
+          || _errorString!.toLowerCase().contains("socket")
           || _errorString!.toLowerCase().contains("network is unreachable")
           || _errorString!.toLowerCase().contains("connecttimeout")) {
-        _errorString =
-        "We are unable to reach the server at this time. Please confirm your internet connection and try again later.";
+        _errorString = "We are unable to reach the server at this time."
+            " Please confirm your internet connection and try again later.";
       }
       else if (_errorString != null &&
           (_errorString!.toLowerCase().contains("502") ||

@@ -97,7 +97,14 @@ class _CardDetailedViewState extends State<CardDetailedView> {
     );
 
     if (value != null && value is CardTransactionRequest) {
-      _openCardTransactionDialog(viewModel, CardAction.CHANGE_PIN, value);
+      _openCardTransactionDialog(
+          viewModel,
+          CardAction.CHANGE_PIN,
+          value
+            ..cardAccountNumber = _card?.customerAccountCard?.customerAccountNumber ?? ""
+            ..cardId = _card?.id
+            ..expiry = _card?.expiryDate,
+      );
     }
   }
 
@@ -123,7 +130,7 @@ class _CardDetailedViewState extends State<CardDetailedView> {
           }
       );
     } else if(value is Error) {
-      showError(context, title: "Oops", message: value.message);
+      showError(context, title: "Card Operation Failed!", message: value.message);
     }
   }
 
@@ -161,23 +168,25 @@ class _CardDetailedViewState extends State<CardDetailedView> {
                     ),
                   ),
                   SizedBox(width: 13,),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _card!.blocked ? "Unblock Card" : "Block Card",
-                        style: TextStyle(
-                            color: Colors.textColorMainBlack,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 18
-                        ),
-                      ),
-                      Text(
-                          _card!.blocked
-                              ? "Remove usage restrictions on your card"
-                              : "Place usage restrictions on your card"
-                      ),
-                    ],
+                  Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _card!.blocked ? "Unblock Card" : "Block Card",
+                            style: TextStyle(
+                                color: Colors.textColorMainBlack,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 18
+                            ),
+                          ),
+                          Text(
+                              _card!.blocked
+                                  ? "Remove usage restrictions on your card"
+                                  : "Place usage restrictions on your card"
+                          ),
+                        ],
+                      )
                   )
                 ],
               ),
@@ -247,6 +256,7 @@ class _CardDetailedViewState extends State<CardDetailedView> {
                         ),
                         child: ListView.separated(
                           itemCount: _cardOptions.length,
+                          padding: EdgeInsets.only(bottom: 100),
                           separatorBuilder: (context, index) => Padding(
                             padding: EdgeInsets.only(left: 16, right: 16),
                             child: Divider(color: Color(0XFFE8F0F6), height: 1, thickness: 0.5,),

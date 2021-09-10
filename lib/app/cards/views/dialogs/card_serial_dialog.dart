@@ -71,7 +71,7 @@ class CardSerialDialog extends Dialog {
                     child: Column(
                       children: [
                         Text(
-                          'Scan the QR code on the card package.\nAlternatively, you can enter the card serial\nnumber on the card package',
+                          'Scan the QR code on the card package. Alternatively, you can enter the card serialnumber on the card package',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                               color: Colors.textColorBlack,

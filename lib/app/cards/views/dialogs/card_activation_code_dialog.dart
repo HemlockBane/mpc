@@ -42,7 +42,7 @@ class CardActivationCodeDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return SessionedWidget(
       context: context,
-      sessionTime: 120 * 2,//4 minutes
+      sessionTime: 300,//5 minutes
       child: BottomSheets.makeAppBottomSheet2(
           curveBackgroundColor: Colors.white,
           centerImageBackgroundColor: Colors.primaryColor.withOpacity(0.1),

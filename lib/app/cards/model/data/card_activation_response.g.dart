@@ -16,7 +16,6 @@ CardActivationResponse _$CardActivationResponseFromJson(
     ..faceMatchError = json['faceMatchError'] == null
         ? null
         : ClientError.fromJson(json['faceMatchError'] as Map<String, dynamic>)
-    ..status = json['status'] as bool?
     ..message = json['message'] as String?;
 }
 
@@ -25,6 +24,5 @@ Map<String, dynamic> _$CardActivationResponseToJson(
     <String, dynamic>{
       'livelinessError': instance.livelinessError,
       'faceMatchError': instance.faceMatchError,
-      'status': instance.status,
       'message': instance.message,
     };

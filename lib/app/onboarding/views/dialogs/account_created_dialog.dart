@@ -64,8 +64,7 @@ class _AccountCreatedDialog extends State<AccountCreatedDialog> with CompositeDi
         PreferenceUtil.setLoginMode(LoginMode.FULL_ACCESS);
         PreferenceUtil.saveLoggedInUser(event.data!);
         PreferenceUtil.saveUsername(event.data?.username ?? "");
-        //TODO Clear all task and push
-        Navigator.popAndPushNamed(context, Routes.DASHBOARD);
+        Navigator.pushNamedAndRemoveUntil(context, Routes.DASHBOARD, (q) => false);
       }
     }).disposedBy(this);
   }
@@ -147,6 +146,12 @@ class _AccountCreatedDialog extends State<AccountCreatedDialog> with CompositeDi
             )
           ],
         ));
+  }
+
+  @override
+  void dispose() {
+    disposeAll();
+    super.dispose();
   }
 
 }

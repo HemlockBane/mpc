@@ -56,9 +56,6 @@ class _ManageCardChannelDialog extends State<ManageCardChannelDialog> {
         setState(() {});
       }
     });
-    // ..cardAccountNumber = _card?.customerAccountCard != null
-    // ? _card?.customerAccountCard?.customerAccountNumber
-    //     : null
 
   }
 
@@ -104,7 +101,7 @@ class _ManageCardChannelDialog extends State<ManageCardChannelDialog> {
       );
       return true;
     } else if(value is Error) {
-      await showError(context, title: "Oops", message: value.message);
+      await showError(context, title: "Card Operation Failed!", message: value.message);
       return false;
     }
     return false;

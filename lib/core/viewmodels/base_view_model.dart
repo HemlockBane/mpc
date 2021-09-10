@@ -106,39 +106,28 @@ abstract class BaseViewModel with ChangeNotifier {
   }
 
   int? getCurrentAccountTierNumber(int userAccountId) {
-    final validWords = ["one", "two", "three"];
-    final validDigits = [1, 2, 3];
-    final tierName = getUserQualifiedTierName(userAccountId);
-    print("tiername: $tierName");
+    String? tierName = getUserQualifiedTierName(userAccountId);
+    if(tierName == null || tierName.trim().isEmpty) return null;
 
-    if (tierName == null || tierName.isEmpty || !tierName.contains(" ")) return null;
-    final values = tierName.toLowerCase().split(" ");
-    if(values.isEmpty) return null;
+    //let's get the last word in the string
+    final words = tierName.split(" ");
+    final lastWord = words[words.length - 1];
 
-    final tier = values.last;
-    var tierIdx = int.tryParse(tier);
+    final integerValue = int.tryParse(lastWord);
 
-    if (tierIdx != null) {
-      return validDigits.contains(tierIdx) ? tierIdx : null;
-    }else{
-      if (!validWords.contains(tier)) return null;
-      else{
-        switch(tier){
-          case "one":
-            tierIdx = 1;
-            break;
-          case "two":
-            tierIdx = 2;
-            break;
-          case "three":
-            tierIdx = 3;
-            break;
-        }
-      }
+    if(integerValue != null) return integerValue;
+
+    //check if the word is either one,two or three...
+    switch(lastWord.toLowerCase()) {
+      case "one":
+        return 1;
+      case "two":
+        return 2;
+      case "three":
+        return 3;
+      default:
+        return null;
     }
-
-
-    return tierIdx;
   }
 
   @override

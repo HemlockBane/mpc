@@ -30,14 +30,14 @@ class CardViewUtil {
     return Colors.primaryColor;
   }
 
-  static Widget getCardBrandLogo(Card card) {
+  static Widget getCardBrandLogo(Card card, {String? resource}) {
     if (CardUtil.isMasterCard(card.maskedPan))
       return SvgPicture.asset(
         'res/drawables/ic_master_card.svg',
         height: 16,
       );
     if (CardUtil.isVerveCard(card.maskedPan))
-      return SvgPicture.asset('res/drawables/ic_verve_card.svg');
+      return SvgPicture.asset(resource ?? 'res/drawables/ic_verve_card.svg');
     if (CardUtil.isVisaCard(card.maskedPan))
       return SvgPicture.asset('res/drawables/ic_visa_card.svg',);
     else

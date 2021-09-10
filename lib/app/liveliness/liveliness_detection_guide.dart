@@ -184,7 +184,7 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
       FirebaseCrashlytics.instance.recordError(e, null);
       _state = LivelinessState.REMOTE_ERROR;
       var errorMessage = e.toString().replaceAll("Exception: ", "");
-      if(mounted) _showGenericError(errorMessage);
+      if(mounted) _showGenericError(errorMessage, title: "Liveliness failed!");
     }
   }
 

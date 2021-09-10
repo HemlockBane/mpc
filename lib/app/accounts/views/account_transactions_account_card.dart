@@ -176,19 +176,7 @@ class _AccountDetailsState extends State<AccountDetails>
   }
 
   int? getQualifiedTierIndex() {
-    final tierName = widget.viewModel.getUserQualifiedTierName(widget.userAccount.id!);
-    print("tiername: $tierName");
-
-    if (tierName == null || tierName.isEmpty || !tierName.contains(" ")) return null;
-
-    final values = tierName.toLowerCase().split(" ");
-    if(values.isEmpty || values.length < 4) return null;
-
-    final tier = values[3];
-    final tierIdx = int.tryParse(tier);
-    if (tierIdx == null || !([1, 2, 3].contains(tierIdx))) return null;
-
-    return tierIdx;
+    return widget.viewModel.getCurrentAccountTierNumber(widget.userAccount.id!);
   }
 
   @override
@@ -361,7 +349,6 @@ class _AccountDetailsState extends State<AccountDetails>
                                 ?.toLowerCase()
                                 .capitalizeFirstOfEach ??
                             ""),
-                        // text("Isah Leslie Williamsffffffffff" ?? ""),
                       ],
                     ),
                   ),
@@ -386,8 +373,8 @@ class _AccountDetailsState extends State<AccountDetails>
                     height: 1,
                     color: Colors.primaryColor.withOpacity(0.3),
                   )),
-            if (widget.viewModel.isAccountUpdateCompleted) SizedBox(height: 15),
-            if (widget.viewModel.isAccountUpdateCompleted)
+            if (!widget.viewModel.isAccountUpdateCompleted) SizedBox(height: 15),
+            if (!widget.viewModel.isAccountUpdateCompleted)
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -418,7 +405,7 @@ class _AccountDetailsState extends State<AccountDetails>
                   ),
               ],),
 
-            if (widget.viewModel.isAccountUpdateCompleted) SizedBox(height: 15)
+            if (!widget.viewModel.isAccountUpdateCompleted) SizedBox(height: 15)
           ],
         ),
       ),

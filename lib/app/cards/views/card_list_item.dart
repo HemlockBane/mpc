@@ -16,7 +16,7 @@ class CardListItem extends Container {
   CardListItem(this.card, this.position, this.onItemClickListener);
 
   final cardNumberStyle = TextStyle(
-      letterSpacing: 1.2,
+      letterSpacing: 0.4,
       fontSize: 19.5,
       fontWeight: FontWeight.normal,
       color: Colors.white,
@@ -39,28 +39,36 @@ class CardListItem extends Container {
   }
 
   Widget _cardNumberAndLogo() {
-    final cardNumberWidget = Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(CardViewUtil.getFirst6Digits(card), style: cardNumberStyle,),
-            Text(' ** **** ', style: TextStyle(
-                letterSpacing: 1.2, //TODO factor in screen width
-                fontSize: 19.5,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                fontFamily: Styles.ocraExtended
-            )),
-            Text(CardViewUtil.getLast4Digits(card), style: cardNumberStyle,),
-          ],
-        ),
-        CardViewUtil.getCardBrandLogo(card)
-      ],
-    );
+    final cardNumberWidget = LayoutBuilder(builder: (ctx, constraint) {
+
+      final asterisk = (constraint.maxWidth <= 300) ? " * ** " : " ** **** ";
+      final letterSpacing = (constraint.maxWidth <= 300) ? 0.1 : 1.2;
+
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(CardViewUtil.getFirst6Digits(card),
+                style: cardNumberStyle.copyWith(letterSpacing: letterSpacing)
+              ),
+              Text(asterisk, style: TextStyle(
+                  letterSpacing: letterSpacing, //TODO factor in screen width
+                  fontSize: 19.5,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  fontFamily: Styles.ocraExtended
+              )),
+              Text(CardViewUtil.getLast4Digits(card), style: cardNumberStyle,),
+            ],
+          ),
+          CardViewUtil.getCardBrandLogo(card)
+        ],
+      );
+    });
     if(!card.isActivated) {
       return ImageFiltered(
           imageFilter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),

@@ -5,7 +5,6 @@ import 'dart:math';
 import 'package:mixpanel_flutter/mixpanel_flutter.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:flutter/material.dart' hide ScrollView, Colors;
-import 'package:flutter_html/shims/dart_ui.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/core/views/upload_request_dialog.dart';
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
@@ -18,7 +17,6 @@ import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/t
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_icons2_icons.dart';
 import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
-import 'package:moniepoint_flutter/core/mix_panel_analytics.dart';
 import 'package:moniepoint_flutter/core/models/file_result.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -92,7 +90,6 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
       _viewModel.fetchAccountStatus().listen((event) {
         if(event is Success) {
           _viewModel.checkAccountUpdate();
-          _viewModel.update();
         }
       }).disposedBy(this);
     });
@@ -210,6 +207,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
       case Routes.ACCOUNT_UPDATE:{
         await Navigator.of(context).pushNamed(routeName);
         subscribeUiToAccountStatus();
+        _viewModel.update();
         break;
       }
       case Routes.ACCOUNT_TRANSACTIONS:{
@@ -437,21 +435,17 @@ class _DashboardTopMenu extends StatelessWidget {
                       builder:
                           (ctx, AsyncSnapshot<Resource<FileResult>> snapShot) {
                         ///Only if the request is successful or it's loading with data
-                        if (snapShot.hasData &&
-                            (snapShot.data is Success ||
-                                snapShot.data is Loading)) {
+                        if (snapShot.hasData && (snapShot.data is Success || snapShot.data is Loading)) {
                           final data = snapShot.data?.data;
                           if (data?.base64String?.isNotEmpty == true) {
                             return _userProfileImage(data!.base64String!);
                           }
                         }
 
-                        final localViewCachedImage =
-                            viewModel.userProfileBase64String;
-                        if (localViewCachedImage != null &&
-                            localViewCachedImage.isNotEmpty == true) {
-                          return _userProfileImage(
-                              viewModel.userProfileBase64String!);
+                        final localViewCachedImage = viewModel.userProfileBase64String;
+                        if (localViewCachedImage != null
+                            && localViewCachedImage.isNotEmpty == true) {
+                          return _userProfileImage(viewModel.userProfileBase64String!);
                         }
 
                         return _userProfilePlaceholder();

@@ -82,9 +82,7 @@ class DashboardViewModel extends BaseViewModel {
   }
 
   Stream<Resource<List<TransferBeneficiary>>> getRecentlyPaidBeneficiary() {
-    return _transferBeneficiaryDelegate
-        .getFrequentBeneficiaries()
-        .asBroadcastStream();
+    return _transferBeneficiaryDelegate.getFrequentBeneficiaries().asBroadcastStream();
   }
 
   String getFirstName() {
@@ -119,8 +117,7 @@ class DashboardViewModel extends BaseViewModel {
     AccountStatus? accountStatus = UserInstance().accountStatus;
     final flags = accountStatus?.listFlags() ?? customer?.listFlags();
     if (flags == null) return;
-    _isAccountUpdateCompleted =
-        flags.where((element) => element?.status != true).isEmpty;
+    _isAccountUpdateCompleted = flags.where((element) => element?.status != true).isEmpty;
     _populateSliderItems();
   }
 
@@ -132,7 +129,8 @@ class DashboardViewModel extends BaseViewModel {
         key: "account_update",
         primaryText: "Upgrade Account",
         secondaryText: "Upgrade your savings account\nto enjoy higher limits",
-        iconPath: "res/drawables/ic_dashboard_edit.png"));
+        iconPath: "res/drawables/ic_dashboard_edit.png")
+    );
   }
 
   Future<Tuple<bool, BiometricType>> shouldRequestFingerPrintSetup() async {

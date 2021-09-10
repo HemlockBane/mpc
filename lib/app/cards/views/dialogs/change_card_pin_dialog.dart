@@ -88,6 +88,7 @@ class _ChangeCardPinDialog extends State<ChangeCardPinDialog> {
                   padding: EdgeInsets.only(left: 30, right: 30),
                   child: PinEntry(onChange: (v){
                     _newPin = v;
+                    setState(() {});
                   }),
                 ),
                 SizedBox(height: 24),
@@ -104,6 +105,7 @@ class _ChangeCardPinDialog extends State<ChangeCardPinDialog> {
                   padding: EdgeInsets.only(left: 30, right: 30, bottom: MediaQuery.of(context).viewInsets.bottom * 0.6),
                   child: PinEntry(numEntries :3 ,onChange: (v) {
                     _cvv = v;
+                    setState(() {});
                   }),
                 ),
                 SizedBox(height: 32),

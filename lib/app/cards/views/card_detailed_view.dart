@@ -101,6 +101,7 @@ class _CardDetailedViewState extends State<CardDetailedView> {
           viewModel,
           CardAction.CHANGE_PIN,
           value
+            ..cardAccountNumber = _card?.customerAccountCard?.customerAccountNumber ?? ""
             ..cardId = _card?.id
             ..expiry = _card?.expiryDate,
       );
@@ -129,7 +130,7 @@ class _CardDetailedViewState extends State<CardDetailedView> {
           }
       );
     } else if(value is Error) {
-      showError(context, title: "Oops", message: value.message);
+      showError(context, title: "Card Operation Failed!", message: value.message);
     }
   }
 

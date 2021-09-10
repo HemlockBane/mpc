@@ -88,7 +88,7 @@ class _PagerState<K, T> extends State<Pager<K, T>> {
   @override
   void dispose() {
     _remoteMediator?.removeListener(_remoteValueChanged);
-    _scrollController?.dispose();
+    ///_scrollController?.dispose();
     super.dispose();
   }
 

@@ -108,7 +108,7 @@ class _AccountCardState extends State<AccountCard> {
                         controller: pageController,
                         itemCount:
                         viewModel.customer?.customerAccountUsers?.length ?? 0),
-                  SizedBox(height: 22)
+                  SizedBox(height: 11)
                 ],
               ),
             ),
@@ -167,15 +167,15 @@ class _AccountDetailsState extends State<AccountDetails> with CompositeDisposabl
 
   @override
   void initState() {
-    hideAccountBalanceKey =
-    "${widget.customerAccount?.accountNumber}-${PreferenceUtil.HIDE_ACCOUNT_BAL}";
+    print("Reload Init State");
+    hideAccountBalanceKey = "${widget.customerAccount?.accountNumber}-${PreferenceUtil.HIDE_ACCOUNT_BAL}";
+    _balanceStream = widget.viewModel.getCustomerAccountBalance(accountId: widget.userAccount.id, useLocal: false);
     super.initState();
+
     widget.viewModel.dashboardUpdateStream.listen((event) {
-      print("Updating  balance Stream ooo");
       _balanceStream = widget.viewModel.getCustomerAccountBalance(accountId: widget.userAccount.id, useLocal: false);
       setState(() {});
     }).disposedBy(this);
-    widget.viewModel.update();
 
     widget.viewModel.refreshStartStream.listen((event) {
       _balanceStream = widget.viewModel.getCustomerAccountBalance(accountId: widget.userAccount.id, useLocal: false);
@@ -187,14 +187,12 @@ class _AccountDetailsState extends State<AccountDetails> with CompositeDisposabl
 
   @override
   void didUpdateWidget(covariant AccountDetails oldWidget) {
-    _balanceStream = widget.viewModel.getCustomerAccountBalance(
-        accountId: widget.userAccount.id, useLocal: false
-    );
     super.didUpdateWidget(oldWidget);
   }
 
   @override
   void dispose() {
+    disposeAll();
     WidgetsBinding.instance?.removeObserver(this);
     super.dispose();
   }
@@ -300,7 +298,7 @@ class _AccountDetailsState extends State<AccountDetails> with CompositeDisposabl
                     height: 21,
                     color: Color(0xffB8003382).withOpacity(0.4),
                   ),
-                  ),
+              ),
             )
           ],
         ),
@@ -328,7 +326,8 @@ class _AccountDetailsState extends State<AccountDetails> with CompositeDisposabl
           ),
           onClick: () {
             PreferenceUtil.saveValueForLoggedInUser(
-                hideAccountBalanceKey, hideAccountBalance ? false : true);
+                hideAccountBalanceKey, hideAccountBalance ? false : true
+            );
             setState(() {});
           }),
     );
@@ -347,11 +346,12 @@ class _AccountDetailsState extends State<AccountDetails> with CompositeDisposabl
         children: [
           hideAccountBalance
             ? Text('*',
-            style: Styles.textStyle(context,
-              fontSize: 23.5,
-              fontWeight: FontWeight.w800,
-              color: Colors.textColorBlack.withOpacity(0.5)))
-            :  SvgPicture.asset("res/drawables/ic_naira.svg", width: 20, height: 17,),
+                style: Styles.textStyle(context,
+                fontSize: 23.5,
+                fontWeight: FontWeight.w800,
+                color: Colors.textColorBlack.withOpacity(0.5))
+              )
+            : SvgPicture.asset("res/drawables/ic_naira.svg", width: 20, height: 17,),
           SizedBox(width: 4),
           Text('$balance',
             style: Styles.textStyle(context,
@@ -377,7 +377,7 @@ class _AccountDetailsState extends State<AccountDetails> with CompositeDisposabl
               ),
             ),
             TextButton(
-              onPressed: (){
+              onPressed: () {
                 widget.viewModel.update();
               },
               child: Text('Try Again',

@@ -37,7 +37,7 @@ class CardViewUtil {
         height: 16,
       );
     if (CardUtil.isVerveCard(card.maskedPan))
-      return SvgPicture.asset(resource ?? 'res/drawables/ic_verve_card_small.svg');
+      return SvgPicture.asset(resource ?? 'res/drawables/ic_verve_card.svg');
     if (CardUtil.isVisaCard(card.maskedPan))
       return SvgPicture.asset('res/drawables/ic_visa_card.svg',);
     else

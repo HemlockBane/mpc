@@ -48,19 +48,21 @@ class _CardActivationViewState extends State<CardActivationView> with CompositeD
   }
 
   void _subscribeUiToLiveliness() async {
-    final response = await Navigator.of(context)
-        .pushNamed(Routes.LIVELINESS_DETECTION, arguments: {
+    final response = await Navigator.of(context).pushNamed(Routes.LIVELINESS_DETECTION, arguments: {
       "verificationFor": LivelinessVerificationFor.CARD_ACTIVATION,
       "cardId": _card?.id,
       "cvv2": _viewModel.cvv,
       "newPin": _viewModel.newPin
     });
 
-    if(response != null && response is CardActivationResponse){
-      showSuccess(
+    if(response != null && response is CardActivationResponse) {
+      await showSuccess(
           context,
           title: "Card Activated!",
-          message: "Your Card has been activated successfully!"
+          message: "Your Card has been activated successfully!",
+      );
+      Navigator.of(context).pushNamedAndRemoveUntil(
+          Routes.CARDS, ModalRoute.withName(Routes.DASHBOARD)
       );
     }
   }
@@ -209,10 +211,10 @@ class _CardActivationInfoPageState extends State<_CardActivationInfoPage> {
         )),
         SizedBox(height: 21),
         AspectRatio(
-            aspectRatio: 6,
+            aspectRatio: 1,
             child: Container(
               width: double.infinity,
-              // height: 230,
+              height: 230,
               padding: EdgeInsets.only(left: 70, right: 70, top: 10, bottom: 10),
               margin: EdgeInsets.only(left: 20, right: 20),
               decoration: BoxDecoration(

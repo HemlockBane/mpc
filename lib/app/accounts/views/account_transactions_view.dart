@@ -74,6 +74,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
     userAccount = _viewModel.userAccounts[widget.accountUserIdx];
 
     _animationController.forward();
+    _viewModel.checkAccountUpdate();
     super.initState();
   }
 
@@ -165,10 +166,8 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
                   style: ButtonStyle(
                     minimumSize: MaterialStateProperty.all(Size(40, 0)),
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    overlayColor: MaterialStateProperty.all(
-                        Colors.primaryColor.withOpacity(0.1)),
-                    padding: MaterialStateProperty.all(
-                        EdgeInsets.only(left: 8, right: 2, top: 8, bottom: 8)),
+                    overlayColor: MaterialStateProperty.all(Colors.primaryColor.withOpacity(0.1)),
+                    padding: MaterialStateProperty.all(EdgeInsets.only(left: 8, right: 2, top: 8, bottom: 8)),
                   ))
             ],
           ),
@@ -229,9 +228,10 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
             visible: isEmpty,
             child: Expanded(
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SizedBox(height: 100,),
+                  SizedBox(height: 100),
                   EmptyLayoutView(viewModel.isFilteredList()
                       ? "You have no transactions with these search criteria"
                       : "You have no transaction history yet.")
@@ -245,7 +245,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SizedBox(height: 50),
+                  SizedBox(height: 60),
                   ErrorLayoutView(error?.first ?? "", error?.second ?? "", _retry),
                 ],
               ),
@@ -280,7 +280,8 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
     bool showDropShadow = false;
     final screenSize = MediaQuery.of(context).size;
     final maxExtent = 1.0;
-    final minExtent = 1 - (180 / (screenSize.height - maxDraggableTop));
+    final containerHeight = _viewModel.isAccountUpdateCompleted ? 120 : 180;
+    final minExtent = 1 - (containerHeight / (screenSize.height - maxDraggableTop));
 
     return StatefulBuilder(builder: (ctx, setState){
       return NotificationListener<DraggableScrollableNotification>(
@@ -343,7 +344,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
                       bool isAccountLiened = getAccountLienStatus();
                       return Stack(
                         children: [
-                          _mainPageContent(value, _viewModel, isEmpty, error, draggableScrollController),
+                          Positioned.fill(child: _mainPageContent(value, _viewModel, isEmpty, error, draggableScrollController)),
                           IgnorePointer(
                             child: Container(
                               height: isAccountLiened ? 142 : 67,

@@ -209,15 +209,16 @@ Tuple<String, String> formatError(String? errorMessage, String moduleName) {
           errorMessage.toLowerCase().contains("failed to connect") ||
           errorMessage.toLowerCase().contains("failed host lookup") ||
           errorMessage.toLowerCase().contains("network is unreachable") ||
-          errorMessage.toLowerCase().contains("internet connection") ||
-          errorMessage.toLowerCase().contains("an unknown error occurred"))) {
+          errorMessage.toLowerCase().contains("internet connection"))) {
     errorTitle = "No Network Connection";
     errorDescription =
         "We are unable to reach the server at this time. Please confirm your internet connection and try again.";
-  } else if (errorMessage != null &&
+  }
+  else if (errorMessage != null &&
       (errorMessage.toLowerCase().contains("exception") ||
           errorMessage.toLowerCase().contains("database error") ||
-          errorMessage.toLowerCase().contains("org.springframework"))) {
+          errorMessage.toLowerCase().contains("org.springframework") ||
+          errorMessage.toLowerCase().contains("an unknown error occurred"))) {
     errorTitle = "Oops, Something is broken!";
     errorDescription =
         "We encountered an error loading your $moduleName. Please try again later.";

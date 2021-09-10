@@ -138,7 +138,7 @@ class _AccountCreatedDialog extends State<AccountCreatedDialog> with CompositeDi
                         isLoading: _isLoading,
                         elevation: 0.5,
                         onClick: _subscribeUiToLogin,
-                        text: "Go to Login",
+                        text: "Go to Dashboard",
                       )),
                   SizedBox(height: 32),
                 ],

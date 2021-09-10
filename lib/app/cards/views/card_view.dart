@@ -121,7 +121,7 @@ class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin{
                             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
                           ),
                           Visibility(
-                              visible: snap.data?.data?.isEmpty == true,
+                              visible: false,//disabled for now,
                               child: TextButton.icon(
                                   onPressed: () {
                                     Navigator.of(context).pushNamed(Routes.ADD_CARD);

@@ -158,7 +158,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
                           indicatorController: indicatorController,
                           indicatorOffset: refreshIndicatorOffset
                         ),
-                        AccountCard(
+                        DashboardAccountCard(
                             viewModel: _viewModel,
                             pageController: _pageController,
                         ),

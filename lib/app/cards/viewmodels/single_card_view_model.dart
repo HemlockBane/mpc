@@ -20,6 +20,7 @@ class SingleCardViewModel extends BaseViewModel {
     //   Card(id: 31,maskedPan: "506099******4323", expiryDate: "23/03", blocked: false, nameOnCard: "AAAAA Okeke", isActivated: false),
     //   Card(id: 32,maskedPan: "406099******4323", expiryDate: "23/03", blocked: true, nameOnCard: "Ebun Oluwa", isActivated: true),
     // ]));
+    // return Stream.value(Resource.success([]));
     return _delegate.getCards(customerId).map((event) {
       return event;
     });
@@ -27,6 +28,10 @@ class SingleCardViewModel extends BaseViewModel {
 
   Future<Card?> getSingleCard(num cardId) {
     return _delegate.getCard(cardId);
+  }
+
+  Future<Card?> getCardByAccountNumber(String accountNumber) {
+    return _delegate.getCardByAccountNumber(accountNumber);
   }
 
   Stream<Resource<bool>> blockCardChannel(CardTransactionRequest cardRequest) {
@@ -49,7 +54,7 @@ class SingleCardViewModel extends BaseViewModel {
     return _delegate.changeCardPin(customerId, cardRequest);
   }
 
-  Stream<Resource<CardRequestBalanceResponse>> isAccountBalanceSufficient() {
-    return _delegate.isAccountBalanceSufficient(accountNumber);
+  Stream<Resource<CardRequestBalanceResponse>> isAccountBalanceSufficient(String? mAccountNumber) {
+    return _delegate.isAccountBalanceSufficient(mAccountNumber ?? accountNumber);
   }
 }

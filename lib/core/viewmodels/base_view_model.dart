@@ -105,6 +105,13 @@ abstract class BaseViewModel with ChangeNotifier {
     return customerAccount?.schemeCode?.name;
   }
 
+  int? getCustomerAccountIdByAccountNumber (String? accountNumber) {
+    List<UserAccount> accounts = userAccounts.where((element) {
+      return element.customerAccount?.accountNumber == accountNumber;
+    }).toList();
+    return accounts.firstOrNull?.customerAccount?.id;
+  }
+
   int? getCurrentAccountTierNumber(int userAccountId) {
     String? tierName = getUserQualifiedTierName(userAccountId);
     if(tierName == null || tierName.trim().isEmpty) return null;

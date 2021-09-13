@@ -30,6 +30,8 @@ class CardIssuanceViewModel extends BaseViewModel {
     });
   }
 
+  int getTotalNumberOfCards() => _delegate.getNumberOfCards();
+
   void setCardSerial(String cardSerialNumber) {
     this._cardSerial = cardSerialNumber;
   }

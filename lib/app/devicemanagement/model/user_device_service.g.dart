@@ -9,7 +9,7 @@ part of 'user_device_service.dart';
 class _UserDeviceService implements UserDeviceService {
   _UserDeviceService(this._dio, {this.baseUrl}) {
     baseUrl ??=
-        'https://moniepoint-customer-operations-service-v2.console.teamapt.com/api/v1/device-management/';
+        'https://core-operations.monnify.development.teamapt.com/api/v1/device-management/';
   }
 
   final Dio _dio;
@@ -28,7 +28,7 @@ class _UserDeviceService implements UserDeviceService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.0.8'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -56,7 +56,7 @@ class _UserDeviceService implements UserDeviceService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.0.8'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')

@@ -90,6 +90,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
       _viewModel.fetchAccountStatus().listen((event) {
         if(event is Success) {
           _viewModel.checkAccountUpdate();
+          _viewModel.update(DashboardState.ACCOUNT_STATUS_UPDATED);
         }
       }).disposedBy(this);
     });
@@ -207,7 +208,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
       case Routes.ACCOUNT_UPDATE:{
         await Navigator.of(context).pushNamed(routeName);
         subscribeUiToAccountStatus();
-        _viewModel.update();
+        _viewModel.update(DashboardState.REFRESHING);
         break;
       }
       case Routes.ACCOUNT_TRANSACTIONS:{
@@ -240,7 +241,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
           Navigator.of(context).pop();
         }
         await Navigator.of(context).pushNamed(routeName);
-        _viewModel.update();
+        _viewModel.update(DashboardState.REFRESHING);
       }
     }
   }

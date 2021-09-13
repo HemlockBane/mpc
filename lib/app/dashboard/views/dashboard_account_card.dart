@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart' hide Colors;
+import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mixpanel_flutter/mixpanel_flutter.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
@@ -8,12 +9,14 @@ import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
 import 'package:moniepoint_flutter/core/mix_panel_analytics.dart';
+import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/views/dots_indicator.dart';
+import 'package:provider/provider.dart';
 import 'package:share/share.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
@@ -23,6 +26,7 @@ import 'package:moniepoint_flutter/core/utils/text_utils.dart';
 ///TODO refactor this code
 ///
 class DashboardAccountCard extends StatelessWidget {
+
   DashboardAccountCard({
     required this.viewModel,
     required this.pageController
@@ -36,15 +40,16 @@ class DashboardAccountCard extends StatelessWidget {
     final userAccounts = viewModel.userAccounts;
     return Container(
       width: double.infinity,
-      height: 130,
+      height: 200,
       child: Stack(
         children: [
           PageView.builder(
+              pageSnapping: true,
               itemCount: userAccounts.length,
               controller: pageController,
-              itemBuilder: (ctx, idx) {
-                return Container(
-                  color: Colors.white,
+              itemBuilder: (ctx, index) {
+                return DashboardAccountItem(
+                  userAccount: userAccounts[index],
                 );
               }
           ),
@@ -52,9 +57,16 @@ class DashboardAccountCard extends StatelessWidget {
               bottom: 16,
               left: 0,
               right: 0,
-              child: DotIndicator(
-                  controller: pageController,
-                  itemCount: userAccounts.length
+              child: StreamBuilder(
+                stream: viewModel.dashboardUpdateStream,
+                builder: (ctx, a) {
+                  final isPostNoDebit = UserInstance().accountStatus?.postNoDebit == true;
+                  return DotIndicator(
+                    controller: pageController,
+                    itemCount: userAccounts.length,
+                    color: isPostNoDebit ? Colors.white : Colors.primaryColor,
+                  );
+                },
               )
           )
         ],
@@ -64,14 +76,417 @@ class DashboardAccountCard extends StatelessWidget {
 
 }
 
+
+///DashboardAccountItem
+///
+///
+///
+///
+///
 class DashboardAccountItem extends StatefulWidget {
+
+  final UserAccount userAccount;
+
+  DashboardAccountItem({
+    required this.userAccount
+  });
+
   @override
   State<StatefulWidget> createState() {
-    // TODO: implement createState
-    throw UnimplementedError();
+    return DashboardAccountItemState();
   }
 }
 
+class DashboardAccountItemState extends State<DashboardAccountItem> with AutomaticKeepAliveClientMixin, CompositeDisposableWidget {
+
+  late final UserAccount userAccount;
+  late final DashboardViewModel _viewModel;
+
+  Stream<Resource<AccountBalance>>? _balanceStream;
+
+  @override
+  void initState() {
+    this.userAccount = widget.userAccount;
+    this._viewModel = Provider.of<DashboardViewModel>(context, listen: false);
+    _balanceStream = _viewModel.getDashboardBalance(accountId: userAccount.id);
+
+    super.initState();
+    _viewModel.dashboardUpdateStream.listen((event) {
+      if(event == DashboardState.REFRESHING) {
+        _balanceStream = _viewModel.getDashboardBalance(accountId: widget.userAccount.id, useLocal: false);
+        if (mounted) setState(() {});
+      }
+      if(event == DashboardState.ACCOUNT_STATUS_UPDATED) {
+        if (mounted) setState(() {});
+      }
+    }).disposedBy(this);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return Stack(
+      children: [
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+              color: Colors.backgroundWhite,
+              borderRadius: BorderRadius.all(Radius.circular(16)),
+              boxShadow: [
+                BoxShadow(
+                  offset: Offset(0, 13),
+                  blurRadius: 21,
+                  color: Color(0xff1F0E4FB1).withOpacity(0.12),
+                ),
+              ]),
+          child: Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.all(Radius.circular(16)),
+            child: InkWell(
+              onTap: () => "",
+              borderRadius: BorderRadius.all(Radius.circular(16)),
+              child: Container(
+                padding: EdgeInsets.only(left: 20, right: 20),
+                width: double.infinity,
+                child: Column(
+                  children: [
+                    _DashboardAccountType(),
+                    SizedBox(height: 21,),
+                    _DashboardAccountBalancePreview(
+                      balanceStream: _balanceStream,
+                      accountNumber: "${userAccount.customerAccount?.accountNumber}",
+                      accountName: "${userAccount.customerAccount?.accountName}"
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        //PND View
+      ],
+    );
+  }
+
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void dispose() {
+    disposeAll();
+    super.dispose();
+  }
+
+}
+
+
+///_DashboardAccountType
+///
+///
+///
+///
+class _DashboardAccountType extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.zero,
+      width: 197,
+      height: 21,
+      child: Stack(
+        children: [
+          SvgPicture.asset(
+            "res/drawables/ic_dashboard_account_label.svg",
+            width: 197,
+            height: 21,
+          ),
+          Positioned(
+              top: 0,
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Text(
+                  'SAVINGS',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10.6,
+                      fontWeight: FontWeight.w700
+                  ),
+                ),
+              )
+          )
+        ],
+      ),
+    );
+  }
+}
+
+///_DashboardAccountBalancePreview
+///
+///
+///
+///
+///
+class _DashboardAccountBalancePreview extends StatelessWidget {
+
+  final Stream<Resource<AccountBalance>>? balanceStream;
+  final ValueNotifier<int> hideAndShowNotifier = ValueNotifier(1);
+  final String accountNumber;
+  final String accountName;
+
+  late final _accountBalanceTextStyle = TextStyle(
+      fontSize: 23.7,
+      fontWeight: FontWeight.w800,
+      color: Colors.textColorBlack.withOpacity(0.5)
+  );
+
+  _DashboardAccountBalancePreview({
+    required this.balanceStream,
+    required this.accountNumber,
+    required this.accountName,
+  });
+
+  isAccountBalanceHidden() =>
+      PreferenceUtil.isAccountBalanceHidden(accountNumber);
+
+  isErrorLoadingAccountBalance(AsyncSnapshot<dynamic> snapshot) =>
+      snapshot.hasData && snapshot.data is Error;
+
+  isLoadingAccountBalance(AsyncSnapshot<dynamic> snapshot) =>
+      snapshot.hasData && snapshot.data is Loading;
+
+  ///Determines if balance should be displayed
+  _canDisplayBalance(AsyncSnapshot<dynamic> snapshot) {
+    return snapshot.hasData && (!isLoadingAccountBalance(snapshot) &&
+        !isErrorLoadingAccountBalance(snapshot));
+  }
+
+  String _getAccountBalance(AsyncSnapshot<Resource<AccountBalance>> snapshot, bool hideAccountBalance) {
+    if(hideAccountBalance) return "***";
+
+    final AccountBalance? accountBalance = (snapshot.hasData
+        && snapshot.data != null) ? snapshot.data!.data : null;
+
+    return "${accountBalance?.availableBalance?.formatCurrencyWithoutSymbolAndDividing}";
+  }
+
+  _accountBalanceView(String accountBalance, bool hideAccountBalance) => Row(
+        children: [
+          hideAccountBalance
+              ? Text('*', style: _accountBalanceTextStyle)
+              : SvgPicture.asset(
+                  "res/drawables/ic_naira.svg",
+                  width: 20,
+                  height: 17,
+                ),
+          SizedBox(width: 4),
+          Text('$accountBalance',
+              style: _accountBalanceTextStyle.copyWith(
+                  color: Colors.textColorBlack)),
+        ],
+      );
+
+  _visibilityIcon(bool hideAccountBalance) => Padding(
+    padding: EdgeInsets.only(right: 16),
+    child: Styles.imageButton(
+        padding: EdgeInsets.all(9),
+        color: Colors.transparent,
+        disabledColor: Colors.transparent,
+        image: SvgPicture.asset(
+          hideAccountBalance
+              ? 'res/drawables/ic_eye_open.svg'
+              : 'res/drawables/ic_eye_closed.svg',
+          width: hideAccountBalance ? 10 : 16,
+          height: hideAccountBalance ? 12 : 16,
+          color: Color(0xffB8003382).withOpacity(0.4),
+        ),
+        onClick: () {
+          PreferenceUtil.saveValueForLoggedInUser(
+              "$accountNumber-${PreferenceUtil.HIDE_ACCOUNT_BAL}",
+              hideAccountBalance ? false : true
+          );
+          hideAndShowNotifier.value = hideAndShowNotifier.value + 1;
+        }),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+        stream: balanceStream,
+        builder: (ctx, AsyncSnapshot<Resource<AccountBalance>> snapshot) {
+          final hideAccountBalance = isAccountBalanceHidden();
+          final canDisplay = _canDisplayBalance(snapshot);
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Visibility(
+                  visible: hideAccountBalance == true || canDisplay,
+                  child: Text(
+                    "Available Balance",
+                    style: TextStyle(
+                        fontSize: 13,
+                        letterSpacing: -0.2,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.textColorBlack.withOpacity(0.9)
+                    ),
+                  )),
+              SizedBox(height: 4,),
+              _DashboardLoadingShimmer(
+                  hideAccountBalance: hideAccountBalance,
+                  isLoading: isLoadingAccountBalance(snapshot)
+              ),
+              Visibility(
+                  visible: hideAccountBalance == true || canDisplay,
+                  child: ValueListenableBuilder(
+                      valueListenable: hideAndShowNotifier,
+                      builder: (_, __, ___) {
+                        final hideAccountBalance = isAccountBalanceHidden();
+                        final acctBalance = _getAccountBalance(snapshot, hideAccountBalance);
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            _accountBalanceView(acctBalance, hideAccountBalance),
+                            SizedBox(width: 4,),
+                            _visibilityIcon(hideAccountBalance),
+                          ],
+                        );
+                      }
+                  )
+              ),
+              SizedBox(height: 16,),
+              _DashboardAccountNumberView(
+                accountNumber: accountNumber,
+                accountName: "",
+              )
+            ],
+          );
+        });
+  }
+}
+
+class _DashboardAccountNumberView extends Container {
+
+  final String accountNumber;
+  final String accountName;
+
+  _DashboardAccountNumberView({
+    required this.accountNumber,
+    required this.accountName
+  }):super(key: Key("_DashboardAccountNumberView"));
+
+  void _shareReceipt() {
+    Share.share(
+        "Moniepoint MFB\n$accountNumber\n$accountName",
+        subject: 'Moniepoint MFB');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.only(left: 11.11, right: 12.5, top: 5.5, bottom: 5.5),
+      decoration: BoxDecoration(
+          color: Colors.primaryColor.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(9)
+      ),
+      child: Row(
+        children: [
+          Text(
+            'Account Number',
+            style: Styles.textStyle(context,
+                fontWeight: FontWeight.w400,
+                letterSpacing: -0.2,
+                fontSize: 12,
+                color: Colors.textColorBlack),
+          ),
+          SizedBox(
+            width: 7,
+          ),
+          Text(accountNumber,
+              style: Styles.textStyle(context,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.2,
+                  fontSize: 11.3,
+                  color: Colors.primaryColor
+              )),
+          Spacer(),
+          Padding(
+              padding: EdgeInsets.only(right: 10),
+              child: Styles.imageButton(
+                padding: EdgeInsets.all(9),
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(30),
+                onClick: _shareReceipt,
+                image: SvgPicture.asset(
+                  'res/drawables/ic_share.svg',
+                  fit: BoxFit.contain,
+                  width: 20,
+                  height: 21,
+                  color: Color(0xffB8003382).withOpacity(0.4),
+                ),
+              )),
+        ],
+      ),
+    );
+  }
+
+}
+
+
+///_DashboardLoadingShimmer
+///
+///
+///
+///
+class _DashboardLoadingShimmer extends StatelessWidget {
+
+  final bool hideAccountBalance;
+  final bool isLoading;
+
+  _DashboardLoadingShimmer({
+    required this.hideAccountBalance,
+    required this.isLoading
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if((hideAccountBalance && isLoading) || !isLoading) return SizedBox();
+    return Column(
+      children: [
+        Shimmer.fromColors(
+          period: Duration(milliseconds: 1000),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Container(
+              width: 90,
+              height: 10,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.white.withOpacity(0.3),
+                shape: BoxShape.rectangle),
+            )),
+          baseColor: Colors.white.withOpacity(0.6),
+          highlightColor: Colors.deepGrey.withOpacity(0.6)
+        ),
+        SizedBox(height: 4),
+        Shimmer.fromColors(
+          period: Duration(milliseconds: 1000),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Container(
+              width: 90,
+              height: 32,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.white.withOpacity(0.3),
+                shape: BoxShape.rectangle),
+            )),
+          baseColor: Colors.white.withOpacity(0.6),
+          highlightColor: Colors.deepGrey.withOpacity(0.6)
+        )
+    ]);
+  }
+}
 
 // class AccountCard extends StatefulWidget {
 //   const AccountCard({required this.viewModel,

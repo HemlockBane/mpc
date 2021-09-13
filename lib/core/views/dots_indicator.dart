@@ -9,6 +9,7 @@ class DotIndicator extends AnimatedWidget {
     required this.controller,
     required this.itemCount,
     this.color = Colors.primaryColor,
+
   }) : super(listenable: controller);
 
   final PageController controller;

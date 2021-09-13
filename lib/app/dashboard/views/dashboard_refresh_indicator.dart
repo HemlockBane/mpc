@@ -35,10 +35,11 @@ class _DashboardRefreshIndicatorState extends State<DashboardRefreshIndicator>
     final _indicatorOffset = widget.indicatorOffset;
     return CustomRefreshIndicator(
       offsetToArmed: _indicatorOffset,
-      onRefresh: () async{
-        widget.viewModel.startRefresh();
-        await for (var _ in widget.viewModel.refreshDoneStream){
-          await Future.delayed(Duration(seconds: 1));
+      onRefresh: () async {
+        widget.viewModel.update(DashboardState.REFRESHING);
+        await for (var value in widget.viewModel.dashboardUpdateStream){
+          await Future.delayed(Duration(milliseconds: 200));
+          if(value != DashboardState.DONE) return;
           return null;
         }
       },

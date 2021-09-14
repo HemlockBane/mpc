@@ -41,6 +41,17 @@ class DashboardAccountCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: 200,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(16)),
+        color: Colors.backgroundWhite,
+        boxShadow: [
+          BoxShadow(
+            offset: Offset(0, 13),
+            blurRadius: 21,
+            color: Color(0xff1F0E4FB1).withOpacity(0.12),
+          ),
+        ],
+      ),
       child: Stack(
         children: [
           PageView.builder(
@@ -50,24 +61,28 @@ class DashboardAccountCard extends StatelessWidget {
               itemBuilder: (ctx, index) {
                 return DashboardAccountItem(
                   userAccount: userAccounts[index],
+                  accountIdx: index,
                 );
               }
           ),
-          Positioned(
-              bottom: 16,
-              left: 0,
-              right: 0,
-              child: StreamBuilder(
-                stream: viewModel.dashboardUpdateStream,
-                builder: (ctx, a) {
-                  final isPostNoDebit = UserInstance().accountStatus?.postNoDebit == true;
-                  return DotIndicator(
-                    controller: pageController,
-                    itemCount: userAccounts.length,
-                    color: isPostNoDebit ? Colors.white : Colors.primaryColor,
-                  );
-                },
-              )
+          Visibility(
+            visible: userAccounts.length > 1,
+            child: Positioned(
+                bottom: 16,
+                left: 0,
+                right: 0,
+                child: StreamBuilder(
+                  stream: viewModel.dashboardUpdateStream,
+                  builder: (ctx, a) {
+                    final isPostNoDebit = UserInstance().accountStatus?.postNoDebit == true;
+                    return DotIndicator(
+                      controller: pageController,
+                      itemCount: userAccounts.length,
+                      color: isPostNoDebit ? Colors.white : Colors.primaryColor,
+                    );
+                  },
+                )
+            ),
           )
         ],
       ),
@@ -86,9 +101,11 @@ class DashboardAccountCard extends StatelessWidget {
 class DashboardAccountItem extends StatefulWidget {
 
   final UserAccount userAccount;
+  final int accountIdx;
 
   DashboardAccountItem({
-    required this.userAccount
+    required this.userAccount,
+    required this.accountIdx
   });
 
   @override
@@ -100,13 +117,16 @@ class DashboardAccountItem extends StatefulWidget {
 class DashboardAccountItemState extends State<DashboardAccountItem> with AutomaticKeepAliveClientMixin, CompositeDisposableWidget {
 
   late final UserAccount userAccount;
+  late final int accountIdx;
   late final DashboardViewModel _viewModel;
 
   Stream<Resource<AccountBalance>>? _balanceStream;
+  final postNoDebitColor = Color(0xffE14E4F).withOpacity(0.9);
 
   @override
   void initState() {
     this.userAccount = widget.userAccount;
+    this.accountIdx = widget.accountIdx;
     this._viewModel = Provider.of<DashboardViewModel>(context, listen: false);
     _balanceStream = _viewModel.getDashboardBalance(accountId: userAccount.id);
 
@@ -125,46 +145,84 @@ class DashboardAccountItemState extends State<DashboardAccountItem> with Automat
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Stack(
-      children: [
-        Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-              color: Colors.backgroundWhite,
+    final isPostNoDebit = UserInstance().accountStatus?.postNoDebit == true;
+    // print(UserInstance().accountStatus?.toJson());
+    // final isPostNoDebit = true;
+
+    print("isPostNoDebit: $isPostNoDebit}");
+    return  Hero(
+      tag: "dashboard-balance-view-${userAccount.customerAccount?.id}",
+      child: Stack(
+        children: [
+          Container(
+            width: double.infinity,
+            foregroundDecoration: isPostNoDebit
+                ? BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(16)),
+                    color: postNoDebitColor)
+                : null,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(16)),
+                color: Colors.backgroundWhite,
+            ),
+            child: Material(
+              color: Colors.transparent,
               borderRadius: BorderRadius.all(Radius.circular(16)),
-              boxShadow: [
-                BoxShadow(
-                  offset: Offset(0, 13),
-                  blurRadius: 21,
-                  color: Color(0xff1F0E4FB1).withOpacity(0.12),
-                ),
-              ]),
-          child: Material(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.all(Radius.circular(16)),
-            child: InkWell(
-              onTap: () => "",
-              borderRadius: BorderRadius.all(Radius.circular(16)),
-              child: Container(
-                padding: EdgeInsets.only(left: 20, right: 20),
-                width: double.infinity,
-                child: Column(
-                  children: [
-                    _DashboardAccountType(),
-                    SizedBox(height: 21,),
-                    _DashboardAccountBalancePreview(
-                      balanceStream: _balanceStream,
-                      accountNumber: "${userAccount.customerAccount?.accountNumber}",
-                      accountName: "${userAccount.customerAccount?.accountName}"
-                    )
-                  ],
+              child: InkWell(
+                onTap: () async{
+                  if (!isPostNoDebit) {
+                    final mixpanel = await MixpanelManager.initAsync();
+                    mixpanel.track("dashboard-account-clicked");
+                    final routeArgs = {
+                      "customerAccountId": userAccount.customerAccount?.id,
+                      "accountUserIdx": accountIdx,
+                    };
+                    Navigator.of(context).pushNamed(Routes.ACCOUNT_TRANSACTIONS,
+                        arguments: routeArgs ).then((_) => _viewModel.update(DashboardState.REFRESHING));
+                    return;
+                  }
+
+                  // When pnd
+                  Navigator.of(context).pushNamed(Routes.ACCOUNT_UPDATE);
+
+                },
+                borderRadius: BorderRadius.all(Radius.circular(16)),
+                child: Container(
+                  padding: EdgeInsets.only(left: 20, right: 20),
+                  width: double.infinity,
+                  child: Column(
+                    children: [
+                      // _DashboardAccountType(),
+                      SizedBox(height: 42,),
+                      _DashboardAccountBalancePreview(
+                        balanceStream: _balanceStream,
+                        accountNumber: "${userAccount.customerAccount?.accountNumber}",
+                        accountName: "${userAccount.customerAccount?.accountName}",
+                        viewModel: _viewModel,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-        //PND View
-      ],
+          Visibility(
+            visible: !isPostNoDebit,
+            child: Align(
+              alignment: Alignment(0.0, -1.015),
+              child: _DashboardAccountType()
+            ),
+          ),
+          //PND View
+          IgnorePointer(
+            ignoring: true,
+            child: Visibility(
+              visible: isPostNoDebit,
+                child: _AccountBlockedView(userAccount: userAccount)
+            ),
+          )
+        ],
+      ),
     );
   }
 
@@ -177,6 +235,95 @@ class DashboardAccountItemState extends State<DashboardAccountItem> with Automat
     super.dispose();
   }
 
+}
+
+class _AccountBlockedView extends StatelessWidget {
+  const _AccountBlockedView({
+    Key? key,
+    required this.userAccount,
+  }) : super(key: key);
+
+  final UserAccount userAccount;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      // color: Colors.black,
+      child: Column(
+        children: [
+          SizedBox(height: 20),
+          Text("Account Blocked", style: TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w700),),
+          SizedBox(height: 7),
+          Expanded(
+            child: Container(
+              child: Stack(
+                children: [
+                  Positioned(
+                    left: 0, right: 0, top: 25,
+                    child: Container(
+                      width: double.infinity, height: 100,
+                      margin: EdgeInsets.symmetric(horizontal: 20),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(9)),
+                        color: Colors.white
+                      ),
+                      child: Column(
+                        children: [
+                          SizedBox(height: 30),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text("Account Number",
+                                  style: TextStyle(color: Colors.textColorBlack,
+                                      fontSize: 13, fontWeight: FontWeight.w500)
+                              ),
+                              SizedBox(width: 7.07),
+                              Text(userAccount.customerAccount?.accountNumber ?? "",
+                                  style: TextStyle(color: Colors.textColorBlack,
+                                      fontSize: 13, fontWeight: FontWeight.w700)
+                              )
+
+                            ],
+                          ),
+                          SizedBox(height: 19),
+                          Text("Unblock Account",
+                              style: TextStyle(color: Color(0xffE94444),
+                                fontSize: 14.5, fontWeight: FontWeight.w700)
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: Container(
+                      height: 50, width: 50,
+                      child: Center(
+                          child: SvgPicture.asset('res/drawables/ic_danger.svg',
+                            height: 25, width: 25, color: Color(0xffE94444),
+                          )
+                      ),
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              offset: Offset(0, 13),
+                              blurRadius: 21,
+                              color: Color(0xffBB0909).withOpacity(0.2),
+                            ),
+                          ]
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
 }
 
 
@@ -233,6 +380,7 @@ class _DashboardAccountBalancePreview extends StatelessWidget {
   final ValueNotifier<int> hideAndShowNotifier = ValueNotifier(1);
   final String accountNumber;
   final String accountName;
+  final DashboardViewModel viewModel;
 
   late final _accountBalanceTextStyle = TextStyle(
       fontSize: 23.7,
@@ -244,6 +392,7 @@ class _DashboardAccountBalancePreview extends StatelessWidget {
     required this.balanceStream,
     required this.accountNumber,
     required this.accountName,
+    required this.viewModel
   });
 
   isAccountBalanceHidden() =>
@@ -337,18 +486,56 @@ class _DashboardAccountBalancePreview extends StatelessWidget {
                   isLoading: isLoadingAccountBalance(snapshot)
               ),
               Visibility(
+                  visible: isErrorLoadingAccountBalance(snapshot) && !hideAccountBalance,
+                 child: Container(
+                  // padding: EdgeInsets.only(right: 10),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text('We cannot get your balance right now.\nPlease try again',
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.textColorBlack
+                          )
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          viewModel.update(DashboardState.REFRESHING);
+                        },
+                        child: Text('Try Again',
+                          style: TextStyle(
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.primaryColor
+                          )
+                        ),
+                      )
+                    ],
+                  ),
+                )
+//
+              ),
+              Visibility(
                   visible: hideAccountBalance == true || canDisplay,
                   child: ValueListenableBuilder(
                       valueListenable: hideAndShowNotifier,
                       builder: (_, __, ___) {
                         final hideAccountBalance = isAccountBalanceHidden();
                         final acctBalance = _getAccountBalance(snapshot, hideAccountBalance);
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        return Stack(
                           children: [
-                            _accountBalanceView(acctBalance, hideAccountBalance),
-                            SizedBox(width: 4,),
-                            _visibilityIcon(hideAccountBalance),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                _accountBalanceView(acctBalance, hideAccountBalance),
+                              ],
+                            ),
+                            Positioned(
+                                right: 8, top: 2,
+                                child: _visibilityIcon(hideAccountBalance)
+                            )
                           ],
                         );
                       }
@@ -357,7 +544,7 @@ class _DashboardAccountBalancePreview extends StatelessWidget {
               SizedBox(height: 16,),
               _DashboardAccountNumberView(
                 accountNumber: accountNumber,
-                accountName: "",
+                accountName: accountName,
               )
             ],
           );

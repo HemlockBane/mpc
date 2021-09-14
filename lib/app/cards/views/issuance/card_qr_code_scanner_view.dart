@@ -21,6 +21,11 @@ import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class CardQRCodeScannerView extends StatefulWidget {
+
+  final num customerAccountId;
+
+  CardQRCodeScannerView(this.customerAccountId);
+
   @override
   State<StatefulWidget> createState() => _CardQRCodeScannerViewState();
 }
@@ -114,6 +119,7 @@ class _CardQRCodeScannerViewState extends State<CardQRCodeScannerView> {
             context: mContext,
             activationCode: code,
             cardsStreamFn: () => _viewModel.getCards(),
+            totalNumberOfCards: _viewModel.getTotalNumberOfCards(),
           );
         }
     );
@@ -158,7 +164,8 @@ class _CardQRCodeScannerViewState extends State<CardQRCodeScannerView> {
   void _startLiveliness() async {
     final validationResponse = await Navigator.of(context).pushNamed(Routes.LIVELINESS_DETECTION, arguments: {
       "verificationFor": LivelinessVerificationFor.CARD_LINKING,
-      "cardSerial": _viewModel.cardSerial
+      "cardSerial": _viewModel.cardSerial,
+      "customerAccountId": widget.customerAccountId
     });
 
     if(validationResponse != null && validationResponse is CardLinkingResponse){

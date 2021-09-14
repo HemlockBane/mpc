@@ -209,7 +209,7 @@ class _SelectionCombo<T> extends State<SelectionCombo<T>> {
           Visibility(
               visible: canShowMoreText(),
               child: SizedBox(
-                width: 100,
+                width: 110,
                 child: Center(
                   child: TextButton(
                       onPressed: () => setState(() => showMore = !showMore),
@@ -218,7 +218,7 @@ class _SelectionCombo<T> extends State<SelectionCombo<T>> {
                           style: TextStyle(
                               color: Color(0XFF3272E1),
                               fontSize: 16,
-                              fontWeight: FontWeight.w600
+                              fontWeight: FontWeight.w500
                           ),
                         ),
                       )

@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart' hide Colors, Card;
 import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/app/cards/model/data/card.dart';
@@ -17,6 +18,10 @@ import 'card_list_option_item.dart';
 import 'dialogs/card_pin_dialog.dart';
 import 'dialogs/change_card_pin_dialog.dart';
 
+///@author Paul Okeke
+
+typedef CardTransactionInvoker = Function(CardAction action, CardTransactionRequest request);
+
 class CardDetailedView extends StatefulWidget {
 
   final num cardId;
@@ -29,35 +34,7 @@ class CardDetailedView extends StatefulWidget {
 }
 
 class _CardDetailedViewState extends State<CardDetailedView> {
-
-  Card? _card;
-
-  late final _cardOptions = List<Widget>.of([]);
-  late SingleCardViewModel _viewModel;
-
-  void _makeCardOptions() {
-    _cardOptions.clear();
-    _cardOptions.addAll([
-      CardListOptionItem(
-          onClick: _card!.blocked ? null : () => Navigator.of(context).pushNamed(Routes.MANAGE_CARD_CHANNELS, arguments: {"id": _card?.id}),
-          title: "Card Channels",
-          subTitle: "Manage ATM, POS & Web Channels",
-          leadingIcon: SvgPicture.asset("res/drawables/ic_card_channels.svg")
-      ),
-      CardListOptionItem(
-          onClick: _card!.blocked ? null : null,
-          title: "Card Transaction Limit",
-          subTitle: "Coming soon",
-          leadingIcon: SvgPicture.asset("res/drawables/ic_get_card.svg")
-      ),
-      CardListOptionItem(
-          onClick: _card!.blocked ? null : () => _displayChangePinDialog(_viewModel),
-          title: "Change Card PIN",
-          subTitle: "Manage ATM, POS & Web Channels",
-          leadingIcon: SvgPicture.asset("res/drawables/ic_number_input.svg", color: Colors.primaryColor,)
-      ),
-    ]);
-  }
+  late final SingleCardViewModel _viewModel;
 
   @override
   void initState() {
@@ -65,58 +42,13 @@ class _CardDetailedViewState extends State<CardDetailedView> {
     super.initState();
   }
 
-  void _displayForBlockOrUnblock(SingleCardViewModel viewModel) async {
-    if(_card?.blocked != true /*User wants to block*/) {
-      dynamic value = await showInfo(
-          context,
-          title: "Warning!!!",
-          message: "You will have to visit a branch to unblock your card if needed! Proceed to block?",
-          onPrimaryClick: () {
-            Navigator.of(context).pop(true);
-          }
-      );
-
-      if(value is bool && value) {
-        final transactionRequest = CardTransactionRequest()..cardId = _card?.id;
-       _openCardTransactionDialog(viewModel, CardAction.BLOCK_CARD, transactionRequest);
-      }
-    } else {
-      Navigator.of(context).pushNamed(Routes.UNBLOCK_DEBIT_CARD);
-    }
-  }
-
-  void _displayChangePinDialog(SingleCardViewModel viewModel) async {
-    dynamic value = await showModalBottomSheet(
-        backgroundColor: Colors.transparent,
-        context:  context,
-        isScrollControlled: true,
-        builder: (context) => ChangeNotifierProvider.value(
-          value: viewModel,
-          child: ChangeCardPinDialog(),
-        )
-    );
-
-    if (value != null && value is CardTransactionRequest) {
-      _openCardTransactionDialog(
-          viewModel,
-          CardAction.CHANGE_PIN,
-          value
-            ..cardAccountNumber = _card?.customerAccountCard?.customerAccountNumber ?? ""
-            ..cardId = _card?.id
-            ..expiry = _card?.expiryDate,
-      );
-    }
-  }
-
-  void _openCardTransactionDialog(SingleCardViewModel viewModel,
-      CardAction action, CardTransactionRequest request) async {
-
+  void _executeTransaction(CardAction action, CardTransactionRequest request) async {
     dynamic value = await showModalBottomSheet(
         backgroundColor: Colors.transparent,
         context: context,
         isScrollControlled: true,
         builder: (context) => ChangeNotifierProvider.value(
-          value: viewModel,
+          value: _viewModel,
           child: CardPinDialog(action, request),
         )
     );
@@ -132,69 +64,6 @@ class _CardDetailedViewState extends State<CardDetailedView> {
     } else if(value is Error) {
       showError(context, title: "Card Operation Failed!", message: value.message);
     }
-  }
-
-  Widget blockOrUnblockWidget(SingleCardViewModel viewModel) {
-    return Column(
-      children: [
-        Divider(height: 1, thickness: 0.8, color: Color(0XFFE8F0F6).withOpacity(1),),
-        Material(
-          color: Colors.white,
-          child: InkWell(
-            onTap: () => _displayForBlockOrUnblock(viewModel),
-            child: Container(
-              padding: EdgeInsets.only(
-                  left: 20,
-                  top: 16,
-                  right: 20,
-                  bottom: 27
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    height: 49,
-                    width: 49,
-                    padding: EdgeInsets.all(11),
-                    decoration: BoxDecoration(
-                      color: _card!.blocked
-                          ? Colors.solidGreen.withOpacity(0.1)
-                          : Colors.darkRed.withOpacity(0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: SvgPicture.asset(
-                        _card!.blocked
-                            ? "res/drawables/ic_card_unlock.svg"
-                            : "res/drawables/ic_card_locked_red.svg"
-                    ),
-                  ),
-                  SizedBox(width: 13,),
-                  Flexible(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _card!.blocked ? "Unblock Card" : "Block Card",
-                            style: TextStyle(
-                                color: Colors.textColorMainBlack,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 18
-                            ),
-                          ),
-                          Text(
-                              _card!.blocked
-                                  ? "Remove usage restrictions on your card"
-                                  : "Place usage restrictions on your card"
-                          ),
-                        ],
-                      )
-                  )
-                ],
-              ),
-            ),
-          ),
-        )
-      ],
-    );
   }
 
   @override
@@ -222,56 +91,35 @@ class _CardDetailedViewState extends State<CardDetailedView> {
             future: _viewModel.getSingleCard(widget.cardId),
             builder: (mContext, AsyncSnapshot<Card?> snapshot) {
               if(!snapshot.hasData || snapshot.data == null) return Container();
-              _card = snapshot.data;
-              _makeCardOptions();
+              final card = snapshot.data!;
               return Stack(
                 children: [
                   Positioned(
                       top: 36,
                       left: 16,
                       right: 16,
-                      child: CardDetailedItem(_card!)
+                      child: CardDetailedItem(card)
                   ),
                   Positioned(
                       top: 182,
                       left: 0,
                       right: 0,
                       bottom: 0,
-                      child: Container(
-                        padding: EdgeInsets.only(top: 20),
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.only(
-                                topRight: Radius.circular(30),
-                                topLeft: Radius.circular(30)
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
-                                  offset: Offset(0, -10),
-                                  blurRadius: 6,
-                                  spreadRadius: 0
-                              )
-                            ]
-                        ),
-                        child: ListView.separated(
-                          itemCount: _cardOptions.length,
-                          padding: EdgeInsets.only(bottom: 100),
-                          separatorBuilder: (context, index) => Padding(
-                            padding: EdgeInsets.only(left: 16, right: 16),
-                            child: Divider(color: Color(0XFFE8F0F6), height: 1, thickness: 0.5,),
-                          ),
-                          itemBuilder: (mContext, index) {
-                            return _cardOptions[index];
-                          },
-                        ),
+                      child: _CardOptionsListView(
+                          context: context,
+                          viewModel: _viewModel,
+                          card: card,
+                          transactionInvoker: _executeTransaction
                       )
                   ),
                   Positioned(
                       left: 0,
                       right: 0,
                       bottom: 0,
-                      child: blockOrUnblockWidget(_viewModel)
+                      child: CardBlockOrUnBlockButton(
+                          card: card,
+                          transactionInvoker: _executeTransaction,
+                      )
                   )
                 ],
               );
@@ -281,4 +129,214 @@ class _CardDetailedViewState extends State<CardDetailedView> {
     );
   }
 
+}
+
+///_CardOptionsListView
+///
+///
+///
+///
+class _CardOptionsListView extends StatelessWidget {
+
+  final BuildContext context;
+  final SingleCardViewModel viewModel;
+  final Card card;
+  final CardTransactionInvoker transactionInvoker;
+
+  late final _cardOptions = List<Widget>.of([]);
+
+  _CardOptionsListView({
+    required this.context,
+    required this.viewModel,
+    required this.card,
+    required this.transactionInvoker
+  }): super(key: Key("CardOptionsListView"));
+
+  void _makeCardOptions(BuildContext context) {
+    _cardOptions.clear();
+    _cardOptions.addAll([
+      CardListOptionItem(
+          onClick: card.blocked
+              ? null
+              : (_, __) => Navigator.of(context)
+              .pushNamed(Routes.MANAGE_CARD_CHANNELS, arguments: {"id": card.id}),
+          title: "Card Channels",
+          subTitle: "Manage ATM, POS & Web Channels",
+          leadingIcon: SvgPicture.asset("res/drawables/ic_card_channels.svg")
+      ),
+      CardListOptionItem(
+          onClick: card.blocked ? null : null,
+          title: "Card Transaction Limit",
+          subTitle: "Coming soon",
+          leadingIcon: SvgPicture.asset("res/drawables/ic_get_card.svg")
+      ),
+      CardListOptionItem(
+          onClick: card.blocked ? null : (_, __) => _displayChangePinDialog(),
+          title: "Change Card PIN",
+          subTitle: "Manage ATM, POS & Web Channels",
+          leadingIcon: SvgPicture.asset(
+            "res/drawables/ic_number_input.svg", color: Colors.primaryColor,
+          )
+      ),
+    ]);
+  }
+
+  void _displayChangePinDialog() async  {
+    dynamic value = await showModalBottomSheet(
+        backgroundColor: Colors.transparent,
+        context:  context,
+        isScrollControlled: true,
+        builder: (context) => ChangeNotifierProvider.value(
+          value: viewModel,
+          child: ChangeCardPinDialog(),
+        )
+    );
+
+    if (value != null && value is CardTransactionRequest) {
+      transactionInvoker.call(
+        CardAction.CHANGE_PIN,
+        value
+          ..cardAccountNumber = card.customerAccountCard?.customerAccountNumber ?? ""
+          ..cardId = card.id
+          ..expiry = card.expiryDate,
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    _makeCardOptions(context);
+    return Container(
+      padding: EdgeInsets.only(top: 20),
+      decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+              topRight: Radius.circular(30),
+              topLeft: Radius.circular(30)
+          ),
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                offset: Offset(0, -10),
+                blurRadius: 6,
+                spreadRadius: 0
+            )
+          ]
+      ),
+      child: ListView.separated(
+        itemCount: _cardOptions.length,
+        padding: EdgeInsets.only(bottom: 100),
+        separatorBuilder: (context, index) => Padding(
+          padding: EdgeInsets.only(left: 16, right: 16),
+          child: Divider(color: Color(0XFFE8F0F6), height: 1, thickness: 0.5,),
+        ),
+        itemBuilder: (mContext, index) => _cardOptions[index],
+      ),
+    );
+  }
+
+}
+
+
+///CardBlockOrUnBlockButton
+/// 
+/// 
+/// 
+/// 
+/// 
+class CardBlockOrUnBlockButton extends StatelessWidget {
+  
+  final Card card;
+  final CardTransactionInvoker transactionInvoker;
+
+  CardBlockOrUnBlockButton({
+    required this.card,
+    required this.transactionInvoker
+  }):super(key: Key("UBlock-btn"));
+
+  _labelAndDescription() => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        card.blocked ? "Unblock Card" : "Block Card",
+        style: TextStyle(
+            color: Colors.textColorMainBlack,
+            fontWeight: FontWeight.w600,
+            fontSize: 18
+        ),
+      ),
+      Text(card.blocked
+          ? "Remove usage restrictions on your card"
+          : "Place usage restrictions on your card"
+      ),
+    ],
+  );
+
+
+  _buttonIcon() => Container(
+    height: 49,
+    width: 49,
+    padding: EdgeInsets.all(11),
+    decoration: BoxDecoration(
+      color: card.blocked
+          ? Colors.solidGreen.withOpacity(0.1)
+          : Colors.darkRed.withOpacity(0.1),
+      shape: BoxShape.circle,
+    ),
+    child: SvgPicture.asset(
+        card.blocked
+            ? "res/drawables/ic_card_unlock.svg"
+            : "res/drawables/ic_card_locked_red.svg"
+    ),
+  );
+
+  ///
+  _onClick(BuildContext context) async {
+    if(card.blocked != true /*User wants to block*/) {
+      dynamic value = await showInfo(
+          context,
+          title: "Warning!!!",
+          message: "You will have to visit a branch to unblock your card if needed! Proceed to block?",
+          onPrimaryClick: () => Navigator.of(context).pop(true)
+      );
+
+      if(value is bool && value) {
+        final transactionRequest = CardTransactionRequest()..cardId = card.id;
+        transactionInvoker.call(CardAction.BLOCK_CARD, transactionRequest);
+      }
+    } else {
+      Navigator.of(context).pushNamed(Routes.UNBLOCK_DEBIT_CARD);
+    }
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Divider(height: 1, thickness: 0.8, color: Color(0XFFE8F0F6).withOpacity(1),),
+        Material(
+          color: Colors.white,
+          child: InkWell(
+            onTap: () => _onClick(context),
+            child: Container(
+              padding: EdgeInsets.only(
+                  left: 20,
+                  top: 16,
+                  right: 20,
+                  bottom: 27
+              ),
+              child: Row(
+                children: [
+                  _buttonIcon(),
+                  SizedBox(width: 13,),
+                  Flexible(child: _labelAndDescription())
+                ],
+              ),
+            ),
+          ),
+        )
+      ],
+    );
+  }
+  
 }

@@ -13,11 +13,13 @@ class CardActivationCodeDialog extends StatelessWidget {
   final BuildContext context;
   final String activationCode;
   final Stream<Resource<List<Card>>> Function() cardsStreamFn;
+  final int totalNumberOfCards;
 
   CardActivationCodeDialog({
     required this.context,
     required this.activationCode,
-    required this.cardsStreamFn
+    required this.cardsStreamFn,
+    required this.totalNumberOfCards
   }) {
     _subscribeUiToCardList();
   }
@@ -28,7 +30,7 @@ class CardActivationCodeDialog extends StatelessWidget {
     streamWithExponentialBackoff(stream: cardStream, retries: 5).listen((event) async {
       if(event is Success) {
         final cards = event.data;
-        if(cards?.isNotEmpty == true) return Navigator.of(context).pop(event);
+        if((cards?.length ?? 0) > totalNumberOfCards) return Navigator.of(context).pop(event);
         await Future.delayed(Duration(seconds: 5));
         //Recursively
         _subscribeUiToCardList();

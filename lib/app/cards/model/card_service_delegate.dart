@@ -25,10 +25,10 @@ class CardServiceDelegate with NetworkResource {
   late final List<Card> _cards = [
   ];
 
-  Stream<Resource<List<Card>>> getCards(int customerAccountId) {
+  Stream<Resource<List<Card>>> getCards(int customerId) {
     return networkBoundResource(
         fetchFromLocal: () => Stream.value(null),
-        fetchFromRemote: () => _service.getCards(customerAccountId),
+        fetchFromRemote: () => _service.getCards(customerId),
         saveRemoteData: (List<Card> cards) async {
           _cards.clear();
           _cards.addAll(cards);
@@ -41,6 +41,17 @@ class CardServiceDelegate with NetworkResource {
       return element.id == cardId;
     });
     return card;
+  }
+
+  Future<Card?> getCardByAccountNumber(String accountNumber) async {
+    var card = _cards.firstWhereOrNull((element) {
+      return element.customerAccountCard?.customerAccountNumber == accountNumber;
+    });
+    return card;
+  }
+
+  int getNumberOfCards() {
+    return _cards.length;
   }
 
   Stream<Resource<bool>> blockCard(int customerAccountId, CardTransactionRequest cardTransactionRequest) {

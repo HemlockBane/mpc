@@ -48,11 +48,15 @@ class _CardActivationViewState extends State<CardActivationView> with CompositeD
   }
 
   void _subscribeUiToLiveliness() async {
+    final customerAccountId = _viewModel.getCustomerAccountIdByAccountNumber(
+        _card?.customerAccountCard?.customerAccountNumber
+    );
     final response = await Navigator.of(context).pushNamed(Routes.LIVELINESS_DETECTION, arguments: {
       "verificationFor": LivelinessVerificationFor.CARD_ACTIVATION,
       "cardId": _card?.id,
       "cvv2": _viewModel.cvv,
-      "newPin": _viewModel.newPin
+      "newPin": _viewModel.newPin,
+      "customerAccountId": customerAccountId
     });
 
     if(response != null && response is CardActivationResponse) {

@@ -131,6 +131,7 @@ class _CardPinDialog extends State<CardPinDialog> {
                       child: Padding(
                         padding: EdgeInsets.only(left: 16, right: 16),
                         child: Styles.appEditText(
+                            controller: _reasonController,
                             hint: widget.cardAction == CardAction.BLOCK_CARD
                                 ? "Why do you want to block this card?"
                                 : "why do you want to unblock this card?",

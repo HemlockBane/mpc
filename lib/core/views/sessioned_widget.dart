@@ -22,9 +22,6 @@ class SessionedWidget extends GestureDetector {
   void _onSessionTimeOut(SessionTimeoutReason reason) {
     if(UserInstance().getUser() == null) return;
 
-    if(navigatorKey.currentState?.canPop() == true) {
-      navigatorKey.currentState?.pop();
-    }
     UserInstance().resetSession();
     navigatorKey.currentState?.pushNamedAndRemoveUntil(
         Routes.LOGIN, (route) => false,

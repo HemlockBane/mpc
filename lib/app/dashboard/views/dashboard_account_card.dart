@@ -147,7 +147,7 @@ class DashboardAccountItemState extends State<DashboardAccountItem> with Automat
     super.build(context);
     final isPostNoDebit = UserInstance().accountStatus?.postNoDebit == true;
     // print(UserInstance().accountStatus?.toJson());
-    // final isPostNoDebit = true;
+    // final isPostNoDebit = false;
 
     print("isPostNoDebit: $isPostNoDebit}");
     return  Hero(
@@ -169,23 +169,7 @@ class DashboardAccountItemState extends State<DashboardAccountItem> with Automat
               color: Colors.transparent,
               borderRadius: BorderRadius.all(Radius.circular(16)),
               child: InkWell(
-                onTap: () async{
-                  if (!isPostNoDebit) {
-                    final mixpanel = await MixpanelManager.initAsync();
-                    mixpanel.track("dashboard-account-clicked");
-                    final routeArgs = {
-                      "customerAccountId": userAccount.customerAccount?.id,
-                      "accountUserIdx": accountIdx,
-                    };
-                    Navigator.of(context).pushNamed(Routes.ACCOUNT_TRANSACTIONS,
-                        arguments: routeArgs ).then((_) => _viewModel.update(DashboardState.REFRESHING));
-                    return;
-                  }
-
-                  // When pnd
-                  Navigator.of(context).pushNamed(Routes.ACCOUNT_UPDATE);
-
-                },
+                onTap: onItemTap(isPostNoDebit),
                 borderRadius: BorderRadius.all(Radius.circular(16)),
                 child: Container(
                   padding: EdgeInsets.only(left: 20, right: 20),
@@ -225,6 +209,25 @@ class DashboardAccountItemState extends State<DashboardAccountItem> with Automat
       ),
     );
   }
+
+
+  onItemTap(bool isPostNoDebit) => () async{
+    if (isPostNoDebit) {
+      // When pnd
+      Navigator.of(context).pushNamed(Routes.ACCOUNT_UPDATE);
+      return;
+    }
+
+    final mixpanel = await MixpanelManager.initAsync();
+    mixpanel.track("dashboard-account-clicked");
+    final routeArgs = {
+      "customerAccountId": userAccount.customerAccount?.id,
+      "accountUserIdx": accountIdx,
+    };
+    await Navigator.of(context).pushNamed(Routes.ACCOUNT_TRANSACTIONS, arguments: routeArgs);
+    _viewModel.update(DashboardState.REFRESHING);
+
+  };
 
   @override
   bool get wantKeepAlive => true;
@@ -458,6 +461,34 @@ class _DashboardAccountBalancePreview extends StatelessWidget {
         }),
   );
 
+  _errorView() => Container(
+    child: Row(
+      children: [
+        Expanded(
+          child: Text('We cannot get your balance right now.\nPlease try again',
+              style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.textColorBlack
+              )
+          ),
+        ),
+        TextButton(
+          onPressed: () {
+            viewModel.update(DashboardState.REFRESHING);
+          },
+          child: Text('Try Again',
+              style: TextStyle(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.primaryColor
+              )
+          ),
+        )
+      ],
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
@@ -487,35 +518,7 @@ class _DashboardAccountBalancePreview extends StatelessWidget {
               ),
               Visibility(
                   visible: isErrorLoadingAccountBalance(snapshot) && !hideAccountBalance,
-                 child: Container(
-                  // padding: EdgeInsets.only(right: 10),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text('We cannot get your balance right now.\nPlease try again',
-                          style: TextStyle(
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.textColorBlack
-                          )
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          viewModel.update(DashboardState.REFRESHING);
-                        },
-                        child: Text('Try Again',
-                          style: TextStyle(
-                            fontSize: 13.5,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.primaryColor
-                          )
-                        ),
-                      )
-                    ],
-                  ),
-                )
-//
+                 child: _errorView()
               ),
               Visibility(
                   visible: hideAccountBalance == true || canDisplay,

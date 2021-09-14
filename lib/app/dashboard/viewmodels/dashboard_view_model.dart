@@ -92,7 +92,7 @@ class DashboardViewModel extends BaseViewModel {
   }
 
   Stream<Resource<AccountBalance>> getDashboardBalance({int? accountId, bool useLocal = true}) {
-    return getCustomerAccountBalance(accountId:  accountId, useLocal: useLocal).map((event) {
+    return getCustomerAccountBalance(accountId:  accountId, useLocal: useLocal).asBroadcastStream().map((event) {
       if(event is Success || event is Error) {
         update(DashboardState.DONE);
       }

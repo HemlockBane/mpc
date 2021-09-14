@@ -97,7 +97,8 @@ class DashboardAccountItem extends StatefulWidget {
   }
 }
 
-class DashboardAccountItemState extends State<DashboardAccountItem> with AutomaticKeepAliveClientMixin, CompositeDisposableWidget {
+class DashboardAccountItemState extends State<DashboardAccountItem>
+    with AutomaticKeepAliveClientMixin, CompositeDisposableWidget {
 
   late final UserAccount userAccount;
   late final DashboardViewModel _viewModel;
@@ -365,6 +366,11 @@ class _DashboardAccountBalancePreview extends StatelessWidget {
   }
 }
 
+///_DashboardAccountNumberView
+///
+///
+///
+///
 class _DashboardAccountNumberView extends Container {
 
   final String accountNumber;

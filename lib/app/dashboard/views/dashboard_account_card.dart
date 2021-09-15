@@ -65,7 +65,7 @@ class DashboardAccountCard extends StatelessWidget {
           Visibility(
             visible: userAccounts.length > 1,
             child: Positioned(
-                bottom: 20,
+                bottom: 17,
                 left: 0,
                 right: 0,
                 child: StreamBuilder(
@@ -210,7 +210,7 @@ class DashboardAccountItemState extends State<DashboardAccountItem>
               children: [
                 if (isPostNoDebit)
                   ImageFiltered(
-                    imageFilter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
+                    imageFilter: ImageFilter.blur(sigmaX: 2.1, sigmaY: 2.1),
                     child: _balanceContainer(snapshot, isPostNoDebit),
                   ),
                 if(!isPostNoDebit) _balanceContainer(snapshot, isPostNoDebit),

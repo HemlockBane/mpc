@@ -40,7 +40,7 @@ class DashboardAccountCard extends StatelessWidget {
     final userAccounts = viewModel.userAccounts;
     return Container(
       width: double.infinity,
-      height: 200,
+      height: userAccounts.length > 1 ? 200 : 180,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(16)),
         color: Colors.backgroundWhite,
@@ -75,6 +75,7 @@ class DashboardAccountCard extends StatelessWidget {
                   stream: viewModel.dashboardUpdateStream,
                   builder: (ctx, a) {
                     final isPostNoDebit = UserInstance().accountStatus?.postNoDebit == true;
+                    // print("account status: ${UserInstance().accountStatus?.toJson()}");
                     return DotIndicator(
                       controller: pageController,
                       itemCount: userAccounts.length,
@@ -138,7 +139,7 @@ class DashboardAccountItemState extends State<DashboardAccountItem>
         if (mounted) setState(() {});
       }
       if(event == DashboardState.ACCOUNT_STATUS_UPDATED) {
-        // if (mounted) setState(() {});
+        if (mounted) setState(() {});
       }
     }).disposedBy(this);
   }
@@ -147,6 +148,9 @@ class DashboardAccountItemState extends State<DashboardAccountItem>
     if (isPostNoDebit) {
       // When pnd
       Navigator.of(context).pushNamed(Routes.ACCOUNT_UPDATE);
+      Future.delayed(Duration(milliseconds: 60), () {
+        _viewModel.update(DashboardState.REFRESHING);
+      });
       return;
     }
 
@@ -167,8 +171,8 @@ class DashboardAccountItemState extends State<DashboardAccountItem>
   Widget build(BuildContext context) {
     super.build(context);
     final isPostNoDebit = UserInstance().accountStatus?.postNoDebit == true;
-    // print(UserInstance().accountStatus?.toJson());
-    // final isPostNoDebit = false;
+    // print("account status: ${UserInstance().accountStatus?.toJson()}");
+    // final isPostNoDebit = true;
 
     print("isPostNoDebit: $isPostNoDebit}");
     return  Hero(
@@ -252,12 +256,16 @@ class _AccountBlockedView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final bannerTitle = "Account Restricted";
+    final bannerActionText = "Remove Restriction";
+
     return Container(
       // color: Colors.black,
       child: Column(
         children: [
           SizedBox(height: 20),
-          Text("Account Blocked", style: TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w700),),
+          Text(bannerTitle, style: TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w700),),
           SizedBox(height: 7),
           Expanded(
             child: Container(
@@ -291,7 +299,7 @@ class _AccountBlockedView extends StatelessWidget {
                             ],
                           ),
                           SizedBox(height: 19),
-                          Text("Unblock Account",
+                          Text(bannerActionText,
                               style: TextStyle(color: Color(0xffE94444),
                                 fontSize: 14.5, fontWeight: FontWeight.w700)
                           )

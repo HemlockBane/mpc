@@ -8,7 +8,7 @@ import 'package:moniepoint_flutter/core/colors.dart';
 
 Future<dynamic> requestUpload(BuildContext context, {
   List<String> extensions = const [".jpg", ".pdf", ".pnd"],
-  int maxFileSize = 1024 * 2000
+  int maxFileSize = 1024 * 5000//5mb
 }) async {
   return showModalBottomSheet(
     backgroundColor: Colors.transparent,
@@ -126,7 +126,7 @@ class UploadRequestDialog extends StatelessWidget {
                             fontWeight: FontWeight.w600
                         )
                     ),
-                    onTap: () => _openFileFor(context, FileType.media),
+                    onTap: () => _openFileFor(context, FileType.image),
                     trailing: SvgPicture.asset('res/drawables/ic_forward_anchor.svg', color: Colors.primaryColor,),
                   ),
                   Container(

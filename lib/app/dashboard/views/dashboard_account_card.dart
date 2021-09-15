@@ -138,10 +138,30 @@ class DashboardAccountItemState extends State<DashboardAccountItem>
         if (mounted) setState(() {});
       }
       if(event == DashboardState.ACCOUNT_STATUS_UPDATED) {
-        if (mounted) setState(() {});
+        // if (mounted) setState(() {});
       }
     }).disposedBy(this);
   }
+
+  onItemTap(bool isPostNoDebit) => () async{
+    if (isPostNoDebit) {
+      // When pnd
+      Navigator.of(context).pushNamed(Routes.ACCOUNT_UPDATE);
+      return;
+    }
+
+    final mixpanel = await MixpanelManager.initAsync();
+    mixpanel.track("dashboard-account-clicked");
+    final routeArgs = {
+      "customerAccountId": userAccount.customerAccount?.id,
+      "accountUserIdx": accountIdx,
+    };
+    await Navigator.of(context).pushNamed(Routes.ACCOUNT_TRANSACTIONS, arguments: routeArgs);
+    Future.delayed(Duration(milliseconds: 60), () {
+      _viewModel.update(DashboardState.REFRESHING);
+    });
+
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -210,25 +230,6 @@ class DashboardAccountItemState extends State<DashboardAccountItem>
       ),
     );
   }
-
-
-  onItemTap(bool isPostNoDebit) => () async{
-    if (isPostNoDebit) {
-      // When pnd
-      Navigator.of(context).pushNamed(Routes.ACCOUNT_UPDATE);
-      return;
-    }
-
-    final mixpanel = await MixpanelManager.initAsync();
-    mixpanel.track("dashboard-account-clicked");
-    final routeArgs = {
-      "customerAccountId": userAccount.customerAccount?.id,
-      "accountUserIdx": accountIdx,
-    };
-    await Navigator.of(context).pushNamed(Routes.ACCOUNT_TRANSACTIONS, arguments: routeArgs);
-    _viewModel.update(DashboardState.REFRESHING);
-
-  };
 
   @override
   bool get wantKeepAlive => true;
@@ -492,11 +493,17 @@ class _DashboardAccountBalancePreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // print("Check the rebuild => ${hideAccountBalance == true || canDisplay}");
+    // print("Has Data on Rebuild => ${snapshot.hasData}");
+    // print("Has Data on Rebuild Data=> ${snapshot.data}");
+    print("What is Balance Stream=> $balanceStream");
     return StreamBuilder(
         stream: balanceStream,
         builder: (ctx, AsyncSnapshot<Resource<AccountBalance>> snapshot) {
           final hideAccountBalance = isAccountBalanceHidden();
           final canDisplay = _canDisplayBalance(snapshot);
+
+
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -515,7 +522,7 @@ class _DashboardAccountBalancePreview extends StatelessWidget {
               SizedBox(height: 4,),
               _DashboardLoadingShimmer(
                   hideAccountBalance: hideAccountBalance,
-                  isLoading: isLoadingAccountBalance(snapshot)
+                  isLoading: isLoadingAccountBalance(snapshot) || snapshot.data == null
               ),
               Visibility(
                   visible: isErrorLoadingAccountBalance(snapshot) && !hideAccountBalance,

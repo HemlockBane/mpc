@@ -24,13 +24,27 @@ class CardActivationCodeDialog extends StatelessWidget {
     _subscribeUiToCardList();
   }
 
+  bool containsInactiveCard(List<Card>? cards) {
+    var containsInActiveCard = false;
+    cards?.forEach((element) {
+      if(element.isActivated == false) {
+        containsInActiveCard = true;
+      }
+    });
+    return containsInActiveCard;
+  }
+
   void _subscribeUiToCardList() {
     final cardStream = cardsStreamFn.call();
 
     streamWithExponentialBackoff(stream: cardStream, retries: 5).listen((event) async {
       if(event is Success) {
         final cards = event.data;
-        if((cards?.length ?? 0) > totalNumberOfCards) return Navigator.of(context).pop(event);
+        final hasNewCard = (cards?.length ?? 0) > totalNumberOfCards;
+        //When a new card is issued,we instantly would have a new card
+        //added to the list of the customer cards or in cases where a previous
+        //card was replaced(unlinked) then the newly added card should be in an inactive state
+        if(hasNewCard || containsInactiveCard(cards)) return Navigator.of(context).pop(event);
         await Future.delayed(Duration(seconds: 5));
         //Recursively
         _subscribeUiToCardList();

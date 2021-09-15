@@ -130,16 +130,23 @@ class _CardQRCodeScannerViewState extends State<CardQRCodeScannerView> {
         return showError(
             context,
             title: "Agent Confirmation Failed",
-            message: "Failed to retrieve agent confirmation at this time, please try again later."
+            message: "Failed to retrieve agent confirmation at this time, please try again later.",
+            primaryButtonText: "Go Back to Cards"
         );
       }
       final card = cards!.first;
-      Navigator.of(context).popAndPushNamed(Routes.CARD_ACTIVATION, arguments: {"id": card.id});
+      Navigator.of(context).popAndPushNamed(Routes.CARD_ACTIVATION, arguments: {"id": card.id}).then((value) {
+        print("What's the value after activation ==>>> ");
+      });
     } else if (value is Error<List<Card>>) {
       showError(
           context,
           title: "Agent Confirmation Failed",
           message: "Failed to retrieve agent confirmation at this time, please try again later."
+      );
+    } else {
+      Navigator.of(context).pushNamedAndRemoveUntil(
+          Routes.CARDS, ModalRoute.withName(Routes.DASHBOARD)
       );
     }
   }

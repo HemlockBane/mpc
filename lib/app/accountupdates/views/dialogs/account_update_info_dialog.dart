@@ -132,7 +132,7 @@ class _IdentificationRequirement extends StatelessWidget {
         children: [
           SvgPicture.asset("res/drawables/ic_bank_number_input.svg", color: Colors.primaryColor, width: 26, height: 21,),
           SizedBox(width: 15),
-          Column(
+          Flexible(child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -141,79 +141,16 @@ class _IdentificationRequirement extends StatelessWidget {
                 style: TextStyle(color: Colors.textColorBlack, fontSize: 15, fontWeight: FontWeight.w600),
               ),
               SizedBox(height: 8),
-              Row(
-                children: [
-                  Container(
-                    height: 7,
-                    width: 7,
-                    decoration: BoxDecoration(color: Colors.textColorBlack, shape: BoxShape.circle),
-                  ),
-                  SizedBox(width: 6,),
-                  Text(
-                    'National ID / NIN',
-                    style: TextStyle(
-                        color: Colors.textColorBlack,
-                        fontSize: 13,
-                        fontWeight: FontWeight.normal
-                    ),)
-                ],
-              ),
-              SizedBox(height: 8),
-              Row(
-                children: [
-                  Container(
-                    height: 7,
-                    width: 7,
-                    decoration: BoxDecoration(color: Colors.textColorBlack, shape: BoxShape.circle),
-                  ),
-                  SizedBox(width: 6,),
-                  Text(
-                    'Driver’s License',
-                    style: TextStyle(
-                        color: Colors.textColorBlack,
-                        fontSize: 13,
-                        fontWeight: FontWeight.normal
-                    ),)
-                ],
-              ),
-              SizedBox(height: 8),
-              Row(
-                children: [
-                  Container(
-                    height: 7,
-                    width: 7,
-                    decoration: BoxDecoration(color: Colors.textColorBlack, shape: BoxShape.circle),
-                  ),
-                  SizedBox(width: 6,),
-                  Text(
-                    'International Passport',
-                    style: TextStyle(
-                        color: Colors.textColorBlack,
-                        fontSize: 13,
-                        fontWeight: FontWeight.normal
-                    ),)
-                ],
-              ),
-              SizedBox(height: 8),
-              Row(
-                children: [
-                  Container(
-                    height: 7,
-                    width: 7,
-                    decoration: BoxDecoration(color: Colors.textColorBlack, shape: BoxShape.circle),
-                  ),
-                  SizedBox(width: 6,),
-                  Text(
-                    'Voter’s Card',
-                    style: TextStyle(
-                        color: Colors.textColorBlack,
-                        fontSize: 13,
-                        fontWeight: FontWeight.normal
-                    ),)
-                ],
-              ),
+              Text(
+                "e.g National ID / NIN, Driver’s License, International Passport, Voter’s Card",
+                style: TextStyle(
+                    color: Colors.textColorBlack,
+                    fontSize: 13,
+                    fontWeight: FontWeight.normal
+                ),
+              )
             ],
-          )
+          ))
         ],
       ),
     );
@@ -251,59 +188,14 @@ class _ProofOfAddressRequirement extends StatelessWidget {
                 style: TextStyle(color: Colors.textColorBlack, fontSize: 15, fontWeight: FontWeight.w600),
               ),
               SizedBox(height: 8),
-              Row(
-                children: [
-                  Container(
-                    height: 7,
-                    width: 7,
-                    decoration: BoxDecoration(color: Colors.textColorBlack, shape: BoxShape.circle),
-                  ),
-                  SizedBox(width: 6,),
-                  Flexible(child: Text(
-                    'Utility Bills (e.g. electricity bills)',
-                    style: TextStyle(
-                        color: Colors.textColorBlack,
-                        fontSize: 13,
-                        fontWeight: FontWeight.normal
-                    ),))
-                ],
-              ),
-              SizedBox(height: 8),
-              Row(
-                children: [
-                  Container(
-                    height: 7,
-                    width: 7,
-                    decoration: BoxDecoration(color: Colors.textColorBlack, shape: BoxShape.circle),
-                  ),
-                  SizedBox(width: 6,),
-                  Text(
-                    'Tenency Agreements',
-                    style: TextStyle(
-                        color: Colors.textColorBlack,
-                        fontSize: 13,
-                        fontWeight: FontWeight.normal
-                    ),)
-                ],
-              ),
-              SizedBox(height: 8),
-              Row(
-                children: [
-                  Container(
-                    height: 7,
-                    width: 7,
-                    decoration: BoxDecoration(color: Colors.textColorBlack, shape: BoxShape.circle),
-                  ),
-                  SizedBox(width: 6,),
-                  Text(
-                    'Resident Permits',
-                    style: TextStyle(
-                        color: Colors.textColorBlack,
-                        fontSize: 13,
-                        fontWeight: FontWeight.normal
-                    ),)
-                ],
-              ),
+              Text(
+                "e.g Utility Bills (e.g. electricity bills), Tenency Agreements, Resident Permits",
+                style: TextStyle(
+                    color: Colors.textColorBlack,
+                    fontSize: 13,
+                    fontWeight: FontWeight.normal
+                ),
+              )
             ],
           ))
         ],

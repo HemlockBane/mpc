@@ -40,7 +40,7 @@ class DashboardAccountCard extends StatelessWidget {
     final userAccounts = viewModel.userAccounts;
     return Container(
       width: double.infinity,
-      height: userAccounts.length > 1 ? 200 : 180,
+      height: userAccounts.length > 1 ? 205 : 180,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(16)),
         color: Colors.backgroundWhite,
@@ -68,7 +68,7 @@ class DashboardAccountCard extends StatelessWidget {
           Visibility(
             visible: userAccounts.length > 1,
             child: Positioned(
-                bottom: 16,
+                bottom: 20,
                 left: 0,
                 right: 0,
                 child: StreamBuilder(

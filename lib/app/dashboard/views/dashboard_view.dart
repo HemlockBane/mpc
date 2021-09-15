@@ -224,6 +224,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
        };
 
         await Navigator.of(context).pushNamed(routeName, arguments: routeArgs);
+        _viewModel.update(DashboardState.REFRESHING);
         break;
       }
       case "LOGOUT":{

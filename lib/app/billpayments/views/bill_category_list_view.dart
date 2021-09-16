@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/billpayments/views/bill_view.dart';
+import 'package:moniepoint_flutter/core/models/user_instance.dart';
+import 'package:moniepoint_flutter/core/pnd_notification_banner.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/views/empty_list_layout_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/biller_category.dart';
@@ -33,6 +36,17 @@ class _BillCategoryListScreen extends State<BillCategoryListScreen>
   @override
   void initState() {
     super.initState();
+    subscribeUiToAccountStatus();
+  }
+  void subscribeUiToAccountStatus() {
+    final viewModel = Provider.of<BillCategoryViewModel>(context, listen: false);
+    Future.delayed(Duration(milliseconds: 1000), (){
+      viewModel.fetchAccountStatus().listen((event) {
+        if(event is Success) {
+          setState(() {});
+        }
+      });
+    });
   }
 
   Widget makeListView(BuildContext context, AsyncSnapshot<Resource<List<BillerCategory>?>> a) {
@@ -73,12 +87,19 @@ class _BillCategoryListScreen extends State<BillCategoryListScreen>
   Widget build(BuildContext context) {
     super.build(context);
     final viewModel = Provider.of<BillCategoryViewModel>(context, listen: false);
+    final isPnd = UserInstance().accountStatus?.postNoDebit == true;
     return Container(
       child: Column(
         children: [
-          SizedBox(
-            height: 16,
-          ),
+          if (isPnd) SizedBox(height: 20),
+          if (isPnd)
+            PndNotificationBanner(
+              onBannerTap: ()async{
+                await Navigator.of(widget._scaffoldKey.currentContext!).pushNamed(Routes.ACCOUNT_UPDATE);
+                subscribeUiToAccountStatus();
+              },
+           ),
+          SizedBox(height: isPnd ? 26 : 24),
           Divider(
             height: 1,
             color: Color(0XFFE0E0E0),

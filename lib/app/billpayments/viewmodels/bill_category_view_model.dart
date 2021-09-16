@@ -1,6 +1,7 @@
 
 
 import 'package:get_it/get_it.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/account_status.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/bill_service_delegate.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/biller_category.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -16,6 +17,10 @@ class BillCategoryViewModel extends BaseViewModel {
 
   Stream<Resource<List<BillerCategory>>> getCategories() {
     return _delegate.getBillCategories();
+  }
+
+  Stream<Resource<AccountStatus>> fetchAccountStatus() {
+    return this.accountServiceDelegate!.getAccountStatus(customerAccountId);
   }
 
 }

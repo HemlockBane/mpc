@@ -15,7 +15,9 @@ import 'package:moniepoint_flutter/app/transfers/views/transfer_view.dart';
 import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
+import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/pnd_notification_banner.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
@@ -56,7 +58,19 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
     final viewModel = Provider.of<TransferViewModel>(context, listen: false);
     frequentBeneficiaries = viewModel.getFrequentBeneficiaries();
     super.initState();
+    subscribeUiToAccountStatus();
     _extraArguments(widget.arguments);
+  }
+
+  void subscribeUiToAccountStatus() {
+    final viewModel = Provider.of<TransferViewModel>(context, listen: false);
+    Future.delayed(Duration(milliseconds: 1000), (){
+      viewModel.fetchAccountStatus().listen((event) {
+        if(event is Success) {
+          setState(() {});
+        }
+      });
+    });
   }
 
   void displayInstitutionsDialog() async {
@@ -180,13 +194,23 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    final isPnd = UserInstance().accountStatus?.postNoDebit == true;
+
     return  Container(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.max,
           children: [
-            SizedBox(height: 24),
+            if (isPnd) SizedBox(height: 20),
+            if (isPnd)
+              PndNotificationBanner(
+                onBannerTap: ()async{
+                  await Navigator.of(widget._scaffoldKey.currentContext!).pushNamed(Routes.ACCOUNT_UPDATE);
+                  subscribeUiToAccountStatus();
+                },
+              ),
+            SizedBox(height: isPnd ? 26 : 24),
             Expanded(
                 flex: 0,
                 child: Padding(

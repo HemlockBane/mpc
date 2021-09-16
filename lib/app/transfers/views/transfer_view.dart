@@ -79,7 +79,8 @@ class TransferScreenState extends State<TransferScreen> {
                               Tab(text: "History",)
                             ],
                           ),
-                          Colors.tabBackground.withOpacity(0.16)),
+                          Colors.tabBackground.withOpacity(0.16),
+                      ),
                       Expanded(
                           child: TabBarView(
                               controller: DefaultTabController.of(mContext),

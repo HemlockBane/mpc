@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/account_status.dart';
 import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/transfer_beneficiary_delegate.dart';
@@ -145,6 +146,10 @@ class TransferViewModel extends BaseViewModel with PaymentViewModel {
 
   Stream<Uint8List> downloadReceipt(int batchId){
     return _delegate.downloadReceipt(customerId.toString(), batchId);
+  }
+
+  Stream<Resource<AccountStatus>> fetchAccountStatus() {
+    return this.accountServiceDelegate!.getAccountStatus(customerAccountId);
   }
 
   @override

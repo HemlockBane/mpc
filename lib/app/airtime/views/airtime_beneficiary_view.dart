@@ -16,7 +16,9 @@ import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_l
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_shimmer_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
+import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/pnd_notification_banner.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
@@ -61,8 +63,20 @@ class _AirtimeBeneficiaryScreen extends State<AirtimeBeneficiaryScreen> with Aut
   @override
   void initState() {
     final viewModel = Provider.of<AirtimeViewModel>(context, listen: false);
+    subscribeUiToAccountStatus();
     frequentBeneficiaries = viewModel.getFrequentBeneficiaries();
     super.initState();
+  }
+
+  void subscribeUiToAccountStatus() {
+    final viewModel = Provider.of<AirtimeViewModel>(context, listen: false);
+    Future.delayed(Duration(milliseconds: 1000), (){
+      viewModel.fetchAccountStatus().listen((event) {
+        if(event is Success) {
+         setState(() {});
+        }
+      });
+    });
   }
 
   void displayServiceProvidersDialog(AirtimeBeneficiary beneficiary) async {
@@ -174,6 +188,7 @@ class _AirtimeBeneficiaryScreen extends State<AirtimeBeneficiaryScreen> with Aut
     super.build(context);
 
     final viewModel = Provider.of<AirtimeViewModel>(context, listen: false);
+    final isPnd = UserInstance().accountStatus?.postNoDebit == true;
 
     return  Container(
         child: Column(
@@ -181,7 +196,15 @@ class _AirtimeBeneficiaryScreen extends State<AirtimeBeneficiaryScreen> with Aut
           mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.max,
           children: [
-            SizedBox(height: 24),
+            if (isPnd) SizedBox(height: 20),
+            if (isPnd)
+              PndNotificationBanner(
+                onBannerTap: ()async{
+                  await Navigator.of(widget._scaffoldKey.currentContext!).pushNamed(Routes.ACCOUNT_UPDATE);
+                  subscribeUiToAccountStatus();
+                },
+              ),
+            SizedBox(height: isPnd ? 26 : 24),
             Padding(
               padding : EdgeInsets.only(left: 16, right: 16),
               child: Text('What do you want to buy?', style: TextStyle(color: Colors.deepGrey, fontSize: 14, fontWeight: FontWeight.w200)),

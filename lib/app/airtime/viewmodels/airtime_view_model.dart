@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/account_status.dart';
 import 'package:moniepoint_flutter/app/airtime/model/airtime_service_delegate.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_data_request.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_purchase_request_body.dart';
@@ -143,6 +144,10 @@ class AirtimeViewModel extends BaseViewModel with PaymentViewModel {
 
   Stream<Resource<FileResult>> getFile(String fileUUID) {
     return _fileServiceDelegate.getFileByUUID(fileUUID, shouldFetchRemote: false);
+  }
+
+  Stream<Resource<AccountStatus>> fetchAccountStatus() {
+    return this.accountServiceDelegate!.getAccountStatus(customerAccountId);
   }
 
 }

@@ -148,10 +148,6 @@ class TransferViewModel extends BaseViewModel with PaymentViewModel {
     return _delegate.downloadReceipt(customerId.toString(), batchId);
   }
 
-  Stream<Resource<AccountStatus>> fetchAccountStatus() {
-    return this.accountServiceDelegate!.getAccountStatus(customerAccountId);
-  }
-
   @override
   void dispose() {
     super.dispose();

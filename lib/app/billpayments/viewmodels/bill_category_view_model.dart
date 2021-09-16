@@ -18,9 +18,4 @@ class BillCategoryViewModel extends BaseViewModel {
   Stream<Resource<List<BillerCategory>>> getCategories() {
     return _delegate.getBillCategories();
   }
-
-  Stream<Resource<AccountStatus>> fetchAccountStatus() {
-    return this.accountServiceDelegate!.getAccountStatus(customerAccountId);
-  }
-
 }

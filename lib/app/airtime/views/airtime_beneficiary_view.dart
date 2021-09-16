@@ -63,21 +63,10 @@ class _AirtimeBeneficiaryScreen extends State<AirtimeBeneficiaryScreen> with Aut
   @override
   void initState() {
     final viewModel = Provider.of<AirtimeViewModel>(context, listen: false);
-    subscribeUiToAccountStatus();
     frequentBeneficiaries = viewModel.getFrequentBeneficiaries();
     super.initState();
   }
 
-  void subscribeUiToAccountStatus() {
-    final viewModel = Provider.of<AirtimeViewModel>(context, listen: false);
-    Future.delayed(Duration(milliseconds: 1000), (){
-      viewModel.fetchAccountStatus().listen((event) {
-        if(event is Success) {
-         setState(() {});
-        }
-      });
-    });
-  }
 
   void displayServiceProvidersDialog(AirtimeBeneficiary beneficiary) async {
     dynamic result = await showModalBottomSheet(
@@ -186,25 +175,19 @@ class _AirtimeBeneficiaryScreen extends State<AirtimeBeneficiaryScreen> with Aut
   @override
   Widget build(BuildContext context) {
     super.build(context);
-
     final viewModel = Provider.of<AirtimeViewModel>(context, listen: false);
-    final isPnd = UserInstance().accountStatus?.postNoDebit == true;
-
     return  Container(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.max,
           children: [
-            if (isPnd) SizedBox(height: 20),
-            if (isPnd)
               PndNotificationBanner(
                 onBannerTap: ()async{
-                  await Navigator.of(widget._scaffoldKey.currentContext!).pushNamed(Routes.ACCOUNT_UPDATE);
-                  subscribeUiToAccountStatus();
+                  Navigator.of(widget._scaffoldKey.currentContext!).pushNamed(Routes.ACCOUNT_UPDATE);
                 },
               ),
-            SizedBox(height: isPnd ? 26 : 24),
+            SizedBox(height: 24),
             Padding(
               padding : EdgeInsets.only(left: 16, right: 16),
               child: Text('What do you want to buy?', style: TextStyle(color: Colors.deepGrey, fontSize: 14, fontWeight: FontWeight.w200)),

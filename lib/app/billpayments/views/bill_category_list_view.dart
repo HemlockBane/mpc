@@ -36,17 +36,6 @@ class _BillCategoryListScreen extends State<BillCategoryListScreen>
   @override
   void initState() {
     super.initState();
-    subscribeUiToAccountStatus();
-  }
-  void subscribeUiToAccountStatus() {
-    final viewModel = Provider.of<BillCategoryViewModel>(context, listen: false);
-    Future.delayed(Duration(milliseconds: 1000), (){
-      viewModel.fetchAccountStatus().listen((event) {
-        if(event is Success) {
-          setState(() {});
-        }
-      });
-    });
   }
 
   Widget makeListView(BuildContext context, AsyncSnapshot<Resource<List<BillerCategory>?>> a) {
@@ -87,19 +76,15 @@ class _BillCategoryListScreen extends State<BillCategoryListScreen>
   Widget build(BuildContext context) {
     super.build(context);
     final viewModel = Provider.of<BillCategoryViewModel>(context, listen: false);
-    final isPnd = UserInstance().accountStatus?.postNoDebit == true;
     return Container(
       child: Column(
         children: [
-          if (isPnd) SizedBox(height: 20),
-          if (isPnd)
             PndNotificationBanner(
               onBannerTap: ()async{
-                await Navigator.of(widget._scaffoldKey.currentContext!).pushNamed(Routes.ACCOUNT_UPDATE);
-                subscribeUiToAccountStatus();
+                Navigator.of(widget._scaffoldKey.currentContext!).pushNamed(Routes.ACCOUNT_UPDATE);
               },
            ),
-          SizedBox(height: isPnd ? 26 : 24),
+          SizedBox(height: 24),
           Divider(
             height: 1,
             color: Color(0XFFE0E0E0),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 
 import 'colors.dart';
@@ -11,7 +12,9 @@ class PndNotificationBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final isPnd = UserInstance().accountStatus?.postNoDebit == true;
+
+    return !isPnd? SizedBox() : Container(
       decoration: BoxDecoration(
         color: Colors.red.withOpacity(0.9),
         borderRadius: BorderRadius.all(Radius.circular(9)),
@@ -19,7 +22,7 @@ class PndNotificationBanner extends StatelessWidget {
           color: Colors.colorPrimaryDark.withOpacity(0.1),
           width: 0.5
         )),
-      margin: EdgeInsets.only(left: 16, right: 16),
+      margin: EdgeInsets.only(left: 16, right: 16, top: 20, bottom: 2),
       child: Material(
         color: Colors.transparent,
         clipBehavior: Clip.hardEdge,

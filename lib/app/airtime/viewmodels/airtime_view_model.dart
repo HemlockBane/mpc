@@ -146,8 +146,4 @@ class AirtimeViewModel extends BaseViewModel with PaymentViewModel {
     return _fileServiceDelegate.getFileByUUID(fileUUID, shouldFetchRemote: false);
   }
 
-  Stream<Resource<AccountStatus>> fetchAccountStatus() {
-    return this.accountServiceDelegate!.getAccountStatus(customerAccountId);
-  }
-
 }

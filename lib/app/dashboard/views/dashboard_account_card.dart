@@ -304,7 +304,7 @@ class _DashboardAccountBalancePreview extends StatelessWidget {
   late final _accountBalanceTextStyle = TextStyle(
       fontSize: 23.7,
       fontWeight: FontWeight.w800,
-      color: Colors.textColorBlack.withOpacity(0.5)
+      color: Colors.textColorBlack
   );
 
   _DashboardAccountBalancePreview({
@@ -341,16 +341,14 @@ class _DashboardAccountBalancePreview extends StatelessWidget {
   _accountBalanceView(String accountBalance, bool hideAccountBalance) => Row(
         children: [
           hideAccountBalance
-              ? Text('*', style: _accountBalanceTextStyle)
+              ? Text('**', style: _accountBalanceTextStyle)
               : SvgPicture.asset(
                   "res/drawables/ic_naira.svg",
                   width: 20,
                   height: 17,
                 ),
           SizedBox(width: 4),
-          Text('$accountBalance',
-              style: _accountBalanceTextStyle.copyWith(
-                  color: Colors.textColorBlack)),
+          Text('$accountBalance', style: _accountBalanceTextStyle),
         ],
       );
 

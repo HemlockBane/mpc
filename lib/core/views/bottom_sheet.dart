@@ -8,7 +8,7 @@ import 'package:moniepoint_flutter/app/login/model/data/login_prompt.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 
-import 'login_prompt.dart';
+import '../login_prompt.dart';
 
 class BottomSheets {
   static Widget makeAppBottomSheet(

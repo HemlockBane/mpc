@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter_svg/svg.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/styles.dart';

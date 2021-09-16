@@ -21,7 +21,7 @@ import 'package:moniepoint_flutter/core/views/transaction_location_view.dart';
 import 'package:moniepoint_flutter/core/views/transaction_options_view.dart';
 import 'package:provider/provider.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
-import 'package:moniepoint_flutter/core/utils/text_utils.dart';
+import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
 
 class AccountTransactionDetailedView extends StatefulWidget {
   AccountTransactionDetailedView();

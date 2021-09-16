@@ -3,7 +3,7 @@ import 'package:moniepoint_flutter/app/airtime/model/data/airtime_purchase_type.
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_service_provider.dart';
 import 'package:moniepoint_flutter/app/airtime/viewmodels/service_provider_view_model.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/airtime/model/data/airtime_beneficiary.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';

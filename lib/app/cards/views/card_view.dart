@@ -13,6 +13,7 @@ import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/list_view_util.dart';
 import 'package:moniepoint_flutter/core/views/error_layout_view.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
+import 'package:moniepoint_flutter/main.dart';
 import 'package:provider/provider.dart';
 
 ///@author Paul Okeke
@@ -23,7 +24,7 @@ class CardScreen extends StatefulWidget {
 
 }
 
-class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin {
+class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin, RouteAware {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   late final SingleCardViewModel _viewModel;
@@ -39,6 +40,26 @@ class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin 
     _viewModel = Provider.of<SingleCardViewModel>(context, listen: false);
     _cardListSource = _viewModel.getCards();
     super.initState();
+  }
+
+  void _refreshCards() {
+    setState(() => _cardListSource = _viewModel.getCards());
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void didPush() {
+
+  }
+
+  @override
+  void didPopNext() {
+
   }
 
   @override
@@ -66,16 +87,17 @@ class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin 
           body: StreamBuilder(
               stream: _cardListSource,
               builder: (BuildContext context, AsyncSnapshot<Resource<List<Card>>> snap) {
+                print("ItemCount ${snap.data} => ${snap.data?.data?.length}");
                 if(!snap.hasData || snap.data is Loading) return CardViewShimmer();
                 return Column(
                   children: [
-                    SizedBox(height: 36,),
+                    SizedBox(height: 36),
                     _CardViewTopView(cardSnapshot: snap),
-                    SizedBox(height: 24,),
+                    SizedBox(height: 24),
                     _CardListView(
                         cardSnapshot: snap,
                         animationController: _animationController,
-                        retry: () => setState(() => _cardListSource = _viewModel.getCards())
+                        retry: _refreshCards
                     )
                   ],
                 );
@@ -83,6 +105,13 @@ class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin 
           ),
         ),
     );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    routeObserver.unsubscribe(this);
+    super.dispose();
   }
 
 }

@@ -11,7 +11,7 @@ import 'package:moniepoint_flutter/core/utils/call_utils.dart';
 import 'package:moniepoint_flutter/core/viewmodels/system_configuration_view_model.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:provider/provider.dart';
-import 'package:moniepoint_flutter/core/utils/text_utils.dart';
+import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
 import 'package:collection/collection.dart';
 
 class SupportScreenOld extends StatefulWidget {

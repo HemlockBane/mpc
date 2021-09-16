@@ -2,7 +2,7 @@ import 'package:flutter/material.dart' hide Colors, Card;
 import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/app/cards/viewmodels/single_card_view_model.dart';
 import 'package:moniepoint_flutter/app/cards/views/utils/card_view_util.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 
 import '../card_list_option_item.dart';

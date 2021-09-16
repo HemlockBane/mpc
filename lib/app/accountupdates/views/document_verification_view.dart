@@ -10,7 +10,7 @@ import 'package:moniepoint_flutter/app/accountupdates/views/account_update_form_
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
-import 'package:moniepoint_flutter/core/utils/text_utils.dart';
+import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
 
 class DocumentVerificationScreen extends PagedForm {
 

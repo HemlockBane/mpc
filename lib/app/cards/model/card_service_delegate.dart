@@ -7,9 +7,9 @@ import 'package:moniepoint_flutter/core/network/network_bound_resource.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 
 import 'data/card.dart';
-import 'package:collection/collection.dart';
 
 import 'data/card_activation_response.dart';
+import 'data/card_dao.dart';
 import 'data/card_link_request.dart';
 import 'data/card_linking_response.dart';
 import 'data/card_request_balance_response.dart';
@@ -17,41 +17,32 @@ import 'data/card_request_balance_response.dart';
 class CardServiceDelegate with NetworkResource {
 
   final CardService _service;
+  final CardDao _cardCache;
 
-  CardServiceDelegate(this._service);
-
-  //Internal Cards cache/repository
-  //Since we can't persist cards in DB
-  late final List<Card> _cards = [
-  ];
+  CardServiceDelegate(this._service, this._cardCache);
 
   Stream<Resource<List<Card>>> getCards(int customerId) {
     return networkBoundResource(
-        fetchFromLocal: () => Stream.value(null),
+        shouldFetchLocal: true,
+        fetchFromLocal: () => _cardCache.getItems(),
         fetchFromRemote: () => _service.getCards(customerId),
         saveRemoteData: (List<Card> cards) async {
-          _cards.clear();
-          _cards.addAll(cards);
+          _cardCache.deleteAll();
+          _cardCache.addAll(cards);
         }
     );
   }
 
   Future<Card?> getCard(num cardId) async {
-    var card = _cards.firstWhereOrNull((element) {
-      return element.id == cardId;
-    });
-    return card;
+    return _cardCache.getCardById(cardId);
   }
 
   Future<Card?> getCardByAccountNumber(String accountNumber) async {
-    var card = _cards.firstWhereOrNull((element) {
-      return element.customerAccountCard?.customerAccountNumber == accountNumber;
-    });
-    return card;
+    return _cardCache.getCardByAccountNumber(accountNumber);
   }
 
   int getNumberOfCards() {
-    return _cards.length;
+    return _cardCache.getTotalNumberOfCards();
   }
 
   Stream<Resource<bool>> blockCard(int customerAccountId, CardTransactionRequest cardTransactionRequest) {

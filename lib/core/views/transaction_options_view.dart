@@ -6,7 +6,7 @@ import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/utils/download_util.dart';
 
-import '../bottom_sheet.dart';
+import 'bottom_sheet.dart';
 import '../colors.dart';
 import '../tuple.dart';
 

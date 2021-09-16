@@ -10,7 +10,7 @@ import 'package:moniepoint_flutter/app/cards/views/dialogs/card_activation_code_
 import 'package:moniepoint_flutter/app/cards/views/dialogs/card_scan_info_dialog.dart';
 import 'package:moniepoint_flutter/app/cards/views/dialogs/card_serial_dialog.dart';
 import 'package:moniepoint_flutter/app/liveliness/model/data/liveliness_verification_for.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
@@ -209,7 +209,7 @@ class _CardQRCodeScannerViewState extends State<CardQRCodeScannerView> {
                         fontSize: 16,
                         fontWeight: FontWeight.w500
                     ),
-                  ),),
+                  )),
                   SizedBox(height: 100,),
                 ],
               ),

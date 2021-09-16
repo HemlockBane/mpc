@@ -2,7 +2,7 @@ import 'package:floor/floor.dart';
 import 'package:moniepoint_flutter/core/database/type_converters.dart';
 import 'package:moniepoint_flutter/core/models/DropDownItem.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:moniepoint_flutter/core/strings.dart';
+import 'package:moniepoint_flutter/core/extensions/strings.dart';
 
 part 'drop_items.g.dart';
 

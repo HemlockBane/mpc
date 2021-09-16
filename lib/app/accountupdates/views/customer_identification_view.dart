@@ -15,7 +15,7 @@ import 'package:provider/provider.dart';
 
 import 'account_update_form_view.dart';
 import '../../../core/views/upload_request_dialog.dart';
-import 'package:moniepoint_flutter/core/utils/text_utils.dart';
+import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
 
 /// @author Paul Okeke
 class CustomerIdentificationScreen extends PagedForm {
@@ -232,7 +232,7 @@ class _CustomerIdentificationScreen extends State<CustomerIdentificationScreen> 
                 ),
                 SizedBox(width: 8),
                 Flexible(flex:1, child: Text(
-                  'File should not be larger than 5MB',
+                  'File should not be larger than 5mb',
                   style: TextStyle(color: Colors.colorFaded, fontSize: 14),
                 )),
               ],

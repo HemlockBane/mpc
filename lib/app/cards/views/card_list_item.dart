@@ -37,7 +37,9 @@ class CardListItem extends Container {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.all(Radius.circular(24)),
-          onTap: () => Navigator.of(context).pushNamed(Routes.CARD_DETAIL, arguments: Map.from({"id":card.id})),
+          onTap: !card.isActivated
+              ? null
+              : () => Navigator.of(context).pushNamed(Routes.CARD_DETAIL, arguments: Map.from({"id":card.id})),
           child: Container(
             padding: EdgeInsets.only(
                 left: 20,

@@ -11,7 +11,7 @@ import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/call_utils.dart';
 import 'package:video_player/video_player.dart';
 
-import 'bottom_sheet.dart';
+import 'views/bottom_sheet.dart';
 import 'colors.dart';
 import 'models/file_result.dart';
 import 'network/resource.dart';

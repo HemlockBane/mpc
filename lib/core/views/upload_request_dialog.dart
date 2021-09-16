@@ -1,7 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 
 ///@author Paul Okeke
@@ -28,7 +28,7 @@ class UploadRequestDialog extends StatelessWidget {
 
   UploadRequestDialog({
     this.extensions = const [".jpg", ".pdf", ".pnd"],
-    this.maxFileSize = 1024 * 2000/*2mb*/
+    this.maxFileSize = 1024 * 5000/*5mb*/
   });
 
   _leadingIcon(Widget child) => Container(

@@ -24,6 +24,7 @@ import 'package:rxdart/rxdart.dart';
 //We need to move this to some where else
 
 final GlobalKey<NavigatorState> navigatorKey = new GlobalKey<NavigatorState>();
+final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver();
 
 final defaultAppTheme = ThemeData(
     disabledColor: Colors.primaryColor.withOpacity(0.5),
@@ -67,6 +68,9 @@ class MoniepointApp extends StatelessWidget with CompositeDisposableWidget {
       title: 'Moniepoint Customers',
       theme: defaultAppTheme,
       navigatorKey: navigatorKey,
+      navigatorObservers: [
+        routeObserver
+      ],
       home: Scaffold(
         body: (savedUsername == null || savedUsername.isEmpty)
             ? SignUpAccountScreen()

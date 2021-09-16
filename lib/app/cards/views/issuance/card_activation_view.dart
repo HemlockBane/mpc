@@ -62,12 +62,15 @@ class _CardActivationViewState extends State<CardActivationView> with CompositeD
     if(response != null && response is CardActivationResponse) {
       await showSuccess(
           context,
+          isDismissible: false,
           title: "Card Activated!",
           message: "Your Card has been activated successfully!",
       );
       Navigator.of(context).pushNamedAndRemoveUntil(
           Routes.CARDS, ModalRoute.withName(Routes.DASHBOARD)
       );
+    } else {
+      _viewModel.refreshCards();
     }
   }
 

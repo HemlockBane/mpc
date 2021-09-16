@@ -46,10 +46,12 @@ mixin NetworkResource {
       await for (var value in fetchFromLocal()) {
         localData = value;
         yield Resource.loading(localData);
+        print("Can We Break here");
         break;
       }
     }
 
+    print("Make Local Call");
     if(shouldFetchFromRemote(localData)) {
       //if we are fetching from remote let's emit
       yield Resource.loading(localData);
@@ -266,7 +268,10 @@ Stream<Resource<T>> streamWithExponentialBackoff<T>({
   required Stream<Resource<T>> stream,
 }) async* {
   await for (var response in stream) {
-    if(response is Loading || response is Success) yield response;
+    if(response is Loading || response is Success) {
+      yield response;
+      if(response is Success) break;
+    }
     
     if(response is Error<T>) {
       if(retries > 1) {
@@ -279,6 +284,7 @@ Stream<Resource<T>> streamWithExponentialBackoff<T>({
         );
       } else {
         yield response;
+        break;
       }
     }
   }

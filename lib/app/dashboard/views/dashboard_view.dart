@@ -1,12 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 
-import 'package:mixpanel_flutter/mixpanel_flutter.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:flutter/material.dart' hide ScrollView, Colors;
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:moniepoint_flutter/core/views/upload_request_dialog.dart';
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_drawer_view.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_menu.dart';
@@ -27,7 +24,7 @@ import 'package:moniepoint_flutter/core/viewmodels/finger_print_alert_view_model
 import 'package:moniepoint_flutter/core/views/finger_print_alert_dialog.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:provider/provider.dart';
-import 'package:moniepoint_flutter/core/strings.dart';
+import 'package:moniepoint_flutter/core/extensions/strings.dart';
 import 'dashboard_account_card.dart';
 
 import 'package:flutter/rendering.dart';
@@ -67,7 +64,6 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
           : "Face ID setup";
 
       if (result != null && result is bool) {
-
 
         final successMessage = (biometricRequest.second == BiometricType.FINGER_PRINT)
             ? "Fingerprint has been setup successfully"

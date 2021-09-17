@@ -123,6 +123,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
   ///Main Content View of the dashboard
   _contentView(double width, double height) => Container(
         width: double.infinity,
+        height: MediaQuery.of(context).size.height,
         color: Color(0XFFEBF2FA),
         child: DashboardRefreshIndicator(
           viewModel: _viewModel,

@@ -52,13 +52,6 @@ class _CardPinDialog extends State<CardPinDialog> {
         viewModel.unblockCardChannel(widget.request).listen(_transactionCallback);
         break;
       case CardAction.CHANGE_PIN:
-        // final customerAccountCard = viewModel.selectedCard?.customerAccountCard;
-        // if(customerAccountCard != null) {
-        //   widget.request.cardAccountNumber = customerAccountCard.customerAccountNumber;
-        // } else {
-        //   widget.request.cardAccountNumber = "";
-        // }
-        // widget.request.expiry = viewModel.selectedCard?.expiryDate?.replaceAll("/", "");
         viewModel.changeCardPin(widget.request).listen(_transactionCallback);
         break;
     }

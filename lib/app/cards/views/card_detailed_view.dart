@@ -52,6 +52,11 @@ class _CardDetailedViewState extends State<CardDetailedView> {
           child: CardPinDialog(action, request),
         )
     );
+    if(action == CardAction.BLOCK_CARD) {
+      setState(() {
+        //To refresh the detailed view of the newly updated card
+      });
+    }
     if(value != null && value is Tuple<String, String>) {
       showSuccess(
           context,

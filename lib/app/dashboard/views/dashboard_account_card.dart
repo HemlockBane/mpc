@@ -40,7 +40,7 @@ class DashboardAccountCard extends StatelessWidget {
       height: userAccounts.length > 1 ? 205 : 180,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(16)),
-        color: Colors.transparent,
+        color: Colors.backgroundWhite,
         boxShadow: [
           BoxShadow(
             offset: Offset(0, 13),

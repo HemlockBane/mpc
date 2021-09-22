@@ -203,7 +203,7 @@ class BottomSheets {
                       ),
                       onPressed: onPrimaryClick ?? () => Navigator.of(context).pop(),
                     ),
-                  SizedBox(height: secondaryButtonText != null ? 32 : 0),
+                  SizedBox(height: secondaryButtonText != null ? 26 : 0),
                   Visibility(
                       visible: secondaryButtonText != null,
                       child: TextButton(

@@ -5,8 +5,11 @@ import 'package:flutter/material.dart' hide Colors, ScrollView, Card;
 import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/app/cards/model/data/card.dart';
 import 'package:moniepoint_flutter/app/cards/model/data/card_linking_response.dart';
+import 'package:moniepoint_flutter/app/cards/model/data/card_otp_linking_response.dart';
+import 'package:moniepoint_flutter/app/cards/model/data/card_otp_validation_response.dart';
 import 'package:moniepoint_flutter/app/cards/viewmodels/card_issuance_view_model.dart';
 import 'package:moniepoint_flutter/app/cards/views/dialogs/card_activation_code_dialog.dart';
+import 'package:moniepoint_flutter/app/cards/views/dialogs/card_otp_dialog.dart';
 import 'package:moniepoint_flutter/app/cards/views/dialogs/card_scan_info_dialog.dart';
 import 'package:moniepoint_flutter/app/cards/views/dialogs/card_serial_dialog.dart';
 import 'package:moniepoint_flutter/app/liveliness/model/data/liveliness_verification_for.dart';
@@ -40,6 +43,7 @@ class _CardQRCodeScannerViewState extends State<CardQRCodeScannerView> {
 
   initState() {
     _viewModel = Provider.of<CardIssuanceViewModel>(context, listen: false);
+    _viewModel.setCardCustomerAccountId(widget.customerAccountId);
     super.initState();
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
       _displayScanBarcodeDialog();
@@ -96,7 +100,7 @@ class _CardQRCodeScannerViewState extends State<CardQRCodeScannerView> {
             onClick: () async {
               Navigator.of(context).pop(true);
               await _qrViewController?.pauseCamera();
-              _startLiveliness();
+              _startOtpValidation();
             }
         )
     );
@@ -161,18 +165,63 @@ class _CardQRCodeScannerViewState extends State<CardQRCodeScannerView> {
         await _qrViewController?.pauseCamera();
         _viewModel.setCardSerial(scanData.code);
 
-        Future.delayed(Duration(milliseconds: 500), () {
-          _startLiveliness();
+        Future.delayed(Duration(milliseconds: 100), () {
+          _startOtpValidation();
         });
       });
     });
   }
 
-  void _startLiveliness() async {
+  void _startOtpValidation({bool requestOtp = true}) async{
+    final value = await showLinkCardOtpDialog(context, _viewModel, requestOtp);
+    if(value != null && value is String) {
+      Future.delayed(Duration(milliseconds: 300), () {
+        _startLiveliness(value);
+      });
+    } else if(value is Error<CardOtpValidationResponse>) {
+      showError(
+          context,
+          title: "Card OTP Failed!",
+          message: value.message,
+          primaryButtonText: "Try Again?",
+          secondaryButtonText: "Dismiss",
+          onPrimaryClick: () {
+            Navigator.of(context).pop();
+            _startOtpValidation(requestOtp: false);
+          },
+          onSecondaryClick: () {
+            Navigator.of(context).pop();
+            Navigator.of(context).pop();
+          }
+      );
+    } else if(value is Error<CardOtpLinkingResponse>) {
+      showError(
+          context,
+          title: "OTP Request Failed!",
+          message: value.message,
+          primaryButtonText: "Try Again?",
+          secondaryButtonText: "Dismiss",
+          onPrimaryClick: () {
+            Navigator.of(context).pop();
+            _startOtpValidation();
+          },
+          onSecondaryClick: () {
+            Navigator.of(context).pop();
+            Navigator.of(context).pop();
+          }
+      );
+    }
+    else {
+      Navigator.of(context).pop();
+    }
+  }
+
+  void _startLiveliness(String otpValidationKey) async {
     final validationResponse = await Navigator.of(context).pushNamed(Routes.LIVELINESS_DETECTION, arguments: {
       "verificationFor": LivelinessVerificationFor.CARD_LINKING,
       "cardSerial": _viewModel.cardSerial,
-      "customerAccountId": widget.customerAccountId
+      "customerAccountId": widget.customerAccountId,
+      "otpValidationKey": otpValidationKey,
     });
 
     if(validationResponse != null && validationResponse is CardLinkingResponse){

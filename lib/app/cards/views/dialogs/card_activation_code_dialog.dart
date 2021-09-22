@@ -48,8 +48,7 @@ class _CardActivationCodeDialog extends State<CardActivationCodeDialog> {
   void _subscribeUiToCardList() {
     if(!mounted) return;
 
-    final cardStream = widget.cardsStreamFn.call();
-    _streamSubscription = streamWithExponentialBackoff(stream: cardStream, retries: 5).listen((event) async {
+    _streamSubscription = streamWithExponentialBackoff(stream: widget.cardsStreamFn, retries: 5).listen((event) async {
       if(event is Success) {
         final cards = event.data;
         final hasNewCard = (cards?.length ?? 0) > widget.totalNumberOfCards;

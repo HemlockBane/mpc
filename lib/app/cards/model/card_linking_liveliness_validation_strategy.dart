@@ -17,12 +17,14 @@ class CardLinkingLivelinessValidationStrategy extends LivelinessValidationStrate
   Future<CardLinkingResponse?> validate(String firstCapturePath, String motionCapturePath) async {
     final cardSerial = arguments["cardSerial"];
     final accountId = arguments["customerAccountId"];
+    final otpValidationKey = arguments["otpValidationKey"];
 
     final response = viewModel.validateForCardLinking(
         File(firstCapturePath),
         File(motionCapturePath),
         cardSerial,
-        "$accountId"
+        "$accountId",
+        otpValidationKey
     );
 
     CardLinkingResponse? returnValue;

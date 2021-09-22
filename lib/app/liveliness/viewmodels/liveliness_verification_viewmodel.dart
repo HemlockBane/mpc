@@ -55,14 +55,16 @@ class LivelinessVerificationViewModel extends BaseViewModel{
   }
 
   Stream<Resource<CardLinkingResponse>> validateForCardLinking(
-      File firstCapture, File motionCapture, String? serial, String accountId) {
+      File firstCapture, File motionCapture,
+      String? serial, String accountId, String otpValidationKey) {
     final cardLinkRequest = CardLinkRequest(
         firstCapture: firstCapture,
         motionCapture: motionCapture,
         customerId: "$customerId",
         customerAccountId: "$accountId",
         customerCode: primaryCbaCustomerId,
-        cardSerial: serial
+        cardSerial: serial,
+        otpValidationKey: otpValidationKey
     );
     return _cardServiceDelegate.linkCard(cardLinkRequest);
   }

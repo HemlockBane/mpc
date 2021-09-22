@@ -71,7 +71,6 @@ class Routes {
   static const CARDS  = "CARDS";
   static const CARD_DETAIL = "CARD_DETAIL";
   static const CARD_ACTIVATION = "CARD_ACTIVATION";
-  static const ADD_CARD = "ADD_CARD";
   static const MANAGE_CARD_CHANNELS = "MANAGE_CARD_CHANNELS";
   static const CARD_QR_SCANNER = "CARD_QR_SCANNER";
   static const CONTACTS  = "CONTACTS";

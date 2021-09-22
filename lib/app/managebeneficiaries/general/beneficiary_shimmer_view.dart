@@ -57,7 +57,7 @@ class BeneficiaryShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    child:  Column(
+    child:  ListView(
       children: [
         Shimmer.fromColors(
             child: _shimmerItem(),

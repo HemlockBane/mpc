@@ -1,6 +1,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -46,10 +47,12 @@ mixin NetworkResource {
       await for (var value in fetchFromLocal()) {
         localData = value;
         yield Resource.loading(localData);
+        print("Can We Break here");
         break;
       }
     }
 
+    print("Make Local Call");
     if(shouldFetchFromRemote(localData)) {
       //if we are fetching from remote let's emit
       yield Resource.loading(localData);
@@ -262,23 +265,40 @@ Tuple<String, String> formatError(String? errorMessage, String moduleName) {
 ///
 Stream<Resource<T>> streamWithExponentialBackoff<T>({
   int retries = 3,
-  Duration delay = const Duration(seconds: 3),
-  required Stream<Resource<T>> stream,
+  int collisions = 1,
+  Duration delay = const Duration(seconds: 5),
+  required Stream<Resource<T>> Function() stream,
 }) async* {
-  await for (var response in stream) {
-    if(response is Loading || response is Success) yield response;
+
+  await for (var response in stream.call()) {
+    if(response is Loading || response is Success) {
+      yield response;
+      if(response is Success) break;
+    }
     
     if(response is Error<T>) {
-      if(retries > 1) {
-        print("Awaiting Exponential Delay....");
-        await Future.delayed(delay, () => true);
+      if(collisions <= retries) {
+        final random = Random();
+
+        final slot =  pow(2, collisions) - 1;
+        final rand = random.nextInt(slot.toInt());
+        final del = delay.inSeconds * rand;
+
+        print("Slot => $slot, Rand ==> $rand, Delay ==> $del");
+
+        final mDelay = Duration(seconds: del);
+        await Future.delayed(mDelay, () => true);
+
         print("Retrying Exponential Backoff....");
+
         yield* streamWithExponentialBackoff(
             stream: stream,
-            retries: retries - 1
+            collisions: collisions + 1
         );
-      } else {
+        break;
+      } else if(collisions > retries) {
         yield response;
+        break;
       }
     }
   }

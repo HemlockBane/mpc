@@ -126,7 +126,7 @@ class NextOfKinForm with ChangeNotifier, Validators {
   }
 
   bool _isPhoneNumberValid({bool displayError = false}) {
-    final isValid = isPhoneNumberValid(_info.nextOfKinPhoneNumber);
+    final isValid = (_info.nextOfKinPhoneNumber?.length ?? 0) > 1;
     if (displayError && !isValid) {
       _phoneNumberController.sink.addError(
           (_info.nextOfKinPhoneNumber == null || _info.nextOfKinPhoneNumber!.isEmpty)

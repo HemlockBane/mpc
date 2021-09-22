@@ -1,12 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 
-import 'package:mixpanel_flutter/mixpanel_flutter.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:flutter/material.dart' hide ScrollView, Colors;
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:moniepoint_flutter/core/views/upload_request_dialog.dart';
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_drawer_view.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_menu.dart';
@@ -27,7 +24,7 @@ import 'package:moniepoint_flutter/core/viewmodels/finger_print_alert_view_model
 import 'package:moniepoint_flutter/core/views/finger_print_alert_dialog.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:provider/provider.dart';
-import 'package:moniepoint_flutter/core/strings.dart';
+import 'package:moniepoint_flutter/core/extensions/strings.dart';
 import 'dashboard_account_card.dart';
 
 import 'package:flutter/rendering.dart';
@@ -68,7 +65,6 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
 
       if (result != null && result is bool) {
 
-
         final successMessage = (biometricRequest.second == BiometricType.FINGER_PRINT)
             ? "Fingerprint has been setup successfully"
             : "Face ID has been setup successfully";
@@ -90,6 +86,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
       _viewModel.fetchAccountStatus().listen((event) {
         if(event is Success) {
           _viewModel.checkAccountUpdate();
+          _viewModel.update(DashboardState.ACCOUNT_STATUS_UPDATED);
         }
       }).disposedBy(this);
     });
@@ -126,6 +123,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
   ///Main Content View of the dashboard
   _contentView(double width, double height) => Container(
         width: double.infinity,
+        height: MediaQuery.of(context).size.height,
         color: Color(0XFFEBF2FA),
         child: DashboardRefreshIndicator(
           viewModel: _viewModel,
@@ -158,7 +156,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
                           indicatorController: indicatorController,
                           indicatorOffset: refreshIndicatorOffset
                         ),
-                        AccountCard(
+                        DashboardAccountCard(
                             viewModel: _viewModel,
                             pageController: _pageController,
                         ),
@@ -207,7 +205,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
       case Routes.ACCOUNT_UPDATE:{
         await Navigator.of(context).pushNamed(routeName);
         subscribeUiToAccountStatus();
-        _viewModel.update();
+        _viewModel.update(DashboardState.REFRESHING);
         break;
       }
       case Routes.ACCOUNT_TRANSACTIONS:{
@@ -223,6 +221,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
        };
 
         await Navigator.of(context).pushNamed(routeName, arguments: routeArgs);
+        _viewModel.update(DashboardState.REFRESHING);
         break;
       }
       case "LOGOUT":{
@@ -240,7 +239,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
           Navigator.of(context).pop();
         }
         await Navigator.of(context).pushNamed(routeName);
-        _viewModel.update();
+        _viewModel.update(DashboardState.REFRESHING);
       }
     }
   }

@@ -1,46 +1,51 @@
 
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:moniepoint_flutter/app/cards/model/card_service.dart';
 import 'package:moniepoint_flutter/app/cards/model/data/card_transaction_request.dart';
 import 'package:moniepoint_flutter/core/network/network_bound_resource.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 
 import 'data/card.dart';
-import 'package:collection/collection.dart';
 
 import 'data/card_activation_response.dart';
+import 'data/card_dao.dart';
 import 'data/card_link_request.dart';
 import 'data/card_linking_response.dart';
+import 'data/card_otp_linking_response.dart';
+import 'data/card_otp_validation_response.dart';
 import 'data/card_request_balance_response.dart';
 
 class CardServiceDelegate with NetworkResource {
 
   final CardService _service;
+  final CardDao _cardCache;
 
-  CardServiceDelegate(this._service);
+  CardServiceDelegate(this._service, this._cardCache);
 
-  //Internal Cards cache/repository
-  //Since we can't persist cards in DB
-  late final List<Card> _cards = [
-  ];
-
-  Stream<Resource<List<Card>>> getCards(int customerAccountId) {
+  Stream<Resource<List<Card>>> getCards(int customerId) {
     return networkBoundResource(
-        fetchFromLocal: () => Stream.value(null),
-        fetchFromRemote: () => _service.getCards(customerAccountId),
+        shouldFetchLocal: true,
+        fetchFromLocal: () => _cardCache.getItems(),
+        fetchFromRemote: () => _service.getCards(customerId),
         saveRemoteData: (List<Card> cards) async {
-          _cards.clear();
-          _cards.addAll(cards);
+          _cardCache.deleteAll();
+          _cardCache.addAll(cards);
         }
     );
   }
 
   Future<Card?> getCard(num cardId) async {
-    var card = _cards.firstWhereOrNull((element) {
-      return element.id == cardId;
-    });
-    return card;
+    return _cardCache.getCardById(cardId);
+  }
+
+  Future<Card?> getCardByAccountNumber(String accountNumber) async {
+    return _cardCache.getCardByAccountNumber(accountNumber);
+  }
+
+  int getNumberOfCards() {
+    return _cardCache.getTotalNumberOfCards();
   }
 
   Stream<Resource<bool>> blockCard(int customerAccountId, CardTransactionRequest cardTransactionRequest) {
@@ -85,6 +90,24 @@ class CardServiceDelegate with NetworkResource {
     );
   }
 
+  Stream<Resource<CardOtpLinkingResponse>> sendCardLinkingOtp(num customerAccountId) {
+    return networkBoundResource(
+        fetchFromLocal: () => Stream.value(null),
+        fetchFromRemote: () => _service.sendCardLinkingOtp("$customerAccountId")
+    );
+  }
+
+  Stream<Resource<CardOtpValidationResponse>> validateCardLinkingOtp(
+      num customerAccountId, String otp, String userCode) {
+    return networkBoundResource(
+        fetchFromLocal: () => Stream.value(null),
+        fetchFromRemote: () => _service.validateCardLinkingOtp("$customerAccountId", {
+          "otp": otp,
+          "userCode" : userCode
+        })
+    );
+  }
+
   Stream<Resource<CardLinkingResponse>> linkCard(CardLinkRequest cardLinkRequest) {
     return networkBoundResource(
         fetchFromLocal: () => Stream.value(null),
@@ -93,6 +116,7 @@ class CardServiceDelegate with NetworkResource {
           cardLinkRequest.customerAccountId,
           cardLinkRequest.firstCapture,
           cardLinkRequest.motionCapture,
+          cardLinkRequest.otpValidationKey,
           customerCode: cardLinkRequest.customerCode,
           cardSerial: cardLinkRequest.cardSerial
         )

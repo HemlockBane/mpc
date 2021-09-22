@@ -9,7 +9,7 @@ part of 'validation_service.dart';
 class _ValidationService implements ValidationService {
   _ValidationService(this._dio, {this.baseUrl}) {
     baseUrl ??=
-        'https://moniepoint-customer-root-v2.console.teamapt.com/api/v1/authentication';
+        'https://core-root.monnify.development.teamapt.com/api/v1/authentication';
   }
 
   final Dio _dio;
@@ -28,12 +28,12 @@ class _ValidationService implements ValidationService {
             headers: <String, dynamic>{
               r'Content-Type': 'multipart/form-data',
               r'client-id': 'ANDROID',
-              r'appVersion': '1.0.8'
+              r'appVersion': '0.0.1'
             },
             extra: _extra,
             contentType: 'multipart/form-data')
         .compose(_dio.options,
-            'https://moniepoint-customer-operations-service-v2.console.teamapt.com/api/v1/switch-device/trigger-otp',
+            'https://core-operations.monnify.development.teamapt.com/api/v1/switch-device/trigger-otp',
             queryParameters: queryParameters, data: _data)
         .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = ServiceResult<OTP>.fromJson(
@@ -58,12 +58,12 @@ class _ValidationService implements ValidationService {
             headers: <String, dynamic>{
               r'Content-Type': 'multipart/form-data',
               r'client-id': 'ANDROID',
-              r'appVersion': '1.0.8'
+              r'appVersion': '0.0.1'
             },
             extra: _extra,
             contentType: 'multipart/form-data')
         .compose(_dio.options,
-            'https://moniepoint-customer-operations-service-v2.console.teamapt.com/api/v1/switch-device/validate-otp',
+            'https://core-operations.monnify.development.teamapt.com/api/v1/switch-device/validate-otp',
             queryParameters: queryParameters, data: _data)
         .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = ServiceResult<ValidateAnswerResponse>.fromJson(
@@ -85,12 +85,12 @@ class _ValidationService implements ValidationService {
             headers: <String, dynamic>{
               r'Content-Type': 'application/json',
               r'client-id': 'ANDROID',
-              r'appVersion': '1.0.8'
+              r'appVersion': '0.0.1'
             },
             extra: _extra,
             contentType: 'application/json')
         .compose(_dio.options,
-            'https://moniepoint-customer-operations-service-v2.console.teamapt.com/api/v1/switch-device/register-device',
+            'https://core-operations.monnify.development.teamapt.com/api/v1/switch-device/register-device',
             queryParameters: queryParameters, data: _data)
         .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = ServiceResult<bool>.fromJson(
@@ -124,12 +124,12 @@ class _ValidationService implements ValidationService {
             headers: <String, dynamic>{
               r'Content-Type': 'multipart/form-data',
               r'client-id': 'ANDROID',
-              r'appVersion': '1.0.8'
+              r'appVersion': '0.0.1'
             },
             extra: _extra,
             contentType: 'multipart/form-data')
         .compose(_dio.options,
-            'https://moniepoint-customer-operations-service-v2.console.teamapt.com/api/v1/switch-device/liveliness-check',
+            'https://core-operations.monnify.development.teamapt.com/api/v1/switch-device/liveliness-check',
             queryParameters: queryParameters, data: _data)
         .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = ServiceResult<ValidateAnswerResponse>.fromJson(

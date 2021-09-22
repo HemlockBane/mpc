@@ -16,7 +16,9 @@ import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_l
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_shimmer_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
+import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/pnd_notification_banner.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
@@ -64,6 +66,7 @@ class _AirtimeBeneficiaryScreen extends State<AirtimeBeneficiaryScreen> with Aut
     frequentBeneficiaries = viewModel.getFrequentBeneficiaries();
     super.initState();
   }
+
 
   void displayServiceProvidersDialog(AirtimeBeneficiary beneficiary) async {
     dynamic result = await showModalBottomSheet(
@@ -172,15 +175,18 @@ class _AirtimeBeneficiaryScreen extends State<AirtimeBeneficiaryScreen> with Aut
   @override
   Widget build(BuildContext context) {
     super.build(context);
-
     final viewModel = Provider.of<AirtimeViewModel>(context, listen: false);
-
     return  Container(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.max,
           children: [
+              PndNotificationBanner(
+                onBannerTap: ()async{
+                  Navigator.of(widget._scaffoldKey.currentContext!).pushNamed(Routes.ACCOUNT_UPDATE);
+                },
+              ),
             SizedBox(height: 24),
             Padding(
               padding : EdgeInsets.only(left: 16, right: 16),

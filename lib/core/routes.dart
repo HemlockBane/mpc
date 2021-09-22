@@ -18,10 +18,9 @@ import 'package:moniepoint_flutter/app/branches/viewmodels/branch_view_model.dar
 import 'package:moniepoint_flutter/app/cards/viewmodels/card_activation_view_model.dart';
 import 'package:moniepoint_flutter/app/cards/viewmodels/card_issuance_view_model.dart';
 import 'package:moniepoint_flutter/app/cards/viewmodels/single_card_view_model.dart';
-import 'package:moniepoint_flutter/app/cards/views/add_card_view.dart';
 import 'package:moniepoint_flutter/app/cards/views/card_detailed_view.dart';
 import 'package:moniepoint_flutter/app/cards/views/card_view.dart';
-import 'package:moniepoint_flutter/app/cards/views/dialogs/manage_card_channels_dialog.dart';
+import 'package:moniepoint_flutter/app/cards/views/manage_card_channels_view.dart';
 import 'package:moniepoint_flutter/app/cards/views/issuance/card_activation_view.dart';
 import 'package:moniepoint_flutter/app/cards/views/issuance/card_qr_code_scanner_view.dart';
 import 'package:moniepoint_flutter/app/cards/views/unblock_debit_card_view.dart';
@@ -72,7 +71,6 @@ class Routes {
   static const CARDS  = "CARDS";
   static const CARD_DETAIL = "CARD_DETAIL";
   static const CARD_ACTIVATION = "CARD_ACTIVATION";
-  static const ADD_CARD = "ADD_CARD";
   static const MANAGE_CARD_CHANNELS = "MANAGE_CARD_CHANNELS";
   static const CARD_QR_SCANNER = "CARD_QR_SCANNER";
   static const CONTACTS  = "CONTACTS";
@@ -135,14 +133,6 @@ class Routes {
         create: (_) => SingleCardViewModel(),
         child: CardScreen(),
       ),
-      Routes.ADD_CARD: (BuildContext context) => ChangeNotifierProvider(
-        create: (_) => SingleCardViewModel(),
-        child: AddCardScreen(),
-      ),
-      Routes.CARD_QR_SCANNER: (BuildContext context) => ChangeNotifierProvider(
-        create: (_) => CardIssuanceViewModel(),
-        child: CardQRCodeScannerView(),
-      ),
       Routes.SELECT_AIRTIME_BENEFICIARY: (BuildContext context) => AirtimeSelectBeneficiaryScreen(),
       Routes.SELECT_TRANSFER_BENEFICIARY: (BuildContext context) => TransferSelectBeneficiaryScreen(),
       Routes.SELECT_BILL_BENEFICIARY: (BuildContext context) => BillSelectBeneficiaryScreen(),
@@ -193,7 +183,7 @@ class Routes {
         return MaterialPageRoute(
             builder: (_) => ChangeNotifierProvider(
               create: (_) => SingleCardViewModel(),
-              child: ManageCardChannelDialog(cardId),
+              child: ManageCardChannelView(cardId),
             )
         );
       case Routes.CARD_ACTIVATION:
@@ -205,6 +195,14 @@ class Routes {
               child: CardActivationView(cardId),
             )
         );
+        case Routes.CARD_QR_SCANNER:
+          final args = settings.arguments as Map<dynamic, dynamic>;
+          final customerAccountId = args["customerAccountId"] as num;
+          return MaterialPageRoute(
+            builder: (BuildContext context) => ChangeNotifierProvider(
+              create: (_) => CardIssuanceViewModel(),
+              child: CardQRCodeScannerView(customerAccountId),
+        ));
     }
     return null;
   }

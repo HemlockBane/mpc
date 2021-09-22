@@ -10,6 +10,8 @@ import 'package:http_parser/http_parser.dart';
 
 import 'data/card_activation_response.dart';
 import 'data/card_linking_response.dart';
+import 'data/card_otp_linking_response.dart';
+import 'data/card_otp_validation_response.dart';
 import 'data/card_request_balance_response.dart';
 import 'data/card_transaction_request.dart';
 
@@ -19,7 +21,6 @@ part 'card_service.g.dart';
 abstract class CardService {
 
   factory CardService (Dio dio, {String baseUrl}) = _CardService;
-
 
   @Headers(<String, dynamic>{
     "Content-Type": "application/json",
@@ -64,6 +65,17 @@ abstract class CardService {
       @Query("accountNumber") String accountNumber,
   );
 
+  @GET("${ServiceConfig.OPERATION_SERVICE}api/v1/card/send_card_linking_otp/customer_account_id/{customerAccountId}")
+  Future<ServiceResult<CardOtpLinkingResponse>> sendCardLinkingOtp(
+    @Path("customerAccountId") String customerAccountId
+  );
+
+  @POST("${ServiceConfig.OPERATION_SERVICE}api/v1/card/validate_card_linking_otp/customer_account_id/{customerAccountId}")
+  Future<ServiceResult<CardOtpValidationResponse>> validateCardLinkingOtp(
+      @Path("customerAccountId") String customerAccountId,
+      @Body() Map<String, String> body
+  );
+
   @Headers(<String, dynamic>{
     'Content-Type': 'multipart/form-data',
     "client-id": BuildConfig.CLIENT_ID,
@@ -75,6 +87,7 @@ abstract class CardService {
       @Part(name: "customerAccountId") String customerAccountId,
       @Part(name: "image1", contentType: "application/json") File firstCapture,
       @Part(name: "image2", contentType: "application/json") File motionCapture,
+      @Part(name: "OtpValidationKey") String? otpValidationKey,
       {
         @Part(name: "customerCode") String? customerCode,
         @Part(name: "cardSerial") String? cardSerial

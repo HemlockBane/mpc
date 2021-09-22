@@ -160,4 +160,8 @@ class PreferenceUtil {
   static String? getFingerprintPassword() {
     return _preferences?.getString("ios-finger-print-password");
   }
+
+  static bool isAccountBalanceHidden(String accountNumber) {
+    return getValueForLoggedInUser("$accountNumber-$HIDE_ACCOUNT_BAL") ?? false;
+  }
 }

@@ -133,6 +133,12 @@ class _BillBeneficiaryScreen extends State<BillBeneficiaryScreen> with TickerPro
           title: "Failed Validating Bill Beneficiary",
           message: result.message ?? ""
       );
+    } else if(result != null && result is Error){
+      showError(
+          widget._scaffoldKey.currentContext ?? context,
+          title: "Failed Validating Bill Beneficiary",
+          message: result.message ?? ""
+      );
     }
 
   }

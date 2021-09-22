@@ -7,7 +7,7 @@ import 'package:moniepoint_flutter/core/paging/pager.dart';
 import 'package:moniepoint_flutter/core/paging/paging_source.dart';
 import 'package:moniepoint_flutter/core/viewmodels/contacts_view_model.dart';
 import 'package:provider/provider.dart';
-import 'package:moniepoint_flutter/core/strings.dart';
+import 'package:moniepoint_flutter/core/extensions/strings.dart';
 
 import '../colors.dart';
 import '../styles.dart';

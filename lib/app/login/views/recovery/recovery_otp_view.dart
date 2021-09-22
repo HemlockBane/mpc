@@ -35,7 +35,6 @@ class _RecoveryOtpView extends State<RecoveryOtpView> {
   bool _isLoading = false;
   bool _hasOtp = false;
 
-
   @override
   void initState() {
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/svg.dart';
 
-import '../bottom_sheet.dart';
+import '../views/bottom_sheet.dart';
 import '../colors.dart';
 
 Future<dynamic> showError(BuildContext context,
@@ -34,10 +34,12 @@ Future<dynamic> showSuccess(BuildContext context,
       String primaryButtonText = "Continue",
       String? secondaryButtonText,
       bool useText = true,
+      bool isDismissible = true,
       VoidCallback? onSecondaryClick}) {
   return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      isDismissible: isDismissible,
       backgroundColor: Colors.transparent,
       builder: (mContext) {
         return BottomSheets.displaySuccessModal(context,

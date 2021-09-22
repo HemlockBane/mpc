@@ -18,7 +18,7 @@ import 'package:moniepoint_flutter/app/transfers/model/data/transfer_history_ite
 import 'package:moniepoint_flutter/core/models/transaction.dart';
 import 'package:moniepoint_flutter/core/models/transaction_batch.dart';
 import 'package:moniepoint_flutter/core/models/transaction_meta_data.dart';
-import 'package:moniepoint_flutter/core/strings.dart';
+import 'package:moniepoint_flutter/core/extensions/strings.dart';
 
 class ListStringConverter extends TypeConverter<List<String>?, String?>{
   @override

@@ -12,10 +12,12 @@ import 'package:moniepoint_flutter/app/transfers/viewmodels/transfer_view_model.
 import 'package:moniepoint_flutter/app/transfers/views/dialogs/account_enquiry_dialog.dart';
 import 'package:moniepoint_flutter/app/transfers/views/dialogs/institutions_bottom_sheet.dart';
 import 'package:moniepoint_flutter/app/transfers/views/transfer_view.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
+import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/pnd_notification_banner.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
@@ -186,6 +188,11 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
           mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.max,
           children: [
+              PndNotificationBanner(
+                onBannerTap: ()async{
+                  Navigator.of(widget._scaffoldKey.currentContext!).pushNamed(Routes.ACCOUNT_UPDATE);
+                },
+              ),
             SizedBox(height: 24),
             Expanded(
                 flex: 0,

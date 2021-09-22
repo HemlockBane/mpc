@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moniepoint_flutter/app/accounts/model/account_service_delegate.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_status.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/customer_service_delegate.dart';
@@ -31,14 +32,10 @@ class DashboardViewModel extends BaseViewModel {
       {AccountServiceDelegate? accountServiceDelegate,
       CustomerServiceDelegate? customerServiceDelegate,
       TransferBeneficiaryServiceDelegate? transferBeneficiaryDelegate,
-      FileManagementServiceDelegate? fileServiceDelegate})
-      : super(accountServiceDelegate: accountServiceDelegate) {
-    this._customerServiceDelegate =
-        customerServiceDelegate ?? GetIt.I<CustomerServiceDelegate>();
-    this._transferBeneficiaryDelegate = transferBeneficiaryDelegate ??
-        GetIt.I<TransferBeneficiaryServiceDelegate>();
-    this._fileServiceDelegate =
-        fileServiceDelegate ?? GetIt.I<FileManagementServiceDelegate>();
+      FileManagementServiceDelegate? fileServiceDelegate}) : super(accountServiceDelegate: accountServiceDelegate) {
+    this._customerServiceDelegate = customerServiceDelegate ?? GetIt.I<CustomerServiceDelegate>();
+    this._transferBeneficiaryDelegate = transferBeneficiaryDelegate ?? GetIt.I<TransferBeneficiaryServiceDelegate>();
+    this._fileServiceDelegate = fileServiceDelegate ?? GetIt.I<FileManagementServiceDelegate>();
   }
 
   final List<Tier> tiers = [];
@@ -48,15 +45,8 @@ class DashboardViewModel extends BaseViewModel {
   String? _userProfileBase64String;
   String? get userProfileBase64String => _userProfileBase64String;
 
-  StreamController<bool> _dashboardController = StreamController.broadcast();
-  Stream<bool> get dashboardUpdateStream => _dashboardController.stream;
-
-  StreamController<bool> _refreshDoneStreamController = StreamController.broadcast();
-  Stream<bool> get refreshDoneStream => _refreshDoneStreamController.stream;
-
-  StreamController<bool> _refreshStartStreamController = StreamController.broadcast();
-  Stream<bool> get refreshStartStream => _refreshStartStreamController.stream;
-
+  StreamController<DashboardState> _dashboardController = StreamController.broadcast();
+  Stream<DashboardState> get dashboardUpdateStream => _dashboardController.stream;
 
   Stream<Resource<AccountStatus>> fetchAccountStatus() {
     return this.accountServiceDelegate!.getAccountStatus(customerAccountId);
@@ -101,16 +91,17 @@ class DashboardViewModel extends BaseViewModel {
     });
   }
 
-  void update() {
-    _dashboardController.sink.add(true);
+  Stream<Resource<AccountBalance>> getDashboardBalance({int? accountId, bool useLocal = true}) {
+    return getCustomerAccountBalance(accountId:  accountId, useLocal: useLocal).asBroadcastStream().map((event) {
+      if(event is Success || event is Error) {
+        update(DashboardState.DONE);
+      }
+      return event;
+    });
   }
 
-  void startRefresh() {
-    _refreshStartStreamController.sink.add(true);
-  }
-
-  void finishRefresh() {
-    _refreshDoneStreamController.sink.add(true);
+  void update(DashboardState state) {
+    _dashboardController.sink.add(state);
   }
 
   void checkAccountUpdate() {
@@ -120,7 +111,6 @@ class DashboardViewModel extends BaseViewModel {
     _isAccountUpdateCompleted = flags.where((element) => element?.status != true).isEmpty;
     _populateSliderItems();
   }
-
 
   void _populateSliderItems() {
     sliderItems.clear();
@@ -157,8 +147,12 @@ class DashboardViewModel extends BaseViewModel {
   @override
   void dispose() {
     _dashboardController.close();
-    _refreshStartStreamController.close();
-    _refreshDoneStreamController.close();
     super.dispose();
   }
+}
+
+enum DashboardState {
+  REFRESHING,
+  DONE,
+  ACCOUNT_STATUS_UPDATED
 }

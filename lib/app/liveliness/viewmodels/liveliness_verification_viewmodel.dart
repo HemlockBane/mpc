@@ -54,25 +54,28 @@ class LivelinessVerificationViewModel extends BaseViewModel{
     return _validationServiceDelegate.validateLivelinessForDevice(firstCapture, motionCapture, otpValidationKey, username);
   }
 
-  Stream<Resource<CardLinkingResponse>> validateForCardLinking(File firstCapture, File motionCapture, String? serial) {
+  Stream<Resource<CardLinkingResponse>> validateForCardLinking(
+      File firstCapture, File motionCapture,
+      String? serial, String accountId, String otpValidationKey) {
     final cardLinkRequest = CardLinkRequest(
         firstCapture: firstCapture,
         motionCapture: motionCapture,
         customerId: "$customerId",
-        customerAccountId: "$customerAccountId",
+        customerAccountId: "$accountId",
         customerCode: primaryCbaCustomerId,
-        cardSerial: serial
+        cardSerial: serial,
+        otpValidationKey: otpValidationKey
     );
     return _cardServiceDelegate.linkCard(cardLinkRequest);
   }
 
   Stream<Resource<CardActivationResponse>> validateCardForActivation(File firstCapture, File motionCapture,
-      int cardId, String cvv2, String newPin) {
+      int cardId, String cvv2, String newPin, String accountId) {
     final cardLinkRequest = CardLinkRequest(
         firstCapture: firstCapture,
         motionCapture: motionCapture,
         customerId: "$customerId",
-        customerAccountId: "$customerAccountId",
+        customerAccountId: "$accountId",
         customerCode: primaryCbaCustomerId,
         cvv: cvv2,
         newPin: newPin,

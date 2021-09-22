@@ -14,8 +14,8 @@ import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:share/share.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
-import 'package:moniepoint_flutter/core/utils/text_utils.dart';
-import 'package:moniepoint_flutter/core/strings.dart';
+import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
+import 'package:moniepoint_flutter/core/extensions/strings.dart';
 
 class AccountTransactionsAccountCard extends StatefulWidget {
   const AccountTransactionsAccountCard(

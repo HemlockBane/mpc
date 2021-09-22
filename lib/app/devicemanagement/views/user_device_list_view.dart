@@ -5,7 +5,7 @@ import 'package:moniepoint_flutter/app/devicemanagement/model/data/user_device.d
 import 'package:moniepoint_flutter/app/devicemanagement/viewmodels/user_device_view_model.dart';
 import 'package:moniepoint_flutter/app/devicemanagement/views/dialogs/remove_user_device_dialog.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_shimmer_view.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/network_bound_resource.dart';
@@ -21,7 +21,7 @@ import 'package:moniepoint_flutter/core/utils/time_ago.dart';
 import 'package:moniepoint_flutter/core/views/generic_list_placeholder.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:provider/provider.dart';
-import 'package:moniepoint_flutter/core/utils/text_utils.dart';
+import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
 
 class UserDeviceListView extends StatefulWidget {
 

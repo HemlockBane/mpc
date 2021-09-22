@@ -1,12 +1,16 @@
 import 'dart:ui';
 
+import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter_svg/svg.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
+import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'liveliness_camera_preview.dart';
@@ -90,7 +94,7 @@ class _LivelinessVerification extends State<LivelinessVerification> {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(flex:1, child: SvgPicture.asset('res/drawables/ic_face_match_brightness.svg')),
+                            Expanded(flex: 1, child: SvgPicture.asset('res/drawables/ic_face_match_brightness.svg')),
                             SizedBox(width: 16,),
                             Expanded(flex:8, child: Text(
                                 'Stay in a brightly lit environment',
@@ -108,7 +112,7 @@ class _LivelinessVerification extends State<LivelinessVerification> {
                           children: [
                             Expanded(flex:1, child: SvgPicture.asset('res/drawables/ic_face_match_sunglasses.svg')),
                             SizedBox(width: 16,),
-                            Expanded(flex:8, child: Text(
+                            Expanded(flex: 8, child: Text(
                                 'Remove glasses, hats, hijabs, face masks or any other face coverings',
                                 style: TextStyle(
                                     fontSize: 15,
@@ -121,7 +125,7 @@ class _LivelinessVerification extends State<LivelinessVerification> {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(flex:1, child: SvgPicture.asset('res/drawables/ic_face_match_gesture.svg')),
+                            Expanded(flex: 1, child: SvgPicture.asset('res/drawables/ic_face_match_gesture.svg')),
                             SizedBox(width: 16,),
                             Expanded(flex:8, child: Text('Remain neutral - don’t smile, don’t open your mouth',
                                 style: TextStyle(
@@ -131,7 +135,7 @@ class _LivelinessVerification extends State<LivelinessVerification> {
                             ))
                           ],
                         ),
-                        SizedBox(height: 24,),
+                        SizedBox(height: 24),
                       ],
                     ),
                   ),
@@ -147,7 +151,7 @@ class _LivelinessVerification extends State<LivelinessVerification> {
                       },
                       text: 'Start Capture'
                   ),
-                  SizedBox(height: 24,),
+                  SizedBox(height: 24),
                 ],
               ),
             ),
@@ -164,13 +168,22 @@ class _LivelinessVerification extends State<LivelinessVerification> {
       );
       _initLivelinessDetector();
     } else {
-      Navigator.of(context).pop();
+      showInfo(
+          context,
+          title: "Camera Access Disabled",
+          message: "Navigate to phone settings to enable camera access",
+          primaryButtonText: "Enable Camera Access",
+          onPrimaryClick: () => AppSettings.openAppSettings()
+      );
     }
   }
 
   @override
   void initState() {
     _livelinessDetector = LivelinessDetector();
+    if(UserInstance().getUser() != null) {
+      UserInstance().updateLastActivityTime();
+    }
     super.initState();
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
       _requestCameraPermission();
@@ -191,35 +204,39 @@ class _LivelinessVerification extends State<LivelinessVerification> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(child: Scaffold(
-      body: Stack(
-        children: [
-          Positioned(
-              left: 0,
-              right: 0,
-              child: FutureBuilder(
-                  future: _initializedLiveliness,
-                  builder: (mContext, value) {
-                    if (value.connectionState != ConnectionState.done) return Container();
-                    return AspectRatio(
-                      aspectRatio: 3/4,//TODO get the aspect ratio from channel
-                      child: LivelinessCameraPreview(_livelinessDetector!),
-                    );
-                  })
+    return SessionedWidget(
+        context: context,
+        sessionTime: 120 * 2,
+        child: SafeArea(child: Scaffold(
+          body: Stack(
+            children: [
+              Positioned(
+                  left: 0,
+                  right: 0,
+                  child: FutureBuilder(
+                      future: _initializedLiveliness,
+                      builder: (mContext, value) {
+                        if (value.connectionState != ConnectionState.done) return Container();
+                        return AspectRatio(
+                          aspectRatio: 3/4,//TODO get the aspect ratio from channel
+                          child: LivelinessCameraPreview(_livelinessDetector!),
+                        );
+                      })
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                child: LivelinessDetectionGuide(
+                  motionEventStream: _livelinessDetector!.motionEventStream,
+                  callback: _livelinessDetector!,
+                  verificationFor: widget.arguments["verificationFor"] as LivelinessVerificationFor,
+                  arguments: widget.arguments,
+                ),
+              )
+            ],
           ),
-          Positioned(
-            left: 0,
-            right: 0,
-            child: LivelinessDetectionGuide(
-              motionEventStream: _livelinessDetector!.motionEventStream,
-              callback: _livelinessDetector!,
-              verificationFor: widget.arguments["verificationFor"] as LivelinessVerificationFor,
-              arguments: widget.arguments,
-            ),
-          )
-        ],
-      ),
-    ));
+        )),
+    );
   }
 
   @override

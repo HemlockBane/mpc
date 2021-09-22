@@ -35,7 +35,6 @@ class _RecoveryOtpView extends State<RecoveryOtpView> {
   bool _isLoading = false;
   bool _hasOtp = false;
 
-
   @override
   void initState() {
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
@@ -70,7 +69,7 @@ class _RecoveryOtpView extends State<RecoveryOtpView> {
     } else if(mode == RecoveryMode.PASSWORD_RECOVERY){
       viewModel.setOtpCode(_otpController.text);
       //looks like we validate the otp first here
-      viewModel.validateOtp().listen(_handleValidateOtpResponse);
+      viewModel.validateOtp().listen(_handleOtpValidationResponseForPassword);
     } else if(mode == RecoveryMode.DEVICE) {
       viewModel.validateDeviceOtp(_otpController.text).listen(_handleOtpValidationResponseForDevice);
     }
@@ -87,7 +86,11 @@ class _RecoveryOtpView extends State<RecoveryOtpView> {
     }
     if (event is Error<RecoveryResponse>) {
       setState(() => _isLoading = false);
-      showError(widget._scaffoldKey.currentContext ?? context, message: event.message);
+      showError(
+          widget._scaffoldKey.currentContext ?? context,
+          title: "OTP Validation Failed!",
+          message: event.message
+      );
     }
   }
 
@@ -117,8 +120,12 @@ class _RecoveryOtpView extends State<RecoveryOtpView> {
       } else if(verificationFor == LivelinessVerificationFor.PASSWORD_RECOVERY) {
         if(validationResponse.livelinessCheckRef == null
             || validationResponse.livelinessCheckRef?.isEmpty == true) {
-          //Something wrong happened here
-          showError(widget._scaffoldKey.currentContext ?? context, message: "Validation failed");
+          //Something wrong must have happened here
+          showError(
+              widget._scaffoldKey.currentContext ?? context,
+              title: "Liveliness Check Failed!",
+              message: "Liveliness Validation failed, Please try again."
+          );
           return;
         }
         viewModel.setLivelinessCheckRef(validationResponse.livelinessCheckRef);
@@ -148,11 +155,15 @@ class _RecoveryOtpView extends State<RecoveryOtpView> {
     }
   }
 
-  void _handleValidateOtpResponse(Resource<RecoveryResponse> event) {
+  void _handleOtpValidationResponseForPassword(Resource<RecoveryResponse> event) {
     if(event is Loading) setState(() => _isLoading = true);
     if (event is Error<RecoveryResponse>) {
       setState(() => _isLoading = false);
-      showError(widget._scaffoldKey.currentContext ?? context, message: event.message);
+      showError(
+          widget._scaffoldKey.currentContext ?? context,
+          title: "OTP Validation Failed!",
+          message: event.message
+      );
     }
     if(event is Success<RecoveryResponse>) {
       setState(() => _isLoading = false);

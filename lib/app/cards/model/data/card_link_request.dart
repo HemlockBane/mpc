@@ -5,6 +5,7 @@ class CardLinkRequest {
   final File motionCapture;
   final String customerId;
   final String customerAccountId;
+  final String? otpValidationKey;
   int? cardId;
   String? customerCode;
   String? cardSerial;
@@ -17,6 +18,7 @@ class CardLinkRequest {
       required this.customerId,
       required this.customerAccountId,
       this.customerCode,
+      this.otpValidationKey,
       this.cardId,
       this.cardSerial,
       this.cvv,

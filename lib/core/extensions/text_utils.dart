@@ -67,3 +67,22 @@ extension ColoredText on Text {
     );
   }
 }
+
+
+extension TextEditing on TextEditingController {
+  TextEditingController withDefaultValueFromStream(AsyncSnapshot<String?> snapshot, String? defaultValue) {
+    if(!snapshot.hasData) return this;
+    if(snapshot.hasError) {
+      value = TextEditingValue(
+          text: defaultValue ?? "",
+          selection: TextSelection.collapsed(offset: defaultValue?.length ?? -1)
+      );
+      return this;
+    }
+    value = TextEditingValue(
+        text: snapshot.data ?? "",
+        selection: TextSelection.collapsed(offset: snapshot.data?.length ?? -1)
+    );
+    return this;
+  }
+}

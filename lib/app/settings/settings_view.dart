@@ -6,7 +6,7 @@ import 'package:moniepoint_flutter/app/settings/dialogs/change_pin_dialog.dart';
 import 'package:moniepoint_flutter/app/settings/dialogs/login_methods_dialog.dart';
 import 'package:moniepoint_flutter/app/usermanagement/viewmodels/change_password_view_model.dart';
 import 'package:moniepoint_flutter/app/usermanagement/viewmodels/change_pin_view_model.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/config/build_config.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -41,7 +41,11 @@ class _SettingsScreen extends State<SettingsScreen> {
         )
     );
     if(result is Error<bool>) {
-      await showError( _scaffoldKey.currentContext ?? context, message: result.message);
+      await showError(
+          _scaffoldKey.currentContext ?? context,
+          title: "Password Change Failed!",
+          message: result.message
+      );
     } else if(result is bool && result == true) {
       _displaySuccessMessage("Password Changed", "Password was updated successfully");
     }
@@ -58,7 +62,11 @@ class _SettingsScreen extends State<SettingsScreen> {
         )
     );
     if(result is Error<bool>) {
-      showError(_scaffoldKey.currentContext ?? context, message: result.message);
+      showError(
+          _scaffoldKey.currentContext ?? context,
+          title: "PIN Change Failed!",
+          message: result.message
+      );
     } else if(result is bool && result == true) {
       _displaySuccessMessage("Pin Changed", "Transaction PIN was updated successfully");
     }
@@ -112,14 +120,14 @@ class _SettingsScreen extends State<SettingsScreen> {
       backgroundColor: Colors.backgroundWhite,
       appBar: AppBar(
           centerTitle: false,
-          titleSpacing: -12,
+          titleSpacing: 0,
           iconTheme: IconThemeData(color: Colors.primaryColor),
           title: Text('Settings',
               textAlign: TextAlign.start,
               style: TextStyle(
-                  color: Colors.darkBlue,
-                  fontFamily: Styles.defaultFont,
-                  fontSize: 17
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: Colors.textColorBlack
               )
           ),
           backgroundColor: Colors.backgroundWhite,

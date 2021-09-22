@@ -1,22 +1,34 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart' hide Colors, ScrollView;
+import 'package:app_settings/app_settings.dart';
+import 'package:flutter/material.dart' hide Colors, ScrollView, Card;
 import 'package:flutter_svg/svg.dart';
-import 'package:lottie/lottie.dart';
+import 'package:moniepoint_flutter/app/cards/model/data/card.dart';
 import 'package:moniepoint_flutter/app/cards/model/data/card_linking_response.dart';
+import 'package:moniepoint_flutter/app/cards/model/data/card_otp_linking_response.dart';
+import 'package:moniepoint_flutter/app/cards/model/data/card_otp_validation_response.dart';
 import 'package:moniepoint_flutter/app/cards/viewmodels/card_issuance_view_model.dart';
 import 'package:moniepoint_flutter/app/cards/views/dialogs/card_activation_code_dialog.dart';
+import 'package:moniepoint_flutter/app/cards/views/dialogs/card_otp_dialog.dart';
 import 'package:moniepoint_flutter/app/cards/views/dialogs/card_scan_info_dialog.dart';
 import 'package:moniepoint_flutter/app/cards/views/dialogs/card_serial_dialog.dart';
 import 'package:moniepoint_flutter/app/liveliness/model/data/liveliness_verification_for.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class CardQRCodeScannerView extends StatefulWidget {
+
+  final num customerAccountId;
+
+  CardQRCodeScannerView(this.customerAccountId);
+
   @override
   State<StatefulWidget> createState() => _CardQRCodeScannerViewState();
 }
@@ -31,6 +43,7 @@ class _CardQRCodeScannerViewState extends State<CardQRCodeScannerView> {
 
   initState() {
     _viewModel = Provider.of<CardIssuanceViewModel>(context, listen: false);
+    _viewModel.setCardCustomerAccountId(widget.customerAccountId);
     super.initState();
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
       _displayScanBarcodeDialog();
@@ -41,44 +54,59 @@ class _CardQRCodeScannerViewState extends State<CardQRCodeScannerView> {
     if(await Permission.camera.request().isGranted) {
       return true;
     } else {
-      Navigator.of(context).pop();
+      showInfo(
+          context,
+          title: "Camera Access Disabled",
+          message: "Navigate to phone settings to enable camera access",
+          primaryButtonText: "Enable Camera Access",
+          onPrimaryClick: () {
+            AppSettings.openAppSettings();
+          }
+      );
     }
     return false;
   }
 
-  void  _displayScanBarcodeDialog() {
-    showDialog(
+  void  _displayScanBarcodeDialog() async {
+    final response = await showDialog(
         context: context,
         barrierDismissible: false,
         builder: (mContext) => CardScanInfoDialog(
             context: context,
             onEnterSerial: () {
-              Navigator.of(context).pop();
+              Navigator.of(context).pop(true);
               _displayCardSerialDialog();
             },
             onScanQR: () {
-              Navigator.of(context).pop();
+              Navigator.of(context).pop(true);
               _startScanning();
               _viewModel.updateIssuanceState(CardIssuanceQRCodeState.PROCESSING);
             }
         )
     );
+
+    if(response == null) {
+      Navigator.of(context).pop();
+    }
   }
 
-  void _displayCardSerialDialog() {
-    showDialog(
+  void _displayCardSerialDialog() async {
+    final response = await showDialog(
         context: context,
         barrierDismissible: false,
         builder: (mContext) => CardSerialDialog(
             context: context,
             viewModel: _viewModel,
             onClick: () async {
-              Navigator.of(context).pop();
+              Navigator.of(context).pop(true);
               await _qrViewController?.pauseCamera();
-              _startLiveliness();
+              _startOtpValidation();
             }
         )
     );
+    if(response == null) {
+      Navigator.of(context).pop();
+    }
   }
 
   void _onQRViewCreated(QRViewController controller) {
@@ -91,11 +119,39 @@ class _CardQRCodeScannerViewState extends State<CardQRCodeScannerView> {
         isScrollControlled: true,
         backgroundColor: Colors.transparent,
         builder: (mContext) {
-          return CardActivationCodeDialog(code);
+          return CardActivationCodeDialog(
+            context: mContext,
+            activationCode: code,
+            cardsStreamFn: () => _viewModel.getCards(),
+            totalNumberOfCards: _viewModel.getTotalNumberOfCards(),
+          );
         }
     );
-    if(value is bool && value) {
-      Navigator.of(context).pop(true);
+
+    if(value is Success<List<Card>?>) {
+      final cards = value.data;
+      if(cards?.isEmpty == true) {
+        return showError(
+            context,
+            title: "Agent Confirmation Failed",
+            message: "Failed to retrieve agent confirmation at this time, please try again later.",
+            primaryButtonText: "Go Back to Cards"
+        );
+      }
+      final card = cards!.first;
+      Navigator.of(context).popAndPushNamed(Routes.CARD_ACTIVATION, arguments: {"id": card.id}).then((value) {
+        print("What's the value after activation ==>>> ");
+      });
+    } else if (value is Error<List<Card>>) {
+      showError(
+          context,
+          title: "Agent Confirmation Failed",
+          message: "Failed to retrieve agent confirmation at this time, please try again later."
+      );
+    } else {
+      Navigator.of(context).pushNamedAndRemoveUntil(
+          Routes.CARDS, ModalRoute.withName(Routes.DASHBOARD)
+      );
     }
   }
 
@@ -109,56 +165,106 @@ class _CardQRCodeScannerViewState extends State<CardQRCodeScannerView> {
         await _qrViewController?.pauseCamera();
         _viewModel.setCardSerial(scanData.code);
 
-        Future.delayed(Duration(milliseconds: 500), () {
-          _startLiveliness();
+        Future.delayed(Duration(milliseconds: 100), () {
+          _startOtpValidation();
         });
       });
     });
   }
 
-  void _startLiveliness() async {
+  void _startOtpValidation({bool requestOtp = true}) async{
+    final value = await showLinkCardOtpDialog(context, _viewModel, requestOtp);
+    if(value != null && value is String) {
+      Future.delayed(Duration(milliseconds: 300), () {
+        _startLiveliness(value);
+      });
+    } else if(value is Error<CardOtpValidationResponse>) {
+      showError(
+          context,
+          title: "Card OTP Failed!",
+          message: value.message,
+          primaryButtonText: "Try Again?",
+          secondaryButtonText: "Dismiss",
+          onPrimaryClick: () {
+            Navigator.of(context).pop();
+            _startOtpValidation(requestOtp: false);
+          },
+          onSecondaryClick: () {
+            Navigator.of(context).pop();
+            Navigator.of(context).pop();
+          }
+      );
+    } else if(value is Error<CardOtpLinkingResponse>) {
+      showError(
+          context,
+          title: "OTP Request Failed!",
+          message: value.message,
+          primaryButtonText: "Try Again?",
+          secondaryButtonText: "Dismiss",
+          onPrimaryClick: () {
+            Navigator.of(context).pop();
+            _startOtpValidation();
+          },
+          onSecondaryClick: () {
+            Navigator.of(context).pop();
+            Navigator.of(context).pop();
+          }
+      );
+    }
+    else {
+      Navigator.of(context).pop();
+    }
+  }
+
+  void _startLiveliness(String otpValidationKey) async {
     final validationResponse = await Navigator.of(context).pushNamed(Routes.LIVELINESS_DETECTION, arguments: {
       "verificationFor": LivelinessVerificationFor.CARD_LINKING,
-      "cardSerial": _viewModel.cardSerial
+      "cardSerial": _viewModel.cardSerial,
+      "customerAccountId": widget.customerAccountId,
+      "otpValidationKey": otpValidationKey,
     });
 
     if(validationResponse != null && validationResponse is CardLinkingResponse){
       _showCardActivationCode(validationResponse.issuanceCode ?? "");
     }
+
+    if(validationResponse == null) Navigator.of(context).pop();
   }
 
   Widget _cardIssuanceStateView(BuildContext mContext,
       AsyncSnapshot<CardIssuanceQRCodeState> snapShot){
-    if(!snapShot.hasData) return SizedBox(height: 48 * 2);
-    if(snapShot.data == CardIssuanceQRCodeState.PROCESSING) {
-      return Column(
-        children: [
-          Lottie.asset('res/drawables/progress_bar_lottie.json', width: 48, height: 48),
-          SizedBox(height: 12),
-          Text('Processing, Please wait')
-        ],
-      );
-    }
-    if(snapShot.data == CardIssuanceQRCodeState.SUCCESS) {
-      return Column(
-        children: [
-          SvgPicture.asset(
-              'res/drawables/ic_circular_check_mark.svg',
-              width: 48,
-              height: 48
-          ),
-          SizedBox(height: 12),
-          Text(
-            'Success',
-            style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16
-            ),
-          )
-        ],
-      );
-    }
-    return Column(children: [Text('Waiting to scan QR')]);
+    return BottomSheets.makeAppBottomSheet2(
+        curveBackgroundColor: Colors.white,
+        centerBackgroundPadding: 14,
+        centerImageBackgroundColor: Colors.primaryColor.withOpacity(0.1),
+        contentBackgroundColor: Colors.white,
+        dialogIcon: Container(
+          padding: EdgeInsets.all(4),
+          decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.primaryColor),
+          child: SvgPicture.asset('res/drawables/ic_qr_code.svg'),
+        ),
+        content: Wrap(
+          children: [
+            Container(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(height: 50,),
+                  Center(child: Text(
+                    "Scan QR code on card package",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: Colors.textColorBlack,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500
+                    ),
+                  )),
+                  SizedBox(height: 100,),
+                ],
+              ),
+            )
+          ],
+        ));
   }
 
   @override
@@ -206,19 +312,9 @@ class _CardQRCodeScannerViewState extends State<CardQRCodeScannerView> {
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  child: Container(
-                    padding: EdgeInsets.only(left: 24, right: 24, top: 32, bottom: 32),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(20),
-                            topRight: Radius.circular(20)
-                        ),
-                        color: Colors.white
-                    ),
-                    child: StreamBuilder(
-                      stream: _viewModel.qrIssuanceState,
-                      builder: _cardIssuanceStateView,
-                    ),
+                  child: StreamBuilder(
+                    stream: _viewModel.qrIssuanceState,
+                    builder: _cardIssuanceStateView,
                   )
               ),
             ],

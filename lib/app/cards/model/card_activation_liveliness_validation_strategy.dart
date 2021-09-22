@@ -19,13 +19,15 @@ class CardActivationLivelinessValidationStrategy extends LivelinessValidationStr
     final cvv2 = arguments["cvv2"];
     final newPin = arguments["newPin"];
     final cardId = arguments["cardId"];
+    final accountId = arguments["customerAccountId"];
 
     final response = viewModel.validateCardForActivation(
         File(firstCapturePath),
         File(motionCapturePath),
         cardId ?? 0,
         cvv2,
-        newPin
+        newPin,
+        "$accountId"
     );
 
     CardActivationResponse? returnValue;

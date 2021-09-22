@@ -12,24 +12,24 @@ import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:provider/provider.dart';
 import 'package:collection/collection.dart';
 
-import 'card_pin_dialog.dart';
+import 'dialogs/card_pin_dialog.dart';
 
-class ManageCardChannelDialog extends StatefulWidget{
+class ManageCardChannelView extends StatefulWidget{
 
   final num cardId;
 
-  ManageCardChannelDialog(this.cardId);
+  ManageCardChannelView(this.cardId);
 
   @override
-  State<StatefulWidget> createState() => _ManageCardChannelDialog();
+  State<StatefulWidget> createState() => _ManageCardChannelState();
 
 }
 
-class _ManageCardChannelDialog extends State<ManageCardChannelDialog> {
+class _ManageCardChannelState extends State<ManageCardChannelView> {
 
   Card? _card;
 
-  List<_ChannelItem> transactionChannels = List.unmodifiable([
+  final List<_ChannelItem> transactionChannels = List.unmodifiable([
     _ChannelItem("Enable Web", TransactionChannel.WEB, 'ic_channel_web.svg'),
     _ChannelItem("Enable POS", TransactionChannel.POS, 'ic_channel_pos.svg'),
     _ChannelItem("Enable ATM", TransactionChannel.ATM, 'ic_channel_atm.svg'),
@@ -50,15 +50,12 @@ class _ManageCardChannelDialog extends State<ManageCardChannelDialog> {
             ..cardId = _card?.id
             ..transactionChannel = item.channel
       );
-      if(!value){
+      if(!value) {
         item.isEnabled = !item.isEnabled;
         _updateCardChannel(item.isEnabled, item);
         setState(() {});
       }
     });
-    // ..cardAccountNumber = _card?.customerAccountCard != null
-    // ? _card?.customerAccountCard?.customerAccountNumber
-    //     : null
 
   }
 
@@ -104,7 +101,7 @@ class _ManageCardChannelDialog extends State<ManageCardChannelDialog> {
       );
       return true;
     } else if(value is Error) {
-      await showError(context, title: "Oops", message: value.message);
+      await showError(context, title: "Card Operation Failed!", message: value.message);
       return false;
     }
     return false;

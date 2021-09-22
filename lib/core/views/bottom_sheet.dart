@@ -8,7 +8,7 @@ import 'package:moniepoint_flutter/app/login/model/data/login_prompt.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 
-import 'login_prompt.dart';
+import '../login_prompt.dart';
 
 class BottomSheets {
   static Widget makeAppBottomSheet(
@@ -176,7 +176,7 @@ class BottomSheets {
                         borderRadius: BorderRadius.all(Radius.circular(8)),
                         color: Colors.red.withOpacity(0.1)),
                     child: Text(message ?? "",
-                        maxLines: 4,
+                        maxLines: 6,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                             fontSize: 16,
@@ -203,7 +203,7 @@ class BottomSheets {
                       ),
                       onPressed: onPrimaryClick ?? () => Navigator.of(context).pop(),
                     ),
-                  SizedBox(height: secondaryButtonText != null ? 32 : 0),
+                  SizedBox(height: secondaryButtonText != null ? 26 : 0),
                   Visibility(
                       visible: secondaryButtonText != null,
                       child: TextButton(
@@ -369,8 +369,12 @@ class BottomSheets {
                               style: TextStyle(
                                   color: Colors.primaryColor,
                                   fontSize: 16,
-                                  fontWeight: FontWeight.normal)))),
-                  SizedBox(height: 16),
+                                  fontWeight: FontWeight.normal
+                              )
+                          )
+                      )
+                  ),
+                  SizedBox(height: 32),
                 ],
               ),
             )

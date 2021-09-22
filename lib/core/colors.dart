@@ -23,7 +23,7 @@ class Colors {
   static const Color textColorMainBlack = const Color(0XFF1E2E3F);
   static const Color textColorPrimary = const Color(0XFF0B3275);
 
-  static const Color textFieldColor = const Color(0XFFCED2D9);
+  static const Color textFieldColor = const Color(0XFF97A6C0);
   static const Color textFieldIcon = const Color(0XFF2E3A59);
 
 
@@ -43,6 +43,7 @@ class Colors {
 
 
   static const Color red = const Color(0XFFE94444);
+  static const Color pndRed = const Color(0xffE14E4F);
   static const Color modalRed = const Color(0XFFEF5454);
   static const Color darkRed = const Color(0XFFBE3B3B);
 

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/billpayments/views/bill_view.dart';
+import 'package:moniepoint_flutter/core/pnd_notification_banner.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/views/empty_list_layout_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/biller_category.dart';
@@ -76,9 +78,12 @@ class _BillCategoryListScreen extends State<BillCategoryListScreen>
     return Container(
       child: Column(
         children: [
-          SizedBox(
-            height: 16,
-          ),
+            PndNotificationBanner(
+              onBannerTap: () {
+                Navigator.of(widget._scaffoldKey.currentContext!).pushNamed(Routes.ACCOUNT_UPDATE);
+              },
+           ),
+          SizedBox(height: 24),
           Divider(
             height: 1,
             color: Color(0XFFE0E0E0),

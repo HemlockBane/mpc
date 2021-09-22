@@ -49,6 +49,7 @@ class LoginServiceDelegate with NetworkResource{
         saveRemoteData: (user) async => _updateSession(user),
         onError: ({ServiceResult<User?>? result, int? statusCode}) async {
           final firstError = result?.errors?.first.message;
+          //TODO when the backend returns valid status code, use that instead
           if (firstError == null
               || firstError.contains("reset your fingerprint") == false) {
             return;

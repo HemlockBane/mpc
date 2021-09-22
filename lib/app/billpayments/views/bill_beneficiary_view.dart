@@ -9,7 +9,6 @@ import 'package:moniepoint_flutter/app/billpayments/views/bill_view.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/bills/model/data/bill_beneficiary.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_list_item.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_shimmer_view.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -129,7 +128,17 @@ class _BillBeneficiaryScreen extends State<BillBeneficiaryScreen> with TickerPro
       _customerIdController.text = "";
       Navigator.of(context).pushNamed(BillScreen.PAYMENT_SCREEN);
     } else if (result != null && result is Error<BillValidationStatus>) {
-      showError(widget._scaffoldKey.currentContext ?? context, message: result.message ?? "");
+      showError(
+          widget._scaffoldKey.currentContext ?? context,
+          title: "Failed Validating Bill Beneficiary",
+          message: result.message ?? ""
+      );
+    } else if(result != null && result is Error){
+      showError(
+          widget._scaffoldKey.currentContext ?? context,
+          title: "Failed Validating Bill Beneficiary",
+          message: result.message ?? ""
+      );
     }
 
   }
@@ -160,7 +169,7 @@ class _BillBeneficiaryScreen extends State<BillBeneficiaryScreen> with TickerPro
           SizedBox(height: 24),
           Padding(
             padding : EdgeInsets.only(left: 16, right: 16),
-            child: Text('Select Plan', style: TextStyle(color: Colors.deepGrey, fontSize: 14, fontWeight: FontWeight.w200)),
+            child: Text('Select Plan', style: TextStyle(color: Colors.deepGrey, fontSize: 14, fontWeight: FontWeight.w400)),
           ),
           SizedBox(height: 12),
           Flexible(

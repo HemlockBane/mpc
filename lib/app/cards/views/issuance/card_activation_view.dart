@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/account_update_form_view.dart';
 import 'package:moniepoint_flutter/app/cards/model/data/card.dart';
 import 'package:moniepoint_flutter/app/cards/model/data/card_activation_response.dart';
-import 'package:moniepoint_flutter/app/cards/model/data/card_linking_response.dart';
 import 'package:moniepoint_flutter/app/cards/viewmodels/card_activation_view_model.dart';
 import 'package:moniepoint_flutter/app/cards/views/card_detailed_item.dart';
 import 'package:moniepoint_flutter/app/liveliness/model/data/liveliness_verification_for.dart';
@@ -49,29 +48,29 @@ class _CardActivationViewState extends State<CardActivationView> with CompositeD
   }
 
   void _subscribeUiToLiveliness() async {
-    final response = await Navigator.of(context)
-        .pushNamed(Routes.LIVELINESS_DETECTION, arguments: {
+    final customerAccountId = _viewModel.getCustomerAccountIdByAccountNumber(
+        _card?.customerAccountCard?.customerAccountNumber
+    );
+    final response = await Navigator.of(context).pushNamed(Routes.LIVELINESS_DETECTION, arguments: {
       "verificationFor": LivelinessVerificationFor.CARD_ACTIVATION,
       "cardId": _card?.id,
       "cvv2": _viewModel.cvv,
-      "newPin": _viewModel.newPin
+      "newPin": _viewModel.newPin,
+      "customerAccountId": customerAccountId
     });
 
-    if(response != null && response is CardActivationResponse){
-      //TODO show dem success
-      if(response.status == true) {
-        showSuccess(
-            context,
-            title: "Card Activated!",
-            message: "Your Card has been activated successfully!"
-        );
-      }else {
-        showError(
-            context,
-            title: "Card Activation Failed",
-            message: "Your Card has been activated successfully!"
-        );
-      }
+    if(response != null && response is CardActivationResponse) {
+      await showSuccess(
+          context,
+          isDismissible: false,
+          title: "Card Activated!",
+          message: "Your Card has been activated successfully!",
+      );
+      Navigator.of(context).pushNamedAndRemoveUntil(
+          Routes.CARDS, ModalRoute.withName(Routes.DASHBOARD)
+      );
+    } else {
+      _viewModel.refreshCards();
     }
   }
 
@@ -205,65 +204,76 @@ class _CardActivationInfoPageState extends State<_CardActivationInfoPage> {
   @override
   Widget build(BuildContext context) {
 
-    return ScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: 4),
-          Center(child: Text("Card Activation",
-              style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.textColorBlack)
-          ),),
-          SizedBox(height: 21),
-          Container(
-            width: double.infinity,
-            height: 230,
-            padding: EdgeInsets.only(left: 70, right: 70, top: 60, bottom: 60),
-            margin: EdgeInsets.only(left: 20, right: 20),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: Colors.primaryColor.withOpacity(0.1)
+    return LayoutBuilder(
+      builder: (ctx, constraints) {
+        print("maxHeight => ${constraints.maxHeight}");
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 4),
+            Center(
+                child: Text("Card Activation",
+                    style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.textColorBlack
+                    )
+                )),
+            SizedBox(height: 21),
+            Container(
+              height: constraints.maxHeight / 2.6,
+              child: ScrollView(
+                maxHeight: constraints.maxHeight / 2.6,
+                child: Container(
+                  width: double.infinity,
+                  height: constraints.maxHeight / 3,
+                  padding: EdgeInsets.only(left: 70, right: 70, top: 10, bottom: 10),
+                  margin: EdgeInsets.only(left: 20, right: 20),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.primaryColor.withOpacity(0.1)
+                  ),
+                  child: Image.asset("res/drawables/ic_card_in_envelop.png", width: 117, height: 117,),
+                ),
+              ),
             ),
-            child: Image.asset("res/drawables/ic_card_in_envelop.png", width: 117, height: 117,),
-          ),
-          SizedBox(height: 32),
-          Padding(
+            SizedBox(height: 32),
+            Padding(
               padding: EdgeInsets.only(left: 20),
               child: Text(
                 'Take out the card from the Package',
                 style: TextStyle(color: Colors.textColorBlack),
               ),
-          ),
-          Spacer(),
-          Row(
-            children: [
-              Flexible(child: Container()),
-              Flexible(
-                  flex: 1,
-                  child: Align(
-                    alignment: Alignment.bottomRight,
-                    child: Padding(
-                      padding: EdgeInsets.only(right: 20),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: Styles.appButton(
-                            elevation: 0.2,
-                            onClick: () {
-                              _viewModel.movePage(widget.position);
-                            },
-                            text: "Next"
+            ),
+            Spacer(),
+            Row(
+              children: [
+                Flexible(child: Container()),
+                Flexible(
+                    flex: 1,
+                    child: Align(
+                      alignment: Alignment.bottomRight,
+                      child: Padding(
+                        padding: EdgeInsets.only(right: 20),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: Styles.appButton(
+                              elevation: 0.2,
+                              onClick: () {
+                                _viewModel.movePage(widget.position);
+                              },
+                              text: "Next"
+                          ),
                         ),
                       ),
-                    ),
-                  )
-              )
-            ],
-          ),
-          SizedBox(height: 45)
-        ],
-      ),
+                    )
+                )
+              ],
+            ),
+            SizedBox(height: 45)
+          ],
+        );
+      },
     );
   }
 
@@ -290,113 +300,122 @@ class _CardCVVPagePageState extends State<_CardCVVPage> with AutomaticKeepAliveC
   @override
   Widget build(BuildContext context) {
     super.build(context);
-
-    return ScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: 4),
-          Center(child: Text("Card Activation",
-              style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.textColorBlack
-              )
-          )),
-          SizedBox(height: 21),
-          Container(
-            height: 230,
-            width: double.infinity,
-            margin: EdgeInsets.only(left: 20, right: 20),
-            padding: EdgeInsets.only(left: 70, right: 70, top: 60, bottom: 60),
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: Colors.primaryColor.withOpacity(0.1)
-            ),
-            child: Image.asset("res/drawables/ic_card_in_envelop.png"),
-          ),
-          SizedBox(height: 32),
-          Padding(
-            padding: EdgeInsets.only(left: 20),
-            child: Text(
-              'Enter CVV at the back of Card',
-              style: TextStyle(color: Colors.textColorBlack),
-            ),
-          ),
-          SizedBox(height: 16),
-          Padding(
-            padding: EdgeInsets.only(left: 20, right: 20, bottom: MediaQuery.of(context).viewInsets.bottom * 0.7),
-            child: Styles.appEditText(
-                hint: 'Enter CVV',
-                inputType: TextInputType.number,
-                inputFormats: [FilteringTextInputFormatter.digitsOnly],
-                onChanged: (value) {
-                  _viewModel.setCVV(value);
-                  if(value.length >= 3){
-                    _isCVVValid = true;
-                    FocusManager.instance.primaryFocus?.unfocus();
-                  } else {
-                    _isCVVValid = false;
-                  }
-                  setState(() {});
-                },
-                startIcon: Icon(CustomFont.numberInput, color: Colors.textFieldIcon.withOpacity(0.2), size: 22),
-                animateHint: true,
-                maxLength: 3
-            ),
-          ),
-          SizedBox(height: 16),
-          Spacer(),
-          Row(
+    return LayoutBuilder(
+      builder: (ctx, constraints) {
+        return ScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Flexible(
-                  flex: 1,
-                  child: Align(
-                    alignment: Alignment.bottomLeft,
-                    child: Padding(
-                      padding: EdgeInsets.only(left: 20, right: 10),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: Styles.appButton(
-                            buttonStyle: Styles.greyButtonStyle.copyWith(
-                              backgroundColor: MaterialStateProperty.all(Color(0XFFE0E0E0)),
-                              overlayColor: MaterialStateProperty.all(Colors.grey.withOpacity(0.5))
-                            ),
-                            elevation: 0.2,
-                            onClick: () {
-                              _viewModel.movePage(widget.position, next: false);
-                            },
-                            text: "Prev."
-                        ),
-                      ),
-                    ),
+              SizedBox(height: 4),
+              Center(child: Text("Card Activation",
+                  style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.textColorBlack
                   )
+              )),
+              SizedBox(height: 21),
+              Container(
+                height: constraints.maxHeight / 2.6,
+                child: ScrollView(
+                  maxHeight: constraints.maxHeight / 2.6,
+                  child: Container(
+                    width: double.infinity,
+                    height: constraints.maxHeight / 3,
+                    padding: EdgeInsets.only(left: 70, right: 70, top: 10, bottom: 10),
+                    margin: EdgeInsets.only(left: 20, right: 20),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.primaryColor.withOpacity(0.1)
+                    ),
+                    child: Image.asset("res/drawables/ic_card_activation_cvv.png"),
+                  ),
+                ),
               ),
-              Flexible(
-                  flex: 1,
-                  child: Align(
-                    alignment: Alignment.bottomRight,
-                    child: Padding(
-                      padding: EdgeInsets.only(left: 10, right: 20),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: Styles.statefulButton2(
-                            isValid: _isCVVValid,
-                            elevation: 0.2,
-                            onClick: () {
-                              _viewModel.movePage(widget.position);
-                            },
-                            text: "Next"
+              SizedBox(height: 32),
+              Padding(
+                padding: EdgeInsets.only(left: 20),
+                child: Text(
+                  'Enter CVV at the back of Card',
+                  style: TextStyle(color: Colors.textColorBlack),
+                ),
+              ),
+              SizedBox(height: 16),
+              Padding(
+                padding: EdgeInsets.only(left: 20, right: 20, bottom: MediaQuery.of(context).viewInsets.bottom * 0.7),
+                child: Styles.appEditText(
+                    hint: 'Enter CVV',
+                    inputType: TextInputType.number,
+                    inputFormats: [FilteringTextInputFormatter.digitsOnly],
+                    onChanged: (value) {
+                      _viewModel.setCVV(value);
+                      if(value.length >= 3){
+                        _isCVVValid = true;
+                        FocusManager.instance.primaryFocus?.unfocus();
+                      } else {
+                        _isCVVValid = false;
+                      }
+                      setState(() {});
+                    },
+                    startIcon: Icon(CustomFont.numberInput, color: Colors.textFieldIcon.withOpacity(0.2), size: 22),
+                    animateHint: true,
+                    maxLength: 3
+                ),
+              ),
+              SizedBox(height: 16),
+              Spacer(),
+              Row(
+                children: [
+                  Flexible(
+                      flex: 1,
+                      child: Align(
+                        alignment: Alignment.bottomLeft,
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 20, right: 10),
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: Styles.appButton(
+                                buttonStyle: Styles.greyButtonStyle.copyWith(
+                                    backgroundColor: MaterialStateProperty.all(Color(0XFFE0E0E0)),
+                                    overlayColor: MaterialStateProperty.all(Colors.grey.withOpacity(0.5))
+                                ),
+                                elevation: 0.2,
+                                onClick: () {
+                                  _viewModel.movePage(widget.position, next: false);
+                                },
+                                text: "Prev."
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
+                      )
+                  ),
+                  Flexible(
+                      flex: 1,
+                      child: Align(
+                        alignment: Alignment.bottomRight,
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 10, right: 20),
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: Styles.statefulButton2(
+                                isValid: _isCVVValid,
+                                elevation: 0.2,
+                                onClick: () {
+                                  _viewModel.movePage(widget.position);
+                                },
+                                text: "Next"
+                            ),
+                          ),
+                        ),
+                      )
                   )
-              )
+                ],
+              ),
+              SizedBox(height: 45)
             ],
           ),
-          SizedBox(height: 45)
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -428,104 +447,114 @@ class _CardNewPinPagePageState extends State<_CardNewPinPage> with AutomaticKeep
   Widget build(BuildContext context) {
     super.build(context);
 
-    return ScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: 4),
-          Center(child: Text("Card Activation",
-              style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.textColorBlack
-              )
-          )),
-          SizedBox(height: 21),
-          Container(
-            height: 230,
-            width: double.infinity,
-            padding: EdgeInsets.only(left: 70, right: 70, top: 60, bottom: 60),
-            margin: EdgeInsets.only(left: 20, right: 20),
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: Colors.primaryColor.withOpacity(0.1)
-            ),
-            child: Image.asset("res/drawables/ic_card_activation_pin.png"),
-          ),
-          SizedBox(height: 32),
-          Padding(
-            padding: EdgeInsets.only(left: 20),
-            child: Text(
-              'Setup your Card Transaction PIN',
-              style: TextStyle(color: Colors.textColorBlack),
-            ),
-          ),
-          SizedBox(height: 16),
-          Padding(
-            padding: EdgeInsets.only(left: 20, right: 20, bottom: MediaQuery.of(context).viewInsets.bottom * 0.7),
-            child: PinEntry(onChange: (v) {
-              _viewModel.setNewPin(v);
-              if(v.length >= 4) {
-                _isNewPinValid = true;
-                FocusManager.instance.primaryFocus?.unfocus();
-              } else {
-                _isNewPinValid = false;
-              }
-              setState(() {});
-            }),
-          ),
-          SizedBox(height: 16),
-          Spacer(),
-          Row(
-            children: [
-              Flexible(
-                  flex: 1,
-                  child: Align(
-                    alignment: Alignment.bottomLeft,
-                    child: Padding(
-                      padding: EdgeInsets.only(left: 20, right: 10),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: Styles.appButton(
-                            buttonStyle: Styles.greyButtonStyle.copyWith(
-                                backgroundColor: MaterialStateProperty.all(Color(0XFFE0E0E0)),
-                                overlayColor: MaterialStateProperty.all(Colors.grey.withOpacity(0.5))
+    return LayoutBuilder(
+        builder: (ctx, constraints) {
+          return ScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 4),
+                Center(child: Text("Card Activation",
+                    style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.textColorBlack
+                    )
+                )),
+                SizedBox(height: 21),
+                Container(
+                  height: constraints.maxHeight / 2.6,
+                  child: ScrollView(
+                    maxHeight: constraints.maxHeight / 2.6,
+                    child: Container(
+                      width: double.infinity,
+                      height: constraints.maxHeight / 3,
+                      padding: EdgeInsets.only(left: 70, right: 70, top: 60, bottom: 60),
+                      margin: EdgeInsets.only(left: 20, right: 20),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: Colors.primaryColor.withOpacity(0.1)
+                      ),
+                      child: Image.asset("res/drawables/ic_card_activation_pin.png"),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 32),
+                Padding(
+                  padding: EdgeInsets.only(left: 20),
+                  child: Text(
+                    'Setup your Card Transaction PIN',
+                    style: TextStyle(color: Colors.textColorBlack),
+                  ),
+                ),
+                SizedBox(height: 16),
+                Padding(
+                  padding: EdgeInsets.only(left: 20, right: 20, bottom: MediaQuery.of(context).viewInsets.bottom * 0.7),
+                  child: PinEntry(onChange: (v) {
+                    _viewModel.setNewPin(v);
+                    if(v.length >= 4) {
+                      _isNewPinValid = true;
+                      FocusManager.instance.primaryFocus?.unfocus();
+                    } else {
+                      _isNewPinValid = false;
+                    }
+                    setState(() {});
+                  }),
+                ),
+                SizedBox(height: 16),
+                Spacer(),
+                Row(
+                  children: [
+                    Flexible(
+                        flex: 1,
+                        child: Align(
+                          alignment: Alignment.bottomLeft,
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 20, right: 10),
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: Styles.appButton(
+                                  buttonStyle: Styles.greyButtonStyle.copyWith(
+                                      backgroundColor: MaterialStateProperty.all(Color(0XFFE0E0E0)),
+                                      overlayColor: MaterialStateProperty.all(Colors.grey.withOpacity(0.5))
+                                  ),
+                                  elevation: 0.2,
+                                  onClick: () {
+                                    _viewModel.movePage(widget.position, next: false);
+                                  },
+                                  text: "Prev."
+                              ),
                             ),
-                            elevation: 0.2,
-                            onClick: () {
-                              _viewModel.movePage(widget.position, next: false);
-                            },
-                            text: "Prev."
-                        ),
-                      ),
+                          ),
+                        )
                     ),
-                  )
-              ),
-              Flexible(
-                  flex: 1,
-                  child: Align(
-                    alignment: Alignment.bottomRight,
-                    child: Padding(
-                      padding: EdgeInsets.only(left: 10, right: 20),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: Styles.statefulButton2(
-                            isValid: _isNewPinValid,
-                            elevation: 0.2,
-                            onClick: () {
-                              _viewModel.movePage(widget.position);
-                            },
-                            text: "Next"
-                        ),
-                      ),
-                    ),
-                  )
-              )
-            ],
-          ),
-          SizedBox(height: 45)
-        ],
-      ),
+                    Flexible(
+                        flex: 1,
+                        child: Align(
+                          alignment: Alignment.bottomRight,
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 10, right: 20),
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: Styles.statefulButton2(
+                                  isValid: _isNewPinValid,
+                                  elevation: 0.2,
+                                  onClick: () {
+                                    _viewModel.movePage(widget.position);
+                                  },
+                                  text: "Next"
+                              ),
+                            ),
+                          ),
+                        )
+                    )
+                  ],
+                ),
+                SizedBox(height: 45)
+              ],
+            ),
+          );
+        }
     );
   }
 

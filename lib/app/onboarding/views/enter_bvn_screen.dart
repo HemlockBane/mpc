@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:moniepoint_flutter/app/liveliness/model/data/liveliness_verification_for.dart';
 import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
 import 'package:moniepoint_flutter/app/validation/model/data/onboarding_liveliness_validation_response.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
@@ -53,12 +53,15 @@ class _EnterBVNScreen extends State<EnterBVNScreen> {
     if(validationResponse != null && validationResponse is OnboardingLivelinessValidationResponse) {
 
       if(validationResponse.phoneMismatchError != null) {
-        _showGenericError(validationResponse.phoneMismatchError?.message);
+        _showGenericError("Phone Number Mismatched!", validationResponse.phoneMismatchError?.message);
         return;
       }
 
       if(validationResponse.phoneNumberUniquenessError != null) {
-        _showGenericError(validationResponse.phoneNumberUniquenessError?.message);
+        _showGenericError(
+            "Phone Number already in use",
+            validationResponse.phoneNumberUniquenessError?.message
+        );
         return;
       }
 
@@ -83,7 +86,7 @@ class _EnterBVNScreen extends State<EnterBVNScreen> {
         //We navigate to profile info
         Navigator.of(context).pushNamed(SignUpAccountScreen.PROFILE);
       } else {
-        _showGenericError("Failed to determine account setup type");
+        _showGenericError("Invalid Account Setup Type","Failed to determine account setup type");
       }
     }
   }
@@ -112,10 +115,11 @@ class _EnterBVNScreen extends State<EnterBVNScreen> {
     );
   }
 
-  void _showGenericError(String? message) {
+  void _showGenericError(String title, String? message) {
     showError(
         widget._scaffoldKey.currentContext ?? context,
         message: message,
+        title: title,
         primaryButtonText: "Try Again",
         onPrimaryClick: (){
           Navigator.of(widget._scaffoldKey.currentContext ?? context).pop();
@@ -159,6 +163,7 @@ class _EnterBVNScreen extends State<EnterBVNScreen> {
                               errorText: snapshot.hasError ? snapshot.error.toString() : null,
                               hint: 'Enter BVN',
                               controller: _bvnController,
+                              textInputAction: TextInputAction.done,
                               inputType: TextInputType.number,
                               inputFormats: [FilteringTextInputFormatter.digitsOnly],
                               onChanged: viewModel.accountForm.onBVNChanged,

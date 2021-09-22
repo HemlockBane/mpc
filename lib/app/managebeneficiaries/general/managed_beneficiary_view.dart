@@ -8,7 +8,7 @@ import 'package:moniepoint_flutter/app/managebeneficiaries/general/remove_benefi
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/remove_beneficiary_view_model.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/viewmodels/transfer_beneficiary_view_model.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/views/transfer_beneficiary_list_view.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -54,7 +54,9 @@ class ManagedBeneficiaryScreen extends StatefulWidget {
       await showSuccess(context, title: title, message: message);
       return true;
     } else if(result is Error) {
-      await showError(context, message: result.message);
+      await showError(
+          context, title: "Failed Removing Beneficiary", message: result.message
+      );
       return false;
     }
     return false;

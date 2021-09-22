@@ -12,10 +12,12 @@ import 'package:moniepoint_flutter/app/transfers/viewmodels/transfer_view_model.
 import 'package:moniepoint_flutter/app/transfers/views/dialogs/account_enquiry_dialog.dart';
 import 'package:moniepoint_flutter/app/transfers/views/dialogs/institutions_bottom_sheet.dart';
 import 'package:moniepoint_flutter/app/transfers/views/transfer_view.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
+import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/pnd_notification_banner.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
@@ -97,7 +99,11 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
         ..setSaveBeneficiary(result.second);
       Navigator.of(context).pushNamed(TransferScreen.PAYMENT_SCREEN, arguments: withDefaultAmount);
     } else if (result != null && result is Error<TransferBeneficiary>) {
-      showError(widget._scaffoldKey.currentContext ?? context, message: result.message);
+      showError(
+          widget._scaffoldKey.currentContext ?? context,
+          title: "Account Enquiry Failed!",
+          message: result.message
+      );
     }
   }
 
@@ -161,6 +167,16 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
         doNameEnquiry(provider, beneficiary, withDefaultAmount: replay["amount"]);
       });
     }
+
+    final beneficiary = obj[TransferScreen.START_TRANSFER];
+    if(beneficiary != null && beneficiary is TransferBeneficiary) {
+      final provider =AccountProvider()
+          ..bankCode = beneficiary.accountProviderCode
+          ..name = beneficiary.accountProviderName;
+      Future.delayed(Duration(milliseconds: 200), (){
+        doNameEnquiry(provider, beneficiary, saveBeneficiary: false);
+      });
+    }
   }
 
   @override
@@ -172,6 +188,11 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
           mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.max,
           children: [
+              PndNotificationBanner(
+                onBannerTap: ()async{
+                  Navigator.of(widget._scaffoldKey.currentContext!).pushNamed(Routes.ACCOUNT_UPDATE);
+                },
+              ),
             SizedBox(height: 24),
             Expanded(
                 flex: 0,
@@ -217,7 +238,7 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
             SizedBox(height: 18),
             Padding(
               padding : EdgeInsets.only(left: 16, right: 16),
-              child: Text('Select a Beneficiary', style: TextStyle(color: Colors.deepGrey, fontSize: 14, fontWeight: FontWeight.w200)),
+              child: Text('Select a Beneficiary', style: TextStyle(color: Colors.deepGrey, fontSize: 14, fontWeight: FontWeight.w400)),
             ),
             SizedBox(height: 10),
             Expanded(child: Container(

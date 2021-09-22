@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:moniepoint_flutter/app/billpayments/viewmodels/bill_purchase_view_model.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/transaction_status.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -134,7 +134,7 @@ class _BillPinDialog extends TransactionPinDialogState<BillPinDialog> {
                 ),
                 SizedBox(height: 30),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 50),
+                  padding: EdgeInsets.symmetric(horizontal: 30),
                   child: Text('Enter Transaction PIN',
                       textAlign: TextAlign.start,
                       style: TextStyle(
@@ -143,7 +143,7 @@ class _BillPinDialog extends TransactionPinDialogState<BillPinDialog> {
                 ),
                 SizedBox(height: 8),
                 Padding(
-                  padding: EdgeInsets.only(left: 50, right: 50, bottom: MediaQuery.of(context).viewInsets.bottom * 0.7),
+                  padding: EdgeInsets.only(left: 30, right: 30, bottom: MediaQuery.of(context).viewInsets.bottom * 0.7),
                   child: PinEntry(onChange: (value) {
                     setState(() {
                       viewModel.setPin(value);

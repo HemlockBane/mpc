@@ -10,7 +10,7 @@ import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:provider/provider.dart';
-import 'package:moniepoint_flutter/core/utils/text_utils.dart';
+import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
 
 class PhoneNumberValidationScreen extends StatefulWidget {
 
@@ -36,6 +36,7 @@ class _PhoneNumberValidationScreen extends State<PhoneNumberValidationScreen> {
         setState(() => _isLoading = false);
         showError(
             widget._scaffoldKey.currentContext ?? context,
+            title: "Phone Number Validation Failed",
             message: event.message
         );
       }
@@ -96,9 +97,10 @@ class _PhoneNumberValidationScreen extends State<PhoneNumberValidationScreen> {
                               stream: viewModel.accountForm.phoneNumberStream,
                               builder: (context, snapshot) {
                                 return Styles.appEditText(
-                                    hint: 'Phone Number',
+                                    hint: 'e.g. 0800 000 0000',
                                     controller: _phoneNumberController,
                                     inputFormats: [FilteringTextInputFormatter.digitsOnly],
+                                    textInputAction: TextInputAction.done,
                                     inputType: TextInputType.number,
                                     onChanged: viewModel.accountForm.onPhoneNumberChanged,
                                     errorText: snapshot.hasError ? snapshot.error.toString() : null,

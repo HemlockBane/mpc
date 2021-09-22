@@ -23,6 +23,7 @@ import 'package:moniepoint_flutter/app/branches/model/branch_service.dart';
 import 'package:moniepoint_flutter/app/branches/model/branch_service_delegate.dart';
 import 'package:moniepoint_flutter/app/cards/model/card_service.dart';
 import 'package:moniepoint_flutter/app/cards/model/card_service_delegate.dart';
+import 'package:moniepoint_flutter/app/cards/model/data/card_dao.dart';
 import 'package:moniepoint_flutter/app/devicemanagement/model/user_device_service.dart';
 import 'package:moniepoint_flutter/app/devicemanagement/model/user_device_service_delegate.dart';
 import 'package:moniepoint_flutter/app/institutions/institution_dao.dart';
@@ -54,7 +55,7 @@ import 'package:moniepoint_flutter/app/validation/model/customer_validation_serv
 import 'package:moniepoint_flutter/app/validation/model/customer_validation_service_delegate.dart';
 import 'package:moniepoint_flutter/app/validation/model/validation_service.dart';
 import 'package:moniepoint_flutter/app/validation/model/validation_service_delegate.dart';
-import 'package:moniepoint_flutter/core/device_manager.dart';
+import 'package:moniepoint_flutter/app/devicemanagement/model/data/device_manager.dart';
 import 'package:moniepoint_flutter/core/models/services/file_management_service.dart';
 import 'package:moniepoint_flutter/core/models/services/file_management_service_delegate.dart';
 import 'package:moniepoint_flutter/core/models/services/location_service.dart';
@@ -219,7 +220,7 @@ class ServiceModule {
 
     /// Cards checks
     GetIt.I.registerLazySingleton<CardServiceDelegate>(() {
-      return CardServiceDelegate(CardService(dio));
+      return CardServiceDelegate(CardService(dio), CardDao());
     });
 
     /// USSD Service checks

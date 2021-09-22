@@ -5,7 +5,7 @@ import 'package:moniepoint_flutter/app/airtime/views/selection_combo.dart';
 import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
-import 'package:moniepoint_flutter/core/utils/text_utils.dart';
+import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
 import 'package:collection/collection.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 import 'package:moniepoint_flutter/core/views/selection_combo_two.dart';

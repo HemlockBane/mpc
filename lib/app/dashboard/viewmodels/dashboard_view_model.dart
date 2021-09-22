@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moniepoint_flutter/app/accounts/model/account_service_delegate.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_status.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/customer_service_delegate.dart';
@@ -27,12 +28,11 @@ class DashboardViewModel extends BaseViewModel {
   bool _isAccountUpdateCompleted = true;
   bool get isAccountUpdateCompleted => _isAccountUpdateCompleted;
 
-  DashboardViewModel({
-    AccountServiceDelegate? accountServiceDelegate,
-    CustomerServiceDelegate? customerServiceDelegate,
-    TransferBeneficiaryServiceDelegate? transferBeneficiaryDelegate,
-    FileManagementServiceDelegate? fileServiceDelegate
-  }) : super(accountServiceDelegate: accountServiceDelegate) {
+  DashboardViewModel(
+      {AccountServiceDelegate? accountServiceDelegate,
+      CustomerServiceDelegate? customerServiceDelegate,
+      TransferBeneficiaryServiceDelegate? transferBeneficiaryDelegate,
+      FileManagementServiceDelegate? fileServiceDelegate}) : super(accountServiceDelegate: accountServiceDelegate) {
     this._customerServiceDelegate = customerServiceDelegate ?? GetIt.I<CustomerServiceDelegate>();
     this._transferBeneficiaryDelegate = transferBeneficiaryDelegate ?? GetIt.I<TransferBeneficiaryServiceDelegate>();
     this._fileServiceDelegate = fileServiceDelegate ?? GetIt.I<FileManagementServiceDelegate>();
@@ -45,8 +45,8 @@ class DashboardViewModel extends BaseViewModel {
   String? _userProfileBase64String;
   String? get userProfileBase64String => _userProfileBase64String;
 
-  StreamController<bool> _dashboardController = StreamController.broadcast();
-  Stream<bool> get dashboardController => _dashboardController.stream;
+  StreamController<DashboardState> _dashboardController = StreamController.broadcast();
+  Stream<DashboardState> get dashboardUpdateStream => _dashboardController.stream;
 
   Stream<Resource<AccountStatus>> fetchAccountStatus() {
     return this.accountServiceDelegate!.getAccountStatus(customerAccountId);
@@ -59,8 +59,11 @@ class DashboardViewModel extends BaseViewModel {
   }
 
   Stream<Resource<List<Tier>>> getTiers() {
-    return _customerServiceDelegate.getSchemes(fetchFromRemote: false).map((event) {
-      if((event is Success || event is Loading) && event.data?.isNotEmpty == true) {
+    return _customerServiceDelegate
+        .getSchemes(fetchFromRemote: false)
+        .map((event) {
+      if ((event is Success || event is Loading) &&
+          event.data?.isNotEmpty == true) {
         this.tiers.clear();
         this.tiers.addAll(event.data ?? []);
       }
@@ -77,17 +80,28 @@ class DashboardViewModel extends BaseViewModel {
   }
 
   Stream<Resource<FileResult>> getProfilePicture() {
-    if(customer?.passportUUID == null) return Stream.empty();
-    return _fileServiceDelegate.getFileByUUID(customer?.passportUUID ?? "").map((event) {
-      if(event is Success || event is Loading) {
+    if (customer?.passportUUID == null) return Stream.empty();
+    return _fileServiceDelegate
+        .getFileByUUID(customer?.passportUUID ?? "", shouldFetchRemote: false)
+        .map((event) {
+      if (event is Success || event is Loading) {
         _userProfileBase64String = event.data?.base64String;
       }
       return event;
     });
   }
 
-  void update() {
-    _dashboardController.sink.add(true);
+  Stream<Resource<AccountBalance>> getDashboardBalance({int? accountId, bool useLocal = true}) {
+    return getCustomerAccountBalance(accountId:  accountId, useLocal: useLocal).asBroadcastStream().map((event) {
+      if(event is Success || event is Error) {
+        update(DashboardState.DONE);
+      }
+      return event;
+    });
+  }
+
+  void update(DashboardState state) {
+    _dashboardController.sink.add(state);
   }
 
   void checkAccountUpdate() {
@@ -100,27 +114,31 @@ class DashboardViewModel extends BaseViewModel {
 
   void _populateSliderItems() {
     sliderItems.clear();
-    if(isAccountUpdateCompleted) return;
+    if (isAccountUpdateCompleted) return;
     sliderItems.add(SliderItem(
         key: "account_update",
         primaryText: "Upgrade Account",
         secondaryText: "Upgrade your savings account\nto enjoy higher limits",
-        iconPath: "res/drawables/ic_dashboard_edit.png"
-    ));
+        iconPath: "res/drawables/ic_dashboard_edit.png")
+    );
   }
 
   Future<Tuple<bool, BiometricType>> shouldRequestFingerPrintSetup() async {
-    final fingerprintRequestCount = PreferenceUtil.getFingerprintRequestCounter();
+    final fingerprintRequestCount =
+        PreferenceUtil.getFingerprintRequestCounter();
     //We should only request 3 times from the dashboard
-    if (fingerprintRequestCount >= 2 || PreferenceUtil.getLoginMode() == LoginMode.ONE_TIME) {
+    if (fingerprintRequestCount >= 2 ||
+        PreferenceUtil.getLoginMode() == LoginMode.ONE_TIME) {
       return Tuple(false, BiometricType.NONE);
     }
     final biometricHelper = BiometricHelper.getInstance();
     final biometricType = await biometricHelper.getBiometricType();
-    final hasFingerprintPassword = (await biometricHelper.getFingerprintPassword()) != null;
+    final hasFingerprintPassword =
+        (await biometricHelper.getFingerprintPassword()) != null;
 
-    final shouldRequest = biometricType != BiometricType.NONE && !hasFingerprintPassword;
-    if(shouldRequest) {
+    final shouldRequest =
+        biometricType != BiometricType.NONE && !hasFingerprintPassword;
+    if (shouldRequest) {
       PreferenceUtil.setFingerprintRequestCounter(fingerprintRequestCount + 1);
     }
     return Tuple(shouldRequest, biometricType);
@@ -131,5 +149,10 @@ class DashboardViewModel extends BaseViewModel {
     _dashboardController.close();
     super.dispose();
   }
+}
 
+enum DashboardState {
+  REFRESHING,
+  DONE,
+  ACCOUNT_STATUS_UPDATED
 }

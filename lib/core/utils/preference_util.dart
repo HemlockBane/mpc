@@ -72,7 +72,7 @@ class PreferenceUtil {
     _preferences?.setString("$username-$appendKey", data);
   }
 
-  static dynamic getDataForLoggedInUser<T>(String appendKey) {
+  static dynamic getDataForLoggedInUser(String appendKey) {
     final username = getSavedUsername();
     String? data = _preferences?.getString("$username-$appendKey");
     return jsonDecode(data ?? "{}");
@@ -159,5 +159,9 @@ class PreferenceUtil {
   //ios only
   static String? getFingerprintPassword() {
     return _preferences?.getString("ios-finger-print-password");
+  }
+
+  static bool isAccountBalanceHidden(String accountNumber) {
+    return getValueForLoggedInUser("$accountNumber-$HIDE_ACCOUNT_BAL") ?? false;
   }
 }

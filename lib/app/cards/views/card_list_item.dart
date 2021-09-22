@@ -15,82 +15,6 @@ class CardListItem extends Container {
 
   CardListItem(this.card, this.position, this.onItemClickListener);
 
-  final cardNumberStyle = TextStyle(
-      letterSpacing: 1.2,
-      fontSize: 20,
-      fontWeight: FontWeight.normal,
-      color: Colors.white,
-      fontFamily: Styles.ocraExtended
-  );
-
-  Widget _cardName() {
-    final cardNameWidget = Text(
-      card.nameOnCard ?? "",
-      style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
-    );
-    if(card.status == CardStatus.IN_ACTIVE) {
-      return Expanded(child: ImageFiltered(
-        imageFilter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
-        child: cardNameWidget,
-      ));
-    }
-
-    return Expanded(child: cardNameWidget);
-  }
-
-  Widget _cardNumberAndLogo() {
-    final cardNumberWidget = Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(CardViewUtil.getFirst6Digits(card), style: cardNumberStyle,),
-            Text(' ** **** ', style: TextStyle(
-              letterSpacing: 1.2,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                fontFamily: Styles.ocraExtended
-            )),
-            Text(CardViewUtil.getLast4Digits(card), style: cardNumberStyle,),
-          ],
-        ),
-        CardViewUtil.getCardBrandLogo(card)
-      ],
-    );
-    if(card.status == CardStatus.IN_ACTIVE) {
-      return ImageFiltered(
-          imageFilter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
-          child: cardNumberWidget,
-      );
-    }
-    return cardNumberWidget;
-  }
-
-  Widget _activateCardButton(BuildContext context) {
-    if(card.status != CardStatus.IN_ACTIVE) return SizedBox();
-    return SizedBox(
-      width: double.infinity,
-      child: Styles.appButton(
-          elevation: 0.1,
-          onClick: ()  {
-            Navigator.of(context)
-                .pushNamed(Routes.CARD_ACTIVATION, arguments: {"id": card.id});
-          },
-          text: "Activate Card",
-          buttonStyle: Styles.whiteButtonStyle.copyWith(
-              padding: MaterialStateProperty.all(EdgeInsets.only(left:0, right:20, top: 0, bottom: 0)),
-              foregroundColor: MaterialStateProperty.all(Colors.white),
-              backgroundColor: MaterialStateProperty.all(Colors.white.withOpacity(0.45)),
-              overlayColor: MaterialStateProperty.all(Colors.grey.withOpacity(0.2))
-          )
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
 
@@ -113,7 +37,9 @@ class CardListItem extends Container {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.all(Radius.circular(24)),
-          onTap: () => Navigator.of(context).pushNamed(Routes.CARD_DETAIL, arguments: Map.from({"id":card.id})),
+          onTap: !card.isActivated
+              ? null
+              : () => Navigator.of(context).pushNamed(Routes.CARD_DETAIL, arguments: Map.from({"id":card.id})),
           child: Container(
             padding: EdgeInsets.only(
                 left: 20,
@@ -123,19 +49,11 @@ class CardListItem extends Container {
             ),
             child: Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    _cardName(),
-                    SizedBox(width: 4),
-                    CardViewUtil.getCardStateBanner(card)
-                  ],
-                ),
+                _CardTopView(card: card,),
                 SizedBox(height: card.blocked ? 12 : 16,),
-                _cardNumberAndLogo(),
-                SizedBox(height: (card.status == CardStatus.IN_ACTIVE) ? 16 : 0,),
-                _activateCardButton(context)
+                _CardNumberAndLogoView(card: card,),
+                SizedBox(height: (!card.isActivated) ? 16 : 0,),
+                _CardActivateButton(card: card,)
               ],
             ),
           ),
@@ -143,4 +61,144 @@ class CardListItem extends Container {
       ),
     );
   }
+}
+
+
+///_CardTopView
+///
+///
+///
+///
+class _CardTopView extends StatelessWidget {
+
+  final Card card;
+
+  _CardTopView({required this.card}):super(key: Key("card-top"));
+
+  Widget _cardName() {
+    final cardNameWidget = Text(
+      card.nameOnCard ?? "",
+      style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
+    );
+    if(!card.isActivated) {
+      return Expanded(child: ImageFiltered(
+        imageFilter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
+        child: cardNameWidget,
+      ));
+    }
+
+    return Expanded(child: cardNameWidget);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        _cardName(),
+        SizedBox(width: 4),
+        CardViewUtil.getCardStateBanner(card)
+      ],
+    );
+  }
+
+}
+
+///_CardNumberAndLogoView
+///
+///
+///
+///
+///
+class _CardNumberAndLogoView extends StatelessWidget {
+
+  final Card card;
+
+  final cardNumberStyle = TextStyle(
+      letterSpacing: 0.4,
+      fontSize: 19.5,
+      fontWeight: FontWeight.normal,
+      color: Colors.white,
+      fontFamily: Styles.ocraExtended
+  );
+
+  _CardNumberAndLogoView({required this.card});
+
+  @override
+  Widget build(BuildContext context) {
+    final cardNumberWidget = LayoutBuilder(builder: (ctx, constraint) {
+
+      final asterisk = (constraint.maxWidth <= 300) ? " * ** " : " ** **** ";
+      final letterSpacing = (constraint.maxWidth <= 300) ? 0.1 : 1.2;
+
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(CardViewUtil.getFirst6Digits(card),
+                  style: cardNumberStyle.copyWith(letterSpacing: letterSpacing)
+              ),
+              Text(asterisk, style: TextStyle(
+                  letterSpacing: letterSpacing, //TODO factor in screen width
+                  fontSize: 19.5,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  fontFamily: Styles.ocraExtended
+              )),
+              Text(CardViewUtil.getLast4Digits(card), style: cardNumberStyle,),
+            ],
+          ),
+          CardViewUtil.getCardBrandLogo(card)
+        ],
+      );
+    });
+    if(!card.isActivated) {
+      return ImageFiltered(
+        imageFilter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
+        child: cardNumberWidget,
+      );
+    }
+    return cardNumberWidget;
+  }
+
+}
+
+///_CardActivateButton
+///
+///
+///
+///
+///
+class _CardActivateButton extends StatelessWidget {
+
+  final Card card;
+
+  _CardActivateButton({required this.card}):super(key: Key("_card_activation"));
+
+  @override
+  Widget build(BuildContext context) {
+    if(card.isActivated) return SizedBox();
+    return SizedBox(
+      width: double.infinity,
+      child: Styles.appButton(
+          elevation: 0.1,
+          onClick: ()  {
+            Navigator.of(context).pushNamed(Routes.CARD_ACTIVATION, arguments: {"id": card.id});
+          },
+          text: "Activate Card",
+          buttonStyle: Styles.whiteButtonStyle.copyWith(
+              padding: MaterialStateProperty.all(EdgeInsets.only(left:0, right:20, top: 0, bottom: 0)),
+              foregroundColor: MaterialStateProperty.all(Colors.white),
+              backgroundColor: MaterialStateProperty.all(Colors.white.withOpacity(0.45)),
+              overlayColor: MaterialStateProperty.all(Colors.grey.withOpacity(0.2))
+          )
+      ),
+    );
+  }
+
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:moniepoint_flutter/app/usermanagement/viewmodels/change_pin_view_model.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
@@ -74,7 +74,7 @@ class _ChangePinDialog extends State<ChangePinDialog> {
                     stream: viewModel.oldPinStream,
                     builder: (context, snapshot) {
                       return Padding(
-                          padding: EdgeInsets.only(left: 50, right: 50),
+                          padding: EdgeInsets.only(left: 20, right: 20),
                           child: PinEntry(onChange: viewModel.onOldPinChanged),
                       );
                     }),
@@ -92,7 +92,7 @@ class _ChangePinDialog extends State<ChangePinDialog> {
                     stream: viewModel.newPinStream,
                     builder: (context, snapshot) {
                       return Padding(
-                          padding: EdgeInsets.only(left: 50, right: 50, bottom: MediaQuery.of(context).viewInsets.bottom * 0.6),
+                          padding: EdgeInsets.only(left: 20, right: 20, bottom: MediaQuery.of(context).viewInsets.bottom * 0.6),
                           child: PinEntry(onChange: viewModel.onNewPinChanged),
                       );
                     }),

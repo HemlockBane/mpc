@@ -58,6 +58,7 @@ class _VerifyPhoneNumberOTPScreen extends State<VerifyPhoneNumberOTPScreen> {
           setState(() => _isLoading = false);
           showError(
               _scaffoldKey.currentContext ?? context,
+              title: "OTP Validation Failed!",
               message: event.message
           );
         }

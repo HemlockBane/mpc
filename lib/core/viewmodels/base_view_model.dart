@@ -98,6 +98,45 @@ abstract class BaseViewModel with ChangeNotifier {
     return mCustomerAccountUser?.customerAccount?.accountName ?? accountName;
   }
 
+  String? getUserQualifiedTierName(int accountId) {
+    final customerAccountUsers = customer?.customerAccountUsers?.where((element) => element.customerAccount?.id ==accountId).firstOrNull;
+    if(customerAccountUsers == null || customerAccountUsers.customerAccount == null) return null;
+    final customerAccount = customerAccountUsers.customerAccount;
+    return customerAccount?.schemeCode?.name;
+  }
+
+  int? getCustomerAccountIdByAccountNumber (String? accountNumber) {
+    List<UserAccount> accounts = userAccounts.where((element) {
+      return element.customerAccount?.accountNumber == accountNumber;
+    }).toList();
+    return accounts.firstOrNull?.customerAccount?.id;
+  }
+
+  int? getCurrentAccountTierNumber(int userAccountId) {
+    String? tierName = getUserQualifiedTierName(userAccountId);
+    if(tierName == null || tierName.trim().isEmpty) return null;
+
+    //let's get the last word in the string
+    final words = tierName.split(" ");
+    final lastWord = words[words.length - 1];
+
+    final integerValue = int.tryParse(lastWord);
+
+    if(integerValue != null) return integerValue;
+
+    //check if the word is either one,two or three...
+    switch(lastWord.toLowerCase()) {
+      case "one":
+        return 1;
+      case "two":
+        return 2;
+      case "three":
+        return 3;
+      default:
+        return null;
+    }
+  }
+
   @override
   void dispose() {
     _balanceController.close();

@@ -1,4 +1,6 @@
 PODS:
+  - "app_settings (3.0.0+1)":
+    - Flutter
   - contacts_service (0.2.2):
     - Flutter
   - device_info (0.0.1):
@@ -113,6 +115,12 @@ PODS:
   - Mantle (2.1.6):
     - Mantle/extobjc (= 2.1.6)
   - Mantle/extobjc (2.1.6)
+  - Mixpanel-swift (2.10.2):
+    - Mixpanel-swift/Complete (= 2.10.2)
+  - Mixpanel-swift/Complete (2.10.2)
+  - mixpanel_flutter (1.2.1):
+    - Flutter
+    - Mixpanel-swift (= 2.10.2)
   - MTBBarcodeScanner (5.0.11)
   - nanopb (2.30908.0):
     - nanopb/decode (= 2.30908.0)
@@ -154,6 +162,7 @@ PODS:
     - Flutter
 
 DEPENDENCIES:
+  - app_settings (from `.symlinks/plugins/app_settings/ios`)
   - contacts_service (from `.symlinks/plugins/contacts_service/ios`)
   - device_info (from `.symlinks/plugins/device_info/ios`)
   - file_picker (from `.symlinks/plugins/file_picker/ios`)
@@ -165,6 +174,7 @@ DEPENDENCIES:
   - geolocator (from `.symlinks/plugins/geolocator/ios`)
   - google_maps_flutter (from `.symlinks/plugins/google_maps_flutter/ios`)
   - location (from `.symlinks/plugins/location/ios`)
+  - mixpanel_flutter (from `.symlinks/plugins/mixpanel_flutter/ios`)
   - open_file (from `.symlinks/plugins/open_file/ios`)
   - path_provider (from `.symlinks/plugins/path_provider/ios`)
   - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
@@ -193,6 +203,7 @@ SPEC REPOS:
     - GoogleUtilities
     - libwebp
     - Mantle
+    - Mixpanel-swift
     - MTBBarcodeScanner
     - nanopb
     - PromisesObjC
@@ -202,6 +213,8 @@ SPEC REPOS:
     - SwiftyGif
 
 EXTERNAL SOURCES:
+  app_settings:
+    :path: ".symlinks/plugins/app_settings/ios"
   contacts_service:
     :path: ".symlinks/plugins/contacts_service/ios"
   device_info:
@@ -224,6 +237,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/google_maps_flutter/ios"
   location:
     :path: ".symlinks/plugins/location/ios"
+  mixpanel_flutter:
+    :path: ".symlinks/plugins/mixpanel_flutter/ios"
   open_file:
     :path: ".symlinks/plugins/open_file/ios"
   path_provider:
@@ -248,6 +263,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/webview_flutter/ios"
 
 SPEC CHECKSUMS:
+  app_settings: d103828c9f5d515c4df9ee754dabd443f7cedcf3
   contacts_service: 849e1f84281804c8bfbec1b4c3eedcb23c5d3eca
   device_info: d7d233b645a32c40dfdc212de5cf646ca482f175
   DKImagePickerController: b5eb7f7a388e4643264105d648d01f727110fc3d
@@ -272,6 +288,8 @@ SPEC CHECKSUMS:
   libwebp: e90b9c01d99205d03b6bb8f2c8c415e5a4ef66f0
   location: 3a2eed4dd2fab25e7b7baf2a9efefe82b512d740
   Mantle: 4c0ed6ce47c96eccc4dc3bb071deb3def0e2c3be
+  Mixpanel-swift: dc07ae05df9ff47c80542531f55e2120ec2a410a
+  mixpanel_flutter: 0ca53b39d6ac0440a0358b1126b33e24f93e010c
   MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   open_file: 02eb5cb6b21264bd3a696876f5afbfb7ca4f4b7d
@@ -291,6 +309,6 @@ SPEC CHECKSUMS:
   wakelock: d0fc7c864128eac40eba1617cb5264d9c940b46f
   webview_flutter: 9f491a9b5a66f2573946a389b2677987b0ff8c0b
 
-PODFILE CHECKSUM: 7b688c985095c00dd5c2c67cd2d8574231244496
+PODFILE CHECKSUM: 6e4931aa54d6054d5de39c7e60254be3cd6dfaac
 
 COCOAPODS: 1.10.1

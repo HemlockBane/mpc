@@ -2,7 +2,7 @@ import 'package:floor/floor.dart';
 import 'package:moniepoint_flutter/core/database/type_converters.dart';
 import 'package:moniepoint_flutter/core/models/DropDownItem.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:moniepoint_flutter/core/strings.dart';
+import 'package:moniepoint_flutter/core/extensions/strings.dart';
 
 part 'drop_items.g.dart';
 
@@ -24,12 +24,12 @@ class IdentificationType extends DropDownItem {
   }
 }
 
-const identificationTypes = [
+final identificationTypes = [
   const IdentificationType("National ID"),
   const IdentificationType("Drivers License"),
   const IdentificationType("International Passport"),
   const IdentificationType("Voters Card"),
-];
+]..sort((a, b) => a.idType.compareTo(b.idType));
 
 
 class MaritalStatus extends DropDownItem {
@@ -50,13 +50,13 @@ class MaritalStatus extends DropDownItem {
   }
 }
 
-const maritalStatuses = [
+final maritalStatuses = [
   const MaritalStatus("SINGLE"),
   const MaritalStatus("MARRIED"),
   const MaritalStatus("WIDOWED"),
   const MaritalStatus("SEPARATED"),
   const MaritalStatus("DIVORCED"),
-];
+]..sort((a, b) => a.maritalStatus.compareTo(b.maritalStatus));
 
 class Religion extends DropDownItem {
   final String religion;
@@ -137,6 +137,11 @@ class Nationality extends DropDownItem {
     return (nationalityList.isNotEmpty) ? nationalityList.first : null;
   }
 
+  static Nationality? fromNationalityCode(String? code, List<Nationality> nationalities) {
+    final nationalityList = nationalities.where((element) => element.code == code);
+    return (nationalityList.isNotEmpty) ? nationalityList.first : null;
+  }
+
   @override
   String getTitle() {
     return this.name;
@@ -161,6 +166,11 @@ class StateOfOrigin extends DropDownItem {
   factory StateOfOrigin.fromName(String? name, List<StateOfOrigin> states) {
     return states.firstWhere((element) => element.name == name,
         orElse: () => states.first);
+  }
+
+  static StateOfOrigin? fromId(int? id, List<StateOfOrigin> states) {
+    final filteredStates = states.where((element) => element.id == id);
+    return (filteredStates.isNotEmpty) ? filteredStates.first : null;
   }
 
   static StateOfOrigin? fromLocalGovtId(int? localGovtId, List<StateOfOrigin> states) {
@@ -220,9 +230,9 @@ class EmploymentStatus extends DropDownItem {
 }
 
 const employmentStatus = [
-  const EmploymentStatus("UNEMPLOYED"),
   const EmploymentStatus("EMPLOYED"),
   const EmploymentStatus("SELF_EMPLOYED"),
+  const EmploymentStatus("UNEMPLOYED"),
 ];
 
 class Titles extends DropDownItem {
@@ -297,7 +307,7 @@ const titles = [
   const Titles("Turaki"),
   const Titles("Yerima"),
   const Titles("Eze"),
-];
+];//..sort((a, b) => a.title.compareTo(b.title));
 
 
 class Relationship extends DropDownItem {
@@ -316,7 +326,7 @@ class Relationship extends DropDownItem {
   }
 }
 
-const relationships = [
+final relationships = [
   const Relationship("Husband"),
   const Relationship("Wife"),
   const Relationship("Daughter"),
@@ -330,4 +340,4 @@ const relationships = [
   const Relationship("Aunt"),
   const Relationship("Nephew"),
   const Relationship("Niece"),
-];
+]..sort((a, b) => a.relationship.compareTo(b.relationship));

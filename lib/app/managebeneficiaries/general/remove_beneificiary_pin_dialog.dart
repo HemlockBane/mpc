@@ -4,7 +4,7 @@ import 'package:flutter/material.dart' hide Colors;
 import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
 import 'package:moniepoint_flutter/app/cards/model/data/card_transaction_request.dart';
 import 'package:moniepoint_flutter/app/cards/viewmodels/single_card_view_model.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
@@ -54,7 +54,7 @@ class _RemoveBeneficiaryPinDialog extends State<RemoveBeneficiaryPinDialog> {
                   ),
                   SizedBox(height: 30,),
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 50),
+                    padding: EdgeInsets.symmetric(horizontal: 30),
                     child: Text('Enter Transaction PIN',
                         textAlign: TextAlign.start,
                         style: TextStyle(
@@ -63,7 +63,7 @@ class _RemoveBeneficiaryPinDialog extends State<RemoveBeneficiaryPinDialog> {
                   ),
                   SizedBox(height: 8),
                   Padding(
-                    padding: EdgeInsets.only(left: 50, right: 50, bottom: MediaQuery.of(context).viewInsets.bottom * 0.7),
+                    padding: EdgeInsets.only(left: 30, right: 30, bottom: MediaQuery.of(context).viewInsets.bottom * 0.7),
                     child: PinEntry(onChange: (value) {
                       setState(() {
                         _pin = value;
@@ -78,7 +78,8 @@ class _RemoveBeneficiaryPinDialog extends State<RemoveBeneficiaryPinDialog> {
                           elevation: _pin.isNotEmpty && _pin.length >= 4 ? 0.5 : 0,
                           isValid: _pin.isNotEmpty && _pin.length >= 4,
                           onClick: () => Navigator.of(context).pop(_pin),
-                          text: 'Continue')),
+                          text: 'Continue')
+                  ),
                   SizedBox(height: 42)
                 ],
               ),

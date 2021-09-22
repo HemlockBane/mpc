@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
-import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
-import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
+import 'package:moniepoint_flutter/core/styles.dart';
 
 /// @author Paul Okeke
 /// @contributor Obinna Igwe
 class DashboardDrawer extends StatelessWidget {
-  final double width;
 
-  DashboardDrawer(this.width);
+  final double width;
+  final OnItemClickListener<String, int> onItemClick;
+
+  DashboardDrawer(this.width, this.onItemClick);
 
   Container _groupTitle(BuildContext context, String title) {
     return Container(
@@ -61,51 +62,9 @@ class DashboardDrawer extends StatelessWidget {
           color: Colors.colorPrimaryDark,
           child: Stack(
             children: [
-              Align(
-                alignment: Alignment.topCenter,
-                child: Container(
-                  height: 1,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    // color: Colors.red,
-                    gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.solidDarkBlue.withOpacity(0.5),
-                          Colors.solidDarkBlue
-                        ],
-                        stops: [
-                          0.8,
-                          1.0
-                        ]),
-                  ),
-                ),
-              ),
               Column(
                 children: [
-                  SizedBox(height: 58),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 21),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _icon(
-                            svgPath: "res/drawables/ic_moniepoint_cube_2.svg",
-                            width: 40,
-                            height: 40),
-                        Row(
-                          children: [
-                            _icon(
-                                svgPath:
-                                    "res/drawables/ic_dashboard_settings.svg",
-                                onClick: () => Navigator.pushNamed(
-                                    context, Routes.SETTINGS)),
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
+                  SizedBox(height: 100),
                   Expanded(
                     child: ListView(
                       children: [
@@ -120,6 +79,7 @@ class DashboardDrawer extends StatelessWidget {
                           title: "Transfer Money",
                           routeName: Routes.TRANSFER,
                           iconSpacing: 9,
+                          onTap: onItemClick,
                         ),
                         _DrawerListItem(
                           itemIcon: SvgPicture.asset(
@@ -129,6 +89,7 @@ class DashboardDrawer extends StatelessWidget {
                           title: "Airtime & Data",
                           routeName: Routes.AIRTIME,
                           iconSpacing: 16,
+                          onTap: onItemClick,
                         ),
                         _DrawerListItem(
                           itemIcon: SvgPicture.asset(
@@ -137,6 +98,7 @@ class DashboardDrawer extends StatelessWidget {
                           title: "Bill Payments",
                           routeName: Routes.BILL,
                           iconSpacing: 15,
+                          onTap: onItemClick,
                         ),
                         SizedBox(height: 21),
                         _groupTitle(context, "ACCOUNTS & CARDS"),
@@ -148,6 +110,7 @@ class DashboardDrawer extends StatelessWidget {
                           title: "Manage Account",
                           routeName: Routes.ACCOUNT_TRANSACTIONS,
                           iconSpacing: 6.8,
+                          onTap: onItemClick,
                         ),
                         _DrawerListItem(
                           itemIcon: SvgPicture.asset(
@@ -157,6 +120,7 @@ class DashboardDrawer extends StatelessWidget {
                           title: "Manage Cards",
                           routeName: Routes.CARDS,
                           iconSpacing: 11.4,
+                          onTap: onItemClick,
                         ),
                         SizedBox(height: 21),
                         _groupTitle(context, "SAVINGS & LOANS"),
@@ -166,7 +130,8 @@ class DashboardDrawer extends StatelessWidget {
                             height: 26,
                           ),
                           title: "Savings",
-                          onTap: () => showComingSoon(context),
+                          onTap: onItemClick,
+                          routeName: "COMING_SOON",
                           iconSpacing: 7.5,
                         ),
                         _DrawerListItem(
@@ -174,14 +139,99 @@ class DashboardDrawer extends StatelessWidget {
                             "res/drawables/ic_dashboard_manage_cards.svg",
                             height: 18,
                           ),
+                          routeName: "COMING_SOON",
                           title: "Get Loan",
-                          onTap: () => showComingSoon(context),
+                          onTap: onItemClick,
                           iconSpacing: 11,
                         ),
+
                       ],
                     ),
-                  )
+                  ),
+                  SizedBox(height: 120)
                 ],
+              ),
+              Align(
+                alignment: Alignment.topCenter,
+                child: Container(
+                  height: 110,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.solidDarkBlue,
+                        Colors.solidDarkBlue.withOpacity(0.5)
+                      ],
+                      stops: [
+                        0.85,
+                        1.0
+                      ]),
+                  ),
+                ),
+              ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  height: 150,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                      colors: [
+                        Colors.solidDarkBlue,
+                        Colors.solidDarkBlue.withOpacity(0.5)
+                      ],
+                      stops: [
+                        0.85,
+                        1.0
+                      ]),
+                  ),
+                ),
+              ),
+              Align(
+                alignment: Alignment.topCenter,
+                child: Column(
+                  children: [
+                    SizedBox(height: 45),
+                    Container(
+                      padding: EdgeInsets.only(left: 21, right: 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _icon(
+                            svgPath: "res/drawables/ic_moniepoint_cube_2.svg",
+                            width: 40,
+                            height: 40),
+                          Row(
+                            children: [
+                              Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  onTap: (){
+                                    Navigator.pushNamed(context, Routes.SETTINGS);
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.only(right: 15, left: 15, bottom: 15, top: 10),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: _icon(
+                                      svgPath:
+                                      "res/drawables/ic_dashboard_settings.svg",
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                )
               ),
               Positioned(
                 bottom: 64,
@@ -190,11 +240,8 @@ class DashboardDrawer extends StatelessWidget {
                 child: _DrawerListItem(
                   itemIcon: SvgPicture.asset("res/drawables/ic_logout.svg"),
                   title: "Log Out",
-                  onTap: () {
-                    UserInstance().resetSession();
-                    Navigator.of(context).pop();
-                    Navigator.of(context).popAndPushNamed(Routes.LOGIN);
-                  },
+                  routeName: "LOGOUT",
+                  onTap: onItemClick,
                   iconSpacing: 11,
                 ),
               ),
@@ -240,7 +287,7 @@ class DashboardDrawer extends StatelessWidget {
 class _DrawerListItem extends StatelessWidget {
   final Widget itemIcon;
   final String title;
-  final VoidCallback? onTap;
+  final OnItemClickListener<String, int>? onTap;
   final String? routeName;
   final double? iconSpacing;
 
@@ -258,13 +305,7 @@ class _DrawerListItem extends StatelessWidget {
       child: InkWell(
         highlightColor: Colors.white.withOpacity(0.1),
         overlayColor: MaterialStateProperty.all(Colors.white.withOpacity(0.02)),
-        onTap: onTap ??
-            () {
-              Navigator.pop(context);
-              if (routeName != null && routeName?.isNotEmpty == true) {
-                Navigator.of(context).pushNamed(routeName!);
-              }
-            },
+        onTap: () => onTap?.call(routeName ?? "", 0),
         child: Container(
           padding: EdgeInsets.only(left: 40, right: 0, top: 20, bottom: 20),
           child: Row(

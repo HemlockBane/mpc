@@ -3,14 +3,16 @@ import 'package:moniepoint_flutter/app/accountupdates/model/data/address_info.da
 
 part 'customer_detail_info.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(includeIfNull: false)
 class CustomerDetailInfo {
   String? title;
   String? maritalStatus;
   @JsonKey(name: "mothersMaidenName", includeIfNull: false)
   String? mothersMaidenName;
-  String? nationality;
   String? religion;
+  String? nationality;
+  @JsonKey(name: "stateId", includeIfNull: false)
+  int? stateId;
   int? localGovernmentAreaOfOriginId;
   @JsonKey(name: "gender", includeIfNull: false)
   String? gender;

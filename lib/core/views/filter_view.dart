@@ -75,7 +75,7 @@ class _FilterLayout extends State<FilterLayout> with SingleTickerProviderStateMi
           padding: EdgeInsets.only(bottom: 8, top: 8, left: 15, right: 15),
           decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(60)),
-              color: (item.isSelected) ? Colors.primaryColor.withOpacity(0.12) : Colors.darkBlue.withOpacity(0.05)
+              color: (item.isSelected) ? Colors.primaryColor.withOpacity(0.2) : Colors.primaryColor.withOpacity(0.1)
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -83,15 +83,18 @@ class _FilterLayout extends State<FilterLayout> with SingleTickerProviderStateMi
             children: [
               Text(item.title,
                   style: TextStyle(
-                      color:(item.isSelected) ? Colors.textColorBlack.withOpacity(0.4) : Colors.colorPrimaryDark,
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold
+                      color:(item.isSelected) ? Colors.primaryColor : Colors.primaryColor.withOpacity(0.7),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600
                   )
               ),
               SizedBox(width: item.isSelected && item.subTitle.length > 0 ? 8 : 0,),
               Visibility(
                 visible: item.isSelected && item.subTitle.length > 0,
-                child: Text(item.subTitle, style: TextStyle(color: Colors.darkBlue, fontSize: 14),),
+                child: Text(item.subTitle,
+                  style: TextStyle(color: Colors.primaryColor, fontSize: 13,
+                    fontWeight: FontWeight.w600)
+                  ,),
               ),
               SizedBox(width: item.itemCount > 0 ? 8 : 0),
               Visibility(
@@ -99,17 +102,17 @@ class _FilterLayout extends State<FilterLayout> with SingleTickerProviderStateMi
                   child: Container(
                     padding: EdgeInsets.all(4.5),
                     decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Colors.primaryColor,
                         shape: BoxShape.circle
                     ),
                     child: Text(
                       item.itemCount.toString(),
-                      style: TextStyle(color: Colors.darkBlue, fontSize: 12, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                     ),
                   )
               ),
               SizedBox(width: 8,),
-              SvgPicture.asset('res/drawables/ic_drop_down.svg', color: Colors.darkBlue,)
+              SvgPicture.asset('res/drawables/ic_drop_down.svg', color: Colors.primaryColor,)
             ],
           ),
         ),
@@ -207,7 +210,7 @@ class _FilterLayout extends State<FilterLayout> with SingleTickerProviderStateMi
                   child: FadeTransition(
                       opacity: _fadeAnimation,
                       child: Text(
-                        'Cancel', style: TextStyle(fontSize: 16, color: Colors.red, fontWeight: FontWeight.w600),
+                        'Cancel', style: TextStyle(fontSize: 13, color: Colors.red, fontWeight: FontWeight.w600),
                       ),
                   ),
                 )

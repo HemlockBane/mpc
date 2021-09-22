@@ -8,10 +8,12 @@ class PieProgressBar extends AnimatedWidget {
   final PageController viewPager;
   final int totalItemCount;
   final List<String>? pageTitles;
+  final bool displayTitle;
 
   PieProgressBar({
     required this.viewPager, 
     required this.totalItemCount,
+    this.displayTitle = true,
     this.pageTitles = const []}
     ) : super(listenable: viewPager);
 
@@ -71,6 +73,7 @@ class PieProgressBar extends AnimatedWidget {
           _previous = value;
           return Container(
             child: Row(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(
@@ -79,14 +82,15 @@ class PieProgressBar extends AnimatedWidget {
                   // color: Colors.white,
                   child: _circularBox(value, destinationPage.toDouble()),
                 ),
-                SizedBox(width: 16),
-                Flexible(
-                  child: Text(getCurrentPageTitleOrEmpty(destinationPage),
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.textColorBlack,
-                          fontSize: 22)),
-                )
+                SizedBox(width: displayTitle ? 16 : 0),
+                if(displayTitle)
+                  Flexible(
+                    child: Text(getCurrentPageTitleOrEmpty(destinationPage),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.textColorBlack,
+                            fontSize: 22)),
+                  )
               ],
             ),
           );

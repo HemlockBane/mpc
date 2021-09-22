@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:moniepoint_flutter/app/login/viewmodels/recovery_view_model.dart';
 import 'package:moniepoint_flutter/app/login/views/recovery/recover_password_view.dart';
@@ -32,9 +33,11 @@ class RecoveryControllerScreen extends StatefulWidget {
   }
 }
 
-class _RecoveryControllerScreen extends State<RecoveryControllerScreen> {
+class _RecoveryControllerScreen extends State<RecoveryControllerScreen> with RestorationMixin {
   late RecoveryMode mode;
+
   final viewModel = RecoveryViewModel();
+  final RestorableString _index = RestorableString("");
 
   Route _generateRoute(RouteSettings settings) {
     late Widget page;
@@ -70,8 +73,15 @@ class _RecoveryControllerScreen extends State<RecoveryControllerScreen> {
   }
 
   String determineInitialRoute(RecoveryMode mode) {
-    if(mode == RecoveryMode.USERNAME_RECOVERY) return "username";
-    if(mode == RecoveryMode.PASSWORD_RECOVERY) return "password";
+    print("The Index Value => ${_index.value}");
+    if(mode == RecoveryMode.USERNAME_RECOVERY) {
+      _index.value = describeEnum(RecoveryMode.USERNAME_RECOVERY);
+      return "username";
+    }
+    if(mode == RecoveryMode.PASSWORD_RECOVERY) {
+      _index.value = describeEnum(RecoveryMode.PASSWORD_RECOVERY);
+      return "password";
+    }
     if(mode == RecoveryMode.DEVICE) return RecoveryControllerScreen.RECOVERY_OTP;
     return "username";
   }
@@ -109,6 +119,14 @@ class _RecoveryControllerScreen extends State<RecoveryControllerScreen> {
   void dispose() {
     viewModel.dispose();
     super.dispose();
+  }
+
+  @override
+  String? get restorationId => "account_recovery";
+
+  @override
+  void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
+    registerForRestoration(_index, "account_recovery_route");
   }
   
 }

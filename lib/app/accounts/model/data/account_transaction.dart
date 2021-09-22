@@ -15,7 +15,7 @@ enum  TransactionChannel {
 
 @Entity(tableName: "account_transactions")
 @JsonSerializable()
-class AccountTransaction implements ListItem, Transaction {
+class AccountTransaction extends Transaction implements ListItem {
 
   final int? id;
 

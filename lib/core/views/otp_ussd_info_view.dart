@@ -6,7 +6,7 @@ import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/ussd_configuration.dart';
 import 'package:moniepoint_flutter/core/utils/call_utils.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
-import 'package:moniepoint_flutter/core/utils/text_utils.dart';
+import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
 
 import '../styles.dart';
 import '../tuple.dart';

@@ -12,6 +12,7 @@
 		29677DC5D5BDE349FEA24357 /* awsconfiguration.json in Resources */ = {isa = PBXBuildFile; fileRef = DD262B93C67EEB05EF41658A /* awsconfiguration.json */; };
 		2A36ED6A7F627747B3D93775 /* amplifyconfiguration.json in Resources */ = {isa = PBXBuildFile; fileRef = AC653AFF20C2F41E015150D5 /* amplifyconfiguration.json */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
+		4C03FE7726DE7EC400F3270D /* DeviceManagerHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C03FE7626DE7EC400F3270D /* DeviceManagerHandler.swift */; };
 		4C07F88B269819C200815513 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4C07F88A269819C200815513 /* GoogleService-Info.plist */; };
 		4C73B17D265F02A10099A1C4 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 4C73B17C265F01D20099A1C4 /* libsqlite3.tbd */; };
 		4C869F5F268C7B8500E12B74 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4C869F5E268C7B8500E12B74 /* LaunchScreen.storyboard */; };
@@ -30,8 +31,8 @@
 		A000FFCCD2E66E9553B15C10 /* amplifyconfiguration.json in Resources */ = {isa = PBXBuildFile; fileRef = AC653AFF20C2F41E015150D5 /* amplifyconfiguration.json */; };
 		B3167C0C2C995AACE4EDACDC /* awsconfiguration.json in Resources */ = {isa = PBXBuildFile; fileRef = DD262B93C67EEB05EF41658A /* awsconfiguration.json */; };
 		BCD974ABF08DCEB807A82EC7 /* awsconfiguration.json in Resources */ = {isa = PBXBuildFile; fileRef = DD262B93C67EEB05EF41658A /* awsconfiguration.json */; };
-		D9AD99F3BA847D70C21B43FD /* Pods_Moniepoint.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B730BFDDD2FEB9D8059DD283 /* Pods_Moniepoint.framework */; };
 		F3980743B21089E1B2240D0D /* awsconfiguration.json in Resources */ = {isa = PBXBuildFile; fileRef = DD262B93C67EEB05EF41658A /* awsconfiguration.json */; };
+		FBCDD0C34B536FBD33D1CA1D /* Pods_Moniepoint.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 03955A7F936B92D99DB6468C /* Pods_Moniepoint.framework */; };
 		FD04CB7E5A9C39E888D7D8F8 /* amplifyconfiguration.json in Resources */ = {isa = PBXBuildFile; fileRef = AC653AFF20C2F41E015150D5 /* amplifyconfiguration.json */; };
 /* End PBXBuildFile section */
 
@@ -49,9 +50,13 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		03955A7F936B92D99DB6468C /* Pods_Moniepoint.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Moniepoint.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
+		2FD5E02E4A49453DB3735B90 /* Pods-Moniepoint.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Moniepoint.debug.xcconfig"; path = "Target Support Files/Pods-Moniepoint/Pods-Moniepoint.debug.xcconfig"; sourceTree = "<group>"; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
+		3F7571711BD8C3D8D43F08A1 /* Pods-Moniepoint.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Moniepoint.release.xcconfig"; path = "Target Support Files/Pods-Moniepoint/Pods-Moniepoint.release.xcconfig"; sourceTree = "<group>"; };
+		4C03FE7626DE7EC400F3270D /* DeviceManagerHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceManagerHandler.swift; sourceTree = "<group>"; };
 		4C07F88A269819C200815513 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		4C6EB1CA268B576B00FB012E /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		4C73B17C265F01D20099A1C4 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
@@ -63,7 +68,6 @@
 		4C9FF29126B303CA00AA5535 /* CaptureConfiguration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CaptureConfiguration.h; sourceTree = "<group>"; };
 		4C9FF29226B307A900AA5535 /* CaptureConfiguration.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CaptureConfiguration.m; sourceTree = "<group>"; };
 		4CA1CFCE26956C8400740E8A /* BiometricMethodHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BiometricMethodHandler.swift; sourceTree = "<group>"; };
-		73EDE07F9153408FE515228B /* Pods-Moniepoint.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Moniepoint.profile.xcconfig"; path = "Target Support Files/Pods-Moniepoint/Pods-Moniepoint.profile.xcconfig"; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
@@ -73,11 +77,9 @@
 		97C146FB1CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		97C146FD1CF9000F007C117D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		9AB2D5ED02193231D461FAA2 /* Pods-Moniepoint.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Moniepoint.release.xcconfig"; path = "Target Support Files/Pods-Moniepoint/Pods-Moniepoint.release.xcconfig"; sourceTree = "<group>"; };
 		AC653AFF20C2F41E015150D5 /* amplifyconfiguration.json */ = {isa = PBXFileReference; explicitFileType = text.json; path = amplifyconfiguration.json; sourceTree = "<group>"; };
-		B730BFDDD2FEB9D8059DD283 /* Pods_Moniepoint.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Moniepoint.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		C6EC0FA22E252925391F63DD /* Pods-Moniepoint.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Moniepoint.debug.xcconfig"; path = "Target Support Files/Pods-Moniepoint/Pods-Moniepoint.debug.xcconfig"; sourceTree = "<group>"; };
 		DD262B93C67EEB05EF41658A /* awsconfiguration.json */ = {isa = PBXFileReference; explicitFileType = text.json; path = awsconfiguration.json; sourceTree = "<group>"; };
+		ECF655EB2EDB464A990F3C15 /* Pods-Moniepoint.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Moniepoint.profile.xcconfig"; path = "Target Support Files/Pods-Moniepoint/Pods-Moniepoint.profile.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,7 +88,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4C73B17D265F02A10099A1C4 /* libsqlite3.tbd in Frameworks */,
-				D9AD99F3BA847D70C21B43FD /* Pods_Moniepoint.framework in Frameworks */,
+				FBCDD0C34B536FBD33D1CA1D /* Pods_Moniepoint.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -96,9 +98,9 @@
 		17284BF6026975E9E38E1457 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				C6EC0FA22E252925391F63DD /* Pods-Moniepoint.debug.xcconfig */,
-				9AB2D5ED02193231D461FAA2 /* Pods-Moniepoint.release.xcconfig */,
-				73EDE07F9153408FE515228B /* Pods-Moniepoint.profile.xcconfig */,
+				2FD5E02E4A49453DB3735B90 /* Pods-Moniepoint.debug.xcconfig */,
+				3F7571711BD8C3D8D43F08A1 /* Pods-Moniepoint.release.xcconfig */,
+				ECF655EB2EDB464A990F3C15 /* Pods-Moniepoint.profile.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -107,7 +109,7 @@
 			isa = PBXGroup;
 			children = (
 				4C73B17C265F01D20099A1C4 /* libsqlite3.tbd */,
-				B730BFDDD2FEB9D8059DD283 /* Pods_Moniepoint.framework */,
+				03955A7F936B92D99DB6468C /* Pods_Moniepoint.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -130,6 +132,7 @@
 				4CA1CFCE26956C8400740E8A /* BiometricMethodHandler.swift */,
 				4C9FF28926B2E85D00AA5535 /* LivelinessMethodHandler.swift */,
 				4C9FF28B26B2F01E00AA5535 /* CustomCamera2.swift */,
+				4C03FE7626DE7EC400F3270D /* DeviceManagerHandler.swift */,
 			);
 			path = lib;
 			sourceTree = "<group>";
@@ -199,7 +202,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 97C147051CF9000F007C117D /* Build configuration list for PBXNativeTarget "Moniepoint" */;
 			buildPhases = (
-				638E7016FD31238202B82473 /* [CP] Check Pods Manifest.lock */,
+				6B314D9997F98B91D6541D48 /* [CP] Check Pods Manifest.lock */,
 				9740EEB61CF901F6004384FC /* Run Script */,
 				97C146EA1CF9000F007C117D /* Sources */,
 				97C146EB1CF9000F007C117D /* Frameworks */,
@@ -207,8 +210,8 @@
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				4C0E0C4B267A529F00C5020E /* ShellScript */,
-				C8A954B4CDD24EEF9CF4D182 /* [CP] Embed Pods Frameworks */,
-				03DF50661158CF322EDE1F06 /* [CP] Copy Pods Resources */,
+				1F216766F93A13EC558C7021 /* [CP] Embed Pods Frameworks */,
+				E1C9CE98BD65BE71275FCBE9 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -280,21 +283,21 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		03DF50661158CF322EDE1F06 /* [CP] Copy Pods Resources */ = {
+		1F216766F93A13EC558C7021 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Moniepoint/Pods-Moniepoint-resources-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-Moniepoint/Pods-Moniepoint-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			name = "[CP] Copy Pods Resources";
+			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Moniepoint/Pods-Moniepoint-resources-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-Moniepoint/Pods-Moniepoint-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Moniepoint/Pods-Moniepoint-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Moniepoint/Pods-Moniepoint-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		3B06AD1E1E4923F5004D2608 /* Thin Binary */ = {
@@ -328,7 +331,7 @@
 			shellPath = /bin/sh;
 			shellScript = "${PODS_ROOT}/FirebaseCrashlytics/run\n";
 		};
-		638E7016FD31238202B82473 /* [CP] Check Pods Manifest.lock */ = {
+		6B314D9997F98B91D6541D48 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -364,21 +367,21 @@
 			shellPath = /bin/sh;
 			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build\n";
 		};
-		C8A954B4CDD24EEF9CF4D182 /* [CP] Embed Pods Frameworks */ = {
+		E1C9CE98BD65BE71275FCBE9 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Moniepoint/Pods-Moniepoint-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-Moniepoint/Pods-Moniepoint-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			name = "[CP] Embed Pods Frameworks";
+			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Moniepoint/Pods-Moniepoint-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-Moniepoint/Pods-Moniepoint-resources-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Moniepoint/Pods-Moniepoint-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Moniepoint/Pods-Moniepoint-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -394,6 +397,7 @@
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
 				4C9FF28E26B300E700AA5535 /* CaptureViewController.m in Sources */,
+				4C03FE7726DE7EC400F3270D /* DeviceManagerHandler.swift in Sources */,
 				4C9FF29326B307A900AA5535 /* CaptureConfiguration.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -471,7 +475,7 @@
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 21;
 				DEVELOPMENT_TEAM = WT88R5J84U;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -479,7 +483,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.6;
+				MARKETING_VERSION = 1.0.8;
 				PRODUCT_BUNDLE_IDENTIFIER = com.teamapt.moniepoint;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -605,7 +609,7 @@
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 21;
 				DEVELOPMENT_TEAM = WT88R5J84U;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -613,7 +617,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.6;
+				MARKETING_VERSION = 1.0.8;
 				PRODUCT_BUNDLE_IDENTIFIER = com.teamapt.moniepoint;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -633,7 +637,7 @@
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 15;
+				CURRENT_PROJECT_VERSION = 21;
 				DEVELOPMENT_TEAM = WT88R5J84U;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -641,7 +645,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.6;
+				MARKETING_VERSION = 1.0.8;
 				PRODUCT_BUNDLE_IDENTIFIER = com.teamapt.moniepoint;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/transfer_request_body.dart';
 
 import 'list_item.dart';
@@ -37,6 +38,13 @@ abstract class Transaction extends ListItem {
   String getBatchKey();
 
   String getCurrencyCode();
+
+
+  String transactionDateToString({String format = "d MMM. yy | h:mm a", int? transactionDate}) {
+    return DateFormat(format).format(
+        DateTime.fromMillisecondsSinceEpoch(transactionDate ?? getInitiatedDate())
+    );
+  }
 
   // WorkFlowType getWorkFlowType();
   //

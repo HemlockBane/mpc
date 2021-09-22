@@ -6,7 +6,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/bill_transaction.dart';
 import 'package:moniepoint_flutter/app/billpayments/viewmodels/bill_history_detail_view_model.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/transaction.dart';
 import 'package:moniepoint_flutter/core/styles.dart';

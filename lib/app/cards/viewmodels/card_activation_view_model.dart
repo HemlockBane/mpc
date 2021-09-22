@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:get_it/get_it.dart';
 import 'package:moniepoint_flutter/app/cards/model/card_service_delegate.dart';
 import 'package:moniepoint_flutter/app/cards/model/data/card.dart';
+import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 
@@ -20,6 +21,13 @@ class CardActivationViewModel extends BaseViewModel {
 
   CardActivationViewModel({CardServiceDelegate? delegate}) {
     this._delegate = delegate ?? GetIt.I<CardServiceDelegate>();
+  }
+
+  void refreshCards() {
+    StreamSubscription? subscription;
+    subscription = this._delegate.getCards(customerId).listen((event) {
+      if(event is Success || event is Error) subscription?.cancel();
+    });
   }
 
   Future<Card?> getSingleCard(num cardId) {

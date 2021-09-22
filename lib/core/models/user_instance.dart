@@ -6,7 +6,6 @@ import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart'
 import 'package:moniepoint_flutter/app/accounts/model/data/account_status.dart';
 import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/login/model/data/user.dart';
-import 'package:moniepoint_flutter/core/config/service_config.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/timeout_reason.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
@@ -17,13 +16,15 @@ class UserInstance {
   static UserInstance? _instance;
   static User? _user;
   static AccountStatus? _accountStatus;
-  static List<AccountBalance?> _accountBalance = [];
+  static List<AccountBalance?> _accountBalanceList = [];
   static List<UserAccount> _userAccounts = [];
   static Timer? timer;
   Cron? _scheduler;
 
+  int _sessionTime = 120;
   DateTime _lastActivityTime = DateTime.now();
   SessionEventCallback? _sessionEventCallback;
+
 
   UserInstance._internal() {
     _instance = this;
@@ -34,10 +35,11 @@ class UserInstance {
   void resetSession() {
     _user = null;
     _accountStatus = null;
-    _accountBalance = [];
+    _accountBalanceList = [];
     _userAccounts = [];
     _scheduler?.close();
     _scheduler = null;
+    _sessionEventCallback = null;
     PreferenceUtil.deleteLoggedInUser();
   }
 
@@ -56,28 +58,31 @@ class UserInstance {
 
   AccountStatus? get accountStatus => _accountStatus;
 
-  void setAccountBalance(List<AccountBalance?> accountBalance) {
-    _accountBalance = accountBalance;
+  void setAccountBalanceList(List<AccountBalance?> accountBalanceList) {
+    _accountBalanceList = accountBalanceList;
   }
 
-  List<AccountBalance?> get accountBalance => _accountBalance;
+  List<AccountBalance?> get accountBalanceList => _accountBalanceList;
 
   void setUserAccounts(List<UserAccount> userAccounts) {
     _userAccounts.clear();
     _userAccounts.addAll(userAccounts);
 
-    _accountBalance.clear();
-    _accountBalance.addAll(_userAccounts.map((e) => e.accountBalance));
+    _accountBalanceList.clear();
+    _accountBalanceList.addAll(_userAccounts.map((e) => e.accountBalance));
   }
 
   List<UserAccount> get userAccounts => _userAccounts;
 
-  void forceLogout(BuildContext context, SessionTimeoutReason reason) {
-    Navigator.of(context)
-        .pushNamedAndRemoveUntil(
-        Routes.LOGIN, (route) => false,
-        arguments: Tuple("reason", reason)
-    );
+  void forceLogout(BuildContext? context, SessionTimeoutReason reason) {
+    if(context == null) {
+      this._sessionEventCallback?.call(reason);
+    } else {
+      Navigator.of(context).pushNamedAndRemoveUntil(
+          Routes.LOGIN, (route) => false,
+          arguments: Tuple("reason", reason)
+      );
+    }
   }
 
   void updateSessionEventCallback(SessionEventCallback callback) {
@@ -89,19 +94,18 @@ class UserInstance {
     _lastActivityTime = DateTime.now();
   }
 
-  void startSession(BuildContext context) {
-    print("Attempting to start session!!!!");
+  void startSession(BuildContext context, {int sessionTime = 120}) {
+    _sessionTime = sessionTime;
     if(_scheduler != null) return;//There's already a session running
     _scheduler = Cron();
-    _scheduler?.schedule(Schedule.parse("*/1 * * * * *"), () async {
-      print("Currently Checking for inactivity...");
+    _scheduler?.schedule(Schedule.parse("*/2 * * * * *"), () async {
       final elapsedTime = DateTime.now().difference(_lastActivityTime).inSeconds;
-      if(elapsedTime >= 120/*120 seconds = 2mins*/) {
-        _scheduler?.close();
-        print("Inactivity Detected!");
-        print("Is SessionEventCallback Null => ${_sessionEventCallback == null}");
+      print("Currently Checking for inactivity... $elapsedTime");
+      if(elapsedTime >= _sessionTime) {
         _sessionEventCallback?.call(SessionTimeoutReason.INACTIVITY);
+        _scheduler?.close();
         _scheduler = null;
+        print("Inactivity Detected!");
       }
     });
   }

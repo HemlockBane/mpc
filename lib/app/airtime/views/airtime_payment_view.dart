@@ -12,8 +12,8 @@ import 'package:moniepoint_flutter/app/airtime/viewmodels/airtime_view_model.dar
 import 'package:moniepoint_flutter/app/airtime/views/dialogs/airtime_pin_dialog.dart';
 import 'package:moniepoint_flutter/app/airtime/views/selection_combo.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/airtime/model/data/airtime_beneficiary.dart';
-import 'package:moniepoint_flutter/core/amount_pill.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/views/amount_pill.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/constants.dart';
 import 'package:moniepoint_flutter/core/models/file_result.dart';
@@ -31,8 +31,8 @@ import 'package:moniepoint_flutter/core/views/selection_combo_two.dart';
 import 'package:moniepoint_flutter/core/views/transaction_account_source.dart';
 import 'package:moniepoint_flutter/core/views/transaction_success_dialog.dart';
 import 'package:provider/provider.dart';
-import 'package:moniepoint_flutter/core/utils/text_utils.dart';
-import 'package:moniepoint_flutter/core/strings.dart';
+import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
+import 'package:moniepoint_flutter/core/extensions/strings.dart';
 import 'package:collection/collection.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 
@@ -411,11 +411,16 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
       } else {
         showError(
             widget._scaffoldKey.currentContext ?? context,
+            title: "Airtime Purchase Failed",
             message: "Unable to complete transaction at this time. Please try again later."
         );
       }
     } else if (result is Error<TransactionStatus>) {
-      showError(widget._scaffoldKey.currentContext ?? context, message: result.message ?? "");
+      showError(
+          widget._scaffoldKey.currentContext ?? context,
+          title: "Airtime Purchase Failed",
+          message: result.message ?? ""
+      );
     }
   }
 

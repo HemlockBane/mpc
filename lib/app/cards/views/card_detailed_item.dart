@@ -8,60 +8,12 @@ import 'package:moniepoint_flutter/app/cards/views/utils/card_view_util.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 
+///@author Paul Okeke
 class CardDetailedItem extends Container {
 
   final Card card;
 
   CardDetailedItem(this.card);
-
-  final cardNumberStyle = TextStyle(
-      fontSize: 24,
-      letterSpacing: 1.2,
-      fontWeight: FontWeight.normal,
-      color: Colors.white,
-      fontFamily: Styles.ocraExtended
-  );
-  
-  Widget _cardName() {
-    final cardNameWidget = Text(
-      card.nameOnCard ?? "",
-      style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
-    );
-
-    if(card.status == CardStatus.IN_ACTIVE) {
-      return Expanded(child: ImageFiltered(
-        imageFilter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
-        child: cardNameWidget,
-      ));
-    }
-
-    return Expanded(child: cardNameWidget);
-  }
-
-  Widget _cardNumberWidget() {
-    final cardNumberWidget = Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(CardViewUtil.getFirst6Digits(card), style: cardNumberStyle,),
-        Text(' ** **** ', style: TextStyle(
-            letterSpacing: 1.2,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-            fontFamily: Styles.ocraExtended
-        )),
-        Text(CardViewUtil.getLast4Digits(card), style: cardNumberStyle,),
-      ],
-    );
-    if(card.status == CardStatus.IN_ACTIVE) {
-      return ImageFiltered(
-          imageFilter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
-          child: cardNumberWidget,
-      );
-    }
-    return cardNumberWidget;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,37 +46,11 @@ class CardDetailedItem extends Container {
             ),
             child: Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    _cardName(),
-                    SizedBox(width: 4,),
-                    CardViewUtil.getCardStateBanner(card)
-                  ],
-                ),
+                _CardTopView(card: card,),
                 SizedBox(height: 12,),
-                _cardNumberWidget(),
+                _CardNumberView(card: card,),
                 SizedBox(height: 20,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text('EXPIRES\nEND', style: TextStyle(fontSize: 7, fontWeight: FontWeight.w600, color: Colors.white),),
-                        SizedBox(width: 4),
-                        SvgPicture.asset('res/drawables/ic_forward_polygon.svg', width: 3, height: 5,),
-                        SizedBox(width: 4),
-                        Text(CardViewUtil.getCardExpiryDate(card), style: TextStyle(fontSize: 18, fontWeight: FontWeight.normal, color: Colors.white)),
-                      ],
-                    ),
-                    CardViewUtil.getCardBrandLogo(card)
-                  ],
-                )
-                // Flexible(
-                //     child:
-                // ),
+                _CardBottomView(card: card)
               ],
             ),
           ),
@@ -132,4 +58,138 @@ class CardDetailedItem extends Container {
       ),
     );
   }
+}
+
+
+///_CardTopView
+///
+///
+///
+///
+class _CardTopView extends StatelessWidget {
+
+  final Card card;
+
+  _CardTopView({required this.card});
+
+  Widget _cardName() {
+    final cardNameWidget = Text(
+      card.nameOnCard ?? "",
+      style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white),
+    );
+
+    if(card.isActivated == false) {
+      return Expanded(child: ImageFiltered(
+        imageFilter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
+        child: cardNameWidget,
+      ));
+    }
+
+    return Expanded(child: cardNameWidget);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        _cardName(),
+        SizedBox(width: 4,),
+        CardViewUtil.getCardStateBanner(card)
+      ],
+    );
+  }
+
+}
+
+///_CardNumberView
+///
+///
+///
+///
+///
+class _CardNumberView extends StatelessWidget {
+
+  final cardNumberStyle = TextStyle(
+      fontSize: 24,
+      letterSpacing: 1.2,
+      fontWeight: FontWeight.normal,
+      color: Colors.white,
+      fontFamily: Styles.ocraExtended
+  );
+
+  final Card card;
+
+  _CardNumberView({required this.card}):super(key: Key("_CardNumberView"));
+
+  @override
+  Widget build(BuildContext context) {
+    final cardNumberWidget = LayoutBuilder(
+        builder: (ctx, constraints) {
+          final asterisk = (constraints.maxWidth <= 300) ? " * ** " : " ** **** ";
+          final letterSpacing = (constraints.maxWidth <= 300) ? 0.1 : 1.2;
+
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                CardViewUtil.getFirst6Digits(card),
+                style: cardNumberStyle.copyWith(letterSpacing: letterSpacing),
+              ),
+              Text(asterisk, style: TextStyle(
+                  letterSpacing: letterSpacing,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  fontFamily: Styles.ocraExtended
+              )),
+              Text(CardViewUtil.getLast4Digits(card), style: cardNumberStyle,),
+            ],
+          );
+        }
+    );
+    if(card.isActivated == false) {
+      return ImageFiltered(
+        imageFilter: ImageFilter.blur(sigmaX: 1.5, sigmaY: 1.5),
+        child: cardNumberWidget,
+      );
+    }
+    return cardNumberWidget;
+  }
+
+}
+
+///_CardBottomView
+///
+///
+///
+///
+class _CardBottomView extends StatelessWidget {
+
+  final Card card;
+
+  _CardBottomView({required this.card});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text('EXPIRES\nEND', style: TextStyle(fontSize: 7, fontWeight: FontWeight.w600, color: Colors.white),),
+            SizedBox(width: 4),
+            SvgPicture.asset('res/drawables/ic_forward_polygon.svg', width: 3, height: 5,),
+            SizedBox(width: 4),
+            Text(CardViewUtil.getCardExpiryDate(card), style: TextStyle(fontSize: 18, fontWeight: FontWeight.normal, color: Colors.white)),
+          ],
+        ),
+        CardViewUtil.getCardBrandLogo(card)
+      ],
+    );
+  }
+
 }

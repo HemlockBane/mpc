@@ -1,19 +1,24 @@
   import 'dart:async';
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/data/address_info.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/data/customer_detail_info.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
+import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:rxdart/rxdart.dart';
 
 class AdditionalInfoForm with ChangeNotifier {
+
+  static const FORM_KEY = "account-update-additional-info";
 
   AdditionalInfoForm() {
     _initState();
   }
 
   CustomerDetailInfo _info = CustomerDetailInfo();
+
+  final List<Nationality> _nationalities =  [];
+  List<Nationality> get nationalities => List.unmodifiable(_nationalities);
 
   final List<StateOfOrigin> _states =  [];
   List<StateOfOrigin> get states => List.unmodifiable(_states);
@@ -48,6 +53,7 @@ class AdditionalInfoForm with ChangeNotifier {
   bool _isFormValid = false;
   bool get isFormValid => _isFormValid;
 
+  Timer? _debouncer;
 
   /// Initializes the state of the profile form
   void _initState() {
@@ -61,7 +67,7 @@ class AdditionalInfoForm with ChangeNotifier {
     ];
 
     this._isValid = Rx.combineLatest(formStreams, (values) {
-      _isFormValid =  _isTitleValid(displayError: false)
+      _isFormValid = _isTitleValid(displayError: false)
           && _isMaritalStatusValid(displayError: false)
           && _isReligionValid(displayError: false)
           && _isNationalityValid(displayError: false)
@@ -69,6 +75,9 @@ class AdditionalInfoForm with ChangeNotifier {
           && _isEmploymentStatusValid(displayError: false);
       return _isFormValid;
     }).asBroadcastStream();
+
+    //Register auto-save
+    this._subscribeFormToAutoSave([...formStreams]);
   }
 
   void onTitleChange(Titles? title) {
@@ -109,15 +118,16 @@ class AdditionalInfoForm with ChangeNotifier {
     return isValid;
   }
 
-  void onNationalityChange(Nationality? mNationality) {
-    if(_info.nationality == mNationality?.nationality) return;
+  void onNationalityChange(Nationality? mNationality,
+      {StateOfOrigin? defaultStateOfOrigin, LocalGovernmentArea? defaultLocalGovt}) {
+    if(_info.nationality == mNationality?.code) return;
     _info.nationality = mNationality?.code;
     _nationalityController.sink.add(mNationality!);
     _isNationalityValid(displayError: true);
 
     _states.clear();
     _states.addAll(mNationality.states ?? []);
-    onStateOfOriginChange(null);
+    onStateOfOriginChange(defaultStateOfOrigin, defaultLocalGovt: defaultLocalGovt);
   }
 
   bool _isNationalityValid({bool displayError = false}) {
@@ -128,12 +138,13 @@ class AdditionalInfoForm with ChangeNotifier {
     return isValid;
   }
 
-  void onStateOfOriginChange(StateOfOrigin? mStateOfOrigin) {
+  void onStateOfOriginChange(StateOfOrigin? mStateOfOrigin, {LocalGovernmentArea? defaultLocalGovt}) {
     _stateOfOriginController.sink.add(mStateOfOrigin);
+    _info.stateId = mStateOfOrigin?.id;//only needed for auto-save and restoring
 
     _localGovt.clear();
     _localGovt.addAll(mStateOfOrigin?.localGovernmentAreas ?? []);
-    onLocalGovtChange(null);
+    onLocalGovtChange(defaultLocalGovt);
   }
 
   void onLocalGovtChange(LocalGovernmentArea? localGovernmentArea) {
@@ -147,7 +158,6 @@ class AdditionalInfoForm with ChangeNotifier {
     if (displayError && !isValid) {
       _localGovtAreaController.sink.addError("Local Govt is required");
     }
-
     return isValid;
   }
 
@@ -171,6 +181,55 @@ class AdditionalInfoForm with ChangeNotifier {
 
   CustomerDetailInfo get customerInfo => _info;
 
+  void setNationalities(List<Nationality> nationalities) {
+    this._nationalities.clear();
+    this._nationalities.addAll(nationalities);
+  }
+
+  void _subscribeFormToAutoSave(List<Stream<dynamic>> streams) {
+    streams.forEach((element) {
+      element.listen((event) {
+        _debouncer?.cancel();
+        _debouncer = Timer(Duration(milliseconds: 600), (){
+          PreferenceUtil.saveDataForLoggedInUser(FORM_KEY, customerInfo);
+        });
+      }, onError: (a) {
+        //Do nothing
+      });
+    });
+  }
+
+  void restoreFormState() {
+    final savedInfo = PreferenceUtil.getDataForLoggedInUser(FORM_KEY);
+    final savedCustomerInfo = CustomerDetailInfo.fromJson(savedInfo);
+
+    if(savedCustomerInfo.title != null) {
+      onTitleChange(Titles.fromTitle(savedCustomerInfo.title));
+    }
+    if(savedCustomerInfo.maritalStatus != null) {
+      onMaritalStatusChange(MaritalStatus.fromString(savedCustomerInfo.maritalStatus));
+    }
+    if(savedCustomerInfo.religion != null) {
+      onReligionChange(Religion.fromString(savedCustomerInfo.religion));
+    }
+    if(savedCustomerInfo.employmentStatus != null) {
+      onEmploymentStatusChange(EmploymentStatus.fromString(savedCustomerInfo.employmentStatus));
+    }
+
+    if(savedCustomerInfo.nationality != null) {
+      final nationality = Nationality.fromNationalityCode(
+          savedCustomerInfo.nationality, nationalities
+      );
+      final state = StateOfOrigin.fromId(
+          savedCustomerInfo.stateId, nationality?.states ?? []
+      );
+      final localGovt = LocalGovernmentArea.fromId(
+          savedCustomerInfo.localGovernmentAreaOfOriginId, state?.localGovernmentAreas ?? []
+      );
+      onNationalityChange(nationality, defaultStateOfOrigin: state, defaultLocalGovt: localGovt);
+    }
+  }
+
   @override
   void dispose() {
     _titleController.close();
@@ -180,6 +239,7 @@ class AdditionalInfoForm with ChangeNotifier {
     _stateOfOriginController.close();
     _localGovtAreaController.close();
     _employmentStatusController.close();
+    _debouncer?.cancel();
     super.dispose();
   }
 

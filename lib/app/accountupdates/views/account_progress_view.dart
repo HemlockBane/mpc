@@ -9,7 +9,7 @@ import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'dart:ui' as ui;
-import 'package:moniepoint_flutter/core/utils/text_utils.dart';
+import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
 
 import 'colored_linear_progress_bar.dart';
 

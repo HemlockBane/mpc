@@ -11,6 +11,7 @@ import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/di/service_module.dart';
 import 'package:moniepoint_flutter/core/di/db_module.dart';
 import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
+import 'package:moniepoint_flutter/core/mix_panel_analytics.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
@@ -19,8 +20,11 @@ import 'package:moniepoint_flutter/core/viewmodels/system_configuration_view_mod
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
+
 //We need to move this to some where else
 
+final GlobalKey<NavigatorState> navigatorKey = new GlobalKey<NavigatorState>();
+final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver();
 
 final defaultAppTheme = ThemeData(
     disabledColor: Colors.primaryColor.withOpacity(0.5),
@@ -29,7 +33,11 @@ final defaultAppTheme = ThemeData(
     fontFamily: Styles.defaultFont,
     textTheme: TextTheme(
         bodyText2: TextStyle(
-            fontFamily: Styles.defaultFont, fontFamilyFallback: ["Roboto"])));
+            fontFamily: Styles.defaultFont,
+            fontFamilyFallback: ["Roboto"]
+        )
+    )
+);
 
 class MoniepointApp extends StatelessWidget with CompositeDisposableWidget {
   // This widget is the root of your application
@@ -56,8 +64,13 @@ class MoniepointApp extends StatelessWidget with CompositeDisposableWidget {
 
     String? savedUsername = PreferenceUtil.getSavedUsername();
     return MaterialApp(
+      restorationScopeId: "root",
       title: 'Moniepoint Customers',
       theme: defaultAppTheme,
+      navigatorKey: navigatorKey,
+      navigatorObservers: [
+        routeObserver
+      ],
       home: Scaffold(
         body: (savedUsername == null || savedUsername.isEmpty)
             ? SignUpAccountScreen()
@@ -87,4 +100,5 @@ Future<void> _onCreate() async {
 
   await Firebase.initializeApp();
   await PreferenceUtil.initAsync();
+  await MixpanelManager.initAsync();
 }

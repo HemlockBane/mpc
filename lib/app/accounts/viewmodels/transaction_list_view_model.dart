@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:get_it/get_it.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/account_status.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/export_statement_request_body.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
@@ -9,6 +11,7 @@ import 'package:moniepoint_flutter/app/accountupdates/model/customer_service_del
 import 'package:moniepoint_flutter/core/models/filter_item.dart';
 import 'package:moniepoint_flutter/core/models/filter_results.dart';
 import 'package:moniepoint_flutter/core/models/transaction.dart';
+import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/paging/paging_source.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
@@ -17,8 +20,17 @@ class TransactionHistoryViewModel extends BaseViewModel {
   late final TransactionServiceDelegate _delegate;
   late final CustomerServiceDelegate _customerServiceDelegate;
 
+
   final FilterResults _filterResults = FilterResults.defaultFilter();
   final List<Tier> tiers = [];
+
+  bool _isAccountUpdateCompleted = true;
+  bool get isAccountUpdateCompleted => _isAccountUpdateCompleted;
+
+  TransactionHistoryViewModel({TransactionServiceDelegate? delegate, CustomerServiceDelegate? customerServiceDelegate}) {
+    this._delegate = delegate ?? GetIt.I<TransactionServiceDelegate>();
+    this._customerServiceDelegate = customerServiceDelegate ?? GetIt.I<CustomerServiceDelegate>();
+  }
 
   final _filterableItems = List<FilterItem>.unmodifiable([
     FilterItem(title: "Date"),
@@ -28,10 +40,9 @@ class TransactionHistoryViewModel extends BaseViewModel {
 
   List<FilterItem> get filterableItems => _filterableItems;
 
-  TransactionHistoryViewModel({TransactionServiceDelegate? delegate, CustomerServiceDelegate? customerServiceDelegate}) {
-    this._delegate = delegate ?? GetIt.I<TransactionServiceDelegate>();
-    this._customerServiceDelegate = customerServiceDelegate ?? GetIt.I<CustomerServiceDelegate>();
-  }
+  StreamController<bool> _transactionHistoryController = StreamController.broadcast();
+  Stream<bool> get transactionHistoryUpdateStream => _transactionHistoryController.stream;
+
 
   PagingSource<int, AccountTransaction> getPagedHistoryTransaction({int? accountId}) {
     return _delegate.getPageAccountTransactions(accountId ?? customerAccountId, _filterResults);
@@ -91,6 +102,23 @@ class TransactionHistoryViewModel extends BaseViewModel {
     _filterResults.endDate = DateTime.now().millisecondsSinceEpoch;
     _filterResults.channels.clear();
     _filterResults.types.clear();
+  }
+
+  void update() {
+    _transactionHistoryController.add(true);
+  }
+
+  void checkAccountUpdate() {
+    AccountStatus? accountStatus = UserInstance().accountStatus;
+    final flags = accountStatus?.listFlags() ?? customer?.listFlags();
+    if (flags == null) return;
+    _isAccountUpdateCompleted = flags.where((element) => element?.status != true).isEmpty;
+  }
+
+  @override
+  void dispose() {
+    _transactionHistoryController.close();
+    super.dispose();
   }
 
 }

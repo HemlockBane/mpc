@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -46,7 +48,7 @@ class _PaymentAmountView extends State<PaymentAmountView> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        SvgPicture.asset('res/drawables/ic_naira.svg', width: 30, height: 30, color: (widget.isAmountFixed == true) ? Colors.deepGrey : null,),
+        SvgPicture.asset('res/drawables/ic_naira.svg', width: 21, height: 21, color: (widget.isAmountFixed == true) ? Colors.deepGrey : Colors.solidDarkBlue,),
         SizedBox(width: 8),
         Expanded(
             child: TextFormField(
@@ -54,6 +56,9 @@ class _PaymentAmountView extends State<PaymentAmountView> {
               cursorColor: Colors.darkBlue,
               cursorRadius: Radius.circular(28),
               maxLines: 1,
+              textInputAction: TextInputAction.done,
+              //On iOS with "TextInputType.number" the done/next option is not displayed
+              keyboardType: Platform.isIOS ? TextInputType.text : TextInputType.number,
               enabled: widget.isAmountFixed != true,
               onChanged: (v) => widget._valueChanged.call(int.parse(MoneyInputFormatter.clearCurrencyToNumberString(v))),
               inputFormatters: [

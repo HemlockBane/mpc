@@ -2,7 +2,7 @@ import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:intl/intl.dart';
 import 'package:moniepoint_flutter/app/transfers/viewmodels/transfer_view_model.dart';
 import 'package:moniepoint_flutter/app/transfers/views/transfer_view.dart';
-import 'package:moniepoint_flutter/core/amount_pill.dart';
+import 'package:moniepoint_flutter/core/views/amount_pill.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/constants.dart';
 import 'package:moniepoint_flutter/core/models/list_item.dart';
@@ -17,8 +17,8 @@ import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:moniepoint_flutter/core/views/transaction_account_source.dart';
 import 'package:moniepoint_flutter/core/views/transaction_success_dialog.dart';
 import 'package:provider/provider.dart';
-import 'package:moniepoint_flutter/core/utils/text_utils.dart';
-import 'package:moniepoint_flutter/core/strings.dart';
+import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
+import 'package:moniepoint_flutter/core/extensions/strings.dart';
 import 'package:collection/collection.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 
@@ -225,17 +225,23 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
               builder: (mContext) => TransactionSuccessDialog(
                 payload, onClick: () {
                   Navigator.of(mContext).pop();
-                  Navigator.of(context).pushNamedAndRemoveUntil(TransferScreen.BENEFICIARY_SCREEN, (route) => false);
+                  Navigator.of(context)
+                      .pushNamedAndRemoveUntil(TransferScreen.BENEFICIARY_SCREEN,  (route) => false, arguments: {});
                 })
           );
         } else {
           showError(
               widget._scaffoldKey.currentContext ?? context,
+              title: "Transfer Failed!",
               message: "Unable to complete transaction at this time. Please try again later."
           );
         }
     } else if(result is Error<TransactionStatus>) {
-      showError(widget._scaffoldKey.currentContext ?? context, message: result.message);
+      showError(
+          widget._scaffoldKey.currentContext ?? context,
+          title: "Transfer Failed!",
+          message: result.message
+      );
     }
   }
 

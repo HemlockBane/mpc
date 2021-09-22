@@ -6,7 +6,7 @@ import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/views/custom_check_box.dart';
 import 'package:collection/collection.dart';
-import 'package:moniepoint_flutter/core/utils/text_utils.dart';
+import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
 
 import '../styles.dart';
 

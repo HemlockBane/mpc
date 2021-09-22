@@ -3,13 +3,14 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/account_status.dart';
 import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/transfer_beneficiary_delegate.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/fee_vat_config.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/transfer_request_body.dart';
 import 'package:moniepoint_flutter/app/transfers/model/transfer_service_delegate.dart';
-import 'package:moniepoint_flutter/core/device_manager.dart';
+import 'package:moniepoint_flutter/app/devicemanagement/model/data/device_manager.dart';
 import 'package:moniepoint_flutter/core/models/transaction_status.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/network/service_error.dart';

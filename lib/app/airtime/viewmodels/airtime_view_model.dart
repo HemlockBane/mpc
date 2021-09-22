@@ -12,7 +12,7 @@ import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/login/model/data/authentication_method.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/airtime/model/airtime_beneficiary_delegate.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/airtime/model/data/airtime_beneficiary.dart';
-import 'package:moniepoint_flutter/core/device_manager.dart';
+import 'package:moniepoint_flutter/app/devicemanagement/model/data/device_manager.dart';
 import 'package:moniepoint_flutter/core/models/file_result.dart';
 import 'package:moniepoint_flutter/core/models/services/file_management_service_delegate.dart';
 import 'package:moniepoint_flutter/core/models/transaction_status.dart';

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart' hide Colors;
 import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
 import 'package:moniepoint_flutter/app/cards/model/data/card_transaction_request.dart';
 import 'package:moniepoint_flutter/app/cards/viewmodels/single_card_view_model.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
@@ -52,13 +52,6 @@ class _CardPinDialog extends State<CardPinDialog> {
         viewModel.unblockCardChannel(widget.request).listen(_transactionCallback);
         break;
       case CardAction.CHANGE_PIN:
-        // final customerAccountCard = viewModel.selectedCard?.customerAccountCard;
-        // if(customerAccountCard != null) {
-        //   widget.request.cardAccountNumber = customerAccountCard.customerAccountNumber;
-        // } else {
-        //   widget.request.cardAccountNumber = "";
-        // }
-        // widget.request.expiry = viewModel.selectedCard?.expiryDate?.replaceAll("/", "");
         viewModel.changeCardPin(widget.request).listen(_transactionCallback);
         break;
     }
@@ -131,6 +124,7 @@ class _CardPinDialog extends State<CardPinDialog> {
                       child: Padding(
                         padding: EdgeInsets.only(left: 16, right: 16),
                         child: Styles.appEditText(
+                            controller: _reasonController,
                             hint: widget.cardAction == CardAction.BLOCK_CARD
                                 ? "Why do you want to block this card?"
                                 : "why do you want to unblock this card?",
@@ -140,7 +134,7 @@ class _CardPinDialog extends State<CardPinDialog> {
                   ),
                   SizedBox(height: 30,),
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 50),
+                    padding: EdgeInsets.symmetric(horizontal: 30),
                     child: Text('Enter Transaction PIN',
                         textAlign: TextAlign.start,
                         style: TextStyle(
@@ -149,7 +143,7 @@ class _CardPinDialog extends State<CardPinDialog> {
                   ),
                   SizedBox(height: 8),
                   Padding(
-                    padding: EdgeInsets.only(left: 50, right: 50, bottom: MediaQuery.of(context).viewInsets.bottom * 0.7),
+                    padding: EdgeInsets.only(left: 30, right: 30, bottom: MediaQuery.of(context).viewInsets.bottom * 0.7),
                     child: PinEntry(onChange: (value) {
                       setState(() {
                         _pin = value;

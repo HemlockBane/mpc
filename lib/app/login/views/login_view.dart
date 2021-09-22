@@ -7,7 +7,7 @@ import 'package:moniepoint_flutter/app/login/model/data/user.dart';
 import 'package:moniepoint_flutter/app/login/viewmodels/login_view_model.dart';
 import 'package:moniepoint_flutter/app/login/views/dialogs/recover_credentials.dart';
 import 'package:moniepoint_flutter/app/login/views/recovery/recovery_controller_screen.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_icons2_icons.dart';
 import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
@@ -63,10 +63,23 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
 
   @override
   void initState() {
+    UserInstance().resetSession();
     _setupViewDependencies();
     super.initState();
+    _extraRouteArguments();
     _initSavedUsername();
     _animController.forward();
+  }
+
+  void _extraRouteArguments() {
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+      Future.delayed(Duration.zero, () {
+        final arguments = ModalRoute.of(context)!.settings.arguments;
+        if(arguments is Tuple<String, SessionTimeoutReason>?) {
+          _onAutoLogout(arguments);
+        }
+      });
+    });
   }
 
   void _setupViewDependencies() {
@@ -221,7 +234,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
             }
         );
       } else {
-        showError(context, message: event.message ?? "");
+        showError(context, title: "Login Failed!", message: event.message ?? "");
       }
       _topAnimController.reverse(from: 0.15);
     }
@@ -455,32 +468,17 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
     );
   }
 
-  void _onSessionReason(Tuple<String, SessionTimeoutReason>? reason) {
+  void _onAutoLogout(Tuple<String, SessionTimeoutReason>? reason) {
     if (reason == null) return;
-    if (reason.second == SessionTimeoutReason.INACTIVITY && !_alreadyInSessionError) {
+    //TODO this check is no longer needed
+    if (!_alreadyInSessionError) {
       _alreadyInSessionError = true;
       UserInstance().resetSession();
       Future.delayed(Duration(milliseconds: 150), () {
         showError(context,
           title: "Logged Out",
-          message: "your session timed out due to inactivity. Please re-login to continue",
-          onPrimaryClick: () {
-            Navigator.of(context).pop();
-            _startFingerPrintLoginProcess();
-          }
-        );
-      });
-    } else if (reason.second == SessionTimeoutReason.LOGIN_REQUESTED && !_alreadyInSessionError) {
-      _alreadyInSessionError = true;
-      UserInstance().resetSession();
-      Future.delayed(Duration(milliseconds: 150), () {
-        showError(context,
-            title: "Logged Out",
-            message: "A Re-Login was needed for you to continue",
-            onPrimaryClick: () {
-              Navigator.of(context).pop();
-              _startFingerPrintLoginProcess();
-            }
+          message: AutoLogoutMessages[reason.second] ?? "",
+          onPrimaryClick: () => Navigator.of(context).pop()
         );
       });
     }
@@ -488,9 +486,6 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
 
   Widget build(BuildContext context) {
     final minHeight = MediaQuery.of(context).size.height;
-
-    final sessionReason = ModalRoute.of(context)!.settings.arguments as Tuple<String, SessionTimeoutReason>?;
-    _onSessionReason(sessionReason);
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -500,23 +495,39 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
           height: minHeight,
           child: Stack(
             children: [
-              Column(
-                children: [
-                  SizedBox(height: minHeight * 0.35,),
-                  Expanded(
-                    child: Container(
-                      padding: EdgeInsets.only(left: 0, right: 0, top: 34, bottom: 0),
-                      child: _buildMidSection(context),
-                    ),
-                  ),
-                  // _buildBottomSection(context),
-                ],
-              ),
               _LoginTopMenuView(
                 context: context,
                 controller: _topAnimController,
                 isLoading: _isLoading,
               ),
+              Positioned(
+                top: 0,
+                bottom: 0,
+                right: 0,
+                left: 0,
+                child: IgnorePointer(
+                  child: Opacity(
+                    opacity: 0.2,
+                    child: FittedBox(
+                      fit: BoxFit.fill,
+                      child: Image.asset("res/drawables/ic_app_bg.png"),
+                    ),
+                  ),
+                ),
+              ),
+              if (!_isLoading)
+                Column(
+                  children: [
+                    SizedBox(height: minHeight * 0.35,),
+                    Expanded(
+                      child: Container(
+                        padding: EdgeInsets.only(left: 0, right: 0, top: 34, bottom: 0),
+                        child: _buildMidSection(context),
+                      ),
+                    ),
+                    // _buildBottomSection(context),
+                  ],
+                ),
             ],
           ),
         ),
@@ -627,24 +638,6 @@ class _LoginTopMenuView extends Stack {
           );
         },
       ),
-      //TODO adjust the height and the opacity
-      // AnimatedBuilder(
-      //   animation: controller,
-      //   child: FittedBox(
-      //     fit: BoxFit.cover,
-      //     child: Image.asset("res/drawables/ic_app_bg.png"),
-      //   ),
-      //   builder: (ctx, child) {
-      //     final xScale = max(0.25, sizeBlueBgAnimation.value/3);
-      //     return Positioned(
-      //         top: 0,
-      //         bottom: height - (height * xScale),
-      //         right: 0,
-      //         left: 0,
-      //         child: child ?? SizedBox()
-      //     );
-      //   },
-      // ),
       if (!isLoading) ...[
         Container(
           margin: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.074, right: 17),

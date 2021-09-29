@@ -6,6 +6,7 @@ import 'package:moniepoint_flutter/core/models/transaction_status.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/payment_view_model.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/views/gesture_absorber_route.dart';
 import 'package:moniepoint_flutter/core/views/pin_entry.dart';
 import 'package:moniepoint_flutter/core/views/transaction_pin_dialog.dart';
 import 'package:provider/provider.dart';
@@ -178,12 +179,17 @@ class _BillPinDialog extends TransactionPinDialogState<BillPinDialog> {
   void subscribeUiToPayment() {
     final viewModel = Provider.of<BillPurchaseViewModel>(context, listen: false);
     viewModel.makePayment().listen((event) {
-      if(event is Loading) setState(() => _isLoading = true);
+      if(event is Loading) {
+        showGestureAbsorberRoute(context: context);
+        setState(() => _isLoading = true);
+      }
       else if(event is Success) {
+        hideGestureAbsorberRoute(context: context);
         setState(() {_isLoading = false;});
         Navigator.of(context).pop(event.data);
       }
       else if(event is Error<TransactionStatus>) {
+        hideGestureAbsorberRoute(context: context);
         setState(() {_isLoading = false;});
         Navigator.of(context).pop(event);
       }

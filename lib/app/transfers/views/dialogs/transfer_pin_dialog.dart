@@ -6,6 +6,7 @@ import 'package:moniepoint_flutter/core/models/transaction_status.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/payment_view_model.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/views/gesture_absorber_route.dart';
 import 'package:moniepoint_flutter/core/views/pin_entry.dart';
 import 'package:moniepoint_flutter/core/views/transaction_pin_dialog.dart';
 import 'package:provider/provider.dart';
@@ -181,8 +182,12 @@ class _TransferPinDialog extends TransactionPinDialogState<TransferPinDialog> {
   void subscribeUiToPayment() {
     final viewModel = Provider.of<TransferViewModel>(context, listen: false);
     viewModel.makeTransfer().listen((event) {
-      if(event is Loading) setState(() => _isLoading = true);
+      if(event is Loading) {
+        setState(() => _isLoading = true);
+        showGestureAbsorberRoute(context: context);
+      }
       else if(event is Success) {
+        hideGestureAbsorberRoute(context: context);
         setState(() {
           _isLoading = false;
           Navigator.of(context).pop(event.data);
@@ -190,6 +195,7 @@ class _TransferPinDialog extends TransactionPinDialogState<TransferPinDialog> {
         });
       }
       else if(event is Error<TransactionStatus>) {
+        hideGestureAbsorberRoute(context: context);
         setState(() {_isLoading = false;});
         Navigator.of(context).pop(event);
       }

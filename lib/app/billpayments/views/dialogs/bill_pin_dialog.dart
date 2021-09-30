@@ -39,6 +39,7 @@ class _BillPinDialog extends TransactionPinDialogState<BillPinDialog> {
       centerBackgroundHeight: 74,
       centerBackgroundWidth: 74,
       centerBackgroundPadding: 25,
+      enableDrag: !_isLoading,
       content: Wrap(
         children: [
           Container(

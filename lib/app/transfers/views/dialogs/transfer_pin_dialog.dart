@@ -41,6 +41,7 @@ class _TransferPinDialog extends TransactionPinDialogState<TransferPinDialog> {
       centerBackgroundHeight: 74,
       centerBackgroundWidth: 74,
       centerBackgroundPadding: 25,
+      enableDrag: !_isLoading,
       content: Wrap(
         children: [
           Container(
@@ -184,10 +185,8 @@ class _TransferPinDialog extends TransactionPinDialogState<TransferPinDialog> {
     viewModel.makeTransfer().listen((event) {
       if(event is Loading) {
         setState(() => _isLoading = true);
-        showGestureAbsorberRoute(context: context);
       }
       else if(event is Success) {
-        hideGestureAbsorberRoute(context: context);
         setState(() {
           _isLoading = false;
           Navigator.of(context).pop(event.data);
@@ -195,7 +194,6 @@ class _TransferPinDialog extends TransactionPinDialogState<TransferPinDialog> {
         });
       }
       else if(event is Error<TransactionStatus>) {
-        hideGestureAbsorberRoute(context: context);
         setState(() {_isLoading = false;});
         Navigator.of(context).pop(event);
       }

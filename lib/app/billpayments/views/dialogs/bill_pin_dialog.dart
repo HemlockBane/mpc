@@ -180,16 +180,13 @@ class _BillPinDialog extends TransactionPinDialogState<BillPinDialog> {
     final viewModel = Provider.of<BillPurchaseViewModel>(context, listen: false);
     viewModel.makePayment().listen((event) {
       if(event is Loading) {
-        showGestureAbsorberRoute(context: context);
         setState(() => _isLoading = true);
       }
       else if(event is Success) {
-        hideGestureAbsorberRoute(context: context);
         setState(() {_isLoading = false;});
         Navigator.of(context).pop(event.data);
       }
       else if(event is Error<TransactionStatus>) {
-        hideGestureAbsorberRoute(context: context);
         setState(() {_isLoading = false;});
         Navigator.of(context).pop(event);
       }

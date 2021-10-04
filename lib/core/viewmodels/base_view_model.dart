@@ -98,8 +98,8 @@ abstract class BaseViewModel with ChangeNotifier {
     return mCustomerAccountUser?.customerAccount?.accountName ?? accountName;
   }
 
-  String? getUserQualifiedTierName(int accountId) {
-    final customerAccountUsers = customer?.customerAccountUsers?.where((element) => element.customerAccount?.id ==accountId).firstOrNull;
+  String? getUserQualifiedTierName(int customerAccountId) {
+    final customerAccountUsers = customer?.customerAccountUsers?.where((element) => element.customerAccount?.id ==customerAccountId).firstOrNull;
     if(customerAccountUsers == null || customerAccountUsers.customerAccount == null) return null;
     final customerAccount = customerAccountUsers.customerAccount;
     return customerAccount?.schemeCode?.name;
@@ -136,6 +136,8 @@ abstract class BaseViewModel with ChangeNotifier {
         return null;
     }
   }
+
+  UserAccount? getUserAccountById(int userAccountId) => UserInstance().getUserAccount(userAccountId);
 
   @override
   void dispose() {

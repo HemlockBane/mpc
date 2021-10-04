@@ -250,7 +250,6 @@ class CustomerAddressForm with ChangeNotifier {
       final localGovt = LocalGovernmentArea.fromId(
           savedAddressInfo.addressLocalGovernmentAreaId, state?.localGovernmentAreas ?? []
       );
-      print(state?.name);
       onStateChange(state, localGovt: localGovt);
     }
 

@@ -10,9 +10,9 @@ import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:provider/provider.dart';
 
-import 'account_update_file_upload_state.dart';
+import '../account_update_file_upload_state.dart';
 import 'account_update_form_view.dart';
-import 'account_update_upload_button.dart';
+import '../account_update_upload_button.dart';
 
 class ProofOfAddressScreen extends PagedForm {
 

@@ -77,7 +77,7 @@ Future<dynamic> showInfo(BuildContext context,
       });
 }
 
-Future<dynamic> showComingSoon(BuildContext context) {
+Future<dynamic> showComingSoon(BuildContext context, {String title = "Coming Soon"}) {
   return showModalBottomSheet(
       isScrollControlled: true,
       context: context,
@@ -96,7 +96,7 @@ Future<dynamic> showComingSoon(BuildContext context) {
           content: Column(
             children: [
               SizedBox(height: 20),
-              Text('Coming Soon',
+              Text(title,
                   style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,

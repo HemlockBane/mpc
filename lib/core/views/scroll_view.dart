@@ -4,8 +4,13 @@ class ScrollView extends StatelessWidget {
 
   final Widget? child;
   final double? maxHeight;
+  final ScrollController? controller;
 
-  ScrollView({this.child, this.maxHeight});
+  ScrollView({
+    this.child,
+    this.maxHeight,
+    this.controller
+  });
 
   @override
   Widget build(BuildContext context) {

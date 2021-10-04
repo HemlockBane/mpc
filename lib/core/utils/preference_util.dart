@@ -37,7 +37,7 @@ class PreferenceUtil {
 
   static void deleteLoggedInUser()  {
     _preferences?.remove(LOGGED_IN_USER_KEY);
-    UserInstance().setAccountStatus(null);
+    // UserInstance().setAccountStatus(null);
     UserInstance().getUser()?.withAccessToken(null);
   }
 

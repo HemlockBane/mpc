@@ -15,14 +15,18 @@ class ColoredLinearProgressBar extends CustomPainter {
   final double verticalProgressiveSpace;
 
   ColoredLinearProgressBar({
+    this.repaint,
     required this.progress,
     this.tiers = const [],
     required this.tierPositionCallback,
     this.checkMarkIcon,
     this.verticalProgressiveSpace = 16
-  });
+  }):super(repaint: repaint);
 
   late final double _strokeWidth = 8;
+
+  final ValueNotifier<double>? repaint;
+
 
   final double _tickerStrokeWidth = 1;
   final double _tickerHeight = 24;
@@ -77,7 +81,7 @@ class ColoredLinearProgressBar extends CustomPainter {
   );
 
   late final _progressTextStyle = TextStyle(
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: FontWeight.w600,
     fontFamily: Styles.defaultFont
   );
@@ -108,6 +112,10 @@ class ColoredLinearProgressBar extends CustomPainter {
       else if(index == (tiers.length - 1)) _tickerPoints.add((size.width + _tickerStrokeWidth) - _endPadding);
       else _tickerPoints.add(tierPositionCallback.call(element, size.width - _startPadding));
     });
+  }
+
+  void setProgress(double progress) {
+    this.progress = progress;
   }
 
   bool isTickerActive(int index) {
@@ -194,8 +202,8 @@ class ColoredLinearProgressBar extends CustomPainter {
     _completedTextPainter
       ..text = TextSpan(
         children: [
+          TextSpan(text: "Upgrade Completion: ", style: _progressTextStyle.copyWith(color: Colors.textColorBlack)),
           TextSpan(text: "${progress.toInt()}%", style: _progressTextStyle.copyWith(color: progressColor)),
-          TextSpan(text: " Completed", style: _progressTextStyle.copyWith(color: Colors.textColorBlack)),
         ],
       )
       ..layout(minWidth: 0, maxWidth: double.infinity)
@@ -204,6 +212,8 @@ class ColoredLinearProgressBar extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    progress = repaint?.value ?? progress;
+
     this._size = size;
 
     if(!_isBuilt) _drawProgressText(canvas, size, Colors.transparent);

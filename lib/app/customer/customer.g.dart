@@ -8,51 +8,57 @@ part of 'customer.dart';
 
 Customer _$CustomerFromJson(Map<String, dynamic> json) {
   return Customer(
-    json['id'] as int?,
-    json['name'] as String?,
-    json['description'] as String?,
-    json['primaryCbaCustomerId'] as String?,
-    json['accountProvider'] == null
+    id: json['id'] as int?,
+    name: json['name'] as String?,
+    description: json['description'] as String?,
+    primaryCbaCustomerId: json['primaryCbaCustomerId'] as String?,
+    accountProvider: json['accountProvider'] == null
         ? null
         : AccountProvider.fromJson(json['accountProvider'] as Object),
-    json['email'] as String?,
-    json['mobileNo'] as String?,
-    json['active'] as bool?,
-    json['relationshipManagerUserId'] as String?,
-    json['relationshipManagerNodeGuid'] as String?,
-    (json['customerAccountUsers'] as List<dynamic>?)
+    email: json['email'] as String?,
+    mobileNo: json['mobileNo'] as String?,
+    active: json['active'] as bool?,
+    relationshipManagerUserId: json['relationshipManagerUserId'] as String?,
+    relationshipManagerNodeGuid: json['relationshipManagerNodeGuid'] as String?,
+    customerAccountUsers: (json['customerAccountUsers'] as List<dynamic>?)
         ?.map((e) => CustomerAccountUsers.fromJson(e as Object))
         .toList(),
-    json['timeAdded'] as String?,
-    json['additionalInfoFlag'] == null
+    timeAdded: json['timeAdded'] as String?,
+    additionalInfoFlag: json['additionalInfoFlag'] == null
         ? null
         : AccountUpdateFlag.fromJson(json['additionalInfoFlag'] as Object),
-    json['identificationInfoFlag'] == null
+    identificationInfoFlag: json['identificationInfoFlag'] == null
         ? null
         : AccountUpdateFlag.fromJson(json['identificationInfoFlag'] as Object),
-    json['identificationProofFlag'] == null
+    identificationProofFlag: json['identificationProofFlag'] == null
         ? null
         : AccountUpdateFlag.fromJson(json['identificationProofFlag'] as Object),
-    json['addressInfoFlag'] == null
+    addressInfoFlag: json['addressInfoFlag'] == null
         ? null
         : AccountUpdateFlag.fromJson(json['addressInfoFlag'] as Object),
-    json['addressProofFlag'] == null
+    addressProofFlag: json['addressProofFlag'] == null
         ? null
         : AccountUpdateFlag.fromJson(json['addressProofFlag'] as Object),
-    json['nextOfKinInfoFlag'] == null
+    nextOfKinInfoFlag: json['nextOfKinInfoFlag'] == null
         ? null
         : AccountUpdateFlag.fromJson(json['nextOfKinInfoFlag'] as Object),
-    json['addressVerificationFlag'] == null
+    addressVerificationFlag: json['addressVerificationFlag'] == null
         ? null
         : AccountUpdateFlag.fromJson(json['addressVerificationFlag'] as Object),
-    json['identificationVerificationFlag'] == null
-        ? null
-        : AccountUpdateFlag.fromJson(
-            json['identificationVerificationFlag'] as Object),
-    json['bvnVerificationFlag'] == null
+    identificationVerificationFlag:
+        json['identificationVerificationFlag'] == null
+            ? null
+            : AccountUpdateFlag.fromJson(
+                json['identificationVerificationFlag'] as Object),
+    bvnVerificationFlag: json['bvnVerificationFlag'] == null
         ? null
         : AccountUpdateFlag.fromJson(json['bvnVerificationFlag'] as Object),
-    json['passportUUID'] as String?,
+    passportUUID: json['passportUUID'] as String?,
+    reUploadID: json['reuploadID'] as bool?,
+    reUploadProofOfAddress: json['reuploadProofOfAddress'] as bool?,
+    addressVerified: json['addressVerified'] as bool?,
+    bvnVerified: json['bvnVerified'] as bool?,
+    identificationVerified: json['identificationVerified'] as bool?,
   );
 }
 
@@ -69,6 +75,11 @@ Map<String, dynamic> _$CustomerToJson(Customer instance) => <String, dynamic>{
       'relationshipManagerNodeGuid': instance.relationshipManagerNodeGuid,
       'customerAccountUsers': instance.customerAccountUsers,
       'timeAdded': instance.timeAdded,
+      'bvnVerified': instance.bvnVerified,
+      'addressVerified': instance.addressVerified,
+      'identificationVerified': instance.identificationVerified,
+      'reuploadID': instance.reUploadID,
+      'reuploadProofOfAddress': instance.reUploadProofOfAddress,
       'passportUUID': instance.passportUUID,
       'additionalInfoFlag': instance.additionalInfoFlag,
       'identificationInfoFlag': instance.identificationInfoFlag,

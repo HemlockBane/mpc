@@ -29,10 +29,7 @@ class SystemConfigurationViewModel extends ChangeNotifier {
   }
 
   Stream<Resource<List<USSDConfiguration>>> getUSSDConfiguration()  {
-    return _ussdServiceDelegate.getUSSDConfiguration().map((event) {
-      // if(event  is! Error) _ussdController.sink.add(event);
-      return event;
-    });
+    return _ussdServiceDelegate.getUSSDConfiguration();
   }
 
   @override

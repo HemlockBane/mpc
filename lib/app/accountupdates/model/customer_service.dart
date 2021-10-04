@@ -41,14 +41,6 @@ abstract class CustomerService {
   @POST("customer-scheme/eligible")
   Future<ServiceResult<Tier>> checkCustomerEligibility(@Query("customerId") int customerId, @Body() AccountUpdate accountUpdateRequest);
 
-  // @Headers("Content-Type: application/json", "client-id: " + BuildConfig.CLIENT_ID)
-  // @GET("cba-info")
-  // suspend fun getCBACustomerInfo(
-  // @Header(HeaderKeys.AUTHORIZATION) user: User?,
-  // @Query("customerId") customerId: Long
-  // ): CBACustomerInfoServiceResult
-  //
-
   @Headers(<String, dynamic>{
     "Content-Type": "application/json",
     "client-id": BuildConfig.CLIENT_ID,

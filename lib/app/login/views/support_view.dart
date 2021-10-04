@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/login/views/support_shimmer_view.dart';
+import 'package:moniepoint_flutter/app/login/views/support_contact_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/system_configuration.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -17,209 +18,209 @@ class SupportScreen extends StatefulWidget {
 }
 
 class _SupportScreen extends State<SupportScreen> {
+
   initState() {
-    final viewModel =
-        Provider.of<SystemConfigurationViewModel>(context, listen: false);
+    final viewModel = Provider.of<SystemConfigurationViewModel>(context, listen: false);
     viewModel.getSystemConfigurations().listen((event) {});
     super.initState();
   }
 
-  Widget supportItem(String title, String imageRes, Widget subTitle,
-      {isSingleText = false,
-      bool isClickableTile = false,
-      VoidCallback? clickableFn,
-      Widget? trailingIcon,
-      String supportChannelValue = ""}) {
-    return GestureDetector(
-      onTap: clickableFn,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            child: Row(
-              children: [
-                Container(
-                  height: 40,
-                  width: 40,
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Color(0XFF3272E1).withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: SvgPicture.asset(
-                      imageRes,
-                      width: 18,
-                      height: 18,
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: 20,
-                ),
-                isSingleText
-                    ? Text(
-                        title,
-                        style: TextStyle(
-                            color: Colors.textColorBlack,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600),
-                      )
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            title,
-                            style: TextStyle(
-                                color: Colors.deepGrey,
-                                fontSize: 14,
-                                fontWeight: FontWeight.normal),
-                          ),
-                          SizedBox(
-                            height: 6,
-                          ),
-                          Text(
-                            supportChannelValue,
-                            style: TextStyle(
-                              color: Colors.textColorBlack,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          )
-                        ],
-                      )
-              ],
-            ),
-          ),
-          trailingIcon ?? Container()
-        ],
-      ),
-    );
-  }
-
-  List<Widget> _makeSupportItemList(
-      List<SystemConfiguration> systemConfigurations) {
-    final List<Widget> widgets = [];
-    final textStyle =
-        TextStyle(color: Colors.primaryColor, fontFamily: Styles.defaultFont);
-
-    late Widget _emailItem;
-    bool hasEmailItem = false;
-
-    systemConfigurations.forEach((e) {
-      if (e.key == "support.phone") {
-        final trailingIcon = TextButton(
-          style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all(Colors.primaryColor),
-            padding: MaterialStateProperty.all(
-              EdgeInsets.symmetric(horizontal: 10),
-            ),
-          ),
-          child: Row(
-            children: [
-              SvgPicture.asset('res/drawables/ic_support_phone_white.svg'),
-              SizedBox(width: 7),
-              Text(
-                "Call",
-                style: TextStyle(color: Colors.white),
-              )
-            ],
-          ),
-          onPressed: () {
-            openUrl("tel:${e.value}");
-          },
-        );
-
-        final phoneItem = supportItem("Give us a call",
-            'res/drawables/ic_support_phone.svg', Text(e.value ?? ""),
-            trailingIcon: trailingIcon, supportChannelValue: e.value ?? "");
-        widgets.add(phoneItem);
-      }
-
-      if (e.key == "support.whatsapp") {
-        final trailingWidget = InkWell(
-          child: Text(
-            "Send Message",
-            style: textStyle,
-          ),
-          onTap: () {
-            openUrl("https://api.whatsapp.com/send?phone=${e.value}");
-          },
-        );
-
-        final phoneItem = supportItem(
-          "Chat on WhatsApp",
-          'res/drawables/ic_support_whatsapp_filled.svg',
-          Text(e.value ?? "", style: textStyle),
-          trailingIcon: trailingWidget,
-          isSingleText: true,
-        );
-        widgets.add(phoneItem);
-      }
-
-      if (e.key == "support.email") {
-        final emailItem = supportItem(
-          "Send us an email",
-          'res/drawables/ic_support_message_filled.svg',
-          Text(e.value ?? "", style: textStyle),
-          clickableFn: () {
-            final uri = Uri(
-                scheme: "mailto",
-                path: "${e.value}",
-                queryParameters: {
-                  'subject': 'Hello Moniepoint',
-                  'body': "Good day"
-                }).toString();
-            openUrl(uri);
-          },
-          supportChannelValue: e.value ?? "",
-        );
-        _emailItem = emailItem;
-        hasEmailItem = true;
-      }
-    });
-
-    if (hasEmailItem) widgets.add(_emailItem);
-    return widgets.foldIndexed(<Widget>[],
-        (index, List<Widget> cumulativeValue, currentElement) {
-      cumulativeValue.add(currentElement);
-      if (index < widgets.length - 1) {
-        cumulativeValue.add(
-          Column(
-            children: [
-              SizedBox(height: 20),
-              Divider(height: 1),
-              SizedBox(height: 20),
-            ],
-          ),
-        );
-      }
-      return cumulativeValue;
-    }).toList();
-  }
-
-  Widget supportContainer() {
-    final viewModel =
-        Provider.of<SystemConfigurationViewModel>(context, listen: false);
-
-    return Container(
-      decoration: BoxDecoration(),
-      child: StreamBuilder(
-        stream: viewModel.systemConfigStream,
-        builder:
-            (context, AsyncSnapshot<Resource<List<SystemConfiguration>>> a) {
-          if (!a.hasData) return Container();
-          if (a.hasData && (a.data is Loading && a.data?.data?.isEmpty == true))
-            return SupportShimmer();
-          if (a.hasData &&
-              (a.data is Error && a.data?.data?.isEmpty == true ||
-                  a.data?.data == null)) return Container();
-          return Column(
-            children: _makeSupportItemList(a.data?.data ?? []),
-          );
-        },
-      ),
-    );
-  }
+  // Widget supportItem(String title, String imageRes, Widget subTitle,
+  //     {isSingleText = false,
+  //     bool isClickableTile = false,
+  //     VoidCallback? clickableFn,
+  //     Widget? trailingIcon,
+  //     String supportChannelValue = ""}) {
+  //   return GestureDetector(
+  //     onTap: clickableFn,
+  //     child: Row(
+  //       crossAxisAlignment: CrossAxisAlignment.center,
+  //       children: [
+  //         Expanded(
+  //           child: Row(
+  //             children: [
+  //               Container(
+  //                 height: 40,
+  //                 width: 40,
+  //                 padding: EdgeInsets.all(10),
+  //                 decoration: BoxDecoration(
+  //                   color: Color(0XFF3272E1).withOpacity(0.1),
+  //                   shape: BoxShape.circle,
+  //                 ),
+  //                 child: Center(
+  //                   child: SvgPicture.asset(
+  //                     imageRes,
+  //                     width: 18,
+  //                     height: 18,
+  //                   ),
+  //                 ),
+  //               ),
+  //               SizedBox(
+  //                 width: 20,
+  //               ),
+  //               isSingleText
+  //                   ? Text(
+  //                       title,
+  //                       style: TextStyle(
+  //                           color: Colors.textColorBlack,
+  //                           fontSize: 15,
+  //                           fontWeight: FontWeight.w600),
+  //                     )
+  //                   : Column(
+  //                       crossAxisAlignment: CrossAxisAlignment.start,
+  //                       children: [
+  //                         Text(
+  //                           title,
+  //                           style: TextStyle(
+  //                               color: Colors.deepGrey,
+  //                               fontSize: 14,
+  //                               fontWeight: FontWeight.normal),
+  //                         ),
+  //                         SizedBox(
+  //                           height: 6,
+  //                         ),
+  //                         Text(
+  //                           supportChannelValue,
+  //                           style: TextStyle(
+  //                             color: Colors.textColorBlack,
+  //                             fontWeight: FontWeight.bold,
+  //                           ),
+  //                         )
+  //                       ],
+  //                     )
+  //             ],
+  //           ),
+  //         ),
+  //         trailingIcon ?? Container()
+  //       ],
+  //     ),
+  //   );
+  // }
+  //
+  // List<Widget> _makeSupportItemList(
+  //     List<SystemConfiguration> systemConfigurations) {
+  //   final List<Widget> widgets = [];
+  //   final textStyle =
+  //       TextStyle(color: Colors.primaryColor, fontFamily: Styles.defaultFont);
+  //
+  //   late Widget _emailItem;
+  //   bool hasEmailItem = false;
+  //
+  //   systemConfigurations.forEach((e) {
+  //     if (e.key == "support.phone") {
+  //       final trailingIcon = TextButton(
+  //         style: ButtonStyle(
+  //           backgroundColor: MaterialStateProperty.all(Colors.primaryColor),
+  //           padding: MaterialStateProperty.all(
+  //             EdgeInsets.symmetric(horizontal: 10),
+  //           ),
+  //         ),
+  //         child: Row(
+  //           children: [
+  //             SvgPicture.asset('res/drawables/ic_support_phone_white.svg'),
+  //             SizedBox(width: 7),
+  //             Text(
+  //               "Call",
+  //               style: TextStyle(color: Colors.white),
+  //             )
+  //           ],
+  //         ),
+  //         onPressed: () {
+  //           openUrl("tel:${e.value}");
+  //         },
+  //       );
+  //
+  //       final phoneItem = supportItem("Give us a call",
+  //           'res/drawables/ic_support_phone.svg', Text(e.value ?? ""),
+  //           trailingIcon: trailingIcon, supportChannelValue: e.value ?? "");
+  //       widgets.add(phoneItem);
+  //     }
+  //
+  //     if (e.key == "support.whatsapp") {
+  //       final trailingWidget = InkWell(
+  //         child: Text(
+  //           "Send Message",
+  //           style: textStyle,
+  //         ),
+  //         onTap: () {
+  //           openUrl("https://api.whatsapp.com/send?phone=${e.value}");
+  //         },
+  //       );
+  //
+  //       final phoneItem = supportItem(
+  //         "Chat on WhatsApp",
+  //         'res/drawables/ic_support_whatsapp_filled.svg',
+  //         Text(e.value ?? "", style: textStyle),
+  //         trailingIcon: trailingWidget,
+  //         isSingleText: true,
+  //       );
+  //       widgets.add(phoneItem);
+  //     }
+  //
+  //     if (e.key == "support.email") {
+  //       final emailItem = supportItem(
+  //         "Send us an email",
+  //         'res/drawables/ic_support_message_filled.svg',
+  //         Text(e.value ?? "", style: textStyle),
+  //         clickableFn: () {
+  //           final uri = Uri(
+  //               scheme: "mailto",
+  //               path: "${e.value}",
+  //               queryParameters: {
+  //                 'subject': 'Hello Moniepoint',
+  //                 'body': "Good day"
+  //               }).toString();
+  //           openUrl(uri);
+  //         },
+  //         supportChannelValue: e.value ?? "",
+  //       );
+  //       _emailItem = emailItem;
+  //       hasEmailItem = true;
+  //     }
+  //   });
+  //
+  //   if (hasEmailItem) widgets.add(_emailItem);
+  //   return widgets.foldIndexed(<Widget>[],
+  //       (index, List<Widget> cumulativeValue, currentElement) {
+  //     cumulativeValue.add(currentElement);
+  //     if (index < widgets.length - 1) {
+  //       cumulativeValue.add(
+  //         Column(
+  //           children: [
+  //             SizedBox(height: 20),
+  //             Divider(height: 1),
+  //             SizedBox(height: 20),
+  //           ],
+  //         ),
+  //       );
+  //     }
+  //     return cumulativeValue;
+  //   }).toList();
+  // }
+  //
+  // Widget supportContainer() {
+  //   final viewModel =
+  //       Provider.of<SystemConfigurationViewModel>(context, listen: false);
+  //
+  //   return Container(
+  //     decoration: BoxDecoration(),
+  //     child: StreamBuilder(
+  //       stream: viewModel.systemConfigStream,
+  //       builder:
+  //           (context, AsyncSnapshot<Resource<List<SystemConfiguration>>> a) {
+  //         if (!a.hasData) return Container();
+  //         if (a.hasData && (a.data is Loading && a.data?.data?.isEmpty == true))
+  //           return SupportShimmer();
+  //         if (a.hasData &&
+  //             (a.data is Error && a.data?.data?.isEmpty == true ||
+  //                 a.data?.data == null)) return Container();
+  //         return Column(
+  //           children: _makeSupportItemList(a.data?.data ?? []),
+  //         );
+  //       },
+  //     ),
+  //   );
+  // }
 
   Widget _buildSocialMediaIcons(SystemConfigurationViewModel viewModel) {
     return Container(
@@ -390,7 +391,7 @@ class _SupportScreen extends State<SupportScreen> {
                                 color: Colors.textColorBlack, fontSize: 15),
                           ),
                           SizedBox(height: 42),
-                          supportContainer(),
+                          SupportContactView(systemConfigStream: viewModel.systemConfigStream,),
                         ],
                       ),
                     )

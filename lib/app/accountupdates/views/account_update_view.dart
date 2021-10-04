@@ -4,13 +4,13 @@ import 'package:flutter/material.dart' hide Colors;
 import 'package:moniepoint_flutter/app/accounts/model/data/account_update_flag.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/accountupdates/viewmodels/account_update_view_model.dart';
-import 'package:moniepoint_flutter/app/accountupdates/views/account_update_form_view.dart';
-import 'package:moniepoint_flutter/app/accountupdates/views/additional_info_view.dart';
-import 'package:moniepoint_flutter/app/accountupdates/views/customer_address_view.dart';
-import 'package:moniepoint_flutter/app/accountupdates/views/customer_identification_view.dart';
+import 'package:moniepoint_flutter/app/accountupdates/views/forms/account_update_form_view.dart';
+import 'package:moniepoint_flutter/app/accountupdates/views/forms/additional_info_view.dart';
+import 'package:moniepoint_flutter/app/accountupdates/views/forms/customer_address_view.dart';
+import 'package:moniepoint_flutter/app/accountupdates/views/forms/customer_identification_view.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/dialogs/account_update_dialog.dart';
-import 'package:moniepoint_flutter/app/accountupdates/views/next_of_kin_view.dart';
-import 'package:moniepoint_flutter/app/accountupdates/views/proof_of_address_view.dart';
+import 'package:moniepoint_flutter/app/accountupdates/views/forms/next_of_kin_view.dart';
+import 'package:moniepoint_flutter/app/accountupdates/views/forms/proof_of_address_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
 import 'package:moniepoint_flutter/core/lazy.dart';
@@ -22,8 +22,6 @@ import 'package:moniepoint_flutter/core/views/pie_progress_bar.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:provider/provider.dart';
 
-import 'account_restriction_view.dart';
-import 'dialogs/account_update_info_dialog.dart';
 import 'document_verification_view.dart';
 
 class AccountUpdateScreen extends StatefulWidget {
@@ -37,18 +35,17 @@ class AccountUpdateScreen extends StatefulWidget {
   });
 
   @override
-  State<StatefulWidget> createState() {
-    return _AccountUpdateScreen();
-  }
+  State<StatefulWidget> createState() =>_AccountUpdateScreen();
+
 }
 
+///_AccountUpdateScreen
 ///
 ///
 ///
 ///
 ///
-///
-class _AccountUpdateScreen extends State<AccountUpdateScreen> with CompositeDisposableWidget{
+class _AccountUpdateScreen extends State<AccountUpdateScreen> with CompositeDisposableWidget {
 
   late AccountUpdateViewModel _viewModel;
   late PageView _pageView;
@@ -102,10 +99,7 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> with CompositeDisp
     if(forms.isEmpty && _isAwaitingVerification(idVerificationFlag, addressVerification)) {
       _displayPageProgress = false;
       forms.add(
-          DocumentVerificationScreen(
-              idVerificationFlag,
-              addressVerification
-          )
+          DocumentVerificationScreen(idVerificationFlag, addressVerification)
       );
     }
     return forms;
@@ -195,9 +189,7 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> with CompositeDisp
       Navigator.of(context).pop(context);
     }
     if(value != null && value is Error<Tier>) {
-      showError(
-          context, title: "Account Upgrade Failed", message: value.message
-      );
+      showError(context, title: "Account Upgrade Failed", message: value.message);
     }
   }
 
@@ -207,14 +199,6 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> with CompositeDisp
     _registerPageChange();
     _loadPageDependencies = _viewModel.loadPageDependencies();
     super.initState();
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      showDialog(
-          context: context,
-          builder: (ctx) {
-            return AccountUpdateInfoDialog(context: context);
-          }
-      );
-    });
   }
 
   Future<bool> _onBackPressed() async {
@@ -287,19 +271,10 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> with CompositeDisp
                       color: Color(0XFFF3F6FC),//Colors.backgroundWhite,
                       child: Column(
                         children: [
-                          if(UserInstance().accountStatus?.postNoDebit == true )
-                            Expanded(
-                                flex:0,
-                                child: Padding(
-                                  padding: EdgeInsets.only(left: 16, right: 16),
-                                  child: AccountRestrictionView(),
-                                )
-                            ),
-                          SizedBox(height: UserInstance().accountStatus?.postNoDebit == true ? 8 : 0,),
                           Align(
                             alignment: Alignment.centerRight,
                             child: FutureBuilder(
-                              future: Future.value(true),
+                              future: Future.delayed(Duration(milliseconds: 60)),
                               builder: (BuildContext mContext, AsyncSnapshot<void> snap) {
                                 if(!snap.hasData || !_displayPageProgress) return SizedBox();
                                 return Padding(
@@ -314,7 +289,6 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> with CompositeDisp
                               },
                             ),
                           ),
-                          // SizedBox(height: 32,),
                           Expanded(child: setupPageView())
                         ],
                       ),

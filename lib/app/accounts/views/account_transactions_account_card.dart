@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/accounts/viewmodels/transaction_list_view_model.dart';
+import 'package:moniepoint_flutter/app/accountupdates/views/restriction_pages/account_upgrade_route_delegate.dart';
 import 'package:moniepoint_flutter/app/customer/customer_account.dart';
 import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
@@ -93,9 +94,10 @@ class _AccountTransactionsAccountCardState
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SvgPicture.asset(
-                "res/drawables/ic_dashboard_account_label.svg",
+                "res/drawables/ic_dashboard_account_label2.svg",
                 width: 197,
                 height: 22,
+                color: Colors.darkBlue,
               ),
             ],
           ),
@@ -148,8 +150,11 @@ class _AccountDetailsState extends State<AccountDetails>
     super.initState();
 
     widget.viewModel.getTiers().listen((event) { });
+
     _balanceStream = widget.viewModel.getCustomerAccountBalance(
-        accountId: widget.userAccount.id, useLocal: false);
+        accountId: widget.userAccount.id, useLocal: false
+    );
+
     widget.viewModel.checkAccountUpdate();
 
     widget.viewModel.transactionHistoryUpdateStream.listen((event) {
@@ -165,7 +170,8 @@ class _AccountDetailsState extends State<AccountDetails>
   @override
   void didUpdateWidget(covariant AccountDetails oldWidget) {
     _balanceStream = widget.viewModel.getCustomerAccountBalance(
-        accountId: widget.userAccount.id, useLocal: false);
+        accountId: widget.userAccount.id, useLocal: false
+    );
     super.didUpdateWidget(oldWidget);
   }
 
@@ -204,8 +210,7 @@ class _AccountDetailsState extends State<AccountDetails>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    if (widget.accountBalance != null)
-                      balanceView(widget.accountBalance),
+                    if (widget.accountBalance != null)balanceView(widget.accountBalance),
 
                     if (widget.accountBalance == null)
                       StreamBuilder(
@@ -382,10 +387,8 @@ class _AccountDetailsState extends State<AccountDetails>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       InkWell(
-                        onTap: () => Navigator.of(context)
-                          .pushNamed(Routes.ACCOUNT_UPDATE),
-                        child: text("Upgrade Account",
-                          color: Colors.primaryColor, fontSize: 14),
+                        onTap: () => AccountUpgradeRouteDelegate.navigateToAccountUpgrade(context, widget.userAccount),
+                        child: text("Upgrade Account", color: Colors.primaryColor, fontSize: 14),
                       ),
                       SizedBox(width: 2),
                       Styles.imageButton(
@@ -501,30 +504,4 @@ class _AccountDetailsState extends State<AccountDetails>
     if (tier == 2) return Color(0xff8A8A8A);
     return Color(0xffCCA004);
   }
-
-  // Widget _buildVisibilityIcon() {
-  //   final bool hideAccountBalance =
-  //       PreferenceUtil.getValueForLoggedInUser(hideAccountBalanceKey) ?? false;
-  //
-  //   return Padding(
-  //     padding: EdgeInsets.only(right: 16),
-  //     child: Styles.imageButton(
-  //         padding: EdgeInsets.all(9),
-  //         color: Colors.transparent,
-  //         disabledColor: Colors.transparent,
-  //         image: SvgPicture.asset(
-  //           hideAccountBalance
-  //               ? 'res/drawables/ic_eye_open.svg'
-  //               : 'res/drawables/ic_eye_closed.svg',
-  //           width: hideAccountBalance ? 10 : 16,
-  //           height: hideAccountBalance ? 12 : 16,
-  //           color: Color(0xffB8003382).withOpacity(0.4),
-  //         ),
-  //         onClick: () {
-  //           PreferenceUtil.saveValueForLoggedInUser(
-  //               hideAccountBalanceKey, hideAccountBalance ? false : true);
-  //           setState(() {});
-  //         }),
-  //   );
-  // }
 }

@@ -1,0 +1,8 @@
+enum AccountState {
+  BLOCKED,
+  PND,
+  REQUIRE_DOCS,
+  PENDING_VERIFICATION,
+  COMPLETED,
+  IN_COMPLETE
+}

@@ -50,8 +50,8 @@ class AccountUpdateViewModel extends BaseViewModel {
 
   late final Map<String, bool Function()> _flagNameToFormValidity = {
     Flags.ADDITIONAL_INFO : () =>  _additionalInfoForm.isInitialized && _additionalInfoForm.value.isFormValid ,
-    Flags.IDENTIFICATION_INFO :  () => _identificationForm.isInitialized && identificationForm.isFormValid ,
-    Flags.IDENTIFICATION_PROOF :  () => _identificationForm.isInitialized && identificationForm.isFormValid ,
+    Flags.IDENTIFICATION_INFO :  () => _identificationForm.isInitialized && _identificationForm.value.isFormValid ,
+    Flags.IDENTIFICATION_PROOF :  () => _identificationForm.isInitialized && _identificationForm.value.isFormValid ,
     Flags.ADDRESS_INFO :  () => _addressForm.isInitialized && _addressForm.value.isFormValid ,
     Flags.ADDRESS_PROOF :  () => _addressForm.isInitialized &&  _addressForm.value.getAddressInfo.utilityBillUUID != null,
     Flags.NEXT_OF_KIN_INFO :  () => _nextOfKinForm.isInitialized && _nextOfKinForm.value.isFormValid ,
@@ -68,20 +68,16 @@ class AccountUpdateViewModel extends BaseViewModel {
   }
 
   Stream<Resource<FileUUID>> uploadValidIdentity(String filePath) {
-    return _customerServiceDelegate.uploadDocument(File(filePath)).map((event) {
-      return event;
-    });
+    return _customerServiceDelegate.uploadDocument(File(filePath));
   }
 
   Stream<Resource<FileUUID>> uploadAddressProof(String filePath) {
-    return _customerServiceDelegate.uploadDocument(File(filePath)).map((event) {
-      return event;
-    });
+    return _customerServiceDelegate.uploadDocument(File(filePath));
   }
 
-  Stream<Resource<List<Tier>>> getOnBoardingSchemes() {
-    return _customerServiceDelegate.getSchemes().map((event) {
-      if(event is Success) {
+  Stream<Resource<List<Tier>>> getOnBoardingSchemes({bool fetchFromRemote = true}) {
+    return _customerServiceDelegate.getSchemes(fetchFromRemote: fetchFromRemote).map((event) {
+      if(this.tiers.isEmpty && (event is Success || event is Loading)) {
         this.tiers.clear();
         this.tiers.addAll(event.data ?? []);
       }
@@ -172,8 +168,7 @@ class AccountUpdateViewModel extends BaseViewModel {
     var progress = 0.0;
 
     final status = UserInstance().accountStatus;
-    final flags =
-        status?.listFlags() ?? customer?.listFlags(); // ?: return progress
+    final flags = status?.listFlags() ?? customer?.listFlags(); // ?: return progress
 
     if (flags == null) return progress;
 
@@ -193,6 +188,7 @@ class AccountUpdateViewModel extends BaseViewModel {
           //has the user graced past tier 1? we can get the next tier and confirm if qualified
           final mTiers = tiers;
           if ((mTiers.isEmpty || mTiers.length == 1)) {
+            //TODO
           } else {
             final nextTier = mTiers[1];
             progress += (nextTier.isQualified()) ? element.weight : 0;

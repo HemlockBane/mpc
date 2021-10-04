@@ -54,13 +54,13 @@ class AccountServiceDelegate with NetworkResource {
     );
   }
 
-  Stream<Resource<AccountStatus>> getAccountStatus(int customerId) {
+  Stream<Resource<AccountStatus>> getAccountStatus(int customerAccountId) {
     return networkBoundResource(
         fetchFromLocal: () => Stream.value(null),
-        fetchFromRemote: () => this._service.getAccountStatus(customerId),
+        fetchFromRemote: () => this._service.getAccountStatus(customerAccountId),
         processRemoteResponse: (resource) {
           AccountStatus? accountStatus = resource.data?.result;
-          if (accountStatus != null) UserInstance().setAccountStatus(accountStatus);
+          if (accountStatus != null) UserInstance().setAccountStatus(customerAccountId, accountStatus);
         }
     );
   }

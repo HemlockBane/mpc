@@ -13,7 +13,7 @@ class PndInstructionDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final accountStatus = UserInstance().accountStatus;
 
-    final recordedCumulative = accountStatus?.postNoDebitInfo?.recordedSingleCredit?.formatCurrency ?? "0";
+    final recordedCumulative = accountStatus?.postNoDebitInfo?.recordedCumulativeBalance?.formatCurrency ?? "0";
     final recordedSingle = accountStatus?.postNoDebitInfo?.recordedSingleCredit?.formatCurrency ?? "0";
     final maxCumulative = "Max cumulative balance exceeded $recordedCumulative / ${accountStatus?.postNoDebitInfo?.permittedCumulativeBalance?.formatCurrency ?? "0"}";
     final maxSingle = "Max single credit amount exceeded $recordedSingle / ${accountStatus?.postNoDebitInfo?.permittedSingleCredit?.formatCurrency ?? "0"}";

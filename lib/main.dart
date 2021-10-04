@@ -59,7 +59,7 @@ class MoniepointApp extends StatelessWidget with CompositeDisposableWidget {
       SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
     }
 
-    final systemConfigViewModel = SystemConfigurationViewModel();
+    final systemConfigViewModel = Provider.of<SystemConfigurationViewModel>(context, listen: false);
     _loadSystemConfigurations(systemConfigViewModel);
 
     String? savedUsername = PreferenceUtil.getSavedUsername();
@@ -88,6 +88,7 @@ void main() async {
     providers: [
       ChangeNotifierProvider(create: (_) => LoginViewModel()),
       ChangeNotifierProvider(create: (_) => DashboardViewModel()),
+      ChangeNotifierProvider(create: (_) => SystemConfigurationViewModel()),
     ],
     child: MoniepointApp(),
   ));
@@ -100,5 +101,5 @@ Future<void> _onCreate() async {
 
   await Firebase.initializeApp();
   await PreferenceUtil.initAsync();
-  await MixpanelManager.initAsync();
+  MixpanelManager.initAsync();
 }

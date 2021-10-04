@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart' hide Colors, Card, ScrollView;
 import 'package:flutter/services.dart';
-import 'package:moniepoint_flutter/app/accountupdates/views/account_update_form_view.dart';
+import 'package:moniepoint_flutter/app/accountupdates/views/forms/account_update_form_view.dart';
 import 'package:moniepoint_flutter/app/cards/model/data/card.dart';
 import 'package:moniepoint_flutter/app/cards/model/data/card_activation_response.dart';
 import 'package:moniepoint_flutter/app/cards/viewmodels/card_activation_view_model.dart';

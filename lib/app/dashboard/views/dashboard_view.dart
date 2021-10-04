@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:moniepoint_flutter/app/dashboard/views/custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:flutter/material.dart' hide ScrollView, Colors;
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
+import 'package:moniepoint_flutter/app/dashboard/views/dashboard_bottom_menu.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_drawer_view.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_menu.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_recently_paid_view.dart';
@@ -24,7 +25,6 @@ import 'package:moniepoint_flutter/core/viewmodels/finger_print_alert_view_model
 import 'package:moniepoint_flutter/core/views/finger_print_alert_dialog.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:provider/provider.dart';
-import 'package:moniepoint_flutter/core/extensions/strings.dart';
 import 'dashboard_account_card.dart';
 
 import 'package:flutter/rendering.dart';
@@ -44,7 +44,6 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
   Stream<Resource<List<TransferBeneficiary>>> recentlyPaidBeneficiaries = Stream.empty();
   final double refreshIndicatorOffset = 70;
 
-
   void _setupFingerprint() async {
     final biometricRequest = await _viewModel.shouldRequestFingerPrintSetup();
 
@@ -56,7 +55,8 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
           builder: (mContext) {
             return ChangeNotifierProvider(
                 create: (_) => FingerPrintAlertViewModel(),
-                child: FingerPrintAlertDialog());
+                child: FingerPrintAlertDialog()
+            );
           });
 
       final actionTitle = (biometricRequest.second == BiometricType.FINGER_PRINT)
@@ -82,7 +82,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
   }
 
   void subscribeUiToAccountStatus() {
-    Future.delayed(Duration(milliseconds: 1000), (){
+    Future.delayed(Duration(milliseconds: 800), (){
       _viewModel.fetchAccountStatus().listen((event) {
         if(event is Success) {
           _viewModel.checkAccountUpdate();
@@ -91,21 +91,6 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
       }).disposedBy(this);
     });
   }
-
-  _backgroundImage() => Positioned(
-      top: 0,
-      bottom: 0,
-      right: 0,
-      left: 0,
-      child: IgnorePointer(
-        child: Opacity(
-          opacity: 0.2,
-          child: FittedBox(
-            fit: BoxFit.fill,
-            child: Image.asset("res/drawables/ic_app_bg.png"),
-          ),
-        ),
-      ));
 
   @override
   void initState() {
@@ -123,80 +108,70 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
   ///Main Content View of the dashboard
   _contentView(double width, double height) => Container(
         width: double.infinity,
-        height: MediaQuery.of(context).size.height,
+        height: height,
         color: Color(0XFFEBF2FA),
-        child: DashboardRefreshIndicator(
-          viewModel: _viewModel,
-          indicatorOffset: refreshIndicatorOffset,
-          builder: (context, indicatorController){
-            return SingleChildScrollView(
-              child: Stack(
-                children: [
-                  _DashboardBackground(
-                     indicatorController: indicatorController,
-                      width: width,
-                      height: height,
-                  ),
-                  _DashboardTopMenu(
-                      viewModel: _viewModel,
-                      scaffoldKey: _scaffoldKey,
-                      indicatorController: indicatorController,
-                      indicatorOffset: refreshIndicatorOffset,
-                  ),
-                  _backgroundImage(),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          height: height * 0.135,
-                        ),
-                        RefreshSizedBox(
-                          indicatorController: indicatorController,
-                          indicatorOffset: refreshIndicatorOffset
-                        ),
-                        DashboardAccountCard(
-                            viewModel: _viewModel,
-                            pageController: _pageController,
-                        ),
-                        SizedBox(height: 32),
-                        DashboardMenu(_onDrawerItemClickListener),
-                        SizedBox(
-                            height:
-                            !_viewModel.isAccountUpdateCompleted ? 32 : 0),
-                        StreamBuilder(
-                            stream: _viewModel.dashboardUpdateStream,
-                            builder: (_, __) {
-                              return DashboardSliderView(
-                                items: _viewModel.sliderItems,
-                                onItemClick: _onDrawerItemClickListener,
-                              );
-                            }),
-                        SizedBox(height: 32),
-                        DashboardRecentlyPaidView(
-                          beneficiaries: recentlyPaidBeneficiaries,
-                          margin: EdgeInsets.only(bottom: 32),
-                        ),
-                        //Margin is determined by DashboardRecentlyPaidView
-                        Text(
-                          "Suggested for You",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15,
-                            color: Colors.textColorBlack.withOpacity(0.6),
+        child: Stack(
+          children: [
+            DashboardRefreshIndicator(
+                indicatorOffset: refreshIndicatorOffset,
+                viewModel: _viewModel,
+                builder: (a, indicator) {
+                  return  CustomScrollView(
+                    slivers: [
+                      SliverFillRemaining(
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _DashboardTopMenu(
+                                viewModel: _viewModel,
+                                scaffoldKey: _scaffoldKey,
+                                indicatorController: indicator,
+                                indicatorOffset: refreshIndicatorOffset,
+                              ),
+                              SizedBox(height: 21),
+                              RefreshSizedBox(
+                                  indicatorController: indicator,
+                                  indicatorOffset: refreshIndicatorOffset
+                              ),
+                              DashboardAccountCard(
+                                viewModel: _viewModel,
+                                pageController: _pageController,
+                              ),
+                              SizedBox(height: 32),
+                              DashboardMenu(_onDrawerItemClickListener),
+                              SizedBox(height: !_viewModel.isAccountUpdateCompleted ? 32 : 0),
+                              StreamBuilder(
+                                  stream: _viewModel.dashboardUpdateStream,
+                                  builder: (_, __) {
+                                    return DashboardSliderView(
+                                      items: _viewModel.sliderItems,
+                                      onItemClick: _onDrawerItemClickListener,
+                                    );
+                                  }),
+                              SizedBox(height: 32),
+                              DashboardRecentlyPaidView(
+                                beneficiaries: recentlyPaidBeneficiaries,
+                                margin: EdgeInsets.only(bottom: 32),
+                              ),
+                              //Margin is determined by DashboardRecentlyPaidView
+                              SizedBox(height: 42),
+                            ],
                           ),
                         ),
-                        SizedBox(height: 16),
-                        Expanded(flex: 0, child: SuggestedItems()),
-                        SizedBox(height: 42),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            );
-          },
+                      )
+                    ],
+                  );
+                },
+            ),
+            Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: DashboardBottomMenu(_scaffoldKey)
+            )
+          ],
         ),
       );
 
@@ -208,18 +183,16 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
         _viewModel.update(DashboardState.REFRESHING);
         break;
       }
-      case Routes.ACCOUNT_TRANSACTIONS:{
+      case Routes.ACCOUNT_TRANSACTIONS: {
         if(_scaffoldKey.currentState?.isDrawerOpen == true) {
           Navigator.of(context).pop();
         }
 
-        // Get first user account by default
-       final userAccount = _viewModel.userAccounts[0];
-       final routeArgs = {
-         "customerAccountId": userAccount.customerAccount?.id,
-         "accountUserIdx": 0,
-       };
+        if(_viewModel.userAccounts.length == 0) return;
 
+        // Get first user account by default
+        final userAccount = _viewModel.userAccounts.first;
+        final routeArgs = {"userAccountId": userAccount.id};
         await Navigator.of(context).pushNamed(routeName, arguments: routeArgs);
         _viewModel.update(DashboardState.REFRESHING);
         break;
@@ -260,45 +233,20 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
   }
 }
 
-class _DashboardBackground extends StatelessWidget {
-  const _DashboardBackground({
-    Key? key,
-    required this.indicatorController, required this.height, required this.width,
-  })  : super(key: key);
-
-
-  final IndicatorController indicatorController;
-  final double height;
-  final double width;
-
-  @override
-  Widget build(BuildContext context) {
-    final animation = indicatorController;
-
-    return AnimatedBuilder(
-        animation: animation,
-        child: SizedBox(),
-        builder: (ctx, child) {
-          final yScale = (animation.value * 0.25) + 1.0;
-          return Transform(
-            transform: Matrix4.diagonal3Values(1.0, yScale, 1.0),
-            child: Container(
-              width: width,
-              height: height * 0.32,
-              child: SvgPicture.asset("res/drawables/bg.svg", fit: BoxFit.fill),
-            ),
-          );
-        });
-  }
-}
-
+///RefreshSizedBox
+///
+///
+///
+///
 class RefreshSizedBox extends StatelessWidget {
   final IndicatorController indicatorController;
   final double indicatorOffset;
 
-  RefreshSizedBox({Key? key, required this.indicatorController, required this.indicatorOffset}):
-        super(key: key);
-
+  RefreshSizedBox({
+    Key? key,
+    required this.indicatorController,
+    required this.indicatorOffset
+  }): super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -336,17 +284,24 @@ class _DashboardTopMenu extends StatelessWidget {
   final IndicatorController indicatorController;
   final double indicatorOffset;
 
-  _DashboardTopMenu({required this.viewModel, required this.scaffoldKey,
-    required this.indicatorController, required this.indicatorOffset})
-      : super(key: Key("_DashboardTopMenu"));
+  _DashboardTopMenu({
+    required this.viewModel,
+    required this.scaffoldKey,
+    required this.indicatorController,
+    required this.indicatorOffset
+  }) : super(key: Key("_DashboardTopMenu"));
 
   ///Container that holds the user image loaded from remote service
   _userProfileImage(String base64String) => Container(
-      height: 34,
-      width: 34,
+      height: 38,
+      width: 38,
       padding: EdgeInsets.all(2),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
+        border: Border.all(
+            color: Colors.primaryColor.withOpacity(0.13),
+            width: 3,
+        ),
         image: DecorationImage(
           fit: BoxFit.cover,
           image: MemoryImage(
@@ -372,14 +327,11 @@ class _DashboardTopMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final firstName = viewModel.getFirstName();
     final animation = indicatorController;
 
     return Container(
       margin: EdgeInsets.only(
         top: MediaQuery.of(context).size.height * 0.05,
-        left: 11,
-        right: 16,
       ),
       child: Column(
         children: [
@@ -388,7 +340,6 @@ class _DashboardTopMenu extends StatelessWidget {
               child: SizedBox(),
               builder: (ctx, child) {
                final offsetValue = indicatorController.value * indicatorOffset;
-                
                 return Container(
                   height: offsetValue
                 );
@@ -396,170 +347,35 @@ class _DashboardTopMenu extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Material(
-                color: Colors.transparent,
-                shape: CircleBorder(),
-                child: InkWell(
-                  onTap: () {
-                    scaffoldKey.currentState?.openDrawer();
-                  },
-                  child: Container(
-                    padding: EdgeInsets.only(top: 10, bottom: 15, right: 15, left: 15),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                    ),
-                    child: SvgPicture.asset(
-                      "res/drawables/ic_dashboard_drawer_menu.svg",
-                      height: 16,
-                      width: 24,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+              StreamBuilder(
+                  stream: viewModel.getProfilePicture(),
+                  builder: (ctx, AsyncSnapshot<Resource<FileResult>> snapShot) {
+                    if (snapShot.hasData && (snapShot.data is Success || snapShot.data is Loading)) {
+                      final data = snapShot.data?.data;
+                      if (data?.base64String?.isNotEmpty == true) {
+                        return _userProfileImage(data!.base64String!);
+                      }
+                    }
+
+                    final localViewCachedImage = viewModel.userProfileBase64String;
+                    if (localViewCachedImage != null
+                        && localViewCachedImage.isNotEmpty == true) {
+                      return _userProfileImage(viewModel.userProfileBase64String!);
+                    }
+
+                    return _userProfilePlaceholder();
+                  }),
+              Text(
+                "Home",
+                style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.textColorBlack),
               ),
-              Row(
-                children: [
-                  Text(
-                    firstName.isEmpty
-                        ? "Hello"
-                        : "Hello, ${firstName.toLowerCase().capitalizeFirstOfEach}",
-                    style: TextStyle(
-                        fontSize: 13.8,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white),
-                  ),
-                  SizedBox(width: 9),
-                  StreamBuilder(
-                      stream: viewModel.getProfilePicture(),
-                      builder:
-                          (ctx, AsyncSnapshot<Resource<FileResult>> snapShot) {
-                        ///Only if the request is successful or it's loading with data
-                        if (snapShot.hasData && (snapShot.data is Success || snapShot.data is Loading)) {
-                          final data = snapShot.data?.data;
-                          if (data?.base64String?.isNotEmpty == true) {
-                            return _userProfileImage(data!.base64String!);
-                          }
-                        }
-
-                        final localViewCachedImage = viewModel.userProfileBase64String;
-                        if (localViewCachedImage != null
-                            && localViewCachedImage.isNotEmpty == true) {
-                          return _userProfileImage(viewModel.userProfileBase64String!);
-                        }
-
-                        return _userProfilePlaceholder();
-                      }),
-                  SizedBox(width: 4)
-                ],
-              )
+              Container(width: 40,)
             ],
           ),
         ],
-      ),
-    );
-  }
-}
-
-///
-///
-///
-///
-///
-///
-///
-class SuggestedItems extends Row {
-  @override
-  List<Widget> get children => _contentView();
-
-  _contentView() => [
-    Expanded(
-        child: _SuggestedItem(
-            backgroundColor: Colors.primaryColor,
-            image: Image.asset(
-              "res/drawables/ic_target.png",
-              width: 150,
-              height: 150,
-            ),
-            title: "Start\nSaving.")),
-    SizedBox(width: 20.5),
-    Expanded(
-        child: _SuggestedItem(
-            backgroundColor: Colors.solidGreen,
-            image: Image.asset(
-              "res/drawables/ic_dashboard_calendar.png",
-              width: 150,
-              height: 150,
-            ),
-            title: "Get a\nLoan.")),
-  ];
-}
-
-///_SuggestedItem
-///
-///
-///
-///
-///
-///
-///
-///
-///
-///
-///
-class _SuggestedItem extends StatelessWidget {
-  final Color backgroundColor;
-  final String title;
-  final Widget image;
-
-  _SuggestedItem(
-      {required this.backgroundColor,
-      required this.image,
-      required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: 198,
-      decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.all(Radius.circular(16)),
-          boxShadow: [
-            BoxShadow(
-              offset: Offset(0, 1),
-              blurRadius: 2,
-              color: Color(0xff1F0E4FB1).withOpacity(0.12),
-            ),
-          ]),
-      child: Material(
-        borderRadius: BorderRadius.all(Radius.circular(16)),
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.all(Radius.circular(16)),
-          overlayColor: MaterialStateProperty.all(backgroundColor.withRed(190)),
-          highlightColor: backgroundColor.withOpacity(0.04),
-          onTap: () => showComingSoon(context),
-          child: Stack(
-            // crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Positioned(
-                top: 4,
-                right: 0,
-                child: image,
-              ),
-              Positioned(
-                  left: 20,
-                  bottom: 24,
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 19,
-                        color: Colors.white),
-                  )),
-            ],
-          ),
-        ),
       ),
     );
   }

@@ -35,6 +35,10 @@ CustomerAccount _$CustomerAccountFromJson(Map<String, dynamic> json) {
         ?.map((e) => e as String)
         .toList(),
     multipleDebit: json['multipleDebit'] as bool?,
+    blocked: json['blocked'] as bool?,
+    blockedBy: json['blockedBy'] as String?,
+    blockReason: json['blockReason'] as String?,
+    referralCode: json['referralCode'] as String?,
   );
 }
 
@@ -61,4 +65,8 @@ Map<String, dynamic> _$CustomerAccountToJson(CustomerAccount instance) =>
       'active': instance.active,
       'unsupportedFeatures': instance.unsupportedFeatures,
       'multipleDebit': instance.multipleDebit,
+      'blocked': instance.blocked,
+      'blockReason': instance.blockReason,
+      'blockedBy': instance.blockedBy,
+      'referralCode': instance.referralCode,
     };

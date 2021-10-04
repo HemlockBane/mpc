@@ -29,6 +29,10 @@ class CustomerAccount {
   bool? active;
   List<String>? unsupportedFeatures;
   bool? multipleDebit;
+  bool? blocked;
+  String? blockReason;
+  String? blockedBy;
+  String? referralCode;
 
   CustomerAccount(
       { this.id,
@@ -53,6 +57,10 @@ class CustomerAccount {
         this.active,
         this.unsupportedFeatures,
         this.multipleDebit,
+        this.blocked,
+        this.blockedBy,
+        this.blockReason,
+        this.referralCode
       });
 
 

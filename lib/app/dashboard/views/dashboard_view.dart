@@ -8,6 +8,7 @@ import 'package:flutter/material.dart' hide ScrollView, Colors;
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_bottom_menu.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_drawer_view.dart';
+import 'package:moniepoint_flutter/app/dashboard/views/dashboard_loans_view.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_menu.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_recently_paid_view.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_slider_view.dart';
@@ -33,6 +34,7 @@ import 'dashboard_account_card.dart';
 import 'package:flutter/rendering.dart';
 
 import 'dashboard_more_view.dart';
+import 'dashboard_savings_view.dart';
 import 'dashboard_top_menu.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -239,7 +241,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
 
-    final tabs = <Widget>[_contentView(width, height), Container(), Container(), MoreView()];
+    final tabs = <Widget>[_contentView(width, height), SavingsView(), LoansView(), MoreView()];
 
     return SessionedWidget(
         context: context,

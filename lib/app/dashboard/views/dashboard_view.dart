@@ -43,6 +43,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
   PageController _pageController = PageController(viewportFraction: 1);
   Stream<Resource<List<TransferBeneficiary>>> recentlyPaidBeneficiaries = Stream.empty();
   final double refreshIndicatorOffset = 70;
+  int currentTabIndex = 0;
 
   void _setupFingerprint() async {
     final biometricRequest = await _viewModel.shouldRequestFingerPrintSetup();
@@ -165,12 +166,6 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
                   );
                 },
             ),
-            Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: DashboardBottomMenu(_scaffoldKey)
-            )
           ],
         ),
       );
@@ -217,17 +212,34 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
     }
   }
 
+  void _changeTab(String title, int tabIndex) {
+    setState(() {
+      currentTabIndex = tabIndex;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
+
+    final tabs = [_contentView(width, height), Container(), Container(), Container()];
 
     return SessionedWidget(
         context: context,
         child: Scaffold(
           key: _scaffoldKey,
           drawer: DashboardDrawer(width, _onDrawerItemClickListener),
-          body: _contentView(width, height),
+          body: tabs[currentTabIndex],
+          bottomNavigationBar: AppBottomNavigationBar(
+            onItemClickListener: _changeTab,
+            items: [
+              AppBottomNavigationBarItem(svgPath: "res/drawables/ic_dashboard_home.svg", title: "Home"),
+              AppBottomNavigationBarItem(svgPath: "res/drawables/ic_dashboard_piggy.svg", title: "Savings"),
+              AppBottomNavigationBarItem(svgPath: "res/drawables/ic_dashboard_loan.svg", title: "Loan"),
+              AppBottomNavigationBarItem(svgPath: "res/drawables/ic_dashboard_more.svg", title: "More")
+            ],
+          ),
         ),
     );
   }

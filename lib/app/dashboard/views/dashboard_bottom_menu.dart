@@ -146,3 +146,106 @@ class _MenuItem extends StatelessWidget {
   }
 
 }
+
+
+
+class AppBottomNavigationBarItem {
+  AppBottomNavigationBarItem({required this.svgPath, required this.title});
+
+  String svgPath;
+  String title;
+}
+
+class AppBottomNavigationBar extends StatefulWidget {
+  final OnItemClickListener<String, int>? onItemClickListener;
+  final List<AppBottomNavigationBarItem> items;
+  final Color color;
+  final Color selectedColor;
+  final double height;
+
+  const AppBottomNavigationBar(
+    {required this.onItemClickListener,
+      required this.items,
+      this.color = Colors.grey,
+      this.selectedColor = Colors.black,
+      this.height = 60});
+
+  @override
+  _AppBottomNavigationBarState createState() => _AppBottomNavigationBarState();
+}
+
+class _AppBottomNavigationBarState extends State<AppBottomNavigationBar> {
+  int _selectedIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return BottomAppBar(
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: _items(),
+      ),
+    );
+  }
+
+  List<Widget> _items() {
+    return List.generate(widget.items.length, (int index) {
+      return _buildTabItem(
+        navigationBarItem: widget.items[index],
+        index: index,
+        onPressed: _updateSelectedIndex);
+    });
+  }
+  
+  Color getColor(String title){
+    if (title == "Savings") return Color(0xff1EB12D);
+    if (title == "Loan") return Color(0xffF08922);
+    return Colors.primaryColor;
+  }
+
+  Widget _buildTabItem(
+    {required AppBottomNavigationBarItem navigationBarItem,
+      required int index,
+      required OnItemClickListener<String, int>? onPressed}) {
+    Color color = _selectedIndex == index ? getColor(navigationBarItem.title) : Color(0XFF9BA6B9);
+    return Expanded(
+      child: SizedBox(
+        height: widget.height,
+        child: Material(
+          type: MaterialType.transparency,
+          child: InkWell(
+            onTap: () => onPressed?.call(navigationBarItem.title, index),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                // Icon(
+                //   navigationBarItem.iconData,
+                //   color: color,
+                //   size: widget.iconSize,
+                // ),
+                SvgPicture.asset(
+                  navigationBarItem.svgPath,
+                  color: color,
+                ),
+                Text(
+                  navigationBarItem.title,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: color),
+                )
+              ],
+            ),
+          ),
+        ),
+      ));
+  }
+
+  _updateSelectedIndex(String title, int index) {
+    widget.onItemClickListener?.call(title, index);
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+}

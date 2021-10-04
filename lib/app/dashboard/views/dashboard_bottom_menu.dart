@@ -156,26 +156,21 @@ class AppBottomNavigationBarItem {
   String title;
 }
 
-class AppBottomNavigationBar extends StatefulWidget {
-  final OnItemClickListener<String, int>? onItemClickListener;
+class AppBottomNavigationBar extends StatelessWidget {
+  final ValueChanged<int> onTabSelected;
+  final int selectedIndex;
   final List<AppBottomNavigationBarItem> items;
   final Color color;
   final Color selectedColor;
   final double height;
 
   const AppBottomNavigationBar(
-    {required this.onItemClickListener,
+    {required this.onTabSelected,
+      required this.selectedIndex,
       required this.items,
       this.color = Colors.grey,
       this.selectedColor = Colors.black,
       this.height = 60});
-
-  @override
-  _AppBottomNavigationBarState createState() => _AppBottomNavigationBarState();
-}
-
-class _AppBottomNavigationBarState extends State<AppBottomNavigationBar> {
-  int _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -189,14 +184,14 @@ class _AppBottomNavigationBarState extends State<AppBottomNavigationBar> {
   }
 
   List<Widget> _items() {
-    return List.generate(widget.items.length, (int index) {
+    return List.generate(items.length, (int index) {
       return _buildTabItem(
-        navigationBarItem: widget.items[index],
+        navigationBarItem: items[index],
         index: index,
         onPressed: _updateSelectedIndex);
     });
   }
-  
+
   Color getColor(String title){
     if (title == "Savings") return Color(0xff1EB12D);
     if (title == "Loan") return Color(0xffF08922);
@@ -206,15 +201,15 @@ class _AppBottomNavigationBarState extends State<AppBottomNavigationBar> {
   Widget _buildTabItem(
     {required AppBottomNavigationBarItem navigationBarItem,
       required int index,
-      required OnItemClickListener<String, int>? onPressed}) {
-    Color color = _selectedIndex == index ? getColor(navigationBarItem.title) : Color(0XFF9BA6B9);
+      required  final ValueChanged<int> onPressed}) {
+    Color color = selectedIndex == index ? getColor(navigationBarItem.title) : Color(0XFF9BA6B9);
     return Expanded(
       child: SizedBox(
-        height: widget.height,
+        height: height,
         child: Material(
           type: MaterialType.transparency,
           child: InkWell(
-            onTap: () => onPressed?.call(navigationBarItem.title, index),
+            onTap: () => onPressed.call(index),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -242,10 +237,9 @@ class _AppBottomNavigationBarState extends State<AppBottomNavigationBar> {
       ));
   }
 
-  _updateSelectedIndex(String title, int index) {
-    widget.onItemClickListener?.call(title, index);
-    setState(() {
-      _selectedIndex = index;
-    });
+  _updateSelectedIndex(int index) {
+    onTabSelected.call(index);
   }
 }
+
+

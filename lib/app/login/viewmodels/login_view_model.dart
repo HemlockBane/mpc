@@ -43,7 +43,8 @@ class LoginViewModel with ChangeNotifier {
       ..withUsername(username)
       ..withPassword(password)
       ..withVersion(BuildConfig.APP_VERSION)
-      ..withDeviceId("7603883eb9cd8a8c"/*_deviceManager.deviceId*/)
+      ..withDeviceId(_deviceManager.deviceId)
+      // ..withDeviceId("7603883eb9cd8a8c"/*_deviceManager.deviceId*/)
       ..withDeviceName(_deviceManager.deviceName);
 
     return doLogin(requestBody);

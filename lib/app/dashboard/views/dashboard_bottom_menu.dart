@@ -194,7 +194,7 @@ class AppBottomNavigationBar extends StatelessWidget {
 
   Color getColor(String title){
     if (title == "Savings") return Color(0xff1EB12D);
-    if (title == "Loan") return Color(0xffF08922);
+    if (title == "Loans") return Color(0xffF08922);
     return Colors.primaryColor;
   }
 

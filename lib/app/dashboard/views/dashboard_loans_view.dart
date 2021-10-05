@@ -66,7 +66,7 @@ class LoansView extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Align(alignment: Alignment(-0.1, -1.0),
+                  Align(alignment: Alignment(-0.13, -1.0),
                     child: Image.asset("res/drawables/ic_loans_calendar.png", height: 165, width: 165,))
                 ],
               ),

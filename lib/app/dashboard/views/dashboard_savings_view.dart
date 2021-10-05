@@ -22,7 +22,7 @@ class SavingsView extends StatelessWidget {
       width: width,
       color: Color(0XFFF0FAEB),
       child: Container(
-        height: height,
+        height: height - 60,
         margin: EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           children: [

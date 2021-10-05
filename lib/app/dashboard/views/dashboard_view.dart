@@ -137,52 +137,50 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
                 indicatorOffset: refreshIndicatorOffset,
                 viewModel: _viewModel,
                 builder: (a, indicator) {
-                  return  CustomScrollView(
-                    slivers: [
-                      SliverFillRemaining(
-                        child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              DashboardTopMenu(
-                                viewModel: _viewModel,
-                                title: "Home",
-                                indicatorController: indicator,
-                                indicatorOffset: refreshIndicatorOffset,
-                              ),
-                              SizedBox(height: 21),
-                              RefreshSizedBox(
-                                  indicatorController: indicator,
-                                  indicatorOffset: refreshIndicatorOffset
-                              ),
-                              DashboardAccountCard(
-                                viewModel: _viewModel,
-                                pageController: _pageController,
-                              ),
-                              SizedBox(height: 32),
-                              DashboardMenu(_onDrawerItemClickListener),
-                              SizedBox(height: !_viewModel.isAccountUpdateCompleted ? 32 : 0),
-                              StreamBuilder(
-                                  stream: _viewModel.dashboardUpdateStream,
-                                  builder: (_, __) {
-                                    return DashboardSliderView(
-                                      items: _viewModel.sliderItems,
-                                      onItemClick: _onDrawerItemClickListener,
-                                    );
-                                  }),
-                              SizedBox(height: 32),
-                              DashboardRecentlyPaidView(
-                                beneficiaries: recentlyPaidBeneficiaries,
-                                margin: EdgeInsets.only(bottom: 32),
-                              ),
-                              //Margin is determined by DashboardRecentlyPaidView
-                              SizedBox(height: 42),
-                            ],
-                          ),
-                        ),
-                      )
-                    ],
+                  return Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: ListView(
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            DashboardTopMenu(
+                              viewModel: _viewModel,
+                              title: "Home",
+                              indicatorController: indicator,
+                              indicatorOffset: refreshIndicatorOffset,
+                            ),
+                            SizedBox(height: 21),
+                            RefreshSizedBox(
+                              indicatorController: indicator,
+                              indicatorOffset: refreshIndicatorOffset
+                            ),
+                            DashboardAccountCard(
+                              viewModel: _viewModel,
+                              pageController: _pageController,
+                            ),
+                            SizedBox(height: 32),
+                            DashboardMenu(_onDrawerItemClickListener),
+                            SizedBox(height: !_viewModel.isAccountUpdateCompleted ? 32 : 0),
+                            StreamBuilder(
+                              stream: _viewModel.dashboardUpdateStream,
+                              builder: (_, __) {
+                                return DashboardSliderView(
+                                  items: _viewModel.sliderItems,
+                                  onItemClick: _onDrawerItemClickListener,
+                                );
+                              }),
+                            SizedBox(height: 32),
+                            DashboardRecentlyPaidView(
+                              beneficiaries: recentlyPaidBeneficiaries,
+                              margin: EdgeInsets.only(bottom: 32),
+                            ),
+                            //Margin is determined by DashboardRecentlyPaidView
+                            SizedBox(height: 42),
+                          ],
+                        )
+                      ],
+                    ),
                   );
                 },
             ),
@@ -239,18 +237,24 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    final height = MediaQuery.of(context).size.height;
-
-    final tabs = <Widget>[_contentView(width, height), SavingsView(), LoansView(), MoreView()];
 
     return SessionedWidget(
         context: context,
         child: Scaffold(
           key: _scaffoldKey,
-          // drawer: DashboardDrawer(width, _onDrawerItemClickListener),
-          body: PageView(
-            controller: _tabPageController,
-            children: tabs,
+          drawer: DashboardDrawer(width, _onDrawerItemClickListener),
+          body: Container(
+            child: PageView(
+              controller: _tabPageController,
+              children: [
+                LayoutBuilder(builder: (ctx, constraints){
+                  return _contentView(width, constraints.maxHeight - 100);
+                }),
+                SavingsView(),
+                LoansView(),
+                MoreView()
+              ],
+            ),
           ),
           bottomNavigationBar: AppBottomNavigationBar(
             selectedIndex: currentTabIndex,

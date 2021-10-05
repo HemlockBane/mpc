@@ -15,8 +15,10 @@ class LoansView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<DashboardViewModel>(context, listen: false);
-    final height =  MediaQuery.of(context).size.height;
+    final topMenuHeight = MediaQuery.of(context).size.height * 0.05;
+    final height =  MediaQuery.of(context).size.height - 60 - topMenuHeight;
     final width = MediaQuery.of(context).size.width;
+
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16),
       width: MediaQuery.of(context).size.width,
@@ -27,8 +29,7 @@ class LoansView extends StatelessWidget {
         child: Column(
           children: [
             DashboardTopMenu(viewModel: viewModel, title: "Loans"),
-            SizedBox(height: 22,),
-            SizedBox(height: height/5,),
+            SizedBox(height: height * 0.2),
             Expanded(
               child: Stack(
                 children: [

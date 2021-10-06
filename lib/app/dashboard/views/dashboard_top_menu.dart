@@ -1,0 +1,115 @@
+import 'dart:convert';
+
+import 'package:flutter/material.dart' hide Colors;
+import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
+import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/custom_icons2_icons.dart';
+import 'package:moniepoint_flutter/core/models/file_result.dart';
+import 'package:moniepoint_flutter/core/network/resource.dart';
+
+import 'custom_refresh_indicator/custom_refresh_indicator.dart';
+
+
+
+class DashboardTopMenu extends StatelessWidget {
+  final DashboardViewModel viewModel;
+  final title;
+  final IndicatorController? indicatorController;
+  final double? indicatorOffset;
+
+  DashboardTopMenu({
+    required this.viewModel,
+    this.indicatorController,
+    required this.title,
+    this.indicatorOffset
+  }) : super(key: Key("_DashboardTopMenu"));
+
+  ///Container that holds the user image loaded from remote service
+  _userProfileImage(String base64String) => Container(
+    height: 38,
+    width: 38,
+    padding: EdgeInsets.all(2),
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      border: Border.all(
+        color: Colors.primaryColor.withOpacity(0.13),
+        width: 3,
+      ),
+      image: DecorationImage(
+        fit: BoxFit.cover,
+        image: MemoryImage(
+          base64Decode(base64String),
+        ),
+      ),
+    ));
+
+  _userProfilePlaceholder() => Container(
+    height: 34,
+    width: 34,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      color: Colors.white.withOpacity(0.2),
+      border: Border.all(color: Colors.white.withOpacity(0.4))),
+    child: Icon(
+      CustomIcons2.username,
+      color: Color(0xffF5F9FF).withOpacity(0.5),
+      size: 21,
+    ),
+  );
+
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Container(
+      margin: EdgeInsets.only(
+        top: MediaQuery.of(context).size.height * 0.05,
+      ),
+      child: Column(
+        children: [
+          if (indicatorController != null && indicatorOffset != null)
+            AnimatedBuilder(
+              animation: indicatorController!,
+              child: SizedBox(),
+              builder: (ctx, child) {
+                final offsetValue = indicatorController!.value * indicatorOffset!;
+                return Container(
+                  height: offsetValue
+                );
+              }),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              StreamBuilder(
+                stream: viewModel.getProfilePicture(),
+                builder: (ctx, AsyncSnapshot<Resource<FileResult>> snapShot) {
+                  if (snapShot.hasData && (snapShot.data is Success || snapShot.data is Loading)) {
+                    final data = snapShot.data?.data;
+                    if (data?.base64String?.isNotEmpty == true) {
+                      return _userProfileImage(data!.base64String!);
+                    }
+                  }
+
+                  final localViewCachedImage = viewModel.userProfileBase64String;
+                  if (localViewCachedImage != null
+                    && localViewCachedImage.isNotEmpty == true) {
+                    return _userProfileImage(viewModel.userProfileBase64String!);
+                  }
+
+                  return _userProfilePlaceholder();
+                }),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.textColorBlack),
+              ),
+              Container(width: 40,)
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}

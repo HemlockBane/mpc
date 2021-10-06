@@ -269,6 +269,13 @@ class CustomerAddressForm with ChangeNotifier {
     }
   }
 
+  void resetForm() {
+    PreferenceUtil.saveDataForLoggedInUser(formKey, null);
+    if(requiresMailingAddress) {
+      mailingAddressForm?.resetForm();
+    }
+  }
+
   @override
   void dispose() {
     _addressController.close();

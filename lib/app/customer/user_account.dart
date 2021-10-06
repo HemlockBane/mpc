@@ -35,8 +35,14 @@ class UserAccount {
   AccountState getAccountState() {
     if(this.customerAccount?.blocked == true) return AccountState.BLOCKED;
     if(this.accountStatus?.postNoDebit == true) return AccountState.PND;
-    if(this.customerAccount?.customer?.reUploadID == true
-        || this.customerAccount?.customer?.reUploadProofOfAddress == true) {
+
+    final shouldReUploadID = accountStatus?.customer?.reUploadID
+        ?? this.customerAccount?.customer?.reUploadID;
+
+    final shouldReUploadProof = accountStatus?.customer?.reUploadProofOfAddress
+        ?? this.customerAccount?.customer?.reUploadProofOfAddress;
+
+    if(shouldReUploadID == true || shouldReUploadProof == true) {
       return AccountState.REQUIRE_DOCS;
     }
 

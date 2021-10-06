@@ -146,3 +146,100 @@ class _MenuItem extends StatelessWidget {
   }
 
 }
+
+
+
+class AppBottomNavigationBarItem {
+  AppBottomNavigationBarItem({required this.svgPath, required this.title});
+
+  String svgPath;
+  String title;
+}
+
+class AppBottomNavigationBar extends StatelessWidget {
+  final ValueChanged<int> onTabSelected;
+  final int selectedIndex;
+  final List<AppBottomNavigationBarItem> items;
+  final Color color;
+  final Color selectedColor;
+  final double height;
+
+  const AppBottomNavigationBar(
+    {required this.onTabSelected,
+      required this.selectedIndex,
+      required this.items,
+      this.color = Colors.grey,
+      this.selectedColor = Colors.black,
+      this.height = 60});
+
+  @override
+  Widget build(BuildContext context) {
+    return BottomAppBar(
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: _items(),
+      ),
+    );
+  }
+
+  List<Widget> _items() {
+    return List.generate(items.length, (int index) {
+      return _buildTabItem(
+        navigationBarItem: items[index],
+        index: index,
+        onPressed: _updateSelectedIndex);
+    });
+  }
+
+  Color getColor(String title){
+    if (title == "Savings") return Color(0xff1EB12D);
+    if (title == "Loans") return Color(0xffF08922);
+    return Colors.primaryColor;
+  }
+
+  Widget _buildTabItem(
+    {required AppBottomNavigationBarItem navigationBarItem,
+      required int index,
+      required  final ValueChanged<int> onPressed}) {
+    Color color = selectedIndex == index ? getColor(navigationBarItem.title) : Color(0XFF9BA6B9);
+    return Expanded(
+      child: SizedBox(
+        height: height,
+        child: Material(
+          type: MaterialType.transparency,
+          child: InkWell(
+            onTap: () => onPressed.call(index),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                // Icon(
+                //   navigationBarItem.iconData,
+                //   color: color,
+                //   size: widget.iconSize,
+                // ),
+                SvgPicture.asset(
+                  navigationBarItem.svgPath,
+                  color: color,
+                ),
+                Text(
+                  navigationBarItem.title,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: color),
+                )
+              ],
+            ),
+          ),
+        ),
+      ));
+  }
+
+  _updateSelectedIndex(int index) {
+    onTabSelected.call(index);
+  }
+}
+
+

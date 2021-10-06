@@ -157,7 +157,10 @@ class AccountStatusRegularizeDocumentScreen extends StatelessWidget {
                   width: double.infinity,
                   child: Styles.appButton(
                       elevation: 0.3,
-                      onClick: () => Navigator.of(context).popAndPushNamed(Routes.ACCOUNT_UPDATE),
+                      onClick: () async {
+                        await Navigator.of(context).pushNamed(Routes.ACCOUNT_UPDATE);
+                        Navigator.of(context).pop();
+                      },
                       text: "Get Started",
                       textStyle: TextStyle(
                           fontWeight: FontWeight.w500,

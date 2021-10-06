@@ -228,6 +228,11 @@ class NextOfKinForm with ChangeNotifier, Validators {
       }
   }
 
+  void resetForm() {
+    PreferenceUtil.saveDataForLoggedInUser(FORM_KEY, null);
+    addressForm.resetForm();
+  }
+
   @override
   void dispose() {
     _firstNameController.close();

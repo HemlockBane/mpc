@@ -163,7 +163,7 @@ class DashboardAccountItemState extends State<DashboardAccountItem>
 
   void _navigateToFixAccount() async {
     await AccountUpgradeRouteDelegate.navigateToAccountUpgrade(context, userAccount);
-    // _viewModel.update(DashboardState.REFRESHING);
+    _viewModel.update(DashboardState.ACCOUNT_STATUS_UPDATED);
   }
 
   onItemTap() async {

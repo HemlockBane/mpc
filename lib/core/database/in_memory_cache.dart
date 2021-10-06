@@ -33,10 +33,6 @@ abstract class InMemoryCache<T> {
     _controller.sink.add(List.from(_cache));
   }
 
-  void _updateListeners() {
-
-  }
-
   void close() {
     _controller.close();
   }

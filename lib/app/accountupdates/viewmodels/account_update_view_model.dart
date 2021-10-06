@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:get_it/get_it.dart';
+import 'package:moniepoint_flutter/app/accounts/model/account_service_delegate.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_update_flag.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/customer_service_delegate.dart';
@@ -43,9 +44,10 @@ class AccountUpdateViewModel extends BaseViewModel {
   Stream<bool> get loadingState => _loadingStateController.stream;
 
   AccountUpdateViewModel({
+    AccountServiceDelegate? accountServiceDelegate,
     CustomerServiceDelegate? customerServiceDelegate,
     LocationServiceDelegate? locationServiceDelegate,
-    FileManagementServiceDelegate? fileServiceDelegate}) {
+    FileManagementServiceDelegate? fileServiceDelegate}): super(accountServiceDelegate: accountServiceDelegate) {
     this._locationServiceDelegate = locationServiceDelegate ?? GetIt.I<LocationServiceDelegate>();
     this._customerServiceDelegate = customerServiceDelegate ?? GetIt.I<CustomerServiceDelegate>();
     this._fileServiceDelegate = fileServiceDelegate ?? GetIt.I<FileManagementServiceDelegate>();
@@ -130,17 +132,44 @@ class AccountUpdateViewModel extends BaseViewModel {
     this._loadingStateController.sink.add(isLoading);
   }
 
-  Stream<Resource<Tier>> checkCustomerEligibility({AccountUpdate? accountUpdate}) {
+
+
+  Stream<Resource<Tier>> checkCustomerEligibility({AccountUpdate? accountUpdate, bool updateStatus = false}) async* {
     final mAccountUpdate = accountUpdate ?? _buildAccountUpdateRequest();
-    print(jsonEncode(mAccountUpdate));
-    return _customerServiceDelegate.checkCustomerEligibility(customerId, mAccountUpdate);
+    final updateStatusStream = accountServiceDelegate!.updateAllAccountStatus();
+    final customerEligibilityStream = _customerServiceDelegate.checkCustomerEligibility(customerId, mAccountUpdate);
+    await for(var resource in customerEligibilityStream) {
+      if(resource is Success)  {
+        if(!updateStatus) {
+          yield resource;
+          break;
+        } else {
+          yield* updateStatusStream.map((event) {
+            if(event is Loading) return Resource.loading(null);
+            return resource;
+          });
+          break;
+        }
+      }
+      else if(resource is Loading) yield Resource.loading(null);
+      else if(resource is Error<Tier>) yield Resource.error(err: ServiceError(message: resource.message ?? ""));
+    }
+  }
+
+  void _cleanUpForms() {
+    if(_addressForm.isInitialized) addressForm.resetForm();
+    if(_nextOfKinForm.isInitialized) nextOfKinForm.resetForm();
   }
 
   Stream<Resource<Tier>> updateAccount() async* {
     final accountUpdate = _buildAccountUpdateRequest();
     final responseStream = _customerServiceDelegate.updateCustomerInfo(customerId, accountUpdate);
     await for(var resource in responseStream) {
-      if(resource is Success) yield* _customerServiceDelegate.checkCustomerEligibility(customerId, accountUpdate);
+      if(resource is Success) {
+        //Do clean up
+        _cleanUpForms();
+        yield* checkCustomerEligibility(accountUpdate: accountUpdate, updateStatus: true);
+      }
       else if(resource is Loading) yield Resource.loading(null);
       else if(resource is Error<AccountUpdate>) yield Resource.error(err: ServiceError(message: resource.message ?? ""));
     }

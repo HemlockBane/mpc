@@ -50,27 +50,8 @@ class DashboardViewModel extends BaseViewModel {
   StreamController<DashboardState> _dashboardController = StreamController.broadcast();
   Stream<DashboardState> get dashboardUpdateStream => _dashboardController.stream;
 
-  Stream<Resource<AccountStatus>> fetchAccountStatus() async* {
-    //Fetch the account status for all accounts
-    final userAccounts = this.userAccounts;
-    bool encounteredError = false;
-
-    for(var i = 0; i < userAccounts.length && encounteredError == false; i++) {
-      final userAccount = userAccounts[i];
-      final dataSource = accountServiceDelegate!.getAccountStatus(userAccount.customerAccount!.id!);
-      await for (var data in dataSource) {
-        if(data is Loading) yield data;
-        if(data is Error) {
-          encounteredError = true;
-          yield data;
-          break;
-        }
-        if(data is Success && i == userAccounts.length -1) {
-          yield data;
-          break;
-        }
-      }
-    }
+  Stream<Resource<dynamic>> fetchAllAccountStatus() {
+    return accountServiceDelegate!.updateAllAccountStatus();
   }
 
   ///TODO passing context here might be breaking principles

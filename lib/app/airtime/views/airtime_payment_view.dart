@@ -399,6 +399,7 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
         showModalBottomSheet(
             context: widget._scaffoldKey.currentContext ?? context,
             isScrollControlled: true,
+            isDismissible: false,
             backgroundColor: Colors.transparent,
             builder: (mContext) =>
                 TransactionSuccessDialog(

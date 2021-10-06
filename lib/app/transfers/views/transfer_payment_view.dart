@@ -222,6 +222,8 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
           showModalBottomSheet(
               context: widget._scaffoldKey.currentContext ?? context,
               isScrollControlled: true,
+              enableDrag: false,
+              isDismissible: false,
               backgroundColor: Colors.transparent,
               builder: (mContext) => TransactionSuccessDialog(
                 payload, onClick: () {

@@ -213,6 +213,7 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
           showModalBottomSheet(
               context: widget._scaffoldKey.currentContext ?? context,
               isScrollControlled: true,
+              isDismissible: false,
               backgroundColor: Colors.transparent,
               builder: (mContext) => TransactionSuccessDialog(
                   payload, onClick: () {

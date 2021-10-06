@@ -234,7 +234,7 @@ class _AccountRestrictedRulesView  extends StatelessWidget {
                   color: Colors.primaryColor.withOpacity(0.1)
                 ),
                 child: Text(
-                    "Moniepoint Tier 1".toUpperCase(),//TODO change
+                    accountStatus?.schemeCode?.name.toUpperCase() ?? "",//TODO change
                     style: TextStyle(
                       color: Colors.solidDarkBlue,
                       fontSize: 10,

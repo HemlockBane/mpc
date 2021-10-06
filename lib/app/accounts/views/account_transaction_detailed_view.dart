@@ -1,15 +1,19 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' hide Colors, ScrollView;
+import 'package:flutter/material.dart' hide Colors, ScrollView, Card;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/transaction_category.dart';
 import 'package:moniepoint_flutter/app/accounts/viewmodels/account_transaction_detail_view_model.dart';
 import 'package:moniepoint_flutter/app/accounts/viewmodels/transaction_list_view_model.dart';
 import 'package:moniepoint_flutter/app/accounts/views/clippers/account_ticket_clipper.dart';
 import 'package:moniepoint_flutter/app/accounts/views/dialogs/account_settings_dialog.dart';
+import 'package:moniepoint_flutter/app/cards/model/data/card.dart';
+import 'package:moniepoint_flutter/app/cards/views/utils/card_view_util.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/lazy.dart';
 import 'package:moniepoint_flutter/core/models/transaction.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
@@ -22,6 +26,9 @@ import 'package:moniepoint_flutter/core/views/transaction_options_view.dart';
 import 'package:provider/provider.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
+import 'package:collection/collection.dart';
+
+///@author Paul Okeke
 
 class AccountTransactionDetailedView extends StatefulWidget {
   AccountTransactionDetailedView();
@@ -51,531 +58,737 @@ class _AccountTransactionDetailedView extends State<AccountTransactionDetailedVi
     _viewModel.getTiers().listen((event) {});
   }
 
+  Widget _accountNumberView (String? accountNumber) => Text(
+    "Account Number : $accountNumber",
+    style: TextStyle(
+      fontSize: 13,
+      color: Colors.textColorBlack,
+    ),
+  ).colorText({"$accountNumber": Tuple(Colors.textColorBlack, null)}, underline: false);
+
+  _TransactionDetailDisplayable _getBeneficiaryDisplayableView(AccountTransaction transaction) {
+    switch(transaction.transactionCategory) {
+      case TransactionCategory.TRANSFER:
+        return _TransferTransactionBeneficiaryDetails(transaction: transaction);
+      case TransactionCategory.BILL_PAYMENT:
+        return _BillTransactionBeneficiaryDetails(transaction: transaction);
+      case TransactionCategory.AIRTIME:
+        return _AirtimeTransactionBeneficiaryDetails(transaction: transaction);
+      case TransactionCategory.DATA:
+        return _AirtimeTransactionBeneficiaryDetails(transaction: transaction);
+      case TransactionCategory.CARD_LINKING:
+        return _CardTransactionBeneficiaryDetails(transaction: transaction,);
+      case TransactionCategory.CARD_PURCHASE:
+        return _CardTransactionBeneficiaryDetails(transaction: transaction,);
+      case TransactionCategory.DEFAULT:
+        return _EmptyBeneficiaryDetails();
+      default:
+        return _EmptyBeneficiaryDetails();
+    }
+  }
+
+  List<Widget> _generateTransactionDetailsItems(AccountTransaction transaction) {
+    final items = [
+      _getBeneficiaryDisplayableView(transaction),
+      _TransactionDetailViewItem(
+        label: "Narration",
+        value: transaction.narration,
+        valueTextWeight: FontWeight.w500,
+      ),
+      _TransactionDetailViewItem(
+        label: "Transaction Date",
+        value: transaction.transactionDateToString(),
+        valueTextWeight: FontWeight.w600,
+      ),
+      _TransactionDetailViewItem(
+        label: "Channel",
+        value: transaction.transactionChannel,
+        valueTextWeight: FontWeight.w600,
+        isChannel: true,
+      ),
+      _TransactionDetailViewItem(
+        label: "Reference",
+        value: transaction.transactionRef,
+        valueTextWeight: FontWeight.w400,
+      ),
+      _TransactionDetailViewItem(
+        label: "Transaction Code",
+        value: transaction.transactionCode,
+        valueTextWeight: FontWeight.w400,
+      )
+    ];
+
+    return items.foldIndexed(<Widget>[], (index, previous, element) {
+      if(element.shouldDisplay()) previous.add(element);
+      if(index != items.length - 1 && element.shouldDisplay()) {
+        previous.add(Divider(height: 1, color: Colors.primaryColor.withOpacity(0.2)));
+      }
+      return previous;
+    });
+  }
+
+  Widget _contentView(AccountTransaction transaction) {
+    return Stack(
+      children: [
+        Positioned(
+          left: 0,
+          right: 0,
+          top: 0,
+          child: _TransactionCategoryView(transaction: transaction),
+        ),
+        ClipPath(
+          clipper: AccountTransactionsTicketClipper(),
+          child: Container(
+            margin: EdgeInsets.only(
+                top: transaction.transactionCategory != null
+                    && transaction.transactionCategory == TransactionCategory.DEFAULT
+                    ? 58
+                    : 0
+            ),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _TransactionAmountView(transaction: transaction),
+                SizedBox(height: 19),
+                Divider(height: 1, color: Colors.primaryColor.withOpacity(0.2)),
+                SizedBox(height: 17),
+                Padding(
+                  padding: EdgeInsets.only(left: 21, right: 21),
+                  child: _accountNumberView(transaction.accountNumber),
+                ),
+                Container(
+                  padding: EdgeInsets.only(left: 15, right: 15),
+                  margin: EdgeInsets.only(top: 21, left: 18, right: 18, bottom: 44),
+                  decoration: BoxDecoration(
+                      color: Colors.primaryColor.withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(9)
+                  ),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: _generateTransactionDetailsItems(transaction)
+                  ),
+                )
+              ],
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     this._transactionReference = ModalRoute.of(context)!.settings.arguments as String?;
 
-    return Scaffold(
-      backgroundColor: Color(0XFFEBF2FA),
-      body: SessionedWidget(
-        context: context,
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: Image.asset("res/drawables/ic_app_bg_dark.png", fit: BoxFit.fill),
+    return SessionedWidget(
+      context: context,
+      child: Scaffold(
+        appBar: AppBar(
+            centerTitle: false,
+            titleSpacing: -12,
+            iconTheme: IconThemeData(color: Colors.primaryColor),
+            title: Text('Transaction Details',
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    color: Colors.textColorBlack,
+                    fontFamily: Styles.defaultFont,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14
+                )
             ),
-            ScrollView(
-              child: FutureBuilder(
-                future: _viewModel.getSingleTransactionById(this._transactionReference ?? ""),
-                builder: (BuildContext context, AsyncSnapshot<AccountTransaction?> snapshot) {
-                  if (!snapshot.hasData || snapshot.data == null) return Container();
-                  final transaction = snapshot.data!;
-                  final transactionDate = transaction.transactionDateToString();
-                  final balanceBefore = double.tryParse(transaction.balanceBefore ?? "")?.formatCurrency ?? "";
-
-                  final downloadTask = Tuple(() => _viewModel.downloadTransactionReceipt(transaction), "AccountTransaction_Receipt_${_viewModel.accountName}_${DateFormat("dd_MM_yyyy_h_m_s").format(DateTime.now())}.pdf");
-                  final transactionLocation = _transactionLocation(transaction);
-                  final transactionType = describeEnum(transaction.type ??  TransactionType.UNKNOWN);
-
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
+            backgroundColor: Colors.transparent,
+            elevation: 0
+        ),
+        extendBodyBehindAppBar: true,
+        backgroundColor: Color(0XFFEBF2FA),
+        body: ScrollView(
+          child: FutureBuilder(
+              future: _viewModel.getSingleTransactionById(this._transactionReference ?? ""),
+              builder: (_, AsyncSnapshot<AccountTransaction?> snapshot) {
+                if (!snapshot.hasData || snapshot.data == null) return Container();
+                final transaction = snapshot.data!;
+                return Container(
+                  margin: EdgeInsets.only(top: 42),
+                  padding: EdgeInsets.only(left: 16, right: 16, top: 80),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+                      image: DecorationImage(
+                        image: AssetImage("res/drawables/ic_app_bg_dark.png"),
+                        fit: BoxFit.fill,
+                      ),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(height: 37),
                       Container(
-                        margin: EdgeInsets.symmetric(horizontal: 16),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                  color: Color(0XFF0E4FB1).withOpacity(0.12),
+                                  blurRadius: 21,
+                                  offset: Offset(0, 13)
+                              )
+                            ]
+                        ),
+                        child: _contentView(transaction),
+                      ),
+                      SizedBox(
+                        width: double.infinity,
+                        child: Wrap(
+                          alignment: WrapAlignment.spaceBetween,
+                          spacing: 45,
                           children: [
-                            Row(
-                              children: [
-                                Styles.imageButton(
-                                  padding: EdgeInsets.all(9),
-                                  color: Colors.transparent,
-                                  borderRadius: BorderRadius.circular(30),
-                                  onClick: () => Navigator.of(context).pop(),
-                                  image: SvgPicture.asset(
-                                    'res/drawables/ic_back_arrow.svg',
-                                    fit: BoxFit.contain,
-                                    width: 19.5,
-                                    height: 19.02,
-                                    color: Colors.primaryColor,
-                                  ),
-                                ),
-                                SizedBox(width: 10),
-                                Text(
-                                  "Transaction Details",
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.textColorBlack),
-                                )
-                              ],
-                            ),
+                            Text("AAAA"),
+                            Text("BBBB"),
+                            Text("DDDD"),
+                            Text("CCCC"),
                           ],
                         ),
-                      ),
-                      SizedBox(height: 30),
-                      Stack(
-                        children: [
-                          IgnorePointer(
-                            ignoring: true,
-                            child: Container(
-                              margin: EdgeInsets.symmetric(horizontal: 19),
-                              padding: EdgeInsets.symmetric(horizontal: 19),
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                color: Colors.transparent,
-                                // color: Colors.black,
-                                borderRadius: BorderRadius.all(Radius.circular(16)),
-                                boxShadow: [
-                                  BoxShadow(
-                                    offset: Offset(0, 13),
-                                    blurRadius: 21,
-                                    color: Color(0xff0E4FB1).withOpacity(0.13),
-                                  ),
-                                ]
-
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(height: 24),
-                                  Text(
-                                    "Amount",
-                                    style: TextStyle(
-                                      fontSize: 12.3,
-                                      letterSpacing: -0.2,
-                                      fontWeight: FontWeight.w600,
-                                      color:
-                                      Colors.textColorBlack.withOpacity(0.9)),
-                                  ),
-                                  SizedBox(
-                                    height: 7,
-                                  ),
-                                  Row(children: [
-                                    SvgPicture.asset(
-                                      "res/drawables/ic_naira.svg",
-                                      width: 20,
-                                      height: 17,
-                                    ),
-                                    SizedBox(width: 4),
-                                    Text(
-                                      transaction
-                                        .getAmount()
-                                        .formatCurrencyWithoutSymbolAndDividing,
-                                      style: TextStyle(
-                                        fontSize: 23.5,
-                                        fontWeight: FontWeight.w800,
-                                        color: Colors.textColorBlack,
-                                      ),
-                                    ),
-                                  ]),
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text('Balance before: $balanceBefore',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w400,
-                                          color: Colors.textColorBlack)),
-                                      Container(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 8.4, vertical: 2.5),
-                                        decoration: BoxDecoration(
-                                          color: (transaction.type ==
-                                            TransactionType.CREDIT)
-                                            ? Colors.solidGreen.withOpacity(0.25)
-                                            : Color(0xff24F00303),
-                                          borderRadius: BorderRadius.circular(4)),
-                                        child: Text(
-                                          transactionType,
-                                          style: TextStyle(
-                                            fontSize: 11.2,
-                                            color: (transaction.type ==
-                                              TransactionType.CREDIT)
-                                              ? Colors.solidGreen
-                                              : Colors.red,
-                                            fontWeight: FontWeight.bold),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                  SizedBox(height: 17),
-                                  Container(
-                                    width: double.infinity,
-                                    padding: EdgeInsets.symmetric(horizontal: 15),
-                                    decoration: BoxDecoration(
-                                      color: Colors.primaryColor.withOpacity(0.05),
-                                      borderRadius:
-                                      BorderRadius.all(Radius.circular(9)),
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        SizedBox(height: 17),
-                                        _label('Transaction Date'),
-                                        SizedBox(height: 3),
-                                        _text(transactionDate),
-                                        SizedBox(height: 18),
-                                        Container(
-                                          width: double.infinity,
-                                          child: Divider(
-                                            height: 2,
-                                            color: Colors.primaryColor
-                                              .withOpacity(0.3),
-                                          )),
-                                        if (transaction.channel != null)
-                                          SizedBox(height: 14),
-                                        if (transaction.channel != null)
-                                          _label("Channel"),
-                                        if (transaction.channel != null)
-                                          SizedBox(height: 5),
-                                        if (transaction.channel != null)
-                                          Container(
-                                            padding: EdgeInsets.symmetric(
-                                              horizontal: 8, vertical: 4),
-                                            decoration: BoxDecoration(
-                                              color: Colors.primaryColor
-                                                .withOpacity(0.17),
-                                              borderRadius:
-                                              BorderRadius.circular(4)),
-                                            child: Text(
-                                              transaction.channel ?? "",
-                                              style: TextStyle(
-                                                fontSize: 11.3,
-                                                color: Colors.primaryColor,
-                                                fontWeight: FontWeight.bold),
-                                            ),
-                                          ),
-                                        if (transaction.channel != null)
-                                          SizedBox(height: 18),
-                                        if (transaction.channel != null)
-                                          Container(
-                                            width: double.infinity,
-                                            child: Divider(
-                                              height: 2,
-                                              color: Colors.primaryColor
-                                                .withOpacity(0.3),
-                                            )),
-                                        if (transaction.metaData != null && transaction.metaData?.recipient != null)
-                                          SizedBox(height: 14),
-                                        if (transaction.metaData != null && transaction.metaData?.recipient != null)
-                                          _label("Recipient"),
-                                        if (transaction.metaData != null && transaction.metaData?.recipient != null)
-                                          SizedBox(height: 3),
-                                        if (transaction.metaData != null && transaction.metaData?.recipient != null)
-                                          _text(transaction.metaData?.recipient?.name ?? ""),
-                                        if (transaction.metaData != null && transaction.metaData?.recipient != null)
-                                          SizedBox(height: 3),
-                                        if (transaction.metaData != null && transaction.metaData?.recipient != null)
-                                          Row(
-                                            children: [
-                                              _text(transaction.metaData?.recipient?.bankName ?? "",
-                                                fontSize: 11.3,
-                                                color: Colors.deepGrey),
-                                              SizedBox(width: 6),
-                                              _text(transaction.metaData?.recipient?.accountNumber ?? "",
-                                                fontSize: 11.3,
-                                                color: Colors.deepGrey)
-                                            ],
-                                          ),
-                                        if (transaction.metaData != null && transaction.metaData?.recipient != null)
-                                          SizedBox(height: 18),
-                                        if (transaction.metaData != null && transaction.metaData?.recipient != null)
-                                          Container(
-                                            width: double.infinity,
-                                            child: Divider(
-                                              height: 2,
-                                              color: Colors.primaryColor
-                                                .withOpacity(0.3),
-                                            )),
-                                        SizedBox(height: 14),
-                                        if (transaction.narration != null && transaction.narration!.isNotEmpty)
-                                          _label('Narration'),
-                                        if (transaction.narration != null &&
-                                          transaction.narration!.isNotEmpty)
-                                          SizedBox(height: 3),
-                                        if (transaction.narration != null &&
-                                          transaction.narration!.isNotEmpty)
-                                          _text(transaction.narration ?? ""),
-                                        SizedBox(height: 18),
-                                        if (transactionLocation != null)
-                                          Container(
-                                            width: double.infinity,
-                                            child: Divider(
-                                              height: 2,
-                                              color: Colors.primaryColor
-                                                .withOpacity(0.3),
-                                            )),
-                                        if (transactionLocation != null)
-                                          SizedBox(height: 14),
-                                        if (transactionLocation != null)
-                                          _label("Location"),
-                                        if (transactionLocation != null)
-                                          SizedBox(height: 12),
-                                        if (transactionLocation != null)
-                                          TransactionLocationView(
-                                            transactionLocation,
-                                            transaction.getInitiatorName()),
-                                      ],
-                                    ),
-                                  ),
-                                  SizedBox(height: 51)
-                                ],
-                              ),
-                            ),
-                          ),
-                          ClipPath(
-                            clipper: AccountTransactionsTicketClipper(),
-                            child: Container(
-                              margin: EdgeInsets.symmetric(horizontal: 19),
-                              padding: EdgeInsets.symmetric(horizontal: 19),
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                  color: Colors.backgroundWhite,
-                                  // color: Colors.black,
-                                  borderRadius: BorderRadius.all(Radius.circular(16)),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  SizedBox(height: 24),
-                                  Text(
-                                    "Amount",
-                                    style: TextStyle(
-                                        fontSize: 12.3,
-                                        letterSpacing: -0.2,
-                                        fontWeight: FontWeight.w600,
-                                        color:
-                                            Colors.textColorBlack.withOpacity(0.9)),
-                                  ),
-                                  SizedBox(
-                                    height: 7,
-                                  ),
-                                  Row(children: [
-                                    SvgPicture.asset(
-                                      "res/drawables/ic_naira.svg",
-                                      width: 20,
-                                      height: 17,
-                                    ),
-                                    SizedBox(width: 4),
-                                    Text(
-                                      transaction
-                                          .getAmount()
-                                          .formatCurrencyWithoutSymbolAndDividing,
-                                      style: TextStyle(
-                                        fontSize: 23.5,
-                                        fontWeight: FontWeight.w800,
-                                        color: Colors.textColorBlack,
-                                      ),
-                                    ),
-                                  ]),
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text('Balance before: $balanceBefore',
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w400,
-                                              color: Colors.textColorBlack)),
-                                      Container(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 8.4, vertical: 2.5),
-                                        decoration: BoxDecoration(
-                                            color: (transaction.type ==
-                                                    TransactionType.CREDIT)
-                                                ? Colors.solidGreen.withOpacity(0.25)
-                                                : Color(0xff24F00303),
-                                            borderRadius: BorderRadius.circular(4)),
-                                        child: Text(
-                                          transactionType,
-                                          style: TextStyle(
-                                              fontSize: 11.2,
-                                              color: (transaction.type ==
-                                                      TransactionType.CREDIT)
-                                                  ? Colors.solidGreen
-                                                  : Colors.red,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                  SizedBox(height: 17),
-                                  Container(
-                                    width: double.infinity,
-                                    padding: EdgeInsets.only(left: 15, right: 15, top: 17, bottom: 14),
-                                    decoration: BoxDecoration(
-                                      color: Colors.primaryColor.withOpacity(0.05),
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(9)),
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        _label('Transaction Date'),
-                                        SizedBox(height: 3),
-                                        _text(transactionDate),
-                                        SizedBox(height: 18),
-                                        Container(
-                                            width: double.infinity,
-                                            child: Divider(
-                                              height: 2,
-                                              color: Colors.primaryColor
-                                                  .withOpacity(0.3),
-                                            )),
-                                        if (transaction.channel != null)
-                                          SizedBox(height: 14),
-                                        if (transaction.channel != null)
-                                          _label("Channel"),
-                                        if (transaction.channel != null)
-                                          SizedBox(height: 5),
-                                        if (transaction.channel != null)
-                                          Container(
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal: 8, vertical: 4),
-                                            decoration: BoxDecoration(
-                                                color: Colors.primaryColor
-                                                    .withOpacity(0.17),
-                                                borderRadius:
-                                                    BorderRadius.circular(4)),
-                                            child: Text(
-                                              transaction.channel ?? "",
-                                              style: TextStyle(
-                                                  fontSize: 11.3,
-                                                  color: Colors.primaryColor,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                          ),
-                                        if (transaction.channel != null)
-                                          SizedBox(height: 18),
-                                        if (transaction.channel != null)
-                                          Container(
-                                              width: double.infinity,
-                                              child: Divider(
-                                                height: 2,
-                                                color: Colors.primaryColor
-                                                    .withOpacity(0.3),
-                                              )),
-                                        if (transaction.metaData != null && transaction.metaData?.recipient != null)
-                                          SizedBox(height: 14),
-                                        if (transaction.metaData != null && transaction.metaData?.recipient != null)
-                                          _label("Recipient"),
-                                        if (transaction.metaData != null && transaction.metaData?.recipient != null)
-                                          SizedBox(height: 3),
-                                        if (transaction.metaData != null && transaction.metaData?.recipient != null)
-                                          _text(transaction.metaData?.recipient?.name ?? ""),
-                                        if (transaction.metaData != null && transaction.metaData?.recipient != null)
-                                          SizedBox(height: 3),
-                                        if (transaction.metaData != null && transaction.metaData?.recipient != null)
-                                          Row(
-                                            children: [
-                                              _text(transaction.metaData?.recipient?.bankName ?? "",
-                                                  fontSize: 11.3,
-                                                  color: Colors.deepGrey),
-                                              SizedBox(width: 6),
-                                              _text(transaction.metaData?.recipient?.accountNumber ?? "",
-                                                  fontSize: 11.3,
-                                                  color: Colors.deepGrey)
-                                            ],
-                                          ),
-                                      if (transaction.metaData != null && transaction.metaData?.recipient != null)
-                                        SizedBox(height: 18),
-                                      if (transaction.metaData != null && transaction.metaData?.recipient != null)
-                                        Container(
-                                            width: double.infinity,
-                                            child: Divider(
-                                              height: 2,
-                                              color: Colors.primaryColor
-                                                  .withOpacity(0.3),
-                                            )),
-                                        SizedBox(height: 14),
-                                        if (transaction.narration != null &&
-                                            transaction.narration!.isNotEmpty)
-                                          _label('Narration'),
-                                        if (transaction.narration != null &&
-                                            transaction.narration!.isNotEmpty)
-                                          SizedBox(height: 3),
-                                        if (transaction.narration != null &&
-                                            transaction.narration!.isNotEmpty)
-                                          _text(transaction.narration ?? ""),
-                                        SizedBox(height: 18),
-                                        if (transactionLocation != null)
-                                          Container(
-                                              width: double.infinity,
-                                              child: Divider(
-                                                height: 2,
-                                                color: Colors.primaryColor
-                                                    .withOpacity(0.3),
-                                              )),
-                                        if (transactionLocation != null)
-                                          SizedBox(height: 14),
-                                        if (transactionLocation != null)
-                                          _label("Location"),
-                                        if (transactionLocation != null)
-                                          SizedBox(height: 12),
-                                        if (transactionLocation != null)
-                                          TransactionLocationView(
-                                              transactionLocation,
-                                              transaction.getInitiatorName()),
-                                      ],
-                                    ),
-                                  ),
-                                  SizedBox(height: 51)
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 54),
-                      Visibility(
-                          visible: transaction.metaData != null &&
-                              transaction.metaData?.transactionType != null &&
-                              transaction.type == TransactionType.DEBIT,
-                          child: Expanded(
-                              child: TransactionOptionsView(
-                            displayReplayTransaction: false,
-                            displayDownloadReceipt: transaction.metaData !=
-                                        null &&
-                                    transaction.type == TransactionType.DEBIT
-                                ? downloadTask
-                                : null,
-                            displayShareReceipt: transaction.metaData != null &&
-                                    transaction.type == TransactionType.DEBIT
-                                ? downloadTask
-                                : null,
-                          )))
+                      )
                     ],
-                  );
-                },
-              ),
-            ),
-          ],
+                  ),
+                );
+              }
+          ),
         ),
       ),
     );
   }
+}
 
-  Text _label(String label) {
-    return Text(
-      label,
-      style: TextStyle(
-          fontSize: 12.7,
-          fontWeight: FontWeight.w400,
-          color: Colors.textColorBlack.withOpacity(0.8)),
+
+///_TransactionAmountView
+///
+///
+///
+class _TransactionAmountView extends StatelessWidget {
+
+  _TransactionAmountView({
+    required this.transaction
+  });
+
+  final AccountTransaction transaction;
+
+  Widget _contentView() {
+    final balanceBefore = double.tryParse(transaction.balanceBefore ?? "")?.formatCurrency ?? "";
+    final balanceAfter = double.tryParse(transaction.balanceAfter ?? "")?.formatCurrency ?? "";
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Amount",
+          style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 13
+          ),
+        ),
+        SizedBox(height: 2,),
+        Row(
+          children: [
+            SvgPicture.asset(
+              "res/drawables/ic_naira.svg",
+              width: 20,
+              height: 17,
+            ),
+            SizedBox(width: 4),
+            Flexible(child: Text(
+              transaction.getAmount().formatCurrencyWithoutSymbolAndDividing,
+              style: TextStyle(
+                fontSize: 23.8,
+                fontWeight: FontWeight.w800,
+                color: Colors.textColorBlack,
+              ),
+            ))
+          ],
+        ),
+        SizedBox(height: 13,),
+        Text(
+            "Balance before : $balanceBefore",
+            style: TextStyle(
+                color: Colors.textColorBlack,
+                fontSize: 13,
+                fontWeight: FontWeight.w400
+            )
+        ).colorText({"$balanceBefore": Tuple(Colors.textColorBlack, null)}, underline: false),
+        SizedBox(height: 7),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+                "Balance after : $balanceAfter",
+                style: TextStyle(
+                    color: Colors.textColorBlack,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400
+                )
+            ).colorText({"$balanceAfter": Tuple(Colors.textColorBlack, null)}, underline: false),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 8.4, vertical: 2.5),
+              decoration: BoxDecoration(
+                  color: (transaction.type == TransactionType.CREDIT)
+                      ? Colors.solidGreen.withOpacity(0.25)
+                      : Color(0xff24F00303),
+                  borderRadius: BorderRadius.circular(4)),
+              child: Text(
+                transaction.transactionTypeToString(),
+                style: TextStyle(
+                    fontSize: 11.2,
+                    color: (transaction.type == TransactionType.CREDIT)
+                        ? Colors.solidGreen
+                        : Colors.red,
+                    fontWeight: FontWeight.bold
+                ),
+              ),
+            )
+          ],
+        )
+      ],
     );
   }
 
-  Text _text(String text, {Color? color, double? fontSize}) {
-    return Text(
-      text,
-      style: TextStyle(
-          fontSize: fontSize ?? 14.5,
-          fontWeight: FontWeight.w600,
-          color: color ?? Colors.textColorBlack),
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+        padding: EdgeInsets.only(top: 19,left: 21, right: 21),
+        child: _contentView(),
     );
   }
+
+}
+
+///_TransactionCategoryView
+///
+///
+///
+class _TransactionCategoryView extends StatelessWidget {
+
+  _TransactionCategoryView({required this.transaction});
+
+  final AccountTransaction transaction;
+
+  final Map<TransactionCategory, Color> _headerCategoryToColor = {
+    TransactionCategory.AIRTIME : Color(0XFFFDEAD5),
+    TransactionCategory.DATA : Color(0XFFFDEAD5),
+    TransactionCategory.BILL_PAYMENT : Color(0XFFECDFF9),
+    TransactionCategory.TRANSFER : Color(0XFFCFE2FD),
+    TransactionCategory.CARD_PURCHASE : Color(0XFFCFF2F7),
+    TransactionCategory.CARD_LINKING : Color(0XFFCFF2F7),
+  };
+
+  final Map<TransactionCategory, Color> _titleCategoryToColor = {
+    TransactionCategory.AIRTIME : Color(0XFFF08922),
+    TransactionCategory.DATA : Color(0XFFF08922),
+    TransactionCategory.BILL_PAYMENT : Color(0XFF9B51E0),
+    TransactionCategory.TRANSFER : Colors.primaryColor,
+    TransactionCategory.CARD_PURCHASE : Color(0XFF00B6D4),
+    TransactionCategory.CARD_LINKING : Color(0XFF00B6D4),
+  };
+
+  late final Map<TransactionCategory, Lazy<Widget>> _categoryToIcon = {
+    TransactionCategory.AIRTIME : lazy(() => SvgPicture.asset(
+      "res/drawables/ic_dashboard_airtime_2.svg",
+      color: _titleCategoryToColor[TransactionCategory.AIRTIME],
+    )),
+    TransactionCategory.DATA : lazy(() => SvgPicture.asset(
+      "res/drawables/ic_dashboard_airtime_2.svg",
+      color: _titleCategoryToColor[TransactionCategory.DATA],
+    )),
+    TransactionCategory.BILL_PAYMENT : lazy(() => SvgPicture.asset(
+      "res/drawables/ic_dashboard_bills_2.svg",
+      color: _titleCategoryToColor[TransactionCategory.BILL_PAYMENT],
+    )),
+    TransactionCategory.TRANSFER : lazy(() => SvgPicture.asset(
+      "res/drawables/ic_dashboard_transfer_2.svg",
+      color: _titleCategoryToColor[TransactionCategory.TRANSFER],
+    )),
+    TransactionCategory.CARD_PURCHASE : lazy(() => SvgPicture.asset(
+      "res/drawables/ic_dashboard_manage_cards.svg",
+      color: _titleCategoryToColor[TransactionCategory.CARD_PURCHASE],
+    )),
+    TransactionCategory.CARD_LINKING : lazy(() => SvgPicture.asset(
+      "res/drawables/ic_dashboard_manage_cards.svg",
+      color: _titleCategoryToColor[TransactionCategory.CARD_LINKING],
+    )),
+  };
+
+  String _getTransactionCategoryName() {
+    if(transaction.transactionCategory == null) return "Transaction";
+    return describeEnum(transaction.transactionCategory!);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.only(left: 22, right: 22, top: 24, bottom: 40),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+        color: _headerCategoryToColor[transaction.transactionCategory]
+      ),
+      child: Row(
+        children: [
+          _categoryToIcon[transaction.transactionCategory]?.value ?? SizedBox(),
+          SizedBox(width: 13,),
+          Text(
+              _getTransactionCategoryName().toUpperCase(),
+              style: TextStyle(
+                color: _titleCategoryToColor[transaction.transactionCategory],
+                fontWeight: FontWeight.w600,
+                fontSize: 12
+              ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+///_TransactionDetailViewItem
+///
+///
+///
+class _TransactionDetailViewItem extends _TransactionDetailDisplayable {
+
+  _TransactionDetailViewItem({
+    required this.label,
+    required this.value,
+    this.valueTextWeight,
+    this.isChannel = false
+  });
+
+  final String label;
+  final String? value;
+  final FontWeight? valueTextWeight;
+  final bool isChannel;
+
+  Widget _channelContainer() => Container(
+    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    decoration: BoxDecoration(
+        color: Colors.primaryColor.withOpacity(0.17),
+        borderRadius: BorderRadius.circular(4)
+    ),
+    child: Text(
+      value ?? "",
+      style: TextStyle(
+          fontSize: 11.3,
+          color: Colors.primaryColor,
+          fontWeight: FontWeight.bold),
+    ),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    if(value == null) return SizedBox();
+    return Container(
+      padding: EdgeInsets.only(top: 17, bottom: 17),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.textColorBlack.withOpacity(0.8),
+              fontSize: 12.95
+            ),
+          ),
+          SizedBox(height: this.isChannel ? 4 : 1),
+          if(this.isChannel) _channelContainer(),
+          if(!this.isChannel)
+            Text(
+              value!,
+              style: TextStyle(
+                  color: Colors.textColorBlack,
+                  fontSize: 14.54,
+                  fontWeight: valueTextWeight ?? FontWeight.w400
+              ),
+            )
+        ],
+      ),
+    );
+  }
+
+  @override
+  bool shouldDisplay() {
+    return value != null || value?.isNotEmpty == true;
+  }
+}
+
+///_AirtimeTransactionBeneficiaryDetails
+///
+///
+///
+class _TransferTransactionBeneficiaryDetails extends _TransactionDetailDisplayable {
+
+  _TransferTransactionBeneficiaryDetails({
+    required this.transaction
+  });
+
+  final AccountTransaction transaction;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.only(top: 17, bottom: 17),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+        (transaction.type == TransactionType.CREDIT) ? "Sender" : "Beneficiary",
+            style: TextStyle(
+                color: Colors.textColorBlack.withOpacity(0.8),
+                fontSize: 12.95
+            ),
+          ),
+          SizedBox(height: 1,),
+          Text(
+            (transaction.type == TransactionType.CREDIT)
+                ? "${transaction.senderName}"
+                : "${transaction.beneficiaryName}",
+            style: TextStyle(
+                color: Colors.textColorBlack,
+                fontSize: 14.54,
+                fontWeight: FontWeight.w600
+            ),
+          ),
+          SizedBox(height: 1,),
+          Row(
+            children: [
+              Text(
+                (transaction.type == TransactionType.CREDIT)
+                    ? "${transaction.senderBankName} ${transaction.senderIdentifier}"
+                    : "${transaction.beneficiaryBankName} ${transaction.beneficiaryIdentifier}",
+                style: TextStyle(
+                  fontSize: 11.54,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.textColorBlack.withOpacity(0.5)
+                ),
+              )
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  bool shouldDisplay() {
+    if(transaction.type == TransactionType.CREDIT) {
+      return transaction.senderName != null
+          && transaction.senderName?.isNotEmpty == true;
+    } else {
+      return transaction.beneficiaryName != null
+          && transaction.beneficiaryName?.isNotEmpty == true;
+    }
+  }
+
+}
+
+
+///_BillTransactionBeneficiaryDetails
+///
+///
+///
+class _BillTransactionBeneficiaryDetails extends _TransactionDetailDisplayable {
+
+  _BillTransactionBeneficiaryDetails({
+    required this.transaction
+  });
+
+  final AccountTransaction transaction;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.only(top: 17, bottom: 17),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Beneficiary",
+            style: TextStyle(
+                color: Colors.textColorBlack.withOpacity(0.8),
+                fontSize: 12.95
+            ),
+          ),
+          SizedBox(height: 1,),
+          Text(
+            transaction.beneficiaryName ?? "",
+            style: TextStyle(
+                color: Colors.textColorBlack,
+                fontSize: 14.54,
+                fontWeight: FontWeight.w600
+            ),
+          ),
+          SizedBox(height: 29,),
+          Text(
+            "Smart-card Number",
+            style: TextStyle(
+                color: Colors.textColorBlack.withOpacity(0.8),
+                fontSize: 12.95
+            ),
+          ),
+          SizedBox(height: 1,),
+          Text(
+            transaction.beneficiaryIdentifier ?? "",
+            style: TextStyle(
+                color: Colors.textColorBlack,
+                fontSize: 14.54,
+                fontWeight: FontWeight.w600
+            ),
+          ),
+          SizedBox(height: 24,),
+        ],
+      ),
+    );
+  }
+
+  @override
+  bool shouldDisplay() {
+    return transaction.beneficiaryName != null
+        && transaction.beneficiaryName?.isNotEmpty == true;
+  }
+
+}
+
+///_AirtimeTransactionBeneficiaryDetails
+///
+///
+///
+class _AirtimeTransactionBeneficiaryDetails extends _TransactionDetailDisplayable {
+
+  _AirtimeTransactionBeneficiaryDetails({
+    required this.transaction
+  });
+
+  final AccountTransaction transaction;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.only(top: 17, bottom: 17),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Beneficiary",
+            style: TextStyle(
+                color: Colors.textColorBlack.withOpacity(0.8),
+                fontSize: 12.95
+            ),
+          ),
+          SizedBox(height: 1,),
+          Text(
+            transaction.beneficiaryName ?? "",
+            style: TextStyle(
+                color: Colors.textColorBlack,
+                fontSize: 14.54,
+                fontWeight: FontWeight.w600
+            ),
+          ),
+          SizedBox(height: 18,),
+          Text(
+            "Phone Number",
+            style: TextStyle(
+                color: Colors.textColorBlack.withOpacity(0.8),
+                fontSize: 12.95
+            ),
+          ),
+          SizedBox(height: 1,),
+          Text(
+            transaction.beneficiaryIdentifier ?? "",
+            style: TextStyle(
+                color: Colors.textColorBlack,
+                fontSize: 14.54,
+                fontWeight: FontWeight.w600
+            ),
+          ),
+          SizedBox(height: 24,),
+        ],
+      ),
+    );
+  }
+
+  @override
+  bool shouldDisplay() {
+    return true;
+  }
+
+}
+
+///_AirtimeTransactionBeneficiaryDetails
+///
+///
+///
+class _CardTransactionBeneficiaryDetails extends _TransactionDetailDisplayable {
+
+  _CardTransactionBeneficiaryDetails({
+    required this.transaction
+  });
+
+  final AccountTransaction transaction;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.only(top: 17, bottom: 17),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Card Number",
+            style: TextStyle(
+                color: Colors.textColorBlack.withOpacity(0.8),
+                fontSize: 12.95
+            ),
+          ),
+          SizedBox(height: 1,),
+          Text(
+            transaction.maskedPan ?? "",
+            style: TextStyle(
+                color: Colors.textColorBlack,
+                fontSize: 14.54,
+                fontFamily: Styles.ocraExtended,
+                fontWeight: FontWeight.w600
+            ),
+          ),
+          SizedBox(height: 28,),
+          Row(
+            children: [
+              CardViewUtil.getCardBrandLogo(Card(maskedPan: transaction.maskedPan ?? "", blocked: false)),
+              SizedBox(width: 13),
+              Text(CardViewUtil.getCardName(transaction.maskedPan ?? ""))
+            ],
+          ),
+          SizedBox(height: 24,),
+        ],
+      ),
+    );
+  }
+
+  @override
+  bool shouldDisplay() {
+    return true;
+  }
+
+}
+
+class _EmptyBeneficiaryDetails extends _TransactionDetailDisplayable {
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox();
+  }
+
+  @override
+  bool shouldDisplay() => false;
+
+}
+
+abstract class _TransactionDetailDisplayable extends StatelessWidget {
+  bool shouldDisplay();
 }

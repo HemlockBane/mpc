@@ -378,7 +378,7 @@ class _AccountDetailsState extends State<AccountDetails>
                     height: 1,
                     color: Colors.primaryColor.withOpacity(0.3),
                   )),
-            if (!widget.viewModel.isAccountUpdateCompleted) SizedBox(height: 15),
+            if (!widget.viewModel.isAccountUpdateCompleted) SizedBox(height: 2),
             if (!widget.viewModel.isAccountUpdateCompleted)
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -386,10 +386,14 @@ class _AccountDetailsState extends State<AccountDetails>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      InkWell(
-                        onTap: () => AccountUpgradeRouteDelegate.navigateToAccountUpgrade(context, widget.userAccount),
-                        child: text("Upgrade Account", color: Colors.primaryColor, fontSize: 14),
+                      TextButton(
+                          onPressed: () => AccountUpgradeRouteDelegate.navigateToAccountUpgrade(context, widget.userAccount),
+                          child: text("Upgrade Account", color: Colors.primaryColor, fontSize: 14)
                       ),
+                      // InkWell(
+                      //   onTap: () => AccountUpgradeRouteDelegate.navigateToAccountUpgrade(context, widget.userAccount),
+                      //   child: text("Upgrade Account", color: Colors.primaryColor, fontSize: 14),
+                      // ),
                       SizedBox(width: 2),
                       Styles.imageButton(
                         onClick: () => Navigator.of(context)
@@ -408,7 +412,7 @@ class _AccountDetailsState extends State<AccountDetails>
                   ),
               ],),
 
-            if (!widget.viewModel.isAccountUpdateCompleted) SizedBox(height: 15)
+            if (!widget.viewModel.isAccountUpdateCompleted) SizedBox(height: 2)
           ],
         ),
       ),

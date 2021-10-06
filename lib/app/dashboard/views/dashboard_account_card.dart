@@ -163,13 +163,13 @@ class DashboardAccountItemState extends State<DashboardAccountItem>
 
   void _navigateToFixAccount() async {
     await AccountUpgradeRouteDelegate.navigateToAccountUpgrade(context, userAccount);
-    _viewModel.update(DashboardState.REFRESHING);
+    // _viewModel.update(DashboardState.REFRESHING);
   }
 
   onItemTap() async {
 
-    await Navigator.of(context).pushNamed(Routes.ACCOUNT_STATUS);
-    return;
+    // await Navigator.of(context).pushNamed(Routes.ACCOUNT_STATUS);
+    // return;
     final mixpanel = await MixpanelManager.initAsync();
     mixpanel.track("dashboard-account-clicked");
 
@@ -590,12 +590,17 @@ class _AccountCardErrorState extends State<_AccountCardErrorView> with SingleTic
   );
 
   late final Animation<Offset> _offsetAnimation = Tween<Offset>(
-    begin: Offset.zero,
-    end: const Offset(1.5, 0.0),
+    begin: Offset(0, 0.0),
+    end: const Offset(0, 0.0),
   ).animate(CurvedAnimation(
     parent: _controller,
     curve: Curves.elasticIn,
   ));
+
+  @override
+  initState() {
+    super.initState();
+  }
 
   String title = "";
   Widget icon = SvgPicture.asset("res/drawables/ic_danger_info.svg");
@@ -624,7 +629,7 @@ class _AccountCardErrorState extends State<_AccountCardErrorView> with SingleTic
     if(accountState == AccountState.PENDING_VERIFICATION) {
       title = "Upgrade in Progress...";
       icon = Container(
-        padding: EdgeInsets.all(2),
+        padding: EdgeInsets.all(5),
         decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.solidGreen),
         child: SvgPicture.asset("res/drawables/ic_account_upgrade_progress.svg", width: 17, height: 18,),
       );
@@ -634,7 +639,7 @@ class _AccountCardErrorState extends State<_AccountCardErrorView> with SingleTic
     if(accountState == AccountState.IN_COMPLETE) {
       title = "Upgrade Account";
       icon = Container(
-        padding: EdgeInsets.all(2),
+        padding: EdgeInsets.all(5),
         decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.solidGreen),
         child: SvgPicture.asset("res/drawables/ic_upload.svg", width: 17, height: 18,color: Colors.white),
       );
@@ -779,6 +784,7 @@ class AccountRestrictionRoute<T> extends PopupRoute<T> {
       child: Builder(builder: builder),
       userAccount: userAccount,
       accountState: accountState,
+      pageData: _AccountRestrictionPage.makePageData(accountState),
     );
   }
 
@@ -787,13 +793,30 @@ class AccountRestrictionRoute<T> extends PopupRoute<T> {
 
 }
 
+class _AccountRestrictionData {
+  final String pageTitle;
+  final String pageDescription;
+  final Color headerTextColor;
+  final Color headerBackgroundColor;
+  final Color headerAnchorColor;
+
+  _AccountRestrictionData({
+    required this.pageTitle,
+    required this.pageDescription,
+    required this.headerTextColor,
+    required this.headerBackgroundColor,
+    required this.headerAnchorColor
+  });
+}
+
 class _AccountRestrictionPage extends StatelessWidget {
 
-  const _AccountRestrictionPage({
+  _AccountRestrictionPage({
     Key? key,
     required this.child,
     required this.userAccount,
-    required this.accountState
+    required this.accountState,
+    required this.pageData
   }):super(key: key);
 
   final Widget child;
@@ -802,59 +825,96 @@ class _AccountRestrictionPage extends StatelessWidget {
 
   final AccountState accountState;
 
-  String _getPageTitle() {
-    if(accountState == AccountState.BLOCKED) {
-      return "Account Blocked";
-    }else if(accountState == AccountState.PND) {
-      return "Account Restricted";
+  final _AccountRestrictionData pageData;
+
+  static _AccountRestrictionData makePageData(AccountState accountState) {
+    if (accountState == AccountState.BLOCKED) {
+      return _AccountRestrictionData(
+          pageTitle: "Account Blocked",
+          pageDescription: "Your account has been blocked",
+          headerTextColor: Colors.red,
+          headerBackgroundColor: Colors.red.withOpacity(0.2),
+          headerAnchorColor: Color(0XFFf6d6d8),
+      );
+    } else if (accountState == AccountState.PND) {
+      return _AccountRestrictionData(
+        pageTitle: "Account Restricted",
+        pageDescription: "Upgrade your savings account to enjoy higher limits",
+        headerTextColor: Colors.red,
+        headerBackgroundColor: Colors.red.withOpacity(0.2),
+        headerAnchorColor: Color(0XFFf6d6d8),
+      );
+    } else if (accountState == AccountState.REQUIRE_DOCS) {
+      return _AccountRestrictionData(
+        pageTitle: "Re-upload Documents",
+        pageDescription: "We encountered a problem with one of your documents",
+        headerTextColor: Colors.textColorBlack,
+        headerBackgroundColor: Colors.primaryColor.withOpacity(0.2),
+        headerAnchorColor: Color(0XFFc9dcf9),
+      );
+    } else if (accountState == AccountState.PENDING_VERIFICATION) {
+      return _AccountRestrictionData(
+        pageTitle: "Upgrade in Progress",
+        pageDescription: "Your documents are currently being verified",
+        headerTextColor: Colors.textColorBlack,
+        headerBackgroundColor: Colors.primaryColor.withOpacity(0.2),
+        headerAnchorColor: Color(0XFFc9dcf9),
+      );
+    } else if (accountState == AccountState.IN_COMPLETE) {
+      return _AccountRestrictionData(
+          pageTitle: "Upgrade your Account",
+          pageDescription: "Upgrade your account to enjoy additional benefits",
+          headerTextColor: Colors.textColorBlack,
+          headerBackgroundColor: Colors.primaryColor.withOpacity(0.2),
+          headerAnchorColor: Color(0XFFc9dcf9),
+      );
     }
-    else if(accountState == AccountState.REQUIRE_DOCS) {
-      return "Re-upload Documents";
-    }
-    else if(accountState == AccountState.PENDING_VERIFICATION) {
-      return "Upgrade in progress";
-    }
-    else if(accountState == AccountState.IN_COMPLETE) {
-      return "Upgrade Account";
-    }
-    return "";
+    return _AccountRestrictionData(
+        pageTitle: "Upgrade your Account",
+        pageDescription: "Upgrade your account to enjoy additional benefits",
+        headerTextColor: Colors.textColorBlack,
+        headerBackgroundColor: Colors.primaryColor.withOpacity(0.2),
+        headerAnchorColor: Color(0XFFc9dcf9),
+    );
   }
 
-  Widget _popUpWindowHeader() => Container(
-    padding: EdgeInsets.only(left: 24, right: 24, top: 20, bottom: 17),
-    width: double.infinity,
-    decoration: BoxDecoration(
-      color: Colors.red.withOpacity(0.2),
-      borderRadius: BorderRadius.only(
-        topLeft: Radius.circular(16),
-        topRight: Radius.circular(16),
-      ),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          _getPageTitle(),
-          style: TextStyle(
-              color: Colors.red,
-              fontSize: 17,
-              fontWeight: FontWeight.bold,
-              decoration: TextDecoration.none
-          ),
+  Widget _popUpWindowHeader() {
+    return Container(
+      padding: EdgeInsets.only(left: 24, right: 24, top: 20, bottom: 17),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: pageData.headerBackgroundColor,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(16),
         ),
-        SizedBox(height: 4),
-        Text(
-          "Upgrade your savings account to enjoy higher limits",
-          style: TextStyle(
-              fontSize: 13,
-              color: Colors.textColorBlack,
-              fontWeight: FontWeight.w400,
-              decoration: TextDecoration.none
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            pageData.pageTitle,
+            style: TextStyle(
+                color: pageData.headerTextColor,
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.none
+            ),
           ),
-        )
-      ],
-    ),
-  );
+          SizedBox(height: 4),
+          Text(
+            pageData.pageDescription,
+            style: TextStyle(
+                fontSize: 13,
+                color: Colors.textColorBlack,
+                fontWeight: FontWeight.w400,
+                decoration: TextDecoration.none
+            ),
+          )
+        ],
+      ),
+    );
+  }
 
   Widget _popUpWindow(BuildContext context) => Column(
     children: [
@@ -919,7 +979,7 @@ class _AccountRestrictionPage extends StatelessWidget {
                 right: 0,
                 child: SvgPicture.asset(
                     "res/drawables/ic_triangle.svg",
-                    color: Color(0XFFf6d6d8)
+                    color: pageData.headerAnchorColor
                 )
             ),
             Container(

@@ -3,12 +3,14 @@ import 'package:flutter/material.dart' hide ScrollView, Colors;
 import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/forms/customer_address_form.dart';
 import 'package:moniepoint_flutter/app/accountupdates/viewmodels/account_update_view_model.dart';
+import 'package:moniepoint_flutter/app/accountupdates/views/restriction_pages/reupload_identification_view.dart';
 import 'package:moniepoint_flutter/core/views/upload_request_dialog.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:provider/provider.dart';
+import 'package:collection/collection.dart';
 
 import '../account_update_file_upload_state.dart';
 import 'account_update_form_view.dart';
@@ -76,6 +78,12 @@ class _ProofOfAddressScreen extends State<ProofOfAddressScreen> with AutomaticKe
       });
     });
   }
+  
+  bool _shouldReUploadProof() {
+    final userAccount = _viewModel.userAccounts.firstOrNull;
+    if(userAccount == null) return false;
+    return userAccount.customerAccount?.customer?.reUploadID == true;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,6 +109,14 @@ class _ProofOfAddressScreen extends State<ProofOfAddressScreen> with AutomaticKe
                 builder: (context, AsyncSnapshot<String?> snapshot) {
                   final uploadTypeName = "Upload Proof of Address";
                   final previousFileName = _addressForm.getAddressInfo.uploadedFileName;
+
+                  if(_shouldReUploadProof() && previousFileName != null) {
+                    return ReUploadIdentificationView(
+                      title: previousFileName,
+                      onReUpload: _chooseIdentificationImage,
+                      downloadTask: () => Stream.empty(),
+                    );
+                  }
                   return AccountUpdateUploadButton(
                     title: previousFileName ?? uploadTypeName,
                     onClick: _chooseIdentificationImage,

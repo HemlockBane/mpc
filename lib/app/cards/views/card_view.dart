@@ -87,7 +87,6 @@ class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin,
           body: StreamBuilder(
               stream: _cardListSource,
               builder: (BuildContext context, AsyncSnapshot<Resource<List<Card>>> snap) {
-                print("ItemCount ${snap.data} => ${snap.data?.data?.length}");
                 if(!snap.hasData || snap.data is Loading) return CardViewShimmer();
                 return Column(
                   children: [

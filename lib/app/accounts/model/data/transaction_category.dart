@@ -1,0 +1,10 @@
+enum TransactionCategory {
+  TRANSFER,
+  // INWARD_TRANSFER,
+  BILL_PAYMENT,
+  AIRTIME,
+  DATA,
+  CARD_LINKING,
+  CARD_PURCHASE,
+  DEFAULT
+}

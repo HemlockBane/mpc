@@ -12,7 +12,6 @@ import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
 import 'package:moniepoint_flutter/app/accountupdates/viewmodels/account_update_view_model.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/colored_linear_progress_bar.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/restriction_pages/account_status_page_icon.dart';
-import 'package:moniepoint_flutter/app/accountupdates/views/restriction_pages/account_status_requirement_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
@@ -41,8 +40,10 @@ class _AccountStatusScreenState extends State<AccountStatusScreen> {
     _viewModel.getOnBoardingSchemes(fetchFromRemote: false).listen((event) { });
     super.initState();
 
-    Future.delayed(Duration(milliseconds: 200), () {
-      _viewModel.identificationForm.restoreFormState();
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+      Future.delayed(Duration(milliseconds: 200), () {
+        _viewModel.identificationForm.restoreFormState();
+      });
     });
   }
 
@@ -62,8 +63,8 @@ class _AccountStatusScreenState extends State<AccountStatusScreen> {
   Tier? getCurrentTier() {
     final userAccount = _viewModel.userAccounts.firstOrNull;
     if(userAccount == null || userAccount.customerAccount?.id ==  null) return null;
-    final schemeName = _viewModel.getUserQualifiedTierName(userAccount.customerAccount!.id!);
-    return _viewModel.tiers.firstWhereOrNull((element) => element.name?.toLowerCase() == schemeName?.toLowerCase());
+    final schemeCode = _viewModel.getUserQualifiedScheme(userAccount.customerAccount!.id!);
+    return _viewModel.tiers.firstWhereOrNull((element) => element.code?.toLowerCase() == schemeCode?.code?.toLowerCase());
   }
 
   AccountState _getAccountState() {
@@ -76,7 +77,7 @@ class _AccountStatusScreenState extends State<AccountStatusScreen> {
     if(accountState == AccountState.PND) {
       return "Fix Account";
     }
-    if(accountState == AccountState.IN_COMPLETE){
+    if(accountState == AccountState.REQUIRE_DOCS){
       return "Fix Account";
     }
     return "Upgrade Account";
@@ -91,12 +92,12 @@ class _AccountStatusScreenState extends State<AccountStatusScreen> {
           AccountStatusPageIcon(
               color: Colors.primaryColor.withOpacity(0.1),
               icon: Container(
-                padding: EdgeInsets.all(4),
+                padding: EdgeInsets.all(10),
                 decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.primaryColor
                 ),
-                child: SvgPicture.asset("res/drawables/ic_bank.svg", color: Colors.white,),
+                child: SvgPicture.asset("res/drawables/ic_bank.svg", color: Colors.white, width: 19, height: 21,),
               )
           ),
           SizedBox(height: 15),
@@ -185,7 +186,10 @@ class _AccountStatusScreenState extends State<AccountStatusScreen> {
         ),
         body: FutureBuilder(
             future: init(),
-            builder: (_, __) =>_contentView(accountState)
+            builder: (_, AsyncSnapshot<dynamic> value) {
+              if(value.connectionState != ConnectionState.done) return Container();
+              return _contentView(accountState);
+            }
         ),
       ),
     );
@@ -234,9 +238,7 @@ class _AccountStatusContainer extends StatelessWidget {
               padding: EdgeInsets.only(left: 15, right: 15),
               child: Divider(height: 1, color: Colors.primaryColor.withOpacity(0.2 ),),
             ),
-            _AccountLimitView(
-              currentTier: currentTier,
-            ),
+            _AccountLimitView(currentTier: currentTier),
             Divider(height: 1, color: Colors.primaryColor.withOpacity(0.2 ),),
             _AccountStatusDetails()
           ]
@@ -246,7 +248,7 @@ class _AccountStatusContainer extends StatelessWidget {
 
 }
 
-///_ProgressiveView
+///_AccountUpgradeProgressView
 ///
 ///
 ///
@@ -321,6 +323,10 @@ class _AccountLimitView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final cumulativeBalance = currentTier?.maximumCumulativeBalance;
+    final balanceLimit = cumulativeBalance == 0 ? "Unlimited" : cumulativeBalance?.formatCurrency;
+
     return Container(
       padding: EdgeInsets.only(left: 15, right: 15),
       child: Column(
@@ -372,7 +378,7 @@ class _AccountLimitView extends StatelessWidget {
                   ),
                   SizedBox(height: 2,),
                   Text(
-                    "${currentTier?.maximumCumulativeBalance?.formatCurrency}",
+                    "$balanceLimit",
                     style: TextStyle(
                         fontSize: 14,
                         color: Colors.textColorBlack,
@@ -508,7 +514,7 @@ class _PanelHeader extends StatelessWidget {
       alignment: Alignment.centerLeft,
       child: Row(
         children: [
-          SizedBox(width: 30, child: icon,),
+          SizedBox(width: 30, child: icon),
           SizedBox(width: 8,),
           Text(title, style: TextStyle(
             fontSize: 14,
@@ -539,6 +545,7 @@ class _FormContentBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
@@ -548,7 +555,7 @@ class _FormContentBlock extends StatelessWidget {
             color: Colors.darkBlue.withOpacity(0.5),
           )
         ),
-        SizedBox(height: 4,),
+        SizedBox(height: 4),
         Text(
             value,
             style: TextStyle(
@@ -571,30 +578,29 @@ class _IdentificationDetailsView extends StatelessWidget {
   Widget build(BuildContext context) {
     final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
 
-    return Container(
-      child: Column(
-        children: [
-          StreamBuilder(
-              stream: viewModel.identificationForm.idTypeStream,
-              builder: (ctx, AsyncSnapshot<IdentificationType?> snapshot) {
-                return _FormContentBlock(
-                    title: "Identification Type",
-                    value: snapshot.data?.idType ?? "Not Yet Supplied"
-                );
-              }
-          ),
-          SizedBox(height: 19),
-          _FormContentBlock(
-              title: "Identification No.",
-              value: "3456776654345"
-          ),
-          SizedBox(height: 19),
-          _FormContentBlock(
-              title: "Issue Date",
-              value: "Issue Date"
-          ),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        StreamBuilder(
+            stream: viewModel.identificationForm.idTypeStream,
+            builder: (ctx, AsyncSnapshot<IdentificationType?> snapshot) {
+              return _FormContentBlock(
+                  title: "Identification Type",
+                  value: snapshot.data?.idType ?? "Not Yet Supplied"
+              );
+            }
+        ),
+        SizedBox(height: 19),
+        _FormContentBlock(
+            title: "Identification No.",
+            value: "--"
+        ),
+        SizedBox(height: 19),
+        _FormContentBlock(
+            title: "Issue Date",
+            value: "--"
+        ),
+      ],
     );
   }
 

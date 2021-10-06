@@ -55,6 +55,17 @@ class CardViewUtil {
       return Container();
   }
 
+  static String getCardName(String maskedPan) {
+    if (CardUtil.isMasterCard(maskedPan))
+      return "Mastercard";
+    if (CardUtil.isVerveCard(maskedPan))
+      return "Verve";
+    if (CardUtil.isVisaCard(maskedPan))
+      return "Visa";
+    else
+      return "";
+  }
+
   static Widget getBlockedCardBanner() {
     return SizedBox(
       width: 160,

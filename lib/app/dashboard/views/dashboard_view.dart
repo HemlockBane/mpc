@@ -141,19 +141,18 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
                               ),
                               SizedBox(height: 32),
                               DashboardMenu(_onDrawerItemClickListener),
-                              SizedBox(height: !_viewModel.isAccountUpdateCompleted ? 32 : 0),
-                              StreamBuilder(
-                                  stream: _viewModel.dashboardUpdateStream,
-                                  builder: (_, __) {
-                                    return DashboardSliderView(
-                                      items: _viewModel.sliderItems,
-                                      onItemClick: _onDrawerItemClickListener,
-                                    );
-                                  }),
-                              SizedBox(height: 32),
+                              // StreamBuilder(
+                              //     stream: _viewModel.dashboardUpdateStream,
+                              //     builder: (_, __) {
+                              //       return DashboardSliderView(
+                              //         items: _viewModel.sliderItems,
+                              //         onItemClick: _onDrawerItemClickListener,
+                              //       );
+                              //     }),
+                              // SizedBox(height: 32),
                               DashboardRecentlyPaidView(
                                 beneficiaries: recentlyPaidBeneficiaries,
-                                margin: EdgeInsets.only(bottom: 32),
+                                margin: EdgeInsets.only(bottom: 32, top: 32),
                               ),
                               //Margin is determined by DashboardRecentlyPaidView
                               SizedBox(height: 42),
@@ -315,11 +314,11 @@ class _DashboardTopMenu extends StatelessWidget {
         width: 34,
         decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.white.withOpacity(0.2),
+            color: Colors.grey.withOpacity(0.2),
             border: Border.all(color: Colors.white.withOpacity(0.4))),
         child: Icon(
           CustomIcons2.username,
-          color: Color(0xffF5F9FF).withOpacity(0.5),
+          color: Colors.white.withOpacity(0.8),
           size: 21,
         ),
       );

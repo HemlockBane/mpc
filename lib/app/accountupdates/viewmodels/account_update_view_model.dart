@@ -15,7 +15,9 @@ import 'package:moniepoint_flutter/app/accountupdates/model/forms/customer_addre
 import 'package:moniepoint_flutter/app/accountupdates/model/forms/customer_identification_form.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/forms/next_of_kin_form.dart';
 import 'package:moniepoint_flutter/core/lazy.dart';
+import 'package:moniepoint_flutter/core/models/file_result.dart';
 import 'package:moniepoint_flutter/core/models/file_uuid.dart';
+import 'package:moniepoint_flutter/core/models/services/file_management_service_delegate.dart';
 import 'package:moniepoint_flutter/core/models/services/location_service_delegate.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -40,13 +42,18 @@ class AccountUpdateViewModel extends BaseViewModel {
   final StreamController<bool> _loadingStateController = StreamController.broadcast();
   Stream<bool> get loadingState => _loadingStateController.stream;
 
-  AccountUpdateViewModel({CustomerServiceDelegate? customerServiceDelegate, LocationServiceDelegate? locationServiceDelegate}) {
+  AccountUpdateViewModel({
+    CustomerServiceDelegate? customerServiceDelegate,
+    LocationServiceDelegate? locationServiceDelegate,
+    FileManagementServiceDelegate? fileServiceDelegate}) {
     this._locationServiceDelegate = locationServiceDelegate ?? GetIt.I<LocationServiceDelegate>();
     this._customerServiceDelegate = customerServiceDelegate ?? GetIt.I<CustomerServiceDelegate>();
+    this._fileServiceDelegate = fileServiceDelegate ?? GetIt.I<FileManagementServiceDelegate>();
   }
 
   late final LocationServiceDelegate _locationServiceDelegate;
   late final CustomerServiceDelegate _customerServiceDelegate;
+  late final FileManagementServiceDelegate _fileServiceDelegate;
 
   late final Map<String, bool Function()> _flagNameToFormValidity = {
     Flags.ADDITIONAL_INFO : () =>  _additionalInfoForm.isInitialized && _additionalInfoForm.value.isFormValid ,
@@ -109,11 +116,11 @@ class AccountUpdateViewModel extends BaseViewModel {
       customerDetailInfo: (_additionalInfoForm.isInitialized || customerDetailInfo != null)
           ? customerDetailInfo
           : null,
-      mailingAddressInfo: (_addressForm.isInitialized)
-          ? addressForm.getMailingAddressInfo?.addressCity != null ? addressForm.getMailingAddressInfo : null
+      mailingAddressInfo: (_addressForm.isInitialized && addressForm.isFormValid)
+          ? addressForm.mailingAddressForm?.isFormValid == true ? addressForm.getMailingAddressInfo : null
           : null,
       identificationInfo: isCustomerIdValid ? identificationForm.identificationInfo : null,
-      nextOfKinInfo: (_nextOfKinForm.isInitialized)
+      nextOfKinInfo: (_nextOfKinForm.isInitialized && nextOfKinForm.isFormValid)
           ? nextOfKinForm.nextOfKinInfo
           : null
     );
@@ -161,6 +168,11 @@ class AccountUpdateViewModel extends BaseViewModel {
         yield Resource.error(err: ServiceError(message: resource.message ?? ""));
       }
     }
+  }
+
+  Stream<Resource<FileResult>> downloadUploadedDocument(String? fileUUID) {
+    if (fileUUID == null) return Stream.empty();
+    return _fileServiceDelegate.getFileByUUID(fileUUID, shouldFetchRemote: false);
   }
 
   double getFormWeightedProgress() {

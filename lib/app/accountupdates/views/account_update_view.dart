@@ -274,9 +274,9 @@ class _AccountUpdateScreen extends State<AccountUpdateScreen> with CompositeDisp
                           Align(
                             alignment: Alignment.centerRight,
                             child: FutureBuilder(
-                              future: Future.delayed(Duration(milliseconds: 60)),
-                              builder: (BuildContext mContext, AsyncSnapshot<void> snap) {
-                                if(!snap.hasData || !_displayPageProgress) return SizedBox();
+                              future: Future.delayed(Duration(milliseconds: 60), () => "done"),
+                              builder: (BuildContext mContext, AsyncSnapshot<dynamic> futureSnap) {
+                                if(futureSnap.connectionState != ConnectionState.done || !_displayPageProgress) return SizedBox();
                                 return Padding(
                                   padding: EdgeInsets.only(left: 16,right: 16,  top: 8, bottom: 16),
                                   child: PieProgressBar(

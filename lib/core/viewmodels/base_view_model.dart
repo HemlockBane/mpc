@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moniepoint_flutter/app/accounts/model/account_service_delegate.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
+import 'package:moniepoint_flutter/app/accountupdates/model/data/account_upgrade_state.dart';
 import 'package:moniepoint_flutter/app/customer/customer.dart';
+import 'package:moniepoint_flutter/app/customer/scheme_code.dart';
 import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -105,6 +107,13 @@ abstract class BaseViewModel with ChangeNotifier {
     return customerAccount?.schemeCode?.name;
   }
 
+  SchemeCode? getUserQualifiedScheme(int customerAccountId) {
+    final customerAccountUsers = customer?.customerAccountUsers?.where((element) => element.customerAccount?.id ==customerAccountId).firstOrNull;
+    if(customerAccountUsers == null || customerAccountUsers.customerAccount == null) return null;
+    final customerAccount = customerAccountUsers.customerAccount;
+    return customerAccount?.schemeCode;
+  }
+
   int? getCustomerAccountIdByAccountNumber (String? accountNumber) {
     List<UserAccount> accounts = userAccounts.where((element) {
       return element.customerAccount?.accountNumber == accountNumber;
@@ -135,6 +144,10 @@ abstract class BaseViewModel with ChangeNotifier {
       default:
         return null;
     }
+  }
+
+  AccountState getAccountState () {
+    return userAccounts.firstOrNull?.getAccountState() ?? AccountState.COMPLETED;
   }
 
   UserAccount? getUserAccountById(int userAccountId) => UserInstance().getUserAccount(userAccountId);

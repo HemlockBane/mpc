@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/alternate_scheme_requirement.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/scheme_requirement.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/transaction_category.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_history_item.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_service_provider.dart';
@@ -218,6 +219,20 @@ class TransactionTypeConverter extends TypeConverter<TransactionType?, String?>{
 
   @override
   String? encode(TransactionType? value) {
+    return (value != null)  ? describeEnum(value) : null;
+  }
+}
+
+class TransactionCategoryConverter extends TypeConverter<TransactionCategory?, String?>{
+  @override
+  TransactionCategory? decode(String? databaseValue) {
+    if(databaseValue == null) return null;
+    final TransactionCategory type = enumFromString<TransactionCategory>(TransactionCategory.values, databaseValue);
+    return type;
+  }
+
+  @override
+  String? encode(TransactionCategory? value) {
     return (value != null)  ? describeEnum(value) : null;
   }
 }

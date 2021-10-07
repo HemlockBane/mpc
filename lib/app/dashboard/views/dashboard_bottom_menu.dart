@@ -147,7 +147,7 @@ class _MenuItem extends StatelessWidget {
 
 }
 
-
+const double bottomAppBarHeight = 60;
 
 class AppBottomNavigationBarItem {
   AppBottomNavigationBarItem({required this.svgPath, required this.title});
@@ -170,7 +170,7 @@ class AppBottomNavigationBar extends StatelessWidget {
       required this.items,
       this.color = Colors.grey,
       this.selectedColor = Colors.black,
-      this.height = 60});
+      this.height = bottomAppBarHeight});
 
   @override
   Widget build(BuildContext context) {

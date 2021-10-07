@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart' hide Colors;
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
 import 'package:moniepoint_flutter/app/accounts/viewmodels/account_transaction_detail_view_model.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
@@ -25,6 +27,8 @@ class AccountTransactionOptions extends StatefulWidget {
 
 class _AccountTransactionOptionsState extends State<AccountTransactionOptions> {
 
+  bool _isDownloadingReceipt = false;
+  bool _isSharingReceipt = false;
 
   String _getDownloadReceiptName() {
     return "AccountTransaction_Receipt_${widget.viewModel.accountName}"
@@ -39,6 +43,29 @@ class _AccountTransactionOptionsState extends State<AccountTransactionOptions> {
         .fromMillisecondsSinceEpoch(widget.transaction.transactionDate).toString();
     mTransaction["location"] = null;
     return AccountTransaction.fromJson(mTransaction);
+  }
+
+  void _onDownload(bool share) {
+    DownloadUtil.downloadTransactionReceipt(
+            () => widget.viewModel.downloadTransactionReceipt(_getTransactionForDownload()),
+        _getDownloadReceiptName(),
+        isShare : share,
+        onProgress: (_, isCompleted) {
+          if(isCompleted) {
+            if(!share) _isDownloadingReceipt = false;
+            if(share) _isSharingReceipt = false;
+            setState(() {});
+          } else {
+            if(!share) _isDownloadingReceipt = true;
+            if(share) _isSharingReceipt = true;
+            setState(() {});
+          }
+        }
+    );
+  }
+
+  void _replayTransaction() {
+
   }
 
   Widget _contentView () => Wrap(
@@ -56,33 +83,35 @@ class _AccountTransactionOptionsState extends State<AccountTransactionOptions> {
       _OptionItem(
         title: "Do Again",
         iconBackgroundColor: Colors.primaryColor.withOpacity(0.1),
-        icon: SvgPicture.asset("res/drawables/ic_replay_transaction.svg", color: Colors.primaryColor,),
         isVisible: true,
-        onItemClick: null,
+        onItemClick: _isSharingReceipt || _isDownloadingReceipt ? null : _replayTransaction,
+        icon: SvgPicture.asset(
+          "res/drawables/ic_replay_transaction.svg",
+            color: _isSharingReceipt || _isDownloadingReceipt
+                ? Colors.grey.withOpacity(0.4)
+                : Colors.primaryColor
+        ),
       ),
       _OptionItem(
         title: "Download",
         iconBackgroundColor: Colors.primaryColor.withOpacity(0.1),
-        icon: SvgPicture.asset("res/drawables/ic_download_receipt.svg", color: Colors.primaryColor,),
+        icon: SvgPicture.asset(
+            "res/drawables/ic_download_receipt.svg",
+            color: _isSharingReceipt ? Colors.grey.withOpacity(0.4) :Colors.primaryColor
+        ),
         isVisible: true,
-        onItemClick: () {
-          DownloadUtil.downloadTransactionReceipt(
-                  () => widget.viewModel.downloadTransactionReceipt(_getTransactionForDownload()),
-              _getDownloadReceiptName(),
-              isShare : false
-          );
-        },
+        isLoading: _isDownloadingReceipt,
+        onItemClick: _isSharingReceipt ? null : () => _onDownload(false),
       ),
       _OptionItem(
         title: "Share",
         iconBackgroundColor: Colors.primaryColor.withOpacity(0.1),
-        icon: SvgPicture.asset("res/drawables/ic_share_receipt.svg", color: Colors.primaryColor,),
-        onItemClick: () {
-          DownloadUtil.downloadTransactionReceipt(
-                  () => widget.viewModel.downloadTransactionReceipt(_getTransactionForDownload()),
-              _getDownloadReceiptName()
-          );
-        },
+        isLoading: _isSharingReceipt,
+        icon: SvgPicture.asset(
+          "res/drawables/ic_share_receipt.svg",
+          color: _isDownloadingReceipt ? Colors.grey.withOpacity(0.4) :Colors.primaryColor
+          ,),
+        onItemClick: _isDownloadingReceipt ? null :  () => _onDownload(true),
       ),
     ],
   );
@@ -108,6 +137,7 @@ class _OptionItem extends StatelessWidget {
     required this.icon,
     required this.onItemClick,
     this.isVisible = true,
+    this.isLoading = false
   });
 
   final String title;
@@ -115,6 +145,7 @@ class _OptionItem extends StatelessWidget {
   final Widget icon;
   final bool isVisible;
   final VoidCallback? onItemClick;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -124,15 +155,6 @@ class _OptionItem extends StatelessWidget {
         children: [
           Stack(
             children: [
-             // SizedBox(
-             //    width: 40,
-             //    height: 40,
-             //    child: CircularProgressIndicator(
-             //      strokeWidth: 2,
-             //      valueColor: AlwaysStoppedAnimation(Colors.colorPrimaryDark.withOpacity(0.5)),
-             //      backgroundColor: Colors.grey.withOpacity(0.1),
-             //    ),
-             //  ),
               Container(
                 width: 51,
                 height: 51,
@@ -140,14 +162,16 @@ class _OptionItem extends StatelessWidget {
                   color: Colors.transparent,
                   child: InkWell(
                     borderRadius: BorderRadius.circular(100),
-                    onTap: onItemClick,
+                    onTap: (!isLoading) ? onItemClick : null,
                     child: Container(
                       decoration: BoxDecoration(
-                          color: iconBackgroundColor,
+                          color: (onItemClick == null) ? Colors.grey.withOpacity(0.2) : iconBackgroundColor,
                           shape: BoxShape.circle
                       ),
                       padding: EdgeInsets.all(10),
-                      child: icon,
+                      child: (isLoading)
+                          ? SpinKitThreeBounce(size: 20.0, color: Colors.primaryColor.withOpacity(0.9))
+                          : icon,
                     ),
                   ),
                 ),
@@ -159,7 +183,8 @@ class _OptionItem extends StatelessWidget {
             title,
             style: TextStyle(
               fontWeight: FontWeight.w600,
-              fontSize: 13
+              fontSize: 13,
+              color: onItemClick == null ? Colors.grey.withOpacity(0.4) : Colors.textColorBlack
             ),
           )
         ],

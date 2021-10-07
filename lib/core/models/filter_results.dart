@@ -12,7 +12,7 @@ class FilterResults {
 
   factory FilterResults.defaultFilter() => FilterResults()
     ..startDate = 0
-    ..endDate = DateTime.now().toUtc().millisecondsSinceEpoch
+    ..endDate = DateTime.now().millisecondsSinceEpoch
     ..channels = {
       TransactionChannel.ATM,
       TransactionChannel.KIOSK,

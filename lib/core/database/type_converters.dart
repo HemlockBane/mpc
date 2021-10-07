@@ -326,9 +326,11 @@ class LocationConverter extends TypeConverter<Location?, String?>{
 
 
 int stringDateTime(String a) {
-  print("Converting dates =>>> ${DateTime.now().isUtc}");
-  print("Converting dates oddsef =>>> ${DateTime.parse(a).timeZoneOffset}");
-  return DateTime.parse(a).millisecondsSinceEpoch;
+  final parsedDate = DateTime.parse(a);
+  if(parsedDate.isUtc) {
+    return parsedDate.subtract(Duration(hours: 1)).millisecondsSinceEpoch;
+  }
+  return parsedDate.millisecondsSinceEpoch;
 }
 // class DateListTypeConverter extends TypeConverter<List<int>?, int?>{
 //   @override

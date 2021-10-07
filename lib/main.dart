@@ -47,7 +47,7 @@ class MoniepointApp extends StatelessWidget with CompositeDisposableWidget {
         viewModel.getUSSDConfiguration(), (a, b) {}
     ).listen((event) {
       print("Fetching System Configuration!!!");
-      if(event is Success || event is Error){
+      if(event is Success || event is Error) {
         disposeAll();
       }
     }).disposedBy(this);
@@ -97,6 +97,7 @@ void main() async {
 Future<void> _onCreate() async {
   WidgetsFlutterBinding.ensureInitialized();
   await DatabaseModule.inject();
+
   ServiceModule.inject();
 
   await Firebase.initializeApp();

@@ -14,6 +14,7 @@ import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
+import 'package:moniepoint_flutter/core/views/transaction_location_view.dart';
 import 'package:provider/provider.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
@@ -59,9 +60,9 @@ class _AccountTransactionDetailedView extends State<AccountTransactionDetailedVi
       fontSize: 13,
       color: Colors.textColorBlack,
     ),
-  ).colorText({"$_accountNumber": Tuple(Colors.textColorBlack, null)}, underline: false);
+  ).colorText({"${accountNumber ?? _accountNumber}": Tuple(Colors.textColorBlack, null)}, underline: false);
 
-  _TransactionDetailDisplayable _getBeneficiaryDisplayableView(AccountTransaction transaction) {
+  TransactionDetailDisplayable _getBeneficiaryDisplayableView(AccountTransaction transaction) {
     switch(transaction.transactionCategory) {
       case TransactionCategory.TRANSFER:
         return _TransferTransactionBeneficiaryDetails(transaction: transaction);
@@ -111,6 +112,14 @@ class _AccountTransactionDetailedView extends State<AccountTransactionDetailedVi
         label: "Transaction Code",
         value: transaction.transactionCode,
         valueTextWeight: FontWeight.w400,
+      ),
+      TransactionLocationView(
+          (transaction.location == null)
+              ? null
+              : LatLng(
+                  double.tryParse(transaction.location!.latitude ?? "0.0") ?? 0.0,
+                  double.tryParse(transaction.location!.longitude ?? "0.0") ?? 0.0
+                ), "Transaction Location"
       )
     ];
 
@@ -215,7 +224,7 @@ class _AccountTransactionDetailedView extends State<AccountTransactionDetailedVi
               if (!snapshot.hasData || snapshot.data == null) return Container();
               final transaction = snapshot.data!;
               return Container(
-                padding: EdgeInsets.only(top: 100),
+                padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.115),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
                   image: DecorationImage(
@@ -457,7 +466,7 @@ class _TransactionCategoryView extends StatelessWidget {
 ///
 ///
 ///
-class _TransactionDetailViewItem extends _TransactionDetailDisplayable {
+class _TransactionDetailViewItem extends TransactionDetailDisplayable {
 
   _TransactionDetailViewItem({
     required this.label,
@@ -527,7 +536,7 @@ class _TransactionDetailViewItem extends _TransactionDetailDisplayable {
 ///
 ///
 ///
-class _TransferTransactionBeneficiaryDetails extends _TransactionDetailDisplayable {
+class _TransferTransactionBeneficiaryDetails extends TransactionDetailDisplayable {
 
   _TransferTransactionBeneficiaryDetails({
     required this.transaction
@@ -597,7 +606,7 @@ class _TransferTransactionBeneficiaryDetails extends _TransactionDetailDisplayab
 ///
 ///
 ///
-class _BillTransactionBeneficiaryDetails extends _TransactionDetailDisplayable {
+class _BillTransactionBeneficiaryDetails extends TransactionDetailDisplayable {
 
   _BillTransactionBeneficiaryDetails({
     required this.transaction
@@ -675,7 +684,7 @@ class _BillTransactionBeneficiaryDetails extends _TransactionDetailDisplayable {
 ///
 ///
 ///
-class _AirtimeTransactionBeneficiaryDetails extends _TransactionDetailDisplayable {
+class _AirtimeTransactionBeneficiaryDetails extends TransactionDetailDisplayable {
 
   _AirtimeTransactionBeneficiaryDetails({
     required this.transaction
@@ -752,7 +761,7 @@ class _AirtimeTransactionBeneficiaryDetails extends _TransactionDetailDisplayabl
 ///
 ///
 ///
-class _CardTransactionBeneficiaryDetails extends _TransactionDetailDisplayable {
+class _CardTransactionBeneficiaryDetails extends TransactionDetailDisplayable {
 
   _CardTransactionBeneficiaryDetails({
     required this.transaction
@@ -815,7 +824,7 @@ class _CardTransactionBeneficiaryDetails extends _TransactionDetailDisplayable {
 ///
 ///
 ///
-class _CardPurchaseLocationDetails extends _TransactionDetailDisplayable {
+class _CardPurchaseLocationDetails extends TransactionDetailDisplayable {
 
   _CardPurchaseLocationDetails({
     required this.transaction
@@ -881,7 +890,7 @@ class _CardPurchaseLocationDetails extends _TransactionDetailDisplayable {
 }
 
 
-class _EmptyBeneficiaryDetails extends _TransactionDetailDisplayable {
+class _EmptyBeneficiaryDetails extends TransactionDetailDisplayable {
 
   @override
   Widget build(BuildContext context) {
@@ -893,6 +902,6 @@ class _EmptyBeneficiaryDetails extends _TransactionDetailDisplayable {
 
 }
 
-abstract class _TransactionDetailDisplayable extends StatelessWidget {
+abstract class TransactionDetailDisplayable extends StatelessWidget {
   bool shouldDisplay();
 }

@@ -46,8 +46,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
   late final PageController _tabPageController;
 
   Stream<Resource<List<TransferBeneficiary>>> recentlyPaidBeneficiaries = Stream.empty();
-  final double refreshIndicatorOffset = 70;
-  int currentTabIndex = 0;
+  final _currentTabIndex = ValueNotifier<int>(0);
 
   void _setupFingerprint() async {
     final biometricRequest = await _viewModel.shouldRequestFingerPrintSetup();
@@ -107,9 +106,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
     _tabPageController = PageController(viewportFraction: 1);
     _tabPageController.addListener(() {
       final tabIndex = (_tabPageController.page ?? 0).round();
-      setState(() {
-        currentTabIndex = tabIndex;
-      });
+      _currentTabIndex.value = tabIndex;
     });
 
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
@@ -222,13 +219,18 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
             extendBodyBehindAppBar: true,
             appBar: PreferredSize(
               preferredSize: Size.fromHeight(dashboardTopMenuHeight),
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: DashboardTopMenu(
-                viewModel: _viewModel,
-                title: tabTitles[currentTabIndex],
-                ),
-              ),
+              child: ValueListenableBuilder<int>(
+                valueListenable: _currentTabIndex,
+                builder: (ctx, value, _){
+                  return Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: DashboardTopMenu(
+                      viewModel: _viewModel,
+                      title: tabTitles[value],
+                    ),
+                  );
+                },
+              )
             ),
             key: _scaffoldKey,
             drawer: DashboardDrawer(width, _onDrawerItemClickListener),
@@ -245,16 +247,21 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
                 ],
               ),
             ),
-            bottomNavigationBar: AppBottomNavigationBar(
-              selectedIndex: currentTabIndex,
-              onTabSelected: _changeTab,
-              items: [
-                AppBottomNavigationBarItem(svgPath: "res/drawables/ic_dashboard_home.svg", title: "Home"),
-                AppBottomNavigationBarItem(svgPath: "res/drawables/ic_dashboard_piggy.svg", title: "Savings"),
-                AppBottomNavigationBarItem(svgPath: "res/drawables/ic_dashboard_loan.svg", title: "Loans"),
-                AppBottomNavigationBarItem(svgPath: "res/drawables/ic_dashboard_more.svg", title: "More")
-              ],
-            ),
+            bottomNavigationBar: ValueListenableBuilder<int>(
+              valueListenable: _currentTabIndex,
+              builder: (ctx, value, _){
+                return AppBottomNavigationBar(
+                  selectedIndex: value,
+                  onTabSelected: _changeTab,
+                  items: [
+                    AppBottomNavigationBarItem(svgPath: "res/drawables/ic_dashboard_home.svg", title: "Home"),
+                    AppBottomNavigationBarItem(svgPath: "res/drawables/ic_dashboard_piggy.svg", title: "Savings"),
+                    AppBottomNavigationBarItem(svgPath: "res/drawables/ic_dashboard_loan.svg", title: "Loans"),
+                    AppBottomNavigationBarItem(svgPath: "res/drawables/ic_dashboard_more.svg", title: "More")
+                  ],
+                );
+              },
+            )
           ),
       ),
     );

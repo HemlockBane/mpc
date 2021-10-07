@@ -242,19 +242,26 @@ class AccountTransaction extends Transaction implements ListItem {
 
   @override
   String getSinkAccountName() {
-    // TODO: implement getSinkAccountName
-    return "";
+    return beneficiaryName ?? "";
   }
 
   @override
   String getSinkAccountNumber() {
-    // TODO: implement getSinkAccountNumber
-    return "";
+    return beneficiaryIdentifier ?? "";
+  }
+
+  @override
+  String? getSinkAccountBankCode() {
+    return beneficiaryBankCode;
+  }
+
+  @override
+  String? getSinkAccountBankName() {
+    return beneficiaryBankName;
   }
 
   @override
   String getSourceAccountBank() {
-    // TODO: implement getSourceAccountBank
     return "";
   }
 

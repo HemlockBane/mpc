@@ -38,10 +38,10 @@ class _AccountTransactionDetailedView extends State<AccountTransactionDetailedVi
   late final AccountTransactionDetailViewModel _viewModel;
 
   LatLng? _transactionLocation(AccountTransaction transaction) {
-    if(transaction.metaData?.location != null) {
+    if(transaction.location != null) {
       return LatLng(
-          double.tryParse(transaction.metaData?.location?.latitude ?? "0.0") ?? 0.0,
-          double.tryParse(transaction.metaData?.location?.longitude ?? "0.0") ?? 0.0
+          double.tryParse(transaction.location?.latitude ?? "0.0") ?? 0.0,
+          double.tryParse(transaction.location?.longitude ?? "0.0") ?? 0.0
       );
     }
     return null;
@@ -116,10 +116,8 @@ class _AccountTransactionDetailedView extends State<AccountTransactionDetailedVi
       TransactionLocationView(
           (transaction.location == null)
               ? null
-              : LatLng(
-                  double.tryParse(transaction.location!.latitude ?? "0.0") ?? 0.0,
-                  double.tryParse(transaction.location!.longitude ?? "0.0") ?? 0.0
-                ), "Transaction Location"
+              : _transactionLocation(transaction),
+          "Transaction Location"
       )
     ];
 

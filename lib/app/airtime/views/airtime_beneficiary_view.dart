@@ -16,6 +16,7 @@ import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_l
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_shimmer_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
+import 'package:moniepoint_flutter/core/models/TransactionRequestContract.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/pnd_notification_banner.dart';
@@ -32,12 +33,16 @@ class AirtimeBeneficiaryScreen extends StatefulWidget {
 
   late final GlobalKey<ScaffoldState> _scaffoldKey;
 
-  AirtimeBeneficiaryScreen(this._scaffoldKey);
+  AirtimeBeneficiaryScreen(
+      this._scaffoldKey,
+      this.transactionRequestContract
+  );
+
+  final TransactionRequestContract? transactionRequestContract;
 
   @override
-  State<StatefulWidget> createState() {
-    return _AirtimeBeneficiaryScreen();
-  }
+  State<StatefulWidget> createState() => _AirtimeBeneficiaryScreen();
+
 }
 
 class _AirtimeBeneficiaryScreen extends State<AirtimeBeneficiaryScreen> with AutomaticKeepAliveClientMixin, TickerProviderStateMixin, Validators{
@@ -65,8 +70,12 @@ class _AirtimeBeneficiaryScreen extends State<AirtimeBeneficiaryScreen> with Aut
     final viewModel = Provider.of<AirtimeViewModel>(context, listen: false);
     frequentBeneficiaries = viewModel.getFrequentBeneficiaries();
     super.initState();
+    _handleContract();
   }
 
+  void _handleContract() {
+
+  }
 
   void displayServiceProvidersDialog(AirtimeBeneficiary beneficiary) async {
     dynamic result = await showModalBottomSheet(
@@ -94,8 +103,6 @@ class _AirtimeBeneficiaryScreen extends State<AirtimeBeneficiaryScreen> with Aut
       });
     }
   }
-
-
 
   Widget makeListView(BuildContext context, AsyncSnapshot<Resource<List<AirtimeBeneficiary>?>> a) {
     final viewModel = Provider.of<AirtimeViewModel>(context, listen: false);

@@ -2,10 +2,14 @@ import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
-import 'package:lottie/lottie.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/transaction_category.dart';
 import 'package:moniepoint_flutter/app/accounts/viewmodels/account_transaction_detail_view_model.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/models/TransactionRequestContract.dart';
+import 'package:moniepoint_flutter/core/models/transaction.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/utils/download_util.dart';
 
 class AccountTransactionOptions extends StatefulWidget {
@@ -45,27 +49,93 @@ class _AccountTransactionOptionsState extends State<AccountTransactionOptions> {
     return AccountTransaction.fromJson(mTransaction);
   }
 
-  void _onDownload(bool share) {
-    DownloadUtil.downloadTransactionReceipt(
-            () => widget.viewModel.downloadTransactionReceipt(_getTransactionForDownload()),
-        _getDownloadReceiptName(),
-        isShare : share,
-        onProgress: (_, isCompleted) {
-          if(isCompleted) {
-            if(!share) _isDownloadingReceipt = false;
-            if(share) _isSharingReceipt = false;
-            setState(() {});
-          } else {
-            if(!share) _isDownloadingReceipt = true;
-            if(share) _isSharingReceipt = true;
-            setState(() {});
+  void _onDownload(bool share) async {
+    try {
+      await DownloadUtil.downloadTransactionReceipt(
+          () => widget.viewModel.downloadTransactionReceipt(_getTransactionForDownload()),
+          _getDownloadReceiptName(),
+          isShare: share,
+          onProgress: (_, isCompleted) {
+            if (isCompleted) {
+              if (!share) _isDownloadingReceipt = false;
+              if (share) _isSharingReceipt = false;
+              setState(() {});
+            } else {
+              if (!share) _isDownloadingReceipt = true;
+              if (share) _isSharingReceipt = true;
+              setState(() {});
+            }
           }
-        }
-    );
+      );
+    } catch(e) {
+      setState(() { _isDownloadingReceipt = false;});
+      setState(() { _isSharingReceipt = false;});
+      showError(
+          context,
+          title: "Download Receipt Failed!",
+          message: "Failed downloading receipt, please try again later."
+      );
+    }
+  }
+
+  bool _canDownloadOrShareReceipt() {
+    return widget.transaction.type == TransactionType.DEBIT;
   }
 
   void _replayTransaction() {
+    final transaction = widget.transaction;
+    switch(transaction.transactionCategory) {
+      case TransactionCategory.TRANSFER:
+        final contract = TransactionRequestContract(
+            transaction: transaction, requestType: TransactionRequestContractType.REPLAY
+        );
+        Navigator.of(context).pushNamed(Routes.TRANSFER, arguments: contract);
+        break;
+      case TransactionCategory.BILL_PAYMENT:
+        return;
+      case TransactionCategory.AIRTIME:
+        return;
+      case TransactionCategory.DATA:
+        return;
+      case TransactionCategory.CARD_LINKING:
+        return;
+      case TransactionCategory.CARD_PURCHASE:
+        return;
+      case TransactionCategory.DEFAULT:
+        return;
+      default:
+        return;
+    }
+  }
 
+  bool _canReplayTransaction() {
+    final transaction = widget.transaction;
+    switch(transaction.transactionCategory) {
+      case TransactionCategory.TRANSFER:
+        if(transaction.type == TransactionType.DEBIT) {
+          return transaction.beneficiaryIdentifier != null
+              && transaction.beneficiaryIdentifier?.isNotEmpty == true
+              && transaction.beneficiaryBankCode != null
+              && transaction.beneficiaryBankCode?.isNotEmpty == true
+              && transaction.beneficiaryBankName != null
+              && transaction.beneficiaryBankName?.isNotEmpty == true;
+        }
+        return false;
+      case TransactionCategory.BILL_PAYMENT:
+        return false;
+      case TransactionCategory.AIRTIME:
+        return false;
+      case TransactionCategory.DATA:
+        return false;
+      case TransactionCategory.CARD_LINKING:
+        return false;
+      case TransactionCategory.CARD_PURCHASE:
+        return false;
+      case TransactionCategory.DEFAULT:
+        return false;
+      default:
+        return false;
+    }
   }
 
   Widget _contentView () => Wrap(
@@ -80,30 +150,33 @@ class _AccountTransactionOptionsState extends State<AccountTransactionOptions> {
       //   isVisible: false,
       //   onItemClick: null,
       // ),
-      _OptionItem(
-        title: "Do Again",
-        iconBackgroundColor: Colors.primaryColor.withOpacity(0.1),
-        isVisible: true,
-        onItemClick: _isSharingReceipt || _isDownloadingReceipt ? null : _replayTransaction,
-        icon: SvgPicture.asset(
-          "res/drawables/ic_replay_transaction.svg",
-            color: _isSharingReceipt || _isDownloadingReceipt
-                ? Colors.grey.withOpacity(0.4)
-                : Colors.primaryColor
+      if(_canReplayTransaction())
+        _OptionItem(
+          title: "Do Again",
+          iconBackgroundColor: Colors.primaryColor.withOpacity(0.1),
+          isVisible: true,
+          onItemClick: _isSharingReceipt || _isDownloadingReceipt ? null : _replayTransaction,
+          icon: SvgPicture.asset(
+              "res/drawables/ic_replay_transaction.svg",
+              color: _isSharingReceipt || _isDownloadingReceipt
+                  ? Colors.grey.withOpacity(0.4)
+                  : Colors.primaryColor
+          ),
         ),
-      ),
-      _OptionItem(
-        title: "Download",
-        iconBackgroundColor: Colors.primaryColor.withOpacity(0.1),
-        icon: SvgPicture.asset(
-            "res/drawables/ic_download_receipt.svg",
-            color: _isSharingReceipt ? Colors.grey.withOpacity(0.4) :Colors.primaryColor
+      if(_canDownloadOrShareReceipt())
+        _OptionItem(
+          title: "Download",
+          iconBackgroundColor: Colors.primaryColor.withOpacity(0.1),
+          icon: SvgPicture.asset(
+              "res/drawables/ic_download_receipt.svg",
+              color: _isSharingReceipt ? Colors.grey.withOpacity(0.4) :Colors.primaryColor
+          ),
+          isVisible: true,
+          isLoading: _isDownloadingReceipt,
+          onItemClick: _isSharingReceipt ? null : () => _onDownload(false),
         ),
-        isVisible: true,
-        isLoading: _isDownloadingReceipt,
-        onItemClick: _isSharingReceipt ? null : () => _onDownload(false),
-      ),
-      _OptionItem(
+      if(_canDownloadOrShareReceipt())
+        _OptionItem(
         title: "Share",
         iconBackgroundColor: Colors.primaryColor.withOpacity(0.1),
         isLoading: _isSharingReceipt,

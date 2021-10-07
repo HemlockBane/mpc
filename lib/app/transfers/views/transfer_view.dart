@@ -5,6 +5,7 @@ import 'package:moniepoint_flutter/app/transfers/viewmodels/transfer_view_model.
 import 'package:moniepoint_flutter/app/transfers/views/transfer_beneficiary_view.dart';
 import 'package:moniepoint_flutter/app/transfers/views/transfer_payment_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/models/TransactionRequestContract.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -19,19 +20,20 @@ class TransferScreen extends StatefulWidget {
   static const REPLAY_TRANSFER = "REPLAY_TRANSFER";
   static const START_TRANSFER = "START_TRANSFER";
 
-  TransferScreen();
+  TransferScreen({
+    this.transactionRequestContract
+  });
+
+  final TransactionRequestContract? transactionRequestContract;
 
   @override
-  State<StatefulWidget> createState() {
-    return TransferScreenState();
-  }
+  State<StatefulWidget> createState() => TransferScreenState();
 
 }
 
 class TransferScreenState extends State<TransferScreen> {
   @override
   Widget build(BuildContext context) {
-    final parentArgs = ModalRoute.of(context)?.settings.arguments;
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (v) => TransferViewModel()),
@@ -66,10 +68,11 @@ class TransferScreenState extends State<TransferScreen> {
                     children: [
                       SizedBox(height: 16),
                       Expanded(
-                          child: _TransferViewNavigator(
-                              widget._scaffoldKey,
-                              widget._navigatorKey
-                          ),
+                        child: _TransferViewNavigator(
+                            widget._scaffoldKey,
+                            widget._navigatorKey,
+                            widget.transactionRequestContract
+                        ),
                       )
                     ],
                   ),
@@ -81,37 +84,25 @@ class TransferScreenState extends State<TransferScreen> {
     );
   }
 
-  void replayTransaction(SingleTransferTransaction transaction) {
-    this.widget._navigatorKey.currentState?.restorablePopAndPushNamed(
-        TransferScreen.BENEFICIARY_SCREEN,
-        arguments: {
-          "replay": {
-            "amount" : transaction.getAmount(),
-            "accountNumber": transaction.getSinkAccountNumber(),
-            "bankCode": transaction.transfer?.sinkAccountProviderCode,
-            "bankName": transaction.transfer?.sinkAccountProviderName
-          }
-      }
-    );
-  }
 }
 
 class _TransferViewNavigator extends StatelessWidget {
 
   final GlobalKey<NavigatorState> _navigatorKey;
   final GlobalKey<ScaffoldState> _scaffoldKey;
-  final Map routeState = {"count": 0};
+  final TransactionRequestContract? transactionRequestContract;
 
-  _TransferViewNavigator(this._scaffoldKey, this._navigatorKey):super(key: Key("_TransferViewNavigator"));
+  _TransferViewNavigator(
+      this._scaffoldKey,
+      this._navigatorKey,
+      this.transactionRequestContract
+  ) : super(key: Key("_TransferViewNavigator"));
 
-
-  Route _generateRoute(RouteSettings settings, Object? parentArguments) {
+  Route _generateRoute(RouteSettings settings, TransactionRequestContract? contract) {
     late Widget page;
     switch (settings.name) {
       case TransferScreen.BENEFICIARY_SCREEN:
-        final parentArgs = routeState["count"] == 0 ? parentArguments : null;
-        routeState["count"] = 1;
-        page = TransferBeneficiaryScreen(_scaffoldKey, arguments: settings.arguments ?? parentArgs);
+        page = TransferBeneficiaryScreen(_scaffoldKey, arguments: contract ?? transactionRequestContract);
         break;
       case TransferScreen.PAYMENT_SCREEN:
         final defaultAmount = settings.arguments != null ? settings.arguments as double : 0.0;
@@ -129,13 +120,12 @@ class _TransferViewNavigator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final parentArgs = ModalRoute.of(context)?.settings.arguments;
     return WillPopScope(
       onWillPop: _onBackPressed,
       child: Navigator(
         key: _navigatorKey,
         initialRoute: "main",
-        onGenerateRoute: (setting) => _generateRoute(setting, parentArgs),
+        onGenerateRoute: (setting) => _generateRoute(setting, transactionRequestContract),
       ),
     );
   }

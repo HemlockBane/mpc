@@ -16,6 +16,7 @@ import 'package:moniepoint_flutter/app/billpayments/model/data/biller_product.da
 import 'package:moniepoint_flutter/app/transfers/model/data/fee_vat_config.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/transfer_batch.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/transfer_history_item.dart';
+import 'package:moniepoint_flutter/core/config/service_config.dart';
 import 'package:moniepoint_flutter/core/models/transaction.dart';
 import 'package:moniepoint_flutter/core/models/transaction_batch.dart';
 import 'package:moniepoint_flutter/core/models/transaction_meta_data.dart';
@@ -327,7 +328,7 @@ class LocationConverter extends TypeConverter<Location?, String?>{
 
 int stringDateTime(String a) {
   final parsedDate = DateTime.parse(a);
-  if(parsedDate.isUtc) {
+  if(parsedDate.isUtc && ServiceConfig.ENV == "dev") {
     return parsedDate.subtract(Duration(hours: 1)).millisecondsSinceEpoch;
   }
   return parsedDate.millisecondsSinceEpoch;

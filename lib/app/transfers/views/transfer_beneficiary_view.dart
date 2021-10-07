@@ -12,6 +12,7 @@ import 'package:moniepoint_flutter/app/transfers/viewmodels/transfer_view_model.
 import 'package:moniepoint_flutter/app/transfers/views/dialogs/account_enquiry_dialog.dart';
 import 'package:moniepoint_flutter/app/transfers/views/dialogs/institutions_bottom_sheet.dart';
 import 'package:moniepoint_flutter/app/transfers/views/transfer_view.dart';
+import 'package:moniepoint_flutter/core/models/TransactionRequestContract.dart';
 import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
@@ -58,7 +59,8 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
     final viewModel = Provider.of<TransferViewModel>(context, listen: false);
     frequentBeneficiaries = viewModel.getFrequentBeneficiaries();
     super.initState();
-    _extraArguments(widget.arguments);
+    _handleContract();
+    // _extraArguments(widget.arguments);
   }
 
   void displayInstitutionsDialog() async {
@@ -153,31 +155,54 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
     }
   }
 
-  void _extraArguments(Object? obj){
-    //TODO use enums to represent the key names
-    if(obj == null || obj is! Map) return;
-
-    final replay = obj["replay"];
-    if(replay != null && replay is Map) {
+  void _handleContract() {
+    print("Args ===>>> ${widget.arguments}");
+    if(widget.arguments == null) return;
+    //handle contract
+    final contract = widget.arguments as TransactionRequestContract?;
+    if(contract == null) return;
+    if(contract.requestType == TransactionRequestContractType.REPLAY) {
+      final transaction = contract.transaction;
       final provider = AccountProvider()
-        ..bankCode = replay["bankCode"]
-        ..name = replay["bankName"];
-      final beneficiary = TransferBeneficiary(id:0, accountName: "", accountNumber: replay["accountNumber"]);
-      Future.delayed(Duration(milliseconds: 200), (){
-        doNameEnquiry(provider, beneficiary, withDefaultAmount: replay["amount"]);
-      });
-    }
+        ..bankCode = transaction.getSinkAccountBankCode()
+        ..name = transaction.getSinkAccountBankName();
 
-    final beneficiary = obj[TransferScreen.START_TRANSFER];
-    if(beneficiary != null && beneficiary is TransferBeneficiary) {
-      final provider =AccountProvider()
-          ..bankCode = beneficiary.accountProviderCode
-          ..name = beneficiary.accountProviderName;
+      final beneficiary = TransferBeneficiary(
+          id: 0,
+          accountName: transaction.getSinkAccountName(),
+          accountNumber: transaction.getSinkAccountNumber()
+      );
       Future.delayed(Duration(milliseconds: 200), (){
-        doNameEnquiry(provider, beneficiary, saveBeneficiary: false);
+        doNameEnquiry(provider, beneficiary, withDefaultAmount: transaction.getAmount());
       });
     }
   }
+
+  // void _extraArguments(Object? obj){
+  //   //TODO use enums to represent the key names
+  //   if(obj == null || obj is! Map) return;
+  //
+  //   final replay = obj["replay"];
+  //   if(replay != null && replay is Map) {
+  //     final provider = AccountProvider()
+  //       ..bankCode = replay["bankCode"]
+  //       ..name = replay["bankName"];
+  //     final beneficiary = TransferBeneficiary(id:0, accountName: "", accountNumber: replay["accountNumber"]);
+  //     Future.delayed(Duration(milliseconds: 200), (){
+  //       doNameEnquiry(provider, beneficiary, withDefaultAmount: replay["amount"]);
+  //     });
+  //   }
+  //
+  //   final beneficiary = obj[TransferScreen.START_TRANSFER];
+  //   if(beneficiary != null && beneficiary is TransferBeneficiary) {
+  //     final provider =AccountProvider()
+  //         ..bankCode = beneficiary.accountProviderCode
+  //         ..name = beneficiary.accountProviderName;
+  //     Future.delayed(Duration(milliseconds: 200), (){
+  //       doNameEnquiry(provider, beneficiary, saveBeneficiary: false);
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {

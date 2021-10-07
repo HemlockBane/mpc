@@ -49,6 +49,7 @@ import 'package:moniepoint_flutter/app/settings/settings_view.dart';
 import 'package:moniepoint_flutter/app/transfers/viewmodels/transfer_detail_view_model.dart';
 import 'package:moniepoint_flutter/app/transfers/views/transfer_detailed_view.dart';
 import 'package:moniepoint_flutter/app/transfers/views/transfer_view.dart';
+import 'package:moniepoint_flutter/core/models/TransactionRequestContract.dart';
 import 'package:moniepoint_flutter/core/viewmodels/contacts_view_model.dart';
 import 'package:moniepoint_flutter/core/viewmodels/system_configuration_view_model.dart';
 import 'package:moniepoint_flutter/core/views/contacts_view.dart';
@@ -105,12 +106,10 @@ class Routes {
       Routes.ACCOUNT_RECOVERY: (BuildContext context) => Scaffold(body: RecoveryControllerScreen()),
       Routes.DASHBOARD: (BuildContext context) => DashboardScreen(),
       Routes.ACCOUNT_UPDATE: (BuildContext context) => Scaffold(body: AccountUpdateScreen()),
-      Routes.TRANSFER: (BuildContext context) => TransferScreen(),
       Routes.TRANSFER_DETAIL: (BuildContext context) => ChangeNotifierProvider(
         create: (_) => TransferDetailViewModel(),
         child: TransferDetailedView(),
       ),
-      Routes.AIRTIME: (BuildContext context) => AirtimeScreen(),
       Routes.AIRTIME_DETAIL: (BuildContext context) => ChangeNotifierProvider(
         create: (_) => AirtimeHistoryDetailViewModel(),
         child: AirtimeHistoryDetailedView(),
@@ -171,6 +170,20 @@ class Routes {
                 userAccountId: userAccountId,
               ),
             ),
+        );
+      case Routes.TRANSFER:
+        final contract = (settings.arguments is TransactionRequestContract)
+            ? settings.arguments as TransactionRequestContract?
+            : null;
+        return MaterialPageRoute(
+            builder: (_) => TransferScreen(transactionRequestContract: contract)
+        );
+      case Routes.AIRTIME:
+        final contract = (settings.arguments is TransactionRequestContract)
+            ? settings.arguments as TransactionRequestContract?
+            : null;
+        return MaterialPageRoute(
+            builder: (_) => AirtimeScreen(transactionRequestContract: contract)
         );
       case Routes.LIVELINESS_DETECTION:
         return MaterialPageRoute(

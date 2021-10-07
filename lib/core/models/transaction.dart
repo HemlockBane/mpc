@@ -32,6 +32,14 @@ abstract class Transaction extends ListItem {
 
   String getSinkAccountNumber();
 
+  String? getSinkAccountBankName() {
+    return null;
+  }
+
+  String? getSinkAccountBankCode() {
+    return null;
+  }
+
   String getSourceAccountBank();
 
   String getPaymentInterval();

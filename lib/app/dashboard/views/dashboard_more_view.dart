@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
+import 'package:moniepoint_flutter/app/dashboard/views/dashboard_bottom_menu.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_menu_item.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
@@ -39,7 +40,6 @@ void onItemClick(String routeName, int position){
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = Provider.of<DashboardViewModel>(context, listen: false);
     return Container(
       height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
@@ -48,8 +48,7 @@ void onItemClick(String routeName, int position){
       child: SingleChildScrollView(
         child: Column(
           children: [
-            DashboardTopMenu(viewModel: viewModel, title: "More"),
-            SizedBox(height: 22,),
+            SizedBox(height: dashboardTopMenuHeight + bottomAppBarHeight),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

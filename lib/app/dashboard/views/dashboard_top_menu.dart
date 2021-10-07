@@ -11,17 +11,15 @@ import 'custom_refresh_indicator/custom_refresh_indicator.dart';
 
 
 
+const double dashboardTopMenuHeight = 50;
+
 class DashboardTopMenu extends StatefulWidget {
   final DashboardViewModel viewModel;
   final title;
-  final IndicatorController? indicatorController;
-  final double? indicatorOffset;
 
   DashboardTopMenu({
     required this.viewModel,
-    this.indicatorController,
     required this.title,
-    this.indicatorOffset
   }) : super(key: Key("_DashboardTopMenu"));
 
   @override
@@ -78,20 +76,10 @@ class _DashboardTopMenuState extends State<DashboardTopMenu> {
 
     return Container(
       margin: EdgeInsets.only(
-        top: MediaQuery.of(context).size.height * 0.05,
+        top: 15,
       ),
       child: Column(
         children: [
-          if (widget.indicatorController != null && widget.indicatorOffset != null)
-            AnimatedBuilder(
-                animation: widget.indicatorController!,
-                child: SizedBox(),
-                builder: (ctx, child) {
-                  final offsetValue = widget.indicatorController!.value * widget.indicatorOffset!;
-                  return Container(
-                      height: offsetValue
-                  );
-                }),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -120,7 +108,7 @@ class _DashboardTopMenuState extends State<DashboardTopMenu> {
                     fontWeight: FontWeight.w600,
                     color: Colors.textColorBlack),
               ),
-              Container(width: 40,)
+              Container(width: 40)
             ],
           ),
         ],

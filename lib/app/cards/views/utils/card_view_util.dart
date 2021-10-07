@@ -55,6 +55,21 @@ class CardViewUtil {
       return Container();
   }
 
+
+  static Widget getCardBrandFromScheme(String scheme) {
+    if (scheme.toLowerCase() == "mastercard")
+      return SvgPicture.asset(
+        'res/drawables/ic_master_card.svg',
+        height: 16,
+      );
+    if (scheme.toLowerCase() == "verve")
+      return SvgPicture.asset('res/drawables/ic_verve_card.svg');
+    if (scheme.toLowerCase() == "visa")
+      return SvgPicture.asset('res/drawables/ic_visa_receipt.svg',);
+    else
+      return Container();
+  }
+
   static String getCardName(String maskedPan) {
     if (CardUtil.isMasterCard(maskedPan))
       return "Mastercard";

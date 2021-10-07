@@ -43,8 +43,7 @@ mixin PaymentViewModel {
     this._paymentLocation = paymentLocation;
   }
 
-
-  TransactionMetaData buildTransactionMetaData(String type) {
+  Location? buildLocationData() {
     Location? mLocation;
     if(_paymentLocation != null)  {
       mLocation = Location(
@@ -52,26 +51,7 @@ mixin PaymentViewModel {
           longitude: "${_paymentLocation?.longitude}"
       );
     }
-
-    final String? name;
-
-    if(this is BillPurchaseViewModel) name = _beneficiary?.getBeneficiaryProviderName();
-    else if(this is AirtimeViewModel) name = _beneficiary?.getBeneficiaryDigits();
-    else if(this is TransferViewModel) name = _beneficiary?.getAccountName();
-    else throw UnsupportedError("Purchase not supported");
-
-    final recipient = Recipient(
-      name: name,
-      accountNumber: (this is TransferViewModel) ? _beneficiary?.getBeneficiaryDigits() : null,
-      bankName: (this is TransferViewModel) ? _beneficiary?.getBeneficiaryProviderName() : null,
-      bankCode: (this is TransferViewModel) ? _beneficiary?.getBeneficiaryProviderCode() : null,
-    );
-
-    return TransactionMetaData(
-      location: mLocation,
-      transactionType: type,
-      recipient: recipient
-    );
+    return mLocation;
   }
 
   void checkValidity() {

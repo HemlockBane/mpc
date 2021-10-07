@@ -215,8 +215,7 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
               return SelectionCombo2<AirtimeServiceProviderItem>(
                 comboItems,
                 defaultTitle: "Select Data Plan",
-                onItemSelected: (item, i) =>
-                    setState(() => viewModel.setServiceProviderItem(item)),
+                onItemSelected: (item, i) => setState(() => viewModel.setServiceProviderItem(item)),
                 titleIcon: StreamBuilder(
                     stream: viewModel.getFile(beneficiary.serviceProvider!.logoImageUUID ?? ""),
                     builder: (ctx, AsyncSnapshot<Resource<FileResult>> result) {

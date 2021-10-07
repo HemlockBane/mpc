@@ -27,8 +27,9 @@ class TransferRequestBody {
   String? sourceAccountProviderCode;
   String? userCode;
   String? validatedAccountName;
-  @JsonKey(name:"metaDataObj")
-  TransactionMetaData? metaData;
+  @JsonKey(name: "location")
+  Location? location;
+
 
   TransferRequestBody({
     this.authenticationType = AuthenticationMethod.PIN,
@@ -48,7 +49,7 @@ class TransferRequestBody {
     this.sourceAccountProviderCode,
     this.userCode,
     this.validatedAccountName,
-    this.metaData
+    this.location
   });
 
   factory TransferRequestBody.fromJson(Object? data) => _$TransferRequestBodyFromJson(data as Map<String, dynamic>);

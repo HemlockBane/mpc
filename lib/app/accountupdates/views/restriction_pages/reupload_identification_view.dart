@@ -32,7 +32,7 @@ class _ReUploadIdentificationViewState extends State<ReUploadIdentificationView>
     setState(() {_isLoading = true;});
     await DownloadUtil.downloadFileResult(
         widget.downloadTask,
-        widget.title ?? "file.pdf",
+        widget.title ?? "file",
         isShare: false,
         onProgress: (_, isCompleted) {
           if(isCompleted) setState(() { _isLoading = false; });

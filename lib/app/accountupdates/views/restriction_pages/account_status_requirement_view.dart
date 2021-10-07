@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lottie/lottie.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/account_update_flag.dart';
 import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
@@ -52,10 +53,21 @@ class AccountStatusRequirementState extends State<AccountStatusRequirementView> 
     final List<_AccountRequirementItem> _items = [];
 
     if(widget.requirementMode == AccountRequirementMode.UPGRADE_INFO
-    || widget.requirementMode == AccountRequirementMode.POST_NO_DEBIT) {
-      _items.add(_additionalInfoItem);
-      _items.add(_identificationItem);
-      _items.add(_proofOfAddressItem);
+        || widget.requirementMode == AccountRequirementMode.POST_NO_DEBIT) {
+      //We are only going to add what has not been supplied
+
+      final additionalInfoFlag = userAccount.accountStatus?.additionalInfoFlag
+          ?? userAccount.parentCustomer?.additionalInfoFlag;
+
+      final idFlag = userAccount.accountStatus?.identificationVerificationFlag
+          ?? userAccount.parentCustomer?.identificationVerificationFlag;
+
+      final addressFlag = userAccount.accountStatus?.addressVerificationFlag
+          ?? userAccount.parentCustomer?.addressVerificationFlag;
+
+      if(additionalInfoFlag?.status == false) _items.add(_additionalInfoItem);
+      if(idFlag?.status == false) _items.add(_identificationItem);
+      if(addressFlag?.status == false) _items.add(_proofOfAddressItem);
     }
 
     if(widget.requirementMode == AccountRequirementMode.REGULARIZE_DOCUMENT) {
@@ -65,16 +77,16 @@ class AccountStatusRequirementState extends State<AccountStatusRequirementView> 
 
     if(widget.requirementMode == AccountRequirementMode.IN_PROGRESS) {
       //We need to check document upload that's currently in progress
-      //TODO use the flag from account status since that can be updated without a need for re-login
-      final isIdVerified = userAccount.customer?.identificationVerified;
-      final isAddressVerified = userAccount.customer?.addressVerified;
-
       final idFlag = userAccount.accountStatus?.identificationVerificationFlag
           ?? userAccount.parentCustomer?.identificationVerificationFlag;
+
       final addressFlag = userAccount.accountStatus?.addressVerificationFlag
           ?? userAccount.parentCustomer?.addressVerificationFlag;
 
       final verificationTime = DocumentVerificationScreen.getMaxDocumentVerificationTime(idFlag, addressFlag);
+
+      final isIdVerified = idFlag?.verificationStates == VerificationState.PASSED;
+      final isAddressVerified = addressFlag?.verificationStates == VerificationState.PASSED;
 
       _items.add(
           _identificationItem

@@ -64,7 +64,7 @@ class _CardActivationViewState extends State<CardActivationView> with CompositeD
           context,
           isDismissible: false,
           title: "Card Activated!",
-          message: "Your Card has been activated successfully!",
+          message: "Your card has been activated successfully!",
       );
       Navigator.of(context).pushNamedAndRemoveUntil(
           Routes.CARDS, ModalRoute.withName(Routes.DASHBOARD)
@@ -185,6 +185,10 @@ class _CardActivationViewState extends State<CardActivationView> with CompositeD
 
 }
 
+///_CardActivationInfoPage
+///
+///
+///
 class _CardActivationInfoPage extends PagedForm {
 
   @override
@@ -424,6 +428,8 @@ class _CardCVVPagePageState extends State<_CardCVVPage> with AutomaticKeepAliveC
 
 }
 
+///_CardNewPinPage
+///
 ///
 class _CardNewPinPage extends PagedForm {
 

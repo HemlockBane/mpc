@@ -309,7 +309,25 @@ class DateStringToLongConverter extends TypeConverter<String?, int?>{
 }
 
 
+class LocationConverter extends TypeConverter<Location?, String?>{
+  @override
+  Location? decode(String? databaseValue) {
+    if(databaseValue == null) return null;
+    final dynamic type = jsonDecode(databaseValue);
+    return Location.fromJson(type);
+  }
+
+  @override
+  String? encode(Location? value) {
+    return (value != null) ? jsonEncode(value) : null;
+  }
+}
+
+
+
 int stringDateTime(String a) {
+  print("Converting dates =>>> ${DateTime.now().isUtc}");
+  print("Converting dates oddsef =>>> ${DateTime.parse(a).timeZoneOffset}");
   return DateTime.parse(a).millisecondsSinceEpoch;
 }
 // class DateListTypeConverter extends TypeConverter<List<int>?, int?>{

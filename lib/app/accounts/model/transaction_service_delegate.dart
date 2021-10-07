@@ -61,7 +61,7 @@ class TransactionServiceDelegate with NetworkResource {
     yield* a.stream;
   }
 
-  Stream<Uint8List> downloadTransactionReceipt(DownloadTransactionReceiptRequestBody requestBody) async* {
+  Stream<Uint8List> downloadTransactionReceipt(AccountTransaction requestBody) async* {
     final a = (await _service.downloadTransactionReceipt(requestBody)) as ResponseBody;
     yield* a.stream;
   }

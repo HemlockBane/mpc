@@ -271,9 +271,10 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
                 ),
                 itemBuilder: (context, index) {
                   return TransactionHistoryListItem(value.data[index], index, (item, i) {
+                    print(userAccount?.customerAccount?.accountNumber);
                     Navigator.of(context).pushNamed(
                         Routes.ACCOUNT_TRANSACTIONS_DETAIL,
-                        arguments: item.transactionRef);
+                        arguments: {"transactionRef": item.transactionRef, "accountNumber": userAccount?.customerAccount?.accountNumber});
                   });
                   },
               )),

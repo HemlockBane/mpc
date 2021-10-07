@@ -190,7 +190,7 @@ class _AirtimeBeneficiaryScreen extends State<AirtimeBeneficiaryScreen> with Aut
             SizedBox(height: 24),
             Padding(
               padding : EdgeInsets.only(left: 16, right: 16),
-              child: Text('What do you want to buy?', style: TextStyle(color: Colors.deepGrey, fontSize: 14, fontWeight: FontWeight.w200)),
+              child: Text('What do you want to buy?', style: TextStyle(color: Colors.deepGrey, fontSize: 14, fontWeight: FontWeight.w400)),
             ),
             SizedBox(height: 12),
             Flexible(

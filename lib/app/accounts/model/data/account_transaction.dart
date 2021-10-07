@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:floor/floor.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/transaction_category.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/transfer_request_body.dart';
 import 'package:moniepoint_flutter/core/database/type_converters.dart';
@@ -17,7 +20,7 @@ class AccountTransaction extends Transaction implements ListItem {
   final int? id;
 
   @JsonKey(name: "accountNumber")
-  final String? accountNumber = "NULL";
+  String? accountNumber;
 
   @JsonKey(name: "status")
   final bool? status;
@@ -32,9 +35,6 @@ class AccountTransaction extends Transaction implements ListItem {
   @JsonKey(name: "type")
   @TypeConverters([TransactionTypeConverter])
   final TransactionType? type;
-
-  @JsonKey(name: "channel")
-  final String? channel;
 
   @JsonKey(name: "transactionChannel")
   //@TypeConverters([TransactionChannelConverter])
@@ -107,8 +107,15 @@ class AccountTransaction extends Transaction implements ListItem {
   @JsonKey(name: "maskedPan")
   final String? maskedPan;
 
+  @JsonKey(name: "terminalID")
+  final String? terminalID;
+
   @JsonKey(name: "disputable")
   final bool? disputable;
+
+  @JsonKey(name: "location")
+  @TypeConverters([LocationConverter])
+  final Location? location;
 
   @JsonKey(name: "metaDataObj")
   @TypeConverters([TransactionMetaDataConverter])
@@ -124,7 +131,6 @@ class AccountTransaction extends Transaction implements ListItem {
     this.status,
     this.amount,
     this.type,
-    this.channel,
     this.transactionChannel,
     this.tags,
     this.narration,
@@ -149,11 +155,14 @@ class AccountTransaction extends Transaction implements ListItem {
     this.merchantLocation,
     this.cardScheme,
     this.maskedPan,
+    this.terminalID,
     this.disputable,
+    this.location
   });
 
-  factory AccountTransaction.fromJson(Object? data) =>
-      _$AccountTransactionFromJson(data as Map<String, dynamic>);
+  factory AccountTransaction.fromJson(Object? data) {
+    return _$AccountTransactionFromJson(data as Map<String, dynamic>);
+  }
 
   Map<String, dynamic> toJson() => _$AccountTransactionToJson(this);
 

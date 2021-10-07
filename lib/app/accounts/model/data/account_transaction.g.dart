@@ -14,7 +14,6 @@ AccountTransaction _$AccountTransactionFromJson(Map<String, dynamic> json) {
     status: json['status'] as bool?,
     amount: (json['amount'] as num?)?.toDouble(),
     type: _$enumDecodeNullable(_$TransactionTypeEnumMap, json['type']),
-    channel: json['channel'] as String?,
     transactionChannel: json['transactionChannel'] as String?,
     tags: json['tags'] as String?,
     narration: json['narration'] as String?,
@@ -42,18 +41,22 @@ AccountTransaction _$AccountTransactionFromJson(Map<String, dynamic> json) {
     merchantLocation: json['merchantLocation'] as String?,
     cardScheme: json['cardScheme'] as String?,
     maskedPan: json['maskedPan'] as String?,
+    terminalID: json['terminalID'] as String?,
     disputable: json['disputable'] as bool?,
-  );
+    location: json['location'] == null
+        ? null
+        : Location.fromJson(json['location'] as Object),
+  )..accountNumber = json['accountNumber'] as String?;
 }
 
 Map<String, dynamic> _$AccountTransactionToJson(AccountTransaction instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'accountNumber': instance.accountNumber,
       'status': instance.status,
       'transactionRef': instance.transactionRef,
       'amount': instance.amount,
       'type': _$TransactionTypeEnumMap[instance.type],
-      'channel': instance.channel,
       'transactionChannel': instance.transactionChannel,
       'tags': instance.tags,
       'narration': instance.narration,
@@ -78,7 +81,9 @@ Map<String, dynamic> _$AccountTransactionToJson(AccountTransaction instance) =>
       'merchantLocation': instance.merchantLocation,
       'cardScheme': instance.cardScheme,
       'maskedPan': instance.maskedPan,
+      'terminalID': instance.terminalID,
       'disputable': instance.disputable,
+      'location': instance.location,
       'metaDataObj': instance.metaData,
       'customerAccountId': instance.customerAccountId,
     };

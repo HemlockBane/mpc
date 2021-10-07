@@ -26,9 +26,9 @@ TransferRequestBody _$TransferRequestBodyFromJson(Map<String, dynamic> json) {
     sourceAccountProviderCode: json['sourceAccountProviderCode'] as String?,
     userCode: json['userCode'] as String?,
     validatedAccountName: json['validatedAccountName'] as String?,
-    metaData: json['metaDataObj'] == null
+    location: json['location'] == null
         ? null
-        : TransactionMetaData.fromJson(json['metaDataObj'] as Object),
+        : Location.fromJson(json['location'] as Object),
   );
 }
 
@@ -53,7 +53,7 @@ Map<String, dynamic> _$TransferRequestBodyToJson(
       'sourceAccountProviderCode': instance.sourceAccountProviderCode,
       'userCode': instance.userCode,
       'validatedAccountName': instance.validatedAccountName,
-      'metaDataObj': instance.metaData,
+      'location': instance.location,
     };
 
 K _$enumDecode<K, V>(

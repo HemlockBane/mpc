@@ -27,12 +27,7 @@ class AccountTransactionDetailViewModel extends BaseViewModel {
 
   Stream<Uint8List> downloadTransactionReceipt(AccountTransaction transaction) {
     print(jsonEncode(transaction.metaData));
-    return _delegate.downloadTransactionReceipt(
-        DownloadTransactionReceiptRequestBody(
-            customerId: customerId,
-            transactionRef: transaction.transactionRef,
-            metaDataObj: transaction.metaData,
-            narration: transaction.narration));
+    return _delegate.downloadTransactionReceipt(transaction);
   }
 
   Stream<Resource<List<Tier>>> getTiers() {

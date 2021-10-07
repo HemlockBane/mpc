@@ -23,10 +23,7 @@ BillPaymentRequestBody _$BillPaymentRequestBodyFromJson(
     ..fingerprintKey = json['fingerprintKey'] as String?
     ..deviceId = json['deviceId'] as String?
     ..authenticationType = _$enumDecodeNullable(
-        _$AuthenticationMethodEnumMap, json['authenticationType'])
-    ..metaData = json['metaDataObj'] == null
-        ? null
-        : TransactionMetaData.fromJson(json['metaDataObj'] as Object);
+        _$AuthenticationMethodEnumMap, json['authenticationType']);
 }
 
 Map<String, dynamic> _$BillPaymentRequestBodyToJson(
@@ -53,7 +50,6 @@ Map<String, dynamic> _$BillPaymentRequestBodyToJson(
   writeNotNull('deviceId', instance.deviceId);
   writeNotNull('authenticationType',
       _$AuthenticationMethodEnumMap[instance.authenticationType]);
-  writeNotNull('metaDataObj', instance.metaData);
   return val;
 }
 
@@ -116,9 +112,9 @@ Request _$RequestFromJson(Map<String, dynamic> json) {
         (json['additionalFieldsMap'] as Map<String, dynamic>?)?.map(
       (k, e) => MapEntry(k, e as String),
     )
-    ..metaData = json['metaDataObj'] == null
+    ..location = json['location'] == null
         ? null
-        : TransactionMetaData.fromJson(json['metaDataObj'] as Object);
+        : Location.fromJson(json['location'] as Object);
 }
 
 Map<String, dynamic> _$RequestToJson(Request instance) {
@@ -136,6 +132,6 @@ Map<String, dynamic> _$RequestToJson(Request instance) {
   writeNotNull(
       'customerValidationReference', instance.customerValidationReference);
   writeNotNull('additionalFieldsMap', instance.additionalFieldsMap);
-  writeNotNull('metaDataObj', instance.metaData);
+  writeNotNull('location', instance.location);
   return val;
 }

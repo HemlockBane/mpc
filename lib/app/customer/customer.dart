@@ -30,6 +30,12 @@ class Customer {
   @JsonKey(name: "passportUUID")
   final String? passportUUID;
 
+  @JsonKey(name: "utilityBillUUID")
+  final String? utilityBillUUID;
+
+  @JsonKey(name: "identificationUUID")
+  final String? identificationUUID;
+
   @JsonKey(name:"additionalInfoFlag")
   final AccountUpdateFlag? additionalInfoFlag;
 
@@ -88,6 +94,8 @@ class Customer {
       this.addressVerified,
       this.bvnVerified,
       this.identificationVerified,
+      this.utilityBillUUID,
+      this.identificationUUID
       });
 
   factory Customer.fromJson(Object? data) => _$CustomerFromJson(data as Map<String, dynamic>);

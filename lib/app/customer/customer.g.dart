@@ -59,6 +59,8 @@ Customer _$CustomerFromJson(Map<String, dynamic> json) {
     addressVerified: json['addressVerified'] as bool?,
     bvnVerified: json['bvnVerified'] as bool?,
     identificationVerified: json['identificationVerified'] as bool?,
+    utilityBillUUID: json['utilityBillUUID'] as String?,
+    identificationUUID: json['identificationUUID'] as String?,
   );
 }
 
@@ -81,6 +83,8 @@ Map<String, dynamic> _$CustomerToJson(Customer instance) => <String, dynamic>{
       'reuploadID': instance.reUploadID,
       'reuploadProofOfAddress': instance.reUploadProofOfAddress,
       'passportUUID': instance.passportUUID,
+      'utilityBillUUID': instance.utilityBillUUID,
+      'identificationUUID': instance.identificationUUID,
       'additionalInfoFlag': instance.additionalInfoFlag,
       'identificationInfoFlag': instance.identificationInfoFlag,
       'identificationProofFlag': instance.identificationProofFlag,

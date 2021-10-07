@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
-import 'package:moniepoint_flutter/app/accounts/model/data/account_status.dart';
 import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/transfer_beneficiary_delegate.dart';
@@ -138,7 +137,7 @@ class TransferViewModel extends BaseViewModel with PaymentViewModel {
         ..pin = pin
         ..narration = _narration
         ..minorVatAmount = _minorVat
-        ..metaData = buildTransactionMetaData(getTransactionType())
+        ..location = buildLocationData()
         ..minorFeeAmount = _minorFee;
 
     return _delegate.doTransfer(request);

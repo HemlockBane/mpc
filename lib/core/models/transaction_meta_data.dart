@@ -1,6 +1,3 @@
-// To parse this JSON data, do
-//
-//     final transactionMetaData = transactionMetaDataFromJson(jsonString);
 
 import 'package:json_annotation/json_annotation.dart';
 

@@ -62,30 +62,8 @@ class _AirtimeScreen extends State<AirtimeScreen> {
               child: Column(
                 children: [
                   SizedBox(height: 16),
-                  TransactionTab(
-                      TabBar(
-                        indicator: BoxDecoration(
-                            borderRadius: BorderRadius.circular(50),
-                            color: Colors.primaryColor
-                        ),
-                        unselectedLabelColor: Color(0XFF8030424C),
-                        tabs: [
-                          Tab(
-                            text: "Recharge",
-                          ),
-                          Tab(
-                            text: "History",
-                          )
-                        ],
-                      ),
-                      Colors.tabBackground.withOpacity(0.1)),
                   Expanded(
-                      child: TabBarView(
-                          children: [
-                            _AirtimeViewNavigator(widget._scaffoldKey, widget._navigatorKey),
-                            AirtimeHistoryScreen(widget._scaffoldKey),
-                          ]
-                      )
+                    child:_AirtimeViewNavigator(widget._scaffoldKey, widget._navigatorKey),
                   )
                 ],
               ),

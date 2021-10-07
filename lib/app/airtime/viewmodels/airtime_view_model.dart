@@ -105,14 +105,14 @@ class AirtimeViewModel extends BaseViewModel with PaymentViewModel {
             .withPhoneNumber(_cleansePhoneNumber())
             .withServiceProviderCode(beneficiary?.getBeneficiaryProviderCode() ?? "")
             .withMinorCreditAmount((this.amount ?? 0) * 100)
-            .withMetaData(buildTransactionMetaData(describeEnum(_purchaseType)))
+            .withLocation(buildLocationData())
             .name = beneficiary?.getAccountName();
         break;
       case PurchaseType.DATA:
         dataTopUpRequest
             .withPhoneNumber(_cleansePhoneNumber())
             .withDataProviderItemCode(_dataPlan?.code ?? "")
-            .withMetaData(buildTransactionMetaData(describeEnum(_purchaseType)))
+            .withLocation(buildLocationData())
             .withDataProviderName(beneficiary?.getBeneficiaryProviderName() ?? "")
             .withMinorCreditAmount((this.amount ?? 0) * 100)
             .name = beneficiary?.getAccountName();

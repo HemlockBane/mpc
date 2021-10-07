@@ -99,7 +99,7 @@ class TransactionHistoryViewModel extends BaseViewModel {
       element.values = null;
     });
     _filterResults.startDate = 0;
-    _filterResults.endDate = DateTime.now().millisecondsSinceEpoch;
+    _filterResults.endDate = DateTime.now().toUtc().millisecondsSinceEpoch;
     _filterResults.channels.clear();
     _filterResults.types.clear();
   }

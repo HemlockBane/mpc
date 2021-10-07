@@ -2,31 +2,24 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Colors, ScrollView, Card;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:intl/intl.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
-import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/transaction_category.dart';
 import 'package:moniepoint_flutter/app/accounts/viewmodels/account_transaction_detail_view_model.dart';
-import 'package:moniepoint_flutter/app/accounts/viewmodels/transaction_list_view_model.dart';
 import 'package:moniepoint_flutter/app/accounts/views/clippers/account_ticket_clipper.dart';
-import 'package:moniepoint_flutter/app/accounts/views/dialogs/account_settings_dialog.dart';
-import 'package:moniepoint_flutter/app/cards/model/data/card.dart';
 import 'package:moniepoint_flutter/app/cards/views/utils/card_view_util.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/lazy.dart';
 import 'package:moniepoint_flutter/core/models/transaction.dart';
-import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
-import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
-import 'package:moniepoint_flutter/core/views/transaction_location_view.dart';
-import 'package:moniepoint_flutter/core/views/transaction_options_view.dart';
 import 'package:provider/provider.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
 import 'package:collection/collection.dart';
+
+import 'account_transaction_options.dart';
 
 ///@author Paul Okeke
 
@@ -39,6 +32,8 @@ class AccountTransactionDetailedView extends StatefulWidget {
 
 class _AccountTransactionDetailedView extends State<AccountTransactionDetailedView> {
   String? _transactionReference;
+  String? _accountNumber;
+
   late final AccountTransactionDetailViewModel _viewModel;
 
   LatLng? _transactionLocation(AccountTransaction transaction) {
@@ -59,12 +54,12 @@ class _AccountTransactionDetailedView extends State<AccountTransactionDetailedVi
   }
 
   Widget _accountNumberView (String? accountNumber) => Text(
-    "Account Number : $accountNumber",
+    "Account Number : ${accountNumber ?? _accountNumber}",
     style: TextStyle(
       fontSize: 13,
       color: Colors.textColorBlack,
     ),
-  ).colorText({"$accountNumber": Tuple(Colors.textColorBlack, null)}, underline: false);
+  ).colorText({"$_accountNumber": Tuple(Colors.textColorBlack, null)}, underline: false);
 
   _TransactionDetailDisplayable _getBeneficiaryDisplayableView(AccountTransaction transaction) {
     switch(transaction.transactionCategory) {
@@ -90,6 +85,7 @@ class _AccountTransactionDetailedView extends State<AccountTransactionDetailedVi
   List<Widget> _generateTransactionDetailsItems(AccountTransaction transaction) {
     final items = [
       _getBeneficiaryDisplayableView(transaction),
+      _CardPurchaseLocationDetails(transaction: transaction),
       _TransactionDetailViewItem(
         label: "Narration",
         value: transaction.narration,
@@ -118,13 +114,18 @@ class _AccountTransactionDetailedView extends State<AccountTransactionDetailedVi
       )
     ];
 
-    return items.foldIndexed(<Widget>[], (index, previous, element) {
+    final List<Widget> viewItems = items.foldIndexed(<Widget>[], (index, previous, element) {
       if(element.shouldDisplay()) previous.add(element);
       if(index != items.length - 1 && element.shouldDisplay()) {
         previous.add(Divider(height: 1, color: Colors.primaryColor.withOpacity(0.2)));
       }
       return previous;
     });
+
+    if(viewItems.isNotEmpty && viewItems.lastOrNull is Divider) {
+      viewItems.removeLast();
+    }
+    return viewItems;
   }
 
   Widget _contentView(AccountTransaction transaction) {
@@ -140,10 +141,10 @@ class _AccountTransactionDetailedView extends State<AccountTransactionDetailedVi
           clipper: AccountTransactionsTicketClipper(),
           child: Container(
             margin: EdgeInsets.only(
-                top: transaction.transactionCategory != null
-                    && transaction.transactionCategory == TransactionCategory.DEFAULT
-                    ? 58
-                    : 0
+                top: transaction.transactionCategory == null
+                    || transaction.transactionCategory == TransactionCategory.DEFAULT
+                    ? 0
+                    : 56
             ),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -183,7 +184,9 @@ class _AccountTransactionDetailedView extends State<AccountTransactionDetailedVi
 
   @override
   Widget build(BuildContext context) {
-    this._transactionReference = ModalRoute.of(context)!.settings.arguments as String?;
+    final arguments = ModalRoute.of(context)!.settings.arguments as Map<dynamic, dynamic>;
+    this._transactionReference = arguments["transactionRef"];
+    this._accountNumber = arguments["accountNumber"] ?? this._accountNumber;
 
     return SessionedWidget(
       context: context,
@@ -206,27 +209,28 @@ class _AccountTransactionDetailedView extends State<AccountTransactionDetailedVi
         ),
         extendBodyBehindAppBar: true,
         backgroundColor: Color(0XFFEBF2FA),
-        body: ScrollView(
-          child: FutureBuilder(
-              future: _viewModel.getSingleTransactionById(this._transactionReference ?? ""),
-              builder: (_, AsyncSnapshot<AccountTransaction?> snapshot) {
-                if (!snapshot.hasData || snapshot.data == null) return Container();
-                final transaction = snapshot.data!;
-                return Container(
-                  margin: EdgeInsets.only(top: 42),
-                  padding: EdgeInsets.only(left: 16, right: 16, top: 80),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
-                      image: DecorationImage(
-                        image: AssetImage("res/drawables/ic_app_bg_dark.png"),
-                        fit: BoxFit.fill,
-                      ),
+        body: FutureBuilder(
+            future: _viewModel.getSingleTransactionById(this._transactionReference ?? ""),
+            builder: (_, AsyncSnapshot<AccountTransaction?> snapshot) {
+              if (!snapshot.hasData || snapshot.data == null) return Container();
+              final transaction = snapshot.data!;
+              return Container(
+                padding: EdgeInsets.only(top: 100),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+                  image: DecorationImage(
+                    image: AssetImage("res/drawables/ic_app_bg_dark.png"),
+                    fit: BoxFit.fill,
                   ),
+                ),
+                child: ScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      SizedBox(height: 20),
                       Container(
+                        margin: EdgeInsets.only(left: 16, right: 16),
                         decoration: BoxDecoration(
                             boxShadow: [
                               BoxShadow(
@@ -238,24 +242,21 @@ class _AccountTransactionDetailedView extends State<AccountTransactionDetailedVi
                         ),
                         child: _contentView(transaction),
                       ),
-                      SizedBox(
-                        width: double.infinity,
-                        child: Wrap(
-                          alignment: WrapAlignment.spaceBetween,
-                          spacing: 45,
-                          children: [
-                            Text("AAAA"),
-                            Text("BBBB"),
-                            Text("DDDD"),
-                            Text("CCCC"),
-                          ],
+                      SizedBox(height: 40),
+                      Padding(
+                        padding: EdgeInsets.only(left: 16, right: 16),
+                        child: AccountTransactionOptions(
+                            transaction: transaction,
+                            viewModel: _viewModel,
+                            accountNumber: _accountNumber
                         ),
-                      )
+                      ),
+                      SizedBox(height: 100),
                     ],
                   ),
-                );
-              }
-          ),
+                ),
+              );
+            }
         ),
       ),
     );
@@ -404,7 +405,7 @@ class _TransactionCategoryView extends StatelessWidget {
       color: _titleCategoryToColor[TransactionCategory.BILL_PAYMENT],
     )),
     TransactionCategory.TRANSFER : lazy(() => SvgPicture.asset(
-      "res/drawables/ic_dashboard_transfer_2.svg",
+      "res/drawables/ic_transfer_receipt.svg",
       color: _titleCategoryToColor[TransactionCategory.TRANSFER],
     )),
     TransactionCategory.CARD_PURCHASE : lazy(() => SvgPicture.asset(
@@ -424,8 +425,12 @@ class _TransactionCategoryView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if(transaction.transactionCategory == null
+        || transaction.transactionCategory == TransactionCategory.DEFAULT) {
+      return SizedBox();
+    }
     return Container(
-      padding: EdgeInsets.only(left: 22, right: 22, top: 24, bottom: 40),
+      padding: EdgeInsets.only(left: 22, right: 22, top: 18, bottom: 40),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
         color: _headerCategoryToColor[transaction.transactionCategory]
@@ -496,7 +501,7 @@ class _TransactionDetailViewItem extends _TransactionDetailDisplayable {
               fontSize: 12.95
             ),
           ),
-          SizedBox(height: this.isChannel ? 4 : 1),
+          SizedBox(height: this.isChannel ? 6 : 3),
           if(this.isChannel) _channelContainer(),
           if(!this.isChannel)
             Text(
@@ -537,14 +542,13 @@ class _TransferTransactionBeneficiaryDetails extends _TransactionDetailDisplayab
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-        (transaction.type == TransactionType.CREDIT) ? "Sender" : "Beneficiary",
+          Text((transaction.type == TransactionType.CREDIT) ? "Sender" : "Beneficiary",
             style: TextStyle(
                 color: Colors.textColorBlack.withOpacity(0.8),
                 fontSize: 12.95
             ),
           ),
-          SizedBox(height: 1,),
+          SizedBox(height: 3,),
           Text(
             (transaction.type == TransactionType.CREDIT)
                 ? "${transaction.senderName}"
@@ -555,7 +559,7 @@ class _TransferTransactionBeneficiaryDetails extends _TransactionDetailDisplayab
                 fontWeight: FontWeight.w600
             ),
           ),
-          SizedBox(height: 1,),
+          SizedBox(height: 3,),
           Row(
             children: [
               Text(
@@ -615,7 +619,7 @@ class _BillTransactionBeneficiaryDetails extends _TransactionDetailDisplayable {
                 fontSize: 12.95
             ),
           ),
-          SizedBox(height: 1,),
+          SizedBox(height: 3,),
           Text(
             transaction.beneficiaryName ?? "",
             style: TextStyle(
@@ -624,7 +628,7 @@ class _BillTransactionBeneficiaryDetails extends _TransactionDetailDisplayable {
                 fontWeight: FontWeight.w600
             ),
           ),
-          SizedBox(height: 29,),
+          SizedBox(height: 29),
           Text(
             "Smart-card Number",
             style: TextStyle(
@@ -632,7 +636,7 @@ class _BillTransactionBeneficiaryDetails extends _TransactionDetailDisplayable {
                 fontSize: 12.95
             ),
           ),
-          SizedBox(height: 1,),
+          SizedBox(height: 3),
           Text(
             transaction.beneficiaryIdentifier ?? "",
             style: TextStyle(
@@ -641,7 +645,19 @@ class _BillTransactionBeneficiaryDetails extends _TransactionDetailDisplayable {
                 fontWeight: FontWeight.w600
             ),
           ),
-          SizedBox(height: 24,),
+          SizedBox(height: 24),
+          Row(
+            children: [
+              // SvgPicture.asset("res/drawables/"),
+              Text(
+                transaction.providerName ?? "",
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.textColorBlack
+                ),
+              ),
+            ],
+          )
         ],
       ),
     );
@@ -681,7 +697,7 @@ class _AirtimeTransactionBeneficiaryDetails extends _TransactionDetailDisplayabl
                 fontSize: 12.95
             ),
           ),
-          SizedBox(height: 1,),
+          SizedBox(height: 3,),
           Text(
             transaction.beneficiaryName ?? "",
             style: TextStyle(
@@ -698,7 +714,7 @@ class _AirtimeTransactionBeneficiaryDetails extends _TransactionDetailDisplayabl
                 fontSize: 12.95
             ),
           ),
-          SizedBox(height: 1,),
+          SizedBox(height: 3,),
           Text(
             transaction.beneficiaryIdentifier ?? "",
             style: TextStyle(
@@ -708,6 +724,18 @@ class _AirtimeTransactionBeneficiaryDetails extends _TransactionDetailDisplayabl
             ),
           ),
           SizedBox(height: 24,),
+          Row(
+            children: [
+              // SvgPicture.asset("res/drawables/"),
+              Text(
+                transaction.providerName ?? "",
+                style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.textColorBlack
+                ),
+              ),
+            ],
+          )
         ],
       ),
     );
@@ -746,7 +774,7 @@ class _CardTransactionBeneficiaryDetails extends _TransactionDetailDisplayable {
                 fontSize: 12.95
             ),
           ),
-          SizedBox(height: 1,),
+          SizedBox(height: 3,),
           Text(
             transaction.maskedPan ?? "",
             style: TextStyle(
@@ -759,9 +787,15 @@ class _CardTransactionBeneficiaryDetails extends _TransactionDetailDisplayable {
           SizedBox(height: 28,),
           Row(
             children: [
-              CardViewUtil.getCardBrandLogo(Card(maskedPan: transaction.maskedPan ?? "", blocked: false)),
+              CardViewUtil.getCardBrandFromScheme(transaction.cardScheme ?? ""),
               SizedBox(width: 13),
-              Text(CardViewUtil.getCardName(transaction.maskedPan ?? ""))
+              Text(
+                  CardViewUtil.getCardName(transaction.maskedPan ?? ""),
+                style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.textColorBlack
+                ),
+              )
             ],
           ),
           SizedBox(height: 24,),
@@ -776,6 +810,76 @@ class _CardTransactionBeneficiaryDetails extends _TransactionDetailDisplayable {
   }
 
 }
+
+///_BillTransactionBeneficiaryDetails
+///
+///
+///
+class _CardPurchaseLocationDetails extends _TransactionDetailDisplayable {
+
+  _CardPurchaseLocationDetails({
+    required this.transaction
+  });
+
+  final AccountTransaction transaction;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.only(top: 17, bottom: 17),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Terminal ID",
+            style: TextStyle(
+                color: Colors.textColorBlack.withOpacity(0.8),
+                fontSize: 12.95
+            ),
+          ),
+          SizedBox(height: 3,),
+          Text(
+            transaction.terminalID ?? "",
+            style: TextStyle(
+                color: Colors.textColorBlack,
+                fontSize: 14.54,
+                fontWeight: FontWeight.w500
+            ),
+          ),
+          SizedBox(height: 19),
+          Text(
+            "Merchant Location",
+            style: TextStyle(
+                color: Colors.textColorBlack.withOpacity(0.8),
+                fontSize: 12.95
+            ),
+          ),
+          SizedBox(height: 3),
+          Text(
+            transaction.merchantLocation ?? "",
+            style: TextStyle(
+                color: Colors.textColorBlack,
+                fontSize: 14.54,
+                fontWeight: FontWeight.w500
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  bool shouldDisplay() {
+    return
+      transaction.transactionCategory == TransactionCategory.CARD_PURCHASE
+          && transaction.terminalID != null
+          && transaction.terminalID?.isNotEmpty == true
+          && transaction.merchantLocation != null
+          && transaction.merchantLocation?.isNotEmpty == true;
+  }
+
+}
+
 
 class _EmptyBeneficiaryDetails extends _TransactionDetailDisplayable {
 

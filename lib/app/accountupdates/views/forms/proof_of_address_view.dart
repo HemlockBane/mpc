@@ -109,12 +109,14 @@ class _ProofOfAddressScreen extends State<ProofOfAddressScreen> with AutomaticKe
                 builder: (context, AsyncSnapshot<String?> snapshot) {
                   final uploadTypeName = "Upload Proof of Address";
                   final previousFileName = _addressForm.getAddressInfo.uploadedFileName;
+                  final fileUUID = _addressForm.getAddressInfo.utilityBillUUID
+                      ?? _viewModel.userAccounts.firstOrNull?.customer?.utilityBillUUID;
 
-                  if(_shouldReUploadProof() && previousFileName != null) {
+                  if(_shouldReUploadProof() && fileUUID != null) {
                     return ReUploadIdentificationView(
-                      title: previousFileName,
+                      title: previousFileName ?? "file",
                       onReUpload: _chooseIdentificationImage,
-                      downloadTask: () => Stream.empty(),
+                      downloadTask: () => _viewModel.downloadUploadedDocument(_addressForm.getAddressInfo.utilityBillUUID),
                     );
                   }
                   return AccountUpdateUploadButton(

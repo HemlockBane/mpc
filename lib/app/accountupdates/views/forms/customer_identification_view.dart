@@ -227,11 +227,14 @@ class _CustomerIdentificationScreen extends State<CustomerIdentificationScreen> 
                   final idTypeName = (idType != null) ? "Upload ${idType.idType}" : "Upload Identification Document";
                   final previousFileName = _identificationForm.identificationInfo.uploadedFileName;
 
-                  if(_shouldReUploadID()) {
+                  final fileUUID = _identificationForm.identificationInfo.scannedImageRef
+                      ?? _viewModel.userAccounts.firstOrNull?.customer?.identificationUUID;
+
+                  if(_shouldReUploadID() && fileUUID != null) {
                     return ReUploadIdentificationView(
-                        title: previousFileName,
+                        title: previousFileName ?? "file",
                         onReUpload: _chooseIdentificationImage,
-                        downloadTask: () => Stream.empty(),
+                        downloadTask: () => _viewModel.downloadUploadedDocument(_identificationForm.identificationInfo.scannedImageRef),
                     );
                   }
                   return AccountUpdateUploadButton(

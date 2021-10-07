@@ -168,7 +168,9 @@ class DashboardAccountItemState extends State<DashboardAccountItem>
 
   onItemTap() async {
 
-    // await Navigator.of(context).pushNamed(Routes.ACCOUNT_STATUS);
+    // await Navigator.of(context).pushNamed(
+    //     Routes.ACCOUNT_UPGRADE_REQUIRED_STATE, arguments: {"userAccountId": userAccount.id}
+    // );
     // return;
     final mixpanel = await MixpanelManager.initAsync();
     mixpanel.track("dashboard-account-clicked");

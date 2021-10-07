@@ -17,6 +17,7 @@ class AppMigration {
 
   Migration _version2To3() {
     return Migration(2, 3, (db) async {
+      print("Run Migrations.....");
       await db.execute('ALTER TABLE account_transactions ADD COLUMN transactionCategory VARCHAR');
       await db.execute('ALTER TABLE account_transactions ADD COLUMN transactionCode VARCHAR');
       await db.execute('ALTER TABLE account_transactions ADD COLUMN beneficiaryIdentifier VARCHAR');
@@ -37,6 +38,11 @@ class AppMigration {
       await db.execute('ALTER TABLE account_transactions ADD COLUMN cardScheme VARCHAR');
       await db.execute('ALTER TABLE account_transactions ADD COLUMN maskedPan VARCHAR');
       await db.execute('ALTER TABLE account_transactions ADD COLUMN disputable INT');
+      await db.execute('ALTER TABLE account_transactions ADD COLUMN terminalID VARCHAR');
+
+      await db.execute('ALTER TABLE account_transactions ADD COLUMN location VARCHAR');
+
+      print("Ending Run Migrations.....");
     });
   }
 

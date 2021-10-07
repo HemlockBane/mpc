@@ -139,7 +139,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `biller_products` (`billerCode` TEXT, `id` INTEGER NOT NULL, `name` TEXT, `code` TEXT, `amount` REAL, `fee` REAL, `paymentCode` TEXT, `currencySymbol` TEXT, `active` INTEGER, `priceFixed` INTEGER, `minimumAmount` REAL, `maximumAmount` REAL, `identifierName` TEXT, `additionalFieldsMap` TEXT, PRIMARY KEY (`id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `account_transactions` (`id` INTEGER, `accountNumber` TEXT, `status` INTEGER, `transactionRef` TEXT NOT NULL, `amount` REAL, `type` TEXT, `channel` TEXT, `transactionChannel` TEXT, `tags` TEXT, `narration` TEXT, `transactionDate` INTEGER NOT NULL, `runningBalance` TEXT, `balanceBefore` TEXT, `balanceAfter` TEXT, `transactionCategory` TEXT, `transactionCode` TEXT, `beneficiaryIdentifier` TEXT, `beneficiaryName` TEXT, `beneficiaryBankName` TEXT, `beneficiaryBankCode` TEXT, `senderIdentifier` TEXT, `senderName` TEXT, `senderBankName` TEXT, `senderBankCode` TEXT, `providerIdentifier` TEXT, `providerName` TEXT, `transactionIdentifier` TEXT, `merchantLocation` TEXT, `cardScheme` TEXT, `maskedPan` TEXT, `disputable` INTEGER, `metaData` TEXT, `customerAccountId` INTEGER, PRIMARY KEY (`transactionRef`))');
+            'CREATE TABLE IF NOT EXISTS `account_transactions` (`id` INTEGER, `accountNumber` TEXT, `status` INTEGER, `transactionRef` TEXT NOT NULL, `amount` REAL, `type` TEXT, `transactionChannel` TEXT, `tags` TEXT, `narration` TEXT, `transactionDate` INTEGER NOT NULL, `runningBalance` TEXT, `balanceBefore` TEXT, `balanceAfter` TEXT, `transactionCategory` TEXT, `transactionCode` TEXT, `beneficiaryIdentifier` TEXT, `beneficiaryName` TEXT, `beneficiaryBankName` TEXT, `beneficiaryBankCode` TEXT, `senderIdentifier` TEXT, `senderName` TEXT, `senderBankName` TEXT, `senderBankCode` TEXT, `providerIdentifier` TEXT, `providerName` TEXT, `transactionIdentifier` TEXT, `merchantLocation` TEXT, `cardScheme` TEXT, `maskedPan` TEXT, `terminalID` TEXT, `disputable` INTEGER, `location` TEXT, `metaData` TEXT, `customerAccountId` INTEGER, PRIMARY KEY (`transactionRef`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `tiers` (`id` INTEGER NOT NULL, `status` TEXT, `createdOn` TEXT, `lastModifiedOn` TEXT, `code` TEXT, `name` TEXT, `classification` TEXT, `accountNumberPrefix` TEXT, `accountNumberLength` INTEGER, `allowNegativeBalance` INTEGER, `allowLien` INTEGER, `enableInstantBalanceUpdate` INTEGER, `maximumCumulativeBalance` REAL, `maximumSingleDebit` REAL, `maximumSingleCredit` REAL, `maximumDailyDebit` REAL, `maximumDailyCredit` REAL, `schemeRequirement` TEXT, `alternateSchemeRequirement` TEXT, `supportsAccountGeneration` INTEGER, PRIMARY KEY (`id`))');
 
@@ -1860,7 +1860,6 @@ class _$TransactionDao extends TransactionDao {
                   'transactionRef': item.transactionRef,
                   'amount': item.amount,
                   'type': _transactionTypeConverter.encode(item.type),
-                  'channel': item.channel,
                   'transactionChannel': item.transactionChannel,
                   'tags': item.tags,
                   'narration': item.narration,
@@ -1885,9 +1884,11 @@ class _$TransactionDao extends TransactionDao {
                   'merchantLocation': item.merchantLocation,
                   'cardScheme': item.cardScheme,
                   'maskedPan': item.maskedPan,
+                  'terminalID': item.terminalID,
                   'disputable': item.disputable == null
                       ? null
                       : (item.disputable! ? 1 : 0),
+                  'location': _locationConverter.encode(item.location),
                   'metaData':
                       _transactionMetaDataConverter.encode(item.metaData),
                   'customerAccountId': item.customerAccountId
@@ -1904,7 +1905,6 @@ class _$TransactionDao extends TransactionDao {
                   'transactionRef': item.transactionRef,
                   'amount': item.amount,
                   'type': _transactionTypeConverter.encode(item.type),
-                  'channel': item.channel,
                   'transactionChannel': item.transactionChannel,
                   'tags': item.tags,
                   'narration': item.narration,
@@ -1929,9 +1929,11 @@ class _$TransactionDao extends TransactionDao {
                   'merchantLocation': item.merchantLocation,
                   'cardScheme': item.cardScheme,
                   'maskedPan': item.maskedPan,
+                  'terminalID': item.terminalID,
                   'disputable': item.disputable == null
                       ? null
                       : (item.disputable! ? 1 : 0),
+                  'location': _locationConverter.encode(item.location),
                   'metaData':
                       _transactionMetaDataConverter.encode(item.metaData),
                   'customerAccountId': item.customerAccountId
@@ -1978,7 +1980,6 @@ class _$TransactionDao extends TransactionDao {
             status: row['status'] == null ? null : (row['status'] as int) != 0,
             amount: row['amount'] as double?,
             type: _transactionTypeConverter.decode(row['type'] as String?),
-            channel: row['channel'] as String?,
             transactionChannel: row['transactionChannel'] as String?,
             tags: row['tags'] as String?,
             narration: row['narration'] as String?,
@@ -2005,9 +2006,11 @@ class _$TransactionDao extends TransactionDao {
             merchantLocation: row['merchantLocation'] as String?,
             cardScheme: row['cardScheme'] as String?,
             maskedPan: row['maskedPan'] as String?,
+            terminalID: row['terminalID'] as String?,
             disputable: row['disputable'] == null
                 ? null
-                : (row['disputable'] as int) != 0),
+                : (row['disputable'] as int) != 0,
+            location: _locationConverter.decode(row['location'] as String?)),
         arguments: [
           customerAccountId,
           startDate,
@@ -2032,7 +2035,6 @@ class _$TransactionDao extends TransactionDao {
             status: row['status'] == null ? null : (row['status'] as int) != 0,
             amount: row['amount'] as double?,
             type: _transactionTypeConverter.decode(row['type'] as String?),
-            channel: row['channel'] as String?,
             transactionChannel: row['transactionChannel'] as String?,
             tags: row['tags'] as String?,
             narration: row['narration'] as String?,
@@ -2059,9 +2061,11 @@ class _$TransactionDao extends TransactionDao {
             merchantLocation: row['merchantLocation'] as String?,
             cardScheme: row['cardScheme'] as String?,
             maskedPan: row['maskedPan'] as String?,
+            terminalID: row['terminalID'] as String?,
             disputable: row['disputable'] == null
                 ? null
-                : (row['disputable'] as int) != 0),
+                : (row['disputable'] as int) != 0,
+            location: _locationConverter.decode(row['location'] as String?)),
         arguments: [tranRef]);
   }
 
@@ -2287,6 +2291,7 @@ final _listBillerProductConverter = ListBillerProductConverter();
 final _additionalFieldsConverter = AdditionalFieldsConverter();
 final _transactionTypeConverter = TransactionTypeConverter();
 final _transactionCategoryConverter = TransactionCategoryConverter();
+final _locationConverter = LocationConverter();
 final _transactionMetaDataConverter = TransactionMetaDataConverter();
 final _schemeRequirementConverter = SchemeRequirementConverter();
 final _alternateSchemeRequirementConverter =

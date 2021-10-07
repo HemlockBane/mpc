@@ -204,7 +204,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
   }
 
   void _changeTab(int tabIndex) {
-    _tabPageController.animateToPage(tabIndex, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
+    _tabPageController.jumpToPage(tabIndex);
   }
 
   @override

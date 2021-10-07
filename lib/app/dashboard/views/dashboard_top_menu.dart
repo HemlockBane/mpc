@@ -11,7 +11,7 @@ import 'custom_refresh_indicator/custom_refresh_indicator.dart';
 
 
 
-const double dashboardTopMenuHeight = 50;
+const double dashboardTopMenuHeight = 57;
 
 class DashboardTopMenu extends StatefulWidget {
   final DashboardViewModel viewModel;
@@ -76,7 +76,7 @@ class _DashboardTopMenuState extends State<DashboardTopMenu> {
 
     return Container(
       margin: EdgeInsets.only(
-        top: 15,
+        top: 22,
       ),
       child: Column(
         children: [

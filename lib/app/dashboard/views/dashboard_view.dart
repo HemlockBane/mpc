@@ -142,7 +142,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: 10),
+                    SizedBox(height: 20),
                     DashboardAccountCard(
                       viewModel: _viewModel,
                       pageController: _pageController,

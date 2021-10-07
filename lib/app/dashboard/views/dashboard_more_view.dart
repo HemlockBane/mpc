@@ -48,7 +48,7 @@ void onItemClick(String routeName, int position){
       child: SingleChildScrollView(
         child: Column(
           children: [
-            SizedBox(height: dashboardTopMenuHeight + bottomAppBarHeight),
+            SizedBox(height: dashboardTopMenuHeight + 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

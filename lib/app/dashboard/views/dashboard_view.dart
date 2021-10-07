@@ -46,8 +46,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
   late final PageController _tabPageController;
 
   Stream<Resource<List<TransferBeneficiary>>> recentlyPaidBeneficiaries = Stream.empty();
-  final double refreshIndicatorOffset = 70;
-  int currentTabIndex = 0;
+  final _currentTabIndex = ValueNotifier<int>(0);
 
   void _setupFingerprint() async {
     final biometricRequest = await _viewModel.shouldRequestFingerPrintSetup();
@@ -107,9 +106,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
     _tabPageController = PageController(viewportFraction: 1);
     _tabPageController.addListener(() {
       final tabIndex = (_tabPageController.page ?? 0).round();
-      setState(() {
-        currentTabIndex = tabIndex;
-      });
+      _currentTabIndex.value = tabIndex;
     });
 
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
@@ -118,57 +115,51 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
     Future.delayed(Duration(milliseconds: 1400), () => _setupFingerprint());
   }
 
+
   ///Main Content View of the dashboard
-  _contentView(double width, double height) => Container(
-        width: double.infinity,
-        height: height,
-        color: Color(0XFFEBF2FA),
-        child: Stack(
-          children: [
-            DashboardRefreshIndicator(
-                indicatorOffset: refreshIndicatorOffset,
-                viewModel: _viewModel,
-                builder: (a, indicator) {
-                  return Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: ListView(
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            DashboardTopMenu(
-                              viewModel: _viewModel,
-                              title: "Home",
-                              indicatorController: indicator,
-                              indicatorOffset: refreshIndicatorOffset,
-                            ),
-                            SizedBox(height: 21),
-                            RefreshSizedBox(
-                              indicatorController: indicator,
-                              indicatorOffset: refreshIndicatorOffset
-                            ),
-                            DashboardAccountCard(
-                              viewModel: _viewModel,
-                              pageController: _pageController,
-                            ),
-                            SizedBox(height: 32),
-                            DashboardMenu(_onDrawerItemClickListener),
-                            DashboardRecentlyPaidView(
-                              beneficiaries: recentlyPaidBeneficiaries,
-                              margin: EdgeInsets.only(bottom: 32, top: 32),
-                            ),
-                            //Margin is determined by DashboardRecentlyPaidView
-                            SizedBox(height: 42),
-                          ],
-                        )
-                      ],
+  _contentView(double width, double height) {
+    return RefreshIndicator(
+    displacement: 80,
+    onRefresh: () async {
+      _viewModel.update(DashboardState.REFRESHING);
+      await for (var value in _viewModel.dashboardUpdateStream) {
+        await Future.delayed(Duration(milliseconds: 100));
+        if (value != DashboardState.DONE) return;
+        return null;
+      }
+    },
+    child: Container(
+          width: double.infinity,
+          height: height,
+          color: Color(0XFFEBF2FA),
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: ListView(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 20),
+                    DashboardAccountCard(
+                      viewModel: _viewModel,
+                      pageController: _pageController,
                     ),
-                  );
-                },
+                    SizedBox(height: 32),
+                    DashboardMenu(_onDrawerItemClickListener),
+                    DashboardRecentlyPaidView(
+                      beneficiaries: recentlyPaidBeneficiaries,
+                      margin: EdgeInsets.only(bottom: 32, top: 32),
+                    ),
+                    //Margin is determined by DashboardRecentlyPaidView
+                    SizedBox(height: 42),
+                  ],
+                )
+              ],
             ),
-          ],
+          ),
         ),
-      );
+  );
+  }
 
   void _onDrawerItemClickListener(String routeName, position) async {
     switch(routeName) {
@@ -213,42 +204,66 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
   }
 
   void _changeTab(int tabIndex) {
-    _tabPageController.animateToPage(tabIndex, duration: Duration(milliseconds: 300), curve: Curves.easeIn);
+    _tabPageController.jumpToPage(tabIndex);
   }
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
+    final tabTitles = ["Home","Savings", "Loans", "More"];
 
-    return SessionedWidget(
-        context: context,
-        child: Scaffold(
-          key: _scaffoldKey,
-          drawer: DashboardDrawer(width, _onDrawerItemClickListener),
-          body: Container(
-            child: PageView(
-              controller: _tabPageController,
-              children: [
-                LayoutBuilder(builder: (ctx, constraints){
-                  return _contentView(width, constraints.maxHeight - 100);
-                }),
-                SavingsView(),
-                LoansView(),
-                MoreView()
-              ],
+    return SafeArea(
+      child: SessionedWidget(
+          context: context,
+          child: Scaffold(
+            extendBodyBehindAppBar: true,
+            appBar: PreferredSize(
+              preferredSize: Size.fromHeight(dashboardTopMenuHeight),
+              child: ValueListenableBuilder<int>(
+                valueListenable: _currentTabIndex,
+                builder: (ctx, value, _){
+                  return Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: DashboardTopMenu(
+                      viewModel: _viewModel,
+                      title: tabTitles[value],
+                    ),
+                  );
+                },
+              )
             ),
+            key: _scaffoldKey,
+            drawer: DashboardDrawer(width, _onDrawerItemClickListener),
+            body: Container(
+              child: PageView(
+                controller: _tabPageController,
+                children: [
+                  LayoutBuilder(builder: (ctx, constraints){
+                    return _contentView(width, constraints.maxHeight);
+                  }),
+                  SavingsView(),
+                  LoansView(),
+                  MoreView()
+                ],
+              ),
+            ),
+            bottomNavigationBar: ValueListenableBuilder<int>(
+              valueListenable: _currentTabIndex,
+              builder: (ctx, value, _){
+                return AppBottomNavigationBar(
+                  selectedIndex: value,
+                  onTabSelected: _changeTab,
+                  items: [
+                    AppBottomNavigationBarItem(svgPath: "res/drawables/ic_dashboard_home.svg", title: "Home"),
+                    AppBottomNavigationBarItem(svgPath: "res/drawables/ic_dashboard_piggy.svg", title: "Savings"),
+                    AppBottomNavigationBarItem(svgPath: "res/drawables/ic_dashboard_loan.svg", title: "Loans"),
+                    AppBottomNavigationBarItem(svgPath: "res/drawables/ic_dashboard_more.svg", title: "More")
+                  ],
+                );
+              },
+            )
           ),
-          bottomNavigationBar: AppBottomNavigationBar(
-            selectedIndex: currentTabIndex,
-            onTabSelected: _changeTab,
-            items: [
-              AppBottomNavigationBarItem(svgPath: "res/drawables/ic_dashboard_home.svg", title: "Home"),
-              AppBottomNavigationBarItem(svgPath: "res/drawables/ic_dashboard_piggy.svg", title: "Savings"),
-              AppBottomNavigationBarItem(svgPath: "res/drawables/ic_dashboard_loan.svg", title: "Loans"),
-              AppBottomNavigationBarItem(svgPath: "res/drawables/ic_dashboard_more.svg", title: "More")
-            ],
-          ),
-        ),
+      ),
     );
   }
 }

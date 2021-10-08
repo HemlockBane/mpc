@@ -66,16 +66,28 @@ class PreferenceUtil {
     return (loginMode != null) ? LoginMode.values.firstWhere((element) => describeEnum(element) == loginMode) : LoginMode.FULL_ACCESS;
   }
 
+  static void saveData(String key, Object? object) {
+    String data = jsonEncode(object);
+    _preferences?.setString("$key", data);
+  }
+
+  static dynamic getData(String key) {
+    String? data = _preferences?.getString("$key");
+    try {
+      return jsonDecode(data ?? "{}");
+    } catch(e) {
+      return null;
+    }
+  }
+
   static void saveDataForLoggedInUser(String appendKey, Object? object) {
     final username = getSavedUsername();
-    String data = jsonEncode(object);
-    _preferences?.setString("$username-$appendKey", data);
+    saveData("$username-$appendKey", object);
   }
 
   static dynamic getDataForLoggedInUser(String appendKey) {
     final username = getSavedUsername();
-    String? data = _preferences?.getString("$username-$appendKey");
-    return jsonDecode(data ?? "{}");
+    return getData("$username-$appendKey");
   }
 
   static void saveValueForLoggedInUser<T>(String appendKey, T value) {

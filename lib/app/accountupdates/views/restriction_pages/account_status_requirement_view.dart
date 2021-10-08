@@ -59,11 +59,11 @@ class AccountStatusRequirementState extends State<AccountStatusRequirementView> 
       final additionalInfoFlag = userAccount.accountStatus?.additionalInfoFlag
           ?? userAccount.parentCustomer?.additionalInfoFlag;
 
-      final idFlag = userAccount.accountStatus?.identificationVerificationFlag
-          ?? userAccount.parentCustomer?.identificationVerificationFlag;
+      final idFlag = userAccount.accountStatus?.identificationProofFlag
+          ?? userAccount.parentCustomer?.identificationProofFlag;
 
-      final addressFlag = userAccount.accountStatus?.addressVerificationFlag
-          ?? userAccount.parentCustomer?.addressVerificationFlag;
+      final addressFlag = userAccount.accountStatus?.addressProofFlag
+          ?? userAccount.parentCustomer?.addressProofFlag;
 
       if(additionalInfoFlag?.status == false) _items.add(_additionalInfoItem);
       if(idFlag?.status == false) _items.add(_identificationItem);
@@ -71,8 +71,11 @@ class AccountStatusRequirementState extends State<AccountStatusRequirementView> 
     }
 
     if(widget.requirementMode == AccountRequirementMode.REGULARIZE_DOCUMENT) {
-      if(userAccount.customer?.reUploadID == true) _items.add(_identificationItem);
-      if(userAccount.customer?.reUploadProofOfAddress == true) _items.add(_proofOfAddressItem);
+      final shouldReUploadId = userAccount.shouldReUploadIdentification();
+      final shouldReUploadProof = userAccount.shouldReUploadProofOfAddress();
+
+      if(shouldReUploadId == true) _items.add(_identificationItem);
+      if(shouldReUploadProof == true) _items.add(_proofOfAddressItem);
     }
 
     if(widget.requirementMode == AccountRequirementMode.IN_PROGRESS) {

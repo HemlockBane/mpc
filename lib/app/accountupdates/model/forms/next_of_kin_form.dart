@@ -194,6 +194,7 @@ class NextOfKinForm with ChangeNotifier, Validators {
 
   void restoreFormState() {
       final savedInfo = PreferenceUtil.getDataForLoggedInUser(FORM_KEY);
+      if(savedInfo == null) return;
       final savedNextOfKin = NextOfKinInfo.fromJson(savedInfo);
 
       addressForm.restoreFormState();

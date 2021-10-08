@@ -80,6 +80,8 @@ class _SettingsScreen extends State<SettingsScreen> {
         builder: (mContext) => LoginMethodsDialog()
     );
 
+    print(result);
+
     if(result is bool && result){
       final fingerprintResult = await showModalBottomSheet(
           isScrollControlled: true,

@@ -126,7 +126,7 @@ class DashboardDrawer extends StatelessWidget {
                         _groupTitle(context, "SAVINGS & LOANS"),
                         _DrawerListItem(
                           itemIcon: SvgPicture.asset(
-                            "res/drawables/ic_dashboard_savings.svg",
+                            "res/drawables/ic_dashboard_piggy.svg",
                             height: 26,
                           ),
                           title: "Savings",

@@ -95,7 +95,8 @@ class _AirtimeViewNavigator extends StatelessWidget {
         page = AirtimeBeneficiaryScreen(_scaffoldKey, contract ?? transactionRequestContract);
         break;
       case AirtimeScreen.PAYMENT_SCREEN:
-        page = AirtimePaymentScreen(_scaffoldKey);
+        final defaultAmount = settings.arguments != null ? settings.arguments as double : 0.0;
+        page = AirtimePaymentScreen(_scaffoldKey, defaultAmount);
         break;
     }
 

@@ -229,10 +229,12 @@ class CustomerAddressForm with ChangeNotifier {
 
   void restoreFormState() {
     final savedInfo = PreferenceUtil.getDataForLoggedInUser(formKey);
+    if(savedInfo == null) return;
     final savedAddressInfo = AddressInfo.fromJson(savedInfo);
     final fileName = PreferenceUtil.getValueForLoggedInUser<String>(FILE_NAME_KEY);
     final mailingAddressDefault = PreferenceUtil.getValueForLoggedInUser<bool>(USE_AS_MAIL_ADDRESS_KEY);
 
+    print("File Name ===>>> ${fileName}");
 
     if(savedAddressInfo.addressLine != null) {
       print(savedAddressInfo.addressLine);

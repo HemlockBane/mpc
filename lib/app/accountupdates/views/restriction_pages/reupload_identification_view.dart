@@ -30,14 +30,22 @@ class _ReUploadIdentificationViewState extends State<ReUploadIdentificationView>
 
   void _openFile() async {
     setState(() {_isLoading = true;});
-    await DownloadUtil.downloadFileResult(
-        widget.downloadTask,
-        widget.title ?? "file",
-        isShare: false,
-        onProgress: (_, isCompleted) {
-          if(isCompleted) setState(() { _isLoading = false; });
-        }
-    );
+    try {
+      await DownloadUtil.downloadFileResult(
+          widget.downloadTask,
+          widget.title ?? "file",
+          isShare: false,
+          onProgress: (_, isCompleted) {
+            if (isCompleted) setState(() {
+              _isLoading = false;
+            });
+          }
+      );
+    } catch(e) {
+      setState(() {_isLoading = false;});
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Unable to download document. Please, try again later")));
+    }
   }
 
   Widget _viewButton() {

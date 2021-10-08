@@ -4,6 +4,7 @@ import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_bottom_menu.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_menu_item.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:provider/provider.dart';
@@ -18,25 +19,28 @@ class MoreView extends StatefulWidget {
 }
 
 class _MoreViewState extends State<MoreView> {
-void onItemClick(String routeName, int position){
-  final _viewModel = Provider.of<DashboardViewModel>(context, listen: false);
-  switch(routeName) {
-    case Routes.ACCOUNT_TRANSACTIONS: {
-      if(_viewModel.userAccounts.length == 0) return;
 
-      // Get first user account by default
-      final userAccount = _viewModel.userAccounts.first;
-      final routeArgs = {"userAccountId": userAccount.id};
-     Navigator.of(context).pushNamed(routeName, arguments: routeArgs);
-      break;
-    }
-    default: {
-      Navigator.of(context).pushNamed(routeName);
-
+  void onItemClick(String routeName, int position) {
+    final _viewModel = Provider.of<DashboardViewModel>(context, listen: false);
+    switch (routeName) {
+      case Routes.ACCOUNT_TRANSACTIONS:{
+          if (_viewModel.userAccounts.length == 0) return;
+          // Get first user account by default
+          final userAccount = _viewModel.userAccounts.first;
+          final routeArgs = {"userAccountId": userAccount.id};
+          Navigator.of(context).pushNamed(routeName, arguments: routeArgs);
+          break;
+      }
+      case "LOGOUT":{
+          UserInstance().resetSession();
+          Navigator.of(context).popAndPushNamed(Routes.LOGIN);
+          break;
+      }
+      default:{
+          Navigator.of(context).pushNamed(routeName);
+      }
     }
   }
-
-}
 
   @override
   Widget build(BuildContext context) {
@@ -46,9 +50,10 @@ void onItemClick(String routeName, int position){
       padding: EdgeInsets.symmetric(horizontal: 16),
       color: Color(0XFFEBF2FA),
       child: SingleChildScrollView(
+        padding: MediaQuery.maybeOf(context)?.padding.copyWith(left: 0, right: 0),
         child: Column(
           children: [
-            SizedBox(height: dashboardTopMenuHeight + 20),
+            SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -118,25 +123,17 @@ void onItemClick(String routeName, int position){
                   routeName: Routes.SETTINGS,
                   circleBackgroundColor: Colors.primaryColor.withOpacity(0.1),
                 ),
-
-                // Ignore
-                IgnorePointer(
-                  ignoring: true,
-                  child: Opacity(
-                    opacity: 0,
-                    child: DashboardMenuItem(
-                      itemName: "Airtime",
-                      onItemClick: onItemClick,
-                      itemIcon: SvgPicture.asset(
-                        "res/drawables/ic_dashboard_airtime_2.svg",
-                        width: 19.75,
-                        height: 31,
-                        color: Colors.primaryColor,
-                      ),
-                      routeName: Routes.AIRTIME,
-                      circleBackgroundColor: Colors.primaryColor.withOpacity(0.1),
-                    ),
+                DashboardMenuItem(
+                  itemName: "Logout",
+                  onItemClick: onItemClick,
+                  itemIcon: SvgPicture.asset(
+                    "res/drawables/ic_logout.svg",
+                    width: 19.75,
+                    height: 31,
+                    color: Colors.red,
                   ),
+                  routeName: "LOGOUT",
+                  circleBackgroundColor: Colors.red.withOpacity(0.1),
                 ),
               ],
             )

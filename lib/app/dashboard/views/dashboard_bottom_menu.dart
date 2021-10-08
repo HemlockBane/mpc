@@ -1,13 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
-import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 
 class DashboardBottomMenu extends StatefulWidget {
-  final GlobalKey<ScaffoldState> scaffoldKey;// = GlobalKey<ScaffoldState>();
+  final TabController tabController;
 
-  DashboardBottomMenu (this.scaffoldKey);
+  DashboardBottomMenu (this.tabController);
 
   @override
   State<StatefulWidget> createState() => _DashboardBottomMenu();
@@ -16,83 +17,94 @@ class DashboardBottomMenu extends StatefulWidget {
 
 class _DashboardBottomMenu extends State<DashboardBottomMenu> {
 
-  String _selectedTitle = HOME;
-
   static const String HOME = "Home";
   static const String SAVINGS = "Savings";
-  static const String LOAN = "Loan";
+  static const String LOAN = "Loans";
   static const String MORE = "More";
 
-  void onItemClick(String title, int? position) {
-    setState(() {
-      _selectedTitle = title;
-    });
-    if(title == SAVINGS || title == LOAN) {
-      showComingSoon(context);
-    }
-    if(title == MORE) {
-      widget.scaffoldKey.currentState?.openDrawer();
+  int _selectedIndex = 0;
+
+  void onItemClick(String title, int position) {
+    if(position >= 0 && position < widget.tabController.length) {
+      widget.tabController.animateTo(position);
     }
   }
 
-  bool _isSelected(String title) => title == _selectedTitle;
+  bool _isSelected(int position) => position == _selectedIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.tabController.addListener(() {
+      setState(() {
+        _selectedIndex = widget.tabController.index;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Color(0XFFF9FBFD),
-        boxShadow: [
-          BoxShadow(
-            color: Color(0XFF0E4FB1).withOpacity(0.12),
-            offset: Offset(0, -9),
-            blurRadius: 21,
-            spreadRadius: 0
-          )
-        ]
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          _MenuItem(
-            title: HOME,
-            icon: SvgPicture.asset(
-                "res/drawables/ic_dashboard_home.svg",
-              color: _isSelected(HOME) ? Colors.primaryColor : Color(0XFF9BA6B9),
-            ),
-            padding: EdgeInsets.only(left: 42, right: 28, top: 17, bottom: 26),
-            isSelected: _isSelected(HOME),
-            onItemClickListener: onItemClick,
-          ),
-          _MenuItem(
-            title: SAVINGS,
-            icon: SvgPicture.asset(
-              "res/drawables/ic_dashboard_piggy.svg",
-              color: _isSelected(SAVINGS) ? Colors.primaryColor : null,
-            ),
-            isSelected: _isSelected(SAVINGS),
-            onItemClickListener: onItemClick,
-          ),
-          _MenuItem(
-            title: LOAN,
-            icon: SvgPicture.asset(
-              "res/drawables/ic_dashboard_loan.svg",
-              color: _isSelected(LOAN) ? Colors.primaryColor : null,
-            ),
-            isSelected: _isSelected(LOAN),
-            onItemClickListener: onItemClick,
-          ),
-          _MenuItem(
-              title: MORE,
+    return BottomAppBar(
+      elevation: 0,
+      child: Container(
+        decoration: BoxDecoration(
+            color: Color(0XFFF9FBFD),
+            boxShadow: [
+              BoxShadow(
+                  color: Color(0XFF0E4FB1).withOpacity(0.12),
+                  offset: Offset(0, -9),
+                  blurRadius: 21,
+                  spreadRadius: 0
+              )
+            ]
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _MenuItem(
+              title: HOME,
+              position: 0,
               icon: SvgPicture.asset(
-                "res/drawables/ic_dashboard_more.svg",
-                color: _isSelected(MORE) ? Colors.primaryColor : null,
+                "res/drawables/ic_dashboard_home.svg",
+                color: _isSelected(0) ? Colors.primaryColor : Color(0XFF9BA6B9),
               ),
-              padding: EdgeInsets.only(left: 28, right: 42, top: 17, bottom: 26),
-              isSelected: _isSelected(MORE),
-              onItemClickListener: onItemClick//onItemClick,
-          ),
-        ],
+              isSelected: _isSelected(0),
+              onItemClickListener: onItemClick,
+            ),
+            _MenuItem(
+              title: SAVINGS,
+              position: 1,
+              icon: SvgPicture.asset(
+                "res/drawables/ic_dashboard_piggy.svg",
+                color: _isSelected(1) ? Color(0xff1EB12D) : null,
+              ),
+              titleColor: _isSelected(1) ? Color(0xff1EB12D) : Color(0XFF9BA6B9),
+              isSelected: _isSelected(1),
+              onItemClickListener: onItemClick,
+            ),
+            _MenuItem(
+              title: LOAN,
+              position: 2,
+              icon: SvgPicture.asset(
+                "res/drawables/ic_dashboard_loan.svg",
+                color: _isSelected(2) ? Color(0xffF08922) : null,
+              ),
+              titleColor: _isSelected(2) ? Color(0xffF08922) : Color(0XFF9BA6B9),
+              isSelected: _isSelected(2),
+              onItemClickListener: onItemClick,
+            ),
+            _MenuItem(
+                title: MORE,
+                position: 3,
+                icon: SvgPicture.asset(
+                  "res/drawables/ic_dashboard_more.svg",
+                  color: _isSelected(3) ? Colors.primaryColor : null,
+                ),
+                isSelected: _isSelected(3),
+                onItemClickListener: onItemClick//onItemClick,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -104,28 +116,39 @@ class _MenuItem extends StatelessWidget {
   final String title;
   final Widget icon;
   final bool isSelected;
+  final int position;
   final EdgeInsets padding;
+  final Color titleColor;
+
   final OnItemClickListener<String, int>? onItemClickListener;
 
   _MenuItem({
     required this.title,
     required this.icon,
+    this.titleColor = Colors.primaryColor,
+    required this.position,
     required this.isSelected,
     required this.onItemClickListener,
-    this.padding = const EdgeInsets.only(left: 28, right: 28, top: 17, bottom: 26)
+    this.padding = const EdgeInsets.only(
+        left: 10,
+        right: 10,
+        top: 12,
+    )
   });
 
   @override
   Widget build(BuildContext context) {
+    final padding = this.padding.copyWith(bottom:Platform.isIOS ?  4 : 12);
     return Container(
       child: Material(
         child: InkWell(
-          onTap: () => onItemClickListener?.call(title, -1),
+          onTap: () => onItemClickListener?.call(title, position),
           overlayColor: MaterialStateProperty.all(Colors.primaryColor.withOpacity(0.1)),
           highlightColor: Colors.primaryColor.withOpacity(.001),
           child: Container(
             padding: padding,
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 icon,
                 SizedBox(height: 4,),
@@ -134,7 +157,7 @@ class _MenuItem extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: isSelected ? Colors.primaryColor : Color(0XFF9BA6B9)
+                      color: isSelected ? titleColor : Color(0XFF9BA6B9)
                     ),
                 )
               ],
@@ -144,102 +167,5 @@ class _MenuItem extends StatelessWidget {
       ),
     );
   }
-
 }
-
-const double bottomAppBarHeight = 60;
-
-class AppBottomNavigationBarItem {
-  AppBottomNavigationBarItem({required this.svgPath, required this.title});
-
-  String svgPath;
-  String title;
-}
-
-class AppBottomNavigationBar extends StatelessWidget {
-  final ValueChanged<int> onTabSelected;
-  final int selectedIndex;
-  final List<AppBottomNavigationBarItem> items;
-  final Color color;
-  final Color selectedColor;
-  final double height;
-
-  const AppBottomNavigationBar(
-    {required this.onTabSelected,
-      required this.selectedIndex,
-      required this.items,
-      this.color = Colors.grey,
-      this.selectedColor = Colors.black,
-      this.height = bottomAppBarHeight});
-
-  @override
-  Widget build(BuildContext context) {
-    return BottomAppBar(
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: _items(),
-      ),
-    );
-  }
-
-  List<Widget> _items() {
-    return List.generate(items.length, (int index) {
-      return _buildTabItem(
-        navigationBarItem: items[index],
-        index: index,
-        onPressed: _updateSelectedIndex);
-    });
-  }
-
-  Color getColor(String title){
-    if (title == "Savings") return Color(0xff1EB12D);
-    if (title == "Loans") return Color(0xffF08922);
-    return Colors.primaryColor;
-  }
-
-  Widget _buildTabItem(
-    {required AppBottomNavigationBarItem navigationBarItem,
-      required int index,
-      required  final ValueChanged<int> onPressed}) {
-    Color color = selectedIndex == index ? getColor(navigationBarItem.title) : Color(0XFF9BA6B9);
-    return Expanded(
-      child: SizedBox(
-        height: height,
-        child: Material(
-          type: MaterialType.transparency,
-          child: InkWell(
-            onTap: () => onPressed.call(index),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                // Icon(
-                //   navigationBarItem.iconData,
-                //   color: color,
-                //   size: widget.iconSize,
-                // ),
-                SvgPicture.asset(
-                  navigationBarItem.svgPath,
-                  color: color,
-                ),
-                Text(
-                  navigationBarItem.title,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: color),
-                )
-              ],
-            ),
-          ),
-        ),
-      ));
-  }
-
-  _updateSelectedIndex(int index) {
-    onTabSelected.call(index);
-  }
-}
-
 

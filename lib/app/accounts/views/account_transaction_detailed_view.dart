@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Colors, ScrollView, Card;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -222,7 +221,7 @@ class _AccountTransactionDetailedView extends State<AccountTransactionDetailedVi
               if (!snapshot.hasData || snapshot.data == null) return Container();
               final transaction = snapshot.data!;
               return Container(
-                padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.115),
+                padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 65),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
                   image: DecorationImage(
@@ -235,7 +234,7 @@ class _AccountTransactionDetailedView extends State<AccountTransactionDetailedVi
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(height: 20),
+                      SizedBox(height: 2),
                       Container(
                         margin: EdgeInsets.only(left: 16, right: 16),
                         decoration: BoxDecoration(
@@ -317,7 +316,7 @@ class _TransactionAmountView extends StatelessWidget {
         ),
         SizedBox(height: 13,),
         Text(
-            "Balance before : $balanceBefore",
+            "Balance Before : $balanceBefore",
             style: TextStyle(
                 color: Colors.textColorBlack,
                 fontSize: 13,
@@ -329,7 +328,7 @@ class _TransactionAmountView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-                "Balance after : $balanceAfter",
+                "Balance After : $balanceAfter",
                 style: TextStyle(
                     color: Colors.textColorBlack,
                     fontSize: 13,
@@ -427,7 +426,24 @@ class _TransactionCategoryView extends StatelessWidget {
 
   String _getTransactionCategoryName() {
     if(transaction.transactionCategory == null) return "Transaction";
-    return describeEnum(transaction.transactionCategory!);
+    switch(transaction.transactionCategory) {
+      case TransactionCategory.TRANSFER:
+        return "TRANSFER";
+      case TransactionCategory.BILL_PAYMENT:
+        return "BILL PAYMENT";
+      case TransactionCategory.AIRTIME:
+        return "AIRTIME";
+      case TransactionCategory.DATA:
+        return "DATA";
+      case TransactionCategory.CARD_LINKING:
+        return "CARD ISSUANCE";
+      case TransactionCategory.CARD_PURCHASE:
+        return "CARD PURCHASE";
+      case TransactionCategory.DEFAULT:
+        return "";
+      default:
+        return "";
+    }
   }
 
   @override
@@ -637,7 +653,7 @@ class _BillTransactionBeneficiaryDetails extends TransactionDetailDisplayable {
           ),
           SizedBox(height: 29),
           Text(
-            "Smart-card Number",
+            "Customer ID",
             style: TextStyle(
                 color: Colors.textColorBlack.withOpacity(0.8),
                 fontSize: 12.95
@@ -805,7 +821,7 @@ class _CardTransactionBeneficiaryDetails extends TransactionDetailDisplayable {
               )
             ],
           ),
-          SizedBox(height: 24,),
+          SizedBox(height: 6,),
         ],
       ),
     );

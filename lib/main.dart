@@ -20,6 +20,8 @@ import 'package:moniepoint_flutter/core/viewmodels/system_configuration_view_mod
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
+import 'core/utils/biometric_helper.dart';
+
 
 //We need to move this to some where else
 
@@ -96,6 +98,11 @@ void main() async {
 
 Future<void> _onCreate() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await BiometricHelper.initialize(
+      keyFileName: "moniepoint_iv",
+      keyStoreName: "AndroidKeyStore",
+      keyAlias: "teamapt-moniepoint"
+  );
   await DatabaseModule.inject();
 
   ServiceModule.inject();

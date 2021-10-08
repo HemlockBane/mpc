@@ -1,12 +1,5 @@
 import 'package:flutter/material.dart' hide Colors;
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
-import 'package:moniepoint_flutter/app/dashboard/views/dashboard_bottom_menu.dart';
-import 'package:moniepoint_flutter/app/dashboard/views/dashboard_menu_item.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
-import 'package:moniepoint_flutter/core/routes.dart';
-import 'package:moniepoint_flutter/core/styles.dart';
-import 'package:provider/provider.dart';
 
 import 'dashboard_top_menu.dart';
 
@@ -15,7 +8,7 @@ class LoansView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final height =  MediaQuery.of(context).size.height - bottomAppBarHeight;
+    final height =  MediaQuery.of(context).size.height;// - bottomAppBarHeight;
     final width = MediaQuery.of(context).size.width;
 
     return Container(
@@ -54,7 +47,15 @@ class LoansView extends StatelessWidget {
                                 SizedBox(height: 90),
                                 Text('Quick Cash?\nLook no further', textAlign: TextAlign.center, style: TextStyle(color: Color(0xFFF08922), fontWeight: FontWeight.w700, fontSize: 19.5),),
                                 SizedBox(height: 11,),
-                                Text('Save money with Moniepoint\n and hit your goals & targets', style: TextStyle(color: Colors.textColorBlack, fontWeight: FontWeight.w500, fontSize: 14),),
+                                Text(
+                                  'Get a loan in under 5 minutes with\nMoniepoint',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: Colors.textColorBlack,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14,
+                                  ),
+                                ),
                                 SizedBox(height: 11,),
                                 Container(
                                   padding: EdgeInsets.symmetric(horizontal: 45, vertical: 10),

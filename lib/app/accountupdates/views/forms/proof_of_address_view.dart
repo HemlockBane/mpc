@@ -82,7 +82,7 @@ class _ProofOfAddressScreen extends State<ProofOfAddressScreen> with AutomaticKe
   bool _shouldReUploadProof() {
     final userAccount = _viewModel.userAccounts.firstOrNull;
     if(userAccount == null) return false;
-    return userAccount.customerAccount?.customer?.reUploadID == true;
+    return userAccount.shouldReUploadProofOfAddress();
   }
 
   @override
@@ -116,7 +116,7 @@ class _ProofOfAddressScreen extends State<ProofOfAddressScreen> with AutomaticKe
                     return ReUploadIdentificationView(
                       title: previousFileName ?? "file",
                       onReUpload: _chooseIdentificationImage,
-                      downloadTask: () => _viewModel.downloadUploadedDocument(_addressForm.getAddressInfo.utilityBillUUID),
+                      downloadTask: () => _viewModel.downloadUploadedDocument(fileUUID),
                     );
                   }
                   return AccountUpdateUploadButton(

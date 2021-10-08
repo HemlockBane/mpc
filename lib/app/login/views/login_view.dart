@@ -63,6 +63,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
 
   @override
   void initState() {
+    _biometricHelper = BiometricHelper.getInstance();
     UserInstance().resetSession();
     _setupViewDependencies();
     super.initState();
@@ -84,7 +85,6 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
 
   void _setupViewDependencies() {
     _viewModel = Provider.of<LoginViewModel>(context, listen: false);
-    this._initializeBiometric();
     _viewModel.getSystemConfigurations().listen((event) {}).disposedBy(this);
 
     _usernameController.addListener(() => validateForm());
@@ -128,11 +128,11 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
   }
 
   void _initializeBiometric() async {
-    _biometricHelper = await BiometricHelper.initialize(
-        keyFileName: "moniepoint_iv",
-        keyStoreName: "AndroidKeyStore",
-        keyAlias: "teamapt-moniepoint"
-    );
+    // _biometricHelper = await BiometricHelper.initialize(
+    //     keyFileName: "moniepoint_iv",
+    //     keyStoreName: "AndroidKeyStore",
+    //     keyAlias: "teamapt-moniepoint"
+    // );
   }
 
   void _initSavedUsername() {

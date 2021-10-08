@@ -1,7 +1,5 @@
-import 'dart:convert';
 
 import 'package:floor/floor.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/transaction_category.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/transfer_request_body.dart';
 import 'package:moniepoint_flutter/core/database/type_converters.dart';
@@ -107,7 +105,7 @@ class AccountTransaction extends Transaction implements ListItem {
   @JsonKey(name: "maskedPan")
   final String? maskedPan;
 
-  @JsonKey(name: "terminalID")
+  @JsonKey(name: "terminalId")
   final String? terminalID;
 
   @JsonKey(name: "disputable")

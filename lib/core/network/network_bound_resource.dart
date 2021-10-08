@@ -280,7 +280,7 @@ Stream<Resource<T>> streamWithExponentialBackoff<T>({
       if(collisions <= retries) {
         final random = Random();
 
-        final slot =  pow(2, collisions) - 1;
+        final slot = pow(2, collisions) - 1;
         final rand = random.nextInt(slot.toInt());
         final del = delay.inSeconds * rand;
 

@@ -38,6 +38,7 @@ class DashboardAccountCard extends StatelessWidget {
     final userAccounts = viewModel.userAccounts;
     
     return Container(
+      margin: EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(16)),
           boxShadow: [
@@ -411,7 +412,7 @@ class _DashboardAccountBalancePreview extends StatelessWidget {
               style: TextStyle(
                   fontSize: 12.5,
                   fontWeight: FontWeight.w600,
-                  color: Colors.textColorBlack
+                  color: Colors.white.withOpacity(0.8)
               )
           ),
         ),
@@ -423,7 +424,7 @@ class _DashboardAccountBalancePreview extends StatelessWidget {
               style: TextStyle(
                   fontSize: 13.5,
                   fontWeight: FontWeight.w600,
-                  color: Colors.primaryColor
+                  color: Colors.white
               )
           ),
         )
@@ -899,6 +900,7 @@ class _AccountRestrictionPage extends StatelessWidget {
             style: TextStyle(
                 color: pageData.headerTextColor,
                 fontSize: 17,
+                fontFamily: Styles.defaultFont,
                 fontWeight: FontWeight.bold,
                 decoration: TextDecoration.none
             ),
@@ -910,6 +912,7 @@ class _AccountRestrictionPage extends StatelessWidget {
                 fontSize: 13,
                 color: Colors.textColorBlack,
                 fontWeight: FontWeight.w400,
+                fontFamily: Styles.defaultFont,
                 decoration: TextDecoration.none
             ),
           )
@@ -985,7 +988,7 @@ class _AccountRestrictionPage extends StatelessWidget {
                 )
             ),
             Container(
-              padding: EdgeInsets.only(bottom: 22),
+              padding: EdgeInsets.only(bottom: 16),
               margin: EdgeInsets.only(left: 37, right: 37, top: 335),
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),

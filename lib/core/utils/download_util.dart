@@ -12,6 +12,7 @@ import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:share/share.dart';
+import 'package:collection/collection.dart';
 
 class DownloadUtil {
 
@@ -62,27 +63,44 @@ class DownloadUtil {
     onProgress?.call(progress, false);
 
     List<int> chunks = [];
+    String? fileType;
+
     await for (Resource<FileResult> resource in downloadTask.call()) {
       if(resource is Loading) {
         onProgress?.call(progress, false);
+        if(resource.data != null) {
+          final base64String = resource.data?.base64String;
+          fileType = resource.data?.contentType;
+          if(base64String == null) return;
+          chunks = base64.decode(base64String).map((value) => value).toList();
+        }
       }
       else if(resource is Success) {
         final base64String = resource.data?.base64String;
+        fileType = resource.data?.contentType;
         if(base64String == null) return;
         chunks = base64.decode(base64String).map((value) => value).toList();
         break;
-      } else if(resource is Error) {
-        break;
+      } else if(resource is Error<FileResult>) {
+        throw Exception(resource.message);
+        // break;
       }
     }
 
     final File file;
+    String mFileName = fileName;
+
+    if(fileType != null) {
+      final extension = (fileType.contains("image/pnd")) ? ".pnd"
+          : (fileType.contains("pdf")) ? ".pdf" : ".jpg";
+      if(extension.isNotEmpty) mFileName = "preview$extension";
+    }
 
     if(Platform.isIOS) {
       final dir = await getApplicationDocumentsDirectory();
-      file = File("${dir.path}/$fileName");
+      file = File("${dir.path}/$mFileName");
     } else {
-      file = File("/storage/emulated/0/Download/$fileName");
+      file = File("/storage/emulated/0/Download/$mFileName");
     }
 
     await file.writeAsBytes(chunks);

@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/restriction_pages/account_status_page_icon.dart';
 import 'package:moniepoint_flutter/app/login/views/support_contact_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/viewmodels/system_configuration_view_model.dart';
@@ -14,9 +15,15 @@ import 'package:provider/provider.dart';
 
 class AccountBlockedView extends StatelessWidget {
 
+  AccountBlockedView({required this.userAccountId});
+
+  final int userAccountId;
+
   @override
   Widget build(BuildContext context) {
+    final userAccount = UserInstance().getUserAccount(userAccountId);
     final viewModel = Provider.of<SystemConfigurationViewModel>(context, listen: false);
+
     return SessionedWidget(
         context: context,
         child: Scaffold(

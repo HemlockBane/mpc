@@ -41,7 +41,7 @@ AccountTransaction _$AccountTransactionFromJson(Map<String, dynamic> json) {
     merchantLocation: json['merchantLocation'] as String?,
     cardScheme: json['cardScheme'] as String?,
     maskedPan: json['maskedPan'] as String?,
-    terminalID: json['terminalID'] as String?,
+    terminalID: json['terminalId'] as String?,
     disputable: json['disputable'] as bool?,
     location: json['location'] == null
         ? null
@@ -81,7 +81,7 @@ Map<String, dynamic> _$AccountTransactionToJson(AccountTransaction instance) =>
       'merchantLocation': instance.merchantLocation,
       'cardScheme': instance.cardScheme,
       'maskedPan': instance.maskedPan,
-      'terminalID': instance.terminalID,
+      'terminalId': instance.terminalID,
       'disputable': instance.disputable,
       'location': instance.location,
       'metaDataObj': instance.metaData,

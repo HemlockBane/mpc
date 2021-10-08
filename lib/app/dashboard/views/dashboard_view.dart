@@ -1,16 +1,13 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:ui';
 
 import 'package:moniepoint_flutter/app/dashboard/views/custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:flutter/material.dart' hide ScrollView, Colors;
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_bottom_menu.dart';
-import 'package:moniepoint_flutter/app/dashboard/views/dashboard_drawer_view.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_loans_view.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_menu.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_recently_paid_view.dart';
-import 'package:moniepoint_flutter/app/dashboard/views/dashboard_refresh_indicator.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
@@ -38,15 +35,16 @@ class DashboardScreen extends StatefulWidget {
   _DashboardScreenState createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposableWidget {
+class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposableWidget, TickerProviderStateMixin {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   late DashboardViewModel _viewModel;
 
   PageController _pageController = PageController(viewportFraction: 1);
-  late final PageController _tabPageController;
+  ScrollController _dashboardScrollController = ScrollController(keepScrollOffset: false);
+  late final TabController _tabController = TabController(length: 4, vsync: this);
 
   Stream<Resource<List<TransferBeneficiary>>> recentlyPaidBeneficiaries = Stream.empty();
-  final _currentTabIndex = ValueNotifier<int>(0);
+  final _tabIndexNotifier = ValueNotifier<int>(0);
 
   void _setupFingerprint() async {
     final biometricRequest = await _viewModel.shouldRequestFingerPrintSetup();
@@ -103,10 +101,11 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
     _viewModel.checkAccountUpdate();
     recentlyPaidBeneficiaries = _viewModel.getRecentlyPaidBeneficiary();
     super.initState();
-    _tabPageController = PageController(viewportFraction: 1);
-    _tabPageController.addListener(() {
-      final tabIndex = (_tabPageController.page ?? 0).round();
-      _currentTabIndex.value = tabIndex;
+    _tabController.addListener(() {
+      final _currentPage = (_tabController.index).round();
+      if(_tabController.index == _currentPage) {
+        _tabIndexNotifier.value = _currentPage;
+      }
     });
 
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
@@ -133,8 +132,8 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
           height: height,
           color: Color(0XFFEBF2FA),
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 16),
             child: ListView(
+              controller: _dashboardScrollController,
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,7 +147,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
                     DashboardMenu(_onDrawerItemClickListener),
                     DashboardRecentlyPaidView(
                       beneficiaries: recentlyPaidBeneficiaries,
-                      margin: EdgeInsets.only(bottom: 32, top: 32),
+                      margin: EdgeInsets.only(left:16, right:16,bottom: 32, top: 32),
                     ),
                     //Margin is determined by DashboardRecentlyPaidView
                     SizedBox(height: 42),
@@ -203,68 +202,46 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
     }
   }
 
-  void _changeTab(int tabIndex) {
-    _tabPageController.jumpToPage(tabIndex);
-  }
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    final tabTitles = ["Home","Savings", "Loans", "More"];
 
-    return SafeArea(
-      child: SessionedWidget(
-          context: context,
-          child: Scaffold(
-            extendBodyBehindAppBar: true,
-            appBar: PreferredSize(
-              preferredSize: Size.fromHeight(dashboardTopMenuHeight),
-              child: ValueListenableBuilder<int>(
-                valueListenable: _currentTabIndex,
-                builder: (ctx, value, _){
-                  return Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: DashboardTopMenu(
-                      viewModel: _viewModel,
-                      title: tabTitles[value],
-                    ),
-                  );
-                },
-              )
-            ),
-            key: _scaffoldKey,
-            drawer: DashboardDrawer(width, _onDrawerItemClickListener),
-            body: Container(
-              child: PageView(
-                controller: _tabPageController,
+    return SessionedWidget(
+      context: context,
+      child: Scaffold(
+          extendBodyBehindAppBar: true,
+          appBar: DashboardTopMenu(
+            scrollController: _dashboardScrollController,
+            viewModel: _viewModel,
+            titles: ["Home", "Savings", "Loans", "More"],
+            menuChangeNotifier: _tabIndexNotifier,
+          ),
+          key: _scaffoldKey,
+          body: Container(
+            child: TabBarView(
+                controller: _tabController,
                 children: [
-                  LayoutBuilder(builder: (ctx, constraints){
+                  LayoutBuilder(builder: (ctx, constraints) {
                     return _contentView(width, constraints.maxHeight);
                   }),
                   SavingsView(),
                   LoansView(),
                   MoreView()
-                ],
-              ),
-            ),
-            bottomNavigationBar: ValueListenableBuilder<int>(
-              valueListenable: _currentTabIndex,
-              builder: (ctx, value, _){
-                return AppBottomNavigationBar(
-                  selectedIndex: value,
-                  onTabSelected: _changeTab,
-                  items: [
-                    AppBottomNavigationBarItem(svgPath: "res/drawables/ic_dashboard_home.svg", title: "Home"),
-                    AppBottomNavigationBarItem(svgPath: "res/drawables/ic_dashboard_piggy.svg", title: "Savings"),
-                    AppBottomNavigationBarItem(svgPath: "res/drawables/ic_dashboard_loan.svg", title: "Loans"),
-                    AppBottomNavigationBarItem(svgPath: "res/drawables/ic_dashboard_more.svg", title: "More")
-                  ],
-                );
-              },
+                ]
             )
           ),
+          bottomNavigationBar: DashboardBottomMenu(_tabController)
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    _dashboardScrollController.dispose();
+    _tabController.dispose();
+    super.dispose();
   }
 }
 

@@ -3,6 +3,7 @@ import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/material.dart' hide ScrollView, Colors;
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_purchase_type.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_service_provider.dart';
 import 'package:moniepoint_flutter/app/airtime/viewmodels/airtime_view_model.dart';
@@ -74,7 +75,33 @@ class _AirtimeBeneficiaryScreen extends State<AirtimeBeneficiaryScreen> with Aut
   }
 
   void _handleContract() {
+    if(widget.transactionRequestContract == null) return;
+    //handle contract
+    final contract = widget.transactionRequestContract;
+    if(contract == null) return;
+    if(contract.requestType == TransactionRequestContractType.REPLAY) {
+      final transaction = contract.transaction;
+      final viewModel = Provider.of<AirtimeViewModel>(context, listen: false);
 
+      final mBeneficiary = AirtimeBeneficiary(
+          id: 0,
+          name: transaction.getSinkAccountName(),
+          phoneNumber: transaction.getSinkAccountNumber(),
+          serviceProvider: AirtimeServiceProvider(
+            code: (transaction as AccountTransaction).beneficiaryBankCode ?? "",
+            name: (transaction).providerName ?? "",
+            billerId: (transaction).providerIdentifier
+          )
+      );
+
+      viewModel.setBeneficiary(mBeneficiary);
+      Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.of(context).pushNamed(
+            AirtimeScreen.PAYMENT_SCREEN,
+            arguments: transaction.getAmount()
+        );
+      });
+    }
   }
 
   void displayServiceProvidersDialog(AirtimeBeneficiary beneficiary) async {

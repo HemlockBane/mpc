@@ -201,6 +201,7 @@ class AdditionalInfoForm with ChangeNotifier {
 
   void restoreFormState() {
     final savedInfo = PreferenceUtil.getDataForLoggedInUser(FORM_KEY);
+    if(savedInfo == null) return;
     final savedCustomerInfo = CustomerDetailInfo.fromJson(savedInfo);
 
     if(savedCustomerInfo.title != null) {

@@ -43,8 +43,11 @@ class _AccountTransactionOptionsState extends State<AccountTransactionOptions> {
     final mTransaction = widget.transaction.toJson();
     mTransaction["accountNumber"] = widget.accountNumber;
     mTransaction["amount"] = widget.transaction.amount! * 100;
-    mTransaction["transactionDate"] = DateTime
-        .fromMillisecondsSinceEpoch(widget.transaction.transactionDate).toString();
+
+    mTransaction["transactionDate"] = DateTime.fromMillisecondsSinceEpoch(
+        widget.transaction.transactionDate
+    ).toString();
+
     mTransaction["location"] = null;
     return AccountTransaction.fromJson(mTransaction);
   }
@@ -68,8 +71,8 @@ class _AccountTransactionOptionsState extends State<AccountTransactionOptions> {
           }
       );
     } catch(e) {
-      setState(() { _isDownloadingReceipt = false;});
-      setState(() { _isSharingReceipt = false;});
+      setState(() { _isDownloadingReceipt = false; });
+      setState(() { _isSharingReceipt = false; });
       showError(
           context,
           title: "Download Receipt Failed!",
@@ -79,7 +82,9 @@ class _AccountTransactionOptionsState extends State<AccountTransactionOptions> {
   }
 
   bool _canDownloadOrShareReceipt() {
-    return widget.transaction.type == TransactionType.DEBIT;
+    final transaction = widget.transaction;
+    return (transaction.type == TransactionType.DEBIT || transaction.type == TransactionType.CREDIT)
+        && transaction.transactionCategory != null;
   }
 
   void _replayTransaction() {
@@ -94,6 +99,10 @@ class _AccountTransactionOptionsState extends State<AccountTransactionOptions> {
       case TransactionCategory.BILL_PAYMENT:
         return;
       case TransactionCategory.AIRTIME:
+        final contract = TransactionRequestContract(
+            transaction: transaction, requestType: TransactionRequestContractType.REPLAY
+        );
+        Navigator.of(context).pushNamed(Routes.AIRTIME, arguments: contract);
         return;
       case TransactionCategory.DATA:
         return;
@@ -124,6 +133,14 @@ class _AccountTransactionOptionsState extends State<AccountTransactionOptions> {
       case TransactionCategory.BILL_PAYMENT:
         return false;
       case TransactionCategory.AIRTIME:
+        // if(transaction.type == TransactionType.DEBIT) {
+        //   print("${transaction.providerIdentifier}");
+        //   print("${transaction.providerName}");
+        //   return transaction.providerIdentifier != null
+        //       && transaction.providerIdentifier?.isNotEmpty == true
+        //       && transaction.providerName != null
+        //       && transaction.providerName?.isNotEmpty == true;
+        // }
         return false;
       case TransactionCategory.DATA:
         return false;
@@ -139,7 +156,7 @@ class _AccountTransactionOptionsState extends State<AccountTransactionOptions> {
   }
 
   Widget _contentView () => Wrap(
-    alignment: WrapAlignment.spaceBetween,
+    alignment: WrapAlignment.spaceEvenly,
     spacing: 47,
     runSpacing: 47,
     children: [

@@ -5,6 +5,13 @@ import 'scheme_code.dart';
 
 part 'customer_account.g.dart';
 
+enum BlockedBy {
+  BACKOFFICE,
+  CUSTOMER,
+  SYSTEM,
+  AGENT
+}
+
 @JsonSerializable()
 class CustomerAccount {
   int? id;
@@ -31,7 +38,8 @@ class CustomerAccount {
   bool? multipleDebit;
   bool? blocked;
   String? blockReason;
-  String? blockedBy;
+  BlockedBy? blockedBy;
+  String? blockedTime;
   String? referralCode;
 
   CustomerAccount(

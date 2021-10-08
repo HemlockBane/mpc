@@ -36,11 +36,9 @@ class UserAccount {
     if(this.customerAccount?.blocked == true) return AccountState.BLOCKED;
     if(this.accountStatus?.postNoDebit == true) return AccountState.PND;
 
-    final shouldReUploadID = accountStatus?.customer?.reUploadID
-        ?? this.customerAccount?.customer?.reUploadID;
+    final shouldReUploadID = shouldReUploadIdentification();
 
-    final shouldReUploadProof = accountStatus?.customer?.reUploadProofOfAddress
-        ?? this.customerAccount?.customer?.reUploadProofOfAddress;
+    final shouldReUploadProof = shouldReUploadProofOfAddress();
 
     if(shouldReUploadID == true || shouldReUploadProof == true) {
       return AccountState.REQUIRE_DOCS;
@@ -66,6 +64,16 @@ class UserAccount {
     }
 
     return AccountState.COMPLETED;
+  }
+
+  bool shouldReUploadIdentification() {
+    return (this.accountStatus?.customer?.reUploadID
+        ?? this.customerAccount?.customer?.reUploadID) == true;
+  }
+
+  bool shouldReUploadProofOfAddress() {
+    return (this.accountStatus?.customer?.reUploadProofOfAddress
+        ?? this.customerAccount?.customer?.reUploadProofOfAddress) == true;
   }
 
   Customer? get parentCustomer => UserInstance().getUser()?.customers!.firstOrNull;

@@ -236,8 +236,12 @@ class Routes {
             )
         );
       case Routes.ACCOUNT_BLOCKED_STATE:
+        final args = settings.arguments as Map<dynamic, dynamic>;
+        final userAccountId = args["userAccountId"] as int;
         return MaterialPageRoute(
-            builder: (BuildContext context) => AccountBlockedView()
+            builder: (BuildContext context) => AccountBlockedView(
+                userAccountId: userAccountId
+            )
         );
       case Routes.ACCOUNT_IN_PROGRESS_STATE:
         final args = settings.arguments as Map<dynamic, dynamic>;

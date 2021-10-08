@@ -15,7 +15,7 @@ class SavingsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final height =  MediaQuery.of(context).size.height - bottomAppBarHeight;
+    final height =  MediaQuery.of(context).size.height;// - bottomAppBarHeight;
     final width = MediaQuery.of(context).size.width;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16),

@@ -60,7 +60,6 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
     frequentBeneficiaries = viewModel.getFrequentBeneficiaries();
     super.initState();
     _handleContract();
-    // _extraArguments(widget.arguments);
   }
 
   void displayInstitutionsDialog() async {
@@ -77,7 +76,7 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
     if(provider != null) {
       doNameEnquiry(
           provider,
-          TransferBeneficiary(id:0, accountName: "", accountNumber: _accountNumberController.text)
+          TransferBeneficiary(id: 0, accountName: "", accountNumber: _accountNumberController.text)
       );
     }
   }
@@ -146,7 +145,8 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
   }
 
   void _selectBeneficiary() async {
-    final beneficiary = await Navigator.of(widget._scaffoldKey.currentContext!).pushNamed(Routes.SELECT_TRANSFER_BENEFICIARY);
+    final beneficiary = await Navigator.of(widget._scaffoldKey.currentContext!)
+        .pushNamed(Routes.SELECT_TRANSFER_BENEFICIARY);
     if(beneficiary is TransferBeneficiary) {
       final provider = AccountProvider()
         ..bankCode = beneficiary.getBeneficiaryProviderCode()
@@ -156,7 +156,6 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
   }
 
   void _handleContract() {
-    print("Args ===>>> ${widget.arguments}");
     if(widget.arguments == null) return;
     //handle contract
     final contract = widget.arguments as TransactionRequestContract?;

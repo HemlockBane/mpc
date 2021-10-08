@@ -63,7 +63,7 @@ class CardViewUtil {
         height: 16,
       );
     if (scheme.toLowerCase() == "verve")
-      return SvgPicture.asset('res/drawables/ic_verve_card.svg');
+      return SvgPicture.asset('res/drawables/ic_verve_receipt.svg');
     if (scheme.toLowerCase() == "visa")
       return SvgPicture.asset('res/drawables/ic_visa_receipt.svg',);
     else

@@ -48,7 +48,6 @@ final defaultAppTheme = ThemeData(
 class MoniepointApp extends StatelessWidget with CompositeDisposableWidget {
   // This widget is the root of your application
   void _loadSystemConfigurations(SystemConfigurationViewModel viewModel) {
-    Workmanager().initialize(workDispatcher, isInDebugMode: true);
     Rx.combineLatest2(
         viewModel.getSystemConfigurations(),
         viewModel.getUSSDConfiguration(), (a, b) {}
@@ -103,6 +102,7 @@ void main() async {
 
 Future<void> _onCreate() async {
   WidgetsFlutterBinding.ensureInitialized();
+  Workmanager().initialize(workDispatcher, isInDebugMode: true);
   await BiometricHelper.initialize(
       keyFileName: "moniepoint_iv",
       keyStoreName: "AndroidKeyStore",

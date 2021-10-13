@@ -48,6 +48,7 @@ final defaultAppTheme = ThemeData(
 class MoniepointApp extends StatelessWidget with CompositeDisposableWidget {
   // This widget is the root of your application
   void _loadSystemConfigurations(SystemConfigurationViewModel viewModel) {
+    Workmanager().initialize(workDispatcher, isInDebugMode: true);
     Rx.combineLatest2(
         viewModel.getSystemConfigurations(),
         viewModel.getUSSDConfiguration(), (a, b) {}
@@ -115,8 +116,5 @@ Future<void> _onCreate() async {
   await PreferenceUtil.initAsync();
   MixpanelManager.initAsync();
 
-  Future.delayed(Duration(milliseconds: 5000), (){
-    Workmanager().initialize(workDispatcher, isInDebugMode: true);
-  });
   AppNotificationService().initialize();
 }

@@ -31,7 +31,8 @@ void registerWorkers() {
 void workDispatcher () {
   registerWorkers();
   Workmanager().executeTask((taskName, inputData) async {
-    print("PreferenceTest => ${PreferenceUtil.getValue(IosBackgroundTaskWorker.IOS_QUEUE_KEY)}");
+    final pref = await SharedPreferences.getInstance().catchError((e) {print(e);});
+    print("PreferenceTest => ${pref.getString(IosBackgroundTaskWorker.IOS_QUEUE_KEY)}");
     final worker = getWorker(taskName);
     if(worker == null) return true;
     return await worker.execute(inputData);

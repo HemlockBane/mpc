@@ -133,6 +133,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
           color: Color(0XFFEBF2FA),
           child: Container(
             child: ListView(
+              physics: AlwaysScrollableScrollPhysics(),
               controller: _dashboardScrollController,
               children: [
                 Column(
@@ -148,6 +149,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
                     DashboardRecentlyPaidView(
                       beneficiaries: recentlyPaidBeneficiaries,
                       margin: EdgeInsets.only(left:16, right:16,bottom: 32, top: 32),
+                      minItemForDisplay: 1,
                     ),
                     //Margin is determined by DashboardRecentlyPaidView
                     SizedBox(height: 42),

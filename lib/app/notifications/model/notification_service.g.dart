@@ -1,15 +1,15 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'system_configuration_service.dart';
+part of 'notification_service.dart';
 
 // **************************************************************************
 // RetrofitGenerator
 // **************************************************************************
 
-class _SystemConfigurationService implements SystemConfigurationService {
-  _SystemConfigurationService(this._dio, {this.baseUrl}) {
+class _NotificationService implements NotificationService {
+  _NotificationService(this._dio, {this.baseUrl}) {
     baseUrl ??=
-        'https://core-operations.monnify.development.teamapt.com/api/v1/system-configuration/';
+        'https://moniepoint-customer-notification-service.development.teamapt.com/api/v1/notification/';
   }
 
   final Dio _dio;
@@ -17,13 +17,13 @@ class _SystemConfigurationService implements SystemConfigurationService {
   String? baseUrl;
 
   @override
-  Future<ServiceResult<List<SystemConfiguration>>> getAllSystemConfigs() async {
+  Future<ServiceResult<bool>> registerDeviceToken(request) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
-    final _data = <String, dynamic>{};
+    final _data = request;
     final _result = await _dio.fetch<Map<String, dynamic>>(
-        _setStreamType<ServiceResult<List<SystemConfiguration>>>(Options(
-                method: 'GET',
+        _setStreamType<ServiceResult<bool>>(Options(
+                method: 'POST',
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
@@ -31,15 +31,13 @@ class _SystemConfigurationService implements SystemConfigurationService {
                 },
                 extra: _extra,
                 contentType: 'application/json')
-            .compose(_dio.options, '',
+            .compose(_dio.options, 'register-device-token',
                 queryParameters: queryParameters, data: _data)
             .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
-    final value = ServiceResult<List<SystemConfiguration>>.fromJson(
-        _result.data!,
-        (json) => (json as List<dynamic>)
-            .map<SystemConfiguration>(
-                (i) => SystemConfiguration.fromJson(i as Map<String, dynamic>))
-            .toList());
+    final value = ServiceResult<bool>.fromJson(
+      _result.data!,
+      (json) => json as bool,
+    );
     return value;
   }
 

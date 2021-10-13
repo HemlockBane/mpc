@@ -13,14 +13,7 @@ class FilterResults {
   factory FilterResults.defaultFilter() => FilterResults()
     ..startDate = 0
     ..endDate = DateTime.now().millisecondsSinceEpoch
-    ..channels = {
-      TransactionChannel.ATM,
-      TransactionChannel.KIOSK,
-      TransactionChannel.WEB,
-      TransactionChannel.MOBILE,
-      TransactionChannel.POS,
-      TransactionChannel.USSD
-    }
+    ..channels = {}
     ..types = {TransactionType.CREDIT, TransactionType.DEBIT};
 
 

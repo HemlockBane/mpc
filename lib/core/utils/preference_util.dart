@@ -176,4 +176,8 @@ class PreferenceUtil {
   static bool isAccountBalanceHidden(String accountNumber) {
     return getValueForLoggedInUser("$accountNumber-$HIDE_ACCOUNT_BAL") ?? false;
   }
+
+  static void addTaskToIosQueue() {
+
+  }
 }

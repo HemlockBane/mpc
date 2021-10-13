@@ -48,6 +48,8 @@ class TransactionHistoryViewModel extends BaseViewModel {
     return _delegate.getPageAccountTransactions(accountId ?? customerAccountId, _filterResults);
   }
 
+
+
   Stream<Uint8List> exportStatement(int? startDate, int? endDate, {int? accountId}) {
     return _delegate.exportStatement(ExportStatementRequestBody(
       fileType: "PDF",

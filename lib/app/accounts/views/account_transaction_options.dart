@@ -92,7 +92,7 @@ class _AccountTransactionOptionsState extends State<AccountTransactionOptions> {
     switch(transaction.transactionCategory) {
       case TransactionCategory.TRANSFER:
         final contract = TransactionRequestContract(
-            transaction: transaction, requestType: TransactionRequestContractType.REPLAY
+            intent: transaction, requestType: TransactionRequestContractType.REPLAY
         );
         Navigator.of(context).pushNamed(Routes.TRANSFER, arguments: contract);
         break;
@@ -100,7 +100,7 @@ class _AccountTransactionOptionsState extends State<AccountTransactionOptions> {
         return;
       case TransactionCategory.AIRTIME:
         final contract = TransactionRequestContract(
-            transaction: transaction, requestType: TransactionRequestContractType.REPLAY
+            intent: transaction, requestType: TransactionRequestContractType.REPLAY
         );
         Navigator.of(context).pushNamed(Routes.AIRTIME, arguments: contract);
         return;

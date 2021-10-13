@@ -12,7 +12,19 @@ abstract class TransactionDao extends MoniepointDao<AccountTransaction> {
   Stream<List<AccountTransaction>> getTransactionsByFilter(
       int customerAccountId,
       int startDate,
-      int endDate, List<String> channels,
+      int endDate,
+      List<String> channels,
+      List<String> transactionTypes,
+      int limit, int myOffset
+  );
+
+  @Query(
+      "SELECT * FROM account_transactions WHERE customerAccountId = :customerAccountId AND (transactionDate BETWEEN :startDate AND :endDate) AND type IN (:transactionTypes) ORDER BY transactionDate DESC LIMIT :limit OFFSET :myOffset"
+  )
+  Stream<List<AccountTransaction>> getTransactions(
+      int customerAccountId,
+      int startDate,
+      int endDate,
       List<String> transactionTypes,
       int limit, int myOffset
   );

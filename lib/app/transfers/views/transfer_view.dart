@@ -17,7 +17,6 @@ class TransferScreen extends StatefulWidget {
   static const BENEFICIARY_SCREEN = "main";
   static const PAYMENT_SCREEN = "payment";
 
-  static const REPLAY_TRANSFER = "REPLAY_TRANSFER";
   static const START_TRANSFER = "START_TRANSFER";
 
   TransferScreen({

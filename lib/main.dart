@@ -17,9 +17,13 @@ import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/viewmodels/system_configuration_view_model.dart';
+import 'package:moniepoint_flutter/core/work/ios_background_task_worker.dart';
+import 'package:moniepoint_flutter/core/work/work_dispatcher.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:workmanager/workmanager.dart';
 
+import 'app/notifications/app_notification_service.dart';
 import 'core/utils/biometric_helper.dart';
 
 
@@ -110,4 +114,9 @@ Future<void> _onCreate() async {
   await Firebase.initializeApp();
   await PreferenceUtil.initAsync();
   MixpanelManager.initAsync();
+
+  Future.delayed(Duration(milliseconds: 5000), (){
+    Workmanager().initialize(workDispatcher, isInDebugMode: true);
+  });
+  AppNotificationService().initialize();
 }

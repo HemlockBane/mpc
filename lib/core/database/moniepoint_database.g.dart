@@ -2025,6 +2025,71 @@ class _$TransactionDao extends TransactionDao {
   }
 
   @override
+  Stream<List<AccountTransaction>> getTransactions(
+      int customerAccountId,
+      int startDate,
+      int endDate,
+      List<String> transactionTypes,
+      int limit,
+      int myOffset) {
+    const offset = 6;
+    final _sqliteVariablesForTransactionTypes = Iterable<String>.generate(
+        transactionTypes.length, (i) => '?${i + offset}').join(',');
+    return _queryAdapter.queryListStream(
+        'SELECT * FROM account_transactions WHERE customerAccountId = ?1 AND (transactionDate BETWEEN ?2 AND ?3) AND type IN (' +
+            _sqliteVariablesForTransactionTypes +
+            ') ORDER BY transactionDate DESC LIMIT ?4 OFFSET ?5',
+        mapper: (Map<String, Object?> row) => AccountTransaction(
+            id: row['id'] as int?,
+            transactionDate: row['transactionDate'] as int,
+            transactionRef: row['transactionRef'] as String,
+            status: row['status'] == null ? null : (row['status'] as int) != 0,
+            amount: row['amount'] as double?,
+            type: _transactionTypeConverter.decode(row['type'] as String?),
+            transactionChannel: row['transactionChannel'] as String?,
+            tags: row['tags'] as String?,
+            narration: row['narration'] as String?,
+            runningBalance: row['runningBalance'] as String?,
+            balanceBefore: row['balanceBefore'] as String?,
+            balanceAfter: row['balanceAfter'] as String?,
+            metaData: _transactionMetaDataConverter
+                .decode(row['metaData'] as String?),
+            customerAccountId: row['customerAccountId'] as int?,
+            transactionCategory: _transactionCategoryConverter
+                .decode(row['transactionCategory'] as String?),
+            transactionCode: row['transactionCode'] as String?,
+            beneficiaryIdentifier: row['beneficiaryIdentifier'] as String?,
+            beneficiaryName: row['beneficiaryName'] as String?,
+            beneficiaryBankName: row['beneficiaryBankName'] as String?,
+            beneficiaryBankCode: row['beneficiaryBankCode'] as String?,
+            senderIdentifier: row['senderIdentifier'] as String?,
+            senderName: row['senderName'] as String?,
+            senderBankName: row['senderBankName'] as String?,
+            senderBankCode: row['senderBankCode'] as String?,
+            providerIdentifier: row['providerIdentifier'] as String?,
+            providerName: row['providerName'] as String?,
+            transactionIdentifier: row['transactionIdentifier'] as String?,
+            merchantLocation: row['merchantLocation'] as String?,
+            cardScheme: row['cardScheme'] as String?,
+            maskedPan: row['maskedPan'] as String?,
+            terminalID: row['terminalID'] as String?,
+            disputable: row['disputable'] == null
+                ? null
+                : (row['disputable'] as int) != 0,
+            location: _locationConverter.decode(row['location'] as String?)),
+        arguments: [
+          customerAccountId,
+          startDate,
+          endDate,
+          limit,
+          myOffset,
+          ...transactionTypes
+        ],
+        queryableName: 'account_transactions',
+        isView: false);
+  }
+
+  @override
   Future<AccountTransaction?> getTransactionByRef(String tranRef) async {
     return _queryAdapter.query(
         'SELECT * FROM account_transactions WHERE transactionRef =?1',

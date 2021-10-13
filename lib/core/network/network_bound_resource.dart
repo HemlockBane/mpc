@@ -84,7 +84,6 @@ mixin NetworkResource {
         if (e is DioError) {
 
           if(e.response?.statusCode == 401) {
-            //TODO check if the user is in session first
             UserInstance().forceLogout(null, SessionTimeoutReason.SESSION_TIMEOUT);
             return;
           }

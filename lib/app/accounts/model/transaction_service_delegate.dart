@@ -29,27 +29,49 @@ class TransactionServiceDelegate with NetworkResource {
   }
 
   PagingSource<int, AccountTransaction> getPageAccountTransactions(int customerAccountId, FilterResults filterResult) {
+    if(filterResult.channels.isNotEmpty) return _filterTransactions(customerAccountId, filterResult);
     return PagingSource(
         localSource: (LoadParams params) {
           final offset = params.key ?? 0;
-
-          final channels = (filterResult.channels.isEmpty) ? [...TransactionChannel.values] : filterResult.channels;
           final types = (filterResult.types.isEmpty) ? [...TransactionType.values] : filterResult.types;
-
-          return _transactionDao.getTransactionsByFilter(
-              customerAccountId,
-              filterResult.startDate,
-              filterResult.endDate,
-              channels.map((e) => describeEnum(e)).toList(),
-              types.map((e) => describeEnum(e)).toList(),
-              params.loadSize,
-              offset * params.loadSize,
+          return _transactionDao.getTransactions(
+            customerAccountId,
+            filterResult.startDate,
+            filterResult.endDate,
+            types.map((e) => describeEnum(e)).toList(),
+            params.loadSize,
+            offset * params.loadSize,
           ).map((event) {
             return Page(event, params.key ?? 0, event.length == params.loadSize ? offset + 1 : null);
           });
         },
         remoteMediator: _TransactionRemoteMediator(_service, _transactionDao)..filterResults = filterResult..customerAccountId = customerAccountId
     );
+  }
+
+  PagingSource<int, AccountTransaction> _filterTransactions(int customerAccountId, FilterResults filterResult) {
+    return PagingSource(
+        localSource: (LoadParams params) {
+          final offset = params.key ?? 0;
+
+          final channels = (filterResult.channels.isEmpty) ? [...TransactionChannel.values]: filterResult.channels;
+          final types = (filterResult.types.isEmpty) ? [...TransactionType.values] : filterResult.types;
+
+          return _transactionDao.getTransactionsByFilter(
+            customerAccountId,
+            filterResult.startDate,
+            filterResult.endDate,
+            channels.map((e) => describeEnum(e)).toList(),
+            types.map((e) => describeEnum(e)).toList(),
+            params.loadSize,
+            offset * params.loadSize,
+          ).map((event) {
+            return Page(event, params.key ?? 0, event.length == params.loadSize ? offset + 1 : null);
+          });
+        },
+        remoteMediator: _TransactionRemoteMediator(_service, _transactionDao)
+          ..filterResults = filterResult
+          ..customerAccountId = customerAccountId);
   }
 
   Future<AccountTransaction?> getSingleAccountTransaction(String transactionRef){

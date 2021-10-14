@@ -91,6 +91,14 @@ class _CardPinDialog extends State<CardPinDialog> {
     }
   }
 
+  bool _isFormValid()  {
+    final isValid = _pin.isNotEmpty && _pin.length >= 4;
+    if(widget.cardAction == CardAction.BLOCK_CARD && _reasonController.text.isEmpty) {
+      return false;
+    }
+    return isValid;
+  }
+
   @override
   Widget build(BuildContext context) {
     return BottomSheets.makeAppBottomSheet(
@@ -157,7 +165,7 @@ class _CardPinDialog extends State<CardPinDialog> {
                       child: Styles.statefulButton2(
                           elevation: _pin.isNotEmpty && _pin.length >= 4 ? 0.5 : 0,
                           isLoading: _isLoading,
-                          isValid: _pin.isNotEmpty && _pin.length >= 4,
+                          isValid: _isFormValid(),
                           onClick: () => beginTransaction(_pin),
                           text: 'Continue')),
                   SizedBox(height: 42)

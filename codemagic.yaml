@@ -1,5 +1,14 @@
 workflows:
-  dev:
+  dev_build_workflow:
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: dev
+      cancle_previous_builds: true
     scripts:
-      - name: say hello
-        script: echo "Hello Code"
+      - name: Build Android Apk
+        working_directory: android
+        script: ./gradlew assembleRelease
+    artifacts:
+      - app/build/outputs/**/**/*.apk

@@ -137,7 +137,7 @@ class TransferViewModel extends BaseViewModel with PaymentViewModel {
         ..pin = pin
         ..narration = _narration
         ..minorVatAmount = _minorVat
-        ..metaData = buildTransactionMetaData(getTransactionType())
+        ..location = buildLocationData()
         ..minorFeeAmount = _minorFee;
 
     return _delegate.doTransfer(request);

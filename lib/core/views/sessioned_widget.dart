@@ -2,10 +2,11 @@
 import 'package:flutter/material.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/main.dart';
-
 import '../routes.dart';
 import '../timeout_reason.dart';
 import '../tuple.dart';
+
+///@author Paul Okeke
 
 typedef SessionEventCallback<T extends SessionTimeoutReason> = Function(T value);
 
@@ -22,9 +23,6 @@ class SessionedWidget extends GestureDetector {
   void _onSessionTimeOut(SessionTimeoutReason reason) {
     if(UserInstance().getUser() == null) return;
 
-    if(navigatorKey.currentState?.canPop() == true) {
-      navigatorKey.currentState?.pop();
-    }
     UserInstance().resetSession();
     navigatorKey.currentState?.pushNamedAndRemoveUntil(
         Routes.LOGIN, (route) => false,

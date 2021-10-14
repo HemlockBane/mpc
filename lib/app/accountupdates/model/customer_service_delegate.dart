@@ -48,7 +48,6 @@ class CustomerServiceDelegate with NetworkResource {
   }
 
   Stream<Resource<FileUUID>> uploadDocument(File file) {
-    print("Uploading the document $file");
     return networkBoundResource(
         fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => this._service.uploadDocument(file)

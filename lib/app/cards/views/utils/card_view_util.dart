@@ -1,8 +1,19 @@
 import 'package:flutter/material.dart' hide Colors, Card;
 import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/app/cards/model/data/card.dart';
+import 'package:moniepoint_flutter/app/cards/model/data/card_request_balance_response.dart';
+import 'package:moniepoint_flutter/app/cards/viewmodels/single_card_view_model.dart';
+import 'package:moniepoint_flutter/app/cards/views/dialogs/insufficient_funds_dialog.dart';
+import 'package:moniepoint_flutter/app/cards/views/dialogs/select_account_dialog.dart';
+import 'package:moniepoint_flutter/app/cards/views/dialogs/unlink_card_warning_dialog.dart';
+import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
+import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/card_util.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
+import 'package:moniepoint_flutter/main.dart';
 
 class CardViewUtil {
   static String getFirst6Digits(Card card) {
@@ -37,11 +48,37 @@ class CardViewUtil {
         height: 16,
       );
     if (CardUtil.isVerveCard(card.maskedPan))
-      return SvgPicture.asset(resource ?? 'res/drawables/ic_verve_card_small.svg');
+      return SvgPicture.asset(resource ?? 'res/drawables/ic_verve_card.svg');
     if (CardUtil.isVisaCard(card.maskedPan))
       return SvgPicture.asset('res/drawables/ic_visa_card.svg',);
     else
       return Container();
+  }
+
+
+  static Widget getCardBrandFromScheme(String scheme) {
+    if (scheme.toLowerCase() == "mastercard")
+      return SvgPicture.asset(
+        'res/drawables/ic_master_card.svg',
+        height: 16,
+      );
+    if (scheme.toLowerCase() == "verve")
+      return SvgPicture.asset('res/drawables/ic_verve_receipt.svg');
+    if (scheme.toLowerCase() == "visa")
+      return SvgPicture.asset('res/drawables/ic_visa_receipt.svg',);
+    else
+      return Container();
+  }
+
+  static String getCardName(String maskedPan) {
+    if (CardUtil.isMasterCard(maskedPan))
+      return "Mastercard";
+    if (CardUtil.isVerveCard(maskedPan))
+      return "Verve";
+    if (CardUtil.isVisaCard(maskedPan))
+      return "Visa";
+    else
+      return "";
   }
 
   static Widget getBlockedCardBanner() {
@@ -124,5 +161,100 @@ class CardViewUtil {
         SvgPicture.asset('res/drawables/ic_moniepoint_cube.svg'),
       ],
     );
+  }
+
+
+  ///TODO refactor so it's easier to understand what happens here
+  ///
+  ///
+  ///
+  ///Starts the get card process
+  ///checks that all the necessary conditions are in place
+  static void processGetCardNow(
+      BuildContext context,
+      SingleCardViewModel viewModel,
+      Tuple<Resource<dynamic>, dynamic>? callbackData) async {
+
+    ///Checks if the account currently has a card
+    void checkAccountAndProceed(String accountNumber, num customerAccountId) async {
+      Card? card = await viewModel.getCardByAccountNumber(accountNumber);
+      //If card is not null it means this account already have a card
+      if(card != null) {
+        final shouldUnlink = await showModalBottomSheet(
+            backgroundColor: Colors.transparent,
+            isScrollControlled: true,
+            context: navigatorKey.currentContext ?? context,
+            builder: (ctx) {
+              return UnlinkCardWarningDialog(
+                  cardPan: card.maskedPan,
+                  accountNumber: card.customerAccountCard?.customerAccountNumber ?? ""
+              );
+            }
+        );
+        if(shouldUnlink is bool && shouldUnlink) {
+          await Future.delayed(Duration(milliseconds: 400), () => true);
+          await navigatorKey.currentState?.pushNamed(
+              Routes.CARD_QR_SCANNER, arguments: {"customerAccountId": customerAccountId});
+        }
+      } else {
+        await Future.delayed(Duration(milliseconds: 400), () => true);
+        await navigatorKey.currentState?.pushNamed(
+            Routes.CARD_QR_SCANNER, arguments: {"customerAccountId": customerAccountId});
+      }
+    }
+
+    void checkResponse(Resource<dynamic>? response , String accountNumber, num customerAccountId) {
+      if(response is Success<CardRequestBalanceResponse>) {
+        final balanceResponse = response.data;
+        if(balanceResponse?.sufficient == true) {
+          //check if the user has a card already
+          checkAccountAndProceed(accountNumber, customerAccountId);
+        } else {
+          showModalBottomSheet(
+              backgroundColor: Colors.transparent,
+              isScrollControlled: true,
+              context: navigatorKey.currentContext ?? context,
+              builder: (ctx) {
+                return InsufficientFundsDialog(
+                    accountBalance: balanceResponse?.availableBalance ?? "0.0",
+                    cardCost: balanceResponse?.cardAmount ?? "");
+              });
+        }
+      }
+      else if(response is Error<CardRequestBalanceResponse>){
+        showError(
+            navigatorKey.currentContext ?? context,
+            title: "Failed to retrieve card cost!",
+            message: response.message
+        );
+      }
+    }
+
+    final hasMultipleAccounts = viewModel.userAccounts.length > 1;
+
+    if(callbackData == null && hasMultipleAccounts) {
+      final value = await showCustomerAccounts(
+          context: context,
+          userAccounts: viewModel.userAccounts,
+          onItemClick: (account)  {
+            return viewModel.isAccountBalanceSufficient(
+                account.customerAccount?.accountNumber
+            );
+          }
+      );
+
+      if(value is Tuple) {
+        final userAccount = value.second as UserAccount;
+        checkResponse(
+            value.first,
+            userAccount.customerAccount!.accountNumber!,
+            userAccount.customerAccount!.id!
+        );
+      }
+      return;
+    }
+
+    //This is for single accounts
+    checkResponse(callbackData?.first, viewModel.accountNumber, viewModel.customerAccountId);
   }
 }

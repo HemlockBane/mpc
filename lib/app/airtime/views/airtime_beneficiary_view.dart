@@ -3,6 +3,7 @@ import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/material.dart' hide ScrollView, Colors;
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_purchase_type.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_service_provider.dart';
 import 'package:moniepoint_flutter/app/airtime/viewmodels/airtime_view_model.dart';
@@ -16,7 +17,10 @@ import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_l
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_shimmer_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
+import 'package:moniepoint_flutter/core/models/TransactionRequestContract.dart';
+import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/pnd_notification_banner.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
@@ -30,12 +34,16 @@ class AirtimeBeneficiaryScreen extends StatefulWidget {
 
   late final GlobalKey<ScaffoldState> _scaffoldKey;
 
-  AirtimeBeneficiaryScreen(this._scaffoldKey);
+  AirtimeBeneficiaryScreen(
+      this._scaffoldKey,
+      this.transactionRequestContract
+  );
+
+  final TransactionRequestContract? transactionRequestContract;
 
   @override
-  State<StatefulWidget> createState() {
-    return _AirtimeBeneficiaryScreen();
-  }
+  State<StatefulWidget> createState() => _AirtimeBeneficiaryScreen();
+
 }
 
 class _AirtimeBeneficiaryScreen extends State<AirtimeBeneficiaryScreen> with AutomaticKeepAliveClientMixin, TickerProviderStateMixin, Validators{
@@ -63,6 +71,37 @@ class _AirtimeBeneficiaryScreen extends State<AirtimeBeneficiaryScreen> with Aut
     final viewModel = Provider.of<AirtimeViewModel>(context, listen: false);
     frequentBeneficiaries = viewModel.getFrequentBeneficiaries();
     super.initState();
+    _handleContract();
+  }
+
+  void _handleContract() {
+    if(widget.transactionRequestContract == null) return;
+    //handle contract
+    final contract = widget.transactionRequestContract;
+    if(contract == null) return;
+    if(contract.requestType == TransactionRequestContractType.REPLAY) {
+      final transaction = contract.intent;
+      final viewModel = Provider.of<AirtimeViewModel>(context, listen: false);
+
+      final mBeneficiary = AirtimeBeneficiary(
+          id: 0,
+          name: transaction.getSinkAccountName(),
+          phoneNumber: transaction.getSinkAccountNumber(),
+          serviceProvider: AirtimeServiceProvider(
+            code: (transaction as AccountTransaction).beneficiaryBankCode ?? "",
+            name: (transaction).providerName ?? "",
+            billerId: (transaction).providerIdentifier
+          )
+      );
+
+      viewModel.setBeneficiary(mBeneficiary);
+      Future.delayed(Duration(milliseconds: 500), () {
+        Navigator.of(context).pushNamed(
+            AirtimeScreen.PAYMENT_SCREEN,
+            arguments: transaction.getAmount()
+        );
+      });
+    }
   }
 
   void displayServiceProvidersDialog(AirtimeBeneficiary beneficiary) async {
@@ -91,8 +130,6 @@ class _AirtimeBeneficiaryScreen extends State<AirtimeBeneficiaryScreen> with Aut
       });
     }
   }
-
-
 
   Widget makeListView(BuildContext context, AsyncSnapshot<Resource<List<AirtimeBeneficiary>?>> a) {
     final viewModel = Provider.of<AirtimeViewModel>(context, listen: false);
@@ -172,19 +209,22 @@ class _AirtimeBeneficiaryScreen extends State<AirtimeBeneficiaryScreen> with Aut
   @override
   Widget build(BuildContext context) {
     super.build(context);
-
     final viewModel = Provider.of<AirtimeViewModel>(context, listen: false);
-
     return  Container(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.max,
           children: [
+              PndNotificationBanner(
+                onBannerTap: ()async{
+                  Navigator.of(widget._scaffoldKey.currentContext!).pushNamed(Routes.ACCOUNT_UPDATE);
+                },
+              ),
             SizedBox(height: 24),
             Padding(
               padding : EdgeInsets.only(left: 16, right: 16),
-              child: Text('What do you want to buy?', style: TextStyle(color: Colors.deepGrey, fontSize: 14, fontWeight: FontWeight.w200)),
+              child: Text('What do you want to buy?', style: TextStyle(color: Colors.deepGrey, fontSize: 14, fontWeight: FontWeight.w400)),
             ),
             SizedBox(height: 12),
             Flexible(

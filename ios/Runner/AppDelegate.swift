@@ -15,6 +15,10 @@ import LocalAuthentication
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
     GeneratedPluginRegistrant.register(with: self)
+    
+    UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
+    UIApplication.shared.setMinimumBackgroundFetchInterval(TimeInterval(60*15))
+
     //For google maps
     GMSServices.provideAPIKey("AIzaSyAZ4YHxMdQYIzvEepEUVYdFUILdCN3LxA8")
     
@@ -24,4 +28,6 @@ import LocalAuthentication
     DeviceManagerHandler(controller: controller).registerDeviceManagerHandler()
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
+    
+
 }

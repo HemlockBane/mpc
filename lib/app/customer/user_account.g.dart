@@ -21,7 +21,9 @@ UserAccount _$UserAccountFromJson(Map<String, dynamic> json) {
     customer: json['customer'] == null
         ? null
         : Customer.fromJson(json['customer'] as Object),
-  );
+  )..accountStatus = json['accountStatus'] == null
+      ? null
+      : AccountStatus.fromJson(json['accountStatus'] as Object);
 }
 
 Map<String, dynamic> _$UserAccountToJson(UserAccount instance) =>
@@ -31,4 +33,5 @@ Map<String, dynamic> _$UserAccountToJson(UserAccount instance) =>
       'accountProvider': instance.accountProvider,
       'accountBalance': instance.accountBalance,
       'customer': instance.customer,
+      'accountStatus': instance.accountStatus,
     };

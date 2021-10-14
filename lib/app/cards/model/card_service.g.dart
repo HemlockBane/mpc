@@ -162,8 +162,50 @@ class _CardService implements CardService {
   }
 
   @override
-  Future<ServiceResult<CardLinkingResponse>> linkCard(
-      customerId, customerAccountId, firstCapture, motionCapture,
+  Future<ServiceResult<CardOtpLinkingResponse>> sendCardLinkingOtp(
+      customerAccountId) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    final _result = await _dio.fetch<Map<String, dynamic>>(_setStreamType<
+        ServiceResult<CardOtpLinkingResponse>>(Options(
+            method: 'GET', headers: <String, dynamic>{}, extra: _extra)
+        .compose(_dio.options,
+            'https://core-operations.monnify.development.teamapt.com/api/v1/card/send_card_linking_otp/customer_account_id/$customerAccountId',
+            queryParameters: queryParameters, data: _data)
+        .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = ServiceResult<CardOtpLinkingResponse>.fromJson(
+      _result.data!,
+      (json) => CardOtpLinkingResponse.fromJson(json as Map<String, dynamic>),
+    );
+    return value;
+  }
+
+  @override
+  Future<ServiceResult<CardOtpValidationResponse>> validateCardLinkingOtp(
+      customerAccountId, body) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    _data.addAll(body);
+    final _result = await _dio.fetch<Map<String, dynamic>>(_setStreamType<
+        ServiceResult<CardOtpValidationResponse>>(Options(
+            method: 'POST', headers: <String, dynamic>{}, extra: _extra)
+        .compose(_dio.options,
+            'https://core-operations.monnify.development.teamapt.com/api/v1/card/validate_card_linking_otp/customer_account_id/$customerAccountId',
+            queryParameters: queryParameters, data: _data)
+        .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = ServiceResult<CardOtpValidationResponse>.fromJson(
+      _result.data!,
+      (json) =>
+          CardOtpValidationResponse.fromJson(json as Map<String, dynamic>),
+    );
+    return value;
+  }
+
+  @override
+  Future<ServiceResult<CardLinkingResponse>> linkCard(customerId,
+      customerAccountId, firstCapture, motionCapture, otpValidationKey,
       {customerCode, cardSerial}) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{r'customerId': customerId};
@@ -180,6 +222,9 @@ class _CardService implements CardService {
         MultipartFile.fromFileSync(motionCapture.path,
             filename: motionCapture.path.split(Platform.pathSeparator).last,
             contentType: MediaType.parse('application/json'))));
+    if (otpValidationKey != null) {
+      _data.fields.add(MapEntry('OtpValidationKey', otpValidationKey));
+    }
     if (customerCode != null) {
       _data.fields.add(MapEntry('customerCode', customerCode));
     }

@@ -1,9 +1,14 @@
 
+import 'dart:ui';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' hide Colors;
+import 'package:flutter/rendering.dart';
+import 'package:flutter_html/shims/dart_ui_real.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:mixpanel_flutter/mixpanel_flutter.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
-import 'package:moniepoint_flutter/app/customer/customer_account.dart';
+import 'package:moniepoint_flutter/app/accountupdates/model/data/account_upgrade_state.dart';
+import 'package:moniepoint_flutter/app/accountupdates/views/restriction_pages/account_upgrade_route_delegate.dart';
 import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
@@ -11,406 +16,733 @@ import 'package:moniepoint_flutter/core/mix_panel_analytics.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
-import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/views/dots_indicator.dart';
+import 'package:moniepoint_flutter/core/views/expandable_page_view.dart';
+import 'package:provider/provider.dart';
 import 'package:share/share.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
-import 'package:moniepoint_flutter/core/utils/text_utils.dart';
 
-///TODO refactor this code
-class AccountCard extends StatefulWidget {
-  const AccountCard({required this.viewModel,
-    required this.pageController});
+///
+class DashboardAccountCard extends StatelessWidget {
+
+  DashboardAccountCard({required this.viewModel, required this.pageController});
 
   final DashboardViewModel viewModel;
   final PageController pageController;
 
   @override
-  _AccountCardState createState() => _AccountCardState();
-}
-
-class _AccountCardState extends State<AccountCard> {
-
-  AccountBalance? accountBalance;
-
-  @override
   Widget build(BuildContext context) {
-    final viewModel = widget.viewModel;
-    final pageController = widget.pageController;
-    final accounts = viewModel.customer?.customerAccountUsers?.length ?? 0;
-    return Stack(
-      children: [
-        Column(
-          children: [
-            SizedBox(height: 0.8),
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                  color: Colors.backgroundWhite,
-                  // color: Colors.black,
-                  borderRadius: BorderRadius.all(Radius.circular(16)),
-                  boxShadow: [
-                    BoxShadow(
-                      offset: Offset(0, 13),
-                      blurRadius: 21,
-                      color: Color(0xff1F0E4FB1).withOpacity(0.12),
-                    ),
-                  ]),
-              child: Column(
-                children: [
-                  SizedBox(height: 30),
-                  SizedBox(
-                    height: 130,
-                    child: PageView.builder(
-                        itemCount:
-                        viewModel.customer?.customerAccountUsers?.length ?? 0,
-                        controller: pageController,
-                        itemBuilder: (ctx, idx) {
-                          final userAccount = viewModel.userAccounts[idx];
-                          final customerAccount = userAccount.customerAccount;
+    final userAccounts = viewModel.userAccounts;
 
-                          return Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              overlayColor: MaterialStateProperty.all(Colors.darkLightBlue.withOpacity(0.1)),
-                              onTap: () async{
-                               final mixpanel = await MixpanelManager.initAsync();
-                                mixpanel.track("dashboard-account-clicked");
-                                final routeArgs = {
-                                  "customerAccountId": userAccount.customerAccount?.id,
-                                  "accountUserIdx": idx,
-                                };
-                                Navigator.of(context).pushNamed(Routes.ACCOUNT_TRANSACTIONS,
-                                  arguments: routeArgs ).then((_) => widget.viewModel.update());
-                              },
-                              child: Hero(
-                                tag: "dashboard-balance-view-${userAccount.customerAccount?.id}",
-                                child: AccountDetails(
-                                  customerAccount: customerAccount,
-                                  userAccount: userAccount,
-                                  viewModel: viewModel,
-                                  onBalanceLoaded: (balance){
-                                    accountBalance = balance;
-                                  },
-                                ),
-                              ),
-                            ),
-                          );
-                        }),
-                  ),
-                  if (accounts > 1)
-                    SizedBox(height: 19),
-                  if (accounts > 1)
-                    DotIndicator(
-                        controller: pageController,
-                        itemCount:
-                        viewModel.customer?.customerAccountUsers?.length ?? 0),
-                  SizedBox(height: 22)
-                ],
-              ),
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+          boxShadow: [
+            BoxShadow(
+              offset: Offset(0, 13),
+              blurRadius: 21,
+              color: Color(0xff1F0E4FB1).withOpacity(0.2),
             ),
           ],
-        ),
-        Align(
-        alignment: Alignment(0.0, -1.5),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SvgPicture.asset(
-                  "res/drawables/ic_dashboard_account_label.svg", width: 197, height: 22,),
-            ],
+          image: DecorationImage(
+              image: AssetImage("res/drawables/ic_dashboard_account_card_bg.png"),
+              fit: BoxFit.cover,
+              colorFilter: ColorFilter.mode(
+                  Color(0XFFC4C4C4).withOpacity(0.1),
+                  BlendMode.colorBurn
+              )
+          )
+      ),
+      clipBehavior: Clip.hardEdge,
+      child: Stack(
+        children: [
+          ExpandablePageView(
+            itemBuilder: (ctx, index) {
+              return DashboardAccountItem(
+                userAccount: userAccounts[index],
+                accountIdx: index,
+              );
+            },
+            pageSnapping: true,
+            itemCount: userAccounts.length,
+            controller: pageController,
           ),
-        ),
-        Align(
-          alignment: Alignment.topCenter,
-          child: Column(
-            children: [
-              SizedBox(height: 6),
-              Text(
-                'SAVINGS',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 10.6,
-                    fontWeight: FontWeight.w700),
+          Visibility(
+            visible: userAccounts.length > 1,
+            child: Positioned(
+              bottom: 19,
+              left: 0,
+              right: 0,
+              child: DotIndicator(
+                delay: Duration(milliseconds: 120),
+                controller: pageController,
+                itemCount: userAccounts.length,
+                color: Colors.white,
               ),
-            ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
 
-class AccountDetails extends StatefulWidget {
-  const AccountDetails(
-      {Key? key,
-        required this.customerAccount,
-        required this.userAccount,
-        required this.viewModel, required this.onBalanceLoaded})
-      : super(key: key);
+///DashboardAccountItem
+///
+///
+///
+///
+///
+class DashboardAccountItem extends StatefulWidget {
 
-  final CustomerAccount? customerAccount;
   final UserAccount userAccount;
-  final DashboardViewModel viewModel;
-  final void Function(AccountBalance?) onBalanceLoaded;
+  final int accountIdx;
+  final Stream<Resource<AccountBalance>>? balanceStream;
+  final bool clickable;
+
+  DashboardAccountItem({
+    required this.userAccount,
+    required this.accountIdx,
+    this.balanceStream,
+    this.clickable = true
+  });
+
+  DashboardAccountItem copyWith({Stream<Resource<AccountBalance>>? balanceStream, bool clickable = false}) {
+    return DashboardAccountItem(
+      userAccount: userAccount,
+      accountIdx: accountIdx,
+      balanceStream: balanceStream,
+      clickable: clickable,
+    );
+  }
 
   @override
-  _AccountDetailsState createState() => _AccountDetailsState();
+  State<StatefulWidget> createState() => DashboardAccountItemState();
+
 }
 
-class _AccountDetailsState extends State<AccountDetails> with CompositeDisposableWidget, WidgetsBindingObserver {
-  String hideAccountBalanceKey = PreferenceUtil.HIDE_ACCOUNT_BAL;
+class DashboardAccountItemState extends State<DashboardAccountItem>
+    with AutomaticKeepAliveClientMixin, CompositeDisposableWidget {
+
+  late final UserAccount userAccount;
+  late final int accountIdx;
+  late final DashboardViewModel _viewModel;
+
   Stream<Resource<AccountBalance>>? _balanceStream;
+  Resource<AccountBalance>? _balanceData;
+  AccountState accountState = AccountState.COMPLETED;
 
   @override
   void initState() {
-    hideAccountBalanceKey =
-    "${widget.customerAccount?.accountNumber}-${PreferenceUtil.HIDE_ACCOUNT_BAL}";
-    super.initState();
-    widget.viewModel.dashboardUpdateStream.listen((event) {
-      print("Updating  balance Stream ooo");
-      _balanceStream = widget.viewModel.getCustomerAccountBalance(accountId: widget.userAccount.id, useLocal: false);
-      setState(() {});
-    }).disposedBy(this);
-    widget.viewModel.update();
+    this.userAccount = widget.userAccount;
+    this.accountIdx = widget.accountIdx;
+    this._viewModel = Provider.of<DashboardViewModel>(context, listen: false);
 
-    widget.viewModel.refreshStartStream.listen((event) {
-      _balanceStream = widget.viewModel.getCustomerAccountBalance(accountId: widget.userAccount.id, useLocal: false);
-      setState(() {});
-      widget.viewModel.finishRefresh();
+    _balanceStream = widget.balanceStream ?? _viewModel.getDashboardBalance(accountId: userAccount.id);
+
+    super.initState();
+    _viewModel.dashboardUpdateStream.listen((event) {
+      if(event == DashboardState.REFRESHING) {
+        _balanceStream = _viewModel.getDashboardBalance(accountId: widget.userAccount.id, useLocal: false);
+        if (mounted) setState(() {});
+      }
+      if(event == DashboardState.ACCOUNT_STATUS_UPDATED) {
+        if (mounted) setState(() {});
+      }
     }).disposedBy(this);
   }
-  
+
+  void _navigateToAccountTransactions() async {
+    final routeArgs = {"userAccountId": userAccount.id};
+    await Navigator.of(context).pushNamed(Routes.ACCOUNT_TRANSACTIONS, arguments: routeArgs);
+    _viewModel.update(DashboardState.REFRESHING);
+  }
+
+  void _navigateToFixAccount() async {
+    await AccountUpgradeRouteDelegate.navigateToAccountUpgrade(context, userAccount);
+    _viewModel.update(DashboardState.ACCOUNT_STATUS_UPDATED);
+  }
+
+  onItemTap() async {
+
+    final mixpanel = await MixpanelManager.initAsync();
+    mixpanel.track("dashboard-account-clicked");
+
+    if(accountState == AccountState.IN_COMPLETE) return _navigateToAccountTransactions();
+
+    if(accountState != AccountState.COMPLETED) {
+      //First determine if we are to pop the error
+      final returnValue = await Navigator.of(context).push(
+          AccountRestrictionRoute(
+              builder: (mContext) => widget.copyWith(balanceStream: Stream.value(_balanceData!)),
+              userAccount: userAccount,
+              accountState: accountState
+          )
+      );
+
+      //it's either going to ask us to fix it or view transactions
+      if(returnValue != null && returnValue is String) {
+        if(returnValue == "VIEW_TRANSACTIONS") _navigateToAccountTransactions();
+        else if(returnValue == "FIX") _navigateToFixAccount();
+      }
+      return;
+    }
+
+    _navigateToAccountTransactions();
+  }
+
+  _balanceContainer(AsyncSnapshot<Resource<AccountBalance?>> snapshot) => Container(
+    width: double.infinity,
+    child: Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.all(Radius.circular(16)),
+      child: InkWell(
+        onTap: widget.clickable ? onItemTap : null,
+        borderRadius: BorderRadius.all(Radius.circular(16)),
+        child: Container(
+          padding: EdgeInsets.only(left: 0, right: 0),
+          width: double.infinity,
+          child: Column(
+            children: [
+              SizedBox(height: 42),
+              _DashboardAccountBalancePreview(
+                snapshot: snapshot,
+                accountNumber: "${userAccount.customerAccount?.accountNumber}",
+                accountName: "${userAccount.customerAccount?.accountName}",
+                viewModel: _viewModel,
+              ),
+              SizedBox(height: 16),
+              Divider(height: 1, color: Colors.white.withOpacity(0.15)),
+              _DashboardAccountNumberView(
+                accountNumber: "${userAccount.customerAccount?.accountNumber}",
+                accountName: "${userAccount.customerAccount?.accountName}",
+                accountState: accountState,
+                userAccount: userAccount,
+              ),
+              _AccountCardErrorView(
+                userAccount: userAccount,
+                accountState: accountState,
+                margin: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 8),
+              ),
+              SizedBox(height: _viewModel.userAccounts.length > 1 ? 44 : 15),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+
+  Widget _content(AsyncSnapshot<Resource<AccountBalance>> snapshot) => Stack(
+    children: [
+      _balanceContainer(snapshot),
+      Align(
+        alignment: Alignment(0.0, -1.015),
+        child: _DashboardAccountType(userAccount.customerAccount?.accountType ?? "SAVINGS")
+      ),
+    ],
+  );
 
   @override
-  void didUpdateWidget(covariant AccountDetails oldWidget) {
-    _balanceStream = widget.viewModel.getCustomerAccountBalance(
-        accountId: widget.userAccount.id, useLocal: false
+  Widget build(BuildContext context) {
+    super.build(context);
+    return  StreamBuilder(
+        stream: _balanceStream,
+        builder: (ctx, AsyncSnapshot<Resource<AccountBalance>> snapshot) {
+          _balanceData = snapshot.data;
+          accountState = userAccount.getAccountState();
+          return Hero(
+            tag: "dashboard-balance-view-${userAccount.customerAccount?.id}",
+            child: _content(snapshot),
+          );
+        }
     );
-    super.didUpdateWidget(oldWidget);
   }
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void dispose() {
-    WidgetsBinding.instance?.removeObserver(this);
+    disposeAll();
     super.dispose();
+  }
+
+}
+
+///_DashboardAccountType
+///
+///
+///
+///
+class _DashboardAccountType extends StatelessWidget {
+
+  _DashboardAccountType(this.accountType);
+
+  final String accountType;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.zero,
+      child: Stack(
+        children: [
+          SvgPicture.asset(
+            "res/drawables/ic_dashboard_account_label.svg",
+            height: 26,
+          ),
+          Positioned(
+              top: 2,
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Text(
+                  accountType,
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10.6,
+                      fontWeight: FontWeight.w700,
+                      decoration: TextDecoration.none
+                  ),
+                ),
+              )
+          )
+        ],
+      ),
+    );
+  }
+}
+
+///_DashboardAccountBalancePreview
+///
+///
+///
+///
+///
+class _DashboardAccountBalancePreview extends StatelessWidget {
+
+  final AsyncSnapshot<Resource<AccountBalance?>> snapshot;
+  final ValueNotifier<int> hideAndShowNotifier = ValueNotifier(1);
+  final String accountNumber;
+  final String accountName;
+  final DashboardViewModel viewModel;
+
+  late final _accountBalanceTextStyle = TextStyle(
+      fontSize: 23.7,
+      fontWeight: FontWeight.w800,
+      color: Colors.white
+  );
+
+  _DashboardAccountBalancePreview({
+    required this.snapshot,
+    required this.accountNumber,
+    required this.accountName,
+    required this.viewModel
+  });
+
+  isAccountBalanceHidden() => PreferenceUtil.isAccountBalanceHidden(accountNumber);
+
+  isErrorLoadingAccountBalance(AsyncSnapshot<dynamic> snapshot) =>
+      snapshot.hasData && snapshot.data is Error;
+
+  isLoadingAccountBalance(AsyncSnapshot<dynamic> snapshot) =>
+      snapshot.hasData && snapshot.data is Loading;
+
+  ///Determines if balance should be displayed
+  _canDisplayBalance(AsyncSnapshot<dynamic> snapshot) {
+    return snapshot.hasData && (!isLoadingAccountBalance(snapshot) &&
+        !isErrorLoadingAccountBalance(snapshot));
+  }
+
+  String _getAccountBalance(AsyncSnapshot<Resource<AccountBalance?>> snapshot, bool hideAccountBalance) {
+    if(hideAccountBalance) return "***";
+
+    final AccountBalance? accountBalance = (snapshot.hasData
+        && snapshot.data != null) ? snapshot.data!.data : null;
+
+    return "${accountBalance?.availableBalance?.formatCurrencyWithoutSymbolAndDividing}";
+  }
+
+  _accountBalanceView(String accountBalance, bool hideAccountBalance) => Row(
+        children: [
+          hideAccountBalance
+              ? Text('**', style: _accountBalanceTextStyle)
+              : SvgPicture.asset(
+                  "res/drawables/ic_naira.svg",
+                  width: 20,
+                  height: 17,
+                  color: Colors.white,
+                ),
+          SizedBox(width: 4),
+          Text('$accountBalance', style: _accountBalanceTextStyle),
+        ],
+      );
+
+  _visibilityIcon(bool hideAccountBalance) => Padding(
+    padding: EdgeInsets.only(right: 16),
+    child: Styles.imageButton(
+        padding: EdgeInsets.all(2),
+        color: Colors.transparent,
+        disabledColor: Colors.transparent,
+        image: SvgPicture.asset(
+          hideAccountBalance
+              ? 'res/drawables/ic_eye_open.svg'
+              : 'res/drawables/ic_eye_closed.svg',
+          width: hideAccountBalance ? 22 : 22,
+          height: hideAccountBalance ? 15 : 22,
+          color: Colors.white.withOpacity(0.4),
+        ),
+        onClick: () {
+          PreferenceUtil.saveValueForLoggedInUser(
+              "$accountNumber-${PreferenceUtil.HIDE_ACCOUNT_BAL}",
+              hideAccountBalance ? false : true
+          );
+          hideAndShowNotifier.value = hideAndShowNotifier.value + 1;
+        }),
+  );
+
+  _errorView() => Container(
+    child: Row(
+      children: [
+        Expanded(
+          child: Text('We cannot get your balance right now.\nPlease try again',
+              style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white.withOpacity(0.8)
+              )
+          ),
+        ),
+        TextButton(
+          onPressed: () {
+            viewModel.update(DashboardState.REFRESHING);
+          },
+          child: Text('Try Again',
+              style: TextStyle(
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white
+              )
+          ),
+        )
+      ],
+    ),
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    final hideAccountBalance = isAccountBalanceHidden();
+    final canDisplay = _canDisplayBalance(snapshot);
+
+    return Container(
+      padding: EdgeInsets.only(left: 20, right: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Visibility(
+              visible: hideAccountBalance == true || canDisplay,
+              child: Text(
+                "Available Balance",
+                style: TextStyle(
+                    fontSize: 13,
+                    letterSpacing: -0.2,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white.withOpacity(0.8)
+                ),
+              )
+          ),
+          SizedBox(height: 4),
+          _DashboardLoadingShimmer(
+              hideAccountBalance: hideAccountBalance,
+              isLoading: isLoadingAccountBalance(snapshot) || snapshot.data == null
+          ),
+          Visibility(
+              visible: isErrorLoadingAccountBalance(snapshot) && !hideAccountBalance,
+              child: _errorView()
+          ),
+          Visibility(
+              visible: hideAccountBalance == true || canDisplay,
+              child: ValueListenableBuilder(
+                  valueListenable: hideAndShowNotifier,
+                  builder: (_, __, ___) {
+                    final hideAccountBalance = isAccountBalanceHidden();
+                    final acctBalance = _getAccountBalance(snapshot, hideAccountBalance);
+                    return Stack(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            _accountBalanceView(acctBalance, hideAccountBalance),
+                          ],
+                        ),
+                        Positioned(
+                            right: 8,
+                            top: 0,
+                            bottom: 0,
+                            child: _visibilityIcon(hideAccountBalance)
+                        )
+                      ],
+                    );
+                  }
+              )
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+///_DashboardAccountNumberView
+///
+///
+///
+///
+class _DashboardAccountNumberView extends Container {
+
+  final String accountNumber;
+  final String accountName;
+  final AccountState accountState;
+  final UserAccount userAccount;
+
+  _DashboardAccountNumberView({
+    required this.accountNumber,
+    required this.accountName,
+    required this.accountState,
+    required this.userAccount
+  }):super(key: Key("_DashboardAccountNumberView"));
+
+  void _shareReceipt() {
+    Share.share(
+        "Moniepoint MFB\n$accountNumber\n$accountName",
+        subject: 'Moniepoint MFB'
+    );
+  }
+
+  Widget _accountInProgressButton(BuildContext context) {
+    if(accountState != AccountState.IN_COMPLETE) return SizedBox();
+    return GestureDetector(
+      onTap: () => AccountUpgradeRouteDelegate.navigateToAccountUpgrade(context, userAccount),
+      child: Container(
+        padding: EdgeInsets.all(5),
+        margin: EdgeInsets.only(right: 12),
+        decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.solidGreen),
+        child: SvgPicture.asset("res/drawables/ic_upload.svg", width: 17, height: 18,color: Colors.white),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: EdgeInsets.only(left: 19),
-          child: StreamBuilder(
-            stream: _balanceStream,
-            builder: (ctx, AsyncSnapshot<Resource<AccountBalance?>> snapshot){
-              final bool hideAccountBalance = PreferenceUtil.getValueForLoggedInUser(hideAccountBalanceKey) ?? false;
-              final isLoadingBalanceError = snapshot.hasData && snapshot.data is Error;
-              final isLoadingBalance = snapshot.hasData && snapshot.data is Loading;
-              final AccountBalance? accountBalance = (snapshot.hasData && snapshot.data != null)
-                  ? snapshot.data!.data
-                  : null;
-
-              return Stack(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 8),
-                      if (snapshot.hasData && (!isLoadingBalance && !isLoadingBalanceError))
-                        Text(
-                          "Available Balance",
-                          style: TextStyle(
-                              fontSize: 12.3,letterSpacing: -0.2,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.textColorBlack.withOpacity(0.9)
-                          ),
-                        ),
-                      if (snapshot.hasData && (!isLoadingBalance && !isLoadingBalanceError))
-                        SizedBox(height: 4),
-                      getChild(
-                        snapshot: snapshot,
-                        accountBalance: accountBalance,
-                        hideAccountBalance: hideAccountBalance,
-                        isLoadingBalance: isLoadingBalance,
-                        isLoadingBalanceError: isLoadingBalanceError
-                      ),
-                      SizedBox(height: 16),
-                    ],
-                  ),
-                  if (snapshot.hasData && (!isLoadingBalance && !isLoadingBalanceError))
-                    Positioned(
-                      top: 23, right: 14,
-                      child: _buildVisibilityIcon()
-                    )
-                ],
-              );
-
-            },
+    return Container(
+      margin: EdgeInsets.only(left: 20, right: 20),
+      padding: EdgeInsets.only(left: 0, right: 8.5, top: 8.5, bottom: 0),
+      decoration: BoxDecoration(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(9)
+      ),
+      child: Row(
+        children: [
+          _accountInProgressButton(context),
+          Text(
+            'Account Number',
+            style: Styles.textStyle(context,
+                fontWeight: FontWeight.w600,
+                letterSpacing: -0.2,
+                fontSize: 13,
+                color: Colors.white),
           ),
-        ),
-      Container(
-        margin: EdgeInsets.symmetric(horizontal: 19),
-        padding: EdgeInsets.fromLTRB(11, 6, 0, 6),
-        decoration: BoxDecoration(
-          color: Color(0xff0361F0).withOpacity(0.04),
-          borderRadius: BorderRadius.all(Radius.circular(9)),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Text(
-                  'Account Number',
-                  style: Styles.textStyle(context,
-                      fontWeight: FontWeight.w400,letterSpacing: -0.2,
-                      fontSize: 12,
-                      color: Colors.textColorBlack),
-                ),
-                SizedBox(
-                  width: 7,
-                ),
-                Text(widget.customerAccount?.accountNumber ?? "",
-                    style: Styles.textStyle(context,
-                        fontWeight: FontWeight.w700,letterSpacing: -0.2,
-                        fontSize: 11.3,
-                        color: Colors.primaryColor))
-              ],
-            ),
-            Padding(
+          SizedBox(
+            width: 7,
+          ),
+          Text(accountNumber,
+              style: Styles.textStyle(context,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.2,
+                  fontSize: 13,
+                  color: Colors.white
+              )
+          ),
+          Spacer(),
+          Padding(
               padding: EdgeInsets.only(right: 10),
               child: Styles.imageButton(
-                  padding: EdgeInsets.all(9),
-                  color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(30),
-                  onClick: () => Share.share(
-                      "Moniepoint MFB\n${widget.customerAccount?.accountNumber}\n${widget.customerAccount?.customer?.name}",
-                      subject: 'Moniepoint MFB'
-                  ),
-                  image: SvgPicture.asset(
-                    'res/drawables/ic_share.svg',
-                    fit: BoxFit.contain,
-                    width: 20,
-                    height: 21,
-                    color: Color(0xffB8003382).withOpacity(0.4),
-                  ),
-                  ),
-            )
-          ],
-        ),
-      ),
-    ]);
-  }
-
-  Widget _buildVisibilityIcon() {
-    final bool hideAccountBalance =
-        PreferenceUtil.getValueForLoggedInUser(hideAccountBalanceKey) ?? false;
-
-    return Padding(
-      padding: EdgeInsets.only(right: 16),
-      child: Styles.imageButton(
-          padding: EdgeInsets.all(9),
-          color: Colors.transparent,
-          disabledColor: Colors.transparent,
-          image: SvgPicture.asset(
-            hideAccountBalance
-                ? 'res/drawables/ic_eye_open.svg'
-                : 'res/drawables/ic_eye_closed.svg',
-            width: hideAccountBalance ? 10 : 16,
-            height: hideAccountBalance ? 12 : 16,
-            color: Color(0xffB8003382).withOpacity(0.4),
+                padding: EdgeInsets.all(9),
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(30),
+                onClick: _shareReceipt,
+                image: SvgPicture.asset(
+                  'res/drawables/ic_share.svg',
+                  fit: BoxFit.contain,
+                  width: 20,
+                  height: 21,
+                  color: Colors.white.withOpacity(0.31),
+                ),
+              )
           ),
-          onClick: () {
-            PreferenceUtil.saveValueForLoggedInUser(
-                hideAccountBalanceKey, hideAccountBalance ? false : true);
-            setState(() {});
-          }),
+        ],
+      ),
     );
   }
 
-  Widget getChild({required AsyncSnapshot<Resource<AccountBalance?>> snapshot,
-    required bool hideAccountBalance, required bool isLoadingBalanceError,
-    required bool isLoadingBalance, required AccountBalance? accountBalance}){
-    if (snapshot.hasData && (!isLoadingBalance && !isLoadingBalanceError)) {
-      final balance = hideAccountBalance
-        ? "***"
-        : "${accountBalance?.availableBalance?.formatCurrencyWithoutSymbolAndDividing}";
-      widget.onBalanceLoaded(accountBalance);
+}
 
-      return Row(
-        children: [
-          hideAccountBalance
-            ? Text('*',
-            style: Styles.textStyle(context,
-              fontSize: 23.5,
-              fontWeight: FontWeight.w800,
-              color: Colors.textColorBlack.withOpacity(0.5)))
-            :  SvgPicture.asset("res/drawables/ic_naira.svg", width: 20, height: 17,),
-          SizedBox(width: 4),
-          Text('$balance',
-            style: Styles.textStyle(context,
-              fontSize: 23.5,
-              fontWeight: FontWeight.w800,
-              color: Colors.textColorBlack)),
-        ],
-      );
+///_AccountCardErrorView
+///
+///
+///
+///
+///
+class _AccountCardErrorView extends StatefulWidget {
+
+  _AccountCardErrorView({
+    required this.userAccount,
+    required this.accountState,
+    this.margin = const EdgeInsets.only(top: 14)
+  });
+
+  final UserAccount userAccount;
+  final EdgeInsets margin;
+  final AccountState accountState;
+
+  @override
+  State<StatefulWidget> createState() => _AccountCardErrorState();
+}
+
+class _AccountCardErrorState extends State<_AccountCardErrorView> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    duration: const Duration(milliseconds: 500),
+    vsync: this,
+  );
+
+  late final Animation<Offset> _offsetAnimation = Tween<Offset>(
+    begin: Offset(0, 0.0),
+    end: const Offset(0, 0.0),
+  ).animate(CurvedAnimation(
+    parent: _controller,
+    curve: Curves.elasticIn,
+  ));
+
+  @override
+  initState() {
+    super.initState();
+  }
+
+  String title = "";
+  Widget icon = SvgPicture.asset("res/drawables/ic_danger_info.svg");
+
+  bool hasError() {
+    final accountState = widget.accountState;
+
+    if(accountState == AccountState.BLOCKED) {
+      title = "Account Blocked!";
+      icon = SvgPicture.asset("res/drawables/ic_danger_info.svg");
+      return true;
     }
 
-    if (isLoadingBalanceError && !hideAccountBalance) {
-      return Container(
-        padding: EdgeInsets.only(right: 19),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text('We can’t get your balance right now.\nCount to ten and please try again',
+    if(accountState == AccountState.PND) {
+      title = "Account Restricted!";
+      icon = SvgPicture.asset("res/drawables/ic_danger_info.svg");
+      return true;
+    }
+
+    if (accountState == AccountState.REQUIRE_DOCS) {
+      title = "Re-upload Document";
+      icon = SvgPicture.asset("res/drawables/ic_danger_info_white.svg");
+      return true;
+    }
+
+    if(accountState == AccountState.PENDING_VERIFICATION) {
+      title = "Upgrade in Progress...";
+      icon = Container(
+        padding: EdgeInsets.all(5),
+        decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.solidGreen),
+        child: SvgPicture.asset("res/drawables/ic_account_upgrade_progress.svg", width: 17, height: 18,),
+      );
+      return true;
+    }
+
+    // if(accountState == AccountState.IN_COMPLETE) {
+    //   title = "Upgrade Account";
+    //   icon = Container(
+    //     padding: EdgeInsets.all(5),
+    //     decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.solidGreen),
+    //     child: SvgPicture.asset("res/drawables/ic_upload.svg", width: 17, height: 18,color: Colors.white),
+    //   );
+    //   return false;
+    // }
+
+    return false;
+  }
+
+  Widget _mainButton() => Container(
+    margin: widget.margin,
+    decoration: BoxDecoration(
+        color: Color(0XFF003AA4).withOpacity(0.47),
+        borderRadius: BorderRadius.circular(9)
+    ),
+    child: Material(
+      borderRadius: BorderRadius.circular(9),
+      color: Colors.transparent,
+      child: InkWell(
+          borderRadius: BorderRadius.circular(9),
+          onTap: null,
+        child: Container(
+          padding: EdgeInsets.only(left: 13, right: 30, top: 9, bottom: 9),
+          child: Row(
+            children: [
+              icon,
+              SizedBox(width: 9,),
+              Text(
+                title,
                 style: TextStyle(
                   fontSize: 12.5,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.textColorBlack
-                )
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600
+                ),
               ),
-            ),
-            TextButton(
-              onPressed: (){
-                widget.viewModel.update();
-              },
-              child: Text('Try Again',
-                style: TextStyle(
-                  fontSize: 13.5,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.primaryColor
-                )
-              ),
-            )
-          ],
+              Spacer(),
+              SvgPicture.asset("res/drawables/ic_forward_anchor.svg", color: Colors.white,),
+            ],
+          ),
         ),
-      );
-    }
+      ),
+    ),
+  );
 
-    if (hideAccountBalance) {
-      return Row(
-        children: [
-          Text('*',
-            style: Styles.textStyle(context,
-              fontSize: 23.5,
-              fontWeight: FontWeight.w800,
-              color: Colors.textColorBlack.withOpacity(0.5))),
-          SizedBox(width: 4),
-          Text('***',
-            style: TextStyle(
-              fontSize: 23.5,
-              fontWeight: FontWeight.w800,
-              color: Colors.textColorBlack)),
-        ],
-      );
-    }
+  @override
+  Widget build(BuildContext context) {
+    if(!hasError()) return SizedBox();
+    return SlideTransition(
+        position: _offsetAnimation,
+        child: _mainButton(),
+    );
+  }
 
+}
+
+
+///_DashboardLoadingShimmer
+///
+///
+///
+///
+class _DashboardLoadingShimmer extends StatelessWidget {
+
+  final bool hideAccountBalance;
+  final bool isLoading;
+
+  _DashboardLoadingShimmer({
+    required this.hideAccountBalance,
+    required this.isLoading
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if((hideAccountBalance && isLoading) || !isLoading) return SizedBox();
     return Column(
       children: [
         Shimmer.fromColors(
@@ -443,7 +775,255 @@ class _AccountDetailsState extends State<AccountDetails> with CompositeDisposabl
             )),
           baseColor: Colors.white.withOpacity(0.6),
           highlightColor: Colors.deepGrey.withOpacity(0.6)
+        )
+    ]);
+  }
+}
+
+///AccountRestrictionRoute
+///
+///
+///
+///
+class AccountRestrictionRoute<T> extends PopupRoute<T> {
+
+  AccountRestrictionRoute({
+    required this.builder,
+    required this.userAccount,
+    required this.accountState
+  });
+
+  final WidgetBuilder builder;
+  final UserAccount userAccount;
+  final AccountState accountState;
+
+  @override
+  Color? get barrierColor => Colors.black.withOpacity(0.7);
+
+  @override
+  bool get barrierDismissible => true;
+
+  @override
+  String? get barrierLabel => "test";
+
+  @override
+  Widget buildPage(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation) {
+    return _AccountRestrictionPage(
+      child: Builder(builder: builder),
+      userAccount: userAccount,
+      accountState: accountState,
+      pageData: _AccountRestrictionPage.makePageData(accountState),
+    );
+  }
+
+  @override
+  Duration get transitionDuration => Duration(milliseconds: 400);
+
+}
+
+class _AccountRestrictionData {
+  final String pageTitle;
+  final String pageDescription;
+  final Color headerTextColor;
+  final Color headerBackgroundColor;
+  final Color headerAnchorColor;
+
+  _AccountRestrictionData({
+    required this.pageTitle,
+    required this.pageDescription,
+    required this.headerTextColor,
+    required this.headerBackgroundColor,
+    required this.headerAnchorColor
+  });
+}
+
+class _AccountRestrictionPage extends StatelessWidget {
+
+  _AccountRestrictionPage({
+    Key? key,
+    required this.child,
+    required this.userAccount,
+    required this.accountState,
+    required this.pageData
+  }):super(key: key);
+
+  final Widget child;
+
+  final UserAccount userAccount;
+
+  final AccountState accountState;
+
+  final _AccountRestrictionData pageData;
+
+  static _AccountRestrictionData makePageData(AccountState accountState) {
+    if (accountState == AccountState.BLOCKED) {
+      return _AccountRestrictionData(
+          pageTitle: "Account Blocked",
+          pageDescription: "Your account has been blocked",
+          headerTextColor: Colors.red,
+          headerBackgroundColor: Colors.red.withOpacity(0.2),
+          headerAnchorColor: Color(0XFFf6d6d8),
+      );
+    } else if (accountState == AccountState.PND) {
+      return _AccountRestrictionData(
+        pageTitle: "Account Restricted",
+        pageDescription: "Upgrade your savings account to enjoy higher limits",
+        headerTextColor: Colors.red,
+        headerBackgroundColor: Colors.red.withOpacity(0.2),
+        headerAnchorColor: Color(0XFFf6d6d8),
+      );
+    } else if (accountState == AccountState.REQUIRE_DOCS) {
+      return _AccountRestrictionData(
+        pageTitle: "Re-upload Documents",
+        pageDescription: "We encountered a problem with one of your documents",
+        headerTextColor: Colors.textColorBlack,
+        headerBackgroundColor: Colors.primaryColor.withOpacity(0.2),
+        headerAnchorColor: Color(0XFFc9dcf9),
+      );
+    } else if (accountState == AccountState.PENDING_VERIFICATION) {
+      return _AccountRestrictionData(
+        pageTitle: "Upgrade in Progress",
+        pageDescription: "Your documents are currently being verified",
+        headerTextColor: Colors.textColorBlack,
+        headerBackgroundColor: Colors.primaryColor.withOpacity(0.2),
+        headerAnchorColor: Color(0XFFc9dcf9),
+      );
+    } else if (accountState == AccountState.IN_COMPLETE) {
+      return _AccountRestrictionData(
+          pageTitle: "Upgrade your Account",
+          pageDescription: "Upgrade your account to enjoy additional benefits",
+          headerTextColor: Colors.textColorBlack,
+          headerBackgroundColor: Colors.primaryColor.withOpacity(0.2),
+          headerAnchorColor: Color(0XFFc9dcf9),
+      );
+    }
+    return _AccountRestrictionData(
+        pageTitle: "Upgrade your Account",
+        pageDescription: "Upgrade your account to enjoy additional benefits",
+        headerTextColor: Colors.textColorBlack,
+        headerBackgroundColor: Colors.primaryColor.withOpacity(0.2),
+        headerAnchorColor: Color(0XFFc9dcf9),
+    );
+  }
+
+  Widget _popUpWindowHeader() {
+    return Container(
+      padding: EdgeInsets.only(left: 24, right: 24, top: 20, bottom: 17),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: pageData.headerBackgroundColor,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(16),
         ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            pageData.pageTitle,
+            style: TextStyle(
+                color: pageData.headerTextColor,
+                fontSize: 17,
+                fontFamily: Styles.defaultFont,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.none
+            ),
+          ),
+          SizedBox(height: 4),
+          Text(
+            pageData.pageDescription,
+            style: TextStyle(
+                fontSize: 13,
+                color: Colors.textColorBlack,
+                fontWeight: FontWeight.w400,
+                fontFamily: Styles.defaultFont,
+                decoration: TextDecoration.none
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _popUpWindow(BuildContext context) => Column(
+    children: [
+      _popUpWindowHeader(),
+      SizedBox(height: 21),
+      Padding(
+        padding: EdgeInsets.only(left: 24, right: 24),
+        child: SizedBox(
+          width: double.infinity,
+          child: Styles.appButton(
+              elevation: 0.3,
+              onClick: () => Navigator.of(context).pop("FIX"),
+              text: "Fix This"
+          ),
+        ),
+      ),
+      SizedBox(height: 10),
+      TextButton(
+          onPressed: () async {
+            Navigator.of(context).pop("VIEW_TRANSACTIONS");
+          },
+          child: Text(
+            "View Transactions",
+            style: TextStyle(color: Colors.primaryColor),
+          )
+      )
+    ],
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      children: [
+        Stack(
+          children: [
+            Container(
+              margin: EdgeInsets.only(top: 105, left: 16,right: 16),
+              width: double.infinity,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(16)),
+                  boxShadow: [
+                    BoxShadow(
+                      offset: Offset(0, 13),
+                      blurRadius: 21,
+                      color: Color(0xff1F0E4FB1).withOpacity(0.2),
+                    ),
+                  ],
+                  image: DecorationImage(
+                      image: AssetImage("res/drawables/ic_dashboard_account_card_bg.png"),
+                      fit: BoxFit.cover,
+                      colorFilter: ColorFilter.mode(
+                          Color(0XFFC4C4C4).withOpacity(0.1),
+                          BlendMode.colorBurn
+                      )
+                  )
+              ),
+              child: child,
+            ),
+            Positioned(
+                top: 324,
+                left: 0,
+                right: 0,
+                child: SvgPicture.asset(
+                    "res/drawables/ic_triangle.svg",
+                    color: pageData.headerAnchorColor
+                )
+            ),
+            Container(
+              padding: EdgeInsets.only(bottom: 16),
+              margin: EdgeInsets.only(left: 37, right: 37, top: 335),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  color: Colors.white
+              ),
+              child: _popUpWindow(context),
+            )
+          ],
+        )
       ],
     );
   }

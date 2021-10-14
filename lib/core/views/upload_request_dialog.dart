@@ -1,14 +1,14 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 
 ///@author Paul Okeke
 
 Future<dynamic> requestUpload(BuildContext context, {
   List<String> extensions = const [".jpg", ".pdf", ".pnd"],
-  int maxFileSize = 1024 * 2000
+  int maxFileSize = 1024 * 5000//5mb
 }) async {
   return showModalBottomSheet(
     backgroundColor: Colors.transparent,
@@ -28,7 +28,7 @@ class UploadRequestDialog extends StatelessWidget {
 
   UploadRequestDialog({
     this.extensions = const [".jpg", ".pdf", ".pnd"],
-    this.maxFileSize = 1024 * 2000/*2mb*/
+    this.maxFileSize = 1024 * 5000/*5mb*/
   });
 
   _leadingIcon(Widget child) => Container(
@@ -126,7 +126,7 @@ class UploadRequestDialog extends StatelessWidget {
                             fontWeight: FontWeight.w600
                         )
                     ),
-                    onTap: () => _openFileFor(context, FileType.media),
+                    onTap: () => _openFileFor(context, FileType.image),
                     trailing: SvgPicture.asset('res/drawables/ic_forward_anchor.svg', color: Colors.primaryColor,),
                   ),
                   Container(

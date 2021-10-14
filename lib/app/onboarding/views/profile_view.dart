@@ -13,7 +13,7 @@ import 'package:moniepoint_flutter/app/validation/model/data/onboarding_liveline
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
-import 'package:moniepoint_flutter/core/strings.dart';
+import 'package:moniepoint_flutter/core/extensions/strings.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/call_utils.dart';
@@ -27,8 +27,8 @@ import 'package:path/path.dart' hide context;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
-import 'package:moniepoint_flutter/core/utils/text_utils.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:signature/signature.dart';
 import '../username_validation_state.dart';
 

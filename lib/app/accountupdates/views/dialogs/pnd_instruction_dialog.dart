@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart' hide Colors;
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
-import 'package:moniepoint_flutter/core/utils/text_utils.dart';
+import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 
 class PndInstructionDialog extends StatelessWidget {
@@ -13,7 +13,7 @@ class PndInstructionDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final accountStatus = UserInstance().accountStatus;
 
-    final recordedCumulative = accountStatus?.postNoDebitInfo?.recordedSingleCredit?.formatCurrency ?? "0";
+    final recordedCumulative = accountStatus?.postNoDebitInfo?.recordedCumulativeBalance?.formatCurrency ?? "0";
     final recordedSingle = accountStatus?.postNoDebitInfo?.recordedSingleCredit?.formatCurrency ?? "0";
     final maxCumulative = "Max cumulative balance exceeded $recordedCumulative / ${accountStatus?.postNoDebitInfo?.permittedCumulativeBalance?.formatCurrency ?? "0"}";
     final maxSingle = "Max single credit amount exceeded $recordedSingle / ${accountStatus?.postNoDebitInfo?.permittedSingleCredit?.formatCurrency ?? "0"}";

@@ -32,23 +32,18 @@ class TransactionServiceDelegate with NetworkResource {
     return PagingSource(
         localSource: (LoadParams params) {
           final offset = params.key ?? 0;
-
-          final channels = (filterResult.channels.isEmpty) ? [...TransactionChannel.values] : filterResult.channels;
-          final types = (filterResult.types.isEmpty) ? [...TransactionType.values] : filterResult.types;
-
-          return _transactionDao.getTransactionsByFilter(
-              customerAccountId,
-              filterResult.startDate,
-              filterResult.endDate,
-              channels.map((e) => describeEnum(e)).toList(),
-              types.map((e) => describeEnum(e)).toList(),
-              params.loadSize,
-              offset * params.loadSize,
+          return _transactionDao.getPagedTransactions(
+            customerAccountId,
+            filterResult,
+            params.loadSize,
+            offset * params.loadSize,
           ).map((event) {
             return Page(event, params.key ?? 0, event.length == params.loadSize ? offset + 1 : null);
           });
         },
-        remoteMediator: _TransactionRemoteMediator(_service, _transactionDao)..filterResults = filterResult..customerAccountId = customerAccountId
+        remoteMediator: _TransactionRemoteMediator(
+            _service, _transactionDao
+        )..filterResults = filterResult..customerAccountId = customerAccountId
     );
   }
 
@@ -61,13 +56,16 @@ class TransactionServiceDelegate with NetworkResource {
     yield* a.stream;
   }
 
-  Stream<Uint8List> downloadTransactionReceipt(DownloadTransactionReceiptRequestBody requestBody) async* {
+  Stream<Uint8List> downloadTransactionReceipt(AccountTransaction requestBody) async* {
     final a = (await _service.downloadTransactionReceipt(requestBody)) as ResponseBody;
     yield* a.stream;
   }
 
 }
 
+///_TransactionRemoteMediator
+///
+///
 class _TransactionRemoteMediator extends AbstractDataCollectionMediator<int, AccountTransaction> {
 
   TransactionService _transactionService;
@@ -94,10 +92,10 @@ class _TransactionRemoteMediator extends AbstractDataCollectionMediator<int, Acc
   Future<ServiceResult<DataCollection<AccountTransaction>>> serviceCall(int page) {
     return _transactionService.getTransactionsFilter(
         customerAccountId ?? 0,
-        "ALL",
-        null,
-        filterResults?.startDate ?? 0,
-        filterResults?.endDate ?? 0,
+        filterResults?.typesToString(),
+        filterResults?.channelsToString(),
+        filterResults?.startDate,
+        filterResults?.endDate,
         page,
         20
     );

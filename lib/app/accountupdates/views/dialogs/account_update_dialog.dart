@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/accountupdates/viewmodels/account_update_view_model.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
@@ -42,6 +42,8 @@ class _AccountUpdateDialog extends State<AccountUpdateDialog> {
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
+    final cumulativeBalance = widget.tier.maximumCumulativeBalance;
+    final balanceLimit = cumulativeBalance == 0 ? "Unlimited" : cumulativeBalance?.formatCurrency;
 
     return BottomSheets.makeAppBottomSheet(
         curveBackgroundColor: Colors.white,
@@ -104,7 +106,7 @@ class _AccountUpdateDialog extends State<AccountUpdateDialog> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text('Balance Limit: ', style: TextStyle(color: Color(0XFF4F4F4F),fontSize: 16),),
-                              Text("${widget.tier.maximumCumulativeBalance?.formatCurrency}", style: TextStyle(
+                              Text("$balanceLimit", style: TextStyle(
                                   color: Color(0XFF4F4F4F),
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16
@@ -117,7 +119,7 @@ class _AccountUpdateDialog extends State<AccountUpdateDialog> {
                   ),
                   SizedBox(height: 24),
                   Padding(
-                      padding: EdgeInsets.only(left: 16, right: 16),
+                    padding: EdgeInsets.only(left: 16, right: 16),
                     child: Styles.statefulButton2(
                         isValid: true,
                         onClick: () => _subscribeToUpgradeAccount(viewModel),
@@ -132,7 +134,7 @@ class _AccountUpdateDialog extends State<AccountUpdateDialog> {
                         style: TextStyle(color: Colors.primaryColor, fontSize: 14, fontWeight: FontWeight.bold)
                       )
                   ),
-                  SizedBox(height: 26,),
+                  SizedBox(height: 26),
                 ],
               ),
             )

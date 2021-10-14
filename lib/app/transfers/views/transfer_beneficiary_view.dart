@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/app/customer/account_provider.dart';
 import 'package:moniepoint_flutter/app/institutions/institution_view_model.dart';
+import 'package:moniepoint_flutter/app/managebeneficiaries/beneficiary.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_list_item.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_shimmer_view.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_utils.dart';
@@ -12,10 +13,14 @@ import 'package:moniepoint_flutter/app/transfers/viewmodels/transfer_view_model.
 import 'package:moniepoint_flutter/app/transfers/views/dialogs/account_enquiry_dialog.dart';
 import 'package:moniepoint_flutter/app/transfers/views/dialogs/institutions_bottom_sheet.dart';
 import 'package:moniepoint_flutter/app/transfers/views/transfer_view.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/models/TransactionRequestContract.dart';
+import 'package:moniepoint_flutter/core/models/transaction.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
+import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/pnd_notification_banner.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
@@ -56,7 +61,7 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
     final viewModel = Provider.of<TransferViewModel>(context, listen: false);
     frequentBeneficiaries = viewModel.getFrequentBeneficiaries();
     super.initState();
-    _extraArguments(widget.arguments);
+    _handleContract();
   }
 
   void displayInstitutionsDialog() async {
@@ -73,7 +78,7 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
     if(provider != null) {
       doNameEnquiry(
           provider,
-          TransferBeneficiary(id:0, accountName: "", accountNumber: _accountNumberController.text)
+          TransferBeneficiary(id: 0, accountName: "", accountNumber: _accountNumberController.text)
       );
     }
   }
@@ -142,7 +147,8 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
   }
 
   void _selectBeneficiary() async {
-    final beneficiary = await Navigator.of(widget._scaffoldKey.currentContext!).pushNamed(Routes.SELECT_TRANSFER_BENEFICIARY);
+    final beneficiary = await Navigator.of(widget._scaffoldKey.currentContext!)
+        .pushNamed(Routes.SELECT_TRANSFER_BENEFICIARY);
     if(beneficiary is TransferBeneficiary) {
       final provider = AccountProvider()
         ..bankCode = beneficiary.getBeneficiaryProviderCode()
@@ -151,31 +157,61 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
     }
   }
 
-  void _extraArguments(Object? obj){
-    //TODO use enums to represent the key names
-    if(obj == null || obj is! Map) return;
-
-    final replay = obj["replay"];
-    if(replay != null && replay is Map) {
-      final provider = AccountProvider()
-        ..bankCode = replay["bankCode"]
-        ..name = replay["bankName"];
-      final beneficiary = TransferBeneficiary(id:0, accountName: "", accountNumber: replay["accountNumber"]);
-      Future.delayed(Duration(milliseconds: 200), (){
-        doNameEnquiry(provider, beneficiary, withDefaultAmount: replay["amount"]);
-      });
+  void _handleContract() {
+    if(widget.arguments == null) return;
+    //handle contract
+    final contract = widget.arguments as TransactionRequestContract?;
+    if(contract == null) return;
+    if(contract.requestType == TransactionRequestContractType.REPLAY) {
+      if(contract.intent is Transaction) _replayTransaction(contract.intent);
+    } else if (contract.requestType == TransactionRequestContractType.BEGIN_TRANSFER) {
+      if(contract.intent is TransferBeneficiary) _beginStartTransferIntent(contract.intent);
     }
+  }
 
-    final beneficiary = obj[TransferScreen.START_TRANSFER];
-    if(beneficiary != null && beneficiary is TransferBeneficiary) {
-      final provider =AccountProvider()
-          ..bankCode = beneficiary.accountProviderCode
-          ..name = beneficiary.accountProviderName;
-      Future.delayed(Duration(milliseconds: 200), (){
+  void _replayTransaction(Transaction transaction) {
+    final provider = AccountProvider()
+      ..bankCode = transaction.getSinkAccountBankCode()
+      ..name = transaction.getSinkAccountBankName();
+
+    final beneficiary = TransferBeneficiary(
+        id: 0,
+        accountName: transaction.getSinkAccountName(),
+        accountNumber: transaction.getSinkAccountNumber()
+    );
+    Future.delayed(Duration(milliseconds: 200), (){
+      doNameEnquiry(provider, beneficiary, withDefaultAmount: transaction.getAmount());
+    });
+  }
+
+  void _beginStartTransferIntent(Beneficiary? beneficiary) {
+    if (beneficiary != null && beneficiary is TransferBeneficiary) {
+      final provider = AccountProvider()
+        ..bankCode = beneficiary.accountProviderCode
+        ..name = beneficiary.accountProviderName;
+      Future.delayed(Duration(milliseconds: 200), () {
         doNameEnquiry(provider, beneficiary, saveBeneficiary: false);
       });
     }
   }
+
+  // void _extraArguments(Object? obj){
+  //   //TODO use enums to represent the key names
+  //   if(obj == null || obj is! Map) return;
+  //
+  //   final replay = obj["replay"];
+  //   if(replay != null && replay is Map) {
+  //     final provider = AccountProvider()
+  //       ..bankCode = replay["bankCode"]
+  //       ..name = replay["bankName"];
+  //     final beneficiary = TransferBeneficiary(id:0, accountName: "", accountNumber: replay["accountNumber"]);
+  //     Future.delayed(Duration(milliseconds: 200), (){
+  //       doNameEnquiry(provider, beneficiary, withDefaultAmount: replay["amount"]);
+  //     });
+  //   }
+  //
+
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -186,6 +222,11 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
           mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.max,
           children: [
+              PndNotificationBanner(
+                onBannerTap: ()async{
+                  Navigator.of(widget._scaffoldKey.currentContext!).pushNamed(Routes.ACCOUNT_UPDATE);
+                },
+              ),
             SizedBox(height: 24),
             Expanded(
                 flex: 0,

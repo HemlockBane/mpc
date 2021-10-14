@@ -88,7 +88,6 @@ class _PagerState<K, T> extends State<Pager<K, T>> {
   @override
   void dispose() {
     _remoteMediator?.removeListener(_remoteValueChanged);
-    _scrollController?.dispose();
     super.dispose();
   }
 
@@ -161,10 +160,6 @@ class _PagerState<K, T> extends State<Pager<K, T>> {
       if(insertApplied) updateState();
 
       int loadRound =  widget.pagingConfig.preFetchDistance ~/ widget.pagingConfig.pageSize;
-      // while(preFetchedCounter < loadRound) {
-      //   _doLoad(LoadType.APPEND);
-      //   preFetchedCounter++;
-      // }
       break;
     }
   }

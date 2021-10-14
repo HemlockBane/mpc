@@ -12,8 +12,7 @@ import 'package:moniepoint_flutter/app/airtime/viewmodels/airtime_view_model.dar
 import 'package:moniepoint_flutter/app/airtime/views/dialogs/airtime_pin_dialog.dart';
 import 'package:moniepoint_flutter/app/airtime/views/selection_combo.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/airtime/model/data/airtime_beneficiary.dart';
-import 'package:moniepoint_flutter/core/amount_pill.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/views/amount_pill.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/constants.dart';
 import 'package:moniepoint_flutter/core/models/file_result.dart';
@@ -31,20 +30,22 @@ import 'package:moniepoint_flutter/core/views/selection_combo_two.dart';
 import 'package:moniepoint_flutter/core/views/transaction_account_source.dart';
 import 'package:moniepoint_flutter/core/views/transaction_success_dialog.dart';
 import 'package:provider/provider.dart';
-import 'package:moniepoint_flutter/core/utils/text_utils.dart';
-import 'package:moniepoint_flutter/core/strings.dart';
+import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
+import 'package:moniepoint_flutter/core/extensions/strings.dart';
 import 'package:collection/collection.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 
 import 'airtime_view.dart';
 
-
-
 class AirtimePaymentScreen extends StatefulWidget {
 
   late final GlobalKey<ScaffoldState> _scaffoldKey;
+  final double defaultAmount;
 
-  AirtimePaymentScreen(this._scaffoldKey);
+  AirtimePaymentScreen(
+      this._scaffoldKey,
+      this.defaultAmount
+  );
 
   @override
   State<StatefulWidget> createState() => _AirtimePaymentScreen();
@@ -67,18 +68,26 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
 
   @override
   initState() {
+    // this._amount = widget.defaultAmount;
+
     final viewModel = Provider.of<AirtimeViewModel>(context, listen: false);
-    if(viewModel.userAccounts.length > 1)
-      viewModel.getUserAccountsBalance().listen((event) { });
+
+    if(viewModel.userAccounts.length > 1) viewModel.getUserAccountsBalance().listen((event) { });
     else viewModel.getCustomerAccountBalance().listen((event) { });
 
     viewModel.setServiceProviderItem(null);
     viewModel.setSourceAccount(null);
 
     this.dataPlanStream = viewModel.getServiceProviderItems(
-        (viewModel.beneficiary as AirtimeBeneficiary).serviceProvider!
-            .billerId!);
+        (viewModel.beneficiary as AirtimeBeneficiary).serviceProvider!.billerId!
+    );
     super.initState();
+
+    // if(widget.defaultAmount > 0) {
+    //   Future.delayed(Duration(milliseconds: 50), () {
+    //     viewModel.setAmount(this._amount);
+    //   });
+    // }
   }
 
   Widget initialView(PaymentViewModel viewModel) {
@@ -215,8 +224,7 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
               return SelectionCombo2<AirtimeServiceProviderItem>(
                 comboItems,
                 defaultTitle: "Select Data Plan",
-                onItemSelected: (item, i) =>
-                    setState(() => viewModel.setServiceProviderItem(item)),
+                onItemSelected: (item, i) => setState(() => viewModel.setServiceProviderItem(item)),
                 titleIcon: StreamBuilder(
                     stream: viewModel.getFile(beneficiary.serviceProvider!.logoImageUUID ?? ""),
                     builder: (ctx, AsyncSnapshot<Resource<FileResult>> result) {
@@ -399,6 +407,7 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
         showModalBottomSheet(
             context: widget._scaffoldKey.currentContext ?? context,
             isScrollControlled: true,
+            isDismissible: false,
             backgroundColor: Colors.transparent,
             builder: (mContext) =>
                 TransactionSuccessDialog(

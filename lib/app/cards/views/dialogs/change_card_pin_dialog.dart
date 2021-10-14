@@ -2,7 +2,7 @@ import 'package:flutter/material.dart' hide Colors;
 import 'package:moniepoint_flutter/app/cards/model/data/card_transaction_request.dart';
 import 'package:moniepoint_flutter/app/usermanagement/viewmodels/change_password_view_model.dart';
 import 'package:moniepoint_flutter/app/usermanagement/viewmodels/change_pin_view_model.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -88,6 +88,7 @@ class _ChangeCardPinDialog extends State<ChangeCardPinDialog> {
                   padding: EdgeInsets.only(left: 30, right: 30),
                   child: PinEntry(onChange: (v){
                     _newPin = v;
+                    setState(() {});
                   }),
                 ),
                 SizedBox(height: 24),
@@ -104,6 +105,7 @@ class _ChangeCardPinDialog extends State<ChangeCardPinDialog> {
                   padding: EdgeInsets.only(left: 30, right: 30, bottom: MediaQuery.of(context).viewInsets.bottom * 0.6),
                   child: PinEntry(numEntries :3 ,onChange: (v) {
                     _cvv = v;
+                    setState(() {});
                   }),
                 ),
                 SizedBox(height: 32),

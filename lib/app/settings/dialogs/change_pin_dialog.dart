@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:moniepoint_flutter/app/usermanagement/viewmodels/change_pin_view_model.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';

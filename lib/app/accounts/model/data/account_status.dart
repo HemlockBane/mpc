@@ -3,6 +3,8 @@ import 'package:moniepoint_flutter/app/accounts/model/data/account_update_flag.d
 import 'package:moniepoint_flutter/app/accounts/model/data/custom_flags.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/post_no_debit_info.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
+import 'package:moniepoint_flutter/app/customer/customer.dart';
+import 'package:moniepoint_flutter/app/customer/scheme_code.dart';
 
 part 'account_status.g.dart';
 
@@ -15,6 +17,8 @@ class AccountStatus {
   final PostNoDebitInfo? postNoDebitInfo;
   final CustomFlags? customFlags;
   final Tier? pndLiftScheme;
+  final Customer? customer;
+  final SchemeCode? schemeCode;
 
   @JsonKey(name:"additionalInfoFlag")
   final AccountUpdateFlag? additionalInfoFlag;
@@ -60,6 +64,8 @@ class AccountStatus {
     this.addressVerificationFlag,
     this.identificationVerificationFlag,
     this.bvnVerificationFlag,
+    this.customer,
+    this.schemeCode
   });
 
   factory AccountStatus.fromJson(Object? data) => _$AccountStatusFromJson(data as Map<String, dynamic>);

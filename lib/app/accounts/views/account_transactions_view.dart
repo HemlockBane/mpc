@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'dart:ui';
 
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -34,11 +33,12 @@ import 'package:moniepoint_flutter/core/views/filter_view.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:provider/provider.dart';
 
-class AccountTransactionScreen extends StatefulWidget {
-  final int? customerAccountId;
-  final accountUserIdx;
+//TODO this entire class needs to be refactored for clarity
 
-  AccountTransactionScreen({this.customerAccountId, required this.accountUserIdx});
+class AccountTransactionScreen extends StatefulWidget {
+  final int userAccountId;
+
+  AccountTransactionScreen({required this.userAccountId});
 
   @override
   State<StatefulWidget> createState() => _AccountTransactionScreen();
@@ -58,7 +58,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
   String accountStatementFileName = "MoniepointAccountStatement.pdf";
   String? accountStatementDownloadDir;
 
-  late final UserAccount userAccount;
+  UserAccount? userAccount;
 
   late final AnimationController _animationController =
       AnimationController(vsync: this, duration: Duration(milliseconds: 1000));
@@ -66,14 +66,17 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
 
   initState() {
     _viewModel = Provider.of<TransactionHistoryViewModel>(context, listen: false);
-    _viewModel.getCustomerAccountBalance(accountId: widget.customerAccountId)
-        .listen((event) {});
+
+    userAccount = _viewModel.getUserAccountById(widget.userAccountId);
+    if(userAccount != null) {
+      _viewModel.getCustomerAccountBalance(accountId: userAccount!.customerAccount!.id)
+          .listen((event) {});
+    }
 
     _refresh();
 
-    userAccount = _viewModel.userAccounts[widget.accountUserIdx];
-
     _animationController.forward();
+    _viewModel.checkAccountUpdate();
     super.initState();
   }
 
@@ -165,10 +168,8 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
                   style: ButtonStyle(
                     minimumSize: MaterialStateProperty.all(Size(40, 0)),
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    overlayColor: MaterialStateProperty.all(
-                        Colors.primaryColor.withOpacity(0.1)),
-                    padding: MaterialStateProperty.all(
-                        EdgeInsets.only(left: 8, right: 2, top: 8, bottom: 8)),
+                    overlayColor: MaterialStateProperty.all(Colors.primaryColor.withOpacity(0.1)),
+                    padding: MaterialStateProperty.all(EdgeInsets.only(left: 8, right: 2, top: 8, bottom: 8)),
                   ))
             ],
           ),
@@ -176,8 +177,12 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
   }
 
   void _refresh() {
+    if(userAccount == null || userAccount?.customerAccount == null) {
+      return;
+    }
     _pagingSource = _viewModel.getPagedHistoryTransaction(
-        accountId: widget.customerAccountId);
+        accountId: userAccount!.customerAccount!.id
+    );
   }
 
   void _dateFilterDateChanged(int startDate, int endDate) {
@@ -229,9 +234,10 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
             visible: isEmpty,
             child: Expanded(
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SizedBox(height: 100,),
+                  SizedBox(height: 100),
                   EmptyLayoutView(viewModel.isFilteredList()
                       ? "You have no transactions with these search criteria"
                       : "You have no transaction history yet.")
@@ -245,7 +251,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SizedBox(height: 50),
+                  SizedBox(height: 60),
                   ErrorLayoutView(error?.first ?? "", error?.second ?? "", _retry),
                 ],
               ),
@@ -265,9 +271,10 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
                 ),
                 itemBuilder: (context, index) {
                   return TransactionHistoryListItem(value.data[index], index, (item, i) {
+                    print(userAccount?.customerAccount?.accountNumber);
                     Navigator.of(context).pushNamed(
                         Routes.ACCOUNT_TRANSACTIONS_DETAIL,
-                        arguments: item.transactionRef);
+                        arguments: {"transactionRef": item.transactionRef, "accountNumber": userAccount?.customerAccount?.accountNumber});
                   });
                   },
               )),
@@ -280,7 +287,8 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
     bool showDropShadow = false;
     final screenSize = MediaQuery.of(context).size;
     final maxExtent = 1.0;
-    final minExtent = 1 - (180 / (screenSize.height - maxDraggableTop));
+    final containerHeight = _viewModel.isAccountUpdateCompleted ? 120 : 180;
+    final minExtent = 1 - (containerHeight / (screenSize.height - maxDraggableTop));
 
     return StatefulBuilder(builder: (ctx, setState){
       return NotificationListener<DraggableScrollableNotification>(
@@ -308,7 +316,6 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
           builder: (ctx, ScrollController draggableScrollController) {
             return AnimatedContainer(
               duration: Duration(milliseconds: 200),
-              // padding: EdgeInsets.only(top: 27),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.vertical(
@@ -343,7 +350,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
                       bool isAccountLiened = getAccountLienStatus();
                       return Stack(
                         children: [
-                          _mainPageContent(value, _viewModel, isEmpty, error, draggableScrollController),
+                          Positioned.fill(child: _mainPageContent(value, _viewModel, isEmpty, error, draggableScrollController)),
                           IgnorePointer(
                             child: Container(
                               height: isAccountLiened ? 142 : 67,
@@ -477,8 +484,8 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
                 right: 0,
                 child: AccountTransactionsAccountCard(
                   viewModel: _viewModel,
-                  userAccount: userAccount,
-                  accountBalance: userAccount.accountBalance,
+                  userAccount: userAccount!,
+                  accountBalance: userAccount!.accountBalance,
                 ),
             ),
             Positioned(
@@ -509,7 +516,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
     if (selectedDate != null && selectedDate is Tuple<int?, int?>) {
       try {
         final fileName = "AccountTransaction_Export_${_viewModel.accountName}_${DateFormat("dd_MM_yyyy_h_m_s").format(DateTime.now())}.pdf";
-        final downloadTask = () => _viewModel.exportStatement(selectedDate.first, selectedDate.second, accountId: widget.customerAccountId);
+        final downloadTask = () => _viewModel.exportStatement(selectedDate.first, selectedDate.second, accountId: userAccount?.customerAccount?.id);
         await DownloadUtil.downloadTransactionReceipt(downloadTask, fileName, isShare: false, onProgress: (int progress, isComplete) {
           if (!_isDownloading && !isComplete)
             setState(() {

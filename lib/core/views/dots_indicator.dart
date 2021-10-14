@@ -9,6 +9,7 @@ class DotIndicator extends AnimatedWidget {
     required this.controller,
     required this.itemCount,
     this.color = Colors.primaryColor,
+    this.delay = Duration.zero
   }) : super(listenable: controller);
 
   final PageController controller;
@@ -16,6 +17,8 @@ class DotIndicator extends AnimatedWidget {
   final int itemCount;
 
   final Color color;// = Colors.primaryColor;
+
+  final Duration delay;
 
   Widget _buildDot(int index) {
     num selectedPage = controller.page ?? controller.initialPage;
@@ -40,9 +43,12 @@ class DotIndicator extends AnimatedWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(this.itemCount, _buildDot),
+    return FutureBuilder(
+      future: Future.delayed(delay),
+      builder: (_, __) => Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(this.itemCount, _buildDot),
+      ),
     );
   }
 

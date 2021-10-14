@@ -11,7 +11,7 @@ part 'single_transfer_transaction.g.dart';
 
 @Entity(tableName: "transfer_transactions", primaryKeys: ['batch_id', "history_id"])
 @JsonSerializable()
-class SingleTransferTransaction implements Transaction {
+class SingleTransferTransaction extends Transaction {
 
   @ColumnInfo(name : "batch_id")
   @JsonKey(name: "batch_id")

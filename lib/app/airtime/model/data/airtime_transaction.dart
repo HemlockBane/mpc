@@ -13,7 +13,7 @@ part 'airtime_transaction.g.dart';
 
 @Entity(tableName: "airtime_transactions", primaryKeys: ['batch_id', 'history_id'])
 @JsonSerializable()
-class AirtimeTransaction implements Transaction {
+class AirtimeTransaction extends Transaction {
 
   String? username = "";
 

@@ -43,7 +43,6 @@ class TransactionHistoryViewModel extends BaseViewModel {
   StreamController<bool> _transactionHistoryController = StreamController.broadcast();
   Stream<bool> get transactionHistoryUpdateStream => _transactionHistoryController.stream;
 
-
   PagingSource<int, AccountTransaction> getPagedHistoryTransaction({int? accountId}) {
     return _delegate.getPageAccountTransactions(accountId ?? customerAccountId, _filterResults);
   }
@@ -99,7 +98,7 @@ class TransactionHistoryViewModel extends BaseViewModel {
       element.values = null;
     });
     _filterResults.startDate = 0;
-    _filterResults.endDate = DateTime.now().millisecondsSinceEpoch;
+    _filterResults.endDate = DateTime.now().toUtc().millisecondsSinceEpoch;
     _filterResults.channels.clear();
     _filterResults.types.clear();
   }

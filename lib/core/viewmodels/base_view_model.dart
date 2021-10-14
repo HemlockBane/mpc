@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moniepoint_flutter/app/accounts/model/account_service_delegate.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
+import 'package:moniepoint_flutter/app/accountupdates/model/data/account_upgrade_state.dart';
 import 'package:moniepoint_flutter/app/customer/customer.dart';
+import 'package:moniepoint_flutter/app/customer/scheme_code.dart';
 import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -98,48 +100,57 @@ abstract class BaseViewModel with ChangeNotifier {
     return mCustomerAccountUser?.customerAccount?.accountName ?? accountName;
   }
 
-  String? getUserQualifiedTierName(int accountId) {
-    final customerAccountUsers = customer?.customerAccountUsers?.where((element) => element.customerAccount?.id ==accountId).firstOrNull;
+  String? getUserQualifiedTierName(int customerAccountId) {
+    final customerAccountUsers = customer?.customerAccountUsers?.where((element) => element.customerAccount?.id ==customerAccountId).firstOrNull;
     if(customerAccountUsers == null || customerAccountUsers.customerAccount == null) return null;
     final customerAccount = customerAccountUsers.customerAccount;
     return customerAccount?.schemeCode?.name;
   }
 
-  int? getCurrentAccountTierNumber(int userAccountId) {
-    final validWords = ["one", "two", "three"];
-    final validDigits = [1, 2, 3];
-    final tierName = getUserQualifiedTierName(userAccountId);
-    print("tiername: $tierName");
-
-    if (tierName == null || tierName.isEmpty || !tierName.contains(" ")) return null;
-    final values = tierName.toLowerCase().split(" ");
-    if(values.isEmpty) return null;
-
-    final tier = values.last;
-    var tierIdx = int.tryParse(tier);
-
-    if (tierIdx != null) {
-      return validDigits.contains(tierIdx) ? tierIdx : null;
-    }else{
-      if (!validWords.contains(tier)) return null;
-      else{
-        switch(tier){
-          case "one":
-            tierIdx = 1;
-            break;
-          case "two":
-            tierIdx = 2;
-            break;
-          case "three":
-            tierIdx = 3;
-            break;
-        }
-      }
-    }
-
-
-    return tierIdx;
+  SchemeCode? getUserQualifiedScheme(int customerAccountId) {
+    final customerAccountUsers = customer?.customerAccountUsers?.where((element) => element.customerAccount?.id ==customerAccountId).firstOrNull;
+    if(customerAccountUsers == null || customerAccountUsers.customerAccount == null) return null;
+    final customerAccount = customerAccountUsers.customerAccount;
+    return customerAccount?.schemeCode;
   }
+
+  int? getCustomerAccountIdByAccountNumber (String? accountNumber) {
+    List<UserAccount> accounts = userAccounts.where((element) {
+      return element.customerAccount?.accountNumber == accountNumber;
+    }).toList();
+    return accounts.firstOrNull?.customerAccount?.id;
+  }
+
+  int? getCurrentAccountTierNumber(int userAccountId) {
+    String? tierName = getUserQualifiedTierName(userAccountId);
+    if(tierName == null || tierName.trim().isEmpty) return null;
+
+    //let's get the last word in the string
+    final words = tierName.split(" ");
+    final lastWord = words[words.length - 1];
+
+    final integerValue = int.tryParse(lastWord);
+
+    if(integerValue != null) return integerValue;
+
+    //check if the word is either one,two or three...
+    switch(lastWord.toLowerCase()) {
+      case "one":
+        return 1;
+      case "two":
+        return 2;
+      case "three":
+        return 3;
+      default:
+        return null;
+    }
+  }
+
+  AccountState getAccountState () {
+    return userAccounts.firstOrNull?.getAccountState() ?? AccountState.COMPLETED;
+  }
+
+  UserAccount? getUserAccountById(int userAccountId) => UserInstance().getUserAccount(userAccountId);
 
   @override
   void dispose() {

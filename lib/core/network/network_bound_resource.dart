@@ -1,6 +1,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -46,10 +47,12 @@ mixin NetworkResource {
       await for (var value in fetchFromLocal()) {
         localData = value;
         yield Resource.loading(localData);
+        print("Can We Break here");
         break;
       }
     }
 
+    print("Make Local Call");
     if(shouldFetchFromRemote(localData)) {
       //if we are fetching from remote let's emit
       yield Resource.loading(localData);
@@ -81,7 +84,6 @@ mixin NetworkResource {
         if (e is DioError) {
 
           if(e.response?.statusCode == 401) {
-            //TODO check if the user is in session first
             UserInstance().forceLogout(null, SessionTimeoutReason.SESSION_TIMEOUT);
             return;
           }
@@ -209,15 +211,16 @@ Tuple<String, String> formatError(String? errorMessage, String moduleName) {
           errorMessage.toLowerCase().contains("failed to connect") ||
           errorMessage.toLowerCase().contains("failed host lookup") ||
           errorMessage.toLowerCase().contains("network is unreachable") ||
-          errorMessage.toLowerCase().contains("internet connection") ||
-          errorMessage.toLowerCase().contains("an unknown error occurred"))) {
+          errorMessage.toLowerCase().contains("internet connection"))) {
     errorTitle = "No Network Connection";
     errorDescription =
         "We are unable to reach the server at this time. Please confirm your internet connection and try again.";
-  } else if (errorMessage != null &&
+  }
+  else if (errorMessage != null &&
       (errorMessage.toLowerCase().contains("exception") ||
           errorMessage.toLowerCase().contains("database error") ||
-          errorMessage.toLowerCase().contains("org.springframework"))) {
+          errorMessage.toLowerCase().contains("org.springframework") ||
+          errorMessage.toLowerCase().contains("an unknown error occurred"))) {
     errorTitle = "Oops, Something is broken!";
     errorDescription =
         "We encountered an error loading your $moduleName. Please try again later.";
@@ -261,23 +264,40 @@ Tuple<String, String> formatError(String? errorMessage, String moduleName) {
 ///
 Stream<Resource<T>> streamWithExponentialBackoff<T>({
   int retries = 3,
-  Duration delay = const Duration(seconds: 3),
-  required Stream<Resource<T>> stream,
+  int collisions = 1,
+  Duration delay = const Duration(seconds: 5),
+  required Stream<Resource<T>> Function() stream,
 }) async* {
-  await for (var response in stream) {
-    if(response is Loading || response is Success) yield response;
+
+  await for (var response in stream.call()) {
+    if(response is Loading || response is Success) {
+      yield response;
+      if(response is Success) break;
+    }
     
     if(response is Error<T>) {
-      if(retries > 1) {
-        print("Awaiting Exponential Delay....");
-        await Future.delayed(delay, () => true);
+      if(collisions <= retries) {
+        final random = Random();
+
+        final slot = pow(2, collisions) - 1;
+        final rand = random.nextInt(slot.toInt());
+        final del = delay.inSeconds * rand;
+
+        print("Slot => $slot, Rand ==> $rand, Delay ==> $del");
+
+        final mDelay = Duration(seconds: del);
+        await Future.delayed(mDelay, () => true);
+
         print("Retrying Exponential Backoff....");
+
         yield* streamWithExponentialBackoff(
             stream: stream,
-            retries: retries - 1
+            collisions: collisions + 1
         );
-      } else {
+        break;
+      } else if(collisions > retries) {
         yield response;
+        break;
       }
     }
   }

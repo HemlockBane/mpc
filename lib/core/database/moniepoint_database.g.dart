@@ -95,7 +95,7 @@ class _$AppDatabase extends AppDatabase {
   Future<sqflite.Database> open(String path, List<Migration> migrations,
       [Callback? callback]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 2,
+      version: 3,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -139,7 +139,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `biller_products` (`billerCode` TEXT, `id` INTEGER NOT NULL, `name` TEXT, `code` TEXT, `amount` REAL, `fee` REAL, `paymentCode` TEXT, `currencySymbol` TEXT, `active` INTEGER, `priceFixed` INTEGER, `minimumAmount` REAL, `maximumAmount` REAL, `identifierName` TEXT, `additionalFieldsMap` TEXT, PRIMARY KEY (`id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `account_transactions` (`id` INTEGER, `accountNumber` TEXT, `status` INTEGER, `transactionRef` TEXT NOT NULL, `amount` REAL, `type` TEXT, `channel` TEXT, `transactionChannel` TEXT, `tags` TEXT, `narration` TEXT, `transactionDate` INTEGER NOT NULL, `runningBalance` TEXT, `balanceBefore` TEXT, `balanceAfter` TEXT, `metaData` TEXT, `customerAccountId` INTEGER, PRIMARY KEY (`transactionRef`))');
+            'CREATE TABLE IF NOT EXISTS `account_transactions` (`id` INTEGER, `accountNumber` TEXT, `status` INTEGER, `transactionRef` TEXT NOT NULL, `amount` REAL, `type` TEXT, `transactionChannel` TEXT, `tags` TEXT, `narration` TEXT, `transactionDate` INTEGER NOT NULL, `runningBalance` TEXT, `balanceBefore` TEXT, `balanceAfter` TEXT, `transactionCategory` TEXT, `transactionCode` TEXT, `beneficiaryIdentifier` TEXT, `beneficiaryName` TEXT, `beneficiaryBankName` TEXT, `beneficiaryBankCode` TEXT, `senderIdentifier` TEXT, `senderName` TEXT, `senderBankName` TEXT, `senderBankCode` TEXT, `providerIdentifier` TEXT, `providerName` TEXT, `transactionIdentifier` TEXT, `merchantLocation` TEXT, `cardScheme` TEXT, `maskedPan` TEXT, `terminalID` TEXT, `disputable` INTEGER, `location` TEXT, `metaData` TEXT, `customerAccountId` INTEGER, PRIMARY KEY (`transactionRef`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `tiers` (`id` INTEGER NOT NULL, `status` TEXT, `createdOn` TEXT, `lastModifiedOn` TEXT, `code` TEXT, `name` TEXT, `classification` TEXT, `accountNumberPrefix` TEXT, `accountNumberLength` INTEGER, `allowNegativeBalance` INTEGER, `allowLien` INTEGER, `enableInstantBalanceUpdate` INTEGER, `maximumCumulativeBalance` REAL, `maximumSingleDebit` REAL, `maximumSingleCredit` REAL, `maximumDailyDebit` REAL, `maximumDailyCredit` REAL, `schemeRequirement` TEXT, `alternateSchemeRequirement` TEXT, `supportsAccountGeneration` INTEGER, PRIMARY KEY (`id`))');
 
@@ -1860,7 +1860,6 @@ class _$TransactionDao extends TransactionDao {
                   'transactionRef': item.transactionRef,
                   'amount': item.amount,
                   'type': _transactionTypeConverter.encode(item.type),
-                  'channel': item.channel,
                   'transactionChannel': item.transactionChannel,
                   'tags': item.tags,
                   'narration': item.narration,
@@ -1868,6 +1867,28 @@ class _$TransactionDao extends TransactionDao {
                   'runningBalance': item.runningBalance,
                   'balanceBefore': item.balanceBefore,
                   'balanceAfter': item.balanceAfter,
+                  'transactionCategory': _transactionCategoryConverter
+                      .encode(item.transactionCategory),
+                  'transactionCode': item.transactionCode,
+                  'beneficiaryIdentifier': item.beneficiaryIdentifier,
+                  'beneficiaryName': item.beneficiaryName,
+                  'beneficiaryBankName': item.beneficiaryBankName,
+                  'beneficiaryBankCode': item.beneficiaryBankCode,
+                  'senderIdentifier': item.senderIdentifier,
+                  'senderName': item.senderName,
+                  'senderBankName': item.senderBankName,
+                  'senderBankCode': item.senderBankCode,
+                  'providerIdentifier': item.providerIdentifier,
+                  'providerName': item.providerName,
+                  'transactionIdentifier': item.transactionIdentifier,
+                  'merchantLocation': item.merchantLocation,
+                  'cardScheme': item.cardScheme,
+                  'maskedPan': item.maskedPan,
+                  'terminalID': item.terminalID,
+                  'disputable': item.disputable == null
+                      ? null
+                      : (item.disputable! ? 1 : 0),
+                  'location': _locationConverter.encode(item.location),
                   'metaData':
                       _transactionMetaDataConverter.encode(item.metaData),
                   'customerAccountId': item.customerAccountId
@@ -1884,7 +1905,6 @@ class _$TransactionDao extends TransactionDao {
                   'transactionRef': item.transactionRef,
                   'amount': item.amount,
                   'type': _transactionTypeConverter.encode(item.type),
-                  'channel': item.channel,
                   'transactionChannel': item.transactionChannel,
                   'tags': item.tags,
                   'narration': item.narration,
@@ -1892,6 +1912,28 @@ class _$TransactionDao extends TransactionDao {
                   'runningBalance': item.runningBalance,
                   'balanceBefore': item.balanceBefore,
                   'balanceAfter': item.balanceAfter,
+                  'transactionCategory': _transactionCategoryConverter
+                      .encode(item.transactionCategory),
+                  'transactionCode': item.transactionCode,
+                  'beneficiaryIdentifier': item.beneficiaryIdentifier,
+                  'beneficiaryName': item.beneficiaryName,
+                  'beneficiaryBankName': item.beneficiaryBankName,
+                  'beneficiaryBankCode': item.beneficiaryBankCode,
+                  'senderIdentifier': item.senderIdentifier,
+                  'senderName': item.senderName,
+                  'senderBankName': item.senderBankName,
+                  'senderBankCode': item.senderBankCode,
+                  'providerIdentifier': item.providerIdentifier,
+                  'providerName': item.providerName,
+                  'transactionIdentifier': item.transactionIdentifier,
+                  'merchantLocation': item.merchantLocation,
+                  'cardScheme': item.cardScheme,
+                  'maskedPan': item.maskedPan,
+                  'terminalID': item.terminalID,
+                  'disputable': item.disputable == null
+                      ? null
+                      : (item.disputable! ? 1 : 0),
+                  'location': _locationConverter.encode(item.location),
                   'metaData':
                       _transactionMetaDataConverter.encode(item.metaData),
                   'customerAccountId': item.customerAccountId
@@ -1910,7 +1952,55 @@ class _$TransactionDao extends TransactionDao {
   final DeletionAdapter<AccountTransaction> _accountTransactionDeletionAdapter;
 
   @override
-  Stream<List<AccountTransaction>> getTransactionsByFilter(
+  Stream<List<AccountTransaction>> getTransactions(
+      int customerAccountId, int limit, int myOffset) {
+    return _queryAdapter.queryListStream(
+        'SELECT * FROM account_transactions WHERE customerAccountId = ?1 ORDER BY transactionDate DESC LIMIT ?2 OFFSET ?3',
+        mapper: (Map<String, Object?> row) => AccountTransaction(
+            id: row['id'] as int?,
+            transactionDate: row['transactionDate'] as int,
+            transactionRef: row['transactionRef'] as String,
+            status: row['status'] == null ? null : (row['status'] as int) != 0,
+            amount: row['amount'] as double?,
+            type: _transactionTypeConverter.decode(row['type'] as String?),
+            transactionChannel: row['transactionChannel'] as String?,
+            tags: row['tags'] as String?,
+            narration: row['narration'] as String?,
+            runningBalance: row['runningBalance'] as String?,
+            balanceBefore: row['balanceBefore'] as String?,
+            balanceAfter: row['balanceAfter'] as String?,
+            metaData: _transactionMetaDataConverter
+                .decode(row['metaData'] as String?),
+            customerAccountId: row['customerAccountId'] as int?,
+            transactionCategory: _transactionCategoryConverter
+                .decode(row['transactionCategory'] as String?),
+            transactionCode: row['transactionCode'] as String?,
+            beneficiaryIdentifier: row['beneficiaryIdentifier'] as String?,
+            beneficiaryName: row['beneficiaryName'] as String?,
+            beneficiaryBankName: row['beneficiaryBankName'] as String?,
+            beneficiaryBankCode: row['beneficiaryBankCode'] as String?,
+            senderIdentifier: row['senderIdentifier'] as String?,
+            senderName: row['senderName'] as String?,
+            senderBankName: row['senderBankName'] as String?,
+            senderBankCode: row['senderBankCode'] as String?,
+            providerIdentifier: row['providerIdentifier'] as String?,
+            providerName: row['providerName'] as String?,
+            transactionIdentifier: row['transactionIdentifier'] as String?,
+            merchantLocation: row['merchantLocation'] as String?,
+            cardScheme: row['cardScheme'] as String?,
+            maskedPan: row['maskedPan'] as String?,
+            terminalID: row['terminalID'] as String?,
+            disputable: row['disputable'] == null
+                ? null
+                : (row['disputable'] as int) != 0,
+            location: _locationConverter.decode(row['location'] as String?)),
+        arguments: [customerAccountId, limit, myOffset],
+        queryableName: 'account_transactions',
+        isView: false);
+  }
+
+  @override
+  Stream<List<AccountTransaction>> filterTransactionByAllCriteria(
       int customerAccountId,
       int startDate,
       int endDate,
@@ -1928,7 +2018,7 @@ class _$TransactionDao extends TransactionDao {
     return _queryAdapter.queryListStream(
         'SELECT * FROM account_transactions WHERE customerAccountId = ?1 AND (transactionDate BETWEEN ?2 AND ?3) AND (transactionChannel IN (' +
             _sqliteVariablesForChannels +
-            ') OR transactionChannel is null) AND type IN (' +
+            ')) AND type IN (' +
             _sqliteVariablesForTransactionTypes +
             ') ORDER BY transactionDate DESC LIMIT ?4 OFFSET ?5',
         mapper: (Map<String, Object?> row) => AccountTransaction(
@@ -1938,7 +2028,6 @@ class _$TransactionDao extends TransactionDao {
             status: row['status'] == null ? null : (row['status'] as int) != 0,
             amount: row['amount'] as double?,
             type: _transactionTypeConverter.decode(row['type'] as String?),
-            channel: row['channel'] as String?,
             transactionChannel: row['transactionChannel'] as String?,
             tags: row['tags'] as String?,
             narration: row['narration'] as String?,
@@ -1947,11 +2036,395 @@ class _$TransactionDao extends TransactionDao {
             balanceAfter: row['balanceAfter'] as String?,
             metaData: _transactionMetaDataConverter
                 .decode(row['metaData'] as String?),
-            customerAccountId: row['customerAccountId'] as int?),
+            customerAccountId: row['customerAccountId'] as int?,
+            transactionCategory: _transactionCategoryConverter
+                .decode(row['transactionCategory'] as String?),
+            transactionCode: row['transactionCode'] as String?,
+            beneficiaryIdentifier: row['beneficiaryIdentifier'] as String?,
+            beneficiaryName: row['beneficiaryName'] as String?,
+            beneficiaryBankName: row['beneficiaryBankName'] as String?,
+            beneficiaryBankCode: row['beneficiaryBankCode'] as String?,
+            senderIdentifier: row['senderIdentifier'] as String?,
+            senderName: row['senderName'] as String?,
+            senderBankName: row['senderBankName'] as String?,
+            senderBankCode: row['senderBankCode'] as String?,
+            providerIdentifier: row['providerIdentifier'] as String?,
+            providerName: row['providerName'] as String?,
+            transactionIdentifier: row['transactionIdentifier'] as String?,
+            merchantLocation: row['merchantLocation'] as String?,
+            cardScheme: row['cardScheme'] as String?,
+            maskedPan: row['maskedPan'] as String?,
+            terminalID: row['terminalID'] as String?,
+            disputable: row['disputable'] == null
+                ? null
+                : (row['disputable'] as int) != 0,
+            location: _locationConverter.decode(row['location'] as String?)),
         arguments: [
           customerAccountId,
           startDate,
           endDate,
+          limit,
+          myOffset,
+          ...channels,
+          ...transactionTypes
+        ],
+        queryableName: 'account_transactions',
+        isView: false);
+  }
+
+  @override
+  Stream<List<AccountTransaction>> filterTransactionByDate(
+      int customerAccountId,
+      int startDate,
+      int endDate,
+      int limit,
+      int myOffset) {
+    return _queryAdapter.queryListStream(
+        'SELECT * FROM account_transactions WHERE customerAccountId = ?1 AND (transactionDate BETWEEN ?2 AND ?3) ORDER BY transactionDate DESC LIMIT ?4 OFFSET ?5',
+        mapper: (Map<String, Object?> row) => AccountTransaction(
+            id: row['id'] as int?,
+            transactionDate: row['transactionDate'] as int,
+            transactionRef: row['transactionRef'] as String,
+            status: row['status'] == null ? null : (row['status'] as int) != 0,
+            amount: row['amount'] as double?,
+            type: _transactionTypeConverter.decode(row['type'] as String?),
+            transactionChannel: row['transactionChannel'] as String?,
+            tags: row['tags'] as String?,
+            narration: row['narration'] as String?,
+            runningBalance: row['runningBalance'] as String?,
+            balanceBefore: row['balanceBefore'] as String?,
+            balanceAfter: row['balanceAfter'] as String?,
+            metaData: _transactionMetaDataConverter
+                .decode(row['metaData'] as String?),
+            customerAccountId: row['customerAccountId'] as int?,
+            transactionCategory: _transactionCategoryConverter
+                .decode(row['transactionCategory'] as String?),
+            transactionCode: row['transactionCode'] as String?,
+            beneficiaryIdentifier: row['beneficiaryIdentifier'] as String?,
+            beneficiaryName: row['beneficiaryName'] as String?,
+            beneficiaryBankName: row['beneficiaryBankName'] as String?,
+            beneficiaryBankCode: row['beneficiaryBankCode'] as String?,
+            senderIdentifier: row['senderIdentifier'] as String?,
+            senderName: row['senderName'] as String?,
+            senderBankName: row['senderBankName'] as String?,
+            senderBankCode: row['senderBankCode'] as String?,
+            providerIdentifier: row['providerIdentifier'] as String?,
+            providerName: row['providerName'] as String?,
+            transactionIdentifier: row['transactionIdentifier'] as String?,
+            merchantLocation: row['merchantLocation'] as String?,
+            cardScheme: row['cardScheme'] as String?,
+            maskedPan: row['maskedPan'] as String?,
+            terminalID: row['terminalID'] as String?,
+            disputable: row['disputable'] == null
+                ? null
+                : (row['disputable'] as int) != 0,
+            location: _locationConverter.decode(row['location'] as String?)),
+        arguments: [customerAccountId, startDate, endDate, limit, myOffset],
+        queryableName: 'account_transactions',
+        isView: false);
+  }
+
+  @override
+  Stream<List<AccountTransaction>> filterTransactionByChannels(
+      int customerAccountId, List<String> channels, int limit, int myOffset) {
+    const offset = 4;
+    final _sqliteVariablesForChannels =
+        Iterable<String>.generate(channels.length, (i) => '?${i + offset}')
+            .join(',');
+    return _queryAdapter.queryListStream(
+        'SELECT * FROM account_transactions WHERE customerAccountId = ?1 AND (transactionChannel IN (' +
+            _sqliteVariablesForChannels +
+            ')) ORDER BY transactionDate DESC LIMIT ?2 OFFSET ?3',
+        mapper: (Map<String, Object?> row) => AccountTransaction(
+            id: row['id'] as int?,
+            transactionDate: row['transactionDate'] as int,
+            transactionRef: row['transactionRef'] as String,
+            status: row['status'] == null ? null : (row['status'] as int) != 0,
+            amount: row['amount'] as double?,
+            type: _transactionTypeConverter.decode(row['type'] as String?),
+            transactionChannel: row['transactionChannel'] as String?,
+            tags: row['tags'] as String?,
+            narration: row['narration'] as String?,
+            runningBalance: row['runningBalance'] as String?,
+            balanceBefore: row['balanceBefore'] as String?,
+            balanceAfter: row['balanceAfter'] as String?,
+            metaData: _transactionMetaDataConverter
+                .decode(row['metaData'] as String?),
+            customerAccountId: row['customerAccountId'] as int?,
+            transactionCategory: _transactionCategoryConverter
+                .decode(row['transactionCategory'] as String?),
+            transactionCode: row['transactionCode'] as String?,
+            beneficiaryIdentifier: row['beneficiaryIdentifier'] as String?,
+            beneficiaryName: row['beneficiaryName'] as String?,
+            beneficiaryBankName: row['beneficiaryBankName'] as String?,
+            beneficiaryBankCode: row['beneficiaryBankCode'] as String?,
+            senderIdentifier: row['senderIdentifier'] as String?,
+            senderName: row['senderName'] as String?,
+            senderBankName: row['senderBankName'] as String?,
+            senderBankCode: row['senderBankCode'] as String?,
+            providerIdentifier: row['providerIdentifier'] as String?,
+            providerName: row['providerName'] as String?,
+            transactionIdentifier: row['transactionIdentifier'] as String?,
+            merchantLocation: row['merchantLocation'] as String?,
+            cardScheme: row['cardScheme'] as String?,
+            maskedPan: row['maskedPan'] as String?,
+            terminalID: row['terminalID'] as String?,
+            disputable: row['disputable'] == null
+                ? null
+                : (row['disputable'] as int) != 0,
+            location: _locationConverter.decode(row['location'] as String?)),
+        arguments: [customerAccountId, limit, myOffset, ...channels],
+        queryableName: 'account_transactions',
+        isView: false);
+  }
+
+  @override
+  Stream<List<AccountTransaction>> filterTransactionByTypes(
+      int customerAccountId,
+      List<String> transactionTypes,
+      int limit,
+      int myOffset) {
+    const offset = 4;
+    final _sqliteVariablesForTransactionTypes = Iterable<String>.generate(
+        transactionTypes.length, (i) => '?${i + offset}').join(',');
+    return _queryAdapter.queryListStream(
+        'SELECT * FROM account_transactions WHERE customerAccountId = ?1 AND type IN (' +
+            _sqliteVariablesForTransactionTypes +
+            ') ORDER BY transactionDate DESC LIMIT ?2 OFFSET ?3',
+        mapper: (Map<String, Object?> row) => AccountTransaction(
+            id: row['id'] as int?,
+            transactionDate: row['transactionDate'] as int,
+            transactionRef: row['transactionRef'] as String,
+            status: row['status'] == null ? null : (row['status'] as int) != 0,
+            amount: row['amount'] as double?,
+            type: _transactionTypeConverter.decode(row['type'] as String?),
+            transactionChannel: row['transactionChannel'] as String?,
+            tags: row['tags'] as String?,
+            narration: row['narration'] as String?,
+            runningBalance: row['runningBalance'] as String?,
+            balanceBefore: row['balanceBefore'] as String?,
+            balanceAfter: row['balanceAfter'] as String?,
+            metaData: _transactionMetaDataConverter
+                .decode(row['metaData'] as String?),
+            customerAccountId: row['customerAccountId'] as int?,
+            transactionCategory: _transactionCategoryConverter
+                .decode(row['transactionCategory'] as String?),
+            transactionCode: row['transactionCode'] as String?,
+            beneficiaryIdentifier: row['beneficiaryIdentifier'] as String?,
+            beneficiaryName: row['beneficiaryName'] as String?,
+            beneficiaryBankName: row['beneficiaryBankName'] as String?,
+            beneficiaryBankCode: row['beneficiaryBankCode'] as String?,
+            senderIdentifier: row['senderIdentifier'] as String?,
+            senderName: row['senderName'] as String?,
+            senderBankName: row['senderBankName'] as String?,
+            senderBankCode: row['senderBankCode'] as String?,
+            providerIdentifier: row['providerIdentifier'] as String?,
+            providerName: row['providerName'] as String?,
+            transactionIdentifier: row['transactionIdentifier'] as String?,
+            merchantLocation: row['merchantLocation'] as String?,
+            cardScheme: row['cardScheme'] as String?,
+            maskedPan: row['maskedPan'] as String?,
+            terminalID: row['terminalID'] as String?,
+            disputable: row['disputable'] == null
+                ? null
+                : (row['disputable'] as int) != 0,
+            location: _locationConverter.decode(row['location'] as String?)),
+        arguments: [customerAccountId, limit, myOffset, ...transactionTypes],
+        queryableName: 'account_transactions',
+        isView: false);
+  }
+
+  @override
+  Stream<List<AccountTransaction>> filterTransactionByDateAndChannels(
+      int customerAccountId,
+      int startDate,
+      int endDate,
+      List<String> channels,
+      int limit,
+      int myOffset) {
+    const offset = 6;
+    final _sqliteVariablesForChannels =
+        Iterable<String>.generate(channels.length, (i) => '?${i + offset}')
+            .join(',');
+    return _queryAdapter.queryListStream(
+        'SELECT * FROM account_transactions WHERE customerAccountId = ?1 AND (transactionDate BETWEEN ?2 AND ?3) AND (transactionChannel IN (' +
+            _sqliteVariablesForChannels +
+            ')) ORDER BY transactionDate DESC LIMIT ?4 OFFSET ?5',
+        mapper: (Map<String, Object?> row) => AccountTransaction(
+            id: row['id'] as int?,
+            transactionDate: row['transactionDate'] as int,
+            transactionRef: row['transactionRef'] as String,
+            status: row['status'] == null ? null : (row['status'] as int) != 0,
+            amount: row['amount'] as double?,
+            type: _transactionTypeConverter.decode(row['type'] as String?),
+            transactionChannel: row['transactionChannel'] as String?,
+            tags: row['tags'] as String?,
+            narration: row['narration'] as String?,
+            runningBalance: row['runningBalance'] as String?,
+            balanceBefore: row['balanceBefore'] as String?,
+            balanceAfter: row['balanceAfter'] as String?,
+            metaData: _transactionMetaDataConverter
+                .decode(row['metaData'] as String?),
+            customerAccountId: row['customerAccountId'] as int?,
+            transactionCategory: _transactionCategoryConverter
+                .decode(row['transactionCategory'] as String?),
+            transactionCode: row['transactionCode'] as String?,
+            beneficiaryIdentifier: row['beneficiaryIdentifier'] as String?,
+            beneficiaryName: row['beneficiaryName'] as String?,
+            beneficiaryBankName: row['beneficiaryBankName'] as String?,
+            beneficiaryBankCode: row['beneficiaryBankCode'] as String?,
+            senderIdentifier: row['senderIdentifier'] as String?,
+            senderName: row['senderName'] as String?,
+            senderBankName: row['senderBankName'] as String?,
+            senderBankCode: row['senderBankCode'] as String?,
+            providerIdentifier: row['providerIdentifier'] as String?,
+            providerName: row['providerName'] as String?,
+            transactionIdentifier: row['transactionIdentifier'] as String?,
+            merchantLocation: row['merchantLocation'] as String?,
+            cardScheme: row['cardScheme'] as String?,
+            maskedPan: row['maskedPan'] as String?,
+            terminalID: row['terminalID'] as String?,
+            disputable: row['disputable'] == null
+                ? null
+                : (row['disputable'] as int) != 0,
+            location: _locationConverter.decode(row['location'] as String?)),
+        arguments: [
+          customerAccountId,
+          startDate,
+          endDate,
+          limit,
+          myOffset,
+          ...channels
+        ],
+        queryableName: 'account_transactions',
+        isView: false);
+  }
+
+  @override
+  Stream<List<AccountTransaction>> filterTransactionByDateAndTypes(
+      int customerAccountId,
+      int startDate,
+      int endDate,
+      List<String> transactionTypes,
+      int limit,
+      int myOffset) {
+    const offset = 6;
+    final _sqliteVariablesForTransactionTypes = Iterable<String>.generate(
+        transactionTypes.length, (i) => '?${i + offset}').join(',');
+    return _queryAdapter.queryListStream(
+        'SELECT * FROM account_transactions WHERE customerAccountId = ?1 AND (transactionDate BETWEEN ?2 AND ?3) AND type IN (' +
+            _sqliteVariablesForTransactionTypes +
+            ') ORDER BY transactionDate DESC LIMIT ?4 OFFSET ?5',
+        mapper: (Map<String, Object?> row) => AccountTransaction(
+            id: row['id'] as int?,
+            transactionDate: row['transactionDate'] as int,
+            transactionRef: row['transactionRef'] as String,
+            status: row['status'] == null ? null : (row['status'] as int) != 0,
+            amount: row['amount'] as double?,
+            type: _transactionTypeConverter.decode(row['type'] as String?),
+            transactionChannel: row['transactionChannel'] as String?,
+            tags: row['tags'] as String?,
+            narration: row['narration'] as String?,
+            runningBalance: row['runningBalance'] as String?,
+            balanceBefore: row['balanceBefore'] as String?,
+            balanceAfter: row['balanceAfter'] as String?,
+            metaData: _transactionMetaDataConverter
+                .decode(row['metaData'] as String?),
+            customerAccountId: row['customerAccountId'] as int?,
+            transactionCategory: _transactionCategoryConverter
+                .decode(row['transactionCategory'] as String?),
+            transactionCode: row['transactionCode'] as String?,
+            beneficiaryIdentifier: row['beneficiaryIdentifier'] as String?,
+            beneficiaryName: row['beneficiaryName'] as String?,
+            beneficiaryBankName: row['beneficiaryBankName'] as String?,
+            beneficiaryBankCode: row['beneficiaryBankCode'] as String?,
+            senderIdentifier: row['senderIdentifier'] as String?,
+            senderName: row['senderName'] as String?,
+            senderBankName: row['senderBankName'] as String?,
+            senderBankCode: row['senderBankCode'] as String?,
+            providerIdentifier: row['providerIdentifier'] as String?,
+            providerName: row['providerName'] as String?,
+            transactionIdentifier: row['transactionIdentifier'] as String?,
+            merchantLocation: row['merchantLocation'] as String?,
+            cardScheme: row['cardScheme'] as String?,
+            maskedPan: row['maskedPan'] as String?,
+            terminalID: row['terminalID'] as String?,
+            disputable: row['disputable'] == null
+                ? null
+                : (row['disputable'] as int) != 0,
+            location: _locationConverter.decode(row['location'] as String?)),
+        arguments: [
+          customerAccountId,
+          startDate,
+          endDate,
+          limit,
+          myOffset,
+          ...transactionTypes
+        ],
+        queryableName: 'account_transactions',
+        isView: false);
+  }
+
+  @override
+  Stream<List<AccountTransaction>> filterTransactionByChannelsAndTypes(
+      int customerAccountId,
+      List<String> channels,
+      List<String> transactionTypes,
+      int limit,
+      int myOffset) {
+    int offset = 4;
+    final _sqliteVariablesForChannels =
+        Iterable<String>.generate(channels.length, (i) => '?${i + offset}')
+            .join(',');
+    offset += channels.length;
+    final _sqliteVariablesForTransactionTypes = Iterable<String>.generate(
+        transactionTypes.length, (i) => '?${i + offset}').join(',');
+    return _queryAdapter.queryListStream(
+        'SELECT * FROM account_transactions WHERE customerAccountId = ?1 AND (transactionChannel IN (' +
+            _sqliteVariablesForChannels +
+            ')) AND type IN (' +
+            _sqliteVariablesForTransactionTypes +
+            ') ORDER BY transactionDate DESC LIMIT ?2 OFFSET ?3',
+        mapper: (Map<String, Object?> row) => AccountTransaction(
+            id: row['id'] as int?,
+            transactionDate: row['transactionDate'] as int,
+            transactionRef: row['transactionRef'] as String,
+            status: row['status'] == null ? null : (row['status'] as int) != 0,
+            amount: row['amount'] as double?,
+            type: _transactionTypeConverter.decode(row['type'] as String?),
+            transactionChannel: row['transactionChannel'] as String?,
+            tags: row['tags'] as String?,
+            narration: row['narration'] as String?,
+            runningBalance: row['runningBalance'] as String?,
+            balanceBefore: row['balanceBefore'] as String?,
+            balanceAfter: row['balanceAfter'] as String?,
+            metaData: _transactionMetaDataConverter
+                .decode(row['metaData'] as String?),
+            customerAccountId: row['customerAccountId'] as int?,
+            transactionCategory: _transactionCategoryConverter
+                .decode(row['transactionCategory'] as String?),
+            transactionCode: row['transactionCode'] as String?,
+            beneficiaryIdentifier: row['beneficiaryIdentifier'] as String?,
+            beneficiaryName: row['beneficiaryName'] as String?,
+            beneficiaryBankName: row['beneficiaryBankName'] as String?,
+            beneficiaryBankCode: row['beneficiaryBankCode'] as String?,
+            senderIdentifier: row['senderIdentifier'] as String?,
+            senderName: row['senderName'] as String?,
+            senderBankName: row['senderBankName'] as String?,
+            senderBankCode: row['senderBankCode'] as String?,
+            providerIdentifier: row['providerIdentifier'] as String?,
+            providerName: row['providerName'] as String?,
+            transactionIdentifier: row['transactionIdentifier'] as String?,
+            merchantLocation: row['merchantLocation'] as String?,
+            cardScheme: row['cardScheme'] as String?,
+            maskedPan: row['maskedPan'] as String?,
+            terminalID: row['terminalID'] as String?,
+            disputable: row['disputable'] == null
+                ? null
+                : (row['disputable'] as int) != 0,
+            location: _locationConverter.decode(row['location'] as String?)),
+        arguments: [
+          customerAccountId,
           limit,
           myOffset,
           ...channels,
@@ -1972,7 +2445,6 @@ class _$TransactionDao extends TransactionDao {
             status: row['status'] == null ? null : (row['status'] as int) != 0,
             amount: row['amount'] as double?,
             type: _transactionTypeConverter.decode(row['type'] as String?),
-            channel: row['channel'] as String?,
             transactionChannel: row['transactionChannel'] as String?,
             tags: row['tags'] as String?,
             narration: row['narration'] as String?,
@@ -1981,7 +2453,29 @@ class _$TransactionDao extends TransactionDao {
             balanceAfter: row['balanceAfter'] as String?,
             metaData: _transactionMetaDataConverter
                 .decode(row['metaData'] as String?),
-            customerAccountId: row['customerAccountId'] as int?),
+            customerAccountId: row['customerAccountId'] as int?,
+            transactionCategory: _transactionCategoryConverter
+                .decode(row['transactionCategory'] as String?),
+            transactionCode: row['transactionCode'] as String?,
+            beneficiaryIdentifier: row['beneficiaryIdentifier'] as String?,
+            beneficiaryName: row['beneficiaryName'] as String?,
+            beneficiaryBankName: row['beneficiaryBankName'] as String?,
+            beneficiaryBankCode: row['beneficiaryBankCode'] as String?,
+            senderIdentifier: row['senderIdentifier'] as String?,
+            senderName: row['senderName'] as String?,
+            senderBankName: row['senderBankName'] as String?,
+            senderBankCode: row['senderBankCode'] as String?,
+            providerIdentifier: row['providerIdentifier'] as String?,
+            providerName: row['providerName'] as String?,
+            transactionIdentifier: row['transactionIdentifier'] as String?,
+            merchantLocation: row['merchantLocation'] as String?,
+            cardScheme: row['cardScheme'] as String?,
+            maskedPan: row['maskedPan'] as String?,
+            terminalID: row['terminalID'] as String?,
+            disputable: row['disputable'] == null
+                ? null
+                : (row['disputable'] as int) != 0,
+            location: _locationConverter.decode(row['location'] as String?)),
         arguments: [tranRef]);
   }
 
@@ -2206,6 +2700,8 @@ final _billerConverter = BillerConverter();
 final _listBillerProductConverter = ListBillerProductConverter();
 final _additionalFieldsConverter = AdditionalFieldsConverter();
 final _transactionTypeConverter = TransactionTypeConverter();
+final _transactionCategoryConverter = TransactionCategoryConverter();
+final _locationConverter = LocationConverter();
 final _transactionMetaDataConverter = TransactionMetaDataConverter();
 final _schemeRequirementConverter = SchemeRequirementConverter();
 final _alternateSchemeRequirementConverter =

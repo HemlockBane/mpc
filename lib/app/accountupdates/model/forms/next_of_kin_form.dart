@@ -126,7 +126,7 @@ class NextOfKinForm with ChangeNotifier, Validators {
   }
 
   bool _isPhoneNumberValid({bool displayError = false}) {
-    final isValid = isPhoneNumberValid(_info.nextOfKinPhoneNumber);
+    final isValid = (_info.nextOfKinPhoneNumber?.length ?? 0) > 1;
     if (displayError && !isValid) {
       _phoneNumberController.sink.addError(
           (_info.nextOfKinPhoneNumber == null || _info.nextOfKinPhoneNumber!.isEmpty)
@@ -194,6 +194,7 @@ class NextOfKinForm with ChangeNotifier, Validators {
 
   void restoreFormState() {
       final savedInfo = PreferenceUtil.getDataForLoggedInUser(FORM_KEY);
+      if(savedInfo == null) return;
       final savedNextOfKin = NextOfKinInfo.fromJson(savedInfo);
 
       addressForm.restoreFormState();
@@ -226,6 +227,11 @@ class NextOfKinForm with ChangeNotifier, Validators {
           && savedNextOfKin.nextOfKinDOB?.isNotEmpty == true) {
         onDateOfBirthChange(savedNextOfKin.nextOfKinDOB);
       }
+  }
+
+  void resetForm() {
+    PreferenceUtil.saveDataForLoggedInUser(FORM_KEY, null);
+    addressForm.resetForm();
   }
 
   @override

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:moniepoint_flutter/app/airtime/viewmodels/airtime_view_model.dart';
 import 'package:moniepoint_flutter/app/transfers/viewmodels/transfer_view_model.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/transaction_status.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -42,6 +42,7 @@ class _AirtimePinDialog extends TransactionPinDialogState<AirtimePinDialog> {
       centerBackgroundHeight: 74,
       centerBackgroundWidth: 74,
       centerBackgroundPadding: 25,
+      enableDrag: !_isLoading,
       content: Wrap(
         children: [
           Container(
@@ -181,7 +182,9 @@ class _AirtimePinDialog extends TransactionPinDialogState<AirtimePinDialog> {
   void subscribeUiToPayment() {
     final viewModel = Provider.of<AirtimeViewModel>(context, listen: false);
     viewModel.doPayment().listen((event) {
-      if(event is Loading) setState(() => _isLoading = true);
+      if(event is Loading) {
+        setState(() => _isLoading = true);
+      }
       else if(event is Success) {
         setState(() {
           _isLoading = false;

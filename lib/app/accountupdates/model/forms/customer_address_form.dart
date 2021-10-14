@@ -229,10 +229,12 @@ class CustomerAddressForm with ChangeNotifier {
 
   void restoreFormState() {
     final savedInfo = PreferenceUtil.getDataForLoggedInUser(formKey);
+    if(savedInfo == null) return;
     final savedAddressInfo = AddressInfo.fromJson(savedInfo);
     final fileName = PreferenceUtil.getValueForLoggedInUser<String>(FILE_NAME_KEY);
     final mailingAddressDefault = PreferenceUtil.getValueForLoggedInUser<bool>(USE_AS_MAIL_ADDRESS_KEY);
 
+    print("File Name ===>>> ${fileName}");
 
     if(savedAddressInfo.addressLine != null) {
       print(savedAddressInfo.addressLine);
@@ -250,7 +252,6 @@ class CustomerAddressForm with ChangeNotifier {
       final localGovt = LocalGovernmentArea.fromId(
           savedAddressInfo.addressLocalGovernmentAreaId, state?.localGovernmentAreas ?? []
       );
-      print(state?.name);
       onStateChange(state, localGovt: localGovt);
     }
 
@@ -267,6 +268,13 @@ class CustomerAddressForm with ChangeNotifier {
       Future.delayed(Duration(milliseconds: 350), () {
         mailingAddressForm?.restoreFormState();
       });
+    }
+  }
+
+  void resetForm() {
+    PreferenceUtil.saveDataForLoggedInUser(formKey, null);
+    if(requiresMailingAddress) {
+      mailingAddressForm?.resetForm();
     }
   }
 

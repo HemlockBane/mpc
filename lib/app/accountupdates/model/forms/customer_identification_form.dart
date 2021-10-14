@@ -153,6 +153,7 @@ class CustomerIdentificationForm with ChangeNotifier {
 
   void restoreFormState() {
     final savedInfo = PreferenceUtil.getDataForLoggedInUser(FORM_KEY);
+    if(savedInfo == null) return;
     final savedIdentificationInfo = CustomerIdentificationInfo.fromJson(savedInfo);
 
     if(savedIdentificationInfo.uploadedFileName != null) {

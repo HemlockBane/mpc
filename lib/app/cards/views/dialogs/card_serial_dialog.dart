@@ -2,7 +2,7 @@ import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/app/cards/viewmodels/card_issuance_view_model.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/styles.dart';

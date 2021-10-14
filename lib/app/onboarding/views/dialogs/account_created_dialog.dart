@@ -4,7 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/app/login/model/data/user.dart';
 import 'package:moniepoint_flutter/app/login/viewmodels/login_view_model.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/account_profile_result.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
 import 'package:moniepoint_flutter/core/login_mode.dart';
@@ -64,8 +64,7 @@ class _AccountCreatedDialog extends State<AccountCreatedDialog> with CompositeDi
         PreferenceUtil.setLoginMode(LoginMode.FULL_ACCESS);
         PreferenceUtil.saveLoggedInUser(event.data!);
         PreferenceUtil.saveUsername(event.data?.username ?? "");
-        //TODO Clear all task and push
-        Navigator.popAndPushNamed(context, Routes.DASHBOARD);
+        Navigator.pushNamedAndRemoveUntil(context, Routes.DASHBOARD, (q) => false);
       }
     }).disposedBy(this);
   }
@@ -139,7 +138,7 @@ class _AccountCreatedDialog extends State<AccountCreatedDialog> with CompositeDi
                         isLoading: _isLoading,
                         elevation: 0.5,
                         onClick: _subscribeUiToLogin,
-                        text: "Go to Login",
+                        text: "Go to Dashboard",
                       )),
                   SizedBox(height: 32),
                 ],
@@ -147,6 +146,12 @@ class _AccountCreatedDialog extends State<AccountCreatedDialog> with CompositeDi
             )
           ],
         ));
+  }
+
+  @override
+  void dispose() {
+    disposeAll();
+    super.dispose();
   }
 
 }

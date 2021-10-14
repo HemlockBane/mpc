@@ -5,7 +5,14 @@ import 'package:moniepoint_flutter/app/accounts/viewmodels/transaction_list_view
 import 'package:moniepoint_flutter/app/accounts/views/account_transaction_detailed_view.dart';
 import 'package:moniepoint_flutter/app/accounts/views/account_transactions_view.dart';
 import 'package:moniepoint_flutter/app/accounts/views/block_account_view.dart';
+import 'package:moniepoint_flutter/app/accountupdates/viewmodels/account_update_view_model.dart';
+import 'package:moniepoint_flutter/app/accountupdates/views/account_status_screen.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/account_update_view.dart';
+import 'package:moniepoint_flutter/app/accountupdates/views/restriction_pages/account_blocked_view.dart';
+import 'package:moniepoint_flutter/app/accountupdates/views/restriction_pages/account_restriction_screen.dart';
+import 'package:moniepoint_flutter/app/accountupdates/views/restriction_pages/account_status_regularize_documents.dart';
+import 'package:moniepoint_flutter/app/accountupdates/views/restriction_pages/account_upgrade_info_screen.dart';
+import 'package:moniepoint_flutter/app/accountupdates/views/restriction_pages/account_upgrade_progress_screen.dart';
 import 'package:moniepoint_flutter/app/airtime/viewmodels/airtime_history_detail_view_model.dart';
 import 'package:moniepoint_flutter/app/airtime/views/airtime_history_detailed_view.dart';
 import 'package:moniepoint_flutter/app/airtime/views/airtime_view.dart';
@@ -18,10 +25,9 @@ import 'package:moniepoint_flutter/app/branches/viewmodels/branch_view_model.dar
 import 'package:moniepoint_flutter/app/cards/viewmodels/card_activation_view_model.dart';
 import 'package:moniepoint_flutter/app/cards/viewmodels/card_issuance_view_model.dart';
 import 'package:moniepoint_flutter/app/cards/viewmodels/single_card_view_model.dart';
-import 'package:moniepoint_flutter/app/cards/views/add_card_view.dart';
 import 'package:moniepoint_flutter/app/cards/views/card_detailed_view.dart';
 import 'package:moniepoint_flutter/app/cards/views/card_view.dart';
-import 'package:moniepoint_flutter/app/cards/views/dialogs/manage_card_channels_dialog.dart';
+import 'package:moniepoint_flutter/app/cards/views/manage_card_channels_view.dart';
 import 'package:moniepoint_flutter/app/cards/views/issuance/card_activation_view.dart';
 import 'package:moniepoint_flutter/app/cards/views/issuance/card_qr_code_scanner_view.dart';
 import 'package:moniepoint_flutter/app/cards/views/unblock_debit_card_view.dart';
@@ -43,6 +49,7 @@ import 'package:moniepoint_flutter/app/settings/settings_view.dart';
 import 'package:moniepoint_flutter/app/transfers/viewmodels/transfer_detail_view_model.dart';
 import 'package:moniepoint_flutter/app/transfers/views/transfer_detailed_view.dart';
 import 'package:moniepoint_flutter/app/transfers/views/transfer_view.dart';
+import 'package:moniepoint_flutter/core/models/TransactionRequestContract.dart';
 import 'package:moniepoint_flutter/core/viewmodels/contacts_view_model.dart';
 import 'package:moniepoint_flutter/core/viewmodels/system_configuration_view_model.dart';
 import 'package:moniepoint_flutter/core/views/contacts_view.dart';
@@ -54,7 +61,6 @@ class Routes {
   static const REGISTER_NEW_ACCOUNT  = "REGISTER_NEW_ACCOUNT";
   static const ACCOUNT_RECOVERY  = "ACCOUNT_RECOVERY";
   static const DASHBOARD  = "DASHBOARD";
-  static const ACCOUNT_UPDATE  = "ACCOUNT_UPDATE";
   static const LIVELINESS  = "LIVELINESS";
   static const TRANSFER  = "TRANSFER";
   static const AIRTIME  = "AIRTIME";
@@ -72,7 +78,6 @@ class Routes {
   static const CARDS  = "CARDS";
   static const CARD_DETAIL = "CARD_DETAIL";
   static const CARD_ACTIVATION = "CARD_ACTIVATION";
-  static const ADD_CARD = "ADD_CARD";
   static const MANAGE_CARD_CHANNELS = "MANAGE_CARD_CHANNELS";
   static const CARD_QR_SCANNER = "CARD_QR_SCANNER";
   static const CONTACTS  = "CONTACTS";
@@ -84,6 +89,15 @@ class Routes {
   static const REGISTERED_DEVICES = "REGISTERED_DEVICES";
   static const LIVELINESS_DETECTION = "LIVELINESS_DETECTION";
 
+  static const ACCOUNT_UPDATE  = "ACCOUNT_UPDATE";
+  static const ACCOUNT_PND_STATE  = "ACCOUNT_PND_STATE";
+  static const ACCOUNT_BLOCKED_STATE  = "ACCOUNT_BLOCKED_STATE";
+  static const ACCOUNT_REGULARIZE_DOCS  = "ACCOUNT_REGULARIZE_DOCS";
+  static const ACCOUNT_IN_PROGRESS_STATE  = "ACCOUNT_IN_PROGRESS_STATE";
+  static const ACCOUNT_UPGRADE_REQUIRED_STATE  = "ACCOUNT_UPGRADE_REQUIRED_STATE";
+  static const ACCOUNT_STATUS  = "ACCOUNT_STATUS";
+
+
   static Map<String, WidgetBuilder> buildRouteMap(SystemConfigurationViewModel systemConfigurationViewModel) {
     return {
       '/login': (BuildContext context) => LoginScreen(),
@@ -92,12 +106,10 @@ class Routes {
       Routes.ACCOUNT_RECOVERY: (BuildContext context) => Scaffold(body: RecoveryControllerScreen()),
       Routes.DASHBOARD: (BuildContext context) => DashboardScreen(),
       Routes.ACCOUNT_UPDATE: (BuildContext context) => Scaffold(body: AccountUpdateScreen()),
-      Routes.TRANSFER: (BuildContext context) => TransferScreen(),
       Routes.TRANSFER_DETAIL: (BuildContext context) => ChangeNotifierProvider(
         create: (_) => TransferDetailViewModel(),
         child: TransferDetailedView(),
       ),
-      Routes.AIRTIME: (BuildContext context) => AirtimeScreen(),
       Routes.AIRTIME_DETAIL: (BuildContext context) => ChangeNotifierProvider(
         create: (_) => AirtimeHistoryDetailViewModel(),
         child: AirtimeHistoryDetailedView(),
@@ -135,14 +147,6 @@ class Routes {
         create: (_) => SingleCardViewModel(),
         child: CardScreen(),
       ),
-      Routes.ADD_CARD: (BuildContext context) => ChangeNotifierProvider(
-        create: (_) => SingleCardViewModel(),
-        child: AddCardScreen(),
-      ),
-      Routes.CARD_QR_SCANNER: (BuildContext context) => ChangeNotifierProvider(
-        create: (_) => CardIssuanceViewModel(),
-        child: CardQRCodeScannerView(),
-      ),
       Routes.SELECT_AIRTIME_BENEFICIARY: (BuildContext context) => AirtimeSelectBeneficiaryScreen(),
       Routes.SELECT_TRANSFER_BENEFICIARY: (BuildContext context) => TransferSelectBeneficiaryScreen(),
       Routes.SELECT_BILL_BENEFICIARY: (BuildContext context) => BillSelectBeneficiaryScreen(),
@@ -158,18 +162,28 @@ class Routes {
   static MaterialPageRoute? generateRouteWithSettings(RouteSettings settings) {
     switch (settings.name) {
       case Routes.ACCOUNT_TRANSACTIONS:
-        final customerAccountId = (settings.arguments as Map?)?["customerAccountId"];
-        final args = settings.arguments as Map;
-        final userAccountIdx = args["accountUserIdx"] as int;
-      
+        final userAccountId = (settings.arguments as Map?)?["userAccountId"];
         return MaterialPageRoute(
             builder: (_) => ChangeNotifierProvider(
               create: (_) => TransactionHistoryViewModel(),
               child: AccountTransactionScreen(
-                customerAccountId: customerAccountId,
-                accountUserIdx: userAccountIdx,
+                userAccountId: userAccountId,
               ),
             ),
+        );
+      case Routes.TRANSFER:
+        final contract = (settings.arguments is TransactionRequestContract)
+            ? settings.arguments as TransactionRequestContract?
+            : null;
+        return MaterialPageRoute(
+            builder: (_) => TransferScreen(transactionRequestContract: contract)
+        );
+      case Routes.AIRTIME:
+        final contract = (settings.arguments is TransactionRequestContract)
+            ? settings.arguments as TransactionRequestContract?
+            : null;
+        return MaterialPageRoute(
+            builder: (_) => AirtimeScreen(transactionRequestContract: contract)
         );
       case Routes.LIVELINESS_DETECTION:
         return MaterialPageRoute(
@@ -193,7 +207,7 @@ class Routes {
         return MaterialPageRoute(
             builder: (_) => ChangeNotifierProvider(
               create: (_) => SingleCardViewModel(),
-              child: ManageCardChannelDialog(cardId),
+              child: ManageCardChannelView(cardId),
             )
         );
       case Routes.CARD_ACTIVATION:
@@ -203,6 +217,61 @@ class Routes {
             builder: (_) => ChangeNotifierProvider(
               create: (_) => CardActivationViewModel(),
               child: CardActivationView(cardId),
+            )
+        );
+        case Routes.CARD_QR_SCANNER:
+          final args = settings.arguments as Map<dynamic, dynamic>;
+          final customerAccountId = args["customerAccountId"] as num;
+          return MaterialPageRoute(
+            builder: (BuildContext context) => ChangeNotifierProvider(
+              create: (_) => CardIssuanceViewModel(),
+              child: CardQRCodeScannerView(customerAccountId),
+        ));
+      case Routes.ACCOUNT_PND_STATE:
+        final args = settings.arguments as Map<dynamic, dynamic>;
+        final userAccountId = args["userAccountId"] as int;
+        return MaterialPageRoute(
+            builder: (BuildContext context) => AccountRestrictionScreen(
+                userAccountId: userAccountId
+            )
+        );
+      case Routes.ACCOUNT_BLOCKED_STATE:
+        final args = settings.arguments as Map<dynamic, dynamic>;
+        final userAccountId = args["userAccountId"] as int;
+        return MaterialPageRoute(
+            builder: (BuildContext context) => AccountBlockedView(
+                userAccountId: userAccountId
+            )
+        );
+      case Routes.ACCOUNT_IN_PROGRESS_STATE:
+        final args = settings.arguments as Map<dynamic, dynamic>;
+        final userAccountId = args["userAccountId"] as int;
+        return MaterialPageRoute(
+            builder: (BuildContext context) => AccountUpgradeProgressScreen(
+                userAccountId: userAccountId
+            )
+        );
+      case Routes.ACCOUNT_UPGRADE_REQUIRED_STATE:
+        final args = settings.arguments as Map<dynamic, dynamic>;
+        final userAccountId = args["userAccountId"] as int;
+        return MaterialPageRoute(
+            builder: (BuildContext context) => AccountUpgradeInfoScreen(
+                userAccountId: userAccountId
+            )
+        );
+      case Routes.ACCOUNT_REGULARIZE_DOCS:
+        final args = settings.arguments as Map<dynamic, dynamic>;
+        final userAccountId = args["userAccountId"] as int;
+        return MaterialPageRoute(
+            builder: (BuildContext context) => AccountStatusRegularizeDocumentScreen(
+                userAccountId: userAccountId
+            )
+        );
+      case Routes.ACCOUNT_STATUS:
+        return MaterialPageRoute(
+            builder: (BuildContext context) => ChangeNotifierProvider(
+                create: (_) => AccountUpdateViewModel(),
+                child: AccountStatusScreen(),
             )
         );
     }

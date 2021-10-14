@@ -11,11 +11,11 @@ import 'package:moniepoint_flutter/core/timeout_reason.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
+import 'package:collection/collection.dart';
 
 class UserInstance {
   static UserInstance? _instance;
   static User? _user;
-  static AccountStatus? _accountStatus;
   static List<AccountBalance?> _accountBalanceList = [];
   static List<UserAccount> _userAccounts = [];
   static Timer? timer;
@@ -34,7 +34,6 @@ class UserInstance {
 
   void resetSession() {
     _user = null;
-    _accountStatus = null;
     _accountBalanceList = [];
     _userAccounts = [];
     _scheduler?.close();
@@ -52,11 +51,15 @@ class UserInstance {
     return _user;
   }
 
-  void setAccountStatus(AccountStatus? accountStatus) {
-    _accountStatus = accountStatus;
+  void setAccountStatus(int customerAccountId, AccountStatus? accountStatus) {
+    _userAccounts.forEach((element) {
+      if(element.customerAccount!.id == customerAccountId) {
+        element.accountStatus = accountStatus;
+      }
+    });
   }
 
-  AccountStatus? get accountStatus => _accountStatus;
+  AccountStatus? get accountStatus => _userAccounts.firstOrNull?.accountStatus;
 
   void setAccountBalanceList(List<AccountBalance?> accountBalanceList) {
     _accountBalanceList = accountBalanceList;
@@ -73,6 +76,10 @@ class UserInstance {
   }
 
   List<UserAccount> get userAccounts => _userAccounts;
+
+  UserAccount? getUserAccount(int userAccountId) {
+    return _userAccounts.firstWhereOrNull((element) => element.id == userAccountId);
+  }
 
   void forceLogout(BuildContext? context, SessionTimeoutReason reason) {
     if(context == null) {

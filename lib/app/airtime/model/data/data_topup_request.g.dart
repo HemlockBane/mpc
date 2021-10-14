@@ -13,9 +13,9 @@ DataTopUpRequest _$DataTopUpRequestFromJson(Map<String, dynamic> json) {
     dataProviderName: json['dataProviderName'] as String?,
     minorCreditAmount: (json['minorCreditAmount'] as num?)?.toDouble(),
     name: json['name'] as String?,
-    metaData: json['metaDataObj'] == null
+    location: json['location'] == null
         ? null
-        : TransactionMetaData.fromJson(json['metaDataObj'] as Object),
+        : Location.fromJson(json['location'] as Object),
   );
 }
 
@@ -33,6 +33,6 @@ Map<String, dynamic> _$DataTopUpRequestToJson(DataTopUpRequest instance) {
   writeNotNull('dataProviderName', instance.dataProviderName);
   writeNotNull('minorCreditAmount', instance.minorCreditAmount);
   writeNotNull('name', instance.name);
-  writeNotNull('metaDataObj', instance.metaData);
+  writeNotNull('location', instance.location);
   return val;
 }

@@ -6,7 +6,7 @@ import 'package:moniepoint_flutter/app/settings/dialogs/change_pin_dialog.dart';
 import 'package:moniepoint_flutter/app/settings/dialogs/login_methods_dialog.dart';
 import 'package:moniepoint_flutter/app/usermanagement/viewmodels/change_password_view_model.dart';
 import 'package:moniepoint_flutter/app/usermanagement/viewmodels/change_pin_view_model.dart';
-import 'package:moniepoint_flutter/core/bottom_sheet.dart';
+import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/config/build_config.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -79,6 +79,8 @@ class _SettingsScreen extends State<SettingsScreen> {
         context: _scaffoldKey.currentContext ?? context,
         builder: (mContext) => LoginMethodsDialog()
     );
+
+    print(result);
 
     if(result is bool && result){
       final fingerprintResult = await showModalBottomSheet(

@@ -21,16 +21,15 @@ class DataTopUpRequest  {
   @JsonKey(name:"name")
   String? name;
 
-  @JsonKey(name:"metaDataObj")
-  TransactionMetaData? metaData;
-
+  @JsonKey(name: "location")
+  Location? location;
 
   DataTopUpRequest({this.phoneNumber,
       this.dataProviderItemCode,
       this.dataProviderName,
       this.minorCreditAmount,
       this.name,
-      this.metaData
+      this.location
   });
 
   factory DataTopUpRequest.fromJson(Object? data) => _$DataTopUpRequestFromJson(data as Map<String, dynamic>);
@@ -62,8 +61,8 @@ class DataTopUpRequest  {
     return this;
   }
 
-  DataTopUpRequest withMetaData(TransactionMetaData metaData) {
-    this.metaData = metaData;
+  DataTopUpRequest withLocation(Location? location) {
+    this.location = location;
     return this;
   }
 }

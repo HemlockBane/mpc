@@ -6,7 +6,7 @@ import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/utils/download_util.dart';
 
-import '../bottom_sheet.dart';
+import 'bottom_sheet.dart';
 import '../colors.dart';
 import '../tuple.dart';
 
@@ -131,7 +131,9 @@ class _TransactionOptionsView extends State<TransactionOptionsView> {
             children: [
               Stack(
                 children: [
-                  if(isDownloading) SizedBox(width: 40, height: 40,
+                  if(isDownloading) SizedBox(
+                    width: 40,
+                    height: 40,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
                       valueColor: AlwaysStoppedAnimation(Colors.colorPrimaryDark.withOpacity(0.5)),

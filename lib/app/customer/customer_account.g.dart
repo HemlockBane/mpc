@@ -35,7 +35,11 @@ CustomerAccount _$CustomerAccountFromJson(Map<String, dynamic> json) {
         ?.map((e) => e as String)
         .toList(),
     multipleDebit: json['multipleDebit'] as bool?,
-  );
+    blocked: json['blocked'] as bool?,
+    blockedBy: _$enumDecodeNullable(_$BlockedByEnumMap, json['blockedBy']),
+    blockReason: json['blockReason'] as String?,
+    referralCode: json['referralCode'] as String?,
+  )..blockedTime = json['blockedTime'] as String?;
 }
 
 Map<String, dynamic> _$CustomerAccountToJson(CustomerAccount instance) =>
@@ -61,4 +65,53 @@ Map<String, dynamic> _$CustomerAccountToJson(CustomerAccount instance) =>
       'active': instance.active,
       'unsupportedFeatures': instance.unsupportedFeatures,
       'multipleDebit': instance.multipleDebit,
+      'blocked': instance.blocked,
+      'blockReason': instance.blockReason,
+      'blockedBy': _$BlockedByEnumMap[instance.blockedBy],
+      'blockedTime': instance.blockedTime,
+      'referralCode': instance.referralCode,
     };
+
+K _$enumDecode<K, V>(
+  Map<K, V> enumValues,
+  Object? source, {
+  K? unknownValue,
+}) {
+  if (source == null) {
+    throw ArgumentError(
+      'A value must be provided. Supported values: '
+      '${enumValues.values.join(', ')}',
+    );
+  }
+
+  return enumValues.entries.singleWhere(
+    (e) => e.value == source,
+    orElse: () {
+      if (unknownValue == null) {
+        throw ArgumentError(
+          '`$source` is not one of the supported values: '
+          '${enumValues.values.join(', ')}',
+        );
+      }
+      return MapEntry(unknownValue, enumValues.values.first);
+    },
+  ).key;
+}
+
+K? _$enumDecodeNullable<K, V>(
+  Map<K, V> enumValues,
+  dynamic source, {
+  K? unknownValue,
+}) {
+  if (source == null) {
+    return null;
+  }
+  return _$enumDecode<K, V>(enumValues, source, unknownValue: unknownValue);
+}
+
+const _$BlockedByEnumMap = {
+  BlockedBy.BACKOFFICE: 'BACKOFFICE',
+  BlockedBy.CUSTOMER: 'CUSTOMER',
+  BlockedBy.SYSTEM: 'SYSTEM',
+  BlockedBy.AGENT: 'AGENT',
+};

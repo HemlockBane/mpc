@@ -3,11 +3,11 @@ import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/beneficiary.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_utils.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
-import 'package:moniepoint_flutter/app/transfers/views/transfer_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/models/TransactionRequestContract.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
-import 'package:moniepoint_flutter/core/strings.dart';
+import 'package:moniepoint_flutter/core/extensions/strings.dart';
 
 ///@author Paul Okeke
 ///@Contributor Obinna Igwe
@@ -69,9 +69,11 @@ class _DashboardRecentlyPaidState extends State<DashboardRecentlyPaidView> {
             onPressed: () async {
               final beneficiary = await Navigator.pushNamed(context, Routes.SELECT_TRANSFER_BENEFICIARY);
               if(beneficiary != null && beneficiary is TransferBeneficiary) {
-                Navigator.of(context).pushNamed(Routes.TRANSFER, arguments: {
-                  TransferScreen.START_TRANSFER: beneficiary
-                });
+                final contract = TransactionRequestContract(
+                  intent: beneficiary,
+                  requestType: TransactionRequestContractType.BEGIN_TRANSFER
+                );
+                Navigator.of(context).pushNamed(Routes.TRANSFER, arguments: contract);
               }
             },
             child: Text(
@@ -215,9 +217,11 @@ class _RecentlyPaidBeneficiaryItem extends StatelessWidget {
       .split(" ");
 
   _onItemClicked(BuildContext context, Beneficiary beneficiary) {
-    Navigator.of(context).pushNamed(Routes.TRANSFER, arguments: {
-      TransferScreen.START_TRANSFER: beneficiary
-    });
+    final contract = TransactionRequestContract(
+        intent: beneficiary,
+        requestType: TransactionRequestContractType.BEGIN_TRANSFER
+    );
+    Navigator.of(context).pushNamed(Routes.TRANSFER, arguments: contract);
   }
 
   @override

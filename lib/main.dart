@@ -17,13 +17,20 @@ import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/viewmodels/system_configuration_view_model.dart';
+import 'package:moniepoint_flutter/core/work/ios_background_task_worker.dart';
+import 'package:moniepoint_flutter/core/work/work_dispatcher.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:workmanager/workmanager.dart';
+
+import 'app/notifications/app_notification_service.dart';
+import 'core/utils/biometric_helper.dart';
 
 
 //We need to move this to some where else
 
 final GlobalKey<NavigatorState> navigatorKey = new GlobalKey<NavigatorState>();
+final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver();
 
 final defaultAppTheme = ThemeData(
     disabledColor: Colors.primaryColor.withOpacity(0.5),
@@ -46,7 +53,7 @@ class MoniepointApp extends StatelessWidget with CompositeDisposableWidget {
         viewModel.getUSSDConfiguration(), (a, b) {}
     ).listen((event) {
       print("Fetching System Configuration!!!");
-      if(event is Success || event is Error){
+      if(event is Success || event is Error) {
         disposeAll();
       }
     }).disposedBy(this);
@@ -58,7 +65,7 @@ class MoniepointApp extends StatelessWidget with CompositeDisposableWidget {
       SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
     }
 
-    final systemConfigViewModel = SystemConfigurationViewModel();
+    final systemConfigViewModel = Provider.of<SystemConfigurationViewModel>(context, listen: false);
     _loadSystemConfigurations(systemConfigViewModel);
 
     String? savedUsername = PreferenceUtil.getSavedUsername();
@@ -67,6 +74,9 @@ class MoniepointApp extends StatelessWidget with CompositeDisposableWidget {
       title: 'Moniepoint Customers',
       theme: defaultAppTheme,
       navigatorKey: navigatorKey,
+      navigatorObservers: [
+        routeObserver
+      ],
       home: Scaffold(
         body: (savedUsername == null || savedUsername.isEmpty)
             ? SignUpAccountScreen()
@@ -84,6 +94,7 @@ void main() async {
     providers: [
       ChangeNotifierProvider(create: (_) => LoginViewModel()),
       ChangeNotifierProvider(create: (_) => DashboardViewModel()),
+      ChangeNotifierProvider(create: (_) => SystemConfigurationViewModel()),
     ],
     child: MoniepointApp(),
   ));
@@ -91,10 +102,19 @@ void main() async {
 
 Future<void> _onCreate() async {
   WidgetsFlutterBinding.ensureInitialized();
+  Workmanager().initialize(workDispatcher, isInDebugMode: true);
+  await BiometricHelper.initialize(
+      keyFileName: "moniepoint_iv",
+      keyStoreName: "AndroidKeyStore",
+      keyAlias: "teamapt-moniepoint"
+  );
   await DatabaseModule.inject();
+
   ServiceModule.inject();
 
   await Firebase.initializeApp();
   await PreferenceUtil.initAsync();
-  await MixpanelManager.initAsync();
+  MixpanelManager.initAsync();
+
+  AppNotificationService().initialize();
 }

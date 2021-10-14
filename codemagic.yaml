@@ -5,7 +5,7 @@ workflows:
         - push
       branch_patterns:
         - pattern: dev
-      cancle_previous_builds: true
+      cancel_previous_builds: true
     scripts:
       - name: Build Android Apk
         working_directory: android

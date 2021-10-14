@@ -158,7 +158,7 @@ class BillPurchaseViewModel extends BaseViewModel with PaymentViewModel {
         .withCustomerValidationReference(validationReference ?? "")
         .withBillerProductCode(billerProduct?.paymentCode ?? "")
         .withCustomerId(beneficiary?.getBeneficiaryDigits() ?? "")
-        .withMetaData(buildTransactionMetaData("BILL"))
+        .withLocation(buildLocationData())
         .withMinorCost(((amount ?? 0) * 100).toInt().toString());
 
     final requestBody = BillPaymentRequestBody()

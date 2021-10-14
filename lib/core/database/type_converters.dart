@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/alternate_scheme_requirement.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/scheme_requirement.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/transaction_category.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_history_item.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_service_provider.dart';
@@ -15,6 +16,7 @@ import 'package:moniepoint_flutter/app/billpayments/model/data/biller_product.da
 import 'package:moniepoint_flutter/app/transfers/model/data/fee_vat_config.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/transfer_batch.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/transfer_history_item.dart';
+import 'package:moniepoint_flutter/core/config/service_config.dart';
 import 'package:moniepoint_flutter/core/models/transaction.dart';
 import 'package:moniepoint_flutter/core/models/transaction_batch.dart';
 import 'package:moniepoint_flutter/core/models/transaction_meta_data.dart';
@@ -222,6 +224,20 @@ class TransactionTypeConverter extends TypeConverter<TransactionType?, String?>{
   }
 }
 
+class TransactionCategoryConverter extends TypeConverter<TransactionCategory?, String?>{
+  @override
+  TransactionCategory? decode(String? databaseValue) {
+    if(databaseValue == null) return null;
+    final TransactionCategory type = enumFromString<TransactionCategory>(TransactionCategory.values, databaseValue);
+    return type;
+  }
+
+  @override
+  String? encode(TransactionCategory? value) {
+    return (value != null)  ? describeEnum(value) : null;
+  }
+}
+
 class TransactionChannelConverter extends TypeConverter<TransactionChannel?, String?>{
   @override
   TransactionChannel? decode(String? databaseValue) {
@@ -294,8 +310,28 @@ class DateStringToLongConverter extends TypeConverter<String?, int?>{
 }
 
 
+class LocationConverter extends TypeConverter<Location?, String?>{
+  @override
+  Location? decode(String? databaseValue) {
+    if(databaseValue == null) return null;
+    final dynamic type = jsonDecode(databaseValue);
+    return Location.fromJson(type);
+  }
+
+  @override
+  String? encode(Location? value) {
+    return (value != null) ? jsonEncode(value) : null;
+  }
+}
+
+
+
 int stringDateTime(String a) {
-  return DateTime.parse(a).millisecondsSinceEpoch;
+  final parsedDate = DateTime.parse(a);
+  if(parsedDate.isUtc && ServiceConfig.ENV == "dev") {
+    return parsedDate.subtract(Duration(hours: 1)).millisecondsSinceEpoch;
+  }
+  return parsedDate.millisecondsSinceEpoch;
 }
 // class DateListTypeConverter extends TypeConverter<List<int>?, int?>{
 //   @override

@@ -83,11 +83,6 @@ class _BillCategoryListScreen extends State<BillCategoryListScreen>
                 Navigator.of(widget._scaffoldKey.currentContext!).pushNamed(Routes.ACCOUNT_UPDATE);
               },
            ),
-          SizedBox(height: 24),
-          Divider(
-            height: 1,
-            color: Color(0XFFE0E0E0),
-          ),
           SizedBox(
             height: 16,
           ),

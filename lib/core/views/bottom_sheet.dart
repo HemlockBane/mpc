@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_swipecards/flutter_swipecards.dart';
@@ -13,6 +14,7 @@ import '../login_prompt.dart';
 class BottomSheets {
   static Widget makeAppBottomSheet(
       {double? height,
+        bool enableDrag = true,
       Color curveBackgroundColor = Colors.white,
       Color centerImageBackgroundColor = Colors.primaryColor,
       Color contentBackgroundColor = Colors.white,
@@ -27,7 +29,9 @@ class BottomSheets {
       double centerBackgroundPadding = 20,
       Widget? content,
       Color? centerImageColor}) {
-    return Container(
+    return  GestureDetector(
+      onVerticalDragStart: enableDrag ? null : (details) => null,
+      child: Container(
         height: height,
         child: Stack(
           children: [
@@ -43,15 +47,15 @@ class BottomSheets {
               width: double.infinity,
               margin: EdgeInsets.only(top: 42.5),
               padding: EdgeInsets.only(
-                  top: 43,
-                  left: paddingLeft,
-                  right: paddingRight,
-                  bottom: paddingBottom),
+                top: 43,
+                left: paddingLeft,
+                right: paddingRight,
+                bottom: paddingBottom),
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(16),
-                      topRight: Radius.circular(16)),
-                  color: contentBackgroundColor),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16)),
+                color: contentBackgroundColor),
               child: content,
             ),
             Positioned(
@@ -63,9 +67,9 @@ class BottomSheets {
                   shape: BoxShape.circle,
                 ),
                 child: SvgPicture.asset(centerImageRes,
-                    width: centerImageWidth,
-                    height: centerImageHeight,
-                    color: centerImageColor),
+                  width: centerImageWidth,
+                  height: centerImageHeight,
+                  color: centerImageColor),
                 padding: EdgeInsets.all(centerBackgroundPadding),
                 margin: EdgeInsets.only(top: 10),
               ),
@@ -73,7 +77,8 @@ class BottomSheets {
               right: 0,
             ),
           ],
-        ));
+        )),
+    );
   }
 
   static Widget makeAppBottomSheet2({

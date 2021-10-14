@@ -7,6 +7,7 @@ import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart'
 import 'package:moniepoint_flutter/app/accounts/model/data/account_status.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/customer_service_delegate.dart';
+import 'package:moniepoint_flutter/app/accountupdates/model/data/account_upgrade_state.dart';
 import 'package:moniepoint_flutter/app/dashboard/model/slider_item.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/transfer_beneficiary_delegate.dart';
@@ -19,6 +20,7 @@ import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/biometric_helper.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
+import 'package:collection/collection.dart';
 
 class DashboardViewModel extends BaseViewModel {
   late final CustomerServiceDelegate _customerServiceDelegate;
@@ -48,8 +50,8 @@ class DashboardViewModel extends BaseViewModel {
   StreamController<DashboardState> _dashboardController = StreamController.broadcast();
   Stream<DashboardState> get dashboardUpdateStream => _dashboardController.stream;
 
-  Stream<Resource<AccountStatus>> fetchAccountStatus() {
-    return this.accountServiceDelegate!.getAccountStatus(customerAccountId);
+  Stream<Resource<dynamic>> fetchAllAccountStatus() {
+    return accountServiceDelegate!.updateAllAccountStatus();
   }
 
   ///TODO passing context here might be breaking principles
@@ -59,11 +61,8 @@ class DashboardViewModel extends BaseViewModel {
   }
 
   Stream<Resource<List<Tier>>> getTiers() {
-    return _customerServiceDelegate
-        .getSchemes(fetchFromRemote: false)
-        .map((event) {
-      if ((event is Success || event is Loading) &&
-          event.data?.isNotEmpty == true) {
+    return _customerServiceDelegate.getSchemes(fetchFromRemote: false).map((event) {
+      if ((event is Success || event is Loading) && event.data?.isNotEmpty == true) {
         this.tiers.clear();
         this.tiers.addAll(event.data ?? []);
       }
@@ -75,14 +74,9 @@ class DashboardViewModel extends BaseViewModel {
     return _transferBeneficiaryDelegate.getFrequentBeneficiaries().asBroadcastStream();
   }
 
-  String getFirstName() {
-    return UserInstance().getUser()?.firstName ?? "";
-  }
-
   Stream<Resource<FileResult>> getProfilePicture() {
     if (customer?.passportUUID == null) return Stream.empty();
-    return _fileServiceDelegate
-        .getFileByUUID(customer?.passportUUID ?? "", shouldFetchRemote: false)
+    return _fileServiceDelegate.getFileByUUID(customer?.passportUUID ?? "", shouldFetchRemote: false)
         .map((event) {
       if (event is Success || event is Loading) {
         _userProfileBase64String = event.data?.base64String;
@@ -92,7 +86,7 @@ class DashboardViewModel extends BaseViewModel {
   }
 
   Stream<Resource<AccountBalance>> getDashboardBalance({int? accountId, bool useLocal = true}) {
-    return getCustomerAccountBalance(accountId:  accountId, useLocal: useLocal).asBroadcastStream().map((event) {
+    return getCustomerAccountBalance(accountId: accountId, useLocal: useLocal).asBroadcastStream().map((event) {
       if(event is Success || event is Error) {
         update(DashboardState.DONE);
       }
@@ -105,22 +99,8 @@ class DashboardViewModel extends BaseViewModel {
   }
 
   void checkAccountUpdate() {
-    AccountStatus? accountStatus = UserInstance().accountStatus;
-    final flags = accountStatus?.listFlags() ?? customer?.listFlags();
-    if (flags == null) return;
-    _isAccountUpdateCompleted = flags.where((element) => element?.status != true).isEmpty;
-    _populateSliderItems();
-  }
-
-  void _populateSliderItems() {
-    sliderItems.clear();
-    if (isAccountUpdateCompleted) return;
-    sliderItems.add(SliderItem(
-        key: "account_update",
-        primaryText: "Upgrade Account",
-        secondaryText: "Upgrade your savings account\nto enjoy higher limits",
-        iconPath: "res/drawables/ic_dashboard_edit.png")
-    );
+    final userAccount = UserInstance().userAccounts.firstOrNull;
+    _isAccountUpdateCompleted = userAccount?.getAccountState() == AccountState.COMPLETED;
   }
 
   Future<Tuple<bool, BiometricType>> shouldRequestFingerPrintSetup() async {
@@ -133,8 +113,7 @@ class DashboardViewModel extends BaseViewModel {
     }
     final biometricHelper = BiometricHelper.getInstance();
     final biometricType = await biometricHelper.getBiometricType();
-    final hasFingerprintPassword =
-        (await biometricHelper.getFingerprintPassword()) != null;
+    final hasFingerprintPassword = (await biometricHelper.getFingerprintPassword()) != null;
 
     final shouldRequest =
         biometricType != BiometricType.NONE && !hasFingerprintPassword;

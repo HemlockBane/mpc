@@ -18,8 +18,8 @@ class AirtimeDataRequest {
   @JsonKey(name:"name")
   String? name;
 
-  @JsonKey(name:"metaDataObj")
-  TransactionMetaData? metaData;
+  @JsonKey(name: "location")
+  Location? location;
 
   AirtimeDataRequest();
 
@@ -38,8 +38,8 @@ class AirtimeDataRequest {
     return this;
   }
 
-  AirtimeDataRequest withMetaData(TransactionMetaData metaData) {
-    this.metaData = metaData;
+  AirtimeDataRequest withLocation(Location? location) {
+    this.location = location;
     return this;
   }
 

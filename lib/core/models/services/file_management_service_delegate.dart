@@ -16,18 +16,23 @@ class FileManagementServiceDelegate with NetworkResource{
         shouldFetchFromRemote: (localData) => localData == null || shouldFetchRemote,
         fetchFromLocal: () {
           if(uuid.isEmpty) return Stream.value(null);
-          final value = PreferenceUtil.getValue(uuid);
+          final value = PreferenceUtil.getData(uuid);
           if(value == null) return Stream.value(null);
-          if(value is String && value.isEmpty == true) return Stream.value(null);
-          return Stream.value(FileResult(base64String: value));
+          final fileResult = FileResult.fromJson(value);
+
+          if(fileResult.base64String == null) return Stream.value(null);
+
+          if(fileResult.base64String is String
+              && fileResult.base64String?.isEmpty == true) return Stream.value(null);
+          return Stream.value(fileResult);
         },
         fetchFromRemote: () {
           if(uuid.isEmpty) return Future.value(null);
           return _fileManagementService.getFile(uuid);
         },
-        saveRemoteData: (a) async {
-          if(a.base64String != null && a.base64String?.isNotEmpty == true)
-            PreferenceUtil.saveValue(uuid, a.base64String);
+        saveRemoteData: (fResult) async {
+          if(fResult.base64String != null && fResult.base64String?.isNotEmpty == true)
+            PreferenceUtil.saveData(uuid, fResult);
         }
     );
   }

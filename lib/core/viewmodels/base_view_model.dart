@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moniepoint_flutter/app/accounts/model/account_service_delegate.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
+import 'package:moniepoint_flutter/app/accountupdates/model/data/account_upgrade_state.dart';
 import 'package:moniepoint_flutter/app/customer/customer.dart';
+import 'package:moniepoint_flutter/app/customer/scheme_code.dart';
 import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -98,11 +100,18 @@ abstract class BaseViewModel with ChangeNotifier {
     return mCustomerAccountUser?.customerAccount?.accountName ?? accountName;
   }
 
-  String? getUserQualifiedTierName(int accountId) {
-    final customerAccountUsers = customer?.customerAccountUsers?.where((element) => element.customerAccount?.id ==accountId).firstOrNull;
+  String? getUserQualifiedTierName(int customerAccountId) {
+    final customerAccountUsers = customer?.customerAccountUsers?.where((element) => element.customerAccount?.id ==customerAccountId).firstOrNull;
     if(customerAccountUsers == null || customerAccountUsers.customerAccount == null) return null;
     final customerAccount = customerAccountUsers.customerAccount;
     return customerAccount?.schemeCode?.name;
+  }
+
+  SchemeCode? getUserQualifiedScheme(int customerAccountId) {
+    final customerAccountUsers = customer?.customerAccountUsers?.where((element) => element.customerAccount?.id ==customerAccountId).firstOrNull;
+    if(customerAccountUsers == null || customerAccountUsers.customerAccount == null) return null;
+    final customerAccount = customerAccountUsers.customerAccount;
+    return customerAccount?.schemeCode;
   }
 
   int? getCustomerAccountIdByAccountNumber (String? accountNumber) {
@@ -136,6 +145,12 @@ abstract class BaseViewModel with ChangeNotifier {
         return null;
     }
   }
+
+  AccountState getAccountState () {
+    return userAccounts.firstOrNull?.getAccountState() ?? AccountState.COMPLETED;
+  }
+
+  UserAccount? getUserAccountById(int userAccountId) => UserInstance().getUserAccount(userAccountId);
 
   @override
   void dispose() {

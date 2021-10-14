@@ -44,9 +44,6 @@ class BillPaymentRequestBody  {
   @JsonKey(name:"authenticationType")
   AuthenticationMethod? authenticationType;
 
-  @JsonKey(name:"metaDataObj")
-  TransactionMetaData? metaData;
-
   BillPaymentRequestBody() {
     paymentType = PaymentType.ONE_TIME;
   }
@@ -110,11 +107,6 @@ class BillPaymentRequestBody  {
     return this;
   }
 
-  BillPaymentRequestBody withMetaData(TransactionMetaData metaData) {
-    this.metaData = metaData;
-    return this;
-  }
-
 }
 
 @JsonSerializable(includeIfNull: false)
@@ -135,8 +127,8 @@ class Request {
   @JsonKey(name:"additionalFieldsMap")
   Map<String, String>? additionalFieldsMap;
 
-  @JsonKey(name:"metaDataObj")
-  TransactionMetaData? metaData;
+  @JsonKey(name: "location")
+  Location? location;
 
   Request();
 
@@ -172,8 +164,8 @@ class Request {
     return this;
   }
 
-  Request withMetaData(TransactionMetaData metaData) {
-    this.metaData = metaData;
+  Request withLocation(Location? location) {
+    this.location = location;
     return this;
   }
 }

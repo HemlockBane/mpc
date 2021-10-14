@@ -20,8 +20,21 @@ class Customer {
   final String? relationshipManagerNodeGuid;
   final List<CustomerAccountUsers>? customerAccountUsers;
   final String? timeAdded;
+  final bool? bvnVerified;
+  final bool? addressVerified;
+  final bool? identificationVerified;
+  @JsonKey(name: "reuploadID")
+  final bool? reUploadID;
+  @JsonKey(name: "reuploadProofOfAddress")
+  final bool? reUploadProofOfAddress;
   @JsonKey(name: "passportUUID")
   final String? passportUUID;
+
+  @JsonKey(name: "utilityBillUUID")
+  final String? utilityBillUUID;
+
+  @JsonKey(name: "identificationUUID")
+  final String? identificationUUID;
 
   @JsonKey(name:"additionalInfoFlag")
   final AccountUpdateFlag? additionalInfoFlag;
@@ -53,9 +66,8 @@ class Customer {
   // @JsonKey(name:"onboardingStatus")
   // final OnBoardingStatus? onboardingStatus;
 
-
   Customer(
-      this.id,
+      {this.id,
       this.name,
       this.description,
       this.primaryCbaCustomerId,
@@ -76,15 +88,22 @@ class Customer {
       this.addressVerificationFlag,
       this.identificationVerificationFlag,
       this.bvnVerificationFlag,
-      this.passportUUID
-      );
+      this.passportUUID,
+      this.reUploadID,
+      this.reUploadProofOfAddress,
+      this.addressVerified,
+      this.bvnVerified,
+      this.identificationVerified,
+      this.utilityBillUUID,
+      this.identificationUUID
+      });
 
   factory Customer.fromJson(Object? data) => _$CustomerFromJson(data as Map<String, dynamic>);
   Map<String, dynamic> toJson() => _$CustomerToJson(this);
 
   List<AccountUpdateFlag?> listFlags() {
     return <AccountUpdateFlag?>[
-      additionalInfoFlag?.copyWith(flagName: Flags.ADDITIONAL_INFO),
+      additionalInfoFlag?.copyWith(flagName: Flags.ADDITIONAL_INFO) ,
       identificationInfoFlag?.copyWith(flagName: Flags.IDENTIFICATION_INFO),
       identificationProofFlag?.copyWith(flagName: Flags.IDENTIFICATION_PROOF),
       identificationVerificationFlag?.copyWith(flagName: Flags.IDENTIFICATION_VERIFIED),

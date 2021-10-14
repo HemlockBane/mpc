@@ -1,13 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' hide Colors;
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
 import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/models/transaction.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 
 import '../../colors.dart';
 import '../custom_check_box.dart';
+import 'package:collection/collection.dart';
 
 class TransactionTypeFilterDialog extends StatefulWidget {
 
@@ -23,11 +22,13 @@ class TransactionTypeFilterDialog extends StatefulWidget {
 class _TransactionTypeFilterDialog extends State<TransactionTypeFilterDialog> {
 
   final List<_TransactionTypeFilterItem> _typeFilters = List.unmodifiable([
+    _TransactionTypeFilterItem("All", TransactionType.ALL),
     _TransactionTypeFilterItem("Credit", TransactionType.CREDIT),
     _TransactionTypeFilterItem("Debit", TransactionType.DEBIT),
   ]);
 
   final List<TransactionType> _selectedTypes = [];
+  _TransactionTypeFilterItem? _selectedType;
 
   @override
   void initState() {
@@ -37,13 +38,21 @@ class _TransactionTypeFilterDialog extends State<TransactionTypeFilterDialog> {
 
   void _setDefaultValues() {
     final selectedTypes = widget.selectedTypes;
-    if(selectedTypes == null) return;
+    if(selectedTypes == null) return _selectAllAsDefault();
     _typeFilters.forEach((element) {
       if(selectedTypes.contains(element.value)) {
         element.isSelected = true;
+        _selectedType = element;
         _selectedTypes.add(element.value);
       }
     });
+
+    if(_typeFilters.isEmpty) _selectAllAsDefault();
+  }
+
+  void _selectAllAsDefault() {
+    _typeFilters.firstOrNull?.isSelected = true;
+    _selectedType = _typeFilters.firstOrNull;
   }
 
   Widget generateChannelItem(_TransactionTypeFilterItem item, int position, OnItemClickListener<_TransactionTypeFilterItem, int> itemClickListener) {
@@ -82,7 +91,7 @@ class _TransactionTypeFilterDialog extends State<TransactionTypeFilterDialog> {
   @override
   Widget build(BuildContext context) {
     return BottomSheets.makeAppBottomSheet(
-      height: 470,
+      height: 510,
       curveBackgroundColor: Colors.white,
       centerImageBackgroundColor: Colors.primaryColor.withOpacity(0.1),
       contentBackgroundColor: Colors.white,
@@ -128,7 +137,7 @@ class _TransactionTypeFilterDialog extends State<TransactionTypeFilterDialog> {
                 child: Styles.appButton(
                     elevation: _canApplyFilter() ? 0.5 : 0,
                     onClick:  _canApplyFilter() ? _applyFilter : null,
-                    text: 'Continue'
+                    text: 'Apply Filter'
                 ),
               ),
             )
@@ -138,23 +147,22 @@ class _TransactionTypeFilterDialog extends State<TransactionTypeFilterDialog> {
     );
   }
 
-
   void _applyFilter() {
     Navigator.of(context).pop(_selectedTypes);
   }
 
   bool _canApplyFilter() {
-    return _selectedTypes.isNotEmpty;
+    return _selectedType?.value == TransactionType.ALL || _selectedTypes.isNotEmpty;
   }
-
 
   void _itemClickHandler (_TransactionTypeFilterItem item, int position) {
     setState(() {
-      if(_selectedTypes.contains(item.value)) {
-        item.isSelected = false;
-        _selectedTypes.remove(item.value);
-      }else {
-        item.isSelected = true;
+      _selectedType?.isSelected = false;
+      item.isSelected = !item.isSelected;
+      _selectedType = item;
+
+      _selectedTypes.clear();
+      if(item.value != TransactionType.ALL) {
         _selectedTypes.add(item.value);
       }
     });

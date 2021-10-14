@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide ScrollView, Colors;
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/forms/next_of_kin_form.dart';
@@ -135,7 +136,8 @@ class _NextOfKinScreen extends State<NextOfKinScreen> with AutomaticKeepAliveCli
                       onChanged: _nextOfKinForm?.onLastNameChange,
                       hint: 'Last Name',
                       animateHint: false,
-                      fontSize: 15);
+                      fontSize: 15
+                  );
                 }),
             SizedBox(height: 20),
             StreamBuilder(
@@ -145,6 +147,9 @@ class _NextOfKinScreen extends State<NextOfKinScreen> with AutomaticKeepAliveCli
                       controller: _phoneNumberController?.withDefaultValueFromStream(
                           snapshot, _nextOfKinForm?.nextOfKinInfo.nextOfKinPhoneNumber
                       ),
+                      inputFormats: [
+                        FilteringTextInputFormatter.digitsOnly
+                      ],
                       errorText: snapshot.hasError ? snapshot.error.toString() : null,
                       onChanged: _nextOfKinForm?.onPhoneNumberChange,
                       hint: 'Phone Number',
@@ -166,39 +171,30 @@ class _NextOfKinScreen extends State<NextOfKinScreen> with AutomaticKeepAliveCli
                       fontSize: 15);
                 }),
             SizedBox(height: 20),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Expanded(
-                    child: StreamBuilder(
-                        stream: _nextOfKinForm?.relationshipStream,
-                        builder: (BuildContext context, AsyncSnapshot<Relationship?> snapshot) {
-                          return Styles.buildDropDown(relationships, snapshot, (value, i) {
-                            _nextOfKinForm?.onRelationshipChange(value as Relationship);
-                          }, hint: 'Relationship');
-                        })
-                ),
-                SizedBox(width: 20),
-                Expanded(
-                    child: StreamBuilder(
-                        stream: _nextOfKinForm?.dateOfBirthStream,
-                        builder: (context, AsyncSnapshot<String?> snapshot) {
-                          return Styles.appEditText(
-                              controller: _dateOfBirthController?.withDefaultValueFromStream(
-                                snapshot, _nextOfKinForm?.nextOfKinInfo.nextOfKinDOB
-                              ),
-                              onClick: () => displayDatePicker(context),
-                              errorText: snapshot.hasError ? snapshot.error.toString() : null,
-                              hint: 'Date of Birth',
-                              animateHint: false,
-                              readOnly: true,
-                              startIcon: Icon(CustomFont.calendar, color: Colors.textFieldIcon.withOpacity(0.4)),
-                              fontSize: 15
-                          );
-                        })
-                ),
-              ],
-            ),
+            StreamBuilder(
+                stream: _nextOfKinForm?.relationshipStream,
+                builder: (BuildContext context, AsyncSnapshot<Relationship?> snapshot) {
+                  return Styles.buildDropDown(relationships, snapshot, (value, i) {
+                    _nextOfKinForm?.onRelationshipChange(value as Relationship);
+                  }, hint: 'Relationship');
+            }),
+            SizedBox(height: 20),
+            StreamBuilder(
+                stream: _nextOfKinForm?.dateOfBirthStream,
+                builder: (context, AsyncSnapshot<String?> snapshot) {
+                  return Styles.appEditText(
+                      controller: _dateOfBirthController?.withDefaultValueFromStream(
+                          snapshot, _nextOfKinForm?.nextOfKinInfo.nextOfKinDOB
+                      ),
+                      onClick: () => displayDatePicker(context),
+                      errorText: snapshot.hasError ? snapshot.error.toString() : null,
+                      hint: 'Date of Birth',
+                      animateHint: false,
+                      readOnly: true,
+                      startIcon: Icon(CustomFont.calendar, color: Colors.textFieldIcon.withOpacity(0.4)),
+                      fontSize: 15
+                  );
+                }),
             SizedBox(height: 20),
             StreamBuilder(
                 stream: _nextOfKinForm?.addressForm.addressStream,

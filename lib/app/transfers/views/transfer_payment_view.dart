@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:intl/intl.dart';
 import 'package:moniepoint_flutter/app/transfers/viewmodels/transfer_view_model.dart';
-import 'package:moniepoint_flutter/app/transfers/views/transfer_view.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/views/amount_pill.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/constants.dart';
@@ -221,12 +221,14 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
           showModalBottomSheet(
               context: widget._scaffoldKey.currentContext ?? context,
               isScrollControlled: true,
+              enableDrag: false,
+              isDismissible: false,
               backgroundColor: Colors.transparent,
               builder: (mContext) => TransactionSuccessDialog(
                 payload, onClick: () {
                   Navigator.of(mContext).pop();
-                  Navigator.of(context)
-                      .pushNamedAndRemoveUntil(TransferScreen.BENEFICIARY_SCREEN,  (route) => false, arguments: {});
+                  Navigator.of(context, rootNavigator: true)
+                      .pushNamedAndRemoveUntil(Routes.DASHBOARD,  (route) => false, arguments: {});
                 })
           );
         } else {

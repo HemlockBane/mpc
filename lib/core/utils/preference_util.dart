@@ -23,6 +23,11 @@ class PreferenceUtil {
     _preferences = await SharedPreferences.getInstance();
   }
 
+  static reload() async {
+    _preferences = await SharedPreferences.getInstance();
+    await _preferences?.reload();
+  }
+
   PreferenceUtil.init() {
     SharedPreferences.getInstance().then((value) {
       print("Initialized Preference");
@@ -37,7 +42,7 @@ class PreferenceUtil {
 
   static void deleteLoggedInUser()  {
     _preferences?.remove(LOGGED_IN_USER_KEY);
-    UserInstance().setAccountStatus(null);
+    // UserInstance().setAccountStatus(null);
     UserInstance().getUser()?.withAccessToken(null);
   }
 
@@ -66,16 +71,28 @@ class PreferenceUtil {
     return (loginMode != null) ? LoginMode.values.firstWhere((element) => describeEnum(element) == loginMode) : LoginMode.FULL_ACCESS;
   }
 
+  static void saveData(String key, Object? object) {
+    String data = jsonEncode(object);
+    _preferences?.setString("$key", data);
+  }
+
+  static dynamic getData(String key) {
+    String? data = _preferences?.getString("$key");
+    try {
+      return jsonDecode(data ?? "{}");
+    } catch(e) {
+      return null;
+    }
+  }
+
   static void saveDataForLoggedInUser(String appendKey, Object? object) {
     final username = getSavedUsername();
-    String data = jsonEncode(object);
-    _preferences?.setString("$username-$appendKey", data);
+    saveData("$username-$appendKey", object);
   }
 
   static dynamic getDataForLoggedInUser(String appendKey) {
     final username = getSavedUsername();
-    String? data = _preferences?.getString("$username-$appendKey");
-    return jsonDecode(data ?? "{}");
+    return getData("$username-$appendKey");
   }
 
   static void saveValueForLoggedInUser<T>(String appendKey, T value) {
@@ -163,5 +180,9 @@ class PreferenceUtil {
 
   static bool isAccountBalanceHidden(String accountNumber) {
     return getValueForLoggedInUser("$accountNumber-$HIDE_ACCOUNT_BAL") ?? false;
+  }
+
+  static void addTaskToIosQueue() {
+
   }
 }

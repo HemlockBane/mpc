@@ -23,9 +23,11 @@ import 'package:moniepoint_flutter/core/utils/call_utils.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/views/otp_ussd_info_view.dart';
+import 'package:moniepoint_flutter/core/work/work_dispatcher.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter_swipecards/flutter_swipecards.dart';
+import 'package:workmanager/workmanager.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -63,6 +65,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
 
   @override
   void initState() {
+    _biometricHelper = BiometricHelper.getInstance();
     UserInstance().resetSession();
     _setupViewDependencies();
     super.initState();
@@ -84,7 +87,6 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
 
   void _setupViewDependencies() {
     _viewModel = Provider.of<LoginViewModel>(context, listen: false);
-    this._initializeBiometric();
     _viewModel.getSystemConfigurations().listen((event) {}).disposedBy(this);
 
     _usernameController.addListener(() => validateForm());
@@ -128,11 +130,11 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
   }
 
   void _initializeBiometric() async {
-    _biometricHelper = await BiometricHelper.initialize(
-        keyFileName: "moniepoint_iv",
-        keyStoreName: "AndroidKeyStore",
-        keyAlias: "teamapt-moniepoint"
-    );
+    // _biometricHelper = await BiometricHelper.initialize(
+    //     keyFileName: "moniepoint_iv",
+    //     keyStoreName: "AndroidKeyStore",
+    //     keyAlias: "teamapt-moniepoint"
+    // );
   }
 
   void _initSavedUsername() {

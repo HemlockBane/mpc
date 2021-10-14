@@ -8,6 +8,7 @@ class Colors {
   static const Color white = const Color(0XFFFFFFFF);
   static const Color transparent = const Color(0x00000000);
   static const Color backgroundWhite = const Color(0XFFF9FBFD);
+  static const Color backgroundTwo = const Color(0XFFEBF2FA);
 
 
   static const Color solidOrange = const Color(0XFFF08922);

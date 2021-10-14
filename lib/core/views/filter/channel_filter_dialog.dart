@@ -7,6 +7,7 @@ import 'package:moniepoint_flutter/core/styles.dart';
 
 import '../../colors.dart';
 import '../custom_check_box.dart';
+import 'package:collection/collection.dart';
 
 class ChannelFilterDialog extends StatefulWidget {
 
@@ -22,15 +23,18 @@ class ChannelFilterDialog extends StatefulWidget {
 class _ChannelFilterDialog extends State<ChannelFilterDialog> {
 
   final List<_ChannelFilterItem> _channelFilters = List.unmodifiable([
+    _ChannelFilterItem("ALL CHANNELS", TransactionChannel.ALL, "res/drawables/ic_all_channels.svg"),
     _ChannelFilterItem("CARD ON ATM", TransactionChannel.ATM, "res/drawables/ic_channel_atm.svg"),
     _ChannelFilterItem("CARD ON POS", TransactionChannel.POS, "res/drawables/ic_channel_pos.svg"),
     _ChannelFilterItem("CARD ON WEB", TransactionChannel.WEB, "res/drawables/ic_channel_web.svg"),
     _ChannelFilterItem("USSD", TransactionChannel.USSD, "res/drawables/ic_channel_ussd.svg"),
     _ChannelFilterItem("MOBILE", TransactionChannel.MOBILE, "res/drawables/ic_channel_mobile.svg"),
-    _ChannelFilterItem("KIOSK", TransactionChannel.KIOSK, "res/drawables/ic_channel_kiosk.svg"),
+    // _ChannelFilterItem("KIOSK", TransactionChannel.KIOSK, "res/drawables/ic_channel_kiosk.svg"),
   ]);
 
   final List<TransactionChannel> _selectedChannels = [];
+
+  _ChannelFilterItem? _selectedChannel;
 
   void initState() {
    _setDefaultValues();
@@ -39,13 +43,20 @@ class _ChannelFilterDialog extends State<ChannelFilterDialog> {
 
   void _setDefaultValues() {
     final selectedChannels = widget.selectedChannels;
-    if(selectedChannels == null) return;
+    if(selectedChannels == null) return _selectAllAsDefault();
     _channelFilters.forEach((element) {
       if(selectedChannels.contains(element.value)) {
         element.isSelected = true;
+        _selectedChannel = element;
         _selectedChannels.add(element.value);
       }
     });
+    if(_selectedChannels.isEmpty) _selectAllAsDefault();
+  }
+
+  void _selectAllAsDefault() {
+    _channelFilters.firstOrNull?.isSelected = true;
+    _selectedChannel = _channelFilters.firstOrNull;
   }
 
   Widget generateChannelItem(_ChannelFilterItem item, int position, OnItemClickListener<_ChannelFilterItem, int> itemClickListener) {
@@ -153,7 +164,7 @@ class _ChannelFilterDialog extends State<ChannelFilterDialog> {
                 child: Styles.appButton(
                     elevation: _canApplyFilter() ? 0.5 : 0,
                     onClick:  _canApplyFilter() ? _applyFilter : null,
-                    text: 'Continue'
+                    text: 'Apply Filter'
                 ),
               ),
             )
@@ -163,22 +174,22 @@ class _ChannelFilterDialog extends State<ChannelFilterDialog> {
     );
   }
 
-
   void _applyFilter() {
     Navigator.of(context).pop(_selectedChannels);
   }
 
   bool _canApplyFilter() {
-    return _selectedChannels.isNotEmpty;
+    return _selectedChannel?.value == TransactionChannel.ALL || _selectedChannels.isNotEmpty;
   }
 
   void _itemClickHandler (_ChannelFilterItem item, int position) {
     setState(() {
-      if(_selectedChannels.contains(item.value)) {
-        item.isSelected = false;
-        _selectedChannels.remove(item.value);
-      }else {
-        item.isSelected = true;
+      _selectedChannel?.isSelected = false;
+      item.isSelected = !item.isSelected;
+      _selectedChannel = item;
+
+      _selectedChannels.clear();
+      if(item.value != TransactionChannel.ALL) {
         _selectedChannels.add(item.value);
       }
     });

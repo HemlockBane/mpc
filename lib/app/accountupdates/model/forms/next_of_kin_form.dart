@@ -194,6 +194,7 @@ class NextOfKinForm with ChangeNotifier, Validators {
 
   void restoreFormState() {
       final savedInfo = PreferenceUtil.getDataForLoggedInUser(FORM_KEY);
+      if(savedInfo == null) return;
       final savedNextOfKin = NextOfKinInfo.fromJson(savedInfo);
 
       addressForm.restoreFormState();
@@ -226,6 +227,11 @@ class NextOfKinForm with ChangeNotifier, Validators {
           && savedNextOfKin.nextOfKinDOB?.isNotEmpty == true) {
         onDateOfBirthChange(savedNextOfKin.nextOfKinDOB);
       }
+  }
+
+  void resetForm() {
+    PreferenceUtil.saveDataForLoggedInUser(FORM_KEY, null);
+    addressForm.resetForm();
   }
 
   @override

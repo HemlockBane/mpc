@@ -1,11 +1,13 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart' hide ScrollView, Colors;
 import 'package:intl/intl.dart';
+import 'package:moniepoint_flutter/app/accountupdates/model/data/account_upgrade_state.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/forms/customer_identification_form.dart';
 import 'package:moniepoint_flutter/app/accountupdates/viewmodels/account_update_view_model.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/account_update_file_upload_state.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/account_update_upload_button.dart';
+import 'package:moniepoint_flutter/app/accountupdates/views/restriction_pages/reupload_identification_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -14,8 +16,9 @@ import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:provider/provider.dart';
 
 import 'account_update_form_view.dart';
-import '../../../core/views/upload_request_dialog.dart';
+import '../../../../core/views/upload_request_dialog.dart';
 import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
+import 'package:collection/collection.dart';
 
 /// @author Paul Okeke
 class CustomerIdentificationScreen extends PagedForm {
@@ -34,6 +37,7 @@ class _CustomerIdentificationScreen extends State<CustomerIdentificationScreen> 
 
   late final AccountUpdateViewModel _viewModel;
   late final CustomerIdentificationForm _identificationForm;
+  late final AccountState _accountState;
 
   final TextEditingController _issueDateController = TextEditingController();
   final TextEditingController _expiryDateController = TextEditingController();
@@ -48,6 +52,7 @@ class _CustomerIdentificationScreen extends State<CustomerIdentificationScreen> 
   void initState() {
     this._viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
     this._identificationForm = _viewModel.identificationForm;
+    this._accountState = _viewModel.getAccountState();
 
     super.initState();
 
@@ -126,6 +131,12 @@ class _CustomerIdentificationScreen extends State<CustomerIdentificationScreen> 
     }
   }
 
+  bool _shouldReUploadID() {
+    final userAccount = _viewModel.userAccounts.firstOrNull;
+    if(userAccount == null) return false;
+    return userAccount.customerAccount?.customer?.reUploadID == true;
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -144,7 +155,7 @@ class _CustomerIdentificationScreen extends State<CustomerIdentificationScreen> 
                     fontSize: 21
                 )
             ),
-            SizedBox(height: 22,),
+            SizedBox(height: 22),
             StreamBuilder(
                 stream: _identificationForm.idTypeStream,
                 builder: (BuildContext context, AsyncSnapshot<IdentificationType?> snapshot) {
@@ -215,6 +226,17 @@ class _CustomerIdentificationScreen extends State<CustomerIdentificationScreen> 
                   final idType = snapshot.hasData ? snapshot.data : null;
                   final idTypeName = (idType != null) ? "Upload ${idType.idType}" : "Upload Identification Document";
                   final previousFileName = _identificationForm.identificationInfo.uploadedFileName;
+
+                  final fileUUID = _identificationForm.identificationInfo.scannedImageRef
+                      ?? _viewModel.userAccounts.firstOrNull?.customer?.identificationUUID;
+
+                  if(_shouldReUploadID() && fileUUID != null) {
+                    return ReUploadIdentificationView(
+                        title: previousFileName ?? "file",
+                        onReUpload: _chooseIdentificationImage,
+                        downloadTask: () => _viewModel.downloadUploadedDocument(_identificationForm.identificationInfo.scannedImageRef),
+                    );
+                  }
                   return AccountUpdateUploadButton(
                     title: previousFileName ?? idTypeName,
                     onClick: _chooseIdentificationImage,
@@ -247,7 +269,7 @@ class _CustomerIdentificationScreen extends State<CustomerIdentificationScreen> 
                 text: widget.isLast() ? 'Submit' : 'Next',
                 isLoading: false
             ),
-            SizedBox(height: !widget.isLast() ? 41 : 0),
+            SizedBox(height: !widget.isLast() ? 36 : 0),
             if (!widget.isLast())
               TextButton(
                   onPressed: () {

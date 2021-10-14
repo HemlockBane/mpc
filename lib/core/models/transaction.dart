@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/transfer_request_body.dart';
 
@@ -31,6 +32,14 @@ abstract class Transaction extends ListItem {
 
   String getSinkAccountNumber();
 
+  String? getSinkAccountBankName() {
+    return null;
+  }
+
+  String? getSinkAccountBankCode() {
+    return null;
+  }
+
   String getSourceAccountBank();
 
   String getPaymentInterval();
@@ -46,9 +55,10 @@ abstract class Transaction extends ListItem {
     );
   }
 
-  // WorkFlowType getWorkFlowType();
-  //
-  // void setWorkFlowType(WorkFlowType type);
+  String transactionTypeToString() {
+    return describeEnum(getType());
+  }
+
 }
 
-enum TransactionType { DEBIT, CREDIT, UNKNOWN }
+enum TransactionType { ALL, DEBIT, CREDIT, UNKNOWN }

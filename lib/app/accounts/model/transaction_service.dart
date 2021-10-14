@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart' hide Headers;
+import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/transaction_history_collection.dart';
 import 'package:moniepoint_flutter/core/config/build_config.dart';
 import 'package:moniepoint_flutter/core/config/service_config.dart';
@@ -25,10 +26,10 @@ abstract class TransactionService {
   @GET("filter")
   Future<ServiceResult<TransactionHistoryCollection>> getTransactionsFilter(
       @Query("customerAccountId") int customerAccountId,
-      @Query("transactionType") String transactionType,
+      @Query("transactionType") String? transactionType,
       @Query("channel") String? channels,
-      @Query("startDate") int startDate,
-      @Query("endDate") int endDate,
+      @Query("startDate") int? startDate,
+      @Query("endDate") int? endDate,
       @Query("page") int page,
       @Query("pageSize") int pageSize);
 
@@ -49,7 +50,7 @@ abstract class TransactionService {
   @POST("transaction_receipt")
   @DioResponseType(ResponseType.stream)
   Future<dynamic> downloadTransactionReceipt(
-    @Body() DownloadTransactionReceiptRequestBody requestBody
+    @Body() AccountTransaction requestBody
   );
 
 }

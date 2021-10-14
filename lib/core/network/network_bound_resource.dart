@@ -84,7 +84,6 @@ mixin NetworkResource {
         if (e is DioError) {
 
           if(e.response?.statusCode == 401) {
-            //TODO check if the user is in session first
             UserInstance().forceLogout(null, SessionTimeoutReason.SESSION_TIMEOUT);
             return;
           }
@@ -280,7 +279,7 @@ Stream<Resource<T>> streamWithExponentialBackoff<T>({
       if(collisions <= retries) {
         final random = Random();
 
-        final slot =  pow(2, collisions) - 1;
+        final slot = pow(2, collisions) - 1;
         final rand = random.nextInt(slot.toInt());
         final del = delay.inSeconds * rand;
 

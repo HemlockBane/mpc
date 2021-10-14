@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:get_it/get_it.dart';
+import 'package:moniepoint_flutter/app/accounts/model/account_service_delegate.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_update_flag.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/customer_service_delegate.dart';
@@ -15,7 +16,9 @@ import 'package:moniepoint_flutter/app/accountupdates/model/forms/customer_addre
 import 'package:moniepoint_flutter/app/accountupdates/model/forms/customer_identification_form.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/forms/next_of_kin_form.dart';
 import 'package:moniepoint_flutter/core/lazy.dart';
+import 'package:moniepoint_flutter/core/models/file_result.dart';
 import 'package:moniepoint_flutter/core/models/file_uuid.dart';
+import 'package:moniepoint_flutter/core/models/services/file_management_service_delegate.dart';
 import 'package:moniepoint_flutter/core/models/services/location_service_delegate.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -40,18 +43,24 @@ class AccountUpdateViewModel extends BaseViewModel {
   final StreamController<bool> _loadingStateController = StreamController.broadcast();
   Stream<bool> get loadingState => _loadingStateController.stream;
 
-  AccountUpdateViewModel({CustomerServiceDelegate? customerServiceDelegate, LocationServiceDelegate? locationServiceDelegate}) {
+  AccountUpdateViewModel({
+    AccountServiceDelegate? accountServiceDelegate,
+    CustomerServiceDelegate? customerServiceDelegate,
+    LocationServiceDelegate? locationServiceDelegate,
+    FileManagementServiceDelegate? fileServiceDelegate}): super(accountServiceDelegate: accountServiceDelegate) {
     this._locationServiceDelegate = locationServiceDelegate ?? GetIt.I<LocationServiceDelegate>();
     this._customerServiceDelegate = customerServiceDelegate ?? GetIt.I<CustomerServiceDelegate>();
+    this._fileServiceDelegate = fileServiceDelegate ?? GetIt.I<FileManagementServiceDelegate>();
   }
 
   late final LocationServiceDelegate _locationServiceDelegate;
   late final CustomerServiceDelegate _customerServiceDelegate;
+  late final FileManagementServiceDelegate _fileServiceDelegate;
 
   late final Map<String, bool Function()> _flagNameToFormValidity = {
     Flags.ADDITIONAL_INFO : () =>  _additionalInfoForm.isInitialized && _additionalInfoForm.value.isFormValid ,
-    Flags.IDENTIFICATION_INFO :  () => _identificationForm.isInitialized && identificationForm.isFormValid ,
-    Flags.IDENTIFICATION_PROOF :  () => _identificationForm.isInitialized && identificationForm.isFormValid ,
+    Flags.IDENTIFICATION_INFO :  () => _identificationForm.isInitialized && _identificationForm.value.isFormValid ,
+    Flags.IDENTIFICATION_PROOF :  () => _identificationForm.isInitialized && _identificationForm.value.isFormValid ,
     Flags.ADDRESS_INFO :  () => _addressForm.isInitialized && _addressForm.value.isFormValid ,
     Flags.ADDRESS_PROOF :  () => _addressForm.isInitialized &&  _addressForm.value.getAddressInfo.utilityBillUUID != null,
     Flags.NEXT_OF_KIN_INFO :  () => _nextOfKinForm.isInitialized && _nextOfKinForm.value.isFormValid ,
@@ -68,20 +77,16 @@ class AccountUpdateViewModel extends BaseViewModel {
   }
 
   Stream<Resource<FileUUID>> uploadValidIdentity(String filePath) {
-    return _customerServiceDelegate.uploadDocument(File(filePath)).map((event) {
-      return event;
-    });
+    return _customerServiceDelegate.uploadDocument(File(filePath));
   }
 
   Stream<Resource<FileUUID>> uploadAddressProof(String filePath) {
-    return _customerServiceDelegate.uploadDocument(File(filePath)).map((event) {
-      return event;
-    });
+    return _customerServiceDelegate.uploadDocument(File(filePath));
   }
 
-  Stream<Resource<List<Tier>>> getOnBoardingSchemes() {
-    return _customerServiceDelegate.getSchemes().map((event) {
-      if(event is Success) {
+  Stream<Resource<List<Tier>>> getOnBoardingSchemes({bool fetchFromRemote = true}) {
+    return _customerServiceDelegate.getSchemes(fetchFromRemote: fetchFromRemote).map((event) {
+      if(this.tiers.isEmpty && (event is Success || event is Loading)) {
         this.tiers.clear();
         this.tiers.addAll(event.data ?? []);
       }
@@ -113,11 +118,11 @@ class AccountUpdateViewModel extends BaseViewModel {
       customerDetailInfo: (_additionalInfoForm.isInitialized || customerDetailInfo != null)
           ? customerDetailInfo
           : null,
-      mailingAddressInfo: (_addressForm.isInitialized)
-          ? addressForm.getMailingAddressInfo?.addressCity != null ? addressForm.getMailingAddressInfo : null
+      mailingAddressInfo: (_addressForm.isInitialized && addressForm.isFormValid)
+          ? addressForm.mailingAddressForm?.isFormValid == true ? addressForm.getMailingAddressInfo : null
           : null,
       identificationInfo: isCustomerIdValid ? identificationForm.identificationInfo : null,
-      nextOfKinInfo: (_nextOfKinForm.isInitialized)
+      nextOfKinInfo: (_nextOfKinForm.isInitialized && nextOfKinForm.isFormValid)
           ? nextOfKinForm.nextOfKinInfo
           : null
     );
@@ -127,17 +132,47 @@ class AccountUpdateViewModel extends BaseViewModel {
     this._loadingStateController.sink.add(isLoading);
   }
 
-  Stream<Resource<Tier>> checkCustomerEligibility({AccountUpdate? accountUpdate}) {
+
+
+  Stream<Resource<Tier>> checkCustomerEligibility({AccountUpdate? accountUpdate, bool updateStatus = false}) async* {
     final mAccountUpdate = accountUpdate ?? _buildAccountUpdateRequest();
-    print(jsonEncode(mAccountUpdate));
-    return _customerServiceDelegate.checkCustomerEligibility(customerId, mAccountUpdate);
+    final updateStatusStream = accountServiceDelegate!.updateAllAccountStatus();
+    final customerEligibilityStream = _customerServiceDelegate.checkCustomerEligibility(
+        customerId, mAccountUpdate
+    );
+
+    await for(var resource in customerEligibilityStream) {
+      if(resource is Success)  {
+        if(!updateStatus) {
+          yield resource;
+          break;
+        } else {
+          yield* updateStatusStream.map((event) {
+            if(event is Loading) return Resource.loading(null);
+            return resource;
+          });
+          break;
+        }
+      }
+      else if(resource is Loading) yield Resource.loading(null);
+      else if(resource is Error<Tier>) yield Resource.error(err: ServiceError(message: resource.message ?? ""));
+    }
+  }
+
+  void _cleanUpForms() {
+    if(_addressForm.isInitialized) addressForm.resetForm();
+    if(_nextOfKinForm.isInitialized) nextOfKinForm.resetForm();
   }
 
   Stream<Resource<Tier>> updateAccount() async* {
     final accountUpdate = _buildAccountUpdateRequest();
     final responseStream = _customerServiceDelegate.updateCustomerInfo(customerId, accountUpdate);
     await for(var resource in responseStream) {
-      if(resource is Success) yield* _customerServiceDelegate.checkCustomerEligibility(customerId, accountUpdate);
+      if(resource is Success) {
+        //Do clean up
+        _cleanUpForms();
+        yield* checkCustomerEligibility(accountUpdate: accountUpdate, updateStatus: true);
+      }
       else if(resource is Loading) yield Resource.loading(null);
       else if(resource is Error<AccountUpdate>) yield Resource.error(err: ServiceError(message: resource.message ?? ""));
     }
@@ -167,13 +202,17 @@ class AccountUpdateViewModel extends BaseViewModel {
     }
   }
 
+  Stream<Resource<FileResult>> downloadUploadedDocument(String? fileUUID) {
+    if (fileUUID == null) return Stream.empty();
+    return _fileServiceDelegate.getFileByUUID(fileUUID, shouldFetchRemote: false);
+  }
+
   double getFormWeightedProgress() {
     //The Flags in account status should take priority over what's in customer object due to refresh
     var progress = 0.0;
 
     final status = UserInstance().accountStatus;
-    final flags =
-        status?.listFlags() ?? customer?.listFlags(); // ?: return progress
+    final flags = status?.listFlags() ?? customer?.listFlags(); // ?: return progress
 
     if (flags == null) return progress;
 
@@ -193,6 +232,7 @@ class AccountUpdateViewModel extends BaseViewModel {
           //has the user graced past tier 1? we can get the next tier and confirm if qualified
           final mTiers = tiers;
           if ((mTiers.isEmpty || mTiers.length == 1)) {
+            //TODO
           } else {
             final nextTier = mTiers[1];
             progress += (nextTier.isQualified()) ? element.weight : 0;

@@ -50,6 +50,12 @@ AccountStatus _$AccountStatusFromJson(Map<String, dynamic> json) {
     bvnVerificationFlag: json['bvnVerificationFlag'] == null
         ? null
         : AccountUpdateFlag.fromJson(json['bvnVerificationFlag'] as Object),
+    customer: json['customer'] == null
+        ? null
+        : Customer.fromJson(json['customer'] as Object),
+    schemeCode: json['schemeCode'] == null
+        ? null
+        : SchemeCode.fromJson(json['schemeCode'] as Object),
   );
 }
 
@@ -62,6 +68,8 @@ Map<String, dynamic> _$AccountStatusToJson(AccountStatus instance) =>
       'postNoDebitInfo': instance.postNoDebitInfo,
       'customFlags': instance.customFlags,
       'pndLiftScheme': instance.pndLiftScheme,
+      'customer': instance.customer,
+      'schemeCode': instance.schemeCode,
       'additionalInfoFlag': instance.additionalInfoFlag,
       'identificationInfoFlag': instance.identificationInfoFlag,
       'identificationProofFlag': instance.identificationProofFlag,

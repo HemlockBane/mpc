@@ -1,0 +1,5 @@
+workflows:
+  dev:
+    scripts:
+      - name: say hello
+        script: echo "Hello Code"

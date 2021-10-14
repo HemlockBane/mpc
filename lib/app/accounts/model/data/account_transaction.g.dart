@@ -126,6 +126,7 @@ K? _$enumDecodeNullable<K, V>(
 }
 
 const _$TransactionTypeEnumMap = {
+  TransactionType.ALL: 'ALL',
   TransactionType.DEBIT: 'DEBIT',
   TransactionType.CREDIT: 'CREDIT',
   TransactionType.UNKNOWN: 'UNKNOWN',

@@ -20,7 +20,8 @@ class _NotificationService implements NotificationService {
   Future<ServiceResult<bool>> registerDeviceToken(request) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
-    final _data = request;
+    final _data = <String, dynamic>{};
+    _data.addAll(request.toJson());
     final _result = await _dio.fetch<Map<String, dynamic>>(
         _setStreamType<ServiceResult<bool>>(Options(
                 method: 'POST',

@@ -26,10 +26,10 @@ abstract class TransactionService {
   @GET("filter")
   Future<ServiceResult<TransactionHistoryCollection>> getTransactionsFilter(
       @Query("customerAccountId") int customerAccountId,
-      @Query("transactionType") String transactionType,
+      @Query("transactionType") String? transactionType,
       @Query("channel") String? channels,
-      @Query("startDate") int startDate,
-      @Query("endDate") int endDate,
+      @Query("startDate") int? startDate,
+      @Query("endDate") int? endDate,
       @Query("page") int page,
       @Query("pageSize") int pageSize);
 

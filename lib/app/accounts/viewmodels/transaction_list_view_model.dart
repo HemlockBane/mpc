@@ -43,12 +43,9 @@ class TransactionHistoryViewModel extends BaseViewModel {
   StreamController<bool> _transactionHistoryController = StreamController.broadcast();
   Stream<bool> get transactionHistoryUpdateStream => _transactionHistoryController.stream;
 
-
   PagingSource<int, AccountTransaction> getPagedHistoryTransaction({int? accountId}) {
     return _delegate.getPageAccountTransactions(accountId ?? customerAccountId, _filterResults);
   }
-
-
 
   Stream<Uint8List> exportStatement(int? startDate, int? endDate, {int? accountId}) {
     return _delegate.exportStatement(ExportStatementRequestBody(

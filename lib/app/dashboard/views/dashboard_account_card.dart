@@ -36,7 +36,7 @@ class DashboardAccountCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userAccounts = viewModel.userAccounts;
-    
+
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
@@ -169,12 +169,10 @@ class DashboardAccountItemState extends State<DashboardAccountItem>
 
   onItemTap() async {
 
-    // await Navigator.of(context).pushNamed(
-    //     Routes.ACCOUNT_UPGRADE_REQUIRED_STATE, arguments: {"userAccountId": userAccount.id}
-    // );
-    // return;
     final mixpanel = await MixpanelManager.initAsync();
     mixpanel.track("dashboard-account-clicked");
+
+    if(accountState == AccountState.IN_COMPLETE) return _navigateToAccountTransactions();
 
     if(accountState != AccountState.COMPLETED) {
       //First determine if we are to pop the error
@@ -206,27 +204,31 @@ class DashboardAccountItemState extends State<DashboardAccountItem>
         onTap: widget.clickable ? onItemTap : null,
         borderRadius: BorderRadius.all(Radius.circular(16)),
         child: Container(
-          padding: EdgeInsets.only(left: 20, right: 20),
+          padding: EdgeInsets.only(left: 0, right: 0),
           width: double.infinity,
           child: Column(
             children: [
-              SizedBox(height: 42,),
+              SizedBox(height: 42),
               _DashboardAccountBalancePreview(
                 snapshot: snapshot,
                 accountNumber: "${userAccount.customerAccount?.accountNumber}",
                 accountName: "${userAccount.customerAccount?.accountName}",
                 viewModel: _viewModel,
               ),
-              SizedBox(height: 16,),
+              SizedBox(height: 16),
+              Divider(height: 1, color: Colors.white.withOpacity(0.15)),
               _DashboardAccountNumberView(
                 accountNumber: "${userAccount.customerAccount?.accountNumber}",
                 accountName: "${userAccount.customerAccount?.accountName}",
+                accountState: accountState,
+                userAccount: userAccount,
               ),
               _AccountCardErrorView(
-                  userAccount: userAccount,
-                  accountState: accountState,
+                userAccount: userAccount,
+                accountState: accountState,
+                margin: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 8),
               ),
-              SizedBox(height: _viewModel.userAccounts.length > 1 ? 44 : 20),
+              SizedBox(height: _viewModel.userAccounts.length > 1 ? 44 : 15),
             ],
           ),
         ),
@@ -342,8 +344,7 @@ class _DashboardAccountBalancePreview extends StatelessWidget {
     required this.viewModel
   });
 
-  isAccountBalanceHidden() =>
-      PreferenceUtil.isAccountBalanceHidden(accountNumber);
+  isAccountBalanceHidden() => PreferenceUtil.isAccountBalanceHidden(accountNumber);
 
   isErrorLoadingAccountBalance(AsyncSnapshot<dynamic> snapshot) =>
       snapshot.hasData && snapshot.data is Error;
@@ -437,56 +438,60 @@ class _DashboardAccountBalancePreview extends StatelessWidget {
     final hideAccountBalance = isAccountBalanceHidden();
     final canDisplay = _canDisplayBalance(snapshot);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Visibility(
-            visible: hideAccountBalance == true || canDisplay,
-            child: Text(
-              "Available Balance",
-              style: TextStyle(
-                  fontSize: 13,
-                  letterSpacing: -0.2,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white.withOpacity(0.8)
-              ),
-            )),
-        SizedBox(height: 4,),
-        _DashboardLoadingShimmer(
-            hideAccountBalance: hideAccountBalance,
-            isLoading: isLoadingAccountBalance(snapshot) || snapshot.data == null
-        ),
-        Visibility(
-            visible: isErrorLoadingAccountBalance(snapshot) && !hideAccountBalance,
-            child: _errorView()
-        ),
-        Visibility(
-            visible: hideAccountBalance == true || canDisplay,
-            child: ValueListenableBuilder(
-                valueListenable: hideAndShowNotifier,
-                builder: (_, __, ___) {
-                  final hideAccountBalance = isAccountBalanceHidden();
-                  final acctBalance = _getAccountBalance(snapshot, hideAccountBalance);
-                  return Stack(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _accountBalanceView(acctBalance, hideAccountBalance),
-                        ],
-                      ),
-                      Positioned(
-                          right: 8,
-                          top: 0,
-                          bottom:0,
-                          child: _visibilityIcon(hideAccountBalance)
-                      )
-                    ],
-                  );
-                }
-            )
-        ),
-      ],
+    return Container(
+      padding: EdgeInsets.only(left: 20, right: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Visibility(
+              visible: hideAccountBalance == true || canDisplay,
+              child: Text(
+                "Available Balance",
+                style: TextStyle(
+                    fontSize: 13,
+                    letterSpacing: -0.2,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white.withOpacity(0.8)
+                ),
+              )
+          ),
+          SizedBox(height: 4),
+          _DashboardLoadingShimmer(
+              hideAccountBalance: hideAccountBalance,
+              isLoading: isLoadingAccountBalance(snapshot) || snapshot.data == null
+          ),
+          Visibility(
+              visible: isErrorLoadingAccountBalance(snapshot) && !hideAccountBalance,
+              child: _errorView()
+          ),
+          Visibility(
+              visible: hideAccountBalance == true || canDisplay,
+              child: ValueListenableBuilder(
+                  valueListenable: hideAndShowNotifier,
+                  builder: (_, __, ___) {
+                    final hideAccountBalance = isAccountBalanceHidden();
+                    final acctBalance = _getAccountBalance(snapshot, hideAccountBalance);
+                    return Stack(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            _accountBalanceView(acctBalance, hideAccountBalance),
+                          ],
+                        ),
+                        Positioned(
+                            right: 8,
+                            top: 0,
+                            bottom: 0,
+                            child: _visibilityIcon(hideAccountBalance)
+                        )
+                      ],
+                    );
+                  }
+              )
+          ),
+        ],
+      ),
     );
   }
 }
@@ -500,28 +505,48 @@ class _DashboardAccountNumberView extends Container {
 
   final String accountNumber;
   final String accountName;
+  final AccountState accountState;
+  final UserAccount userAccount;
 
   _DashboardAccountNumberView({
     required this.accountNumber,
-    required this.accountName
+    required this.accountName,
+    required this.accountState,
+    required this.userAccount
   }):super(key: Key("_DashboardAccountNumberView"));
 
   void _shareReceipt() {
     Share.share(
         "Moniepoint MFB\n$accountNumber\n$accountName",
-        subject: 'Moniepoint MFB');
+        subject: 'Moniepoint MFB'
+    );
+  }
+
+  Widget _accountInProgressButton(BuildContext context) {
+    if(accountState != AccountState.IN_COMPLETE) return SizedBox();
+    return GestureDetector(
+      onTap: () => AccountUpgradeRouteDelegate.navigateToAccountUpgrade(context, userAccount),
+      child: Container(
+        padding: EdgeInsets.all(5),
+        margin: EdgeInsets.only(right: 12),
+        decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.solidGreen),
+        child: SvgPicture.asset("res/drawables/ic_upload.svg", width: 17, height: 18,color: Colors.white),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(left: 11.11, right: 12.5, top: 5.5, bottom: 5.5),
+      margin: EdgeInsets.only(left: 20, right: 20),
+      padding: EdgeInsets.only(left: 0, right: 8.5, top: 8.5, bottom: 0),
       decoration: BoxDecoration(
-          color: Colors.backgroundWhite.withOpacity(0.13),
+          color: Colors.transparent,
           borderRadius: BorderRadius.circular(9)
       ),
       child: Row(
         children: [
+          _accountInProgressButton(context),
           Text(
             'Account Number',
             style: Styles.textStyle(context,
@@ -556,7 +581,8 @@ class _DashboardAccountNumberView extends Container {
                   height: 21,
                   color: Colors.white.withOpacity(0.31),
                 ),
-              )),
+              )
+          ),
         ],
       ),
     );
@@ -639,15 +665,15 @@ class _AccountCardErrorState extends State<_AccountCardErrorView> with SingleTic
       return true;
     }
 
-    if(accountState == AccountState.IN_COMPLETE) {
-      title = "Upgrade Account";
-      icon = Container(
-        padding: EdgeInsets.all(5),
-        decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.solidGreen),
-        child: SvgPicture.asset("res/drawables/ic_upload.svg", width: 17, height: 18,color: Colors.white),
-      );
-      return true;
-    }
+    // if(accountState == AccountState.IN_COMPLETE) {
+    //   title = "Upgrade Account";
+    //   icon = Container(
+    //     padding: EdgeInsets.all(5),
+    //     decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.solidGreen),
+    //     child: SvgPicture.asset("res/drawables/ic_upload.svg", width: 17, height: 18,color: Colors.white),
+    //   );
+    //   return false;
+    // }
 
     return false;
   }
@@ -665,7 +691,7 @@ class _AccountCardErrorState extends State<_AccountCardErrorView> with SingleTic
           borderRadius: BorderRadius.circular(9),
           onTap: null,
         child: Container(
-          padding: EdgeInsets.only(left: 13, right: 13, top: 9, bottom: 9),
+          padding: EdgeInsets.only(left: 13, right: 30, top: 9, bottom: 9),
           child: Row(
             children: [
               icon,

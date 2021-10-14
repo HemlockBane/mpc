@@ -54,3 +54,4 @@ class IosBackgroundTaskWorker extends Worker {
   }
 
 }
+

@@ -355,7 +355,7 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
     amountPills.forEachIndexed((index, element) {
       pills.add(Expanded(flex: 1,
           child: AmountPill(
-              element, index, (ListDataItem<String> item, position) {
+              item: element, position: index, listener: (ListDataItem<String> item, position) {
             setState(() {
               _selectedAmountPill?.isSelected = false;
               _selectedAmountPill = item;

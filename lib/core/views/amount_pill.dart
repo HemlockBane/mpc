@@ -8,11 +8,14 @@ class AmountPill extends StatefulWidget {
   final ListDataItem<String> _item;
   final OnItemClickListener<ListDataItem<String>, int> _listener;
   final int _position;
+  final Color primaryColor;
 
   AmountPill(
-      this._item,
-      this._position,
-      this._listener);
+  {required ListDataItem<String> item,
+    required int position,
+    required OnItemClickListener<ListDataItem<String>, int> listener,
+      this.primaryColor = Colors.primaryColor}
+    ): _item = item, _position = position, _listener = listener;
 
   @override
   State<StatefulWidget> createState() {
@@ -30,7 +33,7 @@ class _AmountPill extends State<AmountPill> {
       child: Container(
         padding: EdgeInsets.only(left: 9, right: 9, top: 9, bottom: 9),
         decoration: BoxDecoration(
-            color: (widget._item.isSelected == true) ? Colors.primaryColor : Colors.white,
+            color: (widget._item.isSelected == true) ? widget.primaryColor : Colors.white,
             border: Border.all(color: Colors.colorFaded.withOpacity(0.5), width: 1),
             borderRadius: BorderRadius.all(Radius.circular(20))
         ),
@@ -42,7 +45,7 @@ class _AmountPill extends State<AmountPill> {
                   fontSize: 13,
                   color: (widget._item.isSelected == true)
                       ? Colors.white
-                      : Colors.primaryColor,
+                      : widget.primaryColor,
                   fontWeight: (widget._item.isSelected == true) ? FontWeight.bold : FontWeight.w600
               )),
         ),

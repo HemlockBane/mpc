@@ -9,7 +9,7 @@ part of 'institution_service.dart';
 class _InstitutionService implements InstitutionService {
   _InstitutionService(this._dio, {this.baseUrl}) {
     baseUrl ??=
-        'https://core-root.monnify.development.teamapt.com/api/v1/institution/';
+        'https://moniepoint-customer-root-v2.console.teamapt.com/api/v1/institution/';
   }
 
   final Dio _dio;

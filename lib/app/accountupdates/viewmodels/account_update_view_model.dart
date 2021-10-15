@@ -100,7 +100,6 @@ class AccountUpdateViewModel extends BaseViewModel {
     if(customerDetailInfo != null && _addressForm.isInitialized) {
       customerDetailInfo..addressInfo = addressForm.getAddressInfo;
     } else if(_addressForm.isInitialized && !_additionalInfoForm.isInitialized) {
-      //TODO check that this isn't skipped, that's the proof of address
       customerDetailInfo = CustomerDetailInfo(addressInfo: addressForm.getAddressInfo);
     }
 
@@ -136,6 +135,7 @@ class AccountUpdateViewModel extends BaseViewModel {
 
   Stream<Resource<Tier>> checkCustomerEligibility({AccountUpdate? accountUpdate, bool updateStatus = false}) async* {
     final mAccountUpdate = accountUpdate ?? _buildAccountUpdateRequest();
+    print(jsonEncode(mAccountUpdate));
     final updateStatusStream = accountServiceDelegate!.updateAllAccountStatus();
     final customerEligibilityStream = _customerServiceDelegate.checkCustomerEligibility(
         customerId, mAccountUpdate

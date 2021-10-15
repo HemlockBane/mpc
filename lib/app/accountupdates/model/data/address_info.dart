@@ -10,6 +10,7 @@ class AddressInfo {
   int? addressLocalGovernmentAreaId;
   @JsonKey(name: "utilityBillUUID", includeIfNull: false)
   String? utilityBillUUID;
+  @JsonKey(name: "uploadedFileName", includeIfNull: false)
   String? uploadedFileName;
 
   AddressInfo({this.addressLine,

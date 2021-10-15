@@ -40,7 +40,6 @@ class AppNotificationService {
     final token = await FirebaseMessaging.instance.getToken().catchError((e) {
       _registerDeviceToken();
     });
-    print("Token ====>>> $token");
     PreferenceUtil.saveValue(FCM_TOKEN, token);
     _registerDeviceToken();
   }
@@ -71,32 +70,32 @@ class AppNotificationService {
 //When a message is received
 Future<void> _onBackgroundMessageReceived(RemoteMessage message) async {
   //TODO get the data-payload to read
-    RemoteNotification? notification = message.notification;
-
-    final iosDetails = IOSNotificationDetails(
-      badgeNumber: 0,
-      subtitle: "Hello Notification",
-    );
-
-    final androidNotificationDetails = AndroidNotificationDetails(
-        "Moniepoint", "Moniepoint App",
-        channelDescription: "Test",
-        priority: Priority.high
-    );
-
-    final details = NotificationDetails(
-      iOS: iosDetails,
-      android: androidNotificationDetails
-    );
-
-    _notificationPlugin.show(
-        0,
-        "Test",
-        "Plain Body",
-        details
-    );
-    print("Notification ===>>> ${message.data}");
-    if(notification != null) {
-      print("Notification ===>>> ${message.data}");
-    }
+  //   RemoteNotification? notification = message.notification;
+  //
+  //   final iosDetails = IOSNotificationDetails(
+  //     badgeNumber: 0,
+  //     subtitle: "Hello Notification",
+  //   );
+  //
+  //   final androidNotificationDetails = AndroidNotificationDetails(
+  //       "Moniepoint", "Moniepoint App",
+  //       channelDescription: "Test",
+  //       priority: Priority.high
+  //   );
+  //
+  //   final details = NotificationDetails(
+  //     iOS: iosDetails,
+  //     android: androidNotificationDetails
+  //   );
+  //
+  //   _notificationPlugin.show(
+  //       0,
+  //       "Test",
+  //       "Plain Body",
+  //       details
+  //   );
+  //   print("Notification ===>>> ${message.data}");
+  //   if(notification != null) {
+  //     print("Notification ===>>> ${message.data}");
+  //   }
 }

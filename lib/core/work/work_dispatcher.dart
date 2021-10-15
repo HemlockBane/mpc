@@ -31,6 +31,7 @@ void registerWorkers() {
 void workDispatcher () {
   registerWorkers();
   Workmanager().executeTask((taskName, inputData) async {
+    return true;
     await PreferenceUtil.reload();
     final worker = getWorker(taskName);
     if(worker == null) return true;

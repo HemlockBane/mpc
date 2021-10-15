@@ -72,6 +72,8 @@ class CustomerAddressForm with ChangeNotifier {
   bool _skippedProofOfAddress = false;
   bool get skippedProofOfAddress => _skippedProofOfAddress;
 
+  String? utilityBillUUID;
+
   Timer? _debouncer;
 
   void _initState() {
@@ -160,6 +162,7 @@ class CustomerAddressForm with ChangeNotifier {
   void onUtilityBillChange(String? utilityBill, String? fileName) {
     _info.utilityBillUUID = utilityBill;
     _info.uploadedFileName = fileName;
+    utilityBillUUID = utilityBill;
     _utilityBillController.sink.add(utilityBill ?? "");
     _isUtilityBillValid(displayError: true);
     if(requiresMailingAddress && useAddressAsMailingAddress) {
@@ -180,6 +183,13 @@ class CustomerAddressForm with ChangeNotifier {
 
   void skipProofOfAddress(bool skip) {
     this._skippedProofOfAddress = skip;
+    if(this._skippedProofOfAddress) {
+      getAddressInfo.utilityBillUUID = null;
+      getMailingAddressInfo?.utilityBillUUID = null;
+    } else {
+      getAddressInfo.utilityBillUUID = utilityBillUUID;
+      getMailingAddressInfo?.utilityBillUUID = utilityBillUUID;
+    }
   }
 
   void setDefaultAsMailingAddress(bool? isDefault) async {

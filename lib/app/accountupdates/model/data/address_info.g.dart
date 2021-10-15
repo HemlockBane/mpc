@@ -31,6 +31,6 @@ Map<String, dynamic> _$AddressInfoToJson(AddressInfo instance) {
   }
 
   writeNotNull('utilityBillUUID', instance.utilityBillUUID);
-  val['uploadedFileName'] = instance.uploadedFileName;
+  writeNotNull('uploadedFileName', instance.uploadedFileName);
   return val;
 }

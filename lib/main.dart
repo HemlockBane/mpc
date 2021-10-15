@@ -102,7 +102,7 @@ void main() async {
 
 Future<void> _onCreate() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Workmanager().initialize(workDispatcher, isInDebugMode: true);
+  Workmanager().initialize(workDispatcher, isInDebugMode: false);
   await BiometricHelper.initialize(
       keyFileName: "moniepoint_iv",
       keyStoreName: "AndroidKeyStore",
@@ -116,5 +116,5 @@ Future<void> _onCreate() async {
   await PreferenceUtil.initAsync();
   MixpanelManager.initAsync();
 
-  AppNotificationService().initialize();
+  // AppNotificationService().initialize();
 }

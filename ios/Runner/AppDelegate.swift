@@ -17,7 +17,7 @@ import LocalAuthentication
     GeneratedPluginRegistrant.register(with: self)
     
     UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
-    UIApplication.shared.setMinimumBackgroundFetchInterval(TimeInterval(60*15))
+//    UIApplication.shared.setMinimumBackgroundFetchInterval(TimeInterval(60*15))
 
     //For google maps
     GMSServices.provideAPIKey("AIzaSyAZ4YHxMdQYIzvEepEUVYdFUILdCN3LxA8")

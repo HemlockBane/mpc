@@ -828,13 +828,15 @@ class _AccountRestrictionData {
   final Color headerTextColor;
   final Color headerBackgroundColor;
   final Color headerAnchorColor;
+  final String resolutionText;
 
   _AccountRestrictionData({
     required this.pageTitle,
     required this.pageDescription,
     required this.headerTextColor,
     required this.headerBackgroundColor,
-    required this.headerAnchorColor
+    required this.headerAnchorColor,
+    this.resolutionText = "Fix This"
   });
 }
 
@@ -887,6 +889,7 @@ class _AccountRestrictionPage extends StatelessWidget {
         pageDescription: "Your documents are currently being verified",
         headerTextColor: Colors.textColorBlack,
         headerBackgroundColor: Colors.primaryColor.withOpacity(0.2),
+        resolutionText: "View Progress",
         headerAnchorColor: Color(0XFFc9dcf9),
       );
     } else if (accountState == AccountState.IN_COMPLETE) {
@@ -958,7 +961,7 @@ class _AccountRestrictionPage extends StatelessWidget {
           child: Styles.appButton(
               elevation: 0.3,
               onClick: () => Navigator.of(context).pop("FIX"),
-              text: "Fix This"
+              text: pageData.resolutionText
           ),
         ),
       ),

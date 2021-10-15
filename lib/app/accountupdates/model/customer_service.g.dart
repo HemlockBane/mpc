@@ -9,7 +9,7 @@ part of 'customer_service.dart';
 class _CustomerService implements CustomerService {
   _CustomerService(this._dio, {this.baseUrl}) {
     baseUrl ??=
-        'https://core-root.monnify.development.teamapt.com/api/v1/customers/';
+        'https://moniepoint-customer-root-v2.console.teamapt.com/api/v1/customers/';
   }
 
   final Dio _dio;
@@ -27,7 +27,7 @@ class _CustomerService implements CustomerService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.1.0'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -55,7 +55,7 @@ class _CustomerService implements CustomerService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.1.0'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -82,7 +82,7 @@ class _CustomerService implements CustomerService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.1.0'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -111,7 +111,7 @@ class _CustomerService implements CustomerService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.1.0'
                 },
                 extra: _extra,
                 contentType: 'application/json')

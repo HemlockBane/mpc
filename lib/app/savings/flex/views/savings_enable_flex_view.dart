@@ -1,9 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:moniepoint_flutter/app/dashboard/views/savings_views/savings_flex_topup_view.dart';
-import 'package:moniepoint_flutter/app/dashboard/views/savings_views/savings_success_view.dart';
+import 'package:moniepoint_flutter/app/savings/flex/views/savings_flex_home.dart';
+import 'package:moniepoint_flutter/app/savings/flex/views/savings_flex_settings.dart';
+import 'package:moniepoint_flutter/app/savings/flex/views/savings_flex_topup_view.dart';
+import 'package:moniepoint_flutter/app/savings/flex/views/savings_flex_withdrawal.dart';
+import 'package:moniepoint_flutter/app/savings/savings_success_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 
 const lightGreen = Color(0xffD1E7D3);
@@ -93,7 +97,7 @@ class SavingsEnableFlexView extends StatelessWidget {
               controller: draggableScrollController,
               children: [
                 Text(
-                  "General Savings",
+                  "Flex Savings",
                   style: getBoldStyle(),
                 ),
                 SizedBox(height: 16),
@@ -156,24 +160,28 @@ class SavingsEnableFlexView extends StatelessWidget {
                             content: getSuccessContent(),
                             primaryButtonText: "Setup Flex Savings",
                             primaryButtonAction: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (ctx) => SavingsFlexTopupView()));
+                              Navigator.pushNamed(context, Routes.SAVINGS_FLEX_SETUP);
                             },
                             secondaryButtonText: "Dismiss",
-                            secondaryButtonAction: () {},
+                            secondaryButtonAction: () {
+                              Navigator.pop(context);
+                            },
                           ),
                         ),
                       );
                     },
-                    text: 'Enable General Savings'),
+                    text: 'Enable Flex Savings'),
                 SizedBox(height: 31.5),
                 GestureDetector(
+                  onTap: (){
+                  },
                   child: Padding(
                     padding: const EdgeInsets.only(left: 20.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         Text(
-                          "Learn More about General Savings",
+                          "Learn More about Flex Savings",
                           style: getBoldStyle(
                               fontSize: 15, fontWeight: FontWeight.w600),
                         ),

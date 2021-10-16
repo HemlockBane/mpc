@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/svg.dart';
-import 'package:moniepoint_flutter/app/dashboard/views/savings_views/savings_enable_flex_view.dart';
+import 'package:moniepoint_flutter/app/savings/flex/views/savings_enable_flex_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 
 class SavingsGetStartedView extends StatelessWidget {

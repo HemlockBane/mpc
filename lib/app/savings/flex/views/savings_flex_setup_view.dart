@@ -1,0 +1,469 @@
+import 'package:flutter/material.dart' hide Colors;
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:moniepoint_flutter/app/accountupdates/views/forms/account_update_form_view.dart';
+import 'package:moniepoint_flutter/app/airtime/views/selection_combo.dart';
+import 'package:moniepoint_flutter/app/savings/flex/viewmodels/savings_flex_setup_viewmodel.dart';
+import 'package:moniepoint_flutter/app/savings/flex/views/savings_enable_flex_view.dart';
+import 'package:moniepoint_flutter/app/savings/savings_success_view.dart';
+import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
+import 'package:moniepoint_flutter/core/models/list_item.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
+import 'package:moniepoint_flutter/core/savings_account_item.dart';
+import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
+import 'package:moniepoint_flutter/core/views/amount_pill.dart';
+import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
+import 'package:moniepoint_flutter/core/utils/currency_util.dart';
+import 'package:collection/collection.dart';
+import 'package:moniepoint_flutter/core/views/pie_progress_bar.dart';
+import 'package:provider/provider.dart';
+
+
+const savingsGreen = Color(0xffA5C097);
+
+class SavingsFlexSetupView extends StatefulWidget {
+  const SavingsFlexSetupView({Key? key}) : super(key: key);
+
+  @override
+  _SavingsFlexSetupViewState createState() => _SavingsFlexSetupViewState();
+}
+
+class _SavingsFlexSetupViewState extends State<SavingsFlexSetupView> with CompositeDisposableWidget{
+
+  late SavingsFlexSetupViewModel _viewModel;
+  late PageView _pageView;
+
+  final _pageController = PageController();
+  final pageChangeDuration = const Duration(milliseconds: 250);
+  final pageCurve = Curves.linear;
+
+  int _currentPage = 0;
+  List<PagedForm> _pages = [];
+
+  void _registerPageChange() {
+    _viewModel.pageFormStream.listen((event) {
+      // go back to previous page
+      if (event.first == -1) _onBackPressed();
+
+      final totalItem = _pages.length;
+      if (totalItem > 0 && _currentPage < totalItem - 1) {
+        _pageController.animateToPage(_currentPage + 1, duration: pageChangeDuration, curve: pageCurve);
+      } else if(_currentPage == totalItem - 1) {
+        // submit form
+
+      }
+    }).disposedBy(this);
+  }
+
+  Widget setupPageView() {
+    _pages = [FirstFlexSetupForm(), SecondFlexSetupForm()];
+    this._pageView = PageView.builder(
+      physics: NeverScrollableScrollPhysics(),
+      itemCount: _pages.length,
+      controller: _pageController,
+      onPageChanged: (page) {
+        _currentPage = page;
+      },
+      itemBuilder: (BuildContext context, int index) {
+        return _pages[index % _pages.length]..bind(_pages.length, index);
+      });
+    return _pageView;
+  }
+
+  Future<bool> _onBackPressed() async {
+    if (_currentPage != 0) {
+      await _pageController.animateToPage(
+        _currentPage - 1, duration: pageChangeDuration, curve: pageCurve);
+      return false;
+    }
+    return true;
+  }
+
+  List<String> getPageTitles() {
+    return _pages.map((e) => e.getTitle()).toList();
+  }
+
+
+  @override
+  void initState() {
+    _viewModel = SavingsFlexSetupViewModel();
+    _registerPageChange();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: _onBackPressed,
+      child: MultiProvider(
+        providers: [
+          ChangeNotifierProvider.value(value: _viewModel),
+        ],
+        child: Stack(
+          children: [
+            Scaffold(
+              backgroundColor: Color(0xffF8F8F8),
+              appBar: AppBar(
+                centerTitle: false,
+                titleSpacing: 0,
+                iconTheme: IconThemeData(color: Colors.solidGreen),
+                title: Text('General Savings',
+                  textAlign: TextAlign.start,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.textColorBlack)),
+                backgroundColor: Colors.backgroundWhite,
+                elevation: 0),
+              body: Container(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 30),
+                    SvgPicture.asset("res/drawables/ic_savings_flex.svg", height: 57, width: 57,),
+                    SizedBox(height: 25),
+                    Text(
+                      "Setup Flex",
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+                    ),
+                    SizedBox(height: 14),
+                    Expanded(
+                      child: setupPageView(),
+                    )
+                  ],
+                ),
+              ),
+            ),
+            Positioned(
+              top: 20, right: 18,
+              child: FutureBuilder(
+                future: Future.delayed(Duration(milliseconds: 60), () => "done"),
+                builder: (context, snapshot) {
+                  if(snapshot.connectionState != ConnectionState.done) return SizedBox();
+                  return PieProgressBar(
+                    viewPager: _pageController,
+                    totalItemCount: _pages.length,
+                    pageTitles: getPageTitles(),
+                    displayTitle: false,
+                    progressColor: Colors.solidGreen,
+                  );
+                }
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  @override
+  void dispose() {
+    disposeAll();
+    _viewModel.dispose();
+    super.dispose();
+  }
+}
+
+
+
+
+
+class FirstFlexSetupForm extends PagedForm {
+  @override
+  _FirstFlexSetupFormState createState() => _FirstFlexSetupFormState();
+
+  @override
+  String getTitle() => "FirstFlexSetupForm";
+}
+
+class _FirstFlexSetupFormState extends State<FirstFlexSetupForm> {
+  late final SavingsFlexSetupViewModel _viewModel;
+  double _amount = 0.00;
+  ListDataItem<String>? _selectedAmountPill;
+  final List<ListDataItem<String>> amountPills = List.generate(4, (index) => ListDataItem((5000 * (index + 1)).formatCurrencyWithoutLeadingZero));
+
+  List<Widget> generateAmountPillsWidget() {
+    final pills = <Widget>[];
+    amountPills.forEachIndexed((index, element) {
+      pills.add(
+        Expanded(
+          flex: 1,
+          child: AmountPill(
+            item: element, position: index, primaryColor: Colors.solidGreen,
+            listener: (ListDataItem<String> item, position){
+              setState(() {
+                _selectedAmountPill?.isSelected = false;
+                _selectedAmountPill = item;
+                _selectedAmountPill?.isSelected = true;
+                this._amount = double.parse(_selectedAmountPill!.item.replaceAll(RegExp(r'[(a-z)|(A-Z)|(,₦)]'), ""));
+              });
+            })));
+      if(index != amountPills.length -1) pills.add(SizedBox(width: 8,));
+    });
+    return pills;
+  }
+
+  TextStyle getBoldStyle(
+    {double fontSize = 32.5,
+      Color color = Colors.textColorBlack,
+      FontWeight fontWeight = FontWeight.w700}) =>
+    TextStyle(fontWeight: fontWeight, fontSize: fontSize, color: color);
+
+  final savingsFrequencies = List.of([
+  ComboItem("Monthly", "Monthly", isSelected: true),
+  ComboItem("Weekly",  "Weekly",),
+  ]);
+
+
+  @override
+  void initState() {
+    _viewModel = Provider.of<SavingsFlexSetupViewModel>(context, listen: false);
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      children: [
+        Container(
+          child: Text(
+            "How frequently would you like to save?",
+            style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
+          ),
+        ),
+        SizedBox(height: 12),
+        SelectionCombo<String>(
+          savingsFrequencies.toList(), (item, index) {
+
+
+          },
+        checkBoxPosition: CheckBoxPosition.leading,
+        shouldUseAlternateDecoration: true,
+        primaryColor: Colors.solidGreen,
+        backgroundColor: savingsGreen.withOpacity(0.15), horizontalPadding: 11 ,
+        ),
+
+        SizedBox(height: 32),
+        Text(
+          "How much would you like to save?",
+          style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
+        ),
+
+        SizedBox(height: 13),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 26 ),
+          decoration: BoxDecoration(
+            color: savingsGreen.withOpacity(0.15),
+            borderRadius: BorderRadius.all(Radius.circular(8))
+          ),
+          child: PaymentAmountView((_amount * 100).toInt(), (value){},
+            currencyColor: Color(0xffC1C2C5).withOpacity(0.5),
+            textColor: Colors.textColorBlack,
+          ),
+        ),
+        SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: generateAmountPillsWidget(),
+        ),
+        SizedBox(height: 26),
+        Text(
+          "Select your Account",
+          style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
+        ),
+        SizedBox(height: 12),
+        SavingsAccountItem(),
+        SizedBox(height: 57),
+        Styles.statefulButton(
+          buttonStyle: Styles.primaryButtonStyle.copyWith(
+            backgroundColor:
+            MaterialStateProperty.all(Colors.solidGreen),
+            textStyle: MaterialStateProperty.all(getBoldStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 15,
+              color: Colors.white))),
+          stream: Stream.value(true),
+          onClick: () {
+            _viewModel.moveToNext(widget.position);
+          },
+          text: 'Next'),
+        SizedBox(height: 20),
+
+
+      ],
+    );
+  }
+}
+
+
+class SecondFlexSetupForm extends PagedForm {
+  @override
+  _SecondFlexSetupFormState createState() => _SecondFlexSetupFormState();
+
+  @override
+  String getTitle() => "SecondFlexSetupForm";
+}
+
+class _SecondFlexSetupFormState extends State<SecondFlexSetupForm> {
+
+  late final SavingsFlexSetupViewModel _viewModel;
+
+
+  TextStyle getBoldStyle(
+    {double fontSize = 32.5,
+      Color color = Colors.textColorBlack,
+      FontWeight fontWeight = FontWeight.w700}) =>
+    TextStyle(fontWeight: fontWeight, fontSize: fontSize, color: color);
+
+  TextStyle getNormalStyle(
+    {double fontSize = 32.5,
+      Color color = Colors.textColorBlack,
+      FontWeight fontWeight = FontWeight.w500}) =>
+    TextStyle(fontWeight: fontWeight, fontSize: fontSize, color: color);
+
+  final savingsTypes = List.of([
+    ComboItem("Automatic", "Automatic", isSelected: true),
+    ComboItem("Manual",  "Manual",),
+  ]);
+
+
+  @override
+  void initState() {
+    _viewModel = Provider.of<SavingsFlexSetupViewModel>(context, listen: false);
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    final dialogContent = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Monthly Savings Account", style: getNormalStyle(fontSize: 15),),
+        SizedBox(height: 8),
+        Text("N7,000.00", style: getBoldStyle(fontSize: 20),),
+        SizedBox(height: 26),
+        Text("Interest rate", style: getNormalStyle(fontSize: 15)),
+        SizedBox(height: 8),
+        Row(
+          children: [
+            Text("10.25%", style: getBoldStyle(fontSize: 20),),
+            SizedBox(width: 4),
+            Text("p.a", style: getNormalStyle(fontSize: 18, color: Color(0xffA8ABB5)),)
+          ],
+        )
+      ],
+    );
+
+    return Container(
+     child: Column(
+        children: [
+          Expanded(
+            child: ListView(
+            children: [
+              Container(
+                child: Text(
+                  "How frequently would you like to save?",
+                  style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
+                ),
+              ),
+              SizedBox(height: 12),
+              SelectionCombo<String>(
+                savingsTypes.toList(), (item, index) {
+
+
+              },
+                checkBoxPosition: CheckBoxPosition.leading,
+                shouldUseAlternateDecoration: true,
+                primaryColor: Colors.solidGreen,
+                backgroundColor: savingsGreen.withOpacity(0.15), horizontalPadding: 11 ,
+              ),
+              SizedBox(height: 34),
+              Container(
+                child: Text(
+                  "How frequently would you like to save?",
+                  style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
+                ),
+              ),
+              SizedBox(height: 12),
+              SelectionCombo<String>(
+                savingsTypes.toList(), (item, index) {
+
+
+              },
+                checkBoxPosition: CheckBoxPosition.leading,
+                shouldUseAlternateDecoration: true,
+                primaryColor: Colors.solidGreen,
+                backgroundColor: savingsGreen.withOpacity(0.15), horizontalPadding: 11 ,
+              ),
+
+              SizedBox(height: 32),
+            ],
+            ),
+          ),
+          Row(
+            children: [
+              Expanded(
+                flex: 3,
+                child: Styles.statefulButton(
+                  buttonStyle: Styles.primaryButtonStyle.copyWith(
+                    backgroundColor:
+                    MaterialStateProperty.all(Colors.deepGrey.withOpacity(0.3)),
+                    textStyle: MaterialStateProperty.all(getBoldStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 15,
+                      color: Colors.deepGrey))),
+                  stream: Stream.value(true),
+                  onClick: () {
+                    _viewModel.moveToPrev(-1);
+                  },
+                  text: 'Back'),
+              ),
+              SizedBox(width: 8),
+              Expanded(
+                flex: 5,
+                child: Styles.statefulButton(
+                  buttonStyle: Styles.primaryButtonStyle.copyWith(
+                    backgroundColor:
+                    MaterialStateProperty.all(Colors.solidGreen),
+                    textStyle: MaterialStateProperty.all(getBoldStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 15,
+                      color: Colors.white))),
+                  stream: Stream.value(true),
+                  onClick: () {
+                   showConfirmation(context,
+                     primaryButtonText: "Complete Setup",
+                     primaryButtonColor: Colors.solidGreen,
+                     title: "Setup Confirmation",
+                     content: dialogContent,
+                     onPrimaryClick: (){
+                        Navigator.pop(context);
+                        Navigator.push(context,
+                        MaterialPageRoute(builder: (ctx) => SavingsSucessView(
+                          primaryText: "Setup Complete!",
+                          secondaryText: loremIpsum,
+                          primaryButtonText: "Continue",
+                          primaryButtonAction: (){
+                            Navigator.pushNamed(context, Routes.SAVINGS_FLEX_HOME);
+                          },
+
+
+                        ),),
+                      );
+                     }
+                   );
+                  },
+                  text: 'Complete Setup'),
+              ),
+            ],
+          ),
+          SizedBox(height: 20),
+        ],
+      )
+    );
+  }
+}
+
+

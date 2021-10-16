@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/svg.dart';
+import 'package:moniepoint_flutter/core/styles.dart';
 
 import '../views/bottom_sheet.dart';
 import '../colors.dart';
@@ -132,4 +133,71 @@ Future<dynamic> showComingSoon(BuildContext context, {String title = "Coming Soo
           ),
         );
       });
+}
+
+
+Future<dynamic> showConfirmation(BuildContext context, {String title = "Confirmation", required String primaryButtonText, required Widget content, VoidCallback? onPrimaryClick, Color? primaryButtonColor = Colors.primaryColor}) {
+
+  final dialogRadius = Radius.circular(8);
+
+  return showModalBottomSheet(
+    isScrollControlled: true,
+    context: context,
+    backgroundColor: Colors.transparent,
+    builder: (context) {
+      return BottomSheets.makeAppBottomSheet2(
+        height: 400,
+        dialogIcon: SvgPicture.asset(
+          'res/drawables/ic_info.svg',
+          color: Colors.solidYellow,
+          width: 40,
+          height: 40,
+        ),
+        centerImageBackgroundColor: Colors.solidYellow.withOpacity(0.1),
+        centerBackgroundPadding: 15,
+        content: Wrap(
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              child: Column(
+                children: [
+                  Text(title,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.textColorBlack)),
+                  SizedBox(height: 16),
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(vertical: 24, horizontal: 24),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(topRight: dialogRadius, topLeft: dialogRadius),
+                      color: Color(0xffF5F6F7)
+                    ),
+                    child: content,
+                  ),
+                  SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Styles.appButton(
+                      elevation: 0.5,
+                      onClick: onPrimaryClick ?? () => Navigator.of(context).pop(),
+                      text: primaryButtonText,
+                      buttonStyle: Styles.primaryButtonStyle.copyWith(
+                        backgroundColor: MaterialStateProperty.all(primaryButtonColor),
+                        textStyle: MaterialStateProperty.all(TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: Styles.defaultFont)),
+                        foregroundColor:
+                        MaterialStateProperty.all(Colors.white)))),
+                  SizedBox(height: 32)
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    });
 }

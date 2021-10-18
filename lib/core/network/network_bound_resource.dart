@@ -47,12 +47,10 @@ mixin NetworkResource {
       await for (var value in fetchFromLocal()) {
         localData = value;
         yield Resource.loading(localData);
-        print("Can We Break here");
         break;
       }
     }
 
-    print("Make Local Call");
     if(shouldFetchFromRemote(localData)) {
       //if we are fetching from remote let's emit
       yield Resource.loading(localData);
@@ -113,9 +111,6 @@ mixin NetworkResource {
               _errorString = "We encountered an error fulfilling your request. Please try again later.";//TypeError occurred here
             } else {
               _errorString = error.toString();
-              print('In the else branch of error type: ${error.runtimeType}');
-              print('In the else branch of error: $error');
-              print('In the else branch of error: ${e.response?.statusCode}');
             }
           }
         }

@@ -22,16 +22,14 @@ Worker? getWorker(String key) {
 void registerWorkers() {
   _workers = {
     Workmanager.iOSBackgroundTask: IosBackgroundTaskWorker(),
-    DeviceTokenRegistrationWorker.WORKER_KEY: DeviceTokenRegistrationWorker(
-      delegate: NotificationServiceDelegate(NotificationService(ServiceModule.getConfiguredApiClient()))
-    ),
+    DeviceTokenRegistrationWorker.WORKER_KEY: DeviceTokenRegistrationWorker(),
   };
 }
 
 void workDispatcher () {
+  ServiceModule.inject();
   registerWorkers();
   Workmanager().executeTask((taskName, inputData) async {
-    return true;
     await PreferenceUtil.reload();
     final worker = getWorker(taskName);
     if(worker == null) return true;

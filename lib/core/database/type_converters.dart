@@ -214,7 +214,7 @@ class TransactionTypeConverter extends TypeConverter<TransactionType?, String?>{
   @override
   TransactionType? decode(String? databaseValue) {
     if(databaseValue == null) return null;
-    final TransactionType type = enumFromString<TransactionType>(TransactionType.values, databaseValue);
+    final TransactionType? type = enumFromString<TransactionType>(TransactionType.values, databaseValue);
     return type;
   }
 
@@ -228,7 +228,7 @@ class TransactionCategoryConverter extends TypeConverter<TransactionCategory?, S
   @override
   TransactionCategory? decode(String? databaseValue) {
     if(databaseValue == null) return null;
-    final TransactionCategory type = enumFromString<TransactionCategory>(TransactionCategory.values, databaseValue);
+    final TransactionCategory? type = enumFromString<TransactionCategory>(TransactionCategory.values, databaseValue);
     return type;
   }
 
@@ -242,7 +242,7 @@ class TransactionChannelConverter extends TypeConverter<TransactionChannel?, Str
   @override
   TransactionChannel? decode(String? databaseValue) {
     if(databaseValue == null) return null;
-    final TransactionChannel type = enumFromString<TransactionChannel>(TransactionChannel.values, databaseValue);
+    final TransactionChannel? type = enumFromString<TransactionChannel>(TransactionChannel.values, databaseValue);
     return type;
   }
 

@@ -22,7 +22,7 @@ abstract class NotificationService  {
     "appVersion": BuildConfig.APP_VERSION
   })
   @POST("register-device-token")
-  Future<ServiceResult<bool>> registerDeviceToken(
+  Future<ServiceResult<String?>> registerDeviceToken(
     @Body() RegisterDeviceTokenRequest request
   );
 

@@ -9,7 +9,7 @@ part of 'notification_service.dart';
 class _NotificationService implements NotificationService {
   _NotificationService(this._dio, {this.baseUrl}) {
     baseUrl ??=
-        'https://moniepoint-customer-notification-service-v2.console.teamapt.com/api/v1/notification/';
+        'https://moniepoint-customer-notification-service.development.teamapt.com/api/v1/notification/';
   }
 
   final Dio _dio;
@@ -17,27 +17,27 @@ class _NotificationService implements NotificationService {
   String? baseUrl;
 
   @override
-  Future<ServiceResult<bool>> registerDeviceToken(request) async {
+  Future<ServiceResult<String>> registerDeviceToken(request) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(request.toJson());
     final _result = await _dio.fetch<Map<String, dynamic>>(
-        _setStreamType<ServiceResult<bool>>(Options(
+        _setStreamType<ServiceResult<String>>(Options(
                 method: 'POST',
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.1.0'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')
             .compose(_dio.options, 'register-device-token',
                 queryParameters: queryParameters, data: _data)
             .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
-    final value = ServiceResult<bool>.fromJson(
+    final value = ServiceResult<String>.fromJson(
       _result.data!,
-      (json) => json as bool,
+      (json) => json as String,
     );
     return value;
   }

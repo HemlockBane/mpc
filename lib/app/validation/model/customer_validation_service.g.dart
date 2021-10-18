@@ -9,7 +9,7 @@ part of 'customer_validation_service.dart';
 class _CustomerValidationService implements CustomerValidationService {
   _CustomerValidationService(this._dio, {this.baseUrl}) {
     baseUrl ??=
-        'https://moniepoint-customer-root-v2.console.teamapt.com/api/v2/customer-validation/';
+        'https://core-root.monnify.development.teamapt.com/api/v2/customer-validation/';
   }
 
   final Dio _dio;
@@ -27,7 +27,7 @@ class _CustomerValidationService implements CustomerValidationService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.1.0'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -57,7 +57,7 @@ class _CustomerValidationService implements CustomerValidationService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.1.0'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')

@@ -10,11 +10,8 @@ class RegisterDeviceTokenRequest {
     required this.deviceToken
   });
 
-  factory RegisterDeviceTokenRequest.fromJson(Object? data) {
-    final jsonMap = data as Map<String, dynamic>;
-    final a = _$RegisterDeviceTokenRequestFromJson(jsonMap);
-    return a;
-  }
+  factory RegisterDeviceTokenRequest.fromJson(Object? data) =>
+      _$RegisterDeviceTokenRequestFromJson(data as Map<String, dynamic>);
   Map<String, dynamic> toJson() => _$RegisterDeviceTokenRequestToJson(this);
 
 }

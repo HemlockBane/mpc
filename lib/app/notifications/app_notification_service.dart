@@ -1,17 +1,18 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:get_it/get_it.dart';
+import 'package:moniepoint_flutter/app/notifications/model/data/remote_notification_message.dart';
 import 'package:moniepoint_flutter/app/notifications/model/device_token_registration_worker.dart';
-import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/app/notifications/model/handlers/notification_handler.dart';
+import 'package:moniepoint_flutter/core/extensions/strings.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/work/ios_background_task_worker.dart';
-import 'package:moniepoint_flutter/core/work/work_dispatcher.dart';
 import 'package:workmanager/workmanager.dart';
+import 'package:collection/collection.dart';
 
-
-FlutterLocalNotificationsPlugin _notificationPlugin = FlutterLocalNotificationsPlugin();
+FlutterLocalNotificationsPlugin notificationPlugin = FlutterLocalNotificationsPlugin();
 
 class AppNotificationService {
 
@@ -32,20 +33,49 @@ class AppNotificationService {
     FirebaseMessaging.onMessage.listen(onMessageReceived);
     FirebaseMessaging.onBackgroundMessage(_onBackgroundMessageReceived);
 
-    await _notificationPlugin.initialize(_notificationInitializationSettings);
+    await _onAppLaunchWithNotification();
+    await notificationPlugin.initialize(
+        _notificationInitializationSettings,
+        onSelectNotification: _onNotificationSelected
+    );
     await _retrieveFirebaseToken();
+  }
+
+  Future<void> _onAppLaunchWithNotification() async {
+    final notificationDetails = await notificationPlugin.getNotificationAppLaunchDetails();
+    if(notificationDetails?.didNotificationLaunchApp ?? false) {
+      final payload = notificationDetails?.payload;
+      _onNotificationSelected(payload);
+    }
+  }
+
+  void _onNotificationSelected(String? payload) async {
+    try {
+      final remoteMessage = jsonDecode(payload ?? "{}");
+      final remoteMessageType = remoteMessage["messageType"];
+      final messageType = enumFromString<MessageType>(MessageType.values, remoteMessageType ?? "");
+      final handler = NotificationHandler.getInstance(messageType, remoteMessage);
+      await handler.handle();
+    } on FormatException {
+      //Do nothing
+    }
   }
 
   Future<void> _retrieveFirebaseToken() async {
     final token = await FirebaseMessaging.instance.getToken().catchError((e) {
-      _registerDeviceToken();
+      print("Unable to fetch token at the moment");
+      return null;
     });
-    PreferenceUtil.saveValue(FCM_TOKEN, token);
-    _registerDeviceToken();
-  }
 
-  void onMessageReceived(RemoteMessage message) {
-    //TODO get message payload format
+    if(token != null && token.isNotEmpty) {
+      final previousToken = PreferenceUtil.getValue(FCM_TOKEN);
+      final isTokenRegistered = PreferenceUtil.getValue<bool>(FCM_TOKEN_REGISTERED);
+
+      if(previousToken == token && isTokenRegistered == true) return;
+
+      PreferenceUtil.saveValue(FCM_TOKEN, token);
+      _registerDeviceToken();
+    }
   }
 
   void onTokenRefresh(String token) {
@@ -65,37 +95,17 @@ class AppNotificationService {
     }
   }
 
+  void onMessageReceived(RemoteMessage message) async {
+    print("Message Received ===> ${jsonEncode(message)}");
+    print("Message Received ===> ${message.data}");
+    final messageType = enumFromString<MessageType>(MessageType.values, message.messageType ?? "");
+    final handler = NotificationHandler.getInstance(messageType, message.data);
+    await handler.notify(NotificationHandler.FOREGROUND_MESSAGE);
+  }
 }
 
-//When a message is received
 Future<void> _onBackgroundMessageReceived(RemoteMessage message) async {
-  //TODO get the data-payload to read
-  //   RemoteNotification? notification = message.notification;
-  //
-  //   final iosDetails = IOSNotificationDetails(
-  //     badgeNumber: 0,
-  //     subtitle: "Hello Notification",
-  //   );
-  //
-  //   final androidNotificationDetails = AndroidNotificationDetails(
-  //       "Moniepoint", "Moniepoint App",
-  //       channelDescription: "Test",
-  //       priority: Priority.high
-  //   );
-  //
-  //   final details = NotificationDetails(
-  //     iOS: iosDetails,
-  //     android: androidNotificationDetails
-  //   );
-  //
-  //   _notificationPlugin.show(
-  //       0,
-  //       "Test",
-  //       "Plain Body",
-  //       details
-  //   );
-  //   print("Notification ===>>> ${message.data}");
-  //   if(notification != null) {
-  //     print("Notification ===>>> ${message.data}");
-  //   }
+    final messageType = enumFromString<MessageType>(MessageType.values, message.messageType ?? "");
+    final handler = NotificationHandler.getInstance(messageType, message.data);
+    await handler.notify(NotificationHandler.BACKGROUND_MESSAGE);
 }

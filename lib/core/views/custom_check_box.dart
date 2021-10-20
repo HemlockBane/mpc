@@ -11,7 +11,9 @@ class CustomCheckBox extends StatefulWidget {
         this.height,
         this.width,
         this.padding,
-        this.selectedStateImageRes
+        this.selectedStateImageRes,
+        this.fillColor,
+        this.borderColor
       }) : super(key: key);
 
   final ValueChanged<bool> onSelect;
@@ -21,6 +23,9 @@ class CustomCheckBox extends StatefulWidget {
   final double? height;
   final double? width;
   final EdgeInsets? padding;
+
+  final Color? borderColor;
+  final Color? fillColor;
 
   @override
   _CustomCheckBoxState createState() => _CustomCheckBoxState();
@@ -33,11 +38,11 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
       height: double.infinity,
       padding: widget.isSelected ? widget.padding ?? EdgeInsets.all(10) : EdgeInsets.zero,
       decoration: BoxDecoration(
-        color: widget.isSelected ? Colors.primaryColor : Color(0XFFF0F6FF),
+        color: widget.isSelected ? widget.fillColor ?? Colors.primaryColor : Color(0XFFF0F6FF),
         shape: BoxShape.circle,
         border: (widget.isSelected)
             ? null
-            : Border.all(color: Colors.primaryColor, width: 1.5, style: BorderStyle.solid),
+            : Border.all(color: widget.borderColor ?? Colors.primaryColor, width: 1.5, style: BorderStyle.solid),
       ),
       child: Center(
         child: (widget.isSelected)

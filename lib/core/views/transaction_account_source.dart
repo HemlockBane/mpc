@@ -9,6 +9,8 @@ import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
 import 'package:collection/collection.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 import 'package:moniepoint_flutter/core/views/selection_combo_two.dart';
+import 'package:moniepoint_flutter/core/extensions/strings.dart';
+
 
 import '../colors.dart';
 import '../payment_view_model.dart';
@@ -18,12 +20,34 @@ import '../tuple.dart';
 class TransactionAccountSource extends StatelessWidget {
 
   final BaseViewModel viewModel;
+  final ListStyle listStyle;
+  final TextStyle? titleStyle;
+  final Color? primaryColor;
+  final Color? checkBoxBorderColor;
+  final Size? checkBoxSize;
+  final EdgeInsets? checkBoxPadding;
+  final bool isShowTrailingWhenExpanded;
 
-  TransactionAccountSource(this.viewModel);
+  TransactionAccountSource(this.viewModel, {
+    this.listStyle = ListStyle.normal,
+    this.primaryColor,
+    this.checkBoxBorderColor,
+    this.checkBoxSize,
+    this.checkBoxPadding,
+    this.isShowTrailingWhenExpanded = true,
+    this.titleStyle
+  });
+
+  bool isDefaultStyle() =>  listStyle == ListStyle.normal;
 
   Widget boxContainer(Widget child) {
+    final defaultPadding = EdgeInsets.only(left: 16, right: 24, top: 12, bottom: 12);
+    final alternatePadding = EdgeInsets.only(
+      left: 11.87, right: 19.23, top: 14.25, bottom: 14.17);
+
+
     return Container(
-      padding: EdgeInsets.only(left: 16, right: 24, top: 12, bottom: 12),
+      padding: isDefaultStyle() ? defaultPadding : alternatePadding,
       decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
@@ -40,8 +64,122 @@ class TransactionAccountSource extends StatelessWidget {
     );
   }
 
+
+  Widget getDefaultIcon(){
+    return Container(
+      width: 37,
+      height: 37,
+      padding: EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.darkBlue.withOpacity(0.1)
+      ),
+      child: Center(
+        child: SvgPicture.asset('res/drawables/ic_bank.svg', color: Colors.primaryColor,),
+      ),
+    );
+  }
+
+
+  Widget getAlternateIcon(String name){
+    final color = primaryColor ?? Colors.primaryColor;
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        SvgPicture.asset(
+          "res/drawables/ic_m_bg.svg",
+          fit: BoxFit.cover,
+          height: 45,
+          width: 45,
+          color: color.withOpacity(0.11),
+        ),
+        Container(
+          height: 45,
+          width: 45,
+          child: Material(
+            borderRadius: BorderRadius.circular(17),
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(17),
+              overlayColor:
+              MaterialStateProperty.all(color.withOpacity(0.1)),
+              highlightColor: color.withOpacity(0.05),
+              // onTap: () => _onItemClicked(context, beneficiary),
+              child: Center(
+                child: Text(
+                  name.abbreviate(2, true, includeMidDot: false),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: color),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget getAlternateSubtitle({required String text1, required String? tex2}){
+    return Row(
+      children: [
+        Text(
+          text1,
+          textAlign: TextAlign.left,
+          style: TextStyle(
+            color: Colors.textColorBlack
+              .withOpacity(0.5),
+            fontSize: 13),
+        ),
+        SizedBox(
+          width: 8,
+        ),
+        Text("$tex2",
+          textAlign: TextAlign.left,
+          style: TextStyle(
+            color: Colors.textColorBlack
+              .withOpacity(0.5),
+            fontSize: 13,
+            fontWeight: FontWeight.w600),
+        ),
+      ],
+    );
+  }
+  
+  Widget getAlternateTrailingWidget(){
+    return IgnorePointer(
+      child: TextButton(
+        onPressed: () {},
+        child: Text(
+          'Change',
+          style: TextStyle(
+            color: Colors.solidGreen,
+            fontSize: 14,
+            fontWeight: FontWeight.bold),
+        ),
+        style: ButtonStyle(
+          minimumSize: MaterialStateProperty.all(Size(40, 0)),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          overlayColor: MaterialStateProperty.all(
+            Colors.solidGreen.withOpacity(0.2)),
+          padding: MaterialStateProperty.all(
+            EdgeInsets.symmetric(horizontal: 8, vertical: 7)),
+          shape: MaterialStateProperty.all(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10))),
+          backgroundColor:
+          MaterialStateProperty.all(Colors.transparent)),
+      ),
+    );
+
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
+
     if(viewModel.userAccounts.length > 1) {
       return Flexible(
           flex:0,
@@ -63,11 +201,20 @@ class TransactionAccountSource extends StatelessWidget {
                   );
                 }).toList();
 
+
                 return SelectionCombo2<UserAccount>(
                   comboItems,
                   defaultTitle: "Select an Account",
+                  titleStyle: titleStyle,
                   onItemSelected: (item, i) => (viewModel as PaymentViewModel).setSourceAccount(item),
                   titleIcon: SelectionCombo2.initialView(),
+                  primaryColor: primaryColor ?? Colors.primaryColor,
+                  checkBoxBorderColor: checkBoxBorderColor ?? Colors.primaryColor,
+                  checkBoxSize: checkBoxSize,
+                  checkBoxPadding: checkBoxPadding,
+                  listStyle: listStyle,
+                  trailingWidget: !isDefaultStyle() ? getAlternateTrailingWidget() : null,
+                  isShowTrailingWhenExpanded: isShowTrailingWhenExpanded,
                 );
               }
           )
@@ -80,18 +227,7 @@ class TransactionAccountSource extends StatelessWidget {
       children: [
         Flexible(
             flex:0,
-            child: Container(
-              width: 37,
-              height: 37,
-              padding: EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.darkBlue.withOpacity(0.1)
-              ),
-              child: Center(
-                child: SvgPicture.asset('res/drawables/ic_bank.svg', color: Colors.primaryColor,),
-              ),
-            )
+            child: isDefaultStyle() ? getDefaultIcon() : getAlternateIcon(viewModel.accountName)
         ),
         SizedBox(width: 17,),
         Expanded(
@@ -111,26 +247,35 @@ class TransactionAccountSource extends StatelessWidget {
                     stream: viewModel.balanceStream,
                     builder: (context, AsyncSnapshot<AccountBalance?> a) {
                       final balance = (a.hasData) ? a.data?.availableBalance?.formatCurrency : "--";
-                      return Text(
+                      final defaultSubtitle = Text(
                         'Balance - $balance',
                         textAlign: TextAlign.left,
-                        style: TextStyle(color: Colors.deepGrey, fontSize: 13, fontFamily: Styles.defaultFont, fontFamilyFallback: ["Roboto"]),)
-                          .colorText({"$balance" : Tuple(Colors.deepGrey, null)}, underline: false);
+                        style: titleStyle ?? TextStyle(color: Colors.deepGrey, fontSize: 13, fontFamily: Styles.defaultFont, fontFamilyFallback: ["Roboto"]),)
+                        .colorText({"$balance" : Tuple(Colors.deepGrey, null)}, underline: false);
+
+                      return listStyle == ListStyle.normal
+                        ? defaultSubtitle
+                        : getAlternateSubtitle(text1: viewModel.accountNumber, tex2: balance);
                     })
               ],
             )
         ),
         SizedBox(width: 17,),
-        Expanded(
-            flex: 0,
-            child: SvgPicture.asset(
-                'res/drawables/ic_check_mark_round.svg',
-                width: 26,
-                height: 26
-            )
+        Visibility(
+          visible: listStyle == ListStyle.normal,
+          child: Expanded(
+              flex: 0,
+              child: SvgPicture.asset(
+                  'res/drawables/ic_check_mark_round.svg',
+                  width: 26,
+                  height: 26
+              )
+          ),
         )
       ],
     ));
   }
 
 }
+
+enum ListStyle{normal, alternate}

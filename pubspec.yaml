@@ -78,6 +78,7 @@ dependencies:
   mixpanel_flutter: ^1.0.0
   expandable: ^5.0.1
   percent_indicator: ^3.4.0
+  jiffy: ^4.1.0
 
 dependency_overrides:
   retrofit:

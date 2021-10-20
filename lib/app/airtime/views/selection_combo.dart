@@ -17,6 +17,7 @@ class SelectionCombo<T> extends StatefulWidget {
   final Color primaryColor;
   final Color? backgroundColor;
   final double? horizontalPadding;
+  final bool isColonSeparated;
 
   SelectionCombo(this.comboItems, this.onItemSelected, {
     this.maxDisplayValue = 3,
@@ -26,7 +27,8 @@ class SelectionCombo<T> extends StatefulWidget {
     this.backgroundColor,
     this.shouldUseAlternateDecoration = false,
     this.checkBoxPosition = CheckBoxPosition.trailing,
-    this.horizontalPadding
+    this.horizontalPadding,
+    this.isColonSeparated = false
 
   });
 
@@ -112,6 +114,16 @@ class _SelectionCombo<T> extends State<SelectionCombo<T>> {
   }
 
   Widget leadingCheckBoxListItem(ComboItem<T> comboItem, int index) {
+    var firstText = "";
+    var secondText = "";
+    final hasColon = widget.isColonSeparated && comboItem.title.contains(";");
+
+    if (hasColon){
+      final colonIdx = comboItem.title.indexOf(";");
+      firstText = comboItem.title.substring(0, colonIdx);
+      secondText = comboItem.title.substring(colonIdx + 1);
+    }
+
     return GestureDetector(
       onTap: () => _itemSelected(comboItem, index),
       child: Container(
@@ -131,10 +143,16 @@ class _SelectionCombo<T> extends State<SelectionCombo<T>> {
             ),
             SizedBox(width: 9),
             Expanded(
-              child: Text(
-                comboItem.title,
-                textAlign: TextAlign.start,
-                style: getAlternateTextStyle(),
+              child: hasColon
+                ? Row(
+                    children: [
+                      Text(firstText, style: getAlternateTextStyle(),),
+                      SizedBox(width: 8,),
+                      Text(secondText, style: getAlternateTextStyle().copyWith(fontWeight: FontWeight.w700),)],)
+                : Text(
+                    comboItem.title,
+                    textAlign: TextAlign.start,
+                    style: getAlternateTextStyle(),
               )
             ),
           ],
@@ -152,9 +170,9 @@ class _SelectionCombo<T> extends State<SelectionCombo<T>> {
   }
 
 
-  Widget titleRoundedCheckBox() => CustomCheckBox(
-    height: 40, width: 40,
-    padding: EdgeInsets.all(5),
+  Widget titleRoundedCheckBox({Size? size}) => CustomCheckBox(
+    height: size?.height, width: size?.width,
+    padding: EdgeInsets.all(6),
     isSelected: selectedCombo?.isSelected ?? false,
     fillColor: widget.primaryColor,
     borderColor: widget.shouldUseAlternateDecoration ? Color(0xffA6B6CE).withOpacity(0.95) : widget.primaryColor,
@@ -179,13 +197,32 @@ class _SelectionCombo<T> extends State<SelectionCombo<T>> {
     if(widget.useFirstItemAsTitle && copiedList.length > 0) {
       ComboItem<T> firstCombo = copiedList.first;
       if (widget.checkBoxPosition == CheckBoxPosition.leading){
+        var firstText = "";
+        var secondText = "";
+        final hasColon = widget.isColonSeparated && firstCombo.title.contains(";");
+
+        if (hasColon){
+          final colonIdx = firstCombo.title.indexOf(";");
+           firstText = firstCombo.title.substring(0, colonIdx);
+           secondText = firstCombo.title.substring(colonIdx + 1);
+        }
+
+
+
         return Container(
           padding: EdgeInsets.only(left: widget.horizontalPadding ?? PADDING_LEFT, right: PADDING_RIGHT, top: 9, bottom: 9),
           child: Row(
             children: [
-              titleRoundedCheckBox(),
+              titleRoundedCheckBox(size: Size(40, 40)),
               SizedBox(width: 9),
-              Text(firstCombo.title, style: getAlternateTextStyle())
+              hasColon
+                ? Row(
+                    children: [
+                      Text(firstText, style: getAlternateTextStyle(),),
+                      SizedBox(width: 8,),
+                      Text(secondText, style: getAlternateTextStyle().copyWith(fontWeight: FontWeight.w700),)
+                    ],)
+                : Text(firstCombo.title, style: getAlternateTextStyle())
             ],
           ),
         );
@@ -216,7 +253,8 @@ class _SelectionCombo<T> extends State<SelectionCombo<T>> {
     List<Widget> widgets = [];
     Iterable<ComboItem<T>> maxDisplayableItems = copiedList
       .skip(widget.useFirstItemAsTitle ? 1 : 0)
-      .take(showMore ? copiedList.length : widget.maxDisplayValue);
+      .take(showMore ? copiedList.length : widget.maxDisplayValue)
+      .sorted((a, b) => a.title.compareTo(b.title));
 
     maxDisplayableItems.forEachIndexed((index, element) {
       if(widget.useFirstItemAsTitle && index == 0) {
@@ -283,7 +321,7 @@ class _SelectionCombo<T> extends State<SelectionCombo<T>> {
               style: TextButton.styleFrom(
                 primary: widget.primaryColor,
                 textStyle: TextStyle(
-                  fontWeight: FontWeight.w700, fontSize: 14, color: Colors.solidGreen)),
+                  fontWeight: FontWeight.w700, fontSize: 14, color: widget.primaryColor)),
           ),
       );
     

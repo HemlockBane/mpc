@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:moniepoint_flutter/app/savings/flex/viewmodels/savings_flex_withdrawal_viewmodel.dart';
 import 'package:moniepoint_flutter/app/savings/flex/views/savings_enable_flex_view.dart';
 import 'package:moniepoint_flutter/app/savings/savings_success_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
@@ -13,6 +14,8 @@ import 'package:moniepoint_flutter/core/views/amount_pill.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 import 'package:collection/collection.dart';
+import 'package:moniepoint_flutter/core/views/transaction_account_source.dart';
+import 'package:provider/provider.dart';
 
 class SavingsFlexWithdrawalView extends StatefulWidget {
   const SavingsFlexWithdrawalView({Key? key}) : super(key: key);
@@ -23,6 +26,9 @@ class SavingsFlexWithdrawalView extends StatefulWidget {
 }
 
 class _SavingsFlexWithdrawalViewState extends State<SavingsFlexWithdrawalView> {
+  late final SavingsFlexWithdrawalViewModel _viewModel;
+
+
   double _amount = 0.00;
   ListDataItem<String>? _selectedAmountPill;
   final List<ListDataItem<String>> amountPills = List.generate(
@@ -110,6 +116,14 @@ class _SavingsFlexWithdrawalViewState extends State<SavingsFlexWithdrawalView> {
 
 
   @override
+  void initState() {
+    _viewModel = SavingsFlexWithdrawalViewModel();
+    if(_viewModel.userAccounts.length > 1) _viewModel.getUserAccountsBalance().listen((event) { });
+    else _viewModel.getCustomerAccountBalance().listen((event) { });
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
 
     final infoText = RichText(
@@ -126,150 +140,166 @@ class _SavingsFlexWithdrawalViewState extends State<SavingsFlexWithdrawalView> {
       ]),
     );
 
-    return Scaffold(
-      backgroundColor: Color(0xffF8F8F8),
-      appBar: AppBar(
-        centerTitle: false,
-        titleSpacing: 0,
-        iconTheme: IconThemeData(color: Colors.solidGreen),
-        title: Text('General Savings',
-          textAlign: TextAlign.start,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: Colors.textColorBlack)),
-        backgroundColor: Colors.backgroundWhite,
-        elevation: 0),
-      body: Container(
-        margin: EdgeInsets.symmetric(horizontal: 21),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 30),
-              Text(
-                "Withdrawal",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
-              ),
-              SizedBox(height: 12),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Total Amount",
-                      style: getBoldStyle(
-                        fontSize: 14, fontWeight: FontWeight.w500),
-                    ),
-                    SizedBox(height: 5),
-                    Text('₦ 120,459.00',
-                      textAlign: TextAlign.left,
-                      style: getBoldStyle(
-                        fontWeight: FontWeight.w700, fontSize: 19)),
-                    SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Expanded(
-                          child:
-                          Text("Accrued Interest", style: getNormalStyle()),
-                        ),
-                        Expanded(
-                          child:
-                          Text("Free Withdrawal", style: getNormalStyle()),
-                        )
-                      ],
-                    ),
-                    SizedBox(height: 3),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            "₦ 18,550.00",
-                            style: getBoldStyle(fontSize: 14),
-                          ),
-                        ),
-                        Expanded(
-                          child: Row(
-                            children: [
-                              Text("0", style: getBoldStyle(fontSize: 14, color: Colors.textColorBlack),),
-                              SizedBox(width: 10),
-                              Text('What is this?', style: getNormalStyle(fontSize: 12, color: Colors.solidGreen),)
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                  ],
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: _viewModel),
+      ],
+      child: Scaffold(
+        backgroundColor: Color(0xffF8F8F8),
+        appBar: AppBar(
+          centerTitle: false,
+          titleSpacing: 0,
+          iconTheme: IconThemeData(color: Colors.solidGreen),
+          title: Text('General Savings',
+            textAlign: TextAlign.start,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: Colors.textColorBlack)),
+          backgroundColor: Colors.backgroundWhite,
+          elevation: 0),
+        body: Container(
+          margin: EdgeInsets.symmetric(horizontal: 21),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 30),
+                Text(
+                  "Withdrawal",
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
                 ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
-                  boxShadow: [
-                    BoxShadow(
-                      offset: Offset(0, 1),
-                      blurRadius: 1,
-                      color: Color(0xff0649AF).withOpacity(0.1))
-                  ]),
-              ),
-              SizedBox(height: 33),
-              Text(
-                "How much would you like to withdraw?",
-                style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
-              ),
-              SizedBox(height: 13),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 14, vertical: 26),
-                decoration: BoxDecoration(
-                  color: Color(0xffA5C097).withOpacity(0.15),
-                  borderRadius: BorderRadius.all(Radius.circular(8))),
-                child: PaymentAmountView(
-                  (_amount * 100).toInt(),
-                    (value) {},
-                  currencyColor: Color(0xffC1C2C5).withOpacity(0.5),
-                  textColor: Colors.textColorBlack,
+                SizedBox(height: 12),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Total Amount",
+                        style: getBoldStyle(
+                          fontSize: 14, fontWeight: FontWeight.w500),
+                      ),
+                      SizedBox(height: 5),
+                      Text('₦ 120,459.00',
+                        textAlign: TextAlign.left,
+                        style: getBoldStyle(
+                          fontWeight: FontWeight.w700, fontSize: 19)),
+                      SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(
+                            child:
+                            Text("Accrued Interest", style: getNormalStyle()),
+                          ),
+                          Expanded(
+                            child:
+                            Text("Free Withdrawal", style: getNormalStyle()),
+                          )
+                        ],
+                      ),
+                      SizedBox(height: 3),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              "₦ 18,550.00",
+                              style: getBoldStyle(fontSize: 14),
+                            ),
+                          ),
+                          Expanded(
+                            child: Row(
+                              children: [
+                                Text("0", style: getBoldStyle(fontSize: 14, color: Colors.textColorBlack),),
+                                SizedBox(width: 10),
+                                Text('What is this?', style: getNormalStyle(fontSize: 12, color: Colors.solidGreen),)
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    ],
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                    boxShadow: [
+                      BoxShadow(
+                        offset: Offset(0, 1),
+                        blurRadius: 1,
+                        color: Color(0xff0649AF).withOpacity(0.1))
+                    ]),
                 ),
-              ),
-              SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: generateAmountPillsWidget(),
-              ),
-              SizedBox(height: 26),
-              Text(
-                "Withdraw to?",
-                style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
-              ),
-              SizedBox(height: 12),
-              SavingsAccountItem(),
-              SavingsNotificationBanner(notificationString: warningText),
-              SizedBox(height: 28),
-              Styles.statefulButton(
-                buttonStyle: Styles.primaryButtonStyle.copyWith(
-                  backgroundColor:
-                  MaterialStateProperty.all(Colors.solidGreen),
-                  textStyle: MaterialStateProperty.all(getBoldStyle(
-                    fontWeight: FontWeight.w500,
+                SizedBox(height: 33),
+                Text(
+                  "How much would you like to withdraw?",
+                  style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
+                ),
+                SizedBox(height: 13),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 14, vertical: 26),
+                  decoration: BoxDecoration(
+                    color: Color(0xffA5C097).withOpacity(0.15),
+                    borderRadius: BorderRadius.all(Radius.circular(8))),
+                  child: PaymentAmountView(
+                    (_amount * 100).toInt(),
+                      (value) {},
+                    currencyColor: Color(0xffC1C2C5).withOpacity(0.5),
+                    textColor: Colors.textColorBlack,
+                  ),
+                ),
+                SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: generateAmountPillsWidget(),
+                ),
+                SizedBox(height: 26),
+                Text(
+                  "Withdraw to?",
+                  style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
+                ),
+                SizedBox(height: 12),
+                TransactionAccountSource(_viewModel,
+                  primaryColor: Colors.solidGreen,
+                  checkBoxSize: Size(40, 40),
+                  listStyle: ListStyle.alternate,
+                  titleStyle: TextStyle(
                     fontSize: 15,
-                    color: Colors.white))),
-                stream: Stream.value(true),
-                onClick: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (ctx) =>
-                        SavingsSucessView(
-                          primaryText: "Withdrawal Successful!",
-                          secondaryText: loremIpsum,
-                          primaryButtonText: "Continue",
-                          primaryButtonAction: () {},
-                        ),
-                    ),
-                  );
-                },
-                text: 'Withdraw Money'),
-              SizedBox(height: 18),
-            ],
+                    color: Colors.textColorBlack,
+                    fontWeight: FontWeight.bold),
+                  checkBoxPadding: EdgeInsets.all(6.0),
+                  checkBoxBorderColor: Color(0xffA6B6CE).withOpacity(0.95),
+                  isShowTrailingWhenExpanded: false,
+                ),
+                SavingsNotificationBanner(notificationString: warningText),
+                SizedBox(height: 28),
+                Styles.statefulButton(
+                  buttonStyle: Styles.primaryButtonStyle.copyWith(
+                    backgroundColor:
+                    MaterialStateProperty.all(Colors.solidGreen),
+                    textStyle: MaterialStateProperty.all(getBoldStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 15,
+                      color: Colors.white))),
+                  stream: Stream.value(true),
+                  onClick: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (ctx) =>
+                          SavingsSucessView(
+                            primaryText: "Withdrawal Successful!",
+                            secondaryText: loremIpsum,
+                            primaryButtonText: "Continue",
+                            primaryButtonAction: () {},
+                          ),
+                      ),
+                    );
+                  },
+                  text: 'Withdraw Money'),
+                SizedBox(height: 18),
+              ],
+            ),
           ),
         ),
       ),

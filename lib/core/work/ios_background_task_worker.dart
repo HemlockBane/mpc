@@ -33,7 +33,7 @@ class IosBackgroundTaskWorker extends Worker {
 
   static void addTaskToQueue(String taskName) {
     final value = PreferenceUtil.getValue(IOS_QUEUE_KEY) as String?;
-    final pendingTask = value?.split(",").toSet() ?? {};
+    final pendingTask = value?.split(",").where((element) => element.isNotEmpty).toSet() ?? {};
     pendingTask.add(taskName);
     PreferenceUtil.saveValue(IOS_QUEUE_KEY, pendingTask.join(","));
     print("Added Task => $taskName to Queue");
@@ -42,7 +42,7 @@ class IosBackgroundTaskWorker extends Worker {
 
   static void _removeTaskFromQueue(String taskName) {
     final value = PreferenceUtil.getValue(IOS_QUEUE_KEY) as String?;
-    final pendingTask = value?.split(",") ?? [];
+    final pendingTask = value?.split(",").where((element) => element.isNotEmpty).toList() ?? [];
     pendingTask.remove(taskName);
     PreferenceUtil.saveValue(IOS_QUEUE_KEY, pendingTask.join(","));
   }

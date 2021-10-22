@@ -17,13 +17,13 @@ class _NotificationService implements NotificationService {
   String? baseUrl;
 
   @override
-  Future<ServiceResult<String>> registerDeviceToken(request) async {
+  Future<ServiceResult<bool>> registerDeviceToken(request) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(request.toJson());
     final _result = await _dio.fetch<Map<String, dynamic>>(
-        _setStreamType<ServiceResult<String>>(Options(
+        _setStreamType<ServiceResult<bool>>(Options(
                 method: 'POST',
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
@@ -35,9 +35,9 @@ class _NotificationService implements NotificationService {
             .compose(_dio.options, 'register-device-token',
                 queryParameters: queryParameters, data: _data)
             .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
-    final value = ServiceResult<String>.fromJson(
+    final value = ServiceResult<bool>.fromJson(
       _result.data!,
-      (json) => json as String,
+      (json) => json as bool,
     );
     return value;
   }

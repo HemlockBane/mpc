@@ -2,7 +2,8 @@ import 'package:json_annotation/json_annotation.dart';
 part 'remote_notification_message.g.dart';
 
 enum MessageType {
-  DEBIT_TRANSACTION_ALERT
+  DEBIT_TRANSACTION_ALERT,
+  CREDIT_TRANSACTION_ALERT,
 }
 
 @JsonSerializable(genericArgumentFactories: true)

@@ -327,22 +327,27 @@ class LocationConverter extends TypeConverter<Location?, String?>{
 
 
 int stringDateTime(String a) {
-  final parsedDate = DateTime.parse(a);
-  if(parsedDate.isUtc && ServiceConfig.ENV == "dev") {
-    return parsedDate.subtract(Duration(hours: 1)).millisecondsSinceEpoch;
+  try {
+    final parsedDate = DateTime.parse(a);
+    if (parsedDate.isUtc && ServiceConfig.ENV == "dev") {
+      return parsedDate.subtract(Duration(hours: 1)).millisecondsSinceEpoch;
+    }
+    return parsedDate.millisecondsSinceEpoch;
+  } catch(e) {
+    print(e);
+    return 0;
   }
-  return parsedDate.millisecondsSinceEpoch;
 }
-// class DateListTypeConverter extends TypeConverter<List<int>?, int?>{
-//   @override
-//   List<int>? decode(int? databaseValue) {
-//     if(databaseValue == null) return null;
-//     final List<dynamic> list = jsonDecode(databaseValue);
-//     return list.map((e) => BoundedCharges.fromJson(e)).toList();
-//   }
-//
-//   @override
-//   int? encode(List<int>? value) {
-//     return (value != null)  ? jsonEncode(value) : null;
-//   }
-// }
+
+String? millisToString(int date) {
+  try {
+    final stringDate = DateTime.fromMillisecondsSinceEpoch(date);
+    if (stringDate.isUtc && ServiceConfig.ENV == "dev") {
+      return stringDate.add(Duration(hours: 1)).toString();
+    }
+    return stringDate.toString();
+  } catch(e) {
+    print(e);
+    return null;
+  }
+}

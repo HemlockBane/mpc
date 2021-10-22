@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:moniepoint_flutter/app/notifications/view/notification_route_observer.dart';
 import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
@@ -31,7 +32,7 @@ class MoniepointApp extends StatelessWidget with CompositeDisposableWidget {
   @override
   Widget build(BuildContext context) {
     if (Platform.isAndroid) {
-      SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge, overlays: [SystemUiOverlay.bottom]);
     }
 
     final systemConfigViewModel = Provider.of<SystemConfigurationViewModel>(context, listen: false);
@@ -44,7 +45,7 @@ class MoniepointApp extends StatelessWidget with CompositeDisposableWidget {
       theme: defaultAppTheme,
       navigatorKey: navigatorKey,
       navigatorObservers: [
-        routeObserver
+        routeObserver, NotificationRouteObserver()
       ],
       home: Scaffold(
         body: (savedUsername == null || savedUsername.isEmpty)

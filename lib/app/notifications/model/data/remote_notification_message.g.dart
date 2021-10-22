@@ -69,6 +69,7 @@ K? _$enumDecodeNullable<K, V>(
 
 const _$MessageTypeEnumMap = {
   MessageType.DEBIT_TRANSACTION_ALERT: 'DEBIT_TRANSACTION_ALERT',
+  MessageType.CREDIT_TRANSACTION_ALERT: 'CREDIT_TRANSACTION_ALERT',
 };
 
 T? _$nullableGenericFromJson<T>(

@@ -55,13 +55,16 @@ Future<void> _onCreate() async {
       keyAlias: "teamapt-moniepoint"
   );
 
-  await DatabaseModule.inject();
-
-  ServiceModule.inject();
+  await injectDependencies();
 
   await Firebase.initializeApp();
   await PreferenceUtil.initAsync();
   MixpanelManager.initAsync();
 
   AppNotificationService().initialize();
+}
+
+Future<void> injectDependencies() async {
+  await DatabaseModule.inject();
+  ServiceModule.inject();
 }

@@ -20,8 +20,8 @@ class DeviceTokenRegistrationWorker extends Worker {
 
   @override
   Future<bool> execute(Map<String, dynamic>? inputData) async {
-    final token = PreferenceUtil.getValue(AppNotificationService.FCM_TOKEN);
-    final hasRegisteredDevice = PreferenceUtil.getValue(AppNotificationService.FCM_TOKEN_REGISTERED) as bool?;
+    final token = PreferenceUtil.getValue<String>(AppNotificationService.FCM_TOKEN);
+    final hasRegisteredDevice = PreferenceUtil.getValue<bool>(AppNotificationService.FCM_TOKEN_REGISTERED);
 
     if(hasRegisteredDevice == true) return true;
 
@@ -33,7 +33,7 @@ class DeviceTokenRegistrationWorker extends Worker {
       if(response is Success) {
         PreferenceUtil.saveValue(AppNotificationService.FCM_TOKEN_REGISTERED, true);
       }
-      else if(response is Error<String?>) {
+      else if(response is Error<bool?>) {
         PreferenceUtil.saveValue(AppNotificationService.FCM_TOKEN_REGISTERED, false);
         if(response.message?.contains("internet connection") == true
             || response.message?.contains("service at this time") == true ) {

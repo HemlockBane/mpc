@@ -1,22 +1,22 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'debit_transaction_notification_handler.dart';
+part of 'credit_transaction_notification_handler.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-DebitTransactionMessage _$DebitTransactionMessageFromJson(
+CreditTransactionMessage _$CreditTransactionMessageFromJson(
     Map<String, dynamic> json) {
-  return DebitTransactionMessage(
+  return CreditTransactionMessage(
     transactionObj: json['transactionObj'] == null
         ? null
         : AccountTransaction.fromJson(json['transactionObj'] as Object),
   );
 }
 
-Map<String, dynamic> _$DebitTransactionMessageToJson(
-        DebitTransactionMessage instance) =>
+Map<String, dynamic> _$CreditTransactionMessageToJson(
+        CreditTransactionMessage instance) =>
     <String, dynamic>{
       'transactionObj': instance.transactionObj,
     };

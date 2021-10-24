@@ -74,7 +74,10 @@ class AppNotificationService {
       final previousToken = PreferenceUtil.getValue(FCM_TOKEN);
       final isTokenRegistered = PreferenceUtil.getValue<bool>(FCM_TOKEN_REGISTERED);
 
-      if(previousToken == token && isTokenRegistered == true) return;
+      if(previousToken == token && isTokenRegistered == true) {
+        print("Same Token, Unable to register");
+        return;
+      }
 
       PreferenceUtil.saveValue(FCM_TOKEN, token);
       _registerDeviceToken();

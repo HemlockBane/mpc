@@ -14,11 +14,8 @@ import 'package:moniepoint_flutter/app/notifications/app_notification_service.da
 import 'package:moniepoint_flutter/app/notifications/model/data/remote_notification_message.dart';
 import 'package:moniepoint_flutter/app/notifications/model/handlers/notification_handler.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:moniepoint_flutter/core/colors.dart';
-import 'package:moniepoint_flutter/core/models/transaction.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
-import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/main.dart';
 
 part 'debit_transaction_notification_handler.g.dart';
@@ -66,71 +63,72 @@ class DebitCreditTransactionNotificationHandler extends NotificationHandler {
   }
 
   void _onForegroundNotification() {
-    final context = navigatorKey.currentContext;
-    if(context == null) return;
+    _onBackgroundNotification();
+    // final context = navigatorKey.currentContext;
+    // if(context == null) return;
+    //
+    // final transactionData = message?.data as DebitTransactionMessage?;
+    //
+    // if(transactionData == null) return;
+    //
+    // final accountTransaction = transactionData.transactionObj;
 
-    final transactionData = message?.data as DebitTransactionMessage?;
-
-    if(transactionData == null) return;
-
-    final accountTransaction = transactionData.transactionObj;
-
-    ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
-    ScaffoldMessenger.of(context).showMaterialBanner(
-         MaterialBanner(
-             backgroundColor: Colors.transparent,
-             padding: EdgeInsets.zero,
-             content: Container(
-               margin: EdgeInsets.only(left: 13, right: 13, bottom: 20),
-               decoration: BoxDecoration(
-                   borderRadius: BorderRadius.circular(10),
-                   color: Colors.white,
-                   boxShadow: [
-                     BoxShadow(
-                         color: Color(0XFF000000).withOpacity(0.2),
-                         offset: Offset(0, 13),
-                         blurRadius: 21
-                     )
-                   ]
-               ),
-               child: Material(
-                 borderRadius: BorderRadius.circular(10),
-                 color: Colors.transparent,
-                 child: InkWell(
-                   borderRadius: BorderRadius.circular(10),
-                   onTap: handle,
-                   child: Container(
-                     padding: EdgeInsets.symmetric(horizontal: 15, vertical: 22),
-                     decoration: BoxDecoration(
-                       borderRadius: BorderRadius.circular(10),
-                     ),
-                     child: Row(
-                       children: [
-                         TransactionHistoryListItem.initialView(accountTransaction?.type ?? TransactionType.UNKNOWN),
-                         SizedBox(width: 18,),
-                         Column(
-                           crossAxisAlignment: CrossAxisAlignment.start,
-                           children: [
-                             Text(
-                                 message?.title ?? "",
-                                style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w800),
-                             ),
-                             SizedBox(height: 2,),
-                             Text(
-                               message?.description ?? "",
-                               style: TextStyle(color: Colors.deepGrey, fontSize: 12, fontWeight: FontWeight.normal),
-                             )
-                           ],
-                         )
-                       ],
-                     ),
-                   ),
-                 ),
-               ),
-             ),
-             actions: <Widget>[SizedBox()]
-         )
-    );
+    // ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+    // ScaffoldMessenger.of(context).showMaterialBanner(
+    //      MaterialBanner(
+    //          backgroundColor: Colors.transparent,
+    //          padding: EdgeInsets.zero,
+    //          content: Container(
+    //            margin: EdgeInsets.only(left: 13, right: 13, bottom: 20),
+    //            decoration: BoxDecoration(
+    //                borderRadius: BorderRadius.circular(10),
+    //                color: Colors.white,
+    //                boxShadow: [
+    //                  BoxShadow(
+    //                      color: Color(0XFF000000).withOpacity(0.2),
+    //                      offset: Offset(0, 13),
+    //                      blurRadius: 21
+    //                  )
+    //                ]
+    //            ),
+    //            child: Material(
+    //              borderRadius: BorderRadius.circular(10),
+    //              color: Colors.transparent,
+    //              child: InkWell(
+    //                borderRadius: BorderRadius.circular(10),
+    //                onTap: handle,
+    //                child: Container(
+    //                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 22),
+    //                  decoration: BoxDecoration(
+    //                    borderRadius: BorderRadius.circular(10),
+    //                  ),
+    //                  child: Row(
+    //                    children: [
+    //                      TransactionHistoryListItem.initialView(accountTransaction?.type ?? TransactionType.UNKNOWN),
+    //                      SizedBox(width: 18,),
+    //                      Column(
+    //                        crossAxisAlignment: CrossAxisAlignment.start,
+    //                        children: [
+    //                          Text(
+    //                              message?.title ?? "",
+    //                             style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w800),
+    //                          ),
+    //                          SizedBox(height: 2,),
+    //                          Text(
+    //                            message?.description ?? "",
+    //                            style: TextStyle(color: Colors.deepGrey, fontSize: 12, fontWeight: FontWeight.normal),
+    //                          )
+    //                        ],
+    //                      )
+    //                    ],
+    //                  ),
+    //                ),
+    //              ),
+    //            ),
+    //          ),
+    //          actions: <Widget>[SizedBox()]
+    //      )
+    // );
   }
 
   void _onBackgroundNotification() {

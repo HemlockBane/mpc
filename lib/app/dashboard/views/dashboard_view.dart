@@ -18,6 +18,7 @@ import 'package:moniepoint_flutter/core/utils/biometric_helper.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/viewmodels/finger_print_alert_view_model.dart';
 import 'package:moniepoint_flutter/core/views/finger_print_alert_dialog.dart';
+import 'package:moniepoint_flutter/core/views/moniepoint_scaffold.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:provider/provider.dart';
 import 'dashboard_account_card.dart';
@@ -210,7 +211,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
 
     return SessionedWidget(
       context: context,
-      child: Scaffold(
+      child: MoniepointScaffold(
           extendBodyBehindAppBar: true,
           appBar: DashboardTopMenu(
             scrollController: _dashboardScrollController,

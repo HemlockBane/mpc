@@ -8,6 +8,7 @@ import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/viewmodels/system_configuration_view_model.dart';
+import 'package:moniepoint_flutter/core/views/moniepoint_scaffold.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -86,47 +87,3 @@ class _MoniepointAppContainerState extends State<_MoniepointAppContainer> with C
   }
 }
 
-///MoniepointAppMessenger
-///
-///
-class MoniepointAppMessenger extends StatefulWidget {
-
-  MoniepointAppMessenger({required this.child});
-
-  final Widget child;
-
-  @override
-  State<StatefulWidget> createState() => MoniepointAppMessengerState();
-
-  static MoniepointAppMessengerState of(BuildContext context) {
-    final _MoniepointAppMessengerScope scope = context
-        .dependOnInheritedWidgetOfExactType<_MoniepointAppMessengerScope>()!;
-    return scope.moniepointAppMessengerState;
-  }
-}
-
-class MoniepointAppMessengerState extends State<MoniepointAppMessenger> {
-
-  @override
-  Widget build(BuildContext context) {
-    return _MoniepointAppMessengerScope(
-      child: widget.child,
-      moniepointAppMessengerState: this,
-    );
-  }
-
-}
-
-class _MoniepointAppMessengerScope extends InheritedWidget {
-  _MoniepointAppMessengerScope({
-    Key? key,
-    required Widget child,
-    required this.moniepointAppMessengerState
-  }) : super(key: key, child: child);
-
-  final MoniepointAppMessengerState moniepointAppMessengerState;
-
-  @override
-  bool updateShouldNotify(_MoniepointAppMessengerScope old) =>
-      moniepointAppMessengerState != old.moniepointAppMessengerState;
-}

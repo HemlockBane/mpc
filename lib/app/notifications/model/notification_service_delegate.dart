@@ -11,8 +11,9 @@ class NotificationServiceDelegate with NetworkResource {
     this._service = service;
   }
 
-  Stream<Resource<bool>> registerDeviceToken(String token) {
+  Stream<Resource<bool?>> registerDeviceToken(String token) {
     return networkBoundResource(
+      shouldFetchLocal: false,
       fetchFromLocal: () => Stream.value(null),
       fetchFromRemote: () => _service.registerDeviceToken(
           RegisterDeviceTokenRequest(deviceToken: token)

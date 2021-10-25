@@ -13,6 +13,8 @@ import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:collection/collection.dart';
 
+import '../../main.dart';
+
 class UserInstance {
   static UserInstance? _instance;
   static User? _user;

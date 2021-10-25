@@ -20,24 +20,28 @@ class DeviceTokenRegistrationWorker extends Worker {
 
   @override
   Future<bool> execute(Map<String, dynamic>? inputData) async {
-    final token = PreferenceUtil.getValue(AppNotificationService.FCM_TOKEN);
-    final hasRegisteredDevice = PreferenceUtil.getValue(AppNotificationService.FCM_TOKEN_REGISTERED) as bool?;
+    final token = PreferenceUtil.getValue<String>(AppNotificationService.FCM_TOKEN);
+    final hasRegisteredDevice = PreferenceUtil.getValue<bool>(AppNotificationService.FCM_TOKEN_REGISTERED);
 
-    print("About to register Device!!!! ===> $token");
     if(hasRegisteredDevice == true) return true;
 
     if(token == null || token is String && token.isEmpty) {
       return false;
     }
 
-    this._notificationServiceDelegate.registerDeviceToken(token).listen((event) {
-      if(event is Success) {
+    await for(var response in this._notificationServiceDelegate.registerDeviceToken(token)) {
+      if(response is Success) {
         PreferenceUtil.saveValue(AppNotificationService.FCM_TOKEN_REGISTERED, true);
       }
-      else if(event is Error<bool>) {
+      else if(response is Error<bool?>) {
         PreferenceUtil.saveValue(AppNotificationService.FCM_TOKEN_REGISTERED, false);
+        if(response.message?.contains("internet connection") == true
+            || response.message?.contains("service at this time") == true ) {
+          return false;
+        }
+        return Future.error(response);
       }
-    });
+    }
     return true;
   }
 

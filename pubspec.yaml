@@ -79,6 +79,7 @@ dependencies:
   expandable: ^5.0.1
   flutter_local_notifications: ^9.0.0
   workmanager: ^0.4.1
+  analyzer: ^1.7.2
 
 dependency_overrides:
   retrofit:
@@ -86,6 +87,7 @@ dependency_overrides:
       url: https://github.com/trevorwang/retrofit.dart.git
       path: annotation
       ref: master
+  meta: 1.7.0
 
 dev_dependencies:
   retrofit_generator:

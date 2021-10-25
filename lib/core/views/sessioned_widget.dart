@@ -28,6 +28,9 @@ class SessionedWidget extends GestureDetector {
         Routes.LOGIN, (route) => false,
         arguments: Tuple("reason", reason)
     );
+    if(navigatorKey.currentContext != null) {
+      ScaffoldMessenger.of(navigatorKey.currentContext!).hideCurrentMaterialBanner();
+    }
   }
 
   @override

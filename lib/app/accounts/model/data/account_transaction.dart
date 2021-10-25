@@ -44,7 +44,7 @@ class AccountTransaction extends Transaction implements ListItem {
   @JsonKey(name: "narration")
   final String? narration;
 
-  @JsonKey(name: "transactionDate", fromJson: stringDateTime)
+  @JsonKey(name: "transactionDate", fromJson: stringDateTime, toJson: millisToString)
   final int transactionDate;
 
   @JsonKey(name: "runningBalance")

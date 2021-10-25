@@ -9,7 +9,7 @@ part of 'notification_service.dart';
 class _NotificationService implements NotificationService {
   _NotificationService(this._dio, {this.baseUrl}) {
     baseUrl ??=
-        'https://moniepoint-customer-notification-service.development.teamapt.com/api/v1/notification/';
+        'https://moniepoint-customer-notification-service-v2.console.teamapt.com/api/v1/notification/';
   }
 
   final Dio _dio;
@@ -28,7 +28,7 @@ class _NotificationService implements NotificationService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.1.0'
                 },
                 extra: _extra,
                 contentType: 'application/json')

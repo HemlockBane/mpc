@@ -100,7 +100,7 @@ class AppNotificationService {
           constraints: Constraints(networkType: NetworkType.connected),
       );
     } else if(Platform.isIOS) {
-      Future.delayed(Duration(milliseconds: 5000), (){
+      Future.delayed(Duration(milliseconds: 5000), () {
         if(refresh) {
           IosBackgroundTaskWorker.addTaskToQueue(DeviceTokenRegistrationWorker.WORKER_KEY);
         } else {

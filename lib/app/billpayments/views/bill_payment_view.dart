@@ -170,7 +170,7 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
   List<Widget> generateAmountPillsWidget() {
     final pills = <Widget>[];
     amountPills.forEachIndexed((index, element) {
-      pills.add(Expanded(flex: 1, child: AmountPill(element, index, (ListDataItem<String> item, position){
+      pills.add(Expanded(flex: 1, child: AmountPill(item: element, position: index, listener: (ListDataItem<String> item, position){
         setState(() {
           _selectedAmountPill?.isSelected = false;
           _selectedAmountPill = item;

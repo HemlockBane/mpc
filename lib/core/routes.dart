@@ -45,6 +45,11 @@ import 'package:moniepoint_flutter/app/managebeneficiaries/bills/views/bill_sele
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/managed_beneficiary_view.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/views/transfer_select_beneficiary_view.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/signup_account_view.dart';
+import 'package:moniepoint_flutter/app/savings/flex/views/savings_flex_home.dart';
+import 'package:moniepoint_flutter/app/savings/flex/views/savings_flex_settings.dart';
+import 'package:moniepoint_flutter/app/savings/flex/views/savings_flex_setup_view.dart';
+import 'package:moniepoint_flutter/app/savings/flex/views/savings_flex_topup_view.dart';
+import 'package:moniepoint_flutter/app/savings/flex/views/savings_flex_withdrawal.dart';
 import 'package:moniepoint_flutter/app/settings/settings_view.dart';
 import 'package:moniepoint_flutter/app/transfers/viewmodels/transfer_detail_view_model.dart';
 import 'package:moniepoint_flutter/app/transfers/views/transfer_detailed_view.dart';
@@ -96,6 +101,16 @@ class Routes {
   static const ACCOUNT_IN_PROGRESS_STATE  = "ACCOUNT_IN_PROGRESS_STATE";
   static const ACCOUNT_UPGRADE_REQUIRED_STATE  = "ACCOUNT_UPGRADE_REQUIRED_STATE";
   static const ACCOUNT_STATUS  = "ACCOUNT_STATUS";
+
+
+  static const SAVINGS_FLEX_HOME = "SAVINGS_FLEX_HOME";
+  static const SAVINGS_FLEX_WITHDRAW = "SAVINGS_FLEX_WITHDRAW";
+  static const SAVINGS_FLEX_SETTINGS = "SAVINGS_FLEX_SETTINGS";
+  static const SAVINGS_FLEX_TOP_UP = "SAVINGS_FLEX_TOP_UP";
+  static const SAVINGS_FLEX_SETUP = "SAVINGS_FLEX_SETUP";
+
+
+
 
 
   static Map<String, WidgetBuilder> buildRouteMap(SystemConfigurationViewModel systemConfigurationViewModel) {
@@ -156,6 +171,15 @@ class Routes {
         create: (_) => UserDeviceViewModel(),
         child: UserDeviceListView(),
       ),
+
+      Routes.SAVINGS_FLEX_HOME: (BuildContext context) => SavingsFlexHomeView(),
+      Routes.SAVINGS_FLEX_WITHDRAW: (BuildContext context) => SavingsFlexWithdrawalView(),
+      Routes.SAVINGS_FLEX_SETTINGS: (BuildContext context) => SavingsFlexSettingsView(),
+      Routes.SAVINGS_FLEX_TOP_UP: (BuildContext context) => SavingsFlexTopupView(),
+      Routes.SAVINGS_FLEX_SETUP: (BuildContext context) => SavingsFlexSetupView(),
+
+
+
     };
   }
 

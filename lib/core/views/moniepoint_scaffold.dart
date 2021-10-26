@@ -38,10 +38,12 @@ class MoniepointAppMessengerState extends State<MoniepointAppMessenger> {
     if(_notificationBanners.isEmpty) {
 
     }
+    _notificationBanners.add(notificationBanner);
     _updateScaffolds();
   }
 
   void _updateScaffolds() {
+    print("Scaffolds ---->>> ${_moniepointScaffolds.length}");
     for(final mScaffold in _moniepointScaffolds) {
       mScaffold._updateNotificationBanner();
     }
@@ -487,22 +489,25 @@ class MoniepointScaffoldState extends State<MoniepointScaffold> with TickerProvi
           body: widget.body,
           drawer: widget.drawer,
           extendBodyBehindAppBar: widget.extendBodyBehindAppBar,
+          bottomNavigationBar: widget.bottomNavigationBar,
         ),
         AnimatedPositioned(
-            child: NotificationWrapper(notificationBanners: []),
+            child: NotificationWrapper(
+                notificationBanners: _moniepointAppMessenger?._notificationBanners.toList() ?? []
+            ),
+            left: 0,
+            right: 0,
             top: _displayNotificationWrapper ? 0 : -100,
             duration: Duration(milliseconds: 500),
-            onEnd: () {
-              if(_displayNotificationWrapper) {
-                Future.delayed(Duration(milliseconds: 1500), (){
-                  setState(() {
-                    _displayNotificationWrapper = false;
-                  });
-                });
-              }
-            },
         )
       ],
     );
+  }
+
+  @override
+  void dispose() {
+
+    _moniepointAppMessenger?.unregister(this);
+    super.dispose();
   }
 }

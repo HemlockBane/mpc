@@ -75,11 +75,11 @@ class DebitCreditTransactionNotificationHandler extends NotificationHandler {
 
     MoniepointAppMessenger.of(context).showInAppNotification(
       NotificationBanner(
+          onClick: handle,
           content: DebitCreditNotificationItem(
             accountTransaction: accountTransaction,
             title: message?.title ?? "",
             description: message?.description ?? "",
-            onClick: handle,
           )
       )
     );
@@ -123,10 +123,16 @@ class DebitCreditTransactionNotificationHandler extends NotificationHandler {
 
     final transactionMessage = message?.data as DebitCreditTransactionMessage?;
     final item = transactionMessage?.transactionObj;
+    final currentLoggedInUser = UserInstance().getUser();
 
-    if(UserInstance().getUser() != null && item != null) {
+    if(currentLoggedInUser != null && item != null) {
+      final transactionAccountNumber = item.accountNumber;
+      final transactionBelongsToUser = currentLoggedInUser.getCustomerAccounts()
+          .where((element) => element.accountNumber == transactionAccountNumber)
+          .isNotEmpty;
 
-      //check if the account number is the same as the current logged-in user
+      if(!transactionBelongsToUser) return;
+
       await _persistDataLocally();
 
       await Future.delayed(Duration(milliseconds: 600));
@@ -167,63 +173,36 @@ class DebitCreditNotificationItem extends StatelessWidget {
   DebitCreditNotificationItem({
     required this.accountTransaction,
     required this.title,
-    required this.description,
-    required this.onClick
+    required this.description
   });
 
   final AccountTransaction? accountTransaction;
   final String title;
   final String description;
-  final VoidCallback onClick;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(left: 13, right: 13, bottom: 20),
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-                color: Color(0XFF000000).withOpacity(0.2),
-                offset: Offset(0, 13),
-                blurRadius: 21
-            )
-          ]
-      ),
-      child: Material(
-        borderRadius: BorderRadius.circular(10),
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(10),
-          onTap: onClick,
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 22),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(
-              children: [
-                TransactionHistoryListItem.initialView(accountTransaction?.type ?? TransactionType.UNKNOWN),
-                SizedBox(width: 18,),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w800),
-                    ),
-                    SizedBox(height: 2,),
-                    Text(
-                      description,
-                      style: TextStyle(color: Colors.deepGrey, fontSize: 12, fontWeight: FontWeight.normal),
-                    )
-                  ],
-                )
-              ],
-            ),
-          ),
-        ),
+      padding: EdgeInsets.symmetric(horizontal: 15),
+      child: Row(
+        children: [
+          TransactionHistoryListItem.initialView(accountTransaction?.type ?? TransactionType.UNKNOWN),
+          SizedBox(width: 18,),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w800),
+              ),
+              SizedBox(height: 2,),
+              Text(
+                description,
+                style: TextStyle(color: Colors.deepGrey, fontSize: 12, fontWeight: FontWeight.normal),
+              )
+            ],
+          )
+        ],
       ),
     );
   }

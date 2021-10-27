@@ -8,15 +8,21 @@ import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 
 import '../colors.dart';
 
+
+
+const Color currencyColor = Colors.white;
+
 class PaymentAmountView extends StatefulWidget {
 
   final int _defaultAmount;
   final ValueChanged<num> _valueChanged;
   final bool? isAmountFixed;
+  final Color? currencyColor;
+  final Color? textColor;
 
   PaymentAmountView(
       this._defaultAmount,
-      this._valueChanged, {this.isAmountFixed = false});
+      this._valueChanged, {this.isAmountFixed = false, this.currencyColor = Colors.primaryColor, this.textColor = Colors.solidDarkBlue});
 
   @override
   State<StatefulWidget> createState() => _PaymentAmountView();
@@ -48,7 +54,7 @@ class _PaymentAmountView extends State<PaymentAmountView> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        SvgPicture.asset('res/drawables/ic_naira.svg', width: 21, height: 21, color: (widget.isAmountFixed == true) ? Colors.deepGrey : Colors.solidDarkBlue,),
+        SvgPicture.asset('res/drawables/ic_naira.svg', width: 21, height: 21, color: (widget.isAmountFixed == true) ? Colors.deepGrey : widget.currencyColor,),
         SizedBox(width: 8),
         Expanded(
             child: TextFormField(
@@ -69,7 +75,7 @@ class _PaymentAmountView extends State<PaymentAmountView> {
                   fontFamily: Styles.defaultFont,
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: (widget.isAmountFixed == true) ? Colors.deepGrey :Colors.solidDarkBlue
+                  color: (widget.isAmountFixed == true) ? Colors.deepGrey : widget.textColor
               ),
               decoration: InputDecoration(
                   isCollapsed: true,

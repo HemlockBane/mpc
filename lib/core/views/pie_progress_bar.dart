@@ -9,11 +9,13 @@ class PieProgressBar extends AnimatedWidget {
   final int totalItemCount;
   final List<String>? pageTitles;
   final bool displayTitle;
+  final Color progressColor;
 
   PieProgressBar({
     required this.viewPager, 
     required this.totalItemCount,
     this.displayTitle = true,
+    this.progressColor = Colors.primaryColor,
     this.pageTitles = const []}
     ) : super(listenable: viewPager);
 
@@ -28,8 +30,8 @@ class PieProgressBar extends AnimatedWidget {
           child: CircularProgressIndicator(
             strokeWidth: 6,
             value: value,
-            backgroundColor: Colors.grey.withOpacity(0.3),
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.primaryColor),
+            backgroundColor: progressColor.withOpacity(0.12),
+            valueColor: AlwaysStoppedAnimation<Color>(progressColor),
           ),
         ),
         Center(
@@ -38,7 +40,7 @@ class PieProgressBar extends AnimatedWidget {
             children: [
               Text('${(viewPager.page?.round() ?? 0.0) + 1}',
                   style: TextStyle(
-                      color: Colors.primaryColor,
+                      color: progressColor,
                       fontSize: 24,
                       fontWeight: FontWeight.bold)),
               Text('/$totalItemCount',

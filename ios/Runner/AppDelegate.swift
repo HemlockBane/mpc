@@ -21,7 +21,7 @@ import Firebase
     GeneratedPluginRegistrant.register(with: self)
     
     UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
-    UIApplication.shared.setMinimumBackgroundFetchInterval(TimeInterval(60*5))
+    UIApplication.shared.setMinimumBackgroundFetchInterval(TimeInterval(60*15))
 
     //For google maps
     GMSServices.provideAPIKey("AIzaSyBaWvpAZu9ODUJqNMpJ_ycud2BBh-D2HGE")

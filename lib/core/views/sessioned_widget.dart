@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
+import 'package:moniepoint_flutter/core/views/moniepoint_scaffold.dart';
 import 'package:moniepoint_flutter/main.dart';
 import '../routes.dart';
 import '../timeout_reason.dart';
@@ -29,7 +30,7 @@ class SessionedWidget extends GestureDetector {
         arguments: Tuple("reason", reason)
     );
     if(navigatorKey.currentContext != null) {
-      ScaffoldMessenger.of(navigatorKey.currentContext!).hideCurrentMaterialBanner();
+      MoniepointAppMessenger.of(navigatorKey.currentContext!).clearAllInAppNotification();
     }
   }
 

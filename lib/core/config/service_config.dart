@@ -30,7 +30,7 @@ class ServiceConfig {
       ? "https://moniepoint-customer-notification-service.development.teamapt.com/"
       : (ENV == "prod")
       ? "https://moniepoint-customer-notification-service.console.teamapt.com/"
-      : "https://moniepoint-customer-notification-service-v2.console.teamapt.com/";
+      : "https://moniepoint-customer-notification-service.console.teamapt.com/";
 
 
 }

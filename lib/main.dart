@@ -69,3 +69,4 @@ Future<void> injectDependencies() async {
   await DatabaseModule.inject();
   ServiceModule.inject();
 }
+  

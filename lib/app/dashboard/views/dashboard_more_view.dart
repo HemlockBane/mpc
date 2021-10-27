@@ -6,7 +6,8 @@ import 'package:moniepoint_flutter/app/dashboard/views/dashboard_menu_item.dart'
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
-import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/views/moniepoint_scaffold.dart';
+import 'package:moniepoint_flutter/main.dart';
 import 'package:provider/provider.dart';
 
 import 'dashboard_top_menu.dart';
@@ -33,6 +34,7 @@ class _MoreViewState extends State<MoreView> {
       }
       case "LOGOUT":{
           UserInstance().resetSession();
+          MoniepointAppMessenger.of(navigatorKey.currentContext!).clearAllInAppNotification();
           Navigator.of(context).popAndPushNamed(Routes.LOGIN);
           break;
       }

@@ -7,9 +7,17 @@ import 'package:moniepoint_flutter/core/colors.dart';
 ///
 class NotificationWrapper extends StatefulWidget {
 
-  NotificationWrapper({required this.notificationBanners});
+  NotificationWrapper({
+    required this.notificationBanners,
+    this.onDismiss,
+    this.onRemove,
+    this.display = false
+  });
 
   final List<NotificationBanner> notificationBanners;
+  final VoidCallback? onDismiss;
+  final ValueChanged<NotificationBanner>? onRemove;
+  final bool display;
 
   @override
   State<StatefulWidget> createState() => _NotificationWrapperState();
@@ -19,10 +27,39 @@ class NotificationWrapper extends StatefulWidget {
 class _NotificationWrapperState extends State<NotificationWrapper> {
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  bool hasInteraction = false;
+
+  void _closeOnElapsedTime() {
+    if(widget.display) {
+      Future.delayed(Duration(seconds: 7), (){
+        if(hasInteraction) {
+          hasInteraction = false;
+          return _closeOnElapsedTime();
+        }
+        widget.onDismiss?.call();
+      });
+    }
+  }
+
+  void _onItemClick(NotificationBanner banner, int index) {
+    setState(() {
+      banner.onClick?.call();
+      widget.notificationBanners.removeAt(index);
+      widget.onRemove?.call(banner);
+      widget.onDismiss?.call();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    _closeOnElapsedTime();
     return Listener(
       onPointerMove: (pos) {
-        print("Moving Pointer ===> ${pos.position.dy}");
+        hasInteraction = true;
       },
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 12, vertical: 46),
@@ -45,7 +82,7 @@ class _NotificationWrapperState extends State<NotificationWrapper> {
           separatorBuilder: (BuildContext context, int index) {
             return Padding(
               padding: EdgeInsets.only(left: 7, right: 7),
-              child: Divider(color: Colors.dividerColor2.withOpacity(0.1), height: 0.8,),
+              child: Divider(color: Colors.dividerColor2.withOpacity(0.5), height: 0.8,),
             );
           },
           itemBuilder: (ctx, index) {
@@ -57,8 +94,25 @@ class _NotificationWrapperState extends State<NotificationWrapper> {
                   setState(() {
                     widget.notificationBanners.removeAt(index);
                   });
+                  widget.onRemove?.call(banner);
                 },
-                child: banner.copyWithPaddingByIndex(index: index, total: totalItems)
+                child: Material(
+                  borderRadius: BorderRadius.circular(0),
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: (banner.onClick != null)
+                        ? () => _onItemClick(banner, index)
+                        : null,
+                    borderRadius: BorderRadius.circular(0),
+                    child: Container(
+                      padding: EdgeInsets.only(
+                          top: index == 0 ? 22 : 16,
+                          bottom: index == totalItems - 1 ? 22 : 16
+                      ),
+                      child: banner,
+                    ),
+                  ),
+                )
             );
           },
         ),
@@ -77,24 +131,6 @@ class NotificationBanner extends StatelessWidget {
 
   final Widget content;
   final VoidCallback? onClick;
-
-  NotificationBanner copyWithPaddingByIndex({required int index, required int total}) {
-    return NotificationBanner(
-        content: Container(
-          padding: EdgeInsets.only(top: index == 0 ? 22 : 16, bottom: index == total - 1 ? 22 : 16),
-          child: Material(
-            borderRadius: BorderRadius.circular(10),
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: this.onClick,
-              borderRadius: BorderRadius.circular(10),
-              child: this.content,
-            ),
-          ),
-        ),
-      onClick: this.onClick,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {

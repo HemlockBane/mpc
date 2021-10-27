@@ -47,7 +47,7 @@ void main() async {
 
 Future<void> _onCreate() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Workmanager().initialize(workDispatcher, isInDebugMode: true);
+  Workmanager().initialize(workDispatcher, isInDebugMode: false);
 
   await BiometricHelper.initialize(
       keyFileName: "moniepoint_iv",

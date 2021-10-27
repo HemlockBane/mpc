@@ -42,6 +42,21 @@ class MoniepointAppMessengerState extends State<MoniepointAppMessenger> {
     _updateScaffolds();
   }
 
+  void removeInAppNotificationBanner(NotificationBanner notificationBanner) {
+    final removed = _notificationBanners.remove(notificationBanner);
+    if(removed) _updateScaffolds();
+  }
+
+  void removeInAppNotificationIndex(int index) {
+    final removed = _notificationBanners.length >= index && _notificationBanners.isNotEmpty;
+    if(removed) removeInAppNotificationBanner(_notificationBanners.elementAt(index));
+  }
+
+  void clearAllInAppNotification() {
+    _notificationBanners.clear();
+    _updateScaffolds();
+  }
+
   void _updateScaffolds() {
     print("Scaffolds ---->>> ${_moniepointScaffolds.length}");
     for(final mScaffold in _moniepointScaffolds) {
@@ -456,14 +471,29 @@ class MoniepointScaffold extends StatefulWidget{
 class MoniepointScaffoldState extends State<MoniepointScaffold> with TickerProviderStateMixin {
 
   MoniepointAppMessengerState? _moniepointAppMessenger;
+  final List<NotificationBanner> _notificationBanners = List.empty(growable: true);
 
   bool _displayNotificationWrapper = false;
 
   void _updateNotificationBanner() {
     if(_moniepointAppMessenger?._notificationBanners.isNotEmpty == true) {
+      //If the list as already been updated there's not point refresh
+      if(_moniepointAppMessenger?._notificationBanners.length == _notificationBanners.length
+          && _displayNotificationWrapper == true) {
+        return;
+      }
       setState(() {
+        _notificationBanners.clear();
+        _notificationBanners.addAll(_moniepointAppMessenger?._notificationBanners.toList() ?? []);
         _displayNotificationWrapper = true;
       });
+    } else {
+      _notificationBanners.clear();
+      if(_displayNotificationWrapper == true) {
+        setState(() {
+          _displayNotificationWrapper = false;
+        });
+      }
     }
   }
 
@@ -493,11 +523,20 @@ class MoniepointScaffoldState extends State<MoniepointScaffold> with TickerProvi
         ),
         AnimatedPositioned(
             child: NotificationWrapper(
-                notificationBanners: _moniepointAppMessenger?._notificationBanners.toList() ?? []
+              notificationBanners: _notificationBanners,
+              display: _displayNotificationWrapper,
+              onRemove: (banner) {
+                _moniepointAppMessenger?.removeInAppNotificationBanner(banner);
+              },
+              onDismiss: () {
+                setState(() {
+                  _displayNotificationWrapper = false;
+                });
+              },
             ),
             left: 0,
             right: 0,
-            top: _displayNotificationWrapper ? 0 : -100,
+            top: _displayNotificationWrapper ? 0 : -(150.00 * _notificationBanners.length),
             duration: Duration(milliseconds: 500),
         )
       ],
@@ -506,7 +545,6 @@ class MoniepointScaffoldState extends State<MoniepointScaffold> with TickerProvi
 
   @override
   void dispose() {
-
     _moniepointAppMessenger?.unregister(this);
     super.dispose();
   }

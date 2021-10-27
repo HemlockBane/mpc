@@ -120,7 +120,8 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
     // Future.delayed(Duration(milliseconds: 5000), () {
     //   MoniepointAppMessenger.of(context).showInAppNotification(
     //       NotificationBanner(
-    //           content: Text("Love")
+    //           content: Text("Love"),
+    //           onClick: () => "",
     //       )
     //   );
     // });

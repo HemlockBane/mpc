@@ -116,7 +116,7 @@ class AppNotificationService {
 
   void onMessageReceived(RemoteMessage message) async {
     print("Foreground Message <===> ${message.data}");
-    //if the user is not logged in then we should make it a foreground message
+    //if the user is not logged in then we should make it a background message
     if(UserInstance().getUser() == null) return onBackgroundMessageReceived(message);
 
     final dataMessage = _extractDataMessage(message) ?? {};

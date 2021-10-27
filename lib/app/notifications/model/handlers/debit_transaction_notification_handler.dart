@@ -58,7 +58,12 @@ class DebitCreditTransactionNotificationHandler extends NotificationHandler {
 
     final accountTransaction = data.transactionObj;
 
-    if(accountTransaction != null) {
+    //It's best to use the one updated from the backend
+    final existingTransaction = await this.transactionDao?.getTransactionByRef(
+        accountTransaction?.transactionRef ?? ""
+    );
+
+    if(accountTransaction != null && existingTransaction == null) {
       await this.transactionDao?.insertItem(accountTransaction);
     }
   }
@@ -73,8 +78,11 @@ class DebitCreditTransactionNotificationHandler extends NotificationHandler {
 
     final accountTransaction = transactionData.transactionObj;
 
+    if(accountTransaction == null) return;
+
     MoniepointAppMessenger.of(context).showInAppNotification(
       NotificationBanner(
+          key: Key(accountTransaction.transactionRef),
           onClick: handle,
           content: DebitCreditNotificationItem(
             accountTransaction: accountTransaction,
@@ -143,7 +151,6 @@ class DebitCreditTransactionNotificationHandler extends NotificationHandler {
         "accountNumber": item.accountNumber
       });
     } else {
-      print("Saving Notification Handling Notification!!!!!!");
       saveNotificationForLater(message!.messageType!, message!);
     }
   }
@@ -157,7 +164,6 @@ class DebitCreditTransactionNotificationHandler extends NotificationHandler {
 
   static RemoteNotificationMessage buildRemoteNotificationMessage(Object? notificationData) {
     if(notificationData is Map<String, dynamic>) {
-      print("Getting the actual data");
       final dataMessage = notificationData["dataMessage"] ?? notificationData;
       return RemoteNotificationMessage.fromJson(dataMessage, (json) => DebitCreditTransactionMessage.fromJson(json));
     } else if(notificationData is RemoteNotificationMessage) {

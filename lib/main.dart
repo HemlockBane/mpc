@@ -3,6 +3,7 @@ import 'package:flutter/material.dart' hide Colors, Card;
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:moniepoint_flutter/app/login/viewmodels/login_view_model.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/config/service_config.dart';
 import 'package:moniepoint_flutter/core/di/service_module.dart';
 import 'package:moniepoint_flutter/core/di/db_module.dart';
 import 'package:moniepoint_flutter/core/mix_panel_analytics.dart';

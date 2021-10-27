@@ -260,6 +260,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
           visible: !isEmpty && error == null,
           child: Expanded(
               child: ListView.separated(
+                physics: ClampingScrollPhysics(),
                 padding: EdgeInsets.only(top: 70),
                 controller: scrollController,
                 itemCount: value.data.length,

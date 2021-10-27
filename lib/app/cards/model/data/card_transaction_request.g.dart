@@ -83,10 +83,10 @@ K? _$enumDecodeNullable<K, V>(
 }
 
 const _$TransactionChannelEnumMap = {
+  TransactionChannel.ALL: 'ALL',
   TransactionChannel.ATM: 'ATM',
   TransactionChannel.POS: 'POS',
   TransactionChannel.WEB: 'WEB',
   TransactionChannel.USSD: 'USSD',
   TransactionChannel.MOBILE: 'MOBILE',
-  TransactionChannel.KIOSK: 'KIOSK',
 };

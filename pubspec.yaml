@@ -77,8 +77,9 @@ dependencies:
   app_settings: 4.1.1
   mixpanel_flutter: ^1.0.0
   expandable: ^5.0.1
-  percent_indicator: ^3.4.0
-  jiffy: ^4.1.0
+  flutter_local_notifications: ^9.0.0
+  workmanager: ^0.4.1
+  analyzer: ^1.7.2
 
 dependency_overrides:
   retrofit:
@@ -86,6 +87,7 @@ dependency_overrides:
       url: https://github.com/trevorwang/retrofit.dart.git
       path: annotation
       ref: master
+#  meta: 1.7.0
 
 dev_dependencies:
   retrofit_generator:

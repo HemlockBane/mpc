@@ -2,16 +2,16 @@ import 'package:moniepoint_flutter/core/models/transaction.dart';
 
 class TransactionRequestContract {
 
-  final Transaction transaction;
+  final dynamic intent;
   final TransactionRequestContractType requestType;
 
   TransactionRequestContract({
-    required this.transaction,
+    required this.intent,
     required this.requestType
   });
 
 }
 
 enum TransactionRequestContractType {
-  REPLAY
+  REPLAY, BEGIN_TRANSFER
 }

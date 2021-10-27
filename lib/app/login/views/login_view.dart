@@ -23,9 +23,11 @@ import 'package:moniepoint_flutter/core/utils/call_utils.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/views/otp_ussd_info_view.dart';
+import 'package:moniepoint_flutter/core/work/work_dispatcher.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter_swipecards/flutter_swipecards.dart';
+import 'package:workmanager/workmanager.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -70,6 +72,29 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
     _extraRouteArguments();
     _initSavedUsername();
     _animController.forward();
+
+    // ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+    // ScaffoldMessenger.of(context).showMaterialBanner(
+    //     MaterialBanner(
+    //         leading: SvgPicture.asset("res/drawables/ic_moniepoint_cube_alt.svg"),
+    //         content: Column(
+    //           crossAxisAlignment: CrossAxisAlignment.start,
+    //           children: [
+    //             Text("DEBIT ALERT"),
+    //             SizedBox(height: 2),
+    //             Text("500.00 from Paul Okeke")
+    //           ],
+    //         ),
+    //         actions: <Widget>[
+    //           TextButton(
+    //               onPressed: () {
+    //                 ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+    //               },
+    //               child: Text("Dismiss")
+    //           )
+    //         ]
+    //     )
+    // );
   }
 
   void _extraRouteArguments() {
@@ -125,14 +150,6 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
             ],
           );
         });
-  }
-
-  void _initializeBiometric() async {
-    // _biometricHelper = await BiometricHelper.initialize(
-    //     keyFileName: "moniepoint_iv",
-    //     keyStoreName: "AndroidKeyStore",
-    //     keyAlias: "teamapt-moniepoint"
-    // );
   }
 
   void _initSavedUsername() {

@@ -104,10 +104,13 @@ class DatabaseModule {
       return db.billerProductDao;
     });
 
-    GetIt.I.registerSingletonAsync<TransactionDao>(() async {
-      final db = await GetIt.I.getAsync<AppDatabase>();
+    GetIt.I.registerLazySingleton<TransactionDao>(() {
       return db.transactionDao;
     });
+    // GetIt.I.registerLazySingleton(() => null)<TransactionDao>(() async {
+    //   final db = await GetIt.I.getAsync<AppDatabase>();
+    //   return db.transactionDao;
+    // }, signalsReady: false);
 
     GetIt.I.registerSingletonAsync<SchemeDao>(() async {
       final db = await GetIt.I.getAsync<AppDatabase>();

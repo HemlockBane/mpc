@@ -1,6 +1,8 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:moniepoint_flutter/app/customer/customer.dart';
+import 'package:moniepoint_flutter/app/customer/customer_account.dart';
 import 'package:moniepoint_flutter/app/login/model/data/login_prompt.dart';
+import 'package:collection/collection.dart';
 
 
 import 'security_flag.dart';
@@ -36,6 +38,11 @@ class User {
   User withAccessToken(String? token) {
     this.accessToken = token;
     return this;
+  }
+
+  List<CustomerAccount> getCustomerAccounts() {
+    return this.customers?.firstOrNull?.customerAccountUsers
+        ?.map((e) => e.customerAccount!).toList() ?? [];
   }
 
   factory User.fromJson(Object? data) =>

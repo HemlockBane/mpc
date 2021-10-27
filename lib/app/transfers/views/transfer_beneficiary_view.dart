@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/app/customer/account_provider.dart';
 import 'package:moniepoint_flutter/app/institutions/institution_view_model.dart';
+import 'package:moniepoint_flutter/app/managebeneficiaries/beneficiary.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_list_item.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_shimmer_view.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_utils.dart';
@@ -13,6 +14,7 @@ import 'package:moniepoint_flutter/app/transfers/views/dialogs/account_enquiry_d
 import 'package:moniepoint_flutter/app/transfers/views/dialogs/institutions_bottom_sheet.dart';
 import 'package:moniepoint_flutter/app/transfers/views/transfer_view.dart';
 import 'package:moniepoint_flutter/core/models/TransactionRequestContract.dart';
+import 'package:moniepoint_flutter/core/models/transaction.dart';
 import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
@@ -161,18 +163,34 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
     final contract = widget.arguments as TransactionRequestContract?;
     if(contract == null) return;
     if(contract.requestType == TransactionRequestContractType.REPLAY) {
-      final transaction = contract.transaction;
-      final provider = AccountProvider()
-        ..bankCode = transaction.getSinkAccountBankCode()
-        ..name = transaction.getSinkAccountBankName();
+      if(contract.intent is Transaction) _replayTransaction(contract.intent);
+    } else if (contract.requestType == TransactionRequestContractType.BEGIN_TRANSFER) {
+      if(contract.intent is TransferBeneficiary) _beginStartTransferIntent(contract.intent);
+    }
+  }
 
-      final beneficiary = TransferBeneficiary(
-          id: 0,
-          accountName: transaction.getSinkAccountName(),
-          accountNumber: transaction.getSinkAccountNumber()
-      );
-      Future.delayed(Duration(milliseconds: 200), (){
-        doNameEnquiry(provider, beneficiary, withDefaultAmount: transaction.getAmount());
+  void _replayTransaction(Transaction transaction) {
+    final provider = AccountProvider()
+      ..bankCode = transaction.getSinkAccountBankCode()
+      ..name = transaction.getSinkAccountBankName();
+
+    final beneficiary = TransferBeneficiary(
+        id: 0,
+        accountName: transaction.getSinkAccountName(),
+        accountNumber: transaction.getSinkAccountNumber()
+    );
+    Future.delayed(Duration(milliseconds: 200), (){
+      doNameEnquiry(provider, beneficiary, withDefaultAmount: transaction.getAmount());
+    });
+  }
+
+  void _beginStartTransferIntent(Beneficiary? beneficiary) {
+    if (beneficiary != null && beneficiary is TransferBeneficiary) {
+      final provider = AccountProvider()
+        ..bankCode = beneficiary.accountProviderCode
+        ..name = beneficiary.accountProviderName;
+      Future.delayed(Duration(milliseconds: 200), () {
+        doNameEnquiry(provider, beneficiary, saveBeneficiary: false);
       });
     }
   }
@@ -192,15 +210,7 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
   //     });
   //   }
   //
-  //   final beneficiary = obj[TransferScreen.START_TRANSFER];
-  //   if(beneficiary != null && beneficiary is TransferBeneficiary) {
-  //     final provider =AccountProvider()
-  //         ..bankCode = beneficiary.accountProviderCode
-  //         ..name = beneficiary.accountProviderName;
-  //     Future.delayed(Duration(milliseconds: 200), (){
-  //       doNameEnquiry(provider, beneficiary, saveBeneficiary: false);
-  //     });
-  //   }
+
   // }
 
   @override

@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
-import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/accounts/viewmodels/transaction_list_view_model.dart';
+import 'package:moniepoint_flutter/app/accountupdates/model/data/account_upgrade_state.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/restriction_pages/account_upgrade_route_delegate.dart';
 import 'package:moniepoint_flutter/app/customer/customer_account.dart';
 import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
-import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
-import 'package:share/share.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
@@ -61,10 +59,9 @@ class _AccountTransactionsAccountCardState
                 child: InkWell(
                   overlayColor: MaterialStateProperty.all(
                       Colors.darkLightBlue.withOpacity(0.1)),
-                  onTap: () {},
+                  onTap: null,
                   child: Hero(
-                    tag:
-                        "dashboard-balance-view-${userAccount.customerAccount?.id}",
+                    tag: "dashboard-balance-view-${userAccount.customerAccount?.id}",
                     flightShuttleBuilder: (BuildContext flightContext,
                         Animation<double> animation,
                         HeroFlightDirection flightDirection,
@@ -144,9 +141,11 @@ class AccountDetails extends StatefulWidget {
 class _AccountDetailsState extends State<AccountDetails>
     with CompositeDisposableWidget, WidgetsBindingObserver {
   Stream<Resource<AccountBalance>>? _balanceStream;
+  late final AccountState accountState;
 
   @override
   void initState() {
+    this.accountState = widget.userAccount.getAccountState();
     super.initState();
 
     widget.viewModel.getTiers().listen((event) { });
@@ -154,6 +153,7 @@ class _AccountDetailsState extends State<AccountDetails>
     _balanceStream = widget.viewModel.getCustomerAccountBalance(
         accountId: widget.userAccount.id, useLocal: false
     );
+
 
     widget.viewModel.checkAccountUpdate();
 
@@ -183,6 +183,47 @@ class _AccountDetailsState extends State<AccountDetails>
 
   int? getQualifiedTierIndex() {
     return widget.viewModel.getCurrentAccountTierNumber(widget.userAccount.id!);
+  }
+
+  Widget upgradeAccountButton()  {
+    if(accountState == AccountState.COMPLETED) return SizedBox();
+    return Container(
+        margin: EdgeInsets.only(left: 8, right: 8),
+        child: TextButton(
+            onPressed: () => AccountUpgradeRouteDelegate.navigateToAccountUpgrade(context, widget.userAccount),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                text(_getAccountStateText(), color: Colors.primaryColor, fontSize: 14),
+                SizedBox(width: 8),
+                SvgPicture.asset(
+                  'res/drawables/ic_forward_anchor.svg',
+                  width: 8.13,
+                  height: 13.47,
+                  color: Colors.primaryColor,
+                )
+              ],
+            )
+        )
+    );
+  }
+
+  String _getAccountStateText() {
+    switch(accountState) {
+      case AccountState.BLOCKED:
+        return "Account Blocked";
+      case AccountState.PND:
+        return "Account Restricted!";
+      case AccountState.REQUIRE_DOCS:
+        return "Re-upload Document";
+      case AccountState.PENDING_VERIFICATION:
+        return "Upgrade in Progress...";
+      case AccountState.COMPLETED:
+        break;
+      case AccountState.IN_COMPLETE:
+        return "Upgrade Account";
+    }
+    return "";
   }
 
   @override
@@ -378,40 +419,8 @@ class _AccountDetailsState extends State<AccountDetails>
                     height: 1,
                     color: Colors.primaryColor.withOpacity(0.3),
                   )),
-            if (!widget.viewModel.isAccountUpdateCompleted) SizedBox(height: 2),
-            if (!widget.viewModel.isAccountUpdateCompleted)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      TextButton(
-                          onPressed: () => AccountUpgradeRouteDelegate.navigateToAccountUpgrade(context, widget.userAccount),
-                          child: text("Upgrade Account", color: Colors.primaryColor, fontSize: 14)
-                      ),
-                      // InkWell(
-                      //   onTap: () => AccountUpgradeRouteDelegate.navigateToAccountUpgrade(context, widget.userAccount),
-                      //   child: text("Upgrade Account", color: Colors.primaryColor, fontSize: 14),
-                      // ),
-                      SizedBox(width: 2),
-                      Styles.imageButton(
-                        onClick: () => Navigator.of(context)
-                          .pushNamed(Routes.ACCOUNT_UPDATE),
-                        color: Colors.white.withOpacity(0.2),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 5.2, vertical: 4),
-                        borderRadius: BorderRadius.circular(4),
-                        image: SvgPicture.asset(
-                          'res/drawables/ic_forward_anchor.svg',
-                          width: 8.13,
-                          height: 13.47,
-                          color: Colors.primaryColor,
-                        ))
-                    ],
-                  ),
-              ],),
-
+            if (accountState != AccountState.COMPLETED) SizedBox(height: 2),
+            upgradeAccountButton(),
             if (!widget.viewModel.isAccountUpdateCompleted) SizedBox(height: 2)
           ],
         ),

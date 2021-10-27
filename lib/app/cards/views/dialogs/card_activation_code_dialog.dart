@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' hide Colors, Card;
 import 'package:flutter_svg/svg.dart';
 import 'package:lottie/lottie.dart';
@@ -9,6 +10,7 @@ import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/network_bound_resource.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
+import 'package:collection/collection.dart';
 
 class CardActivationCodeDialog extends StatefulWidget {
 
@@ -33,6 +35,8 @@ class _CardActivationCodeDialog extends State<CardActivationCodeDialog> {
 
   StreamSubscription? _streamSubscription;
 
+  final List<Card> _previousCards = [];
+
   _CardActivationCodeDialog();
 
   bool containsInactiveCard(List<Card>? cards) {
@@ -45,21 +49,36 @@ class _CardActivationCodeDialog extends State<CardActivationCodeDialog> {
     return containsInActiveCard;
   }
 
-  void _subscribeUiToCardList() {
+  void _subscribeUiToCardList({int subscriptionCount = 0}) {
     if(!mounted) return;
 
     _streamSubscription = streamWithExponentialBackoff(stream: widget.cardsStreamFn, retries: 5).listen((event) async {
       if(event is Success) {
-        final cards = event.data;
-        final hasNewCard = (cards?.length ?? 0) > widget.totalNumberOfCards;
-        //When a new card is issued,we instantly would have a new card
-        //added to the list of the customer cards or in cases where a previous
-        //card was replaced(unlinked) then the newly added card should be in an inactive state
-        if(hasNewCard || containsInactiveCard(cards)) return Navigator.of(context).pop(event);
+        final cards = event.data ?? [];
+
+        if(subscriptionCount == 0) {
+          _previousCards.clear();
+          _previousCards.addAll(cards);
+        }
+
+        if(subscriptionCount > 0 && cards.length > _previousCards.length
+            && containsInactiveCard(cards)) {
+          return Navigator.of(context).pop(event);
+        }
+
+        //Look for cards in B that isn't present in A
+        final cardDifference = cards.firstWhereOrNull((bElement) {
+          return _previousCards.where((aElement) => bElement.id == aElement.id).isEmpty;
+        });
+
+        if(cardDifference?.isActivated == false) {
+          return Navigator.of(context).pop(event);
+        }
+
         await Future.delayed(Duration(seconds: 5));
         //Recursively
         _streamSubscription?.cancel();
-        _subscribeUiToCardList();
+        _subscribeUiToCardList(subscriptionCount: subscriptionCount + 1);
       } else if(event is Error<List<Card>>) {
         Navigator.of(context).pop(event);
       }
@@ -99,7 +118,9 @@ class _CardActivationCodeDialog extends State<CardActivationCodeDialog> {
                           style: TextStyle(
                               fontSize: 21,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black)),
+                              color: Colors.black
+                          )
+                      ),
                       SizedBox(height: 16),
                       Container(
                         width: double.infinity,

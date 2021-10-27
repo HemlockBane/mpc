@@ -10,7 +10,7 @@ import 'package:moniepoint_flutter/core/models/transaction_meta_data.dart';
 
 part 'account_transaction.g.dart';
 
-enum TransactionChannel { ATM, POS, WEB, USSD, MOBILE, KIOSK }
+enum TransactionChannel { ALL, ATM, POS, WEB, USSD, MOBILE }
 
 @Entity(tableName: "account_transactions")
 @JsonSerializable()
@@ -44,7 +44,7 @@ class AccountTransaction extends Transaction implements ListItem {
   @JsonKey(name: "narration")
   final String? narration;
 
-  @JsonKey(name: "transactionDate", fromJson: stringDateTime)
+  @JsonKey(name: "transactionDate", fromJson: stringDateTime, toJson: millisToString)
   final int transactionDate;
 
   @JsonKey(name: "runningBalance")

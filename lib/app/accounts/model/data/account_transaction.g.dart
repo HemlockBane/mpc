@@ -60,7 +60,7 @@ Map<String, dynamic> _$AccountTransactionToJson(AccountTransaction instance) =>
       'transactionChannel': instance.transactionChannel,
       'tags': instance.tags,
       'narration': instance.narration,
-      'transactionDate': instance.transactionDate,
+      'transactionDate': millisToString(instance.transactionDate),
       'runningBalance': instance.runningBalance,
       'balanceBefore': instance.balanceBefore,
       'balanceAfter': instance.balanceAfter,
@@ -126,6 +126,7 @@ K? _$enumDecodeNullable<K, V>(
 }
 
 const _$TransactionTypeEnumMap = {
+  TransactionType.ALL: 'ALL',
   TransactionType.DEBIT: 'DEBIT',
   TransactionType.CREDIT: 'CREDIT',
   TransactionType.UNKNOWN: 'UNKNOWN',

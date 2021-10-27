@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
+import 'package:moniepoint_flutter/core/views/moniepoint_scaffold.dart';
 import 'package:moniepoint_flutter/main.dart';
 import '../routes.dart';
 import '../timeout_reason.dart';
@@ -28,6 +29,9 @@ class SessionedWidget extends GestureDetector {
         Routes.LOGIN, (route) => false,
         arguments: Tuple("reason", reason)
     );
+    if(navigatorKey.currentContext != null) {
+      MoniepointAppMessenger.of(navigatorKey.currentContext!).clearAllInAppNotification();
+    }
   }
 
   @override

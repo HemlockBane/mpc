@@ -1,7 +1,7 @@
 gradle-wrapper.jar
 /.gradle
 /captures/
-/gradlew
+#/gradlew
 /gradlew.bat
 /local.properties
 GeneratedPluginRegistrant.java
@@ -29,3 +29,5 @@ amplify-build-config.json
 amplify-gradle-config.json
 amplifytools.xcconfig
 .secret-*
+
+!gradle-wrapper.jar

@@ -17,8 +17,7 @@ class ServiceResult<ResultType> {
   final ResultType? result;
   final List<ServiceError>? errors;
 
-  factory ServiceResult.fromJson(Map<String, dynamic> data,
-          ResultType Function(Object? json) fromJsonT) =>
+  factory ServiceResult.fromJson(Map<String, dynamic> data, ResultType Function(Object? json) fromJsonT) =>
       _$ServiceResultFromJson(data, fromJsonT);
 
   Map<String, dynamic> toJson(

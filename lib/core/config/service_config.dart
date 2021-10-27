@@ -26,4 +26,11 @@ class ServiceConfig {
       ? "https://moniepoint-customer-vas-service.console.teamapt.com/"
       : "https://moniepoint-customer-vas-service-v2.console.teamapt.com/";
 
+  static const String NOTIFICATION_SERVICE = (ENV == "dev")
+      ? "https://moniepoint-customer-notification-service.development.teamapt.com/"
+      : (ENV == "prod")
+      ? "https://moniepoint-customer-notification-service.console.teamapt.com/"
+      : "https://moniepoint-customer-notification-service.console.teamapt.com/";
+
+
 }

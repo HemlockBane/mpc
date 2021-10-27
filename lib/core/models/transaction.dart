@@ -61,4 +61,4 @@ abstract class Transaction extends ListItem {
 
 }
 
-enum TransactionType { DEBIT, CREDIT, UNKNOWN }
+enum TransactionType { ALL, DEBIT, CREDIT, UNKNOWN }

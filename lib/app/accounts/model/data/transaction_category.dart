@@ -1,6 +1,5 @@
 enum TransactionCategory {
   TRANSFER,
-  // INWARD_TRANSFER,
   BILL_PAYMENT,
   AIRTIME,
   DATA,

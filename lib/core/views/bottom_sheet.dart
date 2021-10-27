@@ -30,9 +30,7 @@ class BottomSheets {
       Widget? content,
       Color? centerImageColor}) {
     return  GestureDetector(
-      onVerticalDragStart: enableDrag ? null : (details){
-
-      },
+      onVerticalDragStart: enableDrag ? null : (details) => null,
       child: Container(
         height: height,
         child: Stack(

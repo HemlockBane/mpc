@@ -2,6 +2,7 @@ import UIKit
 import Flutter
 import GoogleMaps
 import LocalAuthentication
+import Firebase
 
 
 @UIApplicationMain
@@ -14,14 +15,24 @@ import LocalAuthentication
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    GeneratedPluginRegistrant.register(with: self)
-    //For google maps
-    GMSServices.provideAPIKey("AIzaSyAZ4YHxMdQYIzvEepEUVYdFUILdCN3LxA8")
     
+    FirebaseApp.configure()
+    
+    GeneratedPluginRegistrant.register(with: self)
+    
+    UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
+    UIApplication.shared.setMinimumBackgroundFetchInterval(TimeInterval(60*15))
+
+    //For google maps
+    GMSServices.provideAPIKey("AIzaSyBaWvpAZu9ODUJqNMpJ_ycud2BBh-D2HGE")
+//    GMSServices.provideAPIKey("AIzaSyAZ4YHxMdQYIzvEepEUVYdFUILdCN3LxA8")
+
     let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
     BiometricMethodHandler(controller: controller).registerBiometricsMethodHandler()
     LivelinessMethodHandler(controller: controller).registerLivelinessMethodHandler()
     DeviceManagerHandler(controller: controller).registerDeviceManagerHandler()
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
+    
+
 }

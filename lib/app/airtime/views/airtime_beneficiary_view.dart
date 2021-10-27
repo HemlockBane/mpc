@@ -80,7 +80,7 @@ class _AirtimeBeneficiaryScreen extends State<AirtimeBeneficiaryScreen> with Aut
     final contract = widget.transactionRequestContract;
     if(contract == null) return;
     if(contract.requestType == TransactionRequestContractType.REPLAY) {
-      final transaction = contract.transaction;
+      final transaction = contract.intent;
       final viewModel = Provider.of<AirtimeViewModel>(context, listen: false);
 
       final mBeneficiary = AirtimeBeneficiary(

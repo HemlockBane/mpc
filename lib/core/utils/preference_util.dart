@@ -23,6 +23,11 @@ class PreferenceUtil {
     _preferences = await SharedPreferences.getInstance();
   }
 
+  static reload() async {
+    _preferences = await SharedPreferences.getInstance();
+    await _preferences?.reload();
+  }
+
   PreferenceUtil.init() {
     SharedPreferences.getInstance().then((value) {
       print("Initialized Preference");
@@ -175,5 +180,9 @@ class PreferenceUtil {
 
   static bool isAccountBalanceHidden(String accountNumber) {
     return getValueForLoggedInUser("$accountNumber-$HIDE_ACCOUNT_BAL") ?? false;
+  }
+
+  static void addTaskToIosQueue() {
+
   }
 }

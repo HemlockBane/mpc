@@ -17,16 +17,15 @@ class TransactionHistoryListItem extends Container {
   TransactionHistoryListItem(this._transaction, this.position, this._onItemClickListener);
 
 
-  Widget initialView() {
-
-    final imageName = (_transaction.type == TransactionType.CREDIT) ? "ic_transaction_credit.svg" : "ic_transaction_debit.svg";
+  static Widget initialView(TransactionType type) {
+    final imageName = (type == TransactionType.CREDIT) ? "ic_transaction_credit.svg" : "ic_transaction_debit.svg";
     return Container(
       width: 40,
       height: 40,
       padding: EdgeInsets.all(5),
       decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: (_transaction.type == TransactionType.CREDIT)
+          color: (type == TransactionType.CREDIT)
               ? Colors.solidGreen.withOpacity(0.1)
               : Colors.red.withOpacity(0.1)
       ),
@@ -53,7 +52,7 @@ class TransactionHistoryListItem extends Container {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            initialView(),
+            initialView(_transaction.type ?? TransactionType.UNKNOWN),
             SizedBox(width: 14),
             Expanded(
                 child: Column(

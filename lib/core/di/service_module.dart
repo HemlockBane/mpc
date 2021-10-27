@@ -40,6 +40,8 @@ import 'package:moniepoint_flutter/app/managebeneficiaries/bills/model/data/bill
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary_dao.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/transfer_beneficiary_delegate.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/transfer_beneficiary_service.dart';
+import 'package:moniepoint_flutter/app/notifications/model/notification_service.dart';
+import 'package:moniepoint_flutter/app/notifications/model/notification_service_delegate.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/account_creation_service.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/onboarding_service.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/onboarding_service_delegate.dart';
@@ -235,6 +237,11 @@ class ServiceModule {
 
     GetIt.I.registerLazySingleton<DeviceInfoPlugin>(() {
       return DeviceInfoPlugin();
+    });
+
+    /// Notification Delegate
+    GetIt.I.registerLazySingleton<NotificationServiceDelegate>(() {
+      return NotificationServiceDelegate(NotificationService(dio));
     });
 
   }

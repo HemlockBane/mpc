@@ -2,11 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/loans/views/loans_loan_offers_view.dart';
+import 'package:moniepoint_flutter/app/loans/views/widgets/info_banner_content.dart';
+import 'package:moniepoint_flutter/app/loans/views/widgets/interest_rate_banner.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/views/custom_check_box.dart';
 
-const lightOrange = Color(0xffFCE7D3);
 const double toolBarMarginTop = 37;
 const double maxDraggableTop = toolBarMarginTop * 5 + 26;
 const String loremIpsum =
@@ -148,22 +149,24 @@ class LoanProductDetailsView extends StatelessWidget {
                                 RichText(
                                   text: TextSpan(children: [
                                     TextSpan(
-                                        text:
-                                            'You’re eligible to take a loan of',
-                                        style: getNormalStyle(
-                                                fontSize: 15,
-                                                color: Colors.textColorBlack)
-                                            .copyWith(height: 1.3)),
+                                      text: 'You’re eligible to take a loan of',
+                                      style: getNormalStyle(
+                                              fontSize: 15,
+                                              color: Colors.textColorBlack)
+                                          .copyWith(height: 1.3),
+                                    ),
                                     TextSpan(
-                                        text: '\nN 500,000.00',
-                                        style: getBoldStyle(
-                                            fontSize: 15,
-                                            color: Colors.textColorBlack)),
+                                      text: '\nN 500,000.00',
+                                      style: getBoldStyle(
+                                          fontSize: 15,
+                                          color: Colors.textColorBlack),
+                                    ),
                                     TextSpan(
-                                        text: ' from us. Apply now',
-                                        style: getNormalStyle(
-                                            fontSize: 15,
-                                            color: Colors.textColorBlack))
+                                      text: ' from us. Apply now',
+                                      style: getNormalStyle(
+                                          fontSize: 15,
+                                          color: Colors.textColorBlack),
+                                    )
                                   ]),
                                 ),
                                 SizedBox(height: 5),
@@ -178,13 +181,13 @@ class LoanProductDetailsView extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.all(Radius.circular(16)),
-                    border: Border.all(
-                        color: Color(0xff1C9328).withOpacity(0.1), width: 0.7),
+                    border: Border.all(color: Color(0xff1A1C9328), width: 0.7),
                     boxShadow: [
                       BoxShadow(
-                          offset: Offset(0, 1),
-                          blurRadius: 2,
-                          color: Color(0xff05670F).withOpacity(0.1))
+                        offset: Offset(0, 1),
+                        blurRadius: 2,
+                        color: Colors.loanCardShadowColor.withOpacity(0.1),
+                      )
                     ],
                   ),
                 ),
@@ -211,24 +214,14 @@ class LoanProductDetailsView extends StatelessWidget {
         });
   }
 
-  Widget _getCheckBox({Size? size}) => CustomCheckBox(
-        height: size?.height,
-        width: size?.width,
-        padding: EdgeInsets.all(6),
-        isSelected: true,
-        fillColor: Colors.solidGreen,
-        borderColor: Color(0xffA6B6CE).withOpacity(0.95),
-        onSelect: (a) {},
-      );
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: lightOrange,
+      backgroundColor: Colors.peach,
       body: Stack(
         children: [
           Positioned(
-            top: toolBarMarginTop,
+            top: toolBarMarginTop + 10,
             left: 0,
             right: 0,
             child: Container(
@@ -261,7 +254,7 @@ class LoanProductDetailsView extends StatelessWidget {
             ),
           ),
           Positioned(
-            top: 33,
+            top: 43,
             right: 0,
             child: Image.asset('res/drawables/savings_flex_bg.png'),
           ),
@@ -274,133 +267,6 @@ class LoanProductDetailsView extends StatelessWidget {
           )
         ],
       ),
-    );
-  }
-}
-
-class InterestRateBanner extends StatelessWidget {
-  const InterestRateBanner(
-      {Key? key,
-      required this.title,
-      required this.interestRate,
-      required this.subtitle})
-      : super(key: key);
-
-  final String title;
-  final String interestRate;
-  final String subtitle;
-
-  TextStyle getBoldStyle(
-          {double fontSize = 32.5,
-          Color color = Colors.textColorBlack,
-          FontWeight fontWeight = FontWeight.w700}) =>
-      TextStyle(fontWeight: fontWeight, fontSize: fontSize, color: color);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 20),
-      child: Column(
-        children: [
-          Text(
-            title,
-            style: getBoldStyle(fontSize: 16.8, fontWeight: FontWeight.w500),
-          ),
-          SizedBox(height: 3),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(interestRate, style: getBoldStyle(fontSize: 38)),
-              SizedBox(width: 2),
-              Text("%",
-                  style: getBoldStyle(
-                      fontSize: 26,
-                      color: Colors.textColorBlack.withOpacity(0.5))),
-            ],
-          ),
-          SizedBox(height: 3),
-          Text(
-            subtitle.toUpperCase(),
-            style: TextStyle(
-                color: Colors.textColorBlack,
-                fontWeight: FontWeight.normal,
-                fontSize: 10,
-                letterSpacing: 4.5),
-          ),
-        ],
-      ),
-      decoration: BoxDecoration(
-          color: lightOrange,
-          borderRadius: BorderRadius.all(Radius.circular(16))),
-    );
-  }
-}
-
-class InfoBannerContent extends StatelessWidget {
-  const InfoBannerContent(
-      {Key? key,
-      required this.svgPath,
-      this.title,
-      this.subtitle,
-      this.subtitleWidget,
-      this.additionalInfo,
-      this.rightSpace})
-      : super(key: key);
-
-  final String svgPath;
-  final String? title;
-  final String? subtitle;
-  final Widget? subtitleWidget;
-  final String? additionalInfo;
-  final double? rightSpace;
-
-  TextStyle getBoldStyle(
-          {double fontSize = 32.5,
-          Color color = Colors.textColorBlack,
-          FontWeight fontWeight = FontWeight.w700}) =>
-      TextStyle(fontWeight: fontWeight, fontSize: fontSize, color: color);
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(width: 5),
-        SvgPicture.asset(
-          svgPath,
-          height: 22.5,
-          width: 22.5,
-        ),
-        SizedBox(width: 16.6),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (title != null)
-                Text(title!, style: getBoldStyle(fontSize: 14)),
-              if (title != null) SizedBox(height: 5),
-              if (subtitle != null || subtitleWidget != null)
-                subtitleWidget ??
-                    Text(
-                      subtitle!,
-                      style: TextStyle(
-                          fontSize: 12.9,
-                          height: 1.48,
-                          fontWeight: FontWeight.normal,
-                          color: Colors.textColorBlack),
-                    ),
-              SizedBox(height: 5),
-              if (additionalInfo != null)
-                Text(
-                  additionalInfo!,
-                  style:
-                      getBoldStyle(fontSize: 13).copyWith(letterSpacing: -0.3),
-                )
-            ],
-          ),
-        ),
-        SizedBox(width: rightSpace ?? 46)
-      ],
     );
   }
 }

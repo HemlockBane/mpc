@@ -6,8 +6,10 @@ import 'package:moniepoint_flutter/app/accountupdates/views/forms/account_update
 import 'package:moniepoint_flutter/app/loans/viewmodels/loan_request_viewmodel.dart';
 import 'package:moniepoint_flutter/app/loans/views/loans_apply_confirmation_view.dart';
 import 'package:moniepoint_flutter/app/loans/views/loans_product_details_view.dart';
+import 'package:moniepoint_flutter/app/loans/views/widgets/info_banner_content.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
 import 'package:moniepoint_flutter/core/views/pie_progress_bar.dart';
@@ -196,9 +198,10 @@ class _AvailableOffersViewState extends State<AvailableOffersView> {
   Widget _getDivider({double? topMargin, double? bottomMargin}) => Padding(
       padding: EdgeInsets.only(top: topMargin ?? 3, bottom: bottomMargin ?? 11),
       child: Divider(
-        thickness: 0.7,
-        color: Color(0xff966C2E).withOpacity(0.12),
-      ));
+        thickness: 1,
+        color: Color(0xffF2EDE6),
+      ),
+  );
 
   Container _buildCard({required Widget child}) {
     return Container(
@@ -209,12 +212,12 @@ class _AvailableOffersViewState extends State<AvailableOffersView> {
           color: Colors.white,
           borderRadius: BorderRadius.all(Radius.circular(8)),
           border: Border.all(
-              width: 0.7, color: Color(0xff4A7BC7).withOpacity(0.15)),
+              width: 0.7, color: Colors.loanCardShadowColor.withOpacity(0.15)),
           boxShadow: [
             BoxShadow(
                 offset: Offset(0, 1),
                 blurRadius: 1,
-                color: Color(0xff649AF).withOpacity(0.06))
+                color: Colors.loanCardShadowColor.withOpacity(0.1))
           ]),
     );
   }
@@ -416,11 +419,11 @@ class _ApplyForLoanViewState extends State<ApplyForLoanView>
       TextStyle(fontWeight: fontWeight, color: color, fontSize: fontSize);
 
   Widget _getDivider({double? topMargin, double? bottomMargin}) => Padding(
-    padding: EdgeInsets.only(top: topMargin ?? 6, bottom: bottomMargin ?? 11),
-    child: Divider(
-      thickness: 0.7,
-      color: Color(0xff966C2E).withOpacity(0.12),
-    ));
+      padding: EdgeInsets.only(top: topMargin ?? 6, bottom: bottomMargin ?? 11),
+      child: Divider(
+        thickness: 0.7,
+        color: Color(0xff966C2E).withOpacity(0.12),
+      ));
 
   @override
   void initState() {
@@ -429,7 +432,7 @@ class _ApplyForLoanViewState extends State<ApplyForLoanView>
     super.initState();
   }
 
-  void refreshAccounts(){
+  void refreshAccounts() {
     if (_viewModel.userAccounts.length > 1)
       _viewModel.getUserAccountsBalance().listen((event) {});
     else
@@ -463,23 +466,31 @@ class _ApplyForLoanViewState extends State<ApplyForLoanView>
             ),
             SizedBox(height: 13),
             Container(
-              padding: EdgeInsets.only(left: 14, right: 14, top: 26, bottom: 12),
+              padding:
+                  EdgeInsets.only(left: 14, right: 14, top: 26, bottom: 12),
               decoration: BoxDecoration(
-                color: Color(0xffE9ECF0),
-                borderRadius: BorderRadius.all(Radius.circular(8))
-              ),
+                  color: Color(0xffE9ECF0),
+                  borderRadius: BorderRadius.all(Radius.circular(8))),
               child: Column(
                 children: [
-                  PaymentAmountView((_amount * 100).toInt(), (value){},
+                  PaymentAmountView(
+                    (_amount * 100).toInt(),
+                    (value) {},
                     currencyColor: Color(0xffC1C2C5).withOpacity(0.5),
                     textColor: Colors.textColorBlack,
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Text("Max Amount", style: getNormalStyle(color: Color(0xffA9A5AF), fontSize: 12),),
+                      Text(
+                        "Max Amount",
+                        style: getNormalStyle(
+                            color: Color(0xffA9A5AF), fontSize: 12),
+                      ),
                       SizedBox(width: 10),
-                      Text("N 150,000.00", style: getNormalStyle(color: Color(0xffA9A5AF), fontSize: 12))
+                      Text("N 150,000.00",
+                          style: getNormalStyle(
+                              color: Color(0xffA9A5AF), fontSize: 12))
                     ],
                   )
                 ],
@@ -512,8 +523,7 @@ class _ApplyForLoanViewState extends State<ApplyForLoanView>
                     children: [
                       Text("Interest", style: getNormalStyle(fontSize: 12.5)),
                       SizedBox(height: 5),
-                      Text("N 150,000.00",
-                          style: getBoldStyle(fontSize: 13.5))
+                      Text("N 150,000.00", style: getBoldStyle(fontSize: 13.5))
                     ],
                   ),
                 ],
@@ -523,13 +533,13 @@ class _ApplyForLoanViewState extends State<ApplyForLoanView>
                 borderRadius: BorderRadius.all(Radius.circular(8)),
                 border: Border.all(
                   width: 0.7,
-                  color: Color(0xff4A7BC7).withOpacity(0.15),
+                  color: Colors.loanCardShadowColor.withOpacity(0.15),
                 ),
                 boxShadow: [
                   BoxShadow(
                       offset: Offset(0, 1),
                       blurRadius: 1,
-                      color: Color(0xff0649AF).withOpacity(0.06)),
+                      color: Colors.loanCardShadowColor.withOpacity(0.1)),
                 ],
               ),
             ),
@@ -556,7 +566,6 @@ class _ApplyForLoanViewState extends State<ApplyForLoanView>
               checkBoxBorderColor: Color(0xffA6B6CE).withOpacity(0.95),
               isShowTrailingWhenExpanded: false,
             ),
-
             SizedBox(height: 16.4),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
@@ -570,7 +579,7 @@ class _ApplyForLoanViewState extends State<ApplyForLoanView>
               ),
               value: _isSelected,
               onChanged: (value) {
-                if(!_isSelected) refreshAccounts();
+                if (!_isSelected) refreshAccounts();
                 setState(() {
                   _isSelected = value;
                 });
@@ -594,16 +603,15 @@ class _ApplyForLoanViewState extends State<ApplyForLoanView>
                   color: Colors.textColorMainBlack,
                 ),
               ),
-            if (!_isSelected)
-              SizedBox(height: 12),
+            if (!_isSelected) SizedBox(height: 12),
             if (!_isSelected)
               TransactionAccountSource(
                 _viewModel,
                 primaryColor: Colors.solidOrange,
                 titleStyle: TextStyle(
-                  fontSize: 15,
-                  color: Colors.textColorBlack,
-                  fontWeight: FontWeight.bold),
+                    fontSize: 15,
+                    color: Colors.textColorBlack,
+                    fontWeight: FontWeight.bold),
                 checkBoxSize: Size(40, 40),
                 listStyle: ListStyle.alternate,
                 checkBoxPadding: EdgeInsets.all(6.0),
@@ -614,21 +622,26 @@ class _ApplyForLoanViewState extends State<ApplyForLoanView>
             Container(
               padding: EdgeInsets.symmetric(horizontal: 14, vertical: 17),
               child: InfoBannerContent(
-                rightSpace: 100,
-                subtitleWidget: RichText(
-                  text: TextSpan(
-                    style: TextStyle(height: 1.4),
-                    children: [
-                      TextSpan(text: "By tapping ", style: getNormalStyle(fontSize: 12.5, color: Colors.textColorBlack)),
-                      TextSpan(text: "Next", style: getBoldStyle(fontSize: 12.5, color: Colors.textColorBlack)),
-                      TextSpan(text: ", you agree to the", style: getNormalStyle(fontSize: 12.5, color: Colors.textColorBlack)),
-                      TextSpan(text: " Terms and Conditions", style: getBoldStyle(fontSize: 12.5, color: Colors.textColorBlack))
-
-
-
-                    ]
-                  )
-                ),
+                  rightSpace: 100,
+                  subtitleWidget: RichText(
+                      text: TextSpan(style: TextStyle(height: 1.4), children: [
+                    TextSpan(
+                        text: "By tapping ",
+                        style: getNormalStyle(
+                            fontSize: 12.5, color: Colors.textColorBlack)),
+                    TextSpan(
+                        text: "Next",
+                        style: getBoldStyle(
+                            fontSize: 12.5, color: Colors.textColorBlack)),
+                    TextSpan(
+                        text: ", you agree to the",
+                        style: getNormalStyle(
+                            fontSize: 12.5, color: Colors.textColorBlack)),
+                    TextSpan(
+                        text: " Terms and Conditions",
+                        style: getBoldStyle(
+                            fontSize: 12.5, color: Colors.textColorBlack))
+                  ])),
                   svgPath: "res/drawables/ic_savings_warning.svg"),
               decoration: BoxDecoration(
                   color: Color(0xff244528).withOpacity(0.05),
@@ -645,7 +658,12 @@ class _ApplyForLoanViewState extends State<ApplyForLoanView>
                         color: Colors.white))),
                 stream: Stream.value(true),
                 onClick: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => LoansApplicationConfirmationView()));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (ctx) =>
+                        LoansApplicationConfirmationView()),
+                  );
                 },
                 text: 'Next'),
             SizedBox(height: 38 + 31.5),

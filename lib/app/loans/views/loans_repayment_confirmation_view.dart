@@ -11,8 +11,8 @@ import 'package:moniepoint_flutter/core/styles.dart';
 
 import 'loans_product_details_view.dart';
 
-class LoansApplicationConfirmationView extends StatelessWidget {
-  const LoansApplicationConfirmationView({Key? key}) : super(key: key);
+class LoanRepaymentConfirmationView extends StatelessWidget {
+  const LoanRepaymentConfirmationView({Key? key}) : super(key: key);
 
   TextStyle getBoldStyle({
     double fontSize = 24.5,
@@ -53,7 +53,6 @@ class LoansApplicationConfirmationView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 35),
               Container(
                 width: 70,
                 height: 70,
@@ -72,7 +71,7 @@ class LoansApplicationConfirmationView extends StatelessWidget {
               ),
               SizedBox(height: 19),
               Text(
-                "Confirmation",
+                "Loan Confirmation",
                 style: getBoldStyle(fontSize: 23),
               ),
               SizedBox(height: 29),
@@ -82,36 +81,25 @@ class LoansApplicationConfirmationView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     LoanConfirmationDetailTile(
-                        title: "Loan Amount", subtitle: "N 7,000.00"),
+                        title: "Amount to Repay", subtitle: "N 7,000.00"),
                     PaddedDivider(),
                     Row(
                       children: [
                         Expanded(
                           child: LoanConfirmationDetailTile(
-                              title: "Interest Amount", subtitle: "N 5,000.00"),
+                              title: "Outstanding", subtitle: "N 5,000.00"),
                         ),
                         Expanded(
                           child: LoanConfirmationDetailTile(
-                              title: "Interest Rate", subtitle: "0%"),
-                        ),
-                      ],
-                    ),
-                    PaddedDivider(),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: LoanConfirmationDetailTile(
-                              title: "Tenor", subtitle: "15 days"),
-                        ),
-                        Expanded(
-                          child: LoanConfirmationDetailTile(
-                              title: "Due Date", subtitle: "12. Jan. 2021"),
+                              title: "Amount Loaned", subtitle: "N 5,000.00"),
                         ),
                       ],
                     ),
                     PaddedDivider(),
                     LoanConfirmationDetailTile(
-                        title: "Total Repayment", subtitle: "N 5,000.00"),
+                      title: "Interest Rate",
+                      subtitle: "5%",
+                    ),
                     PaddedDivider(),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 23),
@@ -148,13 +136,13 @@ class LoansApplicationConfirmationView extends StatelessWidget {
                   borderRadius: BorderRadius.all(Radius.circular(8)),
                   border: Border.all(
                     width: 0.7,
-                    color: Colors.loanCardShadowColor.withOpacity(0.15),
+                    color: Color(0xff4A7BC7).withOpacity(0.15),
                   ),
                   boxShadow: [
                     BoxShadow(
                         offset: Offset(0, 1),
                         blurRadius: 1,
-                        color: Colors.loanCardShadowColor.withOpacity(0.1)),
+                        color: Color(0xff0649AF).withOpacity(0.06)),
                   ],
                 ),
               ),
@@ -172,24 +160,29 @@ class LoansApplicationConfirmationView extends StatelessWidget {
                   ),
                   stream: Stream.value(true),
                   onClick: () {
+                    bool isFullRepayment = true;
+
+                    final primaryText = isFullRepayment
+                        ? "Loan has been repaid!"
+                        : "Loan has been partly repaid";
+                    final secondaryText =
+                        "The loan request has been submitted for approval. Expect a decision very shortly";
+
+                    final successView = SavingsSucessView(
+                      primaryText: primaryText,
+                      secondaryText: secondaryText,
+                      primaryButtonText: 'Continue',
+                      primaryButtonAction: () {
+                        Navigator.popUntil(
+                            context, ModalRoute.withName(Routes.DASHBOARD));
+                      },
+                    );
+
                     Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (ctx) => SavingsSucessView(
-                          primaryText: 'Loan Request\nawaiting approval',
-                          secondaryText:
-                              'The loan request has been submitted for approval. Expect a decision very shortly',
-                          primaryButtonText: 'Continue',
-                          primaryButtonAction: () {
-                            Navigator.of(context)
-                                .pushNamed(Routes.LOAN_REPAYMENT);
-                            // Navigator.popUntil(context,
-                            //     ModalRoute.withName(Routes.DASHBOARD));
-                          },
-                        ),
-                      ),
+                      MaterialPageRoute(builder: (ctx) => successView),
                     );
                   },
-                  text: 'Complete Loan Request'),
+                  text: 'Complete Loan Repayment'),
               SizedBox(height: 100),
             ],
           ),

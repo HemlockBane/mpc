@@ -4,35 +4,11 @@ import 'package:moniepoint_flutter/app/loans/views/loans_loan_details_view.dart'
 import 'package:moniepoint_flutter/app/loans/views/loans_product_details_view.dart';
 import 'package:moniepoint_flutter/app/loans/views/widgets/padded_divider.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/status_pill.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 
 enum LoanType { salaryAdvance, shortTerm }
 enum LoanState { ready, pending, active, overdue }
-
-
-
-
-class _StatusPill extends StatelessWidget {
-  const _StatusPill({Key? key, required this.state}) : super(key: key);
-
-  final LoanState state;
-
-  @override
-  Widget build(BuildContext context) {
-    final String stateDescription = getLoanStateDescription(state);
-    final Color stateColor = getLoanStateColor(state);
-    return Container(
-      child: Text(
-        stateDescription,
-        style: getBoldStyle(fontSize: 10, color: stateColor),
-      ),
-      padding: EdgeInsets.fromLTRB(12, 5, 10, 5),
-      decoration: BoxDecoration(
-        color: stateColor.withOpacity(0.15),
-        borderRadius: BorderRadius.all(Radius.circular(7.5))),
-    );
-  }
-}
 
 
 class LoanProductCard extends StatelessWidget {
@@ -75,11 +51,13 @@ class LoanProductCard extends StatelessWidget {
           ),
         ),
         SizedBox(width: 6),
-        _StatusPill(state: state)
+        StatusPill(
+          statusColor: getLoanStateColor(state),
+          statusDescription: getLoanStateDescription(state),
+        )
       ],
     );
   }
-
 
   Widget _buildReadyLoanBottomView(
       {required String text, required VoidCallback onClick}) {
@@ -307,7 +285,9 @@ class LoanProductCard extends StatelessWidget {
                           ],
                         ),
                       ),
-                      _StatusPill(state: state)
+                      StatusPill(
+                          statusColor: getLoanStateColor(state),
+                          statusDescription: getLoanStateDescription(state))
                     ],
                   ),
                 )
@@ -346,7 +326,6 @@ class LoanProductCard extends StatelessWidget {
         : _salaryLoanCard(context);
   }
 }
-
 
 String getLoanStateDescription(LoanState state) {
   switch (state) {

@@ -12,8 +12,8 @@ enum LoanState { ready, pending, active, overdue }
 
 
 
-class _LoanStatePill extends StatelessWidget {
-  const _LoanStatePill({Key? key, required this.state}) : super(key: key);
+class _StatusPill extends StatelessWidget {
+  const _StatusPill({Key? key, required this.state}) : super(key: key);
 
   final LoanState state;
 
@@ -75,7 +75,7 @@ class LoanProductCard extends StatelessWidget {
           ),
         ),
         SizedBox(width: 6),
-        _LoanStatePill(state: state)
+        _StatusPill(state: state)
       ],
     );
   }
@@ -307,7 +307,7 @@ class LoanProductCard extends StatelessWidget {
                           ],
                         ),
                       ),
-                      _LoanStatePill(state: state)
+                      _StatusPill(state: state)
                     ],
                   ),
                 )

@@ -29,7 +29,7 @@ import 'dashboard_account_card.dart';
 import 'package:flutter/rendering.dart';
 
 import 'dashboard_more_view.dart';
-import 'dashboard_savings_view.dart';
+import '../../savings/dashboard_savings_view.dart';
 import 'dashboard_top_menu.dart';
 
 class DashboardScreen extends StatefulWidget {

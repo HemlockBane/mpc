@@ -9,7 +9,7 @@ part of 'account_creation_service.dart';
 class _AccountCreationService implements AccountCreationService {
   _AccountCreationService(this._dio, {this.baseUrl}) {
     baseUrl ??=
-        'https://moniepoint-customer-root-v2.console.teamapt.com/api/v1/account_creation';
+        'https://core-root.monnify.development.teamapt.com/api/v1/account_creation';
   }
 
   final Dio _dio;
@@ -29,7 +29,7 @@ class _AccountCreationService implements AccountCreationService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.1.0'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -55,7 +55,7 @@ class _AccountCreationService implements AccountCreationService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.1.0'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -84,7 +84,7 @@ class _AccountCreationService implements AccountCreationService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.1.0'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -111,7 +111,7 @@ class _AccountCreationService implements AccountCreationService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.1.0'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')

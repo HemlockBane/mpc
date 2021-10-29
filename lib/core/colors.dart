@@ -65,6 +65,6 @@ class Colors {
   static const Color postNoDebitColor = const Color(0XFF98A9C5);
 
 
-
+  static const Color savingsPrimary = const Color(0XFF1EB12D);
 
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart' hide Colors;
-import 'package:jiffy/jiffy.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/forms/account_update_form_view.dart';
 import 'package:moniepoint_flutter/app/airtime/views/selection_combo.dart';
 import 'package:moniepoint_flutter/app/savings/flex/viewmodels/savings_flex_setup_viewmodel.dart';
@@ -140,7 +139,8 @@ class _FirstFlexSetupFormState extends State<FirstFlexSetupForm> with AutomaticK
             titleStyle: TextStyle(
               fontSize: 15,
               color: Colors.textColorBlack,
-              fontWeight: FontWeight.bold),
+              fontWeight: FontWeight.bold
+            ),
             checkBoxSize: Size(40, 40),
             listStyle: ListStyle.alternate,
             checkBoxPadding: EdgeInsets.all(6.0),
@@ -223,7 +223,7 @@ class _SecondFlexSetupFormState extends State<SecondFlexSetupForm> with Automati
 
   String getFormattedDateString(int date){
     final dateInMillis = DateTime.fromMillisecondsSinceEpoch(date);
-    final formattedDate = Jiffy(dateInMillis).format("do [of] MMM");
+    final formattedDate = "";//Jiffy(dateInMillis).format("do [of] MMM");
     return formattedDate;
   }
 
@@ -363,10 +363,7 @@ class _SecondFlexSetupFormState extends State<SecondFlexSetupForm> with Automati
                 ),
                 SizedBox(height: 12),
                 SelectionCombo<String>(
-                  savingsTypes.toList(), (item, index) {
-
-
-                },
+                  savingsTypes.toList(), (item, index) {},
                   checkBoxPosition: CheckBoxPosition.leading,
                   shouldUseAlternateDecoration: true,
                   primaryColor: Colors.solidGreen,
@@ -439,7 +436,8 @@ class _SecondFlexSetupFormState extends State<SecondFlexSetupForm> with Automati
                       }
                     );
                   },
-                  text: 'Complete Setup'),
+                  text: 'Complete Setup'
+                ),
               ),
             ],
           ),

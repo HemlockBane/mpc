@@ -3,9 +3,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/savings/flex/views/savings_enable_flex_view.dart';
 import 'package:moniepoint_flutter/app/savings/flex/views/savings_get_started_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
-import 'package:percent_indicator/linear_percent_indicator.dart';
 
-import 'dashboard_top_menu.dart';
+import '../dashboard/views/dashboard_top_menu.dart';
 
 
 const greenColor = Color(0xff0EB11E);
@@ -15,8 +14,6 @@ class SavingsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final height =  MediaQuery.of(context).size.height;// - bottomAppBarHeight;
-    final width = MediaQuery.of(context).size.width;
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.solidGreen,
@@ -31,115 +28,13 @@ class SavingsView extends StatelessWidget {
           children: [
             SizedBox(height: dashboardTopMenuHeight - 40),
             SavingsAccountCard(),
-            SizedBox(height: 45),
-            Text("Active Plans",
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 19.5, color: Colors.textColorBlack),
-            ),
-            SizedBox(height: 22,),
-            Container(
-              padding: EdgeInsets.only(top: 14, bottom: 18),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(16)),
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    offset: Offset(0, 1),
-                    blurRadius: 2,
-                    color: Color(0xff305734).withOpacity(0.14)
-                  )
-                ]
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: _buildPlanTop(
-                      planTitle: "General Savings",
-                      planColor: Colors.solidGreen,
-                      svgPath: "res/drawables/ic_savings_general.svg",
-                    ),
-                  ),
-                  SizedBox(height: 21),
-                  Divider(height: 2, thickness: 1, color: Color(0xff2E963A).withOpacity(0.12),),
-                  SizedBox(height: 16),
-                  LinearPercentIndicator(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    percent: 0.3,
-                    lineHeight: 7,
-                    linearStrokeCap: LinearStrokeCap.roundAll,
-                    progressColor: Colors.solidGreen,
-                    backgroundColor: Color(0xffC4C4C4).withOpacity(0.45),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 8),
-            Container(
-              padding: EdgeInsets.only(left: 16, right: 16, top: 14, bottom: 14),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(16)),
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    offset: Offset(0, 1),
-                    blurRadius: 2,
-                    color: Color(0xff305734).withOpacity(0.14)
-                  )
-                ]
-              ),
-              child: _buildPlanTop(
-                planTitle: "Emergency Savings",
-                planColor: Colors.red,
-                svgPath: "res/drawables/ic_savings_emergency.svg",
-              ),
-            )
-
+            SizedBox(height: 29),
           ],
         ),
       ),
     );
   }
 
-  Row _buildPlanTop({required String planTitle, required Color planColor, required String svgPath}) {
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: EdgeInsets.only(left: 8, right: 10, top: 4, bottom: 4),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(4)),
-                  color: planColor.withOpacity(0.1)
-                ),
-                child: Text(planTitle,
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 11.5, color: planColor),
-                ),
-              ),
-              SizedBox(height: 10),
-              Row(
-                children: [
-                  SvgPicture.asset(
-                    "res/drawables/ic_naira.svg",
-                    width: 17,
-                    height: 14,
-                    color: Colors.textColorBlack,
-                  ),
-                  SizedBox(width: 4,),
-                  Text("7,500,000.00",
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18.5, color: Colors.textColorBlack),
-                  ),
-                ],
-              )
-            ],
-          ),
-        ),
-        SvgPicture.asset(svgPath)
-      ],
-    );
-  }
 }
 
 class SavingsAccountCard extends StatelessWidget {

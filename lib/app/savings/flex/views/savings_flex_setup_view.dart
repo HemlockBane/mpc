@@ -104,7 +104,8 @@ class _SavingsFlexSetupViewState extends State<SavingsFlexSetupView> with Compos
                     fontWeight: FontWeight.w700,
                     color: Colors.textColorBlack)),
                 backgroundColor: Colors.backgroundWhite,
-                elevation: 0),
+                elevation: 0
+              ),
               body: Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
@@ -118,9 +119,7 @@ class _SavingsFlexSetupViewState extends State<SavingsFlexSetupView> with Compos
                       style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
                     ),
                     SizedBox(height: 14),
-                    Expanded(
-                      child: setupPageView(),
-                    )
+                    Expanded(child: setupPageView(),)
                   ],
                 ),
               ),
@@ -131,7 +130,6 @@ class _SavingsFlexSetupViewState extends State<SavingsFlexSetupView> with Compos
                 future: Future.delayed(Duration(milliseconds: 60), () => "done"),
                 builder: (context, snapshot) {
                   if(snapshot.connectionState != ConnectionState.done) return SizedBox();
-
                   // Material helps take away the yellow lines under the text
                   return Material(
                     child: PieProgressBar(

@@ -60,9 +60,10 @@ class Colors {
   static const Color tabTextColor = const Color(0XFF30424C);
   static const Color tabBackground = const Color(0XFF8C8D8F);
 
-
-
   static const Color postNoDebitColor = const Color(0XFF98A9C5);
+
+  static const Color peach = const Color(0xffFCE7D3);
+  static const Color loanCardShadowColor = const Color(0xff5b440c);
 
 
 

@@ -37,6 +37,8 @@ import 'package:moniepoint_flutter/app/devicemanagement/viewmodels/user_device_v
 import 'package:moniepoint_flutter/app/devicemanagement/views/user_device_list_view.dart';
 import 'package:moniepoint_flutter/app/liveliness/liveliness_verification.dart';
 import 'package:moniepoint_flutter/app/liveliness/viewmodels/liveliness_verification_viewmodel.dart';
+import 'package:moniepoint_flutter/app/loans/viewmodels/loan_repayment_viewmodel.dart';
+import 'package:moniepoint_flutter/app/loans/views/loans_loan_repayment_view.dart';
 import 'package:moniepoint_flutter/app/login/views/login_view.dart';
 import 'package:moniepoint_flutter/app/login/views/recovery/recovery_controller_screen.dart';
 import 'package:moniepoint_flutter/app/login/views/support_view.dart';
@@ -109,6 +111,17 @@ class Routes {
   static const SAVINGS_FLEX_TOP_UP = "SAVINGS_FLEX_TOP_UP";
   static const SAVINGS_FLEX_SETUP = "SAVINGS_FLEX_SETUP";
 
+  static const LOAN_OFFERS = "LOAN_OFFERS";
+  static const LOAN_PRODUCT_DETAILS = "LOAN_PRODUCT_DETAILS";
+  static const LOAN_DETAILS = "LOAN_DETAILS";
+  static const LOAN_APPLY_CONFIRMATION = "LOAN_APPLY_CONFIRMATION";
+  static const LOAN_REPAYMENT = "LOAN_REPAYMENT";
+  static const LOAN_REPAYMENT_CONFIRMATION = "LOAN_REPAYMENT_CONFIRMATION";
+
+
+
+
+
 
 
 
@@ -177,6 +190,12 @@ class Routes {
       Routes.SAVINGS_FLEX_SETTINGS: (BuildContext context) => SavingsFlexSettingsView(),
       Routes.SAVINGS_FLEX_TOP_UP: (BuildContext context) => SavingsFlexTopupView(),
       Routes.SAVINGS_FLEX_SETUP: (BuildContext context) => SavingsFlexSetupView(),
+
+
+      Routes.LOAN_REPAYMENT: (BuildContext context) => ChangeNotifierProvider(
+        create: (_) => LoanRepaymentViewModel(),
+        child: LoanRepaymentView(),
+      ),
 
 
 

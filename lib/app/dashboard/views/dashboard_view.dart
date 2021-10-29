@@ -6,7 +6,8 @@ import 'package:moniepoint_flutter/app/dashboard/views/custom_refresh_indicator/
 import 'package:flutter/material.dart' hide ScrollView, Colors;
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_bottom_menu.dart';
-import 'package:moniepoint_flutter/app/dashboard/views/dashboard_loans_view.dart';
+import 'package:moniepoint_flutter/app/loans/viewmodels/loans_home_viewmodel.dart';
+import 'package:moniepoint_flutter/app/loans/views/loans_home_view.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_menu.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_recently_paid_view.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
@@ -240,7 +241,10 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
                     return _contentView(width, constraints.maxHeight);
                   }),
                   SavingsView(),
-                  LoansView(),
+                  ChangeNotifierProvider(
+                    create: (_) => LoansHomeViewModel(),
+                    child: LoansHomeView(),
+                  ),
                   MoreView()
                 ]
             )

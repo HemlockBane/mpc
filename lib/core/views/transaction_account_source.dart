@@ -154,7 +154,7 @@ class TransactionAccountSource extends StatelessWidget {
         child: Text(
           'Change',
           style: TextStyle(
-            color: Colors.solidGreen,
+            color: primaryColor ?? Colors.solidGreen,
             fontSize: 14,
             fontWeight: FontWeight.bold),
         ),

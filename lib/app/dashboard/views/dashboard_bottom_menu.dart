@@ -51,7 +51,7 @@ class _DashboardBottomMenu extends State<DashboardBottomMenu> {
             color: Color(0XFFF9FBFD),
             boxShadow: [
               BoxShadow(
-                  color: Color(0XFF0E4FB1).withOpacity(0.12),
+                  color: Color(0XFF4A596F).withOpacity(0.12),
                   offset: Offset(0, -9),
                   blurRadius: 21,
                   spreadRadius: 0

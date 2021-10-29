@@ -78,6 +78,7 @@ class SavingsSucessView extends StatelessWidget {
                 stream: Stream.value(true),
                 onClick: primaryButtonAction,
                 text: primaryButtonText),
+            SizedBox(height: 50),
             if (secondaryButtonText != null && secondaryButtonAction != null)
               SizedBox(height: 10),
             if (secondaryButtonText != null && secondaryButtonAction != null)

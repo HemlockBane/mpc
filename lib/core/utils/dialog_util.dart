@@ -136,7 +136,7 @@ Future<dynamic> showComingSoon(BuildContext context, {String title = "Coming Soo
 }
 
 
-Future<dynamic> showConfirmation(BuildContext context, {String title = "Confirmation", required String primaryButtonText, required Widget content, VoidCallback? onPrimaryClick, Color? primaryButtonColor = Colors.primaryColor}) {
+Future<dynamic> showConfirmation(BuildContext context, {String title = "Confirmation", required String primaryButtonText, required Widget content, VoidCallback? onPrimaryClick, Color? primaryButtonColor = Colors.primaryColor, EdgeInsets? contentPadding, double? height}) {
 
   final dialogRadius = Radius.circular(8);
 
@@ -146,7 +146,7 @@ Future<dynamic> showConfirmation(BuildContext context, {String title = "Confirma
     backgroundColor: Colors.transparent,
     builder: (context) {
       return BottomSheets.makeAppBottomSheet2(
-        height: 400,
+        height: height ?? 400,
         dialogIcon: SvgPicture.asset(
           'res/drawables/ic_info.svg',
           color: Colors.solidYellow,
@@ -169,7 +169,7 @@ Future<dynamic> showConfirmation(BuildContext context, {String title = "Confirma
                   SizedBox(height: 16),
                   Container(
                     width: double.infinity,
-                    padding: EdgeInsets.symmetric(vertical: 24, horizontal: 24),
+                    padding: contentPadding ?? EdgeInsets.symmetric(vertical: 24, horizontal: 24),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.only(topRight: dialogRadius, topLeft: dialogRadius),
                       color: Color(0xffF5F6F7)

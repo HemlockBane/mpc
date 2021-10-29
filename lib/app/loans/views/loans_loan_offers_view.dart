@@ -475,7 +475,9 @@ class _ApplyForLoanViewState extends State<ApplyForLoanView>
                 children: [
                   PaymentAmountView(
                     (_amount * 100).toInt(),
-                    (value) {},
+                    (value) {
+
+                    },
                     currencyColor: Color(0xffC1C2C5).withOpacity(0.5),
                     textColor: Colors.textColorBlack,
                   ),

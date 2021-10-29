@@ -180,10 +180,7 @@ class LoansApplicationConfirmationView extends StatelessWidget {
                               'The loan request has been submitted for approval. Expect a decision very shortly',
                           primaryButtonText: 'Continue',
                           primaryButtonAction: () {
-                            Navigator.of(context)
-                                .pushNamed(Routes.LOAN_REPAYMENT);
-                            // Navigator.popUntil(context,
-                            //     ModalRoute.withName(Routes.DASHBOARD));
+                            Navigator.popUntil(context, ModalRoute.withName(Routes.DASHBOARD));
                           },
                         ),
                       ),

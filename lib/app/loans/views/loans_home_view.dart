@@ -1,45 +1,94 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' hide Colors;
+import 'package:flutter/scheduler.dart';
+import 'package:moniepoint_flutter/app/loans/viewmodels/loans_home_viewmodel.dart';
 import 'package:moniepoint_flutter/app/loans/views/widgets/loan_product_card.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
+import 'package:provider/provider.dart';
 
-import 'dashboard_top_menu.dart';
+import '../../dashboard/views/dashboard_top_menu.dart';
 
-class LoansView extends StatelessWidget {
-  const LoansView({Key? key}) : super(key: key);
+class LoansHomeView extends StatefulWidget {
+  const LoansHomeView({Key? key}) : super(key: key);
+
+  @override
+  State<LoansHomeView> createState() => _LoansHomeViewState();
+}
+
+class _LoansHomeViewState extends State<LoansHomeView> {
+  late final LoansHomeViewModel _loansHomeViewModel;
+
+  TextStyle getBoldStyle({
+    double fontSize = 24.5,
+    Color color = Colors.textColorBlack,
+    FontWeight fontWeight = FontWeight.w700,
+  }) =>
+    TextStyle(fontWeight: fontWeight, color: color, fontSize: fontSize);
+
+
+  Widget _successView({required LoanProductStatus loanProductStatus}){
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: dashboardTopMenuHeight + 43),
+        Text("Loan Product", style: getBoldStyle()),
+        SizedBox(height: 30),
+        Expanded(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            shrinkWrap: true,
+            children: [
+              if(loanProductStatus.shortTermLoanProductStatus != null)
+                LoanProductCard(loanType: LoanType.shortTerm),
+              if(loanProductStatus.shortTermLoanProductStatus != null)
+                SizedBox(height: 23),
+            ],
+          ),
+        )
+      ],
+    );
+  }
+
+  @override
+  void initState() {
+   _loansHomeViewModel =  Provider.of<LoansHomeViewModel>(context, listen: false);
+   SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
+     _loansHomeViewModel.getLoanProductStatus();
+   });
+    super.initState();
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    TextStyle getBoldStyle({
-      double fontSize = 24.5,
-      Color color = Colors.textColorBlack,
-      FontWeight fontWeight = FontWeight.w700,
-    }) =>
-        TextStyle(fontWeight: fontWeight, color: color, fontSize: fontSize);
 
-    return Scaffold(
-      backgroundColor: Color(0xffF8F8F8),
-      body: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: dashboardTopMenuHeight + 43),
-            Text("Loan Product", style: getBoldStyle()),
-            SizedBox(height: 30),
-            Expanded(
-              child: ListView(
-                padding: EdgeInsets.zero,
-                shrinkWrap: true,
-                children: [
-                  LoanProductCard(loanType: LoanType.shortTerm),
-                  SizedBox(height: 23),
-                  LoanProductCard(loanType: LoanType.salary),
-                  SizedBox(height: 30),
-                ],
-              ),
-            )
-          ],
+    return SessionedWidget(
+      context: context,
+      child: Scaffold(
+        backgroundColor: Color(0xffF8F8F8),
+        body: Container(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: StreamBuilder(
+            stream: _loansHomeViewModel.loanProductStatusStream,
+            builder: (ctx, AsyncSnapshot<Resource<LoanProductStatus>> snapshot){
+
+
+              if(!snapshot.hasData || snapshot.data is Loading){
+                return Center(child: CircularProgressIndicator());
+              }
+
+              if(snapshot.data is Error){
+                // Error view
+              }
+
+             final loanProductStatus = snapshot.data?.data;
+             return  _successView(loanProductStatus: loanProductStatus!);
+
+
+            },
+          ),
         ),
       ),
     );

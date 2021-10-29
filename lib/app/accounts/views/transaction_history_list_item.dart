@@ -13,8 +13,9 @@ class TransactionHistoryListItem extends Container {
   final AccountTransaction _transaction;
   final int position;
   final OnItemClickListener<AccountTransaction, int>? _onItemClickListener;
+  final Color? pillColor;
 
-  TransactionHistoryListItem(this._transaction, this.position, this._onItemClickListener);
+  TransactionHistoryListItem(this._transaction, this.position, this._onItemClickListener, {this.pillColor});
 
 
   static Widget initialView(TransactionType type) {
@@ -38,6 +39,20 @@ class TransactionHistoryListItem extends Container {
 
   String getArithmeticSign(AccountTransaction trans){
     return trans.type == TransactionType.CREDIT ? "+" : "-";
+  }
+
+  Widget getChannelPill(){
+    final color = pillColor ?? Colors.primaryColor;
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(4)
+      ),
+      child: Text(
+        _transaction.transactionChannel ?? "",
+        style: TextStyle(fontSize: 9.3, color: color, fontWeight: FontWeight.bold),),
+    );
   }
 
   @override
@@ -85,16 +100,7 @@ class TransactionHistoryListItem extends Container {
                     Visibility(
                         visible: _transaction.transactionChannel != null,
                       // visible: true,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: Colors.primaryColor.withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(4)
-                          ),
-                          child: Text(
-                            _transaction.transactionChannel ?? "",
-                            style: TextStyle(fontSize: 9.3, color: Colors.primaryColor, fontWeight: FontWeight.bold),),
-                        )
+                        child: getChannelPill()
                     ),
                     SizedBox(height: 10),
                     Text(TimeAgo.formatDuration(_transaction.getInitiatedDate()),

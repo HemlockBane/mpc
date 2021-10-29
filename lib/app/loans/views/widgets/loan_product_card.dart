@@ -6,62 +6,19 @@ import 'package:moniepoint_flutter/app/loans/views/widgets/padded_divider.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 
-enum LoanType { salary, shortTerm }
+enum LoanType { salaryAdvance, shortTerm }
 enum LoanState { ready, pending, active, overdue }
 
-class LoanProductCard extends StatelessWidget {
-  const LoanProductCard({Key? key, this.loanType = LoanType.shortTerm})
-      : super(key: key);
 
-  final LoanType loanType;
 
-  Widget _getDivider() => PaddedDivider(
-        top: 9,
-        bottom: 10,
-        dividerColor: Color(0xff966C2E).withOpacity(0.12),
-      );
 
-  TextStyle getBoldStyle({
-    double fontSize = 24.5,
-    Color color = Colors.textColorBlack,
-    FontWeight fontWeight = FontWeight.w700,
-  }) =>
-      TextStyle(fontWeight: fontWeight, color: color, fontSize: fontSize);
+class _LoanStatePill extends StatelessWidget {
+  const _LoanStatePill({Key? key, required this.state}) : super(key: key);
 
-  TextStyle getNormalStyle({
-    double fontSize = 11.5,
-    Color color = const Color(0xffA9A5AF),
-    FontWeight fontWeight = FontWeight.w400,
-  }) =>
-      TextStyle(fontWeight: fontWeight, color: color, fontSize: fontSize);
+  final LoanState state;
 
-  String getLoanStateDescription(LoanState state) {
-    switch (state) {
-      case LoanState.ready:
-        return "Ready";
-      case LoanState.pending:
-        return "Pending";
-      case LoanState.active:
-        return "Active";
-      case LoanState.overdue:
-        return "Overdue";
-    }
-  }
-
-  Color getLoanStateColor(LoanState state) {
-    switch (state) {
-      case LoanState.ready:
-        return Colors.deepGrey;
-      case LoanState.pending:
-        return Colors.solidOrange;
-      case LoanState.active:
-        return Colors.solidGreen;
-      case LoanState.overdue:
-        return Colors.red;
-    }
-  }
-
-  Widget _buildLoanStatePill({required LoanState state}) {
+  @override
+  Widget build(BuildContext context) {
     final String stateDescription = getLoanStateDescription(state);
     final Color stateColor = getLoanStateColor(state);
     return Container(
@@ -71,10 +28,18 @@ class LoanProductCard extends StatelessWidget {
       ),
       padding: EdgeInsets.fromLTRB(12, 5, 10, 5),
       decoration: BoxDecoration(
-          color: stateColor.withOpacity(0.15),
-          borderRadius: BorderRadius.all(Radius.circular(7.5))),
+        color: stateColor.withOpacity(0.15),
+        borderRadius: BorderRadius.all(Radius.circular(7.5))),
     );
   }
+}
+
+
+class LoanProductCard extends StatelessWidget {
+  const LoanProductCard({Key? key, this.loanType = LoanType.shortTerm})
+      : super(key: key);
+
+  final LoanType loanType;
 
   Widget _buildShortTermLoanTopView({required LoanState state}) {
     return Row(
@@ -110,10 +75,11 @@ class LoanProductCard extends StatelessWidget {
           ),
         ),
         SizedBox(width: 6),
-        _buildLoanStatePill(state: state)
+        _LoanStatePill(state: state)
       ],
     );
   }
+
 
   Widget _buildReadyLoanBottomView(
       {required String text, required VoidCallback onClick}) {
@@ -299,9 +265,8 @@ class LoanProductCard extends StatelessWidget {
 
     final onClickApply = () {
       Navigator.of(context)
-        .push(MaterialPageRoute(builder: (ctx) => LoanProductDetailsView()));
+          .push(MaterialPageRoute(builder: (ctx) => LoanProductDetailsView()));
     };
-
 
     return Container(
       padding: EdgeInsets.only(bottom: 15),
@@ -342,7 +307,7 @@ class LoanProductCard extends StatelessWidget {
                           ],
                         ),
                       ),
-                      _buildLoanStatePill(state: state)
+                      _LoanStatePill(state: state)
                     ],
                   ),
                 )
@@ -352,9 +317,11 @@ class LoanProductCard extends StatelessWidget {
           _getDivider(),
           Padding(
               padding: EdgeInsets.only(left: 18, right: 15),
-              child: _buildReadyLoanBottomView(text: "Apply", onClick: () {
-                onClickApply();
-              }))
+              child: _buildReadyLoanBottomView(
+                  text: "Apply",
+                  onClick: () {
+                    onClickApply();
+                  }))
         ],
       ),
       decoration: BoxDecoration(
@@ -379,3 +346,50 @@ class LoanProductCard extends StatelessWidget {
         : _salaryLoanCard(context);
   }
 }
+
+
+String getLoanStateDescription(LoanState state) {
+  switch (state) {
+    case LoanState.ready:
+      return "Ready";
+    case LoanState.pending:
+      return "Pending";
+    case LoanState.active:
+      return "Active";
+    case LoanState.overdue:
+      return "Overdue";
+  }
+}
+
+Color getLoanStateColor(LoanState state) {
+  switch (state) {
+    case LoanState.ready:
+      return Colors.deepGrey;
+    case LoanState.pending:
+      return Colors.solidOrange;
+    case LoanState.active:
+      return Colors.solidGreen;
+    case LoanState.overdue:
+      return Colors.red;
+  }
+}
+
+Widget _getDivider() => PaddedDivider(
+      top: 9,
+      bottom: 10,
+      dividerColor: Color(0xff966C2E).withOpacity(0.12),
+    );
+
+TextStyle getBoldStyle({
+  double fontSize = 24.5,
+  Color color = Colors.textColorBlack,
+  FontWeight fontWeight = FontWeight.w700,
+}) =>
+    TextStyle(fontWeight: fontWeight, color: color, fontSize: fontSize);
+
+TextStyle getNormalStyle({
+  double fontSize = 11.5,
+  Color color = const Color(0xffA9A5AF),
+  FontWeight fontWeight = FontWeight.w400,
+}) =>
+    TextStyle(fontWeight: fontWeight, color: color, fontSize: fontSize);

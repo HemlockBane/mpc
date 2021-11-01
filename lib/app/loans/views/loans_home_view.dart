@@ -41,9 +41,7 @@ class _LoansHomeViewState extends State<LoansHomeView> {
             shrinkWrap: true,
             children: [
               if(loanProductStatus.shortTermLoanProductStatus != null)
-                LoanProductCard(loanType: LoanType.shortTerm),
-              if(loanProductStatus.shortTermLoanProductStatus != null)
-                SizedBox(height: 23),
+                ShortTermLoanCard(),
             ],
           ),
         )

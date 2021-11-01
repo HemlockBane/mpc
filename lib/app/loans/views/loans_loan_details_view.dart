@@ -62,9 +62,10 @@ class _LoanDetailsViewState extends State<LoanDetailsView> {
         ],
       );
 
-  Widget _loanDetailsContent() {
+  Widget _loanDetailsContent(ScrollController draggableScrollController) {
     return Container(
       child: ListView(
+        controller: draggableScrollController,
         padding: EdgeInsets.zero,
         shrinkWrap: true,
         children: [
@@ -204,9 +205,10 @@ class _LoanDetailsViewState extends State<LoanDetailsView> {
     );
   }
 
-  Widget _transactionHistoryContent() {
+  Widget _transactionHistoryContent(ScrollController draggableScrollController) {
     return Container(
       child: ListView.separated(
+        controller: draggableScrollController,
         separatorBuilder: (BuildContext context, int index) => Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15),
           child: const Divider(height: 0.9, color: Color(0xffE0E2E4),),
@@ -232,63 +234,78 @@ class _LoanDetailsViewState extends State<LoanDetailsView> {
   }
 
   Widget _content(context) {
-    return DefaultTabController(
-      length: 2,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(22),
-          ),
-          border: Border.all(
-            width: 1.0,
-            color: Color(0xff063A4F0D).withOpacity(0.05),
-          ),
-        ),
-        child: Container(
-          child: Column(
-            children: [
-              SizedBox(height: 8),
-              Container(
-                child: TabBar(
-                  indicatorColor: Colors.solidOrange,
-                  labelColor: Colors.solidOrange,
-                  unselectedLabelColor: Colors.textColorBlack,
-                  labelStyle: getBoldStyle(
-                      fontSize: 13.5,
-                      color: Colors.solidOrange,
-                      fontWeight: FontWeight.w600),
-                  unselectedLabelStyle: getBoldStyle(
-                      fontSize: 13.5,
-                      color: Colors.textColorBlack,
-                      fontWeight: FontWeight.w600),
-                  indicatorWeight: 5,
-                  tabs: [
-                    Tab(child: Text("Loan Details")),
-                    Tab(child: Text("Transaction History"))
-                  ],
-                ),
-                decoration: BoxDecoration(color: Colors.white, boxShadow: [
-                  BoxShadow(
-                      offset: Offset(0, 7),
-                      blurRadius: 15,
-                      spreadRadius: -8,
-                      color: Color(0xff503D19).withOpacity(0.24))
-                ]),
+    final screenSize = MediaQuery.of(context).size;
+    // final minExtent = 1 - (containerHeight / (screenSize.height - maxDraggableTop));
+    final containerHeight = 1;
+
+    final maxExtent = 0.65;
+    final minExtent = 0.48;
+
+
+
+    return DraggableScrollableSheet(
+      maxChildSize: maxExtent,
+      minChildSize: minExtent,
+      initialChildSize: minExtent,
+      builder: (ctx, ScrollController draggableScrollController){
+        return DefaultTabController(
+          length: 2,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(22),
               ),
-              Expanded(
-                child: TabBarView(
-                  children: [
-                    _loanDetailsContent(),
-                    _transactionHistoryContent()
-                  ],
-                ),
-              )
-            ],
+              border: Border.all(
+                width: 1.0,
+                color: Color(0xff063A4F0D).withOpacity(0.05),
+              ),
+            ),
+            child: Container(
+              child: Column(
+                children: [
+                  SizedBox(height: 8),
+                  Container(
+                    child: TabBar(
+                      indicatorColor: Colors.solidOrange,
+                      labelColor: Colors.solidOrange,
+                      unselectedLabelColor: Colors.textColorBlack,
+                      labelStyle: getBoldStyle(
+                        fontSize: 13.5,
+                        color: Colors.solidOrange,
+                        fontWeight: FontWeight.w600),
+                      unselectedLabelStyle: getBoldStyle(
+                        fontSize: 13.5,
+                        color: Colors.textColorBlack,
+                        fontWeight: FontWeight.w600),
+                      indicatorWeight: 5,
+                      tabs: [
+                        Tab(child: Text("Loan Details")),
+                        Tab(child: Text("Transaction History"))
+                      ],
+                    ),
+                    decoration: BoxDecoration(color: Colors.white, boxShadow: [
+                      BoxShadow(
+                        offset: Offset(0, 7),
+                        blurRadius: 15,
+                        spreadRadius: -8,
+                        color: Color(0xff503D19).withOpacity(0.24))
+                    ]),
+                  ),
+                  Expanded(
+                    child: TabBarView(
+                      children: [
+                        _loanDetailsContent(draggableScrollController),
+                        _transactionHistoryContent(draggableScrollController)
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
-    );
+        );
+      });
   }
 
   @override
@@ -417,9 +434,12 @@ class _LoanDetailsViewState extends State<LoanDetailsView> {
                       ],
                     ),
                   ),
-                  Expanded(child: _content(context))
                 ],
               ),
+            ),
+            Positioned(
+              bottom: 0, top: 0, right: 0, left: 0,
+              child: _content(context)
             ),
             Positioned(
               bottom: 0,

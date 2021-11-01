@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:moniepoint_flutter/app/loans/views/loans_loan_offers_view.dart';
+import 'package:moniepoint_flutter/app/loans/views/loans_loan_application_view.dart';
 import 'package:moniepoint_flutter/app/loans/views/widgets/info_banner_content.dart';
 import 'package:moniepoint_flutter/app/loans/views/widgets/interest_rate_banner.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
@@ -203,7 +203,7 @@ class LoanProductDetailsView extends StatelessWidget {
                   stream: Stream.value(true),
                   onClick: () {
                     Navigator.of(context).push(
-                        MaterialPageRoute(builder: (ctx) => LoanOffersView()));
+                        MaterialPageRoute(builder: (ctx) => LoanApplicationView()));
                   },
                   text: 'View Loan Offers',
                 ),

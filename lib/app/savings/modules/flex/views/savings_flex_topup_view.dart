@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:moniepoint_flutter/app/savings/flex/viewmodels/savings_flex_topup_viewmodel.dart';
-import 'package:moniepoint_flutter/app/savings/flex/views/savings_enable_flex_view.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/savings_flex_topup_viewmodel.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_enable_flex_view.dart';
 import 'package:moniepoint_flutter/app/savings/savings_success_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/list_item.dart';
@@ -12,7 +12,7 @@ import 'package:moniepoint_flutter/core/views/amount_pill.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 import 'package:collection/collection.dart';
-import 'package:moniepoint_flutter/core/views/transaction_account_source.dart';
+import 'package:moniepoint_flutter/core/views/user_account_selection_view.dart';
 import 'package:provider/provider.dart';
 
 class SavingsFlexTopupView extends StatefulWidget {
@@ -164,9 +164,11 @@ class _SavingsFlexTopupViewState extends State<SavingsFlexTopupView> {
                 style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
               ),
               SizedBox(height: 12),
-              TransactionAccountSource(_viewModel,
+              UserAccountSelectionView(_viewModel,
                 primaryColor: Colors.solidGreen,
                 checkBoxSize: Size(40, 40),
+                //TODO modify
+                onAccountSelected: (account) => _viewModel.setSourceAccount(account),
                 titleStyle: TextStyle(
                   fontSize: 15,
                   color: Colors.textColorBlack,

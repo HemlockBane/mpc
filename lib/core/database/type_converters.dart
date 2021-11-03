@@ -339,9 +339,9 @@ int stringDateTime(String a) {
   }
 }
 
-String? millisToString(int date) {
+String? millisToString(int? date) {
   try {
-    final stringDate = DateTime.fromMillisecondsSinceEpoch(date);
+    final stringDate = DateTime.fromMillisecondsSinceEpoch(date ?? 0);
     if (stringDate.isUtc && ServiceConfig.ENV == "dev") {
       return stringDate.add(Duration(hours: 1)).toString();
     }

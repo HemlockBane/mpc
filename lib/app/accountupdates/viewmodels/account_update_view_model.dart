@@ -135,7 +135,6 @@ class AccountUpdateViewModel extends BaseViewModel {
 
   Stream<Resource<Tier>> checkCustomerEligibility({AccountUpdate? accountUpdate, bool updateStatus = false}) async* {
     final mAccountUpdate = accountUpdate ?? _buildAccountUpdateRequest();
-    print(jsonEncode(mAccountUpdate));
     final updateStatusStream = accountServiceDelegate!.updateAllAccountStatus();
     final customerEligibilityStream = _customerServiceDelegate.checkCustomerEligibility(
         customerId, mAccountUpdate

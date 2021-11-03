@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:flutter/material.dart' hide ScrollView, Colors;
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
@@ -10,6 +11,9 @@ import 'package:moniepoint_flutter/app/loans/views/loans_home_view.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_menu.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_recently_paid_view.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
+import 'package:moniepoint_flutter/app/notifications/model/handlers/debit_transaction_notification_handler.dart';
+import 'package:moniepoint_flutter/app/notifications/view/notification_wrapper.dart';
+import 'package:moniepoint_flutter/app/savings/viewmodels/savings_dashboard_viewmodel.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
@@ -19,6 +23,7 @@ import 'package:moniepoint_flutter/core/utils/biometric_helper.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/viewmodels/finger_print_alert_view_model.dart';
 import 'package:moniepoint_flutter/core/views/finger_print_alert_dialog.dart';
+import 'package:moniepoint_flutter/core/views/moniepoint_scaffold.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:provider/provider.dart';
 import 'dashboard_account_card.dart';
@@ -26,7 +31,7 @@ import 'dashboard_account_card.dart';
 import 'package:flutter/rendering.dart';
 
 import 'dashboard_more_view.dart';
-import 'dashboard_savings_view.dart';
+import '../../savings/views/savings_dasboard_view.dart';
 import 'dashboard_top_menu.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -113,6 +118,15 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
       subscribeUiToAccountStatus();
     });
     Future.delayed(Duration(milliseconds: 1400), () => _setupFingerprint());
+
+    // Future.delayed(Duration(milliseconds: 5000), () {
+    //   MoniepointAppMessenger.of(context).showInAppNotification(
+    //       NotificationBanner(
+    //           content: Text("Love"),
+    //           onClick: () => "",
+    //       )
+    //   );
+    // });
   }
 
 
@@ -211,7 +225,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
 
     return SessionedWidget(
       context: context,
-      child: Scaffold(
+      child: MoniepointScaffold(
           extendBodyBehindAppBar: true,
           appBar: DashboardTopMenu(
             scrollController: _dashboardScrollController,
@@ -227,11 +241,8 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
                   LayoutBuilder(builder: (ctx, constraints) {
                     return _contentView(width, constraints.maxHeight);
                   }),
-                  SavingsView(),
-                  ChangeNotifierProvider(
-                    create: (_) => LoansHomeViewModel(),
-                    child: LoansHomeView(),
-                  ),
+                  SavingsDashboardView(),
+                  LoansHomeView(),
                   MoreView()
                 ]
             )

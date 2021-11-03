@@ -50,11 +50,11 @@ import 'package:moniepoint_flutter/app/managebeneficiaries/bills/views/bill_sele
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/managed_beneficiary_view.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/views/transfer_select_beneficiary_view.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/signup_account_view.dart';
-import 'package:moniepoint_flutter/app/savings/flex/views/savings_flex_home.dart';
-import 'package:moniepoint_flutter/app/savings/flex/views/savings_flex_settings.dart';
-import 'package:moniepoint_flutter/app/savings/flex/views/savings_flex_setup_view.dart';
-import 'package:moniepoint_flutter/app/savings/flex/views/savings_flex_topup_view.dart';
-import 'package:moniepoint_flutter/app/savings/flex/views/savings_flex_withdrawal.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_flex_home.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_flex_settings.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_flex_setup_view.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_flex_topup_view.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_flex_withdrawal.dart';
 import 'package:moniepoint_flutter/app/settings/settings_view.dart';
 import 'package:moniepoint_flutter/app/transfers/viewmodels/transfer_detail_view_model.dart';
 import 'package:moniepoint_flutter/app/transfers/views/transfer_detailed_view.dart';

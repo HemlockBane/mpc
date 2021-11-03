@@ -64,5 +64,14 @@ class Colors {
 
   static const Color peach = const Color(0xffFCE7D3);
   static const Color loanCardShadowColor = const Color(0xff5b440c);
+
+
+  static const Color savingsPrimary = const Color(0XFF1EB12D);
+  static const Color savingsPrimaryShadow = const Color(0XFF0EB11E);
+
+  static const Color safeLockPrimary = const Color(0XFF9B51E0);
+  static const Color targetSavingsPrimary = const Color(0XFF2D9CDB);
+  static const Color groupSavingsPrimary = const Color(0XFFF2C94C);
+
   static const Color loanGrey = const Color(0xffBDBDBD);
 }

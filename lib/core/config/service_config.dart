@@ -1,6 +1,6 @@
 class ServiceConfig {
 
-  static const ENV = "live";
+  static const ENV = "dev";
 
   static const String ROOT_SERVICE = (ENV == "dev")
       ? "https://core-root.monnify.development.teamapt.com/"
@@ -30,7 +30,12 @@ class ServiceConfig {
       ? "https://moniepoint-customer-notification-service.development.teamapt.com/"
       : (ENV == "prod")
       ? "https://moniepoint-customer-notification-service.console.teamapt.com/"
-      : "https://moniepoint-customer-notification-service-v2.console.teamapt.com/";
+      : "https://moniepoint-customer-notification-service.console.teamapt.com/";
 
+  static const String SAVINGS_SERVICE = (ENV == "dev")
+      ? "https://moniepoint-customer-savings-service.development.teamapt.com/"
+      : (ENV == "prod")
+      ? "https://moniepoint-customer-savings-service.teamapt.com/"
+      : "https://moniepoint-customer-savings-service.teamapt.com/";
 
 }

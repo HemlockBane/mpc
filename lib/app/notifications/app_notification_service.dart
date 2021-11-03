@@ -35,6 +35,13 @@ class AppNotificationService {
     FirebaseMessaging.onMessage.listen(onMessageReceived);
     FirebaseMessaging.onBackgroundMessage(onBackgroundMessageReceived);
 
+    FirebaseMessaging.onMessageOpenedApp.listen((event) async {
+      final dataMessage = _extractDataMessage(event) ?? {};
+      final messageType = enumFromString<MessageType>(MessageType.values, dataMessage["messageType"] ?? "");
+      final handler = NotificationHandler.getInstance(messageType, dataMessage);
+      await handler.handle();
+    });
+
     await _onAppLaunchWithNotification();
     await notificationPlugin.initialize(
         _notificationInitializationSettings,
@@ -100,7 +107,7 @@ class AppNotificationService {
           constraints: Constraints(networkType: NetworkType.connected),
       );
     } else if(Platform.isIOS) {
-      Future.delayed(Duration(milliseconds: 5000), (){
+      Future.delayed(Duration(milliseconds: 5000), () {
         if(refresh) {
           IosBackgroundTaskWorker.addTaskToQueue(DeviceTokenRegistrationWorker.WORKER_KEY);
         } else {
@@ -116,7 +123,7 @@ class AppNotificationService {
 
   void onMessageReceived(RemoteMessage message) async {
     print("Foreground Message <===> ${message.data}");
-    //if the user is not logged in then we should make it a foreground message
+    //if the user is not logged in then we should make it a background message
     if(UserInstance().getUser() == null) return onBackgroundMessageReceived(message);
 
     final dataMessage = _extractDataMessage(message) ?? {};

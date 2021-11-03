@@ -120,6 +120,88 @@ class Styles {
       shape: MaterialStateProperty.all(
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))));
 
+  static final ButtonStyle savingsFlexButtonStyle = ButtonStyle(
+      textStyle: MaterialStateProperty.all(TextStyle(
+          fontSize: 16,
+          color: Colors.white,
+          fontWeight: FontWeight.w500,
+          fontFamily: Styles.defaultFont)),
+      foregroundColor: MaterialStateProperty.all(Colors.savingsPrimary),
+      backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
+        if (states.contains(MaterialState.disabled))
+          return Colors.savingsPrimary.withOpacity(0.5);
+        else if (states.contains(MaterialState.pressed))
+          return Colors.savingsPrimary.withOpacity(0.5);
+        else
+          return Colors.savingsPrimary.withOpacity(0.2);
+      }),
+      padding: MaterialStateProperty.all(
+          EdgeInsets.symmetric(horizontal: 16, vertical: 16)),
+      shape: MaterialStateProperty.all(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))));
+
+  static final ButtonStyle savingsSafeLockButtonStyle = ButtonStyle(
+      textStyle: MaterialStateProperty.all(TextStyle(
+          fontSize: 16,
+          color: Colors.white,
+          fontWeight: FontWeight.w500,
+          fontFamily: Styles.defaultFont)),
+      foregroundColor: MaterialStateProperty.all(Colors.safeLockPrimary),
+      backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
+        if (states.contains(MaterialState.disabled))
+          return Colors.safeLockPrimary.withOpacity(0.5);
+        else if (states.contains(MaterialState.pressed))
+          return Colors.safeLockPrimary.withOpacity(0.5);
+        else
+          return Colors.safeLockPrimary.withOpacity(0.2);
+      }),
+      padding: MaterialStateProperty.all(
+          EdgeInsets.symmetric(horizontal: 16, vertical: 16)),
+      shape: MaterialStateProperty.all(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))));
+
+  static final ButtonStyle targetSavingsButtonStyle = ButtonStyle(
+      textStyle: MaterialStateProperty.all(TextStyle(
+          fontSize: 16,
+          color: Colors.white,
+          fontWeight: FontWeight.w500,
+          fontFamily: Styles.defaultFont)),
+      foregroundColor: MaterialStateProperty.all(Colors.targetSavingsPrimary),
+      backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
+        if (states.contains(MaterialState.disabled))
+          return Colors.targetSavingsPrimary.withOpacity(0.5);
+        else if (states.contains(MaterialState.pressed))
+          return Colors.targetSavingsPrimary.withOpacity(0.5);
+        else
+          return Colors.targetSavingsPrimary.withOpacity(0.2);
+      }),
+      padding: MaterialStateProperty.all(
+          EdgeInsets.symmetric(horizontal: 16, vertical: 16)),
+      shape: MaterialStateProperty.all(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))));
+
+
+  static final ButtonStyle groupSavingsButtonStyle = ButtonStyle(
+      textStyle: MaterialStateProperty.all(TextStyle(
+          fontSize: 16,
+          color: Colors.white,
+          fontWeight: FontWeight.w500,
+          fontFamily: Styles.defaultFont)),
+      foregroundColor: MaterialStateProperty.all(Colors.groupSavingsPrimary),
+      backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
+        if (states.contains(MaterialState.disabled))
+          return Colors.groupSavingsPrimary.withOpacity(0.5);
+        else if (states.contains(MaterialState.pressed))
+          return Colors.groupSavingsPrimary.withOpacity(0.5);
+        else
+          return Colors.groupSavingsPrimary.withOpacity(0.2);
+      }),
+      padding: MaterialStateProperty.all(
+          EdgeInsets.symmetric(horizontal: 16, vertical: 16)),
+      shape: MaterialStateProperty.all(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))));
+
+
   static const String defaultFont = "Inter";
   static const String ocraExtended = "Ocra";
   static const String circularStd = "CircularStd";

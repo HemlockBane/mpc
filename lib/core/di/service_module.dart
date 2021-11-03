@@ -45,6 +45,8 @@ import 'package:moniepoint_flutter/app/notifications/model/notification_service_
 import 'package:moniepoint_flutter/app/onboarding/model/account_creation_service.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/onboarding_service.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/onboarding_service_delegate.dart';
+import 'package:moniepoint_flutter/app/savings/model/savings_product_service.dart';
+import 'package:moniepoint_flutter/app/savings/model/savings_product_service_delegate.dart';
 import 'package:moniepoint_flutter/app/securityquestion/model/security_question_delegate.dart';
 import 'package:moniepoint_flutter/app/securityquestion/model/security_question_service.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/fee_vat_config_dao.dart';
@@ -242,6 +244,11 @@ class ServiceModule {
     /// Notification Delegate
     GetIt.I.registerLazySingleton<NotificationServiceDelegate>(() {
       return NotificationServiceDelegate(NotificationService(dio));
+    });
+
+    /// SavingsProductService Delegate
+    GetIt.I.registerLazySingleton<SavingsProductServiceDelegate>(() {
+      return SavingsProductServiceDelegate(SavingsProductService(dio));
     });
 
   }

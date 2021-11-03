@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/forms/account_update_form_view.dart';
-import 'package:moniepoint_flutter/app/savings/flex/viewmodels/savings_flex_setup_viewmodel.dart';
-import 'package:moniepoint_flutter/app/savings/flex/views/savings_flex_setup_forms.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/flex_setup_viewmodel.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
 import 'package:moniepoint_flutter/core/views/pie_progress_bar.dart';
 import 'package:provider/provider.dart';
 
-
+import 'forms/first_flex_setup_form.dart';
+import 'forms/second_flex_setup_form.dart';
 
 
 class SavingsFlexSetupView extends StatefulWidget {
@@ -20,7 +20,7 @@ class SavingsFlexSetupView extends StatefulWidget {
 
 class _SavingsFlexSetupViewState extends State<SavingsFlexSetupView> with CompositeDisposableWidget{
 
-  late SavingsFlexSetupViewModel _viewModel;
+  late FlexSetupViewModel _viewModel;
   late PageView _pageView;
 
   final _pageController = PageController();
@@ -73,10 +73,9 @@ class _SavingsFlexSetupViewState extends State<SavingsFlexSetupView> with Compos
     return _pages.map((e) => e.getTitle()).toList();
   }
 
-
   @override
   void initState() {
-    _viewModel = SavingsFlexSetupViewModel();
+    _viewModel = FlexSetupViewModel();
     _registerPageChange();
     super.initState();
   }

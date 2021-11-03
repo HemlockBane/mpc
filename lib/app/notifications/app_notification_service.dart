@@ -35,6 +35,13 @@ class AppNotificationService {
     FirebaseMessaging.onMessage.listen(onMessageReceived);
     FirebaseMessaging.onBackgroundMessage(onBackgroundMessageReceived);
 
+    FirebaseMessaging.onMessageOpenedApp.listen((event) async {
+      final dataMessage = _extractDataMessage(event) ?? {};
+      final messageType = enumFromString<MessageType>(MessageType.values, dataMessage["messageType"] ?? "");
+      final handler = NotificationHandler.getInstance(messageType, dataMessage);
+      await handler.handle();
+    });
+
     await _onAppLaunchWithNotification();
     await notificationPlugin.initialize(
         _notificationInitializationSettings,

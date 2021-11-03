@@ -13,11 +13,10 @@ import 'package:moniepoint_flutter/core/extensions/strings.dart';
 
 
 import '../colors.dart';
-import '../payment_view_model.dart';
 import '../styles.dart';
 import '../tuple.dart';
 
-class TransactionAccountSource extends StatelessWidget {
+class UserAccountSelectionView extends StatelessWidget {
 
   final BaseViewModel viewModel;
   final ListStyle listStyle;
@@ -27,15 +26,19 @@ class TransactionAccountSource extends StatelessWidget {
   final Size? checkBoxSize;
   final EdgeInsets? checkBoxPadding;
   final bool isShowTrailingWhenExpanded;
+  final ValueChanged<UserAccount?> onAccountSelected;
+  final UserAccount? selectedUserAccount;
 
-  TransactionAccountSource(this.viewModel, {
+  UserAccountSelectionView(this.viewModel, {
     this.listStyle = ListStyle.normal,
+    required this.onAccountSelected,
     this.primaryColor,
     this.checkBoxBorderColor,
     this.checkBoxSize,
     this.checkBoxPadding,
     this.isShowTrailingWhenExpanded = true,
-    this.titleStyle
+    this.titleStyle,
+    this.selectedUserAccount
   });
 
   bool isDefaultStyle() =>  listStyle == ListStyle.normal;
@@ -63,7 +66,6 @@ class TransactionAccountSource extends StatelessWidget {
       child: child,
     );
   }
-
 
   Widget getDefaultIcon(){
     return Container(
@@ -177,6 +179,7 @@ class TransactionAccountSource extends StatelessWidget {
 
 
 
+
   @override
   Widget build(BuildContext context) {
 
@@ -197,7 +200,7 @@ class TransactionAccountSource extends StatelessWidget {
                   return ComboItem<UserAccount>(
                       userAccount, "${userAccount.customerAccount?.accountName}",
                       subTitle: "$accountNumber - $formattedBalance",
-                      isSelected: (viewModel as PaymentViewModel).sourceAccount?.id == userAccount.id
+                      isSelected: selectedUserAccount?.id == userAccount.id
                   );
                 }).toList();
 
@@ -206,7 +209,7 @@ class TransactionAccountSource extends StatelessWidget {
                   comboItems,
                   defaultTitle: "Select an Account",
                   titleStyle: titleStyle,
-                  onItemSelected: (item, i) => (viewModel as PaymentViewModel).setSourceAccount(item),
+                  onItemSelected: (item, i) => onAccountSelected(item),
                   titleIcon: SelectionCombo2.initialView(),
                   primaryColor: primaryColor ?? Colors.primaryColor,
                   checkBoxBorderColor: checkBoxBorderColor ?? Colors.primaryColor,
@@ -220,7 +223,7 @@ class TransactionAccountSource extends StatelessWidget {
           )
       );
     }
-    (viewModel as PaymentViewModel).setSourceAccount(viewModel.userAccounts.first);
+    this.onAccountSelected.call(viewModel.userAccounts.first);
     return boxContainer(Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,

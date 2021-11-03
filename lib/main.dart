@@ -13,8 +13,10 @@ import 'package:moniepoint_flutter/core/viewmodels/system_configuration_view_mod
 import 'package:moniepoint_flutter/core/work/work_dispatcher.dart';
 import 'package:provider/provider.dart';
 import 'package:workmanager/workmanager.dart';
+import 'app/loans/viewmodels/loans_home_viewmodel.dart';
 import 'app/moniepoint_application.dart';
 import 'app/notifications/app_notification_service.dart';
+import 'app/savings/viewmodels/savings_dashboard_viewmodel.dart';
 import 'core/utils/biometric_helper.dart';
 
 //We need to move this to some where else
@@ -40,6 +42,8 @@ void main() async {
     providers: [
       ChangeNotifierProvider(create: (_) => LoginViewModel()),
       ChangeNotifierProvider(create: (_) => DashboardViewModel()),
+      ChangeNotifierProvider(create: (_) => SavingsDashboardViewModel()),
+      ChangeNotifierProvider(create: (_) => LoansHomeViewModel()),
       ChangeNotifierProvider(create: (_) => SystemConfigurationViewModel()),
     ],
     child: MoniepointApp(),

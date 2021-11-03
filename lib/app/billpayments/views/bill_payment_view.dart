@@ -22,7 +22,7 @@ import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
-import 'package:moniepoint_flutter/core/views/transaction_account_source.dart';
+import 'package:moniepoint_flutter/core/views/user_account_selection_view.dart';
 import 'package:moniepoint_flutter/core/views/transaction_success_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
@@ -329,7 +329,11 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
               SizedBox(height: 24,),
               makeLabel('Purchase From'),
               SizedBox(height: 8,),
-              TransactionAccountSource(viewModel),
+              UserAccountSelectionView(
+                viewModel,
+                selectedUserAccount: viewModel.sourceAccount,
+                onAccountSelected: (account) => viewModel.setSourceAccount(account),
+              ),
               SizedBox(height: 24,),
               makeLabel('How much would you like to purchase? '),
               SizedBox(height: 8,),

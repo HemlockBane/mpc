@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide Colors;
+import 'package:lottie/lottie.dart';
 import 'package:moniepoint_flutter/core/network/network_bound_resource.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/paging/paging_data.dart';
@@ -119,4 +120,28 @@ class ListViewUtil {
   }
 
 
+}
+
+///LoadStatesLoadingIndicator
+///
+///
+class LoadStatesLoadingIndicator extends StatelessWidget {
+
+  final PagingData pagingData;
+
+  LoadStatesLoadingIndicator({required this.pagingData});
+
+  @override
+  Widget build(BuildContext context) {
+    if(pagingData.loadStates != null && pagingData.loadStates!.mediator?.append is loadStates.Loading)  {
+      final mediator = pagingData.loadStates!.mediator;
+      if(mediator!.append.endOfPaginationReached == false) {
+        return Container(
+          padding: EdgeInsets.only(bottom: 10, top: 10),
+          child: Lottie.asset('res/drawables/progress_bar_lottie.json', width: 30, height: 30),
+        );
+      }
+    }
+    return SizedBox();
+  }
 }

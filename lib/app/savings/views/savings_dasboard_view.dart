@@ -1,46 +1,62 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:moniepoint_flutter/app/savings/flex/views/savings_enable_flex_view.dart';
-import 'package:moniepoint_flutter/app/savings/flex/views/savings_get_started_view.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_get_started_view.dart';
+import 'package:moniepoint_flutter/app/savings/viewmodels/savings_dashboard_viewmodel.dart';
+import 'package:moniepoint_flutter/app/savings/views/savings_product_item_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:provider/provider.dart';
 
-import '../dashboard/views/dashboard_top_menu.dart';
+import '../../dashboard/views/dashboard_top_menu.dart';
 
-
-const greenColor = Color(0xff0EB11E);
-
-class SavingsView extends StatelessWidget {
-  const SavingsView({Key? key}) : super(key: key);
+class SavingsDashboardView extends StatelessWidget {
+  const SavingsDashboardView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.solidGreen,
-        child: Icon(Icons.add, size: 37,),
-        onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (ctx) => SavingsGetStartedView()));
-        },
-      ),
-      body: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16),
-        child: ListView(
-          children: [
-            SizedBox(height: dashboardTopMenuHeight - 40),
-            SavingsAccountCard(),
-            SizedBox(height: 29),
-          ],
-        ),
+    final viewModel = Provider.of<SavingsDashboardViewModel>(context, listen: false);
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: ListView(
+        children: [
+          SizedBox(height: dashboardTopMenuHeight - 40),
+          SavingsAccountCard(),
+          SizedBox(height: 29),
+          Text("What would you like to save for?"),
+          GridView.count(
+            physics: NeverScrollableScrollPhysics(),
+            crossAxisCount: 16,
+            mainAxisSpacing: 15,
+            children: [
+              SavingsProductItemView(
+                  productType: SavingsProductType.FLEX,
+                  viewModel: viewModel
+              ),
+              SavingsProductItemView(
+                  productType: SavingsProductType.SAFE_LOCK,
+                  viewModel: viewModel
+              ),
+              SavingsProductItemView(
+                  productType: SavingsProductType.TARGET,
+                  viewModel: viewModel
+              ),
+              SavingsProductItemView(
+                  productType: SavingsProductType.GROUP,
+                  viewModel: viewModel
+              )
+            ],
+          )
+        ],
       ),
     );
   }
 
 }
 
+///SavingsAccountCard
+///
+///
 class SavingsAccountCard extends StatelessWidget {
-  const SavingsAccountCard({
-    Key? key,
-  }) : super(key: key);
+  const SavingsAccountCard({Key? key,}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +93,7 @@ class SavingsAccountCard extends StatelessWidget {
           BoxShadow(
             offset: Offset(0, 13),
             blurRadius: 21,
-            color: greenColor.withOpacity(0.2)
+            color: Colors.savingsPrimaryShadow.withOpacity(0.2)
           )
         ]
       ),
@@ -85,6 +101,9 @@ class SavingsAccountCard extends StatelessWidget {
   }
 }
 
+///ComingSoonView
+///
+///
 class ComingSoonView extends StatelessWidget {
   const ComingSoonView({
     Key? key,
@@ -168,15 +187,12 @@ class ComingSoonView extends StatelessWidget {
                             ],
                           ),
                         );
-
                       },
                     ),
                   ],
                 )
               ),
             ),
-            // Spacer()
-
           ],
         ),
       ),

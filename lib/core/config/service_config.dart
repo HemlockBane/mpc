@@ -32,5 +32,10 @@ class ServiceConfig {
       ? "https://moniepoint-customer-notification-service.console.teamapt.com/"
       : "https://moniepoint-customer-notification-service.console.teamapt.com/";
 
+  static const String SAVINGS_SERVICE = (ENV == "dev")
+      ? "https://moniepoint-customer-savings-service.development.teamapt.com/"
+      : (ENV == "prod")
+      ? "https://moniepoint-customer-savings-service.teamapt.com/"
+      : "https://moniepoint-customer-savings-service.teamapt.com/";
 
 }

@@ -13,7 +13,7 @@ import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
 import 'package:moniepoint_flutter/core/views/pie_progress_bar.dart';
-import 'package:moniepoint_flutter/core/views/transaction_account_source.dart';
+import 'package:moniepoint_flutter/core/views/user_account_selection_view.dart';
 import 'package:provider/provider.dart';
 
 class LoanOffersView extends StatefulWidget {
@@ -555,9 +555,11 @@ class _ApplyForLoanViewState extends State<ApplyForLoanView>
               ),
             ),
             SizedBox(height: 12),
-            TransactionAccountSource(
+            UserAccountSelectionView(
               _viewModel,
               primaryColor: Colors.solidOrange,
+              //TODO modify for loans
+              onAccountSelected: (account) => _viewModel.setSourceAccount(account),
               titleStyle: TextStyle(
                   fontSize: 15,
                   color: Colors.textColorBlack,
@@ -607,9 +609,11 @@ class _ApplyForLoanViewState extends State<ApplyForLoanView>
               ),
             if (!_isSelected) SizedBox(height: 12),
             if (!_isSelected)
-              TransactionAccountSource(
+              UserAccountSelectionView(
                 _viewModel,
                 primaryColor: Colors.solidOrange,
+                //TODO modify for loans
+                onAccountSelected: (account) => _viewModel.setSourceAccount(account),
                 titleStyle: TextStyle(
                     fontSize: 15,
                     color: Colors.textColorBlack,

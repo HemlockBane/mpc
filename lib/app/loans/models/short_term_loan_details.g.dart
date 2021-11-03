@@ -19,12 +19,16 @@ ShortTermLoanDetails _$ShortTermLoanDetailsFromJson(Map<String, dynamic> json) {
     amountPaid: json['amountPaid'] as int?,
     outstandingAmount: json['outstandingAmount'] as int?,
     tenor: json['tenor'] as int?,
-    dateRequested: json['dateRequested'] as String?,
-    dueDate: json['dueDate'] as String?,
+    dateRequested: json['dateRequested'] == null
+        ? null
+        : DateTime.parse(json['dateRequested'] as String),
+    dueDate: json['dueDate'] == null
+        ? null
+        : DateTime.parse(json['dueDate'] as String),
     payoutAccount: json['payoutAccount'] as String?,
     repaymentAccount: json['repaymentAccount'] as String?,
     overdueDays: json['overdueDays'] as int?,
-    overdue: json['overdue'] as bool?,
+    isOverdue: json['overdue'] as bool?,
   );
 }
 
@@ -42,10 +46,10 @@ Map<String, dynamic> _$ShortTermLoanDetailsToJson(
       'amountPaid': instance.amountPaid,
       'outstandingAmount': instance.outstandingAmount,
       'tenor': instance.tenor,
-      'dateRequested': instance.dateRequested,
-      'dueDate': instance.dueDate,
+      'dateRequested': instance.dateRequested?.toIso8601String(),
+      'dueDate': instance.dueDate?.toIso8601String(),
       'payoutAccount': instance.payoutAccount,
       'repaymentAccount': instance.repaymentAccount,
       'overdueDays': instance.overdueDays,
-      'overdue': instance.overdue,
+      'overdue': instance.isOverdue,
     };

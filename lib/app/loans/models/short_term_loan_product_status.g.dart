@@ -20,7 +20,7 @@ ShortTermLoanProductStatus _$ShortTermLoanProductStatusFromJson(
     shortTermLoanAdvert: json['shortTermLoanAdvert'] == null
         ? null
         : ShortTermLoanAdvert.fromJson(json['shortTermLoanAdvert'] as Object),
-    productActive: json['productActive'] as bool?,
+    isProductActive: json['productActive'] as bool?,
   );
 }
 
@@ -31,5 +31,5 @@ Map<String, dynamic> _$ShortTermLoanProductStatusToJson(
       'shortTermLoanDetails': instance.shortTermLoanDetails,
       'shortTermPendingLoanRequest': instance.shortTermPendingLoanRequest,
       'shortTermLoanAdvert': instance.shortTermLoanAdvert,
-      'productActive': instance.productActive,
+      'productActive': instance.isProductActive,
     };

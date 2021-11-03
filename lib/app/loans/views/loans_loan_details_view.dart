@@ -3,7 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
 import 'package:moniepoint_flutter/app/accounts/views/transaction_history_list_item.dart';
 import 'package:moniepoint_flutter/app/loans/views/loans_apply_confirmation_view.dart';
-import 'package:moniepoint_flutter/app/loans/views/loans_product_details_view.dart';
+import 'package:moniepoint_flutter/app/loans/views/loans_advert_details_view.dart';
 import 'package:moniepoint_flutter/app/loans/views/widgets/info_banner_content.dart';
 import 'package:moniepoint_flutter/app/loans/views/widgets/loan_confirmation_account_tile.dart';
 import 'package:moniepoint_flutter/core/colors.dart';

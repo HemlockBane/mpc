@@ -4,6 +4,15 @@ part 'available_short_term_loan_offer.g.dart';
 
 @JsonSerializable()
 class AvailableShortTermLoanOffer {
+
+  String? offerName;
+  String? offerReference;
+  int? maximumAmount;
+  double? minInterestRate;
+  int? maxPeriod;
+  String? penaltyString;
+  String? termsAndConditions;
+
   AvailableShortTermLoanOffer({
     this.offerName,
     this.offerReference,
@@ -14,13 +23,7 @@ class AvailableShortTermLoanOffer {
     this.termsAndConditions,
   });
 
-  String? offerName;
-  String? offerReference;
-  int? maximumAmount;
-  double? minInterestRate;
-  int? maxPeriod;
-  String? penaltyString;
-  String? termsAndConditions;
+
 
   factory AvailableShortTermLoanOffer.fromJson(Object? data) =>
     _$AvailableShortTermLoanOfferFromJson(data as Map<String, dynamic>);

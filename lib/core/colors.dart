@@ -64,8 +64,5 @@ class Colors {
 
   static const Color peach = const Color(0xffFCE7D3);
   static const Color loanCardShadowColor = const Color(0xff5b440c);
-
-
-
-
+  static const Color loanGrey = const Color(0xffBDBDBD);
 }

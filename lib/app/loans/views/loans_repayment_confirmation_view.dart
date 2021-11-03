@@ -9,7 +9,7 @@ import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 
-import 'loans_product_details_view.dart';
+import 'loans_advert_details_view.dart';
 
 class LoanRepaymentConfirmationView extends StatelessWidget {
   const LoanRepaymentConfirmationView({Key? key}) : super(key: key);

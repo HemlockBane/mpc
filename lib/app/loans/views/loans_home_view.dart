@@ -1,10 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter/scheduler.dart';
+import 'package:moniepoint_flutter/app/loans/models/short_term_loan_product_status.dart';
 import 'package:moniepoint_flutter/app/loans/viewmodels/loans_home_viewmodel.dart';
 import 'package:moniepoint_flutter/app/loans/views/widgets/loan_product_card.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/utils/list_view_util.dart';
+import 'package:moniepoint_flutter/core/views/empty_list_layout_view.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -17,8 +20,12 @@ class LoansHomeView extends StatefulWidget {
   State<LoansHomeView> createState() => _LoansHomeViewState();
 }
 
-class _LoansHomeViewState extends State<LoansHomeView> {
+class _LoansHomeViewState extends State<LoansHomeView> with TickerProviderStateMixin{
   late final LoansHomeViewModel _loansHomeViewModel;
+  final List<dynamic> _currentItems = [];
+  late final AnimationController _animationController;
+
+
 
   TextStyle getBoldStyle({
     double fontSize = 24.5,
@@ -28,36 +35,57 @@ class _LoansHomeViewState extends State<LoansHomeView> {
     TextStyle(fontWeight: fontWeight, color: color, fontSize: fontSize);
 
 
-  Widget _successView({required LoanProductStatus loanProductStatus}){
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(height: dashboardTopMenuHeight + 43),
-        Text("Loan Product", style: getBoldStyle()),
-        SizedBox(height: 30),
-        Expanded(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            shrinkWrap: true,
-            children: [
-              if(loanProductStatus.shortTermLoanProductStatus != null)
-                ShortTermLoanCard(),
-            ],
-          ),
-        )
-      ],
+  Widget makeListView(BuildContext context, AsyncSnapshot<Resource<List<dynamic>?>> snapshot){
+    return ListViewUtil.makeListViewWithState(
+      context: context,
+      animationController: _animationController,
+      displayLocalData: false,
+      currentList: _currentItems,
+      snapshot: snapshot,
+      emptyPlaceholder: Column(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          EmptyLayoutView(
+            "There are currently no loan products."
+          )
+        ],
+      ),
+
+      listView: (List<dynamic>? items){
+        return ListView.builder(
+          physics: NeverScrollableScrollPhysics(),
+          padding: EdgeInsets.zero,
+          shrinkWrap: true,
+          itemCount: items?.length ?? 0,
+          itemBuilder: (ctx, idx){
+            final item = items![idx];
+            var listItem;
+
+            if(item is ShortTermLoanProductStatus){
+              listItem = Container(
+                margin: EdgeInsets.only(bottom: 20),
+                child: ShortTermLoanCard(product: item),
+              );
+            }else{
+              // Handle salary advance loan here
+            }
+            return listItem;
+          });
+      },
+
     );
+
   }
 
   @override
   void initState() {
    _loansHomeViewModel =  Provider.of<LoansHomeViewModel>(context, listen: false);
-   SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
-     _loansHomeViewModel.getLoanProductStatus();
-   });
+   _animationController = AnimationController(
+     vsync: this, duration: Duration(milliseconds: 1000)
+   );
     super.initState();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -69,22 +97,23 @@ class _LoansHomeViewState extends State<LoansHomeView> {
         body: Container(
           padding: EdgeInsets.symmetric(horizontal: 16),
           child: StreamBuilder(
-            stream: _loansHomeViewModel.loanProductStatusStream,
-            builder: (ctx, AsyncSnapshot<Resource<LoanProductStatus>> snapshot){
-
-
-              if(!snapshot.hasData || snapshot.data is Loading){
-                return Center(child: CircularProgressIndicator());
-              }
-
-              if(snapshot.data is Error){
-                // Error view
-              }
-
-             final loanProductStatus = snapshot.data?.data;
-             return  _successView(loanProductStatus: loanProductStatus!);
-
-
+            stream: _loansHomeViewModel.getLoanProducts(),
+            builder: (ctx, AsyncSnapshot<Resource<List<dynamic>?>> snapshot){
+              return Container(
+                height: MediaQuery.of(context).size.height,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: dashboardTopMenuHeight + 43),
+                      Text("Loan Product", style: getBoldStyle()),
+                      SizedBox(height: 30),
+                      makeListView(context, snapshot),
+                    ],
+                  ),
+                ),
+              );
             },
           ),
         ),

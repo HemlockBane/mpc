@@ -14,7 +14,7 @@ class ShortTermLoanOffer {
   String? penaltyString;
   String? termsAndConditionLink;
   String? status;
-  String? expiresOn;
+  DateTime? expiresOn;
 
   ShortTermLoanOffer({
     this.name,

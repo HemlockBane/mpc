@@ -9,35 +9,58 @@ import 'package:provider/provider.dart';
 class LoansHomeViewModel extends BaseViewModel{
 
 
+  Stream<Resource<List<dynamic>>> getLoanProducts() {
+    final readyJson = readyLoan["shortTermLoanProductStatus"];
+    final pendingJson = pendingLoan["shortTermLoanProductStatus"];
+    final activeJson = activeLoan["shortTermLoanProductStatus"];
+    final overdueJson = overdueLoan["shortTermLoanProductStatus"];
 
-  StreamController<Resource<LoanProductStatus>> _loanProductStatusController =
-      StreamController.broadcast();
+    final readyLoanModel = ShortTermLoanProductStatus.fromJson(readyJson);
+    final pendingLoanModel = ShortTermLoanProductStatus.fromJson(pendingJson);
+    final activeLoanModel = ShortTermLoanProductStatus.fromJson(activeJson);
+    final overdueLoanModel = ShortTermLoanProductStatus.fromJson(overdueJson);
 
-  Stream<Resource<LoanProductStatus>> get loanProductStatusStream =>
-      _loanProductStatusController.stream;
 
-  Stream<Resource<LoanProductStatus>> getLoanProductStatus() {
-    final json = runningLoan["shortTermLoanProductStatus"];
-    final shortTermLoan = ShortTermLoanProductStatus.fromJson(json);
-    final resource = Resource.success(LoanProductStatus(shortTermLoanProductStatus: shortTermLoan),);
-    _loanProductStatusController.add(resource);
+    final items = [readyLoanModel, pendingLoanModel, activeLoanModel, overdueLoanModel];
+    final resource = Resource.success(items);
     return Stream.value(resource);
   }
 
   @override
   void dispose() {
-    _loanProductStatusController.close();
     super.dispose();
   }
 }
 
-class LoanProductStatus {
-  final ShortTermLoanProductStatus? shortTermLoanProductStatus;
+final overdueLoan = {
+  "shortTermLoanProductStatus": {
+    "status": "RUNNING",
+    "shortTermLoanDetails": {
+      "name": "Moniepoint Short Term Loan",
+      "description": "Moniepoint Short Term Loan Description",
+      "offerName": "Short Term Loan Available Offer",
+      "loanAmount": 45000,
+      "interestRate": 2,
+      "interestAmount": 900,
+      "totalRepayment": 45900,
+      "penaltyAmount": 0,
+      "amountPaid": 0,
+      "outstandingAmount": 0,
+      "tenor": 30,
+      "dateRequested": "2021-10-28T00:40:28.000+0000",
+      "dueDate": "2021-11-28T00:40:28.000+0000",
+      "payoutAccount": "1234567890",
+      "repaymentAccount": "0987654321",
+      "overdueDays":15,
+      "overdue": true
+    },
+    "shortTermPendingLoanRequest": null,
+    "shortTermLoanAdvert": null,
+    "productActive": true
+  }
+};
 
-  LoanProductStatus({this.shortTermLoanProductStatus});
-}
-
-final runningLoan = {
+final activeLoan = {
   "shortTermLoanProductStatus": {
     "status": "RUNNING",
     "shortTermLoanDetails": {
@@ -106,7 +129,7 @@ final readyLoan = {
     "shortTermPendingLoanRequest": null,
     "shortTermLoanAdvert": {
       "name": "Moniepoint Short Term Loan",
-      "description": "Moniepoint Short Term Loan Description",
+      "description": null,
       "minInterestRate": 2,
       "maxAmount": 50000,
       "penaltyString": "Penalty String"

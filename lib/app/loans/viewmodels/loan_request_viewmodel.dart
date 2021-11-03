@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/loans/models/available_short_term_loan_offer.dart';
+import 'package:moniepoint_flutter/app/loans/models/short_term_loan_offers.dart';
 import 'package:moniepoint_flutter/app/loans/viewmodels/loan_transaction_viewmodel.dart';
+import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/payment_view_model.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
@@ -26,8 +28,17 @@ class LoanRequestViewModel extends BaseViewModel with PaymentViewModel {
   bool  _usePayoutAccountForRepayment = true;
   bool get usePayoutAccountForRepayment => _usePayoutAccountForRepayment;
 
+  Stream<Resource<List<List<Object>?>>> getShortTermLoanOffers() {
+    final loanOffers = ShortTermLoanOffers.fromJson(loanOffersJson);
+    final items = [loanOffers.availableLoanOffers,loanOffers.futureLoanOffers];
+    final resource = Resource.success(items);
+    return Stream.value(resource);
 
+  }
 
+  Stream<AvailableShortTermLoanOffer> getSelectedOffer() {
+    return Stream.value(_selectedLoanOffer);
+  }
 
 
   void setSelectedLoanOffer(AvailableShortTermLoanOffer loanOffer) {
@@ -71,3 +82,36 @@ class LoanRequestViewModel extends BaseViewModel with PaymentViewModel {
     super.dispose();
   }
 }
+
+
+final loanOffersJson = {
+  "availableLoanOffers": [
+    {
+      "offerName": "Short Term Loan Available Offer",
+      "offerReference": "2D3E2D701D2A45D597753D6490A768A4",
+      "maximumAmount": 50000,
+      "minInterestRate": 2,
+      "maxPeriod": 30,
+      "penaltyString": "Sample Penalty String",
+      "termsAndConditions": "www.teamapt.com/terms-and-conditions"
+    },
+    {
+      "offerName": "Short Term Loan Available Offer 2",
+      "offerReference": "2D3E2D701D2A45D597753D6490A768A5",
+      "maximumAmount": 40000,
+      "minInterestRate": 2,
+      "maxPeriod": 20,
+      "penaltyString": "Sample Penalty String",
+      "termsAndConditions": "www.teamapt.com/terms-and-conditions"
+    }
+  ],
+  "futureLoanOffers": [
+    {
+      "offerName": "Short Term Loan Available Offer",
+      "maximumAmount": 50000,
+      "minInterestRate": 2,
+      "maxPeriod": 30,
+      "eligibilityString": "Sample Eligibility String",
+    }
+  ]
+};

@@ -37,8 +37,11 @@ import 'package:moniepoint_flutter/app/devicemanagement/viewmodels/user_device_v
 import 'package:moniepoint_flutter/app/devicemanagement/views/user_device_list_view.dart';
 import 'package:moniepoint_flutter/app/liveliness/liveliness_verification.dart';
 import 'package:moniepoint_flutter/app/liveliness/viewmodels/liveliness_verification_viewmodel.dart';
+import 'package:moniepoint_flutter/app/loans/models/short_term_loan_advert.dart';
+import 'package:moniepoint_flutter/app/loans/viewmodels/loan_advert_view_model.dart';
 import 'package:moniepoint_flutter/app/loans/viewmodels/loan_repayment_viewmodel.dart';
 import 'package:moniepoint_flutter/app/loans/views/loans_loan_repayment_view.dart';
+import 'package:moniepoint_flutter/app/loans/views/loans_advert_details_view.dart';
 import 'package:moniepoint_flutter/app/login/views/login_view.dart';
 import 'package:moniepoint_flutter/app/login/views/recovery/recovery_controller_screen.dart';
 import 'package:moniepoint_flutter/app/login/views/support_view.dart';
@@ -112,7 +115,7 @@ class Routes {
   static const SAVINGS_FLEX_SETUP = "SAVINGS_FLEX_SETUP";
 
   static const LOAN_OFFERS = "LOAN_OFFERS";
-  static const LOAN_PRODUCT_DETAILS = "LOAN_PRODUCT_DETAILS";
+  static const LOAN_ADVERT_DETAILS = "LOAN_ADVERT_DETAILS";
   static const LOAN_DETAILS = "LOAN_DETAILS";
   static const LOAN_APPLY_CONFIRMATION = "LOAN_APPLY_CONFIRMATION";
   static const LOAN_REPAYMENT = "LOAN_REPAYMENT";
@@ -316,6 +319,15 @@ class Routes {
                 create: (_) => AccountUpdateViewModel(),
                 child: AccountStatusScreen(),
             )
+        );
+      case Routes.LOAN_ADVERT_DETAILS:
+        final args = settings.arguments as Map<dynamic, dynamic>;
+        final loanAdvert = args["loan_advert"] as ShortTermLoanAdvert?;
+        return MaterialPageRoute(
+          builder: (ctx) => ChangeNotifierProvider(
+            create: (_) => LoanAdvertViewModel(),
+            child: LoanAdvertDetailsView(loanAdvert: loanAdvert)
+          )
         );
     }
     return null;

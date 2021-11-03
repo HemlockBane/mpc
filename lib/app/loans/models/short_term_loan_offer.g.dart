@@ -18,7 +18,9 @@ ShortTermLoanOffer _$ShortTermLoanOfferFromJson(Map<String, dynamic> json) {
     penaltyString: json['penaltyString'] as String?,
     termsAndConditionLink: json['termsAndConditionLink'] as String?,
     status: json['status'] as String?,
-    expiresOn: json['expiresOn'] as String?,
+    expiresOn: json['expiresOn'] == null
+        ? null
+        : DateTime.parse(json['expiresOn'] as String),
   );
 }
 
@@ -34,5 +36,5 @@ Map<String, dynamic> _$ShortTermLoanOfferToJson(ShortTermLoanOffer instance) =>
       'penaltyString': instance.penaltyString,
       'termsAndConditionLink': instance.termsAndConditionLink,
       'status': instance.status,
-      'expiresOn': instance.expiresOn,
+      'expiresOn': instance.expiresOn?.toIso8601String(),
     };

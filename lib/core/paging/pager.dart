@@ -100,7 +100,6 @@ class _PagerState<K, T> extends State<Pager<K, T>> {
 
   void updateState() {
     _states = _states.combineStates(sourceStates!, mediatorStates!);
-    print("Updating State $sourceStates");
     _localValueChanged(PagingData(transformPages(), loadStates: CombinedLoadStates(
       _states.refresh, _states.append, _states.prepend,
         source: sourceStates, mediator:  mediatorStates

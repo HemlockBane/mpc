@@ -16,12 +16,9 @@ class SavingsFlexHomeView extends StatefulWidget {
 
 class _SavingsFlexHomeViewState extends State<SavingsFlexHomeView> {
 
-
   void onItemClick(String routeName, int position){
     Navigator.of(context).pushNamed(routeName);
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -35,9 +32,12 @@ class _SavingsFlexHomeViewState extends State<SavingsFlexHomeView> {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w700,
-            color: Colors.textColorBlack)),
+            color: Colors.textColorBlack
+          )
+        ),
         backgroundColor: Colors.backgroundWhite,
-        elevation: 0),
+        elevation: 0
+      ),
       body: Stack(
         children: [
           Container(

@@ -15,8 +15,7 @@ class StatusPill extends StatelessWidget {
     double fontSize = 24.5,
     Color color = Colors.textColorBlack,
     FontWeight fontWeight = FontWeight.w700,
-  }) =>
-      TextStyle(fontWeight: fontWeight, color: color, fontSize: fontSize);
+  }) => TextStyle(fontWeight: fontWeight, color: color, fontSize: fontSize);
 
   @override
   Widget build(BuildContext context) {

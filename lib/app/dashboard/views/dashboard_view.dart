@@ -13,6 +13,7 @@ import 'package:moniepoint_flutter/app/dashboard/views/dashboard_recently_paid_v
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/app/notifications/model/handlers/debit_transaction_notification_handler.dart';
 import 'package:moniepoint_flutter/app/notifications/view/notification_wrapper.dart';
+import 'package:moniepoint_flutter/app/savings/viewmodels/savings_dashboard_viewmodel.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
@@ -30,7 +31,7 @@ import 'dashboard_account_card.dart';
 import 'package:flutter/rendering.dart';
 
 import 'dashboard_more_view.dart';
-import 'dashboard_savings_view.dart';
+import '../../savings/views/savings_dasboard_view.dart';
 import 'dashboard_top_menu.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -240,11 +241,8 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
                   LayoutBuilder(builder: (ctx, constraints) {
                     return _contentView(width, constraints.maxHeight);
                   }),
-                  SavingsView(),
-                  ChangeNotifierProvider(
-                    create: (_) => LoansHomeViewModel(),
-                    child: LoansHomeView(),
-                  ),
+                  SavingsDashboardView(),
+                  LoansHomeView(),
                   MoreView()
                 ]
             )

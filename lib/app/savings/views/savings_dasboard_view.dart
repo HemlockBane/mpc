@@ -1,151 +1,62 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:moniepoint_flutter/app/savings/flex/views/savings_enable_flex_view.dart';
-import 'package:moniepoint_flutter/app/savings/flex/views/savings_get_started_view.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_get_started_view.dart';
+import 'package:moniepoint_flutter/app/savings/viewmodels/savings_dashboard_viewmodel.dart';
+import 'package:moniepoint_flutter/app/savings/views/savings_product_item_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
-import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'package:provider/provider.dart';
 
-import 'dashboard_top_menu.dart';
+import '../../dashboard/views/dashboard_top_menu.dart';
 
-
-const greenColor = Color(0xff0EB11E);
-
-class SavingsView extends StatelessWidget {
-  const SavingsView({Key? key}) : super(key: key);
+class SavingsDashboardView extends StatelessWidget {
+  const SavingsDashboardView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final height =  MediaQuery.of(context).size.height;// - bottomAppBarHeight;
-    final width = MediaQuery.of(context).size.width;
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.solidGreen,
-        child: Icon(Icons.add, size: 37,),
-        onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (ctx) => SavingsGetStartedView()));
-        },
-      ),
-      body: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16),
-        child: ListView(
-          children: [
-            SizedBox(height: dashboardTopMenuHeight - 40),
-            SavingsAccountCard(),
-            SizedBox(height: 45),
-            Text("Active Plans",
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 19.5, color: Colors.textColorBlack),
-            ),
-            SizedBox(height: 22,),
-            Container(
-              padding: EdgeInsets.only(top: 14, bottom: 18),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(16)),
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    offset: Offset(0, 1),
-                    blurRadius: 2,
-                    color: Color(0xff305734).withOpacity(0.14)
-                  )
-                ]
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: _buildPlanTop(
-                      planTitle: "General Savings",
-                      planColor: Colors.solidGreen,
-                      svgPath: "res/drawables/ic_savings_general.svg",
-                    ),
-                  ),
-                  SizedBox(height: 21),
-                  Divider(height: 2, thickness: 1, color: Color(0xff2E963A).withOpacity(0.12),),
-                  SizedBox(height: 16),
-                  LinearPercentIndicator(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    percent: 0.3,
-                    lineHeight: 7,
-                    linearStrokeCap: LinearStrokeCap.roundAll,
-                    progressColor: Colors.solidGreen,
-                    backgroundColor: Color(0xffC4C4C4).withOpacity(0.45),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 8),
-            Container(
-              padding: EdgeInsets.only(left: 16, right: 16, top: 14, bottom: 14),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(16)),
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    offset: Offset(0, 1),
-                    blurRadius: 2,
-                    color: Color(0xff305734).withOpacity(0.14)
-                  )
-                ]
-              ),
-              child: _buildPlanTop(
-                planTitle: "Emergency Savings",
-                planColor: Colors.red,
-                svgPath: "res/drawables/ic_savings_emergency.svg",
-              ),
-            )
-
-          ],
-        ),
-      ),
-    );
-  }
-
-  Row _buildPlanTop({required String planTitle, required Color planColor, required String svgPath}) {
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    final viewModel = Provider.of<SavingsDashboardViewModel>(context, listen: false);
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: ListView(
+        children: [
+          SizedBox(height: dashboardTopMenuHeight - 40),
+          SavingsAccountCard(),
+          SizedBox(height: 29),
+          Text("What would you like to save for?"),
+          GridView.count(
+            physics: NeverScrollableScrollPhysics(),
+            crossAxisCount: 16,
+            mainAxisSpacing: 15,
             children: [
-              Container(
-                padding: EdgeInsets.only(left: 8, right: 10, top: 4, bottom: 4),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(4)),
-                  color: planColor.withOpacity(0.1)
-                ),
-                child: Text(planTitle,
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 11.5, color: planColor),
-                ),
+              SavingsProductItemView(
+                  productType: SavingsProductType.FLEX,
+                  viewModel: viewModel
               ),
-              SizedBox(height: 10),
-              Row(
-                children: [
-                  SvgPicture.asset(
-                    "res/drawables/ic_naira.svg",
-                    width: 17,
-                    height: 14,
-                    color: Colors.textColorBlack,
-                  ),
-                  SizedBox(width: 4,),
-                  Text("7,500,000.00",
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18.5, color: Colors.textColorBlack),
-                  ),
-                ],
+              SavingsProductItemView(
+                  productType: SavingsProductType.SAFE_LOCK,
+                  viewModel: viewModel
+              ),
+              SavingsProductItemView(
+                  productType: SavingsProductType.TARGET,
+                  viewModel: viewModel
+              ),
+              SavingsProductItemView(
+                  productType: SavingsProductType.GROUP,
+                  viewModel: viewModel
               )
             ],
-          ),
-        ),
-        SvgPicture.asset(svgPath)
-      ],
+          )
+        ],
+      ),
     );
   }
+
 }
 
+///SavingsAccountCard
+///
+///
 class SavingsAccountCard extends StatelessWidget {
-  const SavingsAccountCard({
-    Key? key,
-  }) : super(key: key);
+  const SavingsAccountCard({Key? key,}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -182,7 +93,7 @@ class SavingsAccountCard extends StatelessWidget {
           BoxShadow(
             offset: Offset(0, 13),
             blurRadius: 21,
-            color: greenColor.withOpacity(0.2)
+            color: Colors.savingsPrimaryShadow.withOpacity(0.2)
           )
         ]
       ),
@@ -190,6 +101,9 @@ class SavingsAccountCard extends StatelessWidget {
   }
 }
 
+///ComingSoonView
+///
+///
 class ComingSoonView extends StatelessWidget {
   const ComingSoonView({
     Key? key,
@@ -273,15 +187,12 @@ class ComingSoonView extends StatelessWidget {
                             ],
                           ),
                         );
-
                       },
                     ),
                   ],
                 )
               ),
             ),
-            // Spacer()
-
           ],
         ),
       ),

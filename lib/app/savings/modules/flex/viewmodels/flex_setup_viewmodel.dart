@@ -6,7 +6,7 @@ import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 
 
-class SavingsFlexSetupViewModel extends BaseViewModel with PaymentViewModel{
+class FlexSetupViewModel extends BaseViewModel with PaymentViewModel{
 
   final StreamController<Tuple<int, bool>> _pageFormController = StreamController.broadcast();
   Stream<Tuple<int, bool>> get pageFormStream => _pageFormController.stream;

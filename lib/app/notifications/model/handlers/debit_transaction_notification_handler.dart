@@ -94,30 +94,30 @@ class DebitCreditTransactionNotificationHandler extends NotificationHandler {
   }
 
   void _onBackgroundNotification() {
-    const AndroidNotificationDetails androidSpecifics = AndroidNotificationDetails(
-        "transactions", "Moniepoint Transactions", importance: Importance.max, priority: Priority.high
-    );
-
-   IOSNotificationDetails iosSpecifics = IOSNotificationDetails(
-        badgeNumber: 0,
-        subtitle: message?.messageType == MessageType.DEBIT_TRANSACTION_ALERT
-            ? "Debit Transaction" : "Credit Transaction"
-    );
-
-    NotificationDetails platformSpecifics = NotificationDetails(
-        android: (Platform.isAndroid == true) ? androidSpecifics : null,
-        iOS: (Platform.isIOS == true) ? iosSpecifics : null
-    );
-
-    final data = message?.data as DebitCreditTransactionMessage?;
-
-    notificationPlugin.show(
-        1,
-        message?.title ?? "",
-        message?.description ?? "",
-        platformSpecifics,
-        payload: jsonEncode(message?.toJson((value) => data?.toJson() ?? {}))
-    );
+   //  const AndroidNotificationDetails androidSpecifics = AndroidNotificationDetails(
+   //      "transactions", "Moniepoint Transactions", importance: Importance.max, priority: Priority.high
+   //  );
+   //
+   // IOSNotificationDetails iosSpecifics = IOSNotificationDetails(
+   //      badgeNumber: 0,
+   //      subtitle: message?.messageType == MessageType.DEBIT_TRANSACTION_ALERT
+   //          ? "Debit Transaction" : "Credit Transaction"
+   //  );
+   //
+   //  NotificationDetails platformSpecifics = NotificationDetails(
+   //      android: (Platform.isAndroid == true) ? androidSpecifics : null,
+   //      iOS: (Platform.isIOS == true) ? iosSpecifics : null
+   //  );
+   //
+   //  final data = message?.data as DebitCreditTransactionMessage?;
+   //
+   //  notificationPlugin.show(
+   //      1,
+   //      message?.title ?? "",
+   //      message?.description ?? "",
+   //      platformSpecifics,
+   //      payload: jsonEncode(message?.toJson((value) => data?.toJson() ?? {}))
+   //  );
   }
 
   @override

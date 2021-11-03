@@ -14,7 +14,7 @@ import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
-import 'package:moniepoint_flutter/core/views/transaction_account_source.dart';
+import 'package:moniepoint_flutter/core/views/user_account_selection_view.dart';
 import 'package:moniepoint_flutter/core/views/transaction_success_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
@@ -267,7 +267,11 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
               SizedBox(height: 24,),
               makeLabel('Transfer From'),
               SizedBox(height: 8,),
-              TransactionAccountSource(viewModel),
+              UserAccountSelectionView(
+                viewModel,
+                selectedUserAccount: viewModel.sourceAccount,
+                onAccountSelected: (account) => viewModel.setSourceAccount(account),
+              ),
               SizedBox(height: 24,),
               makeLabel('How much would you like to send ? '),
               SizedBox(height: 8,),

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart' hide Colors, Page;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/accounts/viewmodels/transaction_list_view_model.dart';
@@ -14,6 +15,8 @@ import 'package:moniepoint_flutter/app/accounts/views/accounts_shimmer_view.dart
 import 'package:moniepoint_flutter/app/accounts/views/dialogs/account_settings_dialog.dart';
 import 'package:moniepoint_flutter/app/accounts/views/transaction_history_list_item.dart';
 import 'package:moniepoint_flutter/app/customer/user_account.dart';
+import 'package:moniepoint_flutter/core/paging/load_state.dart';
+import 'package:moniepoint_flutter/core/paging/load_state.dart' as loadStates;
 import 'package:moniepoint_flutter/core/views/empty_list_layout_view.dart';
 import 'package:moniepoint_flutter/core/views/error_layout_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
@@ -104,76 +107,6 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
         );
       }
     }
-  }
-
-  Widget filterMenu() {
-    return Flexible(
-        flex: 0,
-        child: Padding(
-          padding: EdgeInsets.only(left: 24, right: 23),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              TextButton.icon(
-                icon: SvgPicture.asset('res/drawables/ic_account_filter_2.svg'),
-                onPressed: () => setState(() => isInFilterMode = true),
-                label: Text(
-                  'Filter',
-                  style: TextStyle(
-                    color: Colors.primaryColor,
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                style: ButtonStyle(
-                    minimumSize: MaterialStateProperty.all(Size(40, 0)),
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    overlayColor: MaterialStateProperty.all(
-                        Colors.darkBlue.withOpacity(0.2)),
-                    padding: MaterialStateProperty.all(
-                        EdgeInsets.fromLTRB(16, 7.2, 25, 7.2)),
-                    shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(41))),
-                    backgroundColor: MaterialStateProperty.all(
-                        Colors.primaryColor.withOpacity(0.2))),
-              ),
-              TextButton.icon(
-                  onPressed:
-                      (!_isDownloading) ? _downloadAccountStatement : null,
-                  icon: (!_isDownloading)
-                      ? SvgPicture.asset(
-                          'res/drawables/ic_account_download.svg',
-                          width: 8.5,
-                          height: 11.5)
-                      : SizedBox(
-                          width: 12,
-                          height: 12,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation(
-                                Colors.solidGreen.withOpacity(0.8)),
-                            backgroundColor: Colors.grey.withOpacity(0.1),
-                          ),
-                        ),
-                  label: Text(
-                    'Download Statement',
-                    style: TextStyle(
-                        color: (!_isDownloading)
-                            ? Colors.primaryColor
-                            : Colors.grey.withOpacity(0.5),
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w600),
-                  ),
-                  style: ButtonStyle(
-                    minimumSize: MaterialStateProperty.all(Size(40, 0)),
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    overlayColor: MaterialStateProperty.all(Colors.primaryColor.withOpacity(0.1)),
-                    padding: MaterialStateProperty.all(EdgeInsets.only(left: 8, right: 2, top: 8, bottom: 8)),
-                  ))
-            ],
-          ),
-        ));
   }
 
   void _refresh() {
@@ -279,7 +212,8 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
                   });
                   },
               )),
-        )
+        ),
+        LoadStatesLoadingIndicator(pagingData: value)
       ],
     );
   }
@@ -291,7 +225,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
     final containerHeight = _viewModel.isAccountUpdateCompleted ? 120 : 180;
     final minExtent = 1 - (containerHeight / (screenSize.height - maxDraggableTop));
 
-    return StatefulBuilder(builder: (ctx, setState){
+    return StatefulBuilder(builder: (ctx, setState) {
       return NotificationListener<DraggableScrollableNotification>(
         onNotification: (DraggableScrollableNotification notification) {
           if(notification.extent == maxExtent){
@@ -387,7 +321,11 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
                               ),
                               Visibility(
                                   visible: !isInFilterMode && error == null,
-                                  child: filterMenu()
+                                  child: _FilterMenu(
+                                      isDownloading: _isDownloading,
+                                      filterAction: () => setState(() => isInFilterMode = true),
+                                      downloadAccountStatement: _downloadAccountStatement
+                                  )
                               ),
                               SizedBox(height: 13,),
                               Visibility(
@@ -399,7 +337,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
                                   )
                               ),
                             ],
-                          ),
+                          )
                         ],
                       );
                     });
@@ -545,5 +483,83 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
     _animationController.dispose();
     super.dispose();
   }
+}
+
+
+///_FilterMenu
+///
+///
+///
+///
+class _FilterMenu extends StatelessWidget {
+
+  _FilterMenu({
+    required this.isDownloading,
+    required this.filterAction,
+    required this.downloadAccountStatement
+  });
+
+  final bool isDownloading;
+  final Function() downloadAccountStatement;
+  final Function() filterAction;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(left: 24, right: 23),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          TextButton.icon(
+            icon: SvgPicture.asset('res/drawables/ic_account_filter_2.svg'),
+            onPressed: filterAction,//() => setState(() => isInFilterMode = true),
+            label: Text(
+              'Filter',
+              style: TextStyle(
+                color: Colors.primaryColor,
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            style: ButtonStyle(
+                minimumSize: MaterialStateProperty.all(Size(40, 0)),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                overlayColor: MaterialStateProperty.all(Colors.darkBlue.withOpacity(0.2)),
+                padding: MaterialStateProperty.all(EdgeInsets.fromLTRB(16, 7.2, 25, 7.2)),
+                shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(41))),
+                backgroundColor: MaterialStateProperty.all(Colors.primaryColor.withOpacity(0.2))
+            ),
+          ),
+          TextButton.icon(
+              onPressed: (!isDownloading) ? downloadAccountStatement : null,
+              icon: (!isDownloading)
+                  ? SvgPicture.asset('res/drawables/ic_account_download.svg', width: 8.5, height: 11.5)
+                  : SizedBox(width: 12, height: 12, child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation(Colors.solidGreen.withOpacity(0.8)),
+                  backgroundColor: Colors.grey.withOpacity(0.1),
+                ),
+              ),
+              label: Text(
+                'Download Statement',
+                style: TextStyle(
+                    color: (!isDownloading)
+                        ? Colors.primaryColor
+                        : Colors.grey.withOpacity(0.5),
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600),
+              ),
+              style: ButtonStyle(
+                minimumSize: MaterialStateProperty.all(Size(40, 0)),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                overlayColor: MaterialStateProperty.all(Colors.primaryColor.withOpacity(0.1)),
+                padding: MaterialStateProperty.all(EdgeInsets.only(left: 8, right: 2, top: 8, bottom: 8)),
+              ))
+        ],
+      ),
+    );
+  }
+
 }
 

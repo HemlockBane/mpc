@@ -1,10 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:moniepoint_flutter/app/savings/flex/views/savings_flex_home.dart';
-import 'package:moniepoint_flutter/app/savings/flex/views/savings_flex_settings.dart';
-import 'package:moniepoint_flutter/app/savings/flex/views/savings_flex_topup_view.dart';
-import 'package:moniepoint_flutter/app/savings/flex/views/savings_flex_withdrawal.dart';
 import 'package:moniepoint_flutter/app/savings/savings_success_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/routes.dart';

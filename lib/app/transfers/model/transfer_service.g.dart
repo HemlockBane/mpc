@@ -9,7 +9,7 @@ part of 'transfer_service.dart';
 class _TransferService implements TransferService {
   _TransferService(this._dio, {this.baseUrl}) {
     baseUrl ??=
-        'https://moniepoint-customer-transfer-v2.console.teamapt.com/api/v1/transfer/';
+        'https://core-transfer.monnify.development.teamapt.com/api/v1/transfer/';
   }
 
   final Dio _dio;
@@ -31,7 +31,7 @@ class _TransferService implements TransferService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.1.0'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -56,7 +56,7 @@ class _TransferService implements TransferService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.1.0'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -84,7 +84,7 @@ class _TransferService implements TransferService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.1.0'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -112,7 +112,7 @@ class _TransferService implements TransferService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '1.1.0'
+                  r'appVersion': '0.0.1'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -137,7 +137,7 @@ class _TransferService implements TransferService {
             method: 'GET',
             headers: <String, dynamic>{
               r'client-id': 'ANDROID',
-              r'appVersion': '1.1.0'
+              r'appVersion': '0.0.1'
             },
             extra: _extra,
             responseType: ResponseType.stream)

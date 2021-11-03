@@ -27,7 +27,7 @@ import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:moniepoint_flutter/core/views/selection_combo_two.dart';
-import 'package:moniepoint_flutter/core/views/transaction_account_source.dart';
+import 'package:moniepoint_flutter/core/views/user_account_selection_view.dart';
 import 'package:moniepoint_flutter/core/views/transaction_success_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
@@ -461,7 +461,11 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
             SizedBox(height: viewModel.purchaseType == PurchaseType.DATA ? 24 : 0,),
             makeLabel('Purchase From'),
             SizedBox(height: 8,),
-            TransactionAccountSource(viewModel),
+            UserAccountSelectionView(
+              viewModel,
+              selectedUserAccount: viewModel.sourceAccount,
+              onAccountSelected: (account) => viewModel.setSourceAccount(account),
+            ),
             SizedBox(height: 24,),
             makeLabel('How much would you like to purchase? '),
             SizedBox(height: 8,),

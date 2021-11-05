@@ -87,7 +87,7 @@ dependency_overrides:
       url: https://github.com/trevorwang/retrofit.dart.git
       path: annotation
       ref: master
-  meta: 1.7.0
+#  meta: 1.7.0
 
 dev_dependencies:
   retrofit_generator:

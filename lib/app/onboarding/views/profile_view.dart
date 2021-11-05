@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter/services.dart';
 import 'package:flutter_html/flutter_html.dart';
@@ -9,16 +10,13 @@ import 'package:moniepoint_flutter/app/login/viewmodels/login_view_model.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/account_profile_result.dart';
 import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/dialogs/account_created_dialog.dart';
-import 'package:moniepoint_flutter/app/validation/model/data/onboarding_liveliness_validation_response.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
-import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/extensions/strings.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/call_utils.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
-import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/validators.dart';
 import 'package:moniepoint_flutter/core/views/custom_check_box.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
@@ -49,7 +47,7 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
   bool _isPasswordVisible  = false;
   bool _isPinVisible  = false;
   bool _isUssdVisible  = false;
-  bool _isLoading = false;
+  // bool _isLoading = false;
   bool _isSignatureEnabled = false;
   bool _displayPasswordStrength = false;
 
@@ -97,8 +95,7 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
   void handleCreationResponse(Resource<AccountProfile> resource) async {
     final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
     if(resource is Success<AccountProfile>) {
-      setState(() => _isLoading = false);
-
+      setState(() => viewModel.setIsOnboarding(false));
       final accountProfile = resource.data as AccountProfile;
 
       showModalBottomSheet(
@@ -117,7 +114,7 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
           }
       );
     } else if(resource is Error<AccountProfile>) {
-      setState(() => _isLoading = false);
+      setState(() => viewModel.setIsOnboarding(false));
       showError(
           widget._scaffoldKey.currentContext ?? context,
           title: "Profile Creation Failed!",
@@ -125,20 +122,32 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
           primaryButtonText: "Try Again?"
       );
     }
-    else if (resource is Loading){
-      setState(() => _isLoading = true);
+    else if (resource is Loading) {
+      if(!viewModel.isOnboarding) setState(() => viewModel.setIsOnboarding(true));
     }
   }
 
   void subscribeUiToOnBoard() async {
     final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
+
+    if(viewModel.isOnboarding == true) return;
+
+    setState(() { viewModel.setIsOnboarding(true); });
     if (await Permission.storage.request().isGranted) {
       final bytes = await _signatureController.toPngBytes();
       Directory dir = await getTemporaryDirectory();
       File signatureFile = File(join(dir.path, 'signature.png'));
       signatureFile.writeAsBytesSync(bytes!);
-
       viewModel.createAccount(signatureFile.path).listen(handleCreationResponse);
+    } else {
+      setState(() { viewModel.setIsOnboarding(false); });
+      showInfo(
+          context,
+          title: "Storage Access Disabled",
+          message: "Navigate to phone settings to enable storage access",
+          primaryButtonText: "Enable Storage Access",
+          onPrimaryClick: () => AppSettings.openAppSettings()
+      );
     }
   }
 
@@ -512,7 +521,7 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
             stream: viewModel.profileForm.isValid,
             onClick: () => subscribeUiToOnBoard(),
             text: "Complete Signup",
-            isLoading: _isLoading
+            isLoading: viewModel.isOnboarding
         )
       ],
     );

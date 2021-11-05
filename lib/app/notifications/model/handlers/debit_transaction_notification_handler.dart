@@ -1,21 +1,20 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Colors;
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/transaction_dao.dart';
-import 'package:moniepoint_flutter/app/accounts/model/transaction_service_delegate.dart';
 import 'package:moniepoint_flutter/app/accounts/views/transaction_history_list_item.dart';
-import 'package:moniepoint_flutter/app/notifications/app_notification_service.dart';
 import 'package:moniepoint_flutter/app/notifications/model/data/remote_notification_message.dart';
 import 'package:moniepoint_flutter/app/notifications/model/handlers/notification_handler.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:moniepoint_flutter/app/notifications/view/notification_wrapper.dart';
+import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/models/transaction.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
+import 'package:moniepoint_flutter/core/views/moniepoint_scaffold.dart';
 import 'package:moniepoint_flutter/main.dart';
 
 part 'debit_transaction_notification_handler.g.dart';
@@ -51,111 +50,72 @@ class DebitCreditTransactionNotificationHandler extends NotificationHandler {
 
   Future<void> _persistDataLocally() async {
     this.transactionDao = GetIt.I<TransactionDao>();
-    final data = message?.data as DebitTransactionMessage?;
+    final data = message?.data as DebitCreditTransactionMessage?;
 
     if(data == null || this.transactionDao == null) return;
 
     final accountTransaction = data.transactionObj;
 
-    if(accountTransaction != null) {
+    //It's best to use the one updated from the backend
+    final existingTransaction = await this.transactionDao?.getTransactionByRef(
+        accountTransaction?.transactionRef ?? ""
+    );
+
+    if(accountTransaction != null && existingTransaction == null) {
       await this.transactionDao?.insertItem(accountTransaction);
     }
   }
 
   void _onForegroundNotification() {
-    _onBackgroundNotification();
-    // final context = navigatorKey.currentContext;
-    // if(context == null) return;
-    //
-    // final transactionData = message?.data as DebitTransactionMessage?;
-    //
-    // if(transactionData == null) return;
-    //
-    // final accountTransaction = transactionData.transactionObj;
+    final context = navigatorKey.currentContext;
+    if(context == null) return;
 
-    // ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
-    // ScaffoldMessenger.of(context).showMaterialBanner(
-    //      MaterialBanner(
-    //          backgroundColor: Colors.transparent,
-    //          padding: EdgeInsets.zero,
-    //          content: Container(
-    //            margin: EdgeInsets.only(left: 13, right: 13, bottom: 20),
-    //            decoration: BoxDecoration(
-    //                borderRadius: BorderRadius.circular(10),
-    //                color: Colors.white,
-    //                boxShadow: [
-    //                  BoxShadow(
-    //                      color: Color(0XFF000000).withOpacity(0.2),
-    //                      offset: Offset(0, 13),
-    //                      blurRadius: 21
-    //                  )
-    //                ]
-    //            ),
-    //            child: Material(
-    //              borderRadius: BorderRadius.circular(10),
-    //              color: Colors.transparent,
-    //              child: InkWell(
-    //                borderRadius: BorderRadius.circular(10),
-    //                onTap: handle,
-    //                child: Container(
-    //                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 22),
-    //                  decoration: BoxDecoration(
-    //                    borderRadius: BorderRadius.circular(10),
-    //                  ),
-    //                  child: Row(
-    //                    children: [
-    //                      TransactionHistoryListItem.initialView(accountTransaction?.type ?? TransactionType.UNKNOWN),
-    //                      SizedBox(width: 18,),
-    //                      Column(
-    //                        crossAxisAlignment: CrossAxisAlignment.start,
-    //                        children: [
-    //                          Text(
-    //                              message?.title ?? "",
-    //                             style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w800),
-    //                          ),
-    //                          SizedBox(height: 2,),
-    //                          Text(
-    //                            message?.description ?? "",
-    //                            style: TextStyle(color: Colors.deepGrey, fontSize: 12, fontWeight: FontWeight.normal),
-    //                          )
-    //                        ],
-    //                      )
-    //                    ],
-    //                  ),
-    //                ),
-    //              ),
-    //            ),
-    //          ),
-    //          actions: <Widget>[SizedBox()]
-    //      )
-    // );
+    final transactionData = message?.data as DebitCreditTransactionMessage?;
+
+    if(transactionData == null) return;
+
+    final accountTransaction = transactionData.transactionObj;
+
+    if(accountTransaction == null) return;
+
+    MoniepointAppMessenger.of(context).showInAppNotification(
+      NotificationBanner(
+          key: Key(accountTransaction.transactionRef),
+          onClick: handle,
+          content: DebitCreditNotificationItem(
+            accountTransaction: accountTransaction,
+            title: message?.title ?? "",
+            description: message?.description ?? "",
+          )
+      )
+    );
   }
 
   void _onBackgroundNotification() {
-    const AndroidNotificationDetails androidSpecifics = AndroidNotificationDetails(
-        "transactions", "Moniepoint Transactions", importance: Importance.max, priority: Priority.high
-    );
-
-   IOSNotificationDetails iosSpecifics = IOSNotificationDetails(
-        badgeNumber: 0,
-        subtitle: message?.messageType == MessageType.DEBIT_TRANSACTION_ALERT
-            ? "Debit Transaction" : "Credit Transaction"
-    );
-
-    NotificationDetails platformSpecifics = NotificationDetails(
-        android: (Platform.isAndroid == true) ? androidSpecifics : null,
-        iOS: (Platform.isIOS == true) ? iosSpecifics : null
-    );
-
-    final data = message?.data as DebitTransactionMessage?;
-
-    notificationPlugin.show(
-        1,
-        message?.title ?? "",
-        message?.description ?? "",
-        platformSpecifics,
-        payload: jsonEncode(message?.toJson((value) => data?.toJson() ?? {}))
-    );
+   //  const AndroidNotificationDetails androidSpecifics = AndroidNotificationDetails(
+   //      "transactions", "Moniepoint Transactions", importance: Importance.max, priority: Priority.high
+   //  );
+   //
+   // IOSNotificationDetails iosSpecifics = IOSNotificationDetails(
+   //      badgeNumber: 0,
+   //      subtitle: message?.messageType == MessageType.DEBIT_TRANSACTION_ALERT
+   //          ? "Debit Transaction" : "Credit Transaction"
+   //  );
+   //
+   //  NotificationDetails platformSpecifics = NotificationDetails(
+   //      android: (Platform.isAndroid == true) ? androidSpecifics : null,
+   //      iOS: (Platform.isIOS == true) ? iosSpecifics : null
+   //  );
+   //
+   //  final data = message?.data as DebitCreditTransactionMessage?;
+   //
+   //  notificationPlugin.show(
+   //      1,
+   //      message?.title ?? "",
+   //      message?.description ?? "",
+   //      platformSpecifics,
+   //      payload: jsonEncode(message?.toJson((value) => data?.toJson() ?? {}))
+   //  );
   }
 
   @override
@@ -167,10 +127,18 @@ class DebitCreditTransactionNotificationHandler extends NotificationHandler {
 
     ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
 
-    final transactionMessage = message?.data as DebitTransactionMessage?;
+    final transactionMessage = message?.data as DebitCreditTransactionMessage?;
     final item = transactionMessage?.transactionObj;
+    final currentLoggedInUser = UserInstance().getUser();
 
-    if(UserInstance().getUser() != null && item != null) {
+    if(currentLoggedInUser != null && item != null) {
+      final transactionAccountNumber = item.accountNumber;
+      final transactionBelongsToUser = currentLoggedInUser.getCustomerAccounts()
+          .where((element) => element.accountNumber == transactionAccountNumber)
+          .isNotEmpty;
+
+      if(!transactionBelongsToUser) return;
+
       await _persistDataLocally();
 
       await Future.delayed(Duration(milliseconds: 600));
@@ -181,7 +149,6 @@ class DebitCreditTransactionNotificationHandler extends NotificationHandler {
         "accountNumber": item.accountNumber
       });
     } else {
-      print("Saving Notification Handling Notification!!!!!!");
       saveNotificationForLater(message!.messageType!, message!);
     }
   }
@@ -195,9 +162,8 @@ class DebitCreditTransactionNotificationHandler extends NotificationHandler {
 
   static RemoteNotificationMessage buildRemoteNotificationMessage(Object? notificationData) {
     if(notificationData is Map<String, dynamic>) {
-      print("Getting the actual data");
       final dataMessage = notificationData["dataMessage"] ?? notificationData;
-      return RemoteNotificationMessage.fromJson(dataMessage, (json) => DebitTransactionMessage.fromJson(json));
+      return RemoteNotificationMessage.fromJson(dataMessage, (json) => DebitCreditTransactionMessage.fromJson(json));
     } else if(notificationData is RemoteNotificationMessage) {
       return notificationData;
     }
@@ -206,16 +172,57 @@ class DebitCreditTransactionNotificationHandler extends NotificationHandler {
 
 }
 
+class DebitCreditNotificationItem extends StatelessWidget {
+
+  DebitCreditNotificationItem({
+    required this.accountTransaction,
+    required this.title,
+    required this.description
+  });
+
+  final AccountTransaction? accountTransaction;
+  final String title;
+  final String description;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 15),
+      child: Row(
+        children: [
+          TransactionHistoryListItem.initialView(accountTransaction?.type ?? TransactionType.UNKNOWN),
+          SizedBox(width: 18,),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w800),
+              ),
+              SizedBox(height: 2,),
+              Text(
+                description,
+                style: TextStyle(color: Colors.deepGrey, fontSize: 12, fontWeight: FontWeight.normal),
+              )
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+}
+
 
 @JsonSerializable()
-class DebitTransactionMessage {
+class DebitCreditTransactionMessage {
   final AccountTransaction? transactionObj;
 
-  DebitTransactionMessage({
+  DebitCreditTransactionMessage({
     this.transactionObj
   });
 
-  factory DebitTransactionMessage.fromJson(Object? data) {
+  factory DebitCreditTransactionMessage.fromJson(Object? data) {
     final mapData = data as Map<String, dynamic>;
     final transactionObjData = mapData["transactionObj"];
     final transactionObj = (transactionObjData is String)
@@ -223,7 +230,7 @@ class DebitTransactionMessage {
         : transactionObjData;
     final finalMap = Map<String, dynamic>.from(mapData);
     finalMap["transactionObj"] = transactionObj;
-    return _$DebitTransactionMessageFromJson(finalMap);
+    return _$DebitCreditTransactionMessageFromJson(finalMap);
   }
-  Map<String, dynamic> toJson() => _$DebitTransactionMessageToJson(this);
+  Map<String, dynamic> toJson() => _$DebitCreditTransactionMessageToJson(this);
 }

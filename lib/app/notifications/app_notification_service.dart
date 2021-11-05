@@ -21,8 +21,8 @@ class AppNotificationService {
   final AndroidInitializationSettings _androidInitSettings = AndroidInitializationSettings("@mipmap/ic_launcher");
   final IOSInitializationSettings _iosInitializationSettings = IOSInitializationSettings();
   late final InitializationSettings _notificationInitializationSettings = InitializationSettings(
-    android: _androidInitSettings,
-    iOS: _iosInitializationSettings
+      android: _androidInitSettings,
+      iOS: _iosInitializationSettings
   );
 
   static const FCM_TOKEN = "FCM_TOKEN";
@@ -34,6 +34,13 @@ class AppNotificationService {
     FirebaseMessaging.instance.onTokenRefresh.listen(onTokenRefresh);
     FirebaseMessaging.onMessage.listen(onMessageReceived);
     FirebaseMessaging.onBackgroundMessage(onBackgroundMessageReceived);
+
+    FirebaseMessaging.onMessageOpenedApp.listen((event) async {
+      final dataMessage = _extractDataMessage(event) ?? {};
+      final messageType = enumFromString<MessageType>(MessageType.values, dataMessage["messageType"] ?? "");
+      final handler = NotificationHandler.getInstance(messageType, dataMessage);
+      await handler.handle();
+    });
 
     await _onAppLaunchWithNotification();
     await notificationPlugin.initialize(
@@ -93,14 +100,14 @@ class AppNotificationService {
   void _registerDeviceToken({bool refresh = false}) {
     if(Platform.isAndroid) {
       Workmanager().registerOneOffTask(
-          "DeviceTokenRegistrationWorker.WORKER_KEY",
-          DeviceTokenRegistrationWorker.WORKER_KEY,
-          existingWorkPolicy: ExistingWorkPolicy.replace,
-          backoffPolicy: BackoffPolicy.exponential,
-          constraints: Constraints(networkType: NetworkType.connected),
+        "DeviceTokenRegistrationWorker.WORKER_KEY",
+        DeviceTokenRegistrationWorker.WORKER_KEY,
+        existingWorkPolicy: ExistingWorkPolicy.replace,
+        backoffPolicy: BackoffPolicy.exponential,
+        constraints: Constraints(networkType: NetworkType.connected),
       );
     } else if(Platform.isIOS) {
-      Future.delayed(Duration(milliseconds: 5000), (){
+      Future.delayed(Duration(milliseconds: 5000), () {
         if(refresh) {
           IosBackgroundTaskWorker.addTaskToQueue(DeviceTokenRegistrationWorker.WORKER_KEY);
         } else {
@@ -116,7 +123,7 @@ class AppNotificationService {
 
   void onMessageReceived(RemoteMessage message) async {
     print("Foreground Message <===> ${message.data}");
-    //if the user is not logged in then we should make it a foreground message
+    //if the user is not logged in then we should make it a background message
     if(UserInstance().getUser() == null) return onBackgroundMessageReceived(message);
 
     final dataMessage = _extractDataMessage(message) ?? {};

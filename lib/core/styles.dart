@@ -126,14 +126,14 @@ class Styles {
           color: Colors.white,
           fontWeight: FontWeight.w500,
           fontFamily: Styles.defaultFont)),
-      foregroundColor: MaterialStateProperty.all(Colors.savingsPrimary),
+      foregroundColor: MaterialStateProperty.all(Colors.white),
       backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
         if (states.contains(MaterialState.disabled))
           return Colors.savingsPrimary.withOpacity(0.5);
         else if (states.contains(MaterialState.pressed))
           return Colors.savingsPrimary.withOpacity(0.5);
         else
-          return Colors.savingsPrimary.withOpacity(0.2);
+          return Colors.savingsPrimary;
       }),
       padding: MaterialStateProperty.all(
           EdgeInsets.symmetric(horizontal: 16, vertical: 16)),
@@ -146,14 +146,14 @@ class Styles {
           color: Colors.white,
           fontWeight: FontWeight.w500,
           fontFamily: Styles.defaultFont)),
-      foregroundColor: MaterialStateProperty.all(Colors.safeLockPrimary),
+      foregroundColor: MaterialStateProperty.all(Colors.white),
       backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
         if (states.contains(MaterialState.disabled))
           return Colors.safeLockPrimary.withOpacity(0.5);
         else if (states.contains(MaterialState.pressed))
           return Colors.safeLockPrimary.withOpacity(0.5);
         else
-          return Colors.safeLockPrimary.withOpacity(0.2);
+          return Colors.safeLockPrimary;
       }),
       padding: MaterialStateProperty.all(
           EdgeInsets.symmetric(horizontal: 16, vertical: 16)),
@@ -166,14 +166,14 @@ class Styles {
           color: Colors.white,
           fontWeight: FontWeight.w500,
           fontFamily: Styles.defaultFont)),
-      foregroundColor: MaterialStateProperty.all(Colors.targetSavingsPrimary),
+      foregroundColor: MaterialStateProperty.all(Colors.white),
       backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
         if (states.contains(MaterialState.disabled))
           return Colors.targetSavingsPrimary.withOpacity(0.5);
         else if (states.contains(MaterialState.pressed))
           return Colors.targetSavingsPrimary.withOpacity(0.5);
         else
-          return Colors.targetSavingsPrimary.withOpacity(0.2);
+          return Colors.targetSavingsPrimary;
       }),
       padding: MaterialStateProperty.all(
           EdgeInsets.symmetric(horizontal: 16, vertical: 16)),
@@ -187,14 +187,14 @@ class Styles {
           color: Colors.white,
           fontWeight: FontWeight.w500,
           fontFamily: Styles.defaultFont)),
-      foregroundColor: MaterialStateProperty.all(Colors.groupSavingsPrimary),
+      foregroundColor: MaterialStateProperty.all(Colors.white),
       backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
         if (states.contains(MaterialState.disabled))
           return Colors.groupSavingsPrimary.withOpacity(0.5);
         else if (states.contains(MaterialState.pressed))
           return Colors.groupSavingsPrimary.withOpacity(0.5);
         else
-          return Colors.groupSavingsPrimary.withOpacity(0.2);
+          return Colors.groupSavingsPrimary;
       }),
       padding: MaterialStateProperty.all(
           EdgeInsets.symmetric(horizontal: 16, vertical: 16)),

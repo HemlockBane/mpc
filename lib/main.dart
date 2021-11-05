@@ -42,7 +42,7 @@ void main() async {
     providers: [
       ChangeNotifierProvider(create: (_) => LoginViewModel()),
       ChangeNotifierProvider(create: (_) => DashboardViewModel()),
-      ChangeNotifierProvider(create: (_) => SavingsDashboardViewModel()),
+      // ChangeNotifierProvider(create: (_) => SavingsDashboardViewModel()),
       ChangeNotifierProvider(create: (_) => LoansHomeViewModel()),
       ChangeNotifierProvider(create: (_) => SystemConfigurationViewModel()),
     ],

@@ -181,9 +181,9 @@ class _TransferPinDialog extends TransactionPinDialogState<TransferPinDialog> {
   @override
   void subscribeUiToPayment() {
     final viewModel = Provider.of<TransferViewModel>(context, listen: false);
-    viewModel.makeTransfer().listen((event) {
+      viewModel.makeTransfer().listen((event) {
       if(event is Loading) {
-        setState(() => _isLoading = true);
+        if(_isLoading == false) setState(() => _isLoading = true);
       }
       else if(event is Success) {
         setState(() {

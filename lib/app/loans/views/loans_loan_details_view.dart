@@ -2,6 +2,8 @@ import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
 import 'package:moniepoint_flutter/app/accounts/views/transaction_history_list_item.dart';
+import 'package:moniepoint_flutter/app/loans/models/short_term_loan_details.dart';
+import 'package:moniepoint_flutter/app/loans/viewmodels/loan_details_view_model.dart';
 import 'package:moniepoint_flutter/app/loans/views/loans_apply_confirmation_view.dart';
 import 'package:moniepoint_flutter/app/loans/views/loans_advert_details_view.dart';
 import 'package:moniepoint_flutter/app/loans/views/widgets/info_banner_content.dart';
@@ -11,21 +13,29 @@ import 'package:moniepoint_flutter/core/models/ussd_configuration.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'package:moniepoint_flutter/core/utils/currency_util.dart';
+import 'package:provider/provider.dart';
 
 class LoanDetailsView extends StatefulWidget {
-  const LoanDetailsView({Key? key}) : super(key: key);
+  const LoanDetailsView({Key? key, required this.loanDetails}) : super(key: key);
+
+  final ShortTermLoanDetails? loanDetails;
 
   @override
   _LoanDetailsViewState createState() => _LoanDetailsViewState();
 }
 
 class _LoanDetailsViewState extends State<LoanDetailsView> {
+
+  final maxDraggableHeight =  215.0;
+
   TextStyle getBoldStyle({
     double fontSize = 24.5,
     Color color = Colors.textColorBlack,
     FontWeight fontWeight = FontWeight.w700,
   }) =>
       TextStyle(fontWeight: fontWeight, color: color, fontSize: fontSize);
+
 
   TextStyle getNormalStyle({
     double fontSize = 11.5,
@@ -63,6 +73,7 @@ class _LoanDetailsViewState extends State<LoanDetailsView> {
       );
 
   Widget _loanDetailsContent(ScrollController draggableScrollController) {
+    final viewModel = Provider.of<LoanDetailsViewModel>(context);
     return Container(
       child: ListView(
         controller: draggableScrollController,
@@ -70,22 +81,24 @@ class _LoanDetailsViewState extends State<LoanDetailsView> {
         shrinkWrap: true,
         children: [
           SizedBox(height: 26),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 14, vertical: 17),
-            margin: EdgeInsets.symmetric(horizontal: 23),
-            child: InfoBannerContent(
-                rightSpace: 40,
-                title: "Penalty",
-                subtitle:
-                    "A fee of x Naira will be added to the total outstanding balance for each day "
-                    "the repayment is late",
-                svgPath: "res/drawables/ic_savings_warning.svg"),
-            decoration: BoxDecoration(
-                color: Color(0xff244528).withOpacity(0.05),
-                borderRadius: BorderRadius.all(Radius.circular(8))),
-          ),
+          if (widget.loanDetails?.penaltyAmount != null)
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 14, vertical: 17),
+              margin: EdgeInsets.symmetric(horizontal: 23),
+              child: InfoBannerContent(
+                  rightSpace: 40,
+                  title: "Penalty",
+                  subtitle:
+                      "A fee of ${widget.loanDetails?.penaltyAmount} Naira will be added to the total outstanding balance for each day "
+                      "the repayment is late",
+                  svgPath: "res/drawables/ic_savings_warning.svg"),
+              decoration: BoxDecoration(
+                  color: Color(0xff244528).withOpacity(0.05),
+                  borderRadius: BorderRadius.all(Radius.circular(8))),
+            ),
           SizedBox(height: 26),
-          Container(
+          if (widget.loanDetails?.totalRepayment != null)
+            Container(
             padding: EdgeInsets.only(left: 40, right: 30),
             child: Row(
               children: [
@@ -95,18 +108,19 @@ class _LoanDetailsViewState extends State<LoanDetailsView> {
                       text1: "Total Repayment",
                       text1Style:
                           getNormalStyle(color: Colors.grey, fontSize: 11.5),
-                      text2: "N 50,000.00",
+                      text2: "${widget.loanDetails?.totalRepayment?.formatCurrency}",
                       text2Style: getBoldStyle(
                           color: Colors.textColorBlack, fontSize: 16.5)),
                 ),
                 Spacer(flex: 1),
-                Expanded(
+                if (widget.loanDetails?.amountPaid != null)
+                  Expanded(
                   flex: 2,
                   child: _columnTile(
                       text1: "Amount Paid",
                       text1Style:
                           getNormalStyle(color: Colors.grey, fontSize: 12.5),
-                      text2: "N 50,000.00",
+                      text2: "${widget.loanDetails?.amountPaid?.formatCurrency}",
                       text2Style: getBoldStyle(
                           color: Colors.textColorBlack, fontSize: 16.5)),
                 )
@@ -114,7 +128,8 @@ class _LoanDetailsViewState extends State<LoanDetailsView> {
             ),
           ),
           SizedBox(height: 26),
-          Container(
+          if (widget.loanDetails?.interestAmount != null)
+            Container(
             padding: EdgeInsets.only(left: 40, right: 30),
             child: Row(
               children: [
@@ -124,18 +139,19 @@ class _LoanDetailsViewState extends State<LoanDetailsView> {
                       text1: "Interest Amount",
                       text1Style:
                           getNormalStyle(color: Colors.grey, fontSize: 11.5),
-                      text2: "N 50,000.00",
+                      text2: "${widget.loanDetails?.interestAmount?.formatCurrency}",
                       text2Style: getBoldStyle(
                           color: Colors.textColorBlack, fontSize: 16.5)),
                 ),
                 Spacer(flex: 1),
-                Expanded(
+                if (widget.loanDetails?.interestRate != null)
+                  Expanded(
                   flex: 2,
                   child: _columnTile(
                       text1: "Interest Rate",
                       text1Style:
                           getNormalStyle(color: Colors.grey, fontSize: 12.5),
-                      text2: "4 %",
+                      text2: "${widget.loanDetails?.interestRate} %",
                       text2Style: getBoldStyle(
                           color: Colors.textColorBlack, fontSize: 16.5)),
                 )
@@ -147,13 +163,14 @@ class _LoanDetailsViewState extends State<LoanDetailsView> {
             padding: EdgeInsets.only(left: 40, right: 30),
             child: Row(
               children: [
-                Expanded(
+                if (widget.loanDetails?.dateRequested != null)
+                  Expanded(
                   flex: 2,
                   child: _columnTile(
                       text1: "Disbursement Date",
                       text1Style:
                           getNormalStyle(color: Colors.grey, fontSize: 11.5),
-                      text2: "2nd Jan. 2022",
+                      text2: "${viewModel.getFormattedDate(widget.loanDetails?.dateRequested)}",
                       text2Style: getBoldStyle(
                           color: Colors.textColorBlack, fontSize: 16.5)),
                 ),
@@ -172,32 +189,38 @@ class _LoanDetailsViewState extends State<LoanDetailsView> {
             ),
           ),
           SizedBox(height: 24),
-          Padding(
+          if (viewModel.isValidAccount(widget.loanDetails?.payoutAccountNumber))
+            Padding(
             padding: const EdgeInsets.symmetric(horizontal: 23),
             child: Text(
               "Payout Account",
               style: getNormalStyle(fontSize: 14.5),
             ),
           ),
-          SizedBox(height: 12),
-          ConfirmationAccountTile(
+          if (viewModel.isValidAccount(widget.loanDetails?.payoutAccountNumber))
+            SizedBox(height: 12),
+          if (viewModel.isValidAccount(widget.loanDetails?.payoutAccountNumber))
+            ConfirmationAccountTile(
             padding: EdgeInsets.symmetric(horizontal: 20),
-            accountName: "Leslie Tobechukwu Isah",
-            accountNumber: "0011357716",
+            accountName: "${viewModel.getAccountName(widget.loanDetails?.payoutAccountNumber)}",
+            accountNumber: "${viewModel.getAccountNumber(widget.loanDetails?.payoutAccountNumber)}",
           ),
           SizedBox(height: 20),
-          Padding(
+          if (viewModel.isValidAccount(widget.loanDetails?.repaymentAccountNumber))
+            Padding(
             padding: const EdgeInsets.symmetric(horizontal: 23),
             child: Text(
               "Repayment Account",
               style: getNormalStyle(fontSize: 14.5),
             ),
           ),
-          SizedBox(height: 12),
+          if (viewModel.isValidAccount(widget.loanDetails?.repaymentAccountNumber))
+            SizedBox(height: 12),
+          if (viewModel.isValidAccount(widget.loanDetails?.repaymentAccountNumber))
           ConfirmationAccountTile(
             padding: EdgeInsets.symmetric(horizontal: 20),
-            accountName: "Leslie Tobechukwu Isah",
-            accountNumber: "0011357716",
+            accountName: "${viewModel.getAccountName(widget.loanDetails?.repaymentAccountNumber)}",
+            accountNumber: "${viewModel.getAccountNumber(widget.loanDetails?.repaymentAccountNumber)}",
           ),
           SizedBox(height: 200)
         ],
@@ -234,13 +257,16 @@ class _LoanDetailsViewState extends State<LoanDetailsView> {
   }
 
   Widget _content(context) {
-    final screenSize = MediaQuery.of(context).size;
-    // final minExtent = 1 - (containerHeight / (screenSize.height - maxDraggableTop));
-    final containerHeight = 1;
+    final viewModel = Provider.of<LoanDetailsViewModel>(context);
+    final screenHeight = MediaQuery.of(context).size.height;
+    final maxScrollHeightToMinScrollHeight = 123;
 
-    final maxExtent = 0.65;
-    final minExtent = 0.48;
+    // final maxExtent = 1.0;
+    // final minExtent = 1 - (maxScrollHeightToMinScrollHeight/ (screenHeight - maxDraggableHeight));
 
+
+    final maxExtent = 0.85;
+    final minExtent = 0.76;
 
 
     return DraggableScrollableSheet(
@@ -310,6 +336,7 @@ class _LoanDetailsViewState extends State<LoanDetailsView> {
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = Provider.of<LoanDetailsViewModel>(context);
     return Scaffold(
       backgroundColor: Colors.peach,
       body: SafeArea(
@@ -348,12 +375,12 @@ class _LoanDetailsViewState extends State<LoanDetailsView> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 25),
+                  SizedBox(height: 18),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 17.45),
                     child: Text(
                       "Loan Details",
-                      style: getBoldStyle(fontSize: 23),
+                      style: getBoldStyle(fontSize: 20),
                     ),
                   ),
                   SizedBox(height: 14),
@@ -375,7 +402,7 @@ class _LoanDetailsViewState extends State<LoanDetailsView> {
                               ),
                               SizedBox(height: 4),
                               Text(
-                                "N 200,394.00",
+                                "${widget.loanDetails?.loanAmount?.formatCurrency}",
                                 style: getBoldStyle(
                                     fontWeight: FontWeight.w800,
                                     fontSize: 23.5,
@@ -388,11 +415,11 @@ class _LoanDetailsViewState extends State<LoanDetailsView> {
                                 children: [
                                   _columnTile(
                                       text1: "Due Date",
-                                      text2: "2nd Jan. 2022"),
+                                      text2: "${viewModel.getFormattedDate(widget.loanDetails?.dueDate)}"),
                                   SizedBox(width: 40),
                                   _columnTile(
                                       text1: "Outstanding",
-                                      text2: "N 150,000,000.00"),
+                                      text2: "${widget.loanDetails?.outstandingAmount?.formatCurrency}"),
                                   SizedBox(width: 21)
                                 ],
                               ),
@@ -410,6 +437,7 @@ class _LoanDetailsViewState extends State<LoanDetailsView> {
                             ),
                           ),
                         ),
+                        if (viewModel.getRepaymentProgress(widget.loanDetails) != null)
                         Positioned(
                             left: 0,
                             right: 0,
@@ -422,7 +450,7 @@ class _LoanDetailsViewState extends State<LoanDetailsView> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 15.0),
                                   child: LinearPercentIndicator(
-                                    percent: 0.5,
+                                    percent: viewModel.getRepaymentProgress(widget.loanDetails)!,
                                     lineHeight: 8,
                                     backgroundColor:
                                         Color(0xff954A00).withOpacity(0.3),
@@ -438,7 +466,7 @@ class _LoanDetailsViewState extends State<LoanDetailsView> {
               ),
             ),
             Positioned(
-              bottom: 0, top: 0, right: 0, left: 0,
+              bottom: 0, top: maxDraggableHeight, right: 0, left: 0,
               child: _content(context)
             ),
             Positioned(
@@ -460,7 +488,8 @@ class _LoanDetailsViewState extends State<LoanDetailsView> {
                     ),
                     stream: Stream.value(true),
                     onClick: () {
-                      Navigator.pushNamed(context, Routes.LOAN_REPAYMENT);
+                      final args = {"loan_details": widget.loanDetails};
+                      Navigator.pushNamed(context, Routes.LOAN_REPAYMENT, arguments: args);
                     },
                     text: 'Make Repayment'),
                 decoration: BoxDecoration(color: Colors.white, boxShadow: [

@@ -53,6 +53,7 @@ class _PaymentAmountView extends State<PaymentAmountView> {
   Widget build(BuildContext context) {
     setDefaultValue();
 
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [

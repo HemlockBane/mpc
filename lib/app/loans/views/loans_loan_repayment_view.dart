@@ -1,20 +1,23 @@
 import 'package:collection/src/iterable_extensions.dart';
 import 'package:flutter/material.dart' hide Colors;
-import 'package:moniepoint_flutter/app/loans/viewmodels/loan_repayment_viewmodel.dart';
-import 'package:moniepoint_flutter/app/loans/views/loans_apply_confirmation_view.dart';
+import 'package:moniepoint_flutter/app/loans/models/short_term_loan_details.dart';
+import 'package:moniepoint_flutter/app/loans/viewmodels/loan_repayment_view_model.dart';
+import 'package:moniepoint_flutter/app/loans/views/loans_advert_details_view.dart';
 import 'package:moniepoint_flutter/app/loans/views/loans_repayment_confirmation_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/list_item.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
-import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/views/amount_pill.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
 import 'package:moniepoint_flutter/core/views/user_account_selection_view.dart';
 import 'package:provider/provider.dart';
 
 class LoanRepaymentView extends StatefulWidget {
-  const LoanRepaymentView({Key? key}) : super(key: key);
+  const LoanRepaymentView({Key? key, required this.loanDetails}) : super(key: key);
+
+final ShortTermLoanDetails? loanDetails;
 
   @override
   _LoanRepaymentViewState createState() => _LoanRepaymentViewState();
@@ -26,12 +29,23 @@ class _LoanRepaymentViewState extends State<LoanRepaymentView> {
 
   double _amount = 0.00;
   ListDataItem<String>? _selectedAmountPill;
-  final List<ListDataItem<String>> amountPills = List.generate(4, (index) => ListDataItem((5000 * (index + 1))
-    .formatCurrencyWithoutLeadingZero));
+  late List<ListDataItem<String>> amountPills;
 
 
+  double getNearestThousand(double amount) {
+    return (amount / 1000).round().toDouble() * 1000;
+  }
+
+  List<ListDataItem<String>> getAmountPills(){
+    return List.generate(4, (index) {
+      final amount = getNearestThousand(widget.loanDetails!.outstandingAmount! * (index + 1) * 0.25);
+      return ListDataItem(amount
+      .formatCurrencyWithoutLeadingZero);
+    });
+  }
 
   List<Widget> generateAmountPillsWidget() {
+    final viewModel = Provider.of<LoanRepaymentViewModel>(context, listen: false);
     final pills = <Widget>[];
     amountPills.forEachIndexed((index, element) {
       pills.add(
@@ -45,12 +59,33 @@ class _LoanRepaymentViewState extends State<LoanRepaymentView> {
                 _selectedAmountPill = item;
                 _selectedAmountPill?.isSelected = true;
                 this._amount = double.parse(_selectedAmountPill!.item.replaceAll(RegExp(r'[(a-z)|(A-Z)|(,₦)]'), ""));
+                viewModel.setAmount(this._amount);
               });
             })));
       if(index != amountPills.length -1) pills.add(SizedBox(width: 8,));
     });
     return pills;
   }
+
+  Widget amountWidget(){
+    final viewModel = Provider.of<LoanRepaymentViewModel>(context, listen: false);
+    viewModel.setAmount(this._amount);
+    return  Container(
+      padding: EdgeInsets.only(left: 14, right: 14, top: 26, bottom: 12),
+      decoration: BoxDecoration(
+        color: Color(0xffE9ECF0),
+        borderRadius: BorderRadius.all(Radius.circular(8))
+      ),
+      child: PaymentAmountView((_amount * 100).toInt(), (value){
+        this._amount = value / 100;
+        viewModel.setAmount(_amount);
+      },
+        currencyColor: Color(0xffC1C2C5).withOpacity(0.5),
+        textColor: Colors.textColorBlack,
+      ),
+    );
+  }
+
 
   TextStyle getBoldStyle({
     double fontSize = 24.5,
@@ -79,8 +114,9 @@ class _LoanRepaymentViewState extends State<LoanRepaymentView> {
   @override
   void initState() {
     _viewModel =  Provider.of<LoanRepaymentViewModel>(context, listen: false);
-    if(_viewModel.userAccounts.length > 1) _viewModel.getUserAccountsBalance().listen((event) { });
-    else _viewModel.getCustomerAccountBalance().listen((event) { });
+    // if(_viewModel.userAccounts.length > 1) _viewModel.getUserAccountsBalance().listen((event) { });
+    // else _viewModel.getCustomerAccountBalance().listen((event) { });
+    amountPills = getAmountPills();
     super.initState();
   }
 
@@ -119,13 +155,13 @@ class _LoanRepaymentViewState extends State<LoanRepaymentView> {
                   children: [
                     Text("Outstanding Amount", style: getNormalStyle(fontWeight: FontWeight.w500, fontSize: 14.5)),
                     SizedBox(height: 7),
-                    Text("N 25,000.00", style: getBoldStyle(fontSize: 19.5),),
+                    Text("${widget.loanDetails?.outstandingAmount?.formatCurrency}", style: getBoldStyle(fontSize: 19.5),),
                     SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _smallTile(text1: "Amount Loaned", text2: "N 18,550.00"),
-                        _smallTile(text1: "Interest Rate", text2: "0%"),
+                        _smallTile(text1: "Amount Loaned", text2: "${widget.loanDetails?.loanAmount?.formatCurrency}"),
+                        _smallTile(text1: "Interest Rate", text2: "${widget.loanDetails?.interestRate}%"),
                         // SizedBox(width: 0)
                       ],
                     )
@@ -153,17 +189,7 @@ class _LoanRepaymentViewState extends State<LoanRepaymentView> {
                 ),
               ),
               SizedBox(height: 13),
-              Container(
-                padding: EdgeInsets.only(left: 14, right: 14, top: 26, bottom: 12),
-                decoration: BoxDecoration(
-                  color: Color(0xffE9ECF0),
-                  borderRadius: BorderRadius.all(Radius.circular(8))
-                ),
-                child: PaymentAmountView((_amount * 100).toInt(), (value){},
-                  currencyColor: Color(0xffC1C2C5).withOpacity(0.5),
-                  textColor: Colors.textColorBlack,
-                ),
-              ),
+              amountWidget(),
               SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -178,7 +204,8 @@ class _LoanRepaymentViewState extends State<LoanRepaymentView> {
               UserAccountSelectionView(_viewModel,
                 primaryColor: Colors.solidOrange,
                 //TODO modify for loans
-                onAccountSelected: (account) => _viewModel.setSourceAccount(account),
+                selectedUserAccount: _viewModel.repaymentAccount,
+                onAccountSelected: (account) => _viewModel.setRepaymentAccount(account),
                 titleStyle: TextStyle(
                   fontSize: 15,
                   color: Colors.textColorBlack,
@@ -192,21 +219,14 @@ class _LoanRepaymentViewState extends State<LoanRepaymentView> {
               ),
               SizedBox(height: 148),
               Styles.statefulButton(
-                buttonStyle: Styles.primaryButtonStyle.copyWith(
-                  backgroundColor:
-                  MaterialStateProperty.all(Colors.solidOrange),
-                  textStyle: MaterialStateProperty.all(getBoldStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 16,
-                    color: Colors.white))),
-                stream: Stream.value(true),
+                buttonStyle: loanButtonStyle(),
+                stream: _viewModel.isValid,
                 onClick: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (ctx) =>
-                        LoanRepaymentConfirmationView()),
-                  );
+                  if(widget.loanDetails == null) return;
+
+                  final repaymentConfirmation = _viewModel.getRepaymentConfirmation(loanDetails: widget.loanDetails!);
+                  final args = {"confirmation": repaymentConfirmation};
+                  Navigator.pushNamed(context, Routes.LOAN_REPAYMENT_CONFIRMATION, arguments: args);
                 },
                 text: 'Repay Loan'),
               SizedBox(height: 38 + 31.5),

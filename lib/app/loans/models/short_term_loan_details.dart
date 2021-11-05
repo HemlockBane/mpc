@@ -18,8 +18,10 @@ class ShortTermLoanDetails {
   int? tenor;
   DateTime? dateRequested;
   DateTime? dueDate;
-  String? payoutAccount;
-  String? repaymentAccount;
+  @JsonKey(name: "payoutAccount")
+  String? payoutAccountNumber;
+  @JsonKey(name: "repaymentAccount")
+  String? repaymentAccountNumber;
   int? overdueDays;
   @JsonKey(name: "overdue")
   bool? isOverdue;
@@ -38,8 +40,8 @@ class ShortTermLoanDetails {
     this.tenor,
     this.dateRequested,
     this.dueDate,
-    this.payoutAccount,
-    this.repaymentAccount,
+    this.payoutAccountNumber,
+    this.repaymentAccountNumber,
     this.overdueDays,
     this.isOverdue,
   });

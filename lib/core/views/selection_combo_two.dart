@@ -31,6 +31,7 @@ class SelectionCombo2<T> extends StatefulWidget {
   final bool isShowTrailingWhenExpanded;
   final TextStyle? titleStyle;
   final ListStyle listStyle;
+  final bool shouldPreselectFirstAccount;
 
 
   SelectionCombo2(this.comboItems, {
@@ -46,7 +47,8 @@ class SelectionCombo2<T> extends StatefulWidget {
     this.checkBoxPadding,
     this.isShowTrailingWhenExpanded = true,
     this.titleStyle,
-    this.listStyle = ListStyle.normal
+    this.listStyle = ListStyle.normal,
+    this.shouldPreselectFirstAccount = false
   });
 
   @override
@@ -77,7 +79,7 @@ class _SelectionCombo2<T> extends State<SelectionCombo2<T>>
   );
 
   ComboItem<T>? _selectedCombo;
-  bool _isExpanded = true;
+  late bool _isExpanded;
   bool _showMore = false;
   int _maxThreshold = 3;
   BorderRadius? _borderRadius;
@@ -85,14 +87,25 @@ class _SelectionCombo2<T> extends State<SelectionCombo2<T>>
   @override
   void initState() {
     _borderRadius = widget.borderRadius ??  BorderRadius.circular(10);
+    _isExpanded = widget.shouldPreselectFirstAccount ? false: true;
     super.initState();
   }
 
   @override
   void didUpdateWidget(SelectionCombo2<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if(_isExpanded) _animationController.forward();
-    else _animationController.animateBack(_collapseValue);
+    if(widget.shouldPreselectFirstAccount){
+      selectFirstAccount();
+    }else{
+      if(_isExpanded) _animationController.forward();
+      else _animationController.animateBack(_collapseValue);
+      selectFirstAccount();
+    }
+    }
+
+
+
+  void selectFirstAccount(){
     _selectedCombo = widget.comboItems.where((element) => element.isSelected).firstOrNull;
   }
 

@@ -52,10 +52,10 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
   initState() {
     final viewModel = Provider.of<BillPurchaseViewModel>(context, listen: false);
 
-    if(viewModel.userAccounts.length > 1)
-      viewModel.getUserAccountsBalance().listen((event) { });
-    else
-      viewModel.getCustomerAccountBalance().listen((event) { });
+    // if(viewModel.userAccounts.length > 1)
+    //   viewModel.getUserAccountsBalance().listen((event) { });
+    // else
+    //   viewModel.getCustomerAccountBalance().listen((event) { });
 
     super.initState();
   }

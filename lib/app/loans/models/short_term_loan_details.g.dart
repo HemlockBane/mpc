@@ -25,8 +25,8 @@ ShortTermLoanDetails _$ShortTermLoanDetailsFromJson(Map<String, dynamic> json) {
     dueDate: json['dueDate'] == null
         ? null
         : DateTime.parse(json['dueDate'] as String),
-    payoutAccount: json['payoutAccount'] as String?,
-    repaymentAccount: json['repaymentAccount'] as String?,
+    payoutAccountNumber: json['payoutAccount'] as String?,
+    repaymentAccountNumber: json['repaymentAccount'] as String?,
     overdueDays: json['overdueDays'] as int?,
     isOverdue: json['overdue'] as bool?,
   );
@@ -48,8 +48,8 @@ Map<String, dynamic> _$ShortTermLoanDetailsToJson(
       'tenor': instance.tenor,
       'dateRequested': instance.dateRequested?.toIso8601String(),
       'dueDate': instance.dueDate?.toIso8601String(),
-      'payoutAccount': instance.payoutAccount,
-      'repaymentAccount': instance.repaymentAccount,
+      'payoutAccount': instance.payoutAccountNumber,
+      'repaymentAccount': instance.repaymentAccountNumber,
       'overdueDays': instance.overdueDays,
       'overdue': instance.isOverdue,
     };

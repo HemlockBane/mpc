@@ -72,8 +72,8 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
 
     final viewModel = Provider.of<AirtimeViewModel>(context, listen: false);
 
-    if(viewModel.userAccounts.length > 1) viewModel.getUserAccountsBalance().listen((event) { });
-    else viewModel.getCustomerAccountBalance().listen((event) { });
+    // if(viewModel.userAccounts.length > 1) viewModel.getUserAccountsBalance().listen((event) { });
+    // else viewModel.getCustomerAccountBalance().listen((event) { });
 
     viewModel.setServiceProviderItem(null);
     viewModel.setSourceAccount(null);

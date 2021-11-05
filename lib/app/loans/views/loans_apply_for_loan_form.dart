@@ -1,15 +1,17 @@
 import 'package:moniepoint_flutter/app/accountupdates/views/forms/account_update_form_view.dart';
+import 'package:moniepoint_flutter/app/loans/models/loan_request_confirmation.dart';
 import 'package:moniepoint_flutter/app/loans/viewmodels/loan_request_viewmodel.dart';
 import 'package:flutter/material.dart' hide Colors;
+import 'package:moniepoint_flutter/app/loans/views/loans_advert_details_view.dart';
 import 'package:moniepoint_flutter/app/loans/views/loans_apply_confirmation_view.dart';
 import 'package:moniepoint_flutter/app/loans/views/widgets/info_banner_content.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
-import 'package:moniepoint_flutter/core/views/transaction_account_source.dart';
+import 'package:moniepoint_flutter/core/views/user_account_selection_view.dart';
 import 'package:provider/provider.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
-
 
 class ApplyForLoanView extends PagedForm {
   @override
@@ -19,7 +21,7 @@ class ApplyForLoanView extends PagedForm {
   String getTitle() => "ApplyForLoanView";
 }
 
-class _ApplyForLoanViewState extends State<ApplyForLoanView>{
+class _ApplyForLoanViewState extends State<ApplyForLoanView> {
   late final LoanRequestViewModel _viewModel;
   bool _isSelected = true;
   double _amount = 0.00;
@@ -58,10 +60,9 @@ class _ApplyForLoanViewState extends State<ApplyForLoanView>{
           PaymentAmountView(
             (_amount * 100).toInt(),
             (value) {
-              print("on changed: ${value / 100}");
               this._amount = value / 100;
               viewModel.setAmount(_amount);
-              viewModel.calculateInterestRate(_amount);
+              viewModel.calculateInterestAmount(_amount);
             },
             maxAmount: viewModel.selectedLoanOffer.maximumAmount?.toDouble(),
             currencyColor: Color(0xffC1C2C5).withOpacity(0.5),
@@ -75,8 +76,7 @@ class _ApplyForLoanViewState extends State<ApplyForLoanView>{
                 style: getNormalStyle(color: Color(0xffA9A5AF), fontSize: 12),
               ),
               SizedBox(width: 10),
-              Text(
-                  "N ${viewModel.selectedLoanOffer.maximumAmount?.toDouble()}",
+              Text("${viewModel.selectedLoanOffer.maximumAmount?.formatCurrency}",
                   style: getNormalStyle(color: Color(0xffA9A5AF), fontSize: 12))
             ],
           )
@@ -87,26 +87,23 @@ class _ApplyForLoanViewState extends State<ApplyForLoanView>{
 
   @override
   void initState() {
-    super.initState();
     print("initState");
     _viewModel = Provider.of<LoanRequestViewModel>(context, listen: false);
-    refreshAccounts();
+    super.initState();
   }
 
 
-  void refreshAccounts() {
-    if (_viewModel.userAccounts.length > 1)
-      _viewModel.getUserAccountsBalance().listen((event) {});
-    else
-      _viewModel.getCustomerAccountBalance().listen((event) {});
-  }
+// When the user selects a loan offer, and navigates to the next page, the switch should be on by default
+// When the user selects the payout account, the repayment account should be selected too
+// If the user turns off the switch, the repayment account should show the selected payout account
+// If the user turns on the switch,set the repayment account to the selected payout account
 
 
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<LoanRequestViewModel>(context, listen: false);
     print("build");
-    print("selected loan offer in view ${viewModel.selectedLoanOffer.toJson()}");
+    print("apply form: selected loan offer ${viewModel.selectedLoanOffer.toJson()}");
     return SingleChildScrollView(
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 18),
@@ -114,7 +111,7 @@ class _ApplyForLoanViewState extends State<ApplyForLoanView>{
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Apply for Starter Loan",
+              "Apply for ${viewModel.selectedLoanOffer.offerName}",
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
             ),
             SizedBox(height: 33),
@@ -127,8 +124,7 @@ class _ApplyForLoanViewState extends State<ApplyForLoanView>{
               ),
             ),
             SizedBox(height: 13),
-            // amountWidget(),
-            TextField(),
+            amountWidget(),
             SizedBox(height: 32),
             Container(
               padding: EdgeInsets.fromLTRB(15, 15, 30, 17.25),
@@ -198,19 +194,24 @@ class _ApplyForLoanViewState extends State<ApplyForLoanView>{
               ),
             ),
             SizedBox(height: 12),
-            TransactionAccountSource(
-              _viewModel,
-              primaryColor: Colors.solidOrange,
-              titleStyle: TextStyle(
-                  fontSize: 15,
-                  color: Colors.textColorBlack,
-                  fontWeight: FontWeight.bold),
-              checkBoxSize: Size(40, 40),
-              listStyle: ListStyle.alternate,
-              checkBoxPadding: EdgeInsets.all(6.0),
-              checkBoxBorderColor: Color(0xffA6B6CE).withOpacity(0.95),
-              isShowTrailingWhenExpanded: false,
-            ),
+            UserAccountSelectionView(_viewModel,
+                primaryColor: Colors.solidOrange,
+                titleStyle: TextStyle(
+                    fontSize: 15,
+                    color: Colors.textColorBlack,
+                    fontWeight: FontWeight.bold),
+                checkBoxSize: Size(40, 40),
+                listStyle: ListStyle.alternate,
+                checkBoxPadding: EdgeInsets.all(6.0),
+                checkBoxBorderColor: Color(0xffA6B6CE).withOpacity(0.95),
+                isShowTrailingWhenExpanded: false,
+                selectedUserAccount: viewModel.payoutAccount,
+                onAccountSelected: (account) {
+              viewModel.setPayoutAccount(account);
+              if (_viewModel.usePayoutAccountForRepayment) {
+                viewModel.setRepaymentAccount(account);
+              }
+            }),
             SizedBox(height: 16.4),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
@@ -223,11 +224,17 @@ class _ApplyForLoanViewState extends State<ApplyForLoanView>{
                 ),
               ),
               value: _viewModel.usePayoutAccountForRepayment,
-              onChanged: (value) {
-                if (!_viewModel.usePayoutAccountForRepayment) refreshAccounts();
+              onChanged: (bool shouldUseSameAccount) {
+                if (!shouldUseSameAccount) {
+                  // refreshAccounts();
+                }
+
+                if (viewModel.payoutAccount != null) {
+                  viewModel.setRepaymentAccount(viewModel.payoutAccount);
+                }
 
                 setState(() {
-                  _viewModel.setSwitchState(value);
+                  _viewModel.setSwitchState(shouldUseSameAccount);
                 });
               },
               activeColor: Colors.solidOrange,
@@ -251,7 +258,7 @@ class _ApplyForLoanViewState extends State<ApplyForLoanView>{
               ),
             if (!_viewModel.usePayoutAccountForRepayment) SizedBox(height: 12),
             if (!_viewModel.usePayoutAccountForRepayment)
-              TransactionAccountSource(
+              UserAccountSelectionView(
                 _viewModel,
                 primaryColor: Colors.solidOrange,
                 titleStyle: TextStyle(
@@ -263,6 +270,10 @@ class _ApplyForLoanViewState extends State<ApplyForLoanView>{
                 checkBoxPadding: EdgeInsets.all(6.0),
                 checkBoxBorderColor: Color(0xffA6B6CE).withOpacity(0.95),
                 isShowTrailingWhenExpanded: false,
+                shouldPreselectFirstAccount: true,
+                selectedUserAccount: viewModel.repaymentAccount,
+                onAccountSelected: (account) =>
+                    viewModel.setRepaymentAccount(account),
               ),
             SizedBox(height: !_isSelected ? 25 : 15),
             Container(
@@ -295,20 +306,11 @@ class _ApplyForLoanViewState extends State<ApplyForLoanView>{
             ),
             SizedBox(height: 50),
             Styles.statefulButton(
-                buttonStyle: Styles.primaryButtonStyle.copyWith(
-                    backgroundColor:
-                        MaterialStateProperty.all(Colors.solidOrange),
-                    textStyle: MaterialStateProperty.all(getBoldStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 16,
-                        color: Colors.white))),
-                stream: Stream.value(true),
+                buttonStyle: loanButtonStyle(),
+                stream: _viewModel.isValid,
                 onClick: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (ctx) => LoansApplicationConfirmationView()),
-                  );
+                  final args = {"loan_confirmation": _viewModel.getLoanRequestConfirmation()};
+                  Navigator.pushNamed(context, Routes.LOAN_APPLICATION_CONFIRMATION, arguments: args);
                 },
                 text: 'Next'),
             SizedBox(height: 38 + 31.5),
@@ -318,3 +320,4 @@ class _ApplyForLoanViewState extends State<ApplyForLoanView>{
     );
   }
 }
+

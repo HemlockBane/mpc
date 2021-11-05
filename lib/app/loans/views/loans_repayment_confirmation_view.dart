@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:moniepoint_flutter/app/loans/models/loan_repayment_confirmation.dart';
+import 'package:moniepoint_flutter/app/loans/models/short_term_loan_details.dart';
+import 'package:moniepoint_flutter/app/loans/viewmodels/loan_repayment_view_model.dart';
 import 'package:moniepoint_flutter/app/loans/views/widgets/info_banner_content.dart';
 import 'package:moniepoint_flutter/app/loans/views/widgets/loan_confirmation_account_tile.dart';
 import 'package:moniepoint_flutter/app/loans/views/widgets/loan_confirmation_detail_tile.dart';
@@ -8,11 +11,16 @@ import 'package:moniepoint_flutter/app/savings/savings_success_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/utils/currency_util.dart';
+import 'package:provider/provider.dart';
+
 
 import 'loans_advert_details_view.dart';
 
 class LoanRepaymentConfirmationView extends StatelessWidget {
-  const LoanRepaymentConfirmationView({Key? key}) : super(key: key);
+  const LoanRepaymentConfirmationView({Key? key, required this.confirmation}) : super(key: key);
+   final LoanRepaymentConfirmation? confirmation;
+
 
   TextStyle getBoldStyle({
     double fontSize = 24.5,
@@ -30,6 +38,9 @@ class LoanRepaymentConfirmationView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final viewModel = Provider.of<LoanRepaymentViewModel>(context);
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
@@ -81,38 +92,44 @@ class LoanRepaymentConfirmationView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     LoanConfirmationDetailTile(
-                        title: "Amount to Repay", subtitle: "N 7,000.00"),
+                        title: "Amount to Repay", subtitle: "${confirmation?.repaymentAmount?.formatCurrency}"),
                     PaddedDivider(),
                     Row(
                       children: [
-                        Expanded(
+                        if (confirmation?.loanDetails?.outstandingAmount != null)
+                          Expanded(
                           child: LoanConfirmationDetailTile(
-                              title: "Outstanding", subtitle: "N 5,000.00"),
+                              title: "Outstanding", subtitle: "${confirmation?.loanDetails?.outstandingAmount?.formatCurrency}"),
                         ),
+                        if (confirmation?.loanDetails?.loanAmount != null)
                         Expanded(
                           child: LoanConfirmationDetailTile(
-                              title: "Amount Loaned", subtitle: "N 5,000.00"),
+                              title: "Amount Loaned", subtitle: "${confirmation?.loanDetails?.loanAmount?.formatCurrency}"),
                         ),
                       ],
                     ),
                     PaddedDivider(),
                     LoanConfirmationDetailTile(
                       title: "Interest Rate",
-                      subtitle: "5%",
+                      subtitle: "${confirmation?.loanDetails?.interestRate}%",
                     ),
                     PaddedDivider(),
-                    Padding(
+                    if (viewModel.isValidAccount(confirmation?.loanDetails?.repaymentAccountNumber))
+                      Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 23),
                       child: Text(
                         "Payout Account",
                         style: getNormalStyle(fontSize: 14.5),
                       ),
                     ),
-                    SizedBox(height: 10),
-                    ConfirmationAccountTile(
-                      accountName: "Leslie Tobechukwu Isah",
-                      accountNumber: "0011357716",
-                    ),
+                    if (viewModel.isValidAccount(confirmation?.loanDetails?.repaymentAccountNumber))
+                      SizedBox(height: 10),
+                    if (viewModel.isValidAccount(confirmation?.loanDetails?.repaymentAccountNumber))
+                      ConfirmationAccountTile(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        accountName: "${viewModel.getAccountName(confirmation?.loanDetails?.repaymentAccountNumber)}",
+                        accountNumber: "${viewModel.getAccountNumber(confirmation?.loanDetails?.repaymentAccountNumber)}",
+                      ),
                     SizedBox(height: 22),
                     Container(
                       padding:

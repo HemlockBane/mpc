@@ -101,17 +101,25 @@ class _LoansHomeViewState extends State<LoansHomeView> with TickerProviderStateM
             builder: (ctx, AsyncSnapshot<Resource<List<dynamic>?>> snapshot){
               return Container(
                 height: MediaQuery.of(context).size.height,
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: dashboardTopMenuHeight + 43),
-                      Text("Loan Product", style: getBoldStyle()),
-                      SizedBox(height: 30),
-                      makeListView(context, snapshot),
-                    ],
-                  ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: dashboardTopMenuHeight + 43),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("Loan Product", style: getBoldStyle()),
+                        Text("History", style: getBoldStyle(fontSize: 13.5, color: Colors.solidOrange)),
+                      ],
+                    ),
+                    SizedBox(height: 30),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: makeListView(context, snapshot),
+                      ),
+                    )
+                  ],
                 ),
               );
             },

@@ -100,8 +100,8 @@ class _SavingsFlexTopupViewState extends State<SavingsFlexTopupView> {
   @override
   void initState() {
     _viewModel = SavingsFlexTopupViewModel();
-    if(_viewModel.userAccounts.length > 1) _viewModel.getUserAccountsBalance().listen((event) { });
-    else _viewModel.getCustomerAccountBalance().listen((event) { });
+    // if(_viewModel.userAccounts.length > 1) _viewModel.getUserAccountsBalance().listen((event) { });
+    // else _viewModel.getCustomerAccountBalance().listen((event) { });
     super.initState();
   }
 

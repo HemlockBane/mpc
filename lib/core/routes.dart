@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart' hide Card;
-import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
 import 'package:moniepoint_flutter/app/accounts/viewmodels/account_transaction_detail_view_model.dart';
 import 'package:moniepoint_flutter/app/accounts/viewmodels/transaction_list_view_model.dart';
 import 'package:moniepoint_flutter/app/accounts/views/account_transaction_detailed_view.dart';
@@ -31,17 +30,25 @@ import 'package:moniepoint_flutter/app/cards/views/manage_card_channels_view.dar
 import 'package:moniepoint_flutter/app/cards/views/issuance/card_activation_view.dart';
 import 'package:moniepoint_flutter/app/cards/views/issuance/card_qr_code_scanner_view.dart';
 import 'package:moniepoint_flutter/app/cards/views/unblock_debit_card_view.dart';
-import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/dashboard/views/dashboard_view.dart';
 import 'package:moniepoint_flutter/app/devicemanagement/viewmodels/user_device_view_model.dart';
 import 'package:moniepoint_flutter/app/devicemanagement/views/user_device_list_view.dart';
 import 'package:moniepoint_flutter/app/liveliness/liveliness_verification.dart';
 import 'package:moniepoint_flutter/app/liveliness/viewmodels/liveliness_verification_viewmodel.dart';
+import 'package:moniepoint_flutter/app/loans/models/loan_repayment_confirmation.dart';
+import 'package:moniepoint_flutter/app/loans/models/loan_request_confirmation.dart';
 import 'package:moniepoint_flutter/app/loans/models/short_term_loan_advert.dart';
+import 'package:moniepoint_flutter/app/loans/models/short_term_loan_details.dart';
 import 'package:moniepoint_flutter/app/loans/viewmodels/loan_advert_view_model.dart';
-import 'package:moniepoint_flutter/app/loans/viewmodels/loan_repayment_viewmodel.dart';
+import 'package:moniepoint_flutter/app/loans/viewmodels/loan_details_view_model.dart';
+import 'package:moniepoint_flutter/app/loans/viewmodels/loan_repayment_view_model.dart';
+import 'package:moniepoint_flutter/app/loans/viewmodels/loan_request_viewmodel.dart';
+import 'package:moniepoint_flutter/app/loans/views/loans_apply_confirmation_view.dart';
+import 'package:moniepoint_flutter/app/loans/views/loans_loan_application_view.dart';
+import 'package:moniepoint_flutter/app/loans/views/loans_loan_details_view.dart';
 import 'package:moniepoint_flutter/app/loans/views/loans_loan_repayment_view.dart';
 import 'package:moniepoint_flutter/app/loans/views/loans_advert_details_view.dart';
+import 'package:moniepoint_flutter/app/loans/views/loans_repayment_confirmation_view.dart';
 import 'package:moniepoint_flutter/app/login/views/login_view.dart';
 import 'package:moniepoint_flutter/app/login/views/recovery/recovery_controller_screen.dart';
 import 'package:moniepoint_flutter/app/login/views/support_view.dart';
@@ -116,8 +123,9 @@ class Routes {
 
   static const LOAN_OFFERS = "LOAN_OFFERS";
   static const LOAN_ADVERT_DETAILS = "LOAN_ADVERT_DETAILS";
+  static const LOAN_APPLICATION = "LOAN_APPLICATION";
+  static const LOAN_APPLICATION_CONFIRMATION = "LOAN_APPLICATION_CONFIRMATION";
   static const LOAN_DETAILS = "LOAN_DETAILS";
-  static const LOAN_APPLY_CONFIRMATION = "LOAN_APPLY_CONFIRMATION";
   static const LOAN_REPAYMENT = "LOAN_REPAYMENT";
   static const LOAN_REPAYMENT_CONFIRMATION = "LOAN_REPAYMENT_CONFIRMATION";
 
@@ -194,14 +202,10 @@ class Routes {
       Routes.SAVINGS_FLEX_TOP_UP: (BuildContext context) => SavingsFlexTopupView(),
       Routes.SAVINGS_FLEX_SETUP: (BuildContext context) => SavingsFlexSetupView(),
 
-
-      Routes.LOAN_REPAYMENT: (BuildContext context) => ChangeNotifierProvider(
-        create: (_) => LoanRepaymentViewModel(),
-        child: LoanRepaymentView(),
+      Routes.LOAN_APPLICATION: (BuildContext context) => ChangeNotifierProvider(
+        create: (_) => LoanRequestViewModel(),
+        child: LoanApplicationView(),
       ),
-
-
-
     };
   }
 
@@ -327,6 +331,46 @@ class Routes {
           builder: (ctx) => ChangeNotifierProvider(
             create: (_) => LoanAdvertViewModel(),
             child: LoanAdvertDetailsView(loanAdvert: loanAdvert)
+          )
+        );
+
+      case Routes.LOAN_APPLICATION_CONFIRMATION:
+        final args = settings.arguments as Map<dynamic, dynamic>;
+        final confirmation = args["loan_confirmation"] as LoanRequestConfirmation?;
+        return MaterialPageRoute(
+          builder: (ctx) => ChangeNotifierProvider(
+            create: (_) => LoanRequestViewModel(),
+            child: LoansApplicationConfirmationView(confirmation: confirmation)
+          )
+        );
+
+      case Routes.LOAN_DETAILS:
+        final args = settings.arguments as Map<dynamic, dynamic>;
+        final loanDetails = args["loan_details"] as ShortTermLoanDetails?;
+        return MaterialPageRoute(
+          builder: (ctx) => ChangeNotifierProvider(
+            create: (_) => LoanDetailsViewModel(),
+            child: LoanDetailsView(loanDetails: loanDetails)
+          )
+        );
+
+      case Routes.LOAN_REPAYMENT:
+        final args = settings.arguments as Map<dynamic, dynamic>;
+        final loanDetails = args["loan_details"] as ShortTermLoanDetails?;
+        return MaterialPageRoute(
+          builder: (ctx) => ChangeNotifierProvider(
+            create: (_) => LoanRepaymentViewModel(),
+            child: LoanRepaymentView(loanDetails: loanDetails),
+          )
+        );
+
+      case Routes.LOAN_REPAYMENT_CONFIRMATION:
+        final args = settings.arguments as Map<dynamic, dynamic>;
+        final confirmation = args["confirmation"] as LoanRepaymentConfirmation?;
+        return MaterialPageRoute(
+          builder: (ctx) => ChangeNotifierProvider(
+            create: (_) => LoanRepaymentViewModel(),
+            child: LoanRepaymentConfirmationView(confirmation : confirmation),
           )
         );
     }

@@ -11,15 +11,34 @@ import 'package:moniepoint_flutter/app/loans/views/widgets/interest_rate_banner.
 import 'package:moniepoint_flutter/app/loans/views/widgets/padded_divider.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 import 'package:moniepoint_flutter/core/views/error_layout_view.dart';
 import 'package:provider/provider.dart';
 
+import 'loan_offers_form.dart';
+
 const double toolBarMarginTop = 37;
 const double maxDraggableTop = toolBarMarginTop * 5 + 26;
 const String loremIpsum =
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua";
+
+ButtonStyle loanButtonStyle () => Styles.primaryButtonStyle.copyWith(
+  backgroundColor:
+  MaterialStateProperty.resolveWith<Color>((states) {
+    if (states.contains(MaterialState.disabled))
+      return Colors.solidOrange.withOpacity(0.5);
+    else if (states.contains(MaterialState.pressed))
+      return Colors.solidOrange.withOpacity(0.5);
+    else
+      return Colors.solidOrange;
+  }),
+  textStyle: MaterialStateProperty.all(getBoldStyle(
+    fontWeight: FontWeight.w500,
+    fontSize: 16,
+    color: Colors.white)),
+);
 
 class LoanAdvertDetailsView extends StatefulWidget {
   const LoanAdvertDetailsView({Key? key, required this.loanAdvert})
@@ -367,24 +386,9 @@ class _LoanAdvertDetailsViewState extends State<LoanAdvertDetailsView> {
                 SizedBox(height: 38),
                 Styles.statefulButton(
                   stream: viewModel.isValid,
-                  buttonStyle: Styles.primaryButtonStyle.copyWith(
-                    backgroundColor:
-                        MaterialStateProperty.resolveWith<Color>((states) {
-                      if (states.contains(MaterialState.disabled))
-                        return Colors.solidOrange.withOpacity(0.5);
-                      else if (states.contains(MaterialState.pressed))
-                        return Colors.solidOrange.withOpacity(0.5);
-                      else
-                        return Colors.solidOrange;
-                    }),
-                    textStyle: MaterialStateProperty.all(getBoldStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 16,
-                        color: Colors.white)),
-                  ),
+                  buttonStyle: loanButtonStyle(),
                   onClick: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (ctx) => LoanApplicationView()));
+                    Navigator.pushNamed(context, Routes.LOAN_APPLICATION);
                   },
                   text: 'View Loan Offers',
                 ),

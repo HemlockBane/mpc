@@ -65,7 +65,6 @@ class _LoanOffersState extends State<LoanOffersView> with TickerProviderStateMix
         final availableItems = items?.first as List<AvailableShortTermLoanOffer?>?;
         final futureItems = items?.last as List<FutureShortTermLoanOffer?>?;
 
-
         return ListView(
           physics: NeverScrollableScrollPhysics(),
           padding: EdgeInsets.zero,
@@ -127,44 +126,45 @@ class _LoanOffersState extends State<LoanOffersView> with TickerProviderStateMix
 
   @override
   void initState() {
-    super.initState();
     _viewModel = Provider.of<LoanRequestViewModel>(context, listen: false);
     _animationController = AnimationController(
       vsync: this, duration: Duration(milliseconds: 1000)
     );
     loanOffersStream = _viewModel.getShortTermLoanOffers();
+    super.initState();
 
   }
 
 
   @override
   void dispose() {
-   _animationController.dispose();
+   // _animationController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-
     return StreamBuilder(
       stream: loanOffersStream,
       builder: (ctx, AsyncSnapshot<Resource<List<List<Object>?>>> snapshot){
         return Container(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
-                  child: Text(
-                    "Loan Offers",
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
-                  ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18),
+                child: Text(
+                  "Loan Offers",
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
                 ),
-                SizedBox(height: 33),
-                makeListView(context, snapshot),
-              ],
-            ),
+              ),
+              SizedBox(height: 33),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: makeListView(context, snapshot),
+                )
+              )
+            ],
           ),
         );
 
@@ -372,14 +372,8 @@ class _AvailableShortTermLoanOfferCard extends StatelessWidget {
             _LoanOfferBottomDetails(
               buttonText: "Apply for offer",
               onButtonTap: () {
-                viewModel.setSelectedLoanOffer(loanOffer);
-                viewModel.moveToNext(currentPagePosition);
-                // Navigator.of(context).push(
-                //   MaterialPageRoute(builder: (ctx) => ChangeNotifierProvider.value(
-                //     value: viewModel,
-                //   child: Scaffold(body: ApplyForLoanView()),)
-                //   )
-                // );
+               viewModel.reset();
+                viewModel.moveToNext(currentPagePosition, loanOffer);
               },
               tenor: loanOffer.maxPeriod,
               interestRate: loanOffer.minInterestRate,

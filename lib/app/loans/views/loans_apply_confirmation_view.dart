@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:moniepoint_flutter/app/loans/models/loan_request_confirmation.dart';
 import 'package:moniepoint_flutter/app/loans/views/widgets/info_banner_content.dart';
 import 'package:moniepoint_flutter/app/loans/views/widgets/loan_confirmation_account_tile.dart';
 import 'package:moniepoint_flutter/app/loans/views/widgets/loan_confirmation_detail_tile.dart';
@@ -8,11 +9,14 @@ import 'package:moniepoint_flutter/app/savings/savings_success_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 
 import 'loans_advert_details_view.dart';
 
 class LoansApplicationConfirmationView extends StatelessWidget {
-  const LoansApplicationConfirmationView({Key? key}) : super(key: key);
+  const LoansApplicationConfirmationView({Key? key, required this.confirmation}) : super(key: key);
+
+  final LoanRequestConfirmation? confirmation;
 
   TextStyle getBoldStyle({
     double fontSize = 24.5,
@@ -30,6 +34,7 @@ class LoansApplicationConfirmationView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("confirmation: ${confirmation?.toJson()}");
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
@@ -82,17 +87,17 @@ class LoansApplicationConfirmationView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     LoanConfirmationDetailTile(
-                        title: "Loan Amount", subtitle: "N 7,000.00"),
+                        title: "Loan Amount", subtitle: "${confirmation?.loanAmount?.formatCurrency}"),
                     PaddedDivider(),
                     Row(
                       children: [
                         Expanded(
                           child: LoanConfirmationDetailTile(
-                              title: "Interest Amount", subtitle: "N 5,000.00"),
+                              title: "Interest Amount", subtitle: "${confirmation?.interestAmount?.formatCurrency}"),
                         ),
                         Expanded(
                           child: LoanConfirmationDetailTile(
-                              title: "Interest Rate", subtitle: "0%"),
+                              title: "Interest Rate", subtitle: "${confirmation?.loanOffer?.minInterestRate}%"),
                         ),
                       ],
                     ),
@@ -101,17 +106,17 @@ class LoansApplicationConfirmationView extends StatelessWidget {
                       children: [
                         Expanded(
                           child: LoanConfirmationDetailTile(
-                              title: "Tenor", subtitle: "15 days"),
+                              title: "Tenor", subtitle: "${confirmation?.loanOffer?.maxPeriod} days"),
                         ),
                         Expanded(
                           child: LoanConfirmationDetailTile(
-                              title: "Due Date", subtitle: "12. Jan. 2021"),
+                              title: "Due Date", subtitle: "${confirmation?.getDueDate()}"),
                         ),
                       ],
                     ),
                     PaddedDivider(),
                     LoanConfirmationDetailTile(
-                        title: "Total Repayment", subtitle: "N 5,000.00"),
+                        title: "Total Repayment", subtitle: "${confirmation?.totalRepayment?.formatCurrency}"),
                     PaddedDivider(),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 23),
@@ -122,8 +127,21 @@ class LoansApplicationConfirmationView extends StatelessWidget {
                     ),
                     SizedBox(height: 10),
                     ConfirmationAccountTile(
-                      accountName: "Leslie Tobechukwu Isah",
-                      accountNumber: "0011357716",
+                      accountName: "${confirmation?.payoutAccount?.customerAccount?.accountName}",
+                      accountNumber: "${confirmation?.payoutAccount?.customerAccount?.accountNumber}",
+                    ),
+                    SizedBox(height: 22),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 23),
+                      child: Text(
+                        "Repayment Account",
+                        style: getNormalStyle(fontSize: 14.5),
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    ConfirmationAccountTile(
+                      accountName: "${confirmation?.repaymentAccount?.customerAccount?.accountName}",
+                      accountNumber: "${confirmation?.repaymentAccount?.customerAccount?.accountNumber}",
                     ),
                     SizedBox(height: 22),
                     Container(
@@ -133,8 +151,7 @@ class LoansApplicationConfirmationView extends StatelessWidget {
                       child: InfoBannerContent(
                         rightSpace: 16,
                         title: "Penalty",
-                        subtitle: "A fee of x Naira will be added to the total "
-                            "outstanding balance for each day the repayment is late",
+                        subtitle: "${confirmation?.loanOffer?.penaltyString}",
                         svgPath: "res/drawables/ic_savings_warning.svg",
                       ),
                       decoration: BoxDecoration(
@@ -172,6 +189,10 @@ class LoansApplicationConfirmationView extends StatelessWidget {
                   ),
                   stream: Stream.value(true),
                   onClick: () {
+                    final loanRequest = confirmation?.getLoanRequest();
+
+
+
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (ctx) => SavingsSucessView(

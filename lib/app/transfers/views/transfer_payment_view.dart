@@ -48,11 +48,11 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
     this._amount = widget.defaultAmount;
     final viewModel = Provider.of<TransferViewModel>(context, listen: false);
 
-    if (viewModel.userAccounts.length > 1) {
-      viewModel.getUserAccountsBalance().listen((event) {});
-    } else {
-      viewModel.getCustomerAccountBalance().listen((event) { });
-    }
+    // if (viewModel.userAccounts.length > 1) {
+    //   viewModel.getUserAccountsBalance().listen((event) {});
+    // } else {
+    //   viewModel.getCustomerAccountBalance().listen((event) { });
+    // }
 
     viewModel.reset();
 

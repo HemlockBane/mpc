@@ -8,6 +8,7 @@ import 'package:moniepoint_flutter/app/loans/views/widgets/padded_divider.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/status_pill.dart';
+import 'package:moniepoint_flutter/core/utils/date_util.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 
@@ -332,8 +333,8 @@ class ShortTermLoanCard extends StatelessWidget {
     };
 
     final onClickView = () {
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (ctx) => LoanDetailsView()));
+      final args = {"loan_details": product.shortTermLoanDetails};
+      Navigator.pushNamed(context, Routes.LOAN_DETAILS, arguments: args);
     };
 
     final padding = EdgeInsets.fromLTRB(16, 15, 17, 15);
@@ -568,22 +569,3 @@ TextStyle getNormalStyle({
   FontWeight fontWeight = FontWeight.w400,
 }) =>
     TextStyle(fontWeight: fontWeight, color: color, fontSize: fontSize);
-
-String getDayOfMonthSuffix(int dayNum) {
-  assert((dayNum >= 1 && dayNum <= 31));
-
-  if (dayNum >= 11 && dayNum <= 13) {
-    return 'th';
-  }
-
-  switch (dayNum % 10) {
-    case 1:
-      return 'st';
-    case 2:
-      return 'nd';
-    case 3:
-      return 'rd';
-    default:
-      return 'th';
-  }
-}

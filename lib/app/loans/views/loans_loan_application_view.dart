@@ -17,8 +17,7 @@ class LoanApplicationView extends StatefulWidget {
   _LoanApplicationViewState createState() => _LoanApplicationViewState();
 }
 
-class _LoanApplicationViewState extends State<LoanApplicationView>
-    with CompositeDisposableWidget {
+class _LoanApplicationViewState extends State<LoanApplicationView> with CompositeDisposableWidget {
   late LoanRequestViewModel _viewModel;
   late PageView _pageView;
 
@@ -48,6 +47,8 @@ class _LoanApplicationViewState extends State<LoanApplicationView>
     _viewModel.pageFormStream.listen((event) {
       final totalItem = _pages.length;
       if (totalItem > 0 && _currentPage < totalItem - 1) {
+        print("loan application: selected loan ${event.loanOffer.toJson()}");
+        _viewModel.setSelectedLoanOffer(event.loanOffer);
         _pageController.animateToPage(_currentPage + 1,
             duration: pageChangeDuration, curve: pageCurve);
       } else if (_currentPage == totalItem - 1) {
@@ -61,6 +62,9 @@ class _LoanApplicationViewState extends State<LoanApplicationView>
     if (_currentPage != 0) {
       await _pageController.animateToPage(_currentPage - 1,
           duration: pageChangeDuration, curve: pageCurve);
+      // This hack fixes the page refresh issue for page 2
+      // TODO: Find a proper solution to the issue
+      FocusManager.instance.primaryFocus?.unfocus();
       return false;
     }
     return true;
@@ -72,7 +76,7 @@ class _LoanApplicationViewState extends State<LoanApplicationView>
 
   @override
   void initState() {
-    _viewModel = LoanRequestViewModel();
+    _viewModel = Provider.of<LoanRequestViewModel>(context, listen: false);
     _registerPageChange();
     super.initState();
   }
@@ -99,7 +103,7 @@ class _LoanApplicationViewState extends State<LoanApplicationView>
                 preferredSize: Size.fromHeight(90),
                 child: Column(
                   children: [
-                    SizedBox(height: 20),
+                    SizedBox(height: 25),
                     AppBar(
                       centerTitle: false,
                       titleSpacing: 0,
@@ -130,7 +134,7 @@ class _LoanApplicationViewState extends State<LoanApplicationView>
               ),
             ),
             Positioned(
-              top: 50,
+              top: 25,
               right: 18,
               child: FutureBuilder(
                   future:

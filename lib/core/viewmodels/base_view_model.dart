@@ -30,7 +30,10 @@ abstract class BaseViewModel with ChangeNotifier {
   Stream<Resource<List<AccountBalance?>>> get accountsBalanceStream => _accountsBalanceController.stream;
 
   Stream<Resource<AccountBalance>> getCustomerAccountBalance({int? accountId, bool useLocal = true}) {
-    return accountServiceDelegate!.getCustomerAccountBalance(accountId ?? customerAccountId).map((event) {
+    return accountServiceDelegate!.getCustomerAccountBalance(
+        customerId: accountId ?? customerAccountId,
+        useLocal: useLocal
+    ).map((event) {
       if ((event is Loading && event.data != null && useLocal) && !_balanceController.isClosed) _balanceController.sink.add(event.data);
 
       if (event is Success && !_balanceController.isClosed){
@@ -43,7 +46,7 @@ abstract class BaseViewModel with ChangeNotifier {
   }
 
   Stream<Resource<List<UserAccount>>> getUserAccountsBalance({bool useLocal = true}) {
-    return accountServiceDelegate!.getUserAccountWithBalance().map((event) {
+    return accountServiceDelegate!.getUserAccountWithBalance(useLocal: useLocal).map((event) {
       if ((event is Loading && event.data != null && useLocal) && !_accountsBalanceController.isClosed) {
         _accountsBalanceController.sink.add(Resource.loading(event.data!.map((e) => e.accountBalance).toList()));
       } else if(event is Loading && !useLocal && !_accountsBalanceController.isClosed) {

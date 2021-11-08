@@ -8,7 +8,8 @@ part of 'savings_product_service.dart';
 
 class _SavingsProductService implements SavingsProductService {
   _SavingsProductService(this._dio, {this.baseUrl}) {
-    baseUrl ??= 'https://core-root.monnify.development.teamapt.com/api/v1/';
+    baseUrl ??=
+        'https://moniepoint-customer-savings-service.development.teamapt.com/api/v1/';
   }
 
   final Dio _dio;

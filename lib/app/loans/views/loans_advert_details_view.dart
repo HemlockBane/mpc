@@ -15,6 +15,7 @@ import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 import 'package:moniepoint_flutter/core/views/error_layout_view.dart';
+import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:provider/provider.dart';
 
 import 'loan_offers_form.dart';
@@ -401,56 +402,59 @@ class _LoanAdvertDetailsViewState extends State<LoanAdvertDetailsView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.peach,
-      body: Stack(
-        children: [
-          Positioned(
-            top: toolBarMarginTop + 10,
-            left: 0,
-            right: 0,
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  Styles.imageButton(
-                    padding: EdgeInsets.all(9),
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(30),
-                    onClick: () => Navigator.of(context).pop(),
-                    image: SvgPicture.asset(
-                      'res/drawables/ic_back_arrow.svg',
-                      fit: BoxFit.contain,
-                      width: 19.5,
-                      height: 19.02,
-                      color: Colors.textColorBlack,
+    return SessionedWidget(
+      context: context,
+      child: Scaffold(
+        backgroundColor: Colors.peach,
+        body: Stack(
+          children: [
+            Positioned(
+              top: toolBarMarginTop + 10,
+              left: 0,
+              right: 0,
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Styles.imageButton(
+                      padding: EdgeInsets.all(9),
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(30),
+                      onClick: () => Navigator.of(context).pop(),
+                      image: SvgPicture.asset(
+                        'res/drawables/ic_back_arrow.svg',
+                        fit: BoxFit.contain,
+                        width: 19.5,
+                        height: 19.02,
+                        color: Colors.textColorBlack,
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 10),
-                  Text(
-                    "Loans",
-                    style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.textColorBlack),
-                  )
-                ],
+                    SizedBox(width: 10),
+                    Text(
+                      "Loans",
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.textColorBlack),
+                    )
+                  ],
+                ),
               ),
             ),
-          ),
-          Positioned(
-            top: 43,
-            right: 0,
-            child: Image.asset('res/drawables/savings_flex_bg.png'),
-          ),
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: _content(context, widget.loanAdvert),
-          )
-        ],
+            Positioned(
+              top: 43,
+              right: 0,
+              child: Image.asset('res/drawables/savings_flex_bg.png'),
+            ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: _content(context, widget.loanAdvert),
+            )
+          ],
+        ),
       ),
     );
   }

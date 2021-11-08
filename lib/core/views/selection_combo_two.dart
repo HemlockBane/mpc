@@ -87,20 +87,23 @@ class _SelectionCombo2<T> extends State<SelectionCombo2<T>>
   @override
   void initState() {
     _borderRadius = widget.borderRadius ??  BorderRadius.circular(10);
-    _isExpanded = widget.shouldPreselectFirstAccount ? false: true;
+    _isExpanded = true;
     super.initState();
   }
 
   @override
   void didUpdateWidget(SelectionCombo2<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if(widget.shouldPreselectFirstAccount){
-      selectFirstAccount();
-    }else{
+      // if(widget.shouldPreselectFirstAccount){
+      //   selectFirstAccount();
+      // }else{
+      //   if(_isExpanded) _animationController.forward();
+      //   else _animationController.animateBack(_collapseValue);
+      //   selectFirstAccount();
+      // }
       if(_isExpanded) _animationController.forward();
       else _animationController.animateBack(_collapseValue);
       selectFirstAccount();
-    }
     }
 
 
@@ -202,9 +205,9 @@ class _SelectionCombo2<T> extends State<SelectionCombo2<T>>
     final boldText = _selectedCombo?.subTitle?.substring(0, _selectedCombo?.subTitle?.indexOf("-"));
     final titleStyle = widget.titleStyle ?? const TextStyle(fontSize: 14, color: Colors.colorPrimaryDark, fontWeight: FontWeight.bold, fontFamily: Styles.defaultFont, fontFamilyFallback: ["Roboto"]);
 
-   final userAccount = (_selectedCombo?.value as UserAccount?);
-   final accountName = userAccount?.customerAccount?.accountName;
-   final formattedBalance = userAccount?.accountBalance?.availableBalance?.formatCurrency ?? "--";
+    final userAccount = (_selectedCombo?.value as UserAccount?);
+    final accountName = userAccount?.customerAccount?.accountName;
+    final formattedBalance = userAccount?.accountBalance?.availableBalance?.formatCurrency ?? "--";
 
     return Material(
       color: Colors.transparent,

@@ -8,6 +8,7 @@ import 'package:moniepoint_flutter/app/loans/views/loans_apply_for_loan_form.dar
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
 import 'package:moniepoint_flutter/core/views/pie_progress_bar.dart';
+import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:provider/provider.dart';
 
 class LoanApplicationView extends StatefulWidget {
@@ -90,72 +91,75 @@ class _LoanApplicationViewState extends State<LoanApplicationView> with Composit
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onBackPressed,
-      child: MultiProvider(
-        providers: [
-          ChangeNotifierProvider.value(value: _viewModel),
-        ],
-        child: Stack(
-          children: [
-            Scaffold(
-              appBar: PreferredSize(
-                preferredSize: Size.fromHeight(90),
-                child: Column(
-                  children: [
-                    SizedBox(height: 25),
-                    AppBar(
-                      centerTitle: false,
-                      titleSpacing: 0,
-                      iconTheme: IconThemeData(color: Colors.solidOrange),
-                      title: Text(
-                        'Loans',
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.textColorBlack,
+    return SessionedWidget(
+      context: context,
+      child: WillPopScope(
+        onWillPop: _onBackPressed,
+        child: MultiProvider(
+          providers: [
+            ChangeNotifierProvider.value(value: _viewModel),
+          ],
+          child: Stack(
+            children: [
+              Scaffold(
+                appBar: PreferredSize(
+                  preferredSize: Size.fromHeight(90),
+                  child: Column(
+                    children: [
+                      SizedBox(height: 25),
+                      AppBar(
+                        centerTitle: false,
+                        titleSpacing: 0,
+                        iconTheme: IconThemeData(color: Colors.solidOrange),
+                        title: Text(
+                          'Loans',
+                          textAlign: TextAlign.start,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.textColorBlack,
+                          ),
                         ),
+                        backgroundColor: Colors.backgroundWhite,
+                        elevation: 0,
                       ),
-                      backgroundColor: Colors.backgroundWhite,
-                      elevation: 0,
-                    ),
+                    ],
+                  ),
+                ),
+                body: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 18),
+                    Expanded(
+                      child: setupPageView(),
+                    )
                   ],
                 ),
               ),
-              body: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 18),
-                  Expanded(
-                    child: setupPageView(),
-                  )
-                ],
-              ),
-            ),
-            Positioned(
-              top: 25,
-              right: 18,
-              child: FutureBuilder(
-                  future:
-                      Future.delayed(Duration(milliseconds: 60), () => "done"),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState != ConnectionState.done)
-                      return SizedBox();
+              Positioned(
+                top: 25,
+                right: 18,
+                child: FutureBuilder(
+                    future:
+                        Future.delayed(Duration(milliseconds: 60), () => "done"),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState != ConnectionState.done)
+                        return SizedBox();
 
-                    // Material helps take away the yellow lines under the text
-                    return Material(
-                      child: PieProgressBar(
-                        viewPager: _pageController,
-                        totalItemCount: _pages.length,
-                        pageTitles: getPageTitles(),
-                        displayTitle: false,
-                        progressColor: Colors.solidOrange,
-                      ),
-                    );
-                  }),
-            )
-          ],
+                      // Material helps take away the yellow lines under the text
+                      return Material(
+                        child: PieProgressBar(
+                          viewPager: _pageController,
+                          totalItemCount: _pages.length,
+                          pageTitles: getPageTitles(),
+                          displayTitle: false,
+                          progressColor: Colors.solidOrange,
+                        ),
+                      );
+                    }),
+              )
+            ],
+          ),
         ),
       ),
     );

@@ -12,6 +12,7 @@ import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/ussd_configuration.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 import 'package:provider/provider.dart';
@@ -337,171 +338,174 @@ class _LoanDetailsViewState extends State<LoanDetailsView> {
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<LoanDetailsViewModel>(context);
-    return Scaffold(
-      backgroundColor: Colors.peach,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Container(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  SizedBox(height: toolBarMarginTop + 10),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 17.45),
-                    child: Row(
-                      children: [
-                        Styles.imageButton(
-                          padding: EdgeInsets.only(top: 9, right: 9, bottom: 9),
-                          color: Colors.transparent,
-                          borderRadius: BorderRadius.circular(30),
-                          onClick: () => Navigator.of(context).pop(),
-                          image: SvgPicture.asset(
-                            'res/drawables/ic_back_arrow.svg',
-                            fit: BoxFit.contain,
-                            width: 19.5,
-                            height: 19.02,
-                            color: Colors.solidOrange,
-                          ),
-                        ),
-                        SizedBox(width: 10),
-                        Text(
-                          "Loans",
-                          style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.textColorBlack),
-                        )
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 18),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 17.45),
-                    child: Text(
-                      "Loan Details",
-                      style: getBoldStyle(fontSize: 20),
-                    ),
-                  ),
-                  SizedBox(height: 14),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 17.45),
-                    child: Stack(
-                      children: [
-                        Container(
-                          padding: EdgeInsets.only(top: 21, left: 21),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Loan Amount",
-                                style: getBoldStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 12.5,
-                                    color: Colors.white),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                "${widget.loanDetails?.loanAmount?.formatCurrency}",
-                                style: getBoldStyle(
-                                    fontWeight: FontWeight.w800,
-                                    fontSize: 23.5,
-                                    color: Colors.white),
-                              ),
-                              SizedBox(height: 20),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  _columnTile(
-                                      text1: "Due Date",
-                                      text2: "${viewModel.getFormattedDate(widget.loanDetails?.dueDate)}"),
-                                  SizedBox(width: 40),
-                                  _columnTile(
-                                      text1: "Outstanding",
-                                      text2: "${widget.loanDetails?.outstandingAmount?.formatCurrency}"),
-                                  SizedBox(width: 21)
-                                ],
-                              ),
-                              SizedBox(height: 70),
-                            ],
-                          ),
-                          decoration: BoxDecoration(
-                            color: Color(0xffDE6F01),
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(22),
-                            ),
-                            border: Border.all(
-                              width: 1.0,
-                              color: Color(0xff063A4F0D).withOpacity(0.05),
+    return SessionedWidget(
+      context: context,
+      child: Scaffold(
+        backgroundColor: Colors.peach,
+        body: SafeArea(
+          child: Stack(
+            children: [
+              Container(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    SizedBox(height: toolBarMarginTop + 10),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 17.45),
+                      child: Row(
+                        children: [
+                          Styles.imageButton(
+                            padding: EdgeInsets.only(top: 9, right: 9, bottom: 9),
+                            color: Colors.transparent,
+                            borderRadius: BorderRadius.circular(30),
+                            onClick: () => Navigator.of(context).pop(),
+                            image: SvgPicture.asset(
+                              'res/drawables/ic_back_arrow.svg',
+                              fit: BoxFit.contain,
+                              width: 19.5,
+                              height: 19.02,
+                              color: Colors.solidOrange,
                             ),
                           ),
-                        ),
-                        if (viewModel.getRepaymentProgress(widget.loanDetails) != null)
-                        Positioned(
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            child: Container(
-                              color: Color(0xffC3690E),
-                              height: 45,
-                              child: Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 15.0),
-                                  child: LinearPercentIndicator(
-                                    percent: viewModel.getRepaymentProgress(widget.loanDetails)!,
-                                    lineHeight: 8,
-                                    backgroundColor:
-                                        Color(0xff954A00).withOpacity(0.3),
-                                    progressColor: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ))
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Positioned(
-              bottom: 0, top: maxDraggableHeight, right: 0, left: 0,
-              child: _content(context)
-            ),
-            Positioned(
-              bottom: 0,
-              right: 0,
-              left: 0,
-              child: Container(
-                padding: EdgeInsets.fromLTRB(20, 16, 20, 25),
-                child: Styles.statefulButton(
-                    buttonStyle: Styles.primaryButtonStyle.copyWith(
-                      backgroundColor:
-                          MaterialStateProperty.all(Colors.solidOrange),
-                      textStyle: MaterialStateProperty.all(
-                        getBoldStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 16,
-                            color: Colors.white),
+                          SizedBox(width: 10),
+                          Text(
+                            "Loans",
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.textColorBlack),
+                          )
+                        ],
                       ),
                     ),
-                    stream: Stream.value(true),
-                    onClick: () {
-                      final args = {"loan_details": widget.loanDetails};
-                      Navigator.pushNamed(context, Routes.LOAN_REPAYMENT, arguments: args);
-                    },
-                    text: 'Make Repayment'),
-                decoration: BoxDecoration(color: Colors.white, boxShadow: [
-                  BoxShadow(
-                      offset: Offset(0, -9),
-                      blurRadius: 21,
-                      spreadRadius: 0,
-                      color: Colors.loanCardShadowColor.withOpacity(0.1))
-                ]),
+                    SizedBox(height: 18),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 17.45),
+                      child: Text(
+                        "Loan Details",
+                        style: getBoldStyle(fontSize: 20),
+                      ),
+                    ),
+                    SizedBox(height: 14),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 17.45),
+                      child: Stack(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.only(top: 21, left: 21),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Loan Amount",
+                                  style: getBoldStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 12.5,
+                                      color: Colors.white),
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  "${widget.loanDetails?.loanAmount?.formatCurrency}",
+                                  style: getBoldStyle(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 23.5,
+                                      color: Colors.white),
+                                ),
+                                SizedBox(height: 20),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    _columnTile(
+                                        text1: "Due Date",
+                                        text2: "${viewModel.getFormattedDate(widget.loanDetails?.dueDate)}"),
+                                    SizedBox(width: 40),
+                                    _columnTile(
+                                        text1: "Outstanding",
+                                        text2: "${widget.loanDetails?.outstandingAmount?.formatCurrency}"),
+                                    SizedBox(width: 21)
+                                  ],
+                                ),
+                                SizedBox(height: 70),
+                              ],
+                            ),
+                            decoration: BoxDecoration(
+                              color: Color(0xffDE6F01),
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(22),
+                              ),
+                              border: Border.all(
+                                width: 1.0,
+                                color: Color(0xff063A4F0D).withOpacity(0.05),
+                              ),
+                            ),
+                          ),
+                          if (viewModel.getRepaymentProgress(widget.loanDetails) != null)
+                          Positioned(
+                              left: 0,
+                              right: 0,
+                              bottom: 0,
+                              child: Container(
+                                color: Color(0xffC3690E),
+                                height: 45,
+                                child: Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 15.0),
+                                    child: LinearPercentIndicator(
+                                      percent: viewModel.getRepaymentProgress(widget.loanDetails)!,
+                                      lineHeight: 8,
+                                      backgroundColor:
+                                          Color(0xff954A00).withOpacity(0.3),
+                                      progressColor: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ))
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            )
-          ],
+              Positioned(
+                bottom: 0, top: maxDraggableHeight, right: 0, left: 0,
+                child: _content(context)
+              ),
+              Positioned(
+                bottom: 0,
+                right: 0,
+                left: 0,
+                child: Container(
+                  padding: EdgeInsets.fromLTRB(20, 16, 20, 25),
+                  child: Styles.statefulButton(
+                      buttonStyle: Styles.primaryButtonStyle.copyWith(
+                        backgroundColor:
+                            MaterialStateProperty.all(Colors.solidOrange),
+                        textStyle: MaterialStateProperty.all(
+                          getBoldStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 16,
+                              color: Colors.white),
+                        ),
+                      ),
+                      stream: Stream.value(true),
+                      onClick: () {
+                        final args = {"loan_details": widget.loanDetails};
+                        Navigator.pushNamed(context, Routes.LOAN_REPAYMENT, arguments: args);
+                      },
+                      text: 'Make Repayment'),
+                  decoration: BoxDecoration(color: Colors.white, boxShadow: [
+                    BoxShadow(
+                        offset: Offset(0, -9),
+                        blurRadius: 21,
+                        spreadRadius: 0,
+                        color: Colors.loanCardShadowColor.withOpacity(0.1))
+                  ]),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

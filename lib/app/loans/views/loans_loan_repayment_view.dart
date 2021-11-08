@@ -11,6 +11,7 @@ import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 import 'package:moniepoint_flutter/core/views/amount_pill.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
+import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:moniepoint_flutter/core/views/user_account_selection_view.dart';
 import 'package:provider/provider.dart';
 
@@ -122,115 +123,118 @@ class _LoanRepaymentViewState extends State<LoanRepaymentView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: false,
-        titleSpacing: 0,
-        iconTheme: IconThemeData(color: Colors.solidOrange),
-        title: Text(
-          'Loans',
-          textAlign: TextAlign.start,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-            color: Colors.textColorBlack,
+    return SessionedWidget(
+      context: context,
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: false,
+          titleSpacing: 0,
+          iconTheme: IconThemeData(color: Colors.solidOrange),
+          title: Text(
+            'Loans',
+            textAlign: TextAlign.start,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: Colors.textColorBlack,
+            ),
           ),
+          backgroundColor: Colors.backgroundWhite,
+          elevation: 0,
         ),
-        backgroundColor: Colors.backgroundWhite,
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 21.34),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 35),
-              Text("Repay Loan", style: getBoldStyle(fontSize: 23)),
-              SizedBox(height: 29),
-              Container(
-                padding: EdgeInsets.fromLTRB(18, 16, 70, 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Outstanding Amount", style: getNormalStyle(fontWeight: FontWeight.w500, fontSize: 14.5)),
-                    SizedBox(height: 7),
-                    Text("${widget.loanDetails?.outstandingAmount?.formatCurrency}", style: getBoldStyle(fontSize: 19.5),),
-                    SizedBox(height: 12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _smallTile(text1: "Amount Loaned", text2: "${widget.loanDetails?.loanAmount?.formatCurrency}"),
-                        _smallTile(text1: "Interest Rate", text2: "${widget.loanDetails?.interestRate}%"),
-                        // SizedBox(width: 0)
-                      ],
-                    )
-                  ],
+        body: SingleChildScrollView(
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 21.34),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 35),
+                Text("Repay Loan", style: getBoldStyle(fontSize: 23)),
+                SizedBox(height: 29),
+                Container(
+                  padding: EdgeInsets.fromLTRB(18, 16, 70, 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Outstanding Amount", style: getNormalStyle(fontWeight: FontWeight.w500, fontSize: 14.5)),
+                      SizedBox(height: 7),
+                      Text("${widget.loanDetails?.outstandingAmount?.formatCurrency}", style: getBoldStyle(fontSize: 19.5),),
+                      SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _smallTile(text1: "Amount Loaned", text2: "${widget.loanDetails?.loanAmount?.formatCurrency}"),
+                          _smallTile(text1: "Interest Rate", text2: "${widget.loanDetails?.interestRate}%"),
+                          // SizedBox(width: 0)
+                        ],
+                      )
+                    ],
+                  ),
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                      border: Border.all(
+                          width: 0.7, color: Color(0xff1EB12D).withOpacity(0.1)),
+                      boxShadow: [
+                        BoxShadow(
+                            offset: Offset(0, 1),
+                            blurRadius: 2,
+                            color: Colors.loanCardShadowColor.withOpacity(0.1))
+                      ]),
                 ),
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(Radius.circular(8)),
-                    border: Border.all(
-                        width: 0.7, color: Color(0xff1EB12D).withOpacity(0.1)),
-                    boxShadow: [
-                      BoxShadow(
-                          offset: Offset(0, 1),
-                          blurRadius: 2,
-                          color: Colors.loanCardShadowColor.withOpacity(0.1))
-                    ]),
-              ),
-              SizedBox(height: 32),
-              Text(
-                "How much would you like to pay?",
-                style: getNormalStyle(
-                  fontSize: 15.5,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.textColorMainBlack,
+                SizedBox(height: 32),
+                Text(
+                  "How much would you like to pay?",
+                  style: getNormalStyle(
+                    fontSize: 15.5,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.textColorMainBlack,
+                  ),
                 ),
-              ),
-              SizedBox(height: 13),
-              amountWidget(),
-              SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: generateAmountPillsWidget(),
-              ),
-              SizedBox(height: 32),
-              Text(
-                "Select repayment account",
-                style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
-              ),
-              SizedBox(height: 12),
-              UserAccountSelectionView(_viewModel,
-                primaryColor: Colors.solidOrange,
-                //TODO modify for loans
-                selectedUserAccount: _viewModel.repaymentAccount,
-                onAccountSelected: (account) => _viewModel.setRepaymentAccount(account),
-                titleStyle: TextStyle(
-                  fontSize: 15,
-                  color: Colors.textColorBlack,
-                  fontWeight: FontWeight.bold
+                SizedBox(height: 13),
+                amountWidget(),
+                SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: generateAmountPillsWidget(),
                 ),
-                checkBoxSize: Size(40, 40),
-                listStyle: ListStyle.alternate,
-                checkBoxPadding: EdgeInsets.all(6.0),
-                checkBoxBorderColor: Color(0xffA6B6CE).withOpacity(0.95),
-                isShowTrailingWhenExpanded: false,
-              ),
-              SizedBox(height: 148),
-              Styles.statefulButton(
-                buttonStyle: loanButtonStyle(),
-                stream: _viewModel.isValid,
-                onClick: () {
-                  if(widget.loanDetails == null) return;
+                SizedBox(height: 32),
+                Text(
+                  "Select repayment account",
+                  style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
+                ),
+                SizedBox(height: 12),
+                UserAccountSelectionView(_viewModel,
+                  primaryColor: Colors.solidOrange,
+                  //TODO modify for loans
+                  selectedUserAccount: _viewModel.repaymentAccount,
+                  onAccountSelected: (account) => _viewModel.setRepaymentAccount(account),
+                  titleStyle: TextStyle(
+                    fontSize: 15,
+                    color: Colors.textColorBlack,
+                    fontWeight: FontWeight.bold
+                  ),
+                  checkBoxSize: Size(40, 40),
+                  listStyle: ListStyle.alternate,
+                  checkBoxPadding: EdgeInsets.all(6.0),
+                  checkBoxBorderColor: Color(0xffA6B6CE).withOpacity(0.95),
+                  isShowTrailingWhenExpanded: false,
+                ),
+                SizedBox(height: 148),
+                Styles.statefulButton(
+                  buttonStyle: loanButtonStyle(),
+                  stream: _viewModel.isValid,
+                  onClick: () {
+                    if(widget.loanDetails == null) return;
 
-                  final repaymentConfirmation = _viewModel.getRepaymentConfirmation(loanDetails: widget.loanDetails!);
-                  final args = {"confirmation": repaymentConfirmation};
-                  Navigator.pushNamed(context, Routes.LOAN_REPAYMENT_CONFIRMATION, arguments: args);
-                },
-                text: 'Repay Loan'),
-              SizedBox(height: 38 + 31.5),
-            ],
+                    final repaymentConfirmation = _viewModel.getRepaymentConfirmation(loanDetails: widget.loanDetails!);
+                    final args = {"confirmation": repaymentConfirmation};
+                    Navigator.pushNamed(context, Routes.LOAN_REPAYMENT_CONFIRMATION, arguments: args);
+                  },
+                  text: 'Repay Loan'),
+                SizedBox(height: 38 + 31.5),
+              ],
+            ),
           ),
         ),
       ),

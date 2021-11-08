@@ -73,29 +73,6 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
     _extraRouteArguments();
     _initSavedUsername();
     _animController.forward();
-
-    // ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
-    // ScaffoldMessenger.of(context).showMaterialBanner(
-    //     MaterialBanner(
-    //         leading: SvgPicture.asset("res/drawables/ic_moniepoint_cube_alt.svg"),
-    //         content: Column(
-    //           crossAxisAlignment: CrossAxisAlignment.start,
-    //           children: [
-    //             Text("DEBIT ALERT"),
-    //             SizedBox(height: 2),
-    //             Text("500.00 from Paul Okeke")
-    //           ],
-    //         ),
-    //         actions: <Widget>[
-    //           TextButton(
-    //               onPressed: () {
-    //                 ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
-    //               },
-    //               child: Text("Dismiss")
-    //           )
-    //         ]
-    //     )
-    // );
   }
 
   void _extraRouteArguments() {

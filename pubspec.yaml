@@ -82,6 +82,7 @@ dependencies:
   analyzer: ^1.7.2
   percent_indicator: ^3.4.0
   jiffy: ^4.1.0
+  swipe_cards: ^0.1.0
 
 dependency_overrides:
   retrofit:

@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
@@ -10,6 +13,7 @@ import 'package:collection/collection.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 import 'package:moniepoint_flutter/core/views/selection_combo_two.dart';
 import 'package:moniepoint_flutter/core/extensions/strings.dart';
+import 'package:rxdart/rxdart.dart';
 
 
 import '../colors.dart';
@@ -50,6 +54,9 @@ class UserAccountSelectionView extends StatefulWidget {
 
 class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
   bool isDefaultStyle() =>  widget.listStyle == ListStyle.normal;
+
+  late final StreamController<List<AccountBalance?>> balanceStreamController = StreamController();
+  late final Stream<List<AccountBalance?>> accountBalanceStream = balanceStreamController.stream;
 
   Widget boxContainer(Widget child) {
     final defaultPadding = EdgeInsets.only(left: 16, right: 24, top: 12, bottom: 12);
@@ -184,41 +191,38 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
 
   }
 
-
   @override
   void initState() {
-    refreshAccounts();
     super.initState();
   }
 
   void refreshAccounts() {
-    final viewModel = widget.viewModel;
-    if (viewModel.userAccounts.length > 1)
-      viewModel.getUserAccountsBalance().listen((event) {});
-    else
-      viewModel.getCustomerAccountBalance().listen((event) {});
   }
 
   @override
   Widget build(BuildContext context) {
-
     if(widget.viewModel.userAccounts.length > 1) {
       return Flexible(
           flex:0,
           child: StreamBuilder(
-              stream: widget.viewModel.accountsBalanceStream,
-              builder: (BuildContext context, AsyncSnapshot<Resource<List<AccountBalance?>>> snapShot) {
-                if(!snapShot.hasData || snapShot.data?.data == null){
+              stream: widget.viewModel.getUserAccountsBalance().map((event) {
+                if(event.data == null) return <AccountBalance>[];
+                return event.data!.map((e) => e.accountBalance).toList();
+              }),
+              builder: (BuildContext context, AsyncSnapshot<List<AccountBalance?>> snapShot) {
+                if(!snapShot.hasData || snapShot.data == null){
                   return boxContainer(Container());
                 }
+                print("Setting Balances ===>> ${snapShot.data?.length}");
 
-                final List<AccountBalance?> accounts = snapShot.data!.data ?? [];
+                final List<AccountBalance?> accounts = snapShot.data ?? [];
                 final userAccounts = widget.viewModel.userAccounts;
 
                 final comboItems = accounts.mapIndexed((index, element) {
                   final userAccount = userAccounts[index];
                   final accountNumber = userAccount.customerAccount?.accountNumber;
                   final formattedBalance = userAccount.accountBalance?.availableBalance?.formatCurrency ?? "--";
+                  print("UserAccount Balances ===>> ${widget.selectedUserAccount?.id} == ${userAccount.id}");
                   return ComboItem<UserAccount>(
                       userAccount, "${userAccount.customerAccount?.accountName}",
                       subTitle: "$accountNumber - $formattedBalance",
@@ -269,10 +273,9 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
                 ),
                 SizedBox(height: 1,),
                 StreamBuilder(
-                    initialData: null,
-                    stream: widget.viewModel.balanceStream,
-                    builder: (context, AsyncSnapshot<AccountBalance?> a) {
-                      final balance = (a.hasData) ? a.data?.availableBalance?.formatCurrency : "--";
+                    stream: this.accountBalanceStream,
+                    builder: (context, AsyncSnapshot<List<AccountBalance?>> a) {
+                      final balance = (a.hasData) ? a.data?.firstOrNull?.availableBalance?.formatCurrency : "--";
                       final defaultSubtitle = Text(
                         'Balance - $balance',
                         textAlign: TextAlign.left,
@@ -300,6 +303,12 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
         )
       ],
     ));
+  }
+
+  @override
+  void dispose() {
+    balanceStreamController.close();
+    super.dispose();
   }
 }
 

@@ -70,42 +70,35 @@ class SelectionCombo2<T> extends StatefulWidget {
   }
 }
 
-class _SelectionCombo2<T> extends State<SelectionCombo2<T>>
-    with SingleTickerProviderStateMixin {
-  final subtitleStyle = const TextStyle(fontSize: 12, color: Colors.deepGrey, fontFamily: Styles.defaultFont, fontFamilyFallback: ["Roboto"]);
+class _SelectionCombo2<T> extends State<SelectionCombo2<T>> with SingleTickerProviderStateMixin {
+  final subtitleStyle = const TextStyle(
+      fontSize: 12,
+      color: Colors.deepGrey,
+      fontFamily: Styles.defaultFont,
+      fontFamilyFallback: ["Roboto"]
+  );
   late final _animationController = AnimationController(vsync: this, duration: Duration(milliseconds: 500));
   late final _animation = Tween(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.fastOutSlowIn)
   );
 
   ComboItem<T>? _selectedCombo;
-  late bool _isExpanded;
+  late bool _isExpanded = false;
   bool _showMore = false;
   int _maxThreshold = 3;
   BorderRadius? _borderRadius;
 
   @override
   void initState() {
-    _borderRadius = widget.borderRadius ??  BorderRadius.circular(10);
-    _isExpanded = widget.shouldPreselectFirstAccount ? false: true;
+    _borderRadius = widget.borderRadius ?? BorderRadius.circular(10);
     super.initState();
   }
 
   @override
   void didUpdateWidget(SelectionCombo2<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if(widget.shouldPreselectFirstAccount){
-      selectFirstAccount();
-    }else{
-      if(_isExpanded) _animationController.forward();
-      else _animationController.animateBack(_collapseValue);
-      selectFirstAccount();
-    }
-    }
-
-
-
-  void selectFirstAccount(){
+    if(_isExpanded) _animationController.forward();
+    else _animationController.animateBack(_collapseValue);
     _selectedCombo = widget.comboItems.where((element) => element.isSelected).firstOrNull;
   }
 
@@ -136,20 +129,18 @@ class _SelectionCombo2<T> extends State<SelectionCombo2<T>>
           text1,
           textAlign: TextAlign.left,
           style: TextStyle(
-            color: Colors.textColorBlack
-              .withOpacity(0.5),
-            fontSize: 13),
+            color: Colors.textColorBlack.withOpacity(0.5),
+            fontSize: 13
+          ),
         ),
-        SizedBox(
-          width: 8,
-        ),
+        SizedBox(width: 8),
         Text("$tex2",
           textAlign: TextAlign.left,
           style: TextStyle(
-            color: Colors.textColorBlack
-              .withOpacity(0.5),
+            color: Colors.textColorBlack.withOpacity(0.5),
             fontSize: 13,
-            fontWeight: FontWeight.w600),
+            fontWeight: FontWeight.w600
+          ),
         ),
       ],
     );
@@ -202,10 +193,6 @@ class _SelectionCombo2<T> extends State<SelectionCombo2<T>>
     final boldText = _selectedCombo?.subTitle?.substring(0, _selectedCombo?.subTitle?.indexOf("-"));
     final titleStyle = widget.titleStyle ?? const TextStyle(fontSize: 14, color: Colors.colorPrimaryDark, fontWeight: FontWeight.bold, fontFamily: Styles.defaultFont, fontFamilyFallback: ["Roboto"]);
 
-   final userAccount = (_selectedCombo?.value as UserAccount?);
-   final accountName = userAccount?.customerAccount?.accountName;
-   final formattedBalance = userAccount?.accountBalance?.availableBalance?.formatCurrency ?? "--";
-
     return Material(
       color: Colors.transparent,
       borderRadius: BorderRadius.only(
@@ -227,7 +214,7 @@ class _SelectionCombo2<T> extends State<SelectionCombo2<T>>
         child: ListTile(
           focusColor: Colors.transparent,
           hoverColor: Colors.transparent,
-          leading: isDefaultStyle() ? widget.titleIcon : getAlternateIcon(accountName),
+          leading: isDefaultStyle() ? widget.titleIcon : getAlternateIcon("accountName"),
           title: Opacity(
             opacity: (_isExpanded) ? 0.3 : 1,
             child: Text(_selectedCombo?.title ?? widget.defaultTitle, style: titleStyle,),
@@ -235,9 +222,7 @@ class _SelectionCombo2<T> extends State<SelectionCombo2<T>>
           subtitle: (_selectedCombo?.subTitle != null)
               ? Opacity(
                 opacity: (_isExpanded) ? 0.3 : 1,
-                child: !isDefaultStyle()
-                  ? getAlternateSubtitle(text1: boldText ?? "", tex2: formattedBalance)
-                  : Text(_selectedCombo?.subTitle ?? "", style: subtitleStyle).colorText(
+                child: Text(_selectedCombo?.subTitle ?? "", style: subtitleStyle).colorText(
                     {"$boldText": Tuple(Colors.deepGrey, null)}, underline: false)
               )
               : null,
@@ -263,8 +248,6 @@ class _SelectionCombo2<T> extends State<SelectionCombo2<T>>
   List<Widget> _generateItems() {
     final titleStyle = widget.titleStyle ?? const TextStyle(fontSize: 14, color: Colors.colorPrimaryDark, fontWeight: FontWeight.bold, fontFamily: Styles.defaultFont, fontFamilyFallback: ["Roboto"]);
 
-
-
     final items = <Widget>[];
     final totalItems = widget.comboItems.length;
     final takeLength = (_showMore) ? totalItems : _maxThreshold;
@@ -273,17 +256,12 @@ class _SelectionCombo2<T> extends State<SelectionCombo2<T>>
       final comboItem = widget.comboItems[index];
 
       final boldText = comboItem.subTitle?.substring(0, comboItem.subTitle?.indexOf("-"));
-      final formattedBalance = (comboItem.value as UserAccount?)?.accountBalance?.availableBalance?.formatCurrency ?? "--";
-
-
       final listItem = ListTile(
-        // dense: true,
-        // visualDensity: VisualDensity(vertical: -4),
         onTap: () => _onItemSelected(comboItem, index),
         leading: CustomCheckBox(
-            height: widget.checkBoxSize?.height, width: widget.checkBoxSize?.width,
-            onSelect: (v) =>_onItemSelected(comboItem, index),
-            isSelected: comboItem.isSelected,
+          height: widget.checkBoxSize?.height, width: widget.checkBoxSize?.width,
+          onSelect: (v) =>_onItemSelected(comboItem, index),
+          isSelected: comboItem.isSelected,
           fillColor: widget.primaryColor,
           borderColor: widget.checkBoxBorderColor,
           padding: widget.checkBoxPadding,
@@ -293,9 +271,7 @@ class _SelectionCombo2<T> extends State<SelectionCombo2<T>>
           style: titleStyle,
         ),
         subtitle: (comboItem.subTitle != null)
-            ? isDefaultStyle()
-              ? Text(comboItem.subTitle ?? "", style: subtitleStyle,).colorText({"$boldText": Tuple(Colors.deepGrey, null)}, underline: false)
-              : getAlternateSubtitle(text1: boldText ?? "", tex2: formattedBalance)
+            ? Text(comboItem.subTitle ?? "", style: subtitleStyle,).colorText({"$boldText": Tuple(Colors.deepGrey, null)}, underline: false)
             : null,
       );
 

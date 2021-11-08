@@ -272,8 +272,11 @@ class _ApplyForLoanViewState extends State<ApplyForLoanView> {
                 isShowTrailingWhenExpanded: false,
                 shouldPreselectFirstAccount: true,
                 selectedUserAccount: viewModel.repaymentAccount,
-                onAccountSelected: (account) =>
-                    viewModel.setRepaymentAccount(account),
+                onAccountSelected: (account) {
+                  setState(() {
+                    viewModel.setRepaymentAccount(account);
+                  });
+                },
               ),
             SizedBox(height: !_isSelected ? 25 : 15),
             Container(

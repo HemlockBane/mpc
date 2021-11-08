@@ -57,6 +57,7 @@ abstract class BaseViewModel with ChangeNotifier {
       }else if(event is Error<List<UserAccount>> && !_accountsBalanceController.isClosed) {
         _accountsBalanceController.sink.add(Resource.error(err: ServiceError(message: event.message ?? "")));
       }
+      print(event);
       return event;
     });
   }

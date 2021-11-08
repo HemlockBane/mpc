@@ -9,7 +9,7 @@ part of 'card_service.dart';
 class _CardService implements CardService {
   _CardService(this._dio, {this.baseUrl}) {
     baseUrl ??=
-        'https://core-root.monnify.development.teamapt.com/api/v1/card/';
+        'https://moniepoint-customer-root-v2.console.teamapt.com/api/v1/card/';
   }
 
   final Dio _dio;
@@ -27,7 +27,7 @@ class _CardService implements CardService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.1.0'
                 },
                 extra: _extra,
                 contentType: 'application/json')
@@ -171,7 +171,7 @@ class _CardService implements CardService {
         ServiceResult<CardOtpLinkingResponse>>(Options(
             method: 'GET', headers: <String, dynamic>{}, extra: _extra)
         .compose(_dio.options,
-            'https://core-operations.monnify.development.teamapt.com/api/v1/card/send_card_linking_otp/customer_account_id/$customerAccountId',
+            'https://moniepoint-customer-operations-service-v2.console.teamapt.com/api/v1/card/send_card_linking_otp/customer_account_id/$customerAccountId',
             queryParameters: queryParameters, data: _data)
         .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = ServiceResult<CardOtpLinkingResponse>.fromJson(
@@ -192,7 +192,7 @@ class _CardService implements CardService {
         ServiceResult<CardOtpValidationResponse>>(Options(
             method: 'POST', headers: <String, dynamic>{}, extra: _extra)
         .compose(_dio.options,
-            'https://core-operations.monnify.development.teamapt.com/api/v1/card/validate_card_linking_otp/customer_account_id/$customerAccountId',
+            'https://moniepoint-customer-operations-service-v2.console.teamapt.com/api/v1/card/validate_card_linking_otp/customer_account_id/$customerAccountId',
             queryParameters: queryParameters, data: _data)
         .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = ServiceResult<CardOtpValidationResponse>.fromJson(
@@ -237,7 +237,7 @@ class _CardService implements CardService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'multipart/form-data',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.1.0'
                 },
                 extra: _extra,
                 contentType: 'multipart/form-data')
@@ -292,7 +292,7 @@ class _CardService implements CardService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'multipart/form-data',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.1.0'
                 },
                 extra: _extra,
                 contentType: 'multipart/form-data')

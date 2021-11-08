@@ -9,7 +9,7 @@ part of 'file_management_service.dart';
 class _FileManagementService implements FileManagementService {
   _FileManagementService(this._dio, {this.baseUrl}) {
     baseUrl ??=
-        'https://core-operations.monnify.development.teamapt.com/api/v1/file-management/';
+        'https://moniepoint-customer-operations-service-v2.console.teamapt.com/api/v1/file-management/';
   }
 
   final Dio _dio;
@@ -27,7 +27,7 @@ class _FileManagementService implements FileManagementService {
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
+                  r'appVersion': '1.1.0'
                 },
                 extra: _extra,
                 contentType: 'application/json')

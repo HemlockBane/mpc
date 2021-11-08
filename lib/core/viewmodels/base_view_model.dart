@@ -6,6 +6,7 @@ import 'package:moniepoint_flutter/app/accounts/model/account_service_delegate.d
 import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/data/account_upgrade_state.dart';
 import 'package:moniepoint_flutter/app/customer/customer.dart';
+import 'package:moniepoint_flutter/app/customer/customer_account.dart';
 import 'package:moniepoint_flutter/app/customer/scheme_code.dart';
 import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
@@ -119,6 +120,13 @@ abstract class BaseViewModel with ChangeNotifier {
       return element.customerAccount?.accountNumber == accountNumber;
     }).toList();
     return accounts.firstOrNull?.customerAccount?.id;
+  }
+
+  CustomerAccount? getCustomerAccountByAccountNumber (String? accountNumber) {
+    List<UserAccount> accounts = userAccounts.where((element) {
+      return element.customerAccount?.accountNumber == accountNumber;
+    }).toList();
+    return accounts.firstOrNull?.customerAccount;
   }
 
   int? getCurrentAccountTierNumber(int userAccountId) {

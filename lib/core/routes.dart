@@ -57,11 +57,14 @@ import 'package:moniepoint_flutter/app/managebeneficiaries/bills/views/bill_sele
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/managed_beneficiary_view.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/views/transfer_select_beneficiary_view.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/signup_account_view.dart';
+import 'package:moniepoint_flutter/app/savings/model/data/savings_product.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_enable_flex_view.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_flex_home.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_flex_settings.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_flex_setup_view.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_flex_topup_view.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_flex_withdrawal.dart';
+import 'package:moniepoint_flutter/app/savings/views/savings_product_item_view.dart';
 import 'package:moniepoint_flutter/app/settings/settings_view.dart';
 import 'package:moniepoint_flutter/app/transfers/viewmodels/transfer_detail_view_model.dart';
 import 'package:moniepoint_flutter/app/transfers/views/transfer_detailed_view.dart';
@@ -88,19 +91,23 @@ class Routes {
   static const ACCOUNT_TRANSACTIONS  = "ACCOUNT_TRANSACTIONS";
   static const ACCOUNT_TRANSACTIONS_DETAIL  = "ACCOUNT_TRANSACTIONS_DETAIL";
   static const SETTINGS  = "SETTINGS";
-  static const MANAGED_BENEFICIARIES  = "MANAGED_BENEFICIARIES";
+
   static const SUPPORT  = "SUPPORT";
   static const BRANCHES  = "BRANCHES";
   static const BRANCHES_SEARCH  = "BRANCHES_SEARCH";
+
   static const CARDS  = "CARDS";
   static const CARD_DETAIL = "CARD_DETAIL";
   static const CARD_ACTIVATION = "CARD_ACTIVATION";
   static const MANAGE_CARD_CHANNELS = "MANAGE_CARD_CHANNELS";
   static const CARD_QR_SCANNER = "CARD_QR_SCANNER";
+
   static const CONTACTS  = "CONTACTS";
   static const SELECT_AIRTIME_BENEFICIARY  = "SELECT_AIRTIME_BENEFICIARY";
   static const SELECT_TRANSFER_BENEFICIARY  = "SELECT_TRANSFER_BENEFICIARY";
   static const SELECT_BILL_BENEFICIARY  = "SELECT_BILL_BENEFICIARY";
+  static const MANAGED_BENEFICIARIES  = "MANAGED_BENEFICIARIES";
+
   static const BLOCK_ACCOUNT  = "BLOCK_ACCOUNT";
   static const UNBLOCK_DEBIT_CARD = "UNBLOCK_DEBIT_CARD";
   static const REGISTERED_DEVICES = "REGISTERED_DEVICES";
@@ -120,6 +127,7 @@ class Routes {
   static const SAVINGS_FLEX_SETTINGS = "SAVINGS_FLEX_SETTINGS";
   static const SAVINGS_FLEX_TOP_UP = "SAVINGS_FLEX_TOP_UP";
   static const SAVINGS_FLEX_SETUP = "SAVINGS_FLEX_SETUP";
+  static const SAVINGS_FLEX_ENABLE = "SAVINGS_FLEX_ENABLE";
 
   static const LOAN_OFFERS = "LOAN_OFFERS";
   static const LOAN_ADVERT_DETAILS = "LOAN_ADVERT_DETAILS";
@@ -206,6 +214,7 @@ class Routes {
         create: (_) => LoanRequestViewModel(),
         child: LoanApplicationView(),
       ),
+
     };
   }
 
@@ -372,6 +381,15 @@ class Routes {
             create: (_) => LoanRepaymentViewModel(),
             child: LoanRepaymentConfirmationView(confirmation : confirmation),
           )
+        );
+      case Routes.SAVINGS_FLEX_ENABLE:
+        final args = settings.arguments as Map<dynamic, dynamic>;
+        final product = args["product"] as SavingsProduct;
+        return MaterialPageRoute(
+            builder: (BuildContext context) => ChangeNotifierProvider(
+              create: (_) => AccountUpdateViewModel(),
+              child: SavingsEnableFlexView(product: product),
+            )
         );
     }
     return null;

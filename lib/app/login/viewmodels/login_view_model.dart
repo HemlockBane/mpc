@@ -1,4 +1,5 @@
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -26,6 +27,9 @@ class LoginViewModel with ChangeNotifier {
 
   final List<SystemConfiguration> _systemConfigurations = [];
 
+  StreamController<bool> _isFormValidController = StreamController.broadcast();
+  Stream<bool>? get isFormValid => _isFormValidController.stream;
+
   LoginViewModel({
     LoginServiceDelegate? delegate,
     SystemConfigurationServiceDelegate? configurationServiceDelegate,
@@ -35,6 +39,13 @@ class LoginViewModel with ChangeNotifier {
     this._deviceManager = deviceManager ?? GetIt.I<DeviceManager>();
 
     UserInstance().resetSession();
+  }
+
+  void validateForm(String username, String password) {
+    if(_isFormValidController.isClosed) {
+      _isFormValidController = StreamController();
+    }
+    _isFormValidController.sink.add(username.isNotEmpty && password.isNotEmpty);
   }
 
   Stream<Resource<User>> loginWithPassword(String username, String password) {
@@ -100,6 +111,12 @@ class LoginViewModel with ChangeNotifier {
     final biometricType = await _helper?.getBiometricType();
     final isEnabled = PreferenceUtil.getFingerPrintEnabled();
     return hasFingerPrint && (biometricType != BiometricType.NONE) && isEnabled;
+  }
+
+  @override
+  void dispose() {
+    _isFormValidController.close();
+    super.dispose();
   }
 
 }

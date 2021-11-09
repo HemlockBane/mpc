@@ -18,10 +18,9 @@ class SelectionCombo2<T> extends StatefulWidget {
   final List<ComboItem<T>> comboItems;
   final String defaultTitle;
   final BorderRadius? borderRadius;
-  final Widget? titleIcon;
+  final Widget? Function(T? item)? titleIcon;
   final OnItemClickListener<T?, int>? onItemSelected;
   final Color? primaryColor;
-  final Widget Function() ? subtitleWidget;
   final Widget? trailingWidget;
   final Color? checkBoxBorderColor;
   final Size? checkBoxSize;
@@ -29,7 +28,6 @@ class SelectionCombo2<T> extends StatefulWidget {
   final bool isShowTrailingWhenExpanded;
   final TextStyle? titleStyle;
   final ListStyle listStyle;
-  final bool shouldPreselectFirstAccount;
 
 
   SelectionCombo2(this.comboItems, {
@@ -38,15 +36,13 @@ class SelectionCombo2<T> extends StatefulWidget {
     this.titleIcon,
     this.onItemSelected,
     this.primaryColor,
-    this.subtitleWidget,
     this.trailingWidget,
     this.checkBoxBorderColor,
     this.checkBoxSize,
     this.checkBoxPadding,
     this.isShowTrailingWhenExpanded = true,
     this.titleStyle,
-    this.listStyle = ListStyle.normal,
-    this.shouldPreselectFirstAccount = false
+    this.listStyle = ListStyle.normal
   });
 
   @override
@@ -69,35 +65,37 @@ class SelectionCombo2<T> extends StatefulWidget {
 }
 
 class _SelectionCombo2<T> extends State<SelectionCombo2<T>> with SingleTickerProviderStateMixin {
-  final subtitleStyle = const TextStyle(
-      fontSize: 12,
-      color: Colors.deepGrey,
-      fontFamily: Styles.defaultFont,
-      fontFamilyFallback: ["Roboto"]
-  );
+  final subtitleStyle = const TextStyle(fontSize: 12, color: Colors.deepGrey, fontFamily: Styles.defaultFont, fontFamilyFallback: ["Roboto"]);
   late final _animationController = AnimationController(vsync: this, duration: Duration(milliseconds: 500));
   late final _animation = Tween(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.fastOutSlowIn)
   );
 
   ComboItem<T>? _selectedCombo;
-  late bool _isExpanded = false;
+  bool _isExpanded = false;
   bool _showMore = false;
   int _maxThreshold = 3;
   BorderRadius? _borderRadius;
 
+  void _setDefaultState() {
+    if(_isExpanded) _animationController.forward();
+    else _animationController.animateBack(_collapseValue);
+    _selectedCombo = widget.comboItems.where((element) => element.isSelected).firstOrNull;
+  }
+
   @override
   void initState() {
-    _borderRadius = widget.borderRadius ?? BorderRadius.circular(10);
+    _borderRadius = widget.borderRadius ??  BorderRadius.circular(10);
     super.initState();
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+      _setDefaultState();
+    });
   }
 
   @override
   void didUpdateWidget(SelectionCombo2<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if(_isExpanded) _animationController.forward();
-    else _animationController.animateBack(_collapseValue);
-    _selectedCombo = widget.comboItems.where((element) => element.isSelected).firstOrNull;
+    _setDefaultState();
   }
 
   double get _collapseValue {
@@ -108,7 +106,7 @@ class _SelectionCombo2<T> extends State<SelectionCombo2<T>> with SingleTickerPro
 
   bool isDefaultStyle() =>  widget.listStyle == ListStyle.normal;
 
-  Widget? getTrailingWidget(){
+  Widget? getTrailingWidget() {
     final isShow = widget.isShowTrailingWhenExpanded;
     final icon =  widget.trailingWidget ?? RotationTransition(
       turns: Tween(begin: 0.5, end: 1.0).animate(_animationController),
@@ -120,31 +118,7 @@ class _SelectionCombo2<T> extends State<SelectionCombo2<T>> with SingleTickerPro
       : icon;
   }
 
-  Widget getAlternateSubtitle({required String text1, required String? tex2}){
-    return Row(
-      children: [
-        Text(
-          text1,
-          textAlign: TextAlign.left,
-          style: TextStyle(
-            color: Colors.textColorBlack.withOpacity(0.5),
-            fontSize: 13
-          ),
-        ),
-        SizedBox(width: 8),
-        Text("$tex2",
-          textAlign: TextAlign.left,
-          style: TextStyle(
-            color: Colors.textColorBlack.withOpacity(0.5),
-            fontSize: 13,
-            fontWeight: FontWeight.w600
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget? getAlternateIcon(String? name){
+  Widget? getAlternateIcon(String? name) {
     final color = widget.primaryColor ?? Colors.primaryColor;
     if (name == null) return null;
 
@@ -169,7 +143,6 @@ class _SelectionCombo2<T> extends State<SelectionCombo2<T>> with SingleTickerPro
               overlayColor:
               MaterialStateProperty.all(color.withOpacity(0.1)),
               highlightColor: color.withOpacity(0.05),
-              // onTap: () => _onItemClicked(context, beneficiary),
               child: Center(
                 child: Text(
                   name.abbreviate(2, true, includeMidDot: false),
@@ -212,17 +185,17 @@ class _SelectionCombo2<T> extends State<SelectionCombo2<T>> with SingleTickerPro
         child: ListTile(
           focusColor: Colors.transparent,
           hoverColor: Colors.transparent,
-          leading: isDefaultStyle() ? widget.titleIcon : getAlternateIcon("accountName"),
+          leading: widget.titleIcon?.call(_selectedCombo?.value),
           title: Opacity(
             opacity: (_isExpanded) ? 0.3 : 1,
             child: Text(_selectedCombo?.title ?? widget.defaultTitle, style: titleStyle,),
           ),
           subtitle: (_selectedCombo?.subTitle != null)
               ? Opacity(
-                opacity: (_isExpanded) ? 0.3 : 1,
-                child: Text(_selectedCombo?.subTitle ?? "", style: subtitleStyle).colorText(
-                    {"$boldText": Tuple(Colors.deepGrey, null)}, underline: false)
-              )
+                  opacity: (_isExpanded) ? 0.3 : 1,
+                  child: Text(_selectedCombo?.subTitle ?? "", style: subtitleStyle)
+                    .colorText({"$boldText": Tuple(Colors.deepGrey, null)}, underline: false)
+                )
               : null,
           trailing: getTrailingWidget()
         ),
@@ -254,6 +227,7 @@ class _SelectionCombo2<T> extends State<SelectionCombo2<T>> with SingleTickerPro
       final comboItem = widget.comboItems[index];
 
       final boldText = comboItem.subTitle?.substring(0, comboItem.subTitle?.indexOf("-"));
+
       final listItem = ListTile(
         onTap: () => _onItemSelected(comboItem, index),
         leading: CustomCheckBox(
@@ -275,8 +249,7 @@ class _SelectionCombo2<T> extends State<SelectionCombo2<T>> with SingleTickerPro
 
       items.add(listItem);
 
-      if (index != takeLength - 1)
-        items.add(Divider(color: Colors.grey.withOpacity(0.2), height: 1,));
+      if (index != takeLength - 1) items.add(Divider(color: Colors.grey.withOpacity(0.2), height: 1,));
       
       if((index == takeLength -1) && totalItems > _maxThreshold) {
         items.add(Divider(color: Colors.grey.withOpacity(0.2), height: 1,));
@@ -296,7 +269,6 @@ class _SelectionCombo2<T> extends State<SelectionCombo2<T>> with SingleTickerPro
     });
     return items;
   }
-
 
   @override
   Widget build(BuildContext context) {

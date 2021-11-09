@@ -3,10 +3,9 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Colors, ScrollView;
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
-import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_purchase_type.dart';
+import 'package:moniepoint_flutter/app/airtime/model/data/airtime_service_provider.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_service_provider_item.dart';
 import 'package:moniepoint_flutter/app/airtime/viewmodels/airtime_view_model.dart';
 import 'package:moniepoint_flutter/app/airtime/views/dialogs/airtime_pin_dialog.dart';
@@ -23,7 +22,6 @@ import 'package:moniepoint_flutter/core/payment_view_model.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
-import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:moniepoint_flutter/core/views/selection_combo_two.dart';
@@ -33,7 +31,6 @@ import 'package:provider/provider.dart';
 import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
 import 'package:moniepoint_flutter/core/extensions/strings.dart';
 import 'package:collection/collection.dart';
-import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 
 import 'airtime_view.dart';
 
@@ -54,40 +51,16 @@ class AirtimePaymentScreen extends StatefulWidget {
 
 class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKeepAliveClientMixin {
 
-  double _amount = 0.00;
-  ListDataItem<String>? _selectedAmountPill;
-  Stream<Resource<List<AirtimeServiceProviderItem>>>? dataPlanStream;
-  Image? _providerLogo;
+  late final AirtimeViewModel viewModel;
 
-  final List<ListDataItem<String>> amountPills = List.of([
-    ListDataItem(100.formatCurrencyWithoutLeadingZero),
-    ListDataItem(200.formatCurrencyWithoutLeadingZero),
-    ListDataItem(500.formatCurrencyWithoutLeadingZero),
-    ListDataItem(1000.formatCurrencyWithoutLeadingZero),
-  ]);
+  ListDataItem<String>? _selectedAmountPill;
 
   @override
   initState() {
-    // this._amount = widget.defaultAmount;
-
-    final viewModel = Provider.of<AirtimeViewModel>(context, listen: false);
-
-    // if(viewModel.userAccounts.length > 1) viewModel.getUserAccountsBalance().listen((event) { });
-    // else viewModel.getCustomerAccountBalance().listen((event) { });
-
+    this.viewModel = Provider.of<AirtimeViewModel>(context, listen: false);
     viewModel.setServiceProviderItem(null);
     viewModel.setSourceAccount(null);
-
-    this.dataPlanStream = viewModel.getServiceProviderItems(
-        (viewModel.beneficiary as AirtimeBeneficiary).serviceProvider!.billerId!
-    );
     super.initState();
-
-    // if(widget.defaultAmount > 0) {
-    //   Future.delayed(Duration(milliseconds: 50), () {
-    //     viewModel.setAmount(this._amount);
-    //   });
-    // }
   }
 
   Widget initialView(PaymentViewModel viewModel) {
@@ -120,7 +93,7 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
     );
   }
 
-  Widget boxContainer(Widget child) {
+  static Widget boxContainer(Widget child) {
     return Container(
       padding: EdgeInsets.only(left: 16, right: 24, top: 12, bottom: 12),
       decoration: BoxDecoration(
@@ -206,165 +179,30 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
     ));
   }
 
-  Widget dataPlans(AirtimeViewModel viewModel) {
-    final beneficiary = viewModel.beneficiary as AirtimeBeneficiary;
-    return Flexible(
-        flex: 0,
-        fit: FlexFit.tight,
-        child: StreamBuilder(
-            stream: dataPlanStream,
-            builder: (BuildContext context,
-                AsyncSnapshot<Resource<List<AirtimeServiceProviderItem>>> a) {
-              if (!a.hasData || a.data?.data == null)
-                return boxContainer(Container());
-              final comboItems = viewModel.dataProviderItems.map((e) =>
-                  ComboItem<AirtimeServiceProviderItem>(
-                      e, e.name!, isSelected: e.id == viewModel.dataPlan?.id))
-                  .toList();
-              return SelectionCombo2<AirtimeServiceProviderItem>(
-                comboItems,
-                defaultTitle: "Select Data Plan",
-                onItemSelected: (item, i) => setState(() => viewModel.setServiceProviderItem(item)),
-                titleIcon: StreamBuilder(
-                    stream: viewModel.getFile(beneficiary.serviceProvider!.logoImageUUID ?? ""),
-                    builder: (ctx, AsyncSnapshot<Resource<FileResult>> result) {
-                      if (!result.hasData || result.data == null) SelectionCombo2.initialView();
-                      final base64 = result.data?.data;
-                      final base64String = base64?.base64String;
-                      if (base64 == null || base64String == null || base64String.isEmpty == true) {
-                        return SelectionCombo2.initialView();
-                      }
-                      _providerLogo = (_providerLogo == null)
-                          ? Image.memory(base64Decode(base64String), width: 40,
-                          height: 40,
-                          errorBuilder: (_, _i, _j) {
-                            return SelectionCombo2.initialView();
-                          })
-                          : _providerLogo;
-                      return _providerLogo!;
-                    }
-                ),
-              );
-            }
-        )
-    );
-    // return Flexible(
-    //     flex: 0,
-    //     fit: FlexFit.tight,
-    //     child: StreamBuilder(
-    //         stream: dataPlanStream,
-    //         builder: (BuildContext context, AsyncSnapshot<Resource<List<AirtimeServiceProviderItem>>> a) {
-    //           if(!a.hasData || a.data?.data == null) return boxContainer(Container());
-    //           print('re-mapping list');
-    //           final comboItems = a.data!.data!.map((e) => ComboItem<AirtimeServiceProviderItem>(e, e.name!)).toList();
-    //           return SelectionCombo<AirtimeServiceProviderItem>(comboItems, (item, i){
-    //               setState(() {
-    //                 this._amount = 0;
-    //                 print('Called');
-    //                 viewModel.setServiceProviderItem(item);
-    //               });
-    //           });
-    //     }
-    // ));
-  }
-
-  Widget transferSource(BaseViewModel viewModel) {
-    return boxContainer(Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Flexible(
-            flex: 0,
-            child: Container(
-              width: 37,
-              height: 37,
-              padding: EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.darkBlue.withOpacity(0.1)
-              ),
-              child: Center(
-                child: SvgPicture.asset(
-                  'res/drawables/ic_bank.svg', color: Colors.primaryColor,),
-              ),
-            )
-        ),
-        SizedBox(width: 17,),
-        Expanded(
-            flex: 1,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${viewModel.accountName}',
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: TextStyle(fontSize: 15,
-                      color: Colors.solidDarkBlue,
-                      fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 1,),
-                StreamBuilder(
-                    initialData: null,
-                    stream: viewModel.balanceStream,
-                    builder: (context, AsyncSnapshot<AccountBalance?> a) {
-                      final balance = (a.hasData) ? a.data?.availableBalance
-                          ?.formatCurrency : "--";
-                      return Text(
-                        'Balance - $balance',
-                        textAlign: TextAlign.left,
-                        style: TextStyle(color: Colors.deepGrey,
-                            fontSize: 13,
-                            fontFamily: Styles.defaultFont,
-                            fontFamilyFallback: ["Roboto"]),)
-                          .colorText({"$balance": Tuple(Colors.deepGrey, null)},
-                          underline: false);
-                    })
-              ],
-            )
-        ),
-        SizedBox(width: 17,),
-        Expanded(
-            flex: 0,
-            child: SvgPicture.asset(
-                'res/drawables/ic_check_mark_round.svg',
-                width: 26,
-                height: 26
-            )
-        )
-      ],
-    ));
-  }
-
-
   Widget amountWidget() {
-    final viewModel = Provider.of<AirtimeViewModel>(context, listen: false);
     final isAmountFixed = viewModel.dataPlan != null && viewModel.dataPlan?.priceFixed == true;
-    this._amount = isAmountFixed ? (viewModel.dataPlan?.amount ?? 0) / 100 : this._amount;
-    viewModel.setAmount(this._amount);
+    final amount = viewModel.amount ?? 0.0;
     return boxContainer(
-        PaymentAmountView((_amount * 100).toInt(), (value) {
-          this._amount = value / 100;
-          viewModel.setAmount(this._amount);
+        PaymentAmountView((amount * 100).toInt(), (value) {
+          viewModel.setAmount(value / 100);
         }, isAmountFixed: isAmountFixed)
     );
   }
 
   List<Widget> generateAmountPillsWidget() {
     final pills = <Widget>[];
-    amountPills.forEachIndexed((index, element) {
+    viewModel.amountPills.forEachIndexed((index, element) {
       pills.add(Expanded(flex: 1,
-          child: AmountPill(
-              item: element, position: index, listener: (ListDataItem<String> item, position) {
+          child: AmountPill(item: element, position: index, listener: (ListDataItem<String> item, position) {
             setState(() {
               _selectedAmountPill?.isSelected = false;
               _selectedAmountPill = item;
               _selectedAmountPill?.isSelected = true;
-              this._amount = double.parse(_selectedAmountPill!.item.replaceAll(
-                  RegExp(r'[(a-z)|(A-Z)|(,₦)]'), ""));
+              final amount = double.parse(_selectedAmountPill!.item.replaceAll(RegExp(r'[(a-z)|(A-Z)|(,₦)]'), ""));
+              viewModel.setAmount(amount / 100);
             });
           })));
-      if (index != amountPills.length - 1) pills.add(SizedBox(width: 8,));
+      if (index != viewModel.amountPills.length - 1) pills.add(SizedBox(width: 8,));
     });
     return pills;
   }
@@ -436,7 +274,6 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final viewModel = Provider.of<AirtimeViewModel>(context, listen: false);
 
     return ScrollView(
       child: Container(
@@ -452,11 +289,13 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
               visible: viewModel.purchaseType == PurchaseType.DATA,
               child: makeLabel('Select Plan'),
             ),
-            SizedBox(
-              height: viewModel.purchaseType == PurchaseType.DATA ? 8 : 0,),
-            Visibility(
-              visible: viewModel.purchaseType == PurchaseType.DATA,
-              child: dataPlans(viewModel),
+            SizedBox(height: viewModel.purchaseType == PurchaseType.DATA ? 8 : 0,),
+            DataPlansView(
+              viewModel: viewModel,
+              serviceProvider: (viewModel.beneficiary as AirtimeBeneficiary).serviceProvider!,
+              onItemSelected: () => setState(() {
+                //TODO we can avoid rebuilding the entire tree here
+              }),
             ),
             SizedBox(height: viewModel.purchaseType == PurchaseType.DATA ? 24 : 0,),
             makeLabel('Purchase From'),
@@ -480,7 +319,6 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
                 ))
             ),
             SizedBox(height: 16,),
-            // Spacer(),
             Expanded(
                 flex: 1,
                 child: Align(
@@ -505,5 +343,93 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
   @override
   void dispose() {
     super.dispose();
+  }
+}
+
+///DataPlansView
+///
+///
+///
+class DataPlansView extends StatefulWidget {
+
+  DataPlansView({
+    required this.viewModel,
+    required this.serviceProvider,
+    required this.onItemSelected
+  });
+
+  final AirtimeViewModel viewModel;
+  final AirtimeServiceProvider serviceProvider;
+  final VoidCallback onItemSelected; //TODO this is inconsequential the parent should listen for changes instead
+
+  @override
+  State<StatefulWidget> createState() {
+    return _DataPlanViewState(viewModel: viewModel, serviceProvider: serviceProvider);
+  }
+
+}
+
+class _DataPlanViewState extends State<DataPlansView> {
+
+  _DataPlanViewState({
+    required this.viewModel,
+    required this.serviceProvider
+  });
+
+  final AirtimeViewModel viewModel;
+  final AirtimeServiceProvider serviceProvider;
+
+  Image? _providerLogo;
+
+  Widget getTitleIcon (AirtimeServiceProviderItem? item) {
+    if(item == null) return SelectionCombo2.initialView();
+    return StreamBuilder(
+        stream: viewModel.getFile(serviceProvider.logoImageUUID ?? ""),
+        builder: (ctx, AsyncSnapshot<Resource<FileResult>> result) {
+          if (!result.hasData || result.data == null) SelectionCombo2.initialView();
+          final base64 = result.data?.data;
+          final base64String = base64?.base64String;
+          if (base64 == null || base64String == null || base64String.isEmpty == true) {
+            return SelectionCombo2.initialView();
+          }
+          _providerLogo = (_providerLogo == null)
+              ? Image.memory(base64Decode(base64String), width: 40, height: 40,
+                errorBuilder: (_, _i, _j) {
+                  return SelectionCombo2.initialView();
+                })
+              : _providerLogo;
+          return _providerLogo!;
+        }
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if(viewModel.purchaseType != PurchaseType.DATA) return SizedBox();
+    return Flexible(
+      flex: 0,
+      fit: FlexFit.tight,
+      child: StreamBuilder(
+          stream: viewModel.getServiceProviderItems(serviceProvider.billerId!),
+          builder: (BuildContext context, AsyncSnapshot<Resource<List<AirtimeServiceProviderItem>>> a) {
+            if (!a.hasData || a.data?.data == null) return _AirtimePaymentScreen.boxContainer(Container());
+            final comboItems = viewModel.dataProviderItems.map((e) =>
+                ComboItem<AirtimeServiceProviderItem>(e, e.name!, isSelected: e.id == viewModel.dataPlan?.id))
+                .toList();
+            return SelectionCombo2<AirtimeServiceProviderItem>(
+              comboItems,
+              defaultTitle: "Select Data Plan",
+              onItemSelected: (item, i) {
+                viewModel.setServiceProviderItem(item);
+                if(item != null && item.priceFixed == true && item.amount != null) {
+                  viewModel.setAmount(item.amount! / 100);
+                  widget.onItemSelected.call();
+                }
+              },
+              titleIcon: getTitleIcon,
+            );
+          }
+      ),
+    );
   }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_get_started_view.dart';
 import 'package:moniepoint_flutter/app/savings/viewmodels/savings_dashboard_viewmodel.dart';
 import 'package:moniepoint_flutter/app/savings/views/savings_product_item_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
@@ -8,45 +7,124 @@ import 'package:provider/provider.dart';
 
 import '../../dashboard/views/dashboard_top_menu.dart';
 
-class SavingsDashboardView extends StatelessWidget {
-  const SavingsDashboardView({Key? key}) : super(key: key);
+
+class SavingsDashboardView extends StatefulWidget  {
+  SavingsDashboardView({Key? key}) : super(key: key);
+
+  final _navigatorKey = GlobalKey<NavigatorState>();
+
+  @override
+  State<StatefulWidget> createState() => _SavingsDashboardState();
+
+}
+
+class _SavingsDashboardState extends State<SavingsDashboardView> with AutomaticKeepAliveClientMixin{
+  static const SAVINGS_DASHBOARD  = "SAVINGS_DASHBOARD";
+  static const FLEX_SAVINGS  = "FLEX_SAVINGS";
+  static const SAFE_LOCK = "SAFE_LOCK";
+  static const TARGET = "TARGET";
+
+  Future<bool> _onBackPressed() async {
+    final isPop = await widget._navigatorKey.currentState?.maybePop();
+    return (isPop != null && isPop) ? Future.value(false) : Future.value(true);
+  }
+
+  Route _generateRoute(RouteSettings settings, BuildContext context) {
+    Widget page = Container();
+    switch(settings.name) {
+      case SAVINGS_DASHBOARD:
+        page = _SavingsDashboardMenu();
+        break;
+    }
+    return MaterialPageRoute(builder: (context) => page, settings: settings);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => SavingsDashboardViewModel())],
+      child: WillPopScope(
+        onWillPop: _onBackPressed,
+        child: Container(
+          child: ListView(
+            cacheExtent: 500000,
+            children: [
+              SizedBox(height: dashboardTopMenuHeight - 40),
+              SavingsAccountCard(),
+              SizedBox(height: 29),
+              Padding(
+                padding: EdgeInsets.only(left: 16, right: 16),
+                child: Text(
+                  "What would you like to\nsave for?",
+                  style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
+                ),
+              ),
+              LayoutBuilder(builder: (ctx, constraints) {
+                return Container(
+                  width: constraints.maxWidth,
+                  height: MediaQuery.of(context).size.height - 300,
+                  color: Colors.transparent,
+                  child: Navigator(
+                    key: widget._navigatorKey,
+                    initialRoute: SAVINGS_DASHBOARD,
+                    onGenerateRoute: (settings) => _generateRoute(settings, context),
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  bool get wantKeepAlive => true;
+
+}
+
+class _SavingsDashboardMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<SavingsDashboardViewModel>(context, listen: false);
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16),
-      child: ListView(
-        children: [
-          SizedBox(height: dashboardTopMenuHeight - 40),
-          SavingsAccountCard(),
-          SizedBox(height: 29),
-          Text("What would you like to save for?"),
-          GridView.count(
-            physics: NeverScrollableScrollPhysics(),
-            crossAxisCount: 16,
-            mainAxisSpacing: 15,
-            children: [
-              SavingsProductItemView(
-                  productType: SavingsProductType.FLEX,
-                  viewModel: viewModel
-              ),
-              SavingsProductItemView(
-                  productType: SavingsProductType.SAFE_LOCK,
-                  viewModel: viewModel
-              ),
-              SavingsProductItemView(
-                  productType: SavingsProductType.TARGET,
-                  viewModel: viewModel
-              ),
-              SavingsProductItemView(
-                  productType: SavingsProductType.GROUP,
-                  viewModel: viewModel
-              )
-            ],
-          )
-        ],
-      ),
+    var size = MediaQuery.of(context).size;
+
+    final double itemHeight = (size.height - (kToolbarHeight + 318)) / 2;
+    final double itemWidth = size.width / 2;
+
+    return GridView.count(
+      shrinkWrap: true,
+      padding: EdgeInsets.only(top: 16, bottom: 8, left: 16, right: 16),
+      physics: NeverScrollableScrollPhysics(),
+      crossAxisCount: 2,
+      mainAxisSpacing: 15,
+      crossAxisSpacing: 16,
+      childAspectRatio: (itemWidth / itemHeight),
+      children: [
+        SavingsProductItemView(
+            productType: SavingsProductType.FLEX,
+            viewModel: viewModel
+        ),
+        SavingsProductItemView(
+            productType: SavingsProductType.SAFE_LOCK,
+            viewModel: viewModel
+        ),
+        SavingsProductItemView(
+            productType: SavingsProductType.TARGET,
+            viewModel: viewModel
+        ),
+        SavingsProductItemView(
+            productType: SavingsProductType.GROUP,
+            viewModel: viewModel
+        )
+      ],
     );
   }
 
@@ -61,6 +139,7 @@ class SavingsAccountCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: EdgeInsets.symmetric(horizontal: 16),
       padding: EdgeInsets.symmetric(horizontal: 20.02, vertical: 34),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,7 +159,6 @@ class SavingsAccountCard extends StatelessWidget {
               SizedBox(width: 4,),
               Text("200,394.00",
                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 23.5),
-
               ),
             ],
           )
@@ -159,7 +237,7 @@ class ComingSoonView extends StatelessWidget {
                                     SizedBox(height: 11,),
                                     GestureDetector(
                                       onTap: (){
-                                        Navigator.push(context, MaterialPageRoute(builder: (ctx) => SavingsGetStartedView()));
+                                        Navigator.push(context, MaterialPageRoute(builder: (ctx) => SavingsDashboardView()));
                                       },
                                       child: Container(
                                         padding: EdgeInsets.symmetric(horizontal: 45, vertical: 10),

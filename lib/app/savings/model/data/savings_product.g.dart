@@ -20,6 +20,9 @@ SavingsProduct _$SavingsProductFromJson(Map<String, dynamic> json) {
     cbaSavingsAccountSchemeCode: json['cbaSavingsAccountSchemeCode'] as String?,
     interestRate: (json['interestRate'] as num?)?.toDouble(),
     penalties: json['penalties'] as int?,
+    flexSavings: (json['flexSavings'] as List<dynamic>?)
+        ?.map((e) => FlexSaving.fromJson(e as Map<String, dynamic>))
+        .toList(),
   );
 }
 
@@ -37,4 +40,5 @@ Map<String, dynamic> _$SavingsProductToJson(SavingsProduct instance) =>
       'cbaSavingsAccountSchemeCode': instance.cbaSavingsAccountSchemeCode,
       'interestRate': instance.interestRate,
       'penalties': instance.penalties,
+      'flexSavings': instance.flexSavings,
     };

@@ -9,6 +9,10 @@ abstract class TransactionPinDialogState<T extends StatefulWidget> extends State
   void subscribeUiToPayment();
 
   void requestLocationAndSubscribe() async {
+    if(getViewModel().isLoading == true) return;
+    
+    setState(() { getViewModel().setIsLoading(true); });
+
     final isGranted = await Permission.location.request().isGranted;
     if (isGranted) {
       try {

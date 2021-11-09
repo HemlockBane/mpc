@@ -1,15 +1,9 @@
 import 'dart:ui';
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:flutter_swipecards/flutter_swipecards.dart';
-import 'package:moniepoint_flutter/app/airtime/viewmodels/service_provider_view_model.dart';
-import 'package:moniepoint_flutter/app/login/model/data/login_prompt.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
-
-import '../login_prompt.dart';
 
 class BottomSheets {
   static Widget makeAppBottomSheet(
@@ -387,12 +381,6 @@ class BottomSheets {
         ));
   }
 
-  static Widget displayLoginPrompt(BuildContext context,
-      {required LoginPrompt? prompt,
-      required CardController cardController,
-      required ServiceProviderViewModel serviceProviderViewModel}) {
-    return LoginPromptBottomSheet(prompt: prompt, cardController: cardController, serviceProviderViewModel: serviceProviderViewModel);
-  }
 
 }
 

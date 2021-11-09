@@ -1,19 +1,15 @@
-import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
 import 'package:moniepoint_flutter/app/airtime/views/selection_combo.dart';
 import 'package:moniepoint_flutter/app/customer/user_account.dart';
-import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
 import 'package:collection/collection.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 import 'package:moniepoint_flutter/core/views/selection_combo_two.dart';
 import 'package:moniepoint_flutter/core/extensions/strings.dart';
-import 'package:rxdart/rxdart.dart';
 
 
 import '../colors.dart';
@@ -55,14 +51,11 @@ class UserAccountSelectionView extends StatefulWidget {
 class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
   bool isDefaultStyle() =>  widget.listStyle == ListStyle.normal;
 
-  late final StreamController<List<AccountBalance?>> balanceStreamController = StreamController();
-  late final Stream<List<AccountBalance?>> accountBalanceStream = balanceStreamController.stream;
-
   Widget boxContainer(Widget child) {
     final defaultPadding = EdgeInsets.only(left: 16, right: 24, top: 12, bottom: 12);
     final alternatePadding = EdgeInsets.only(
-      left: 11.87, right: 19.23, top: 14.25, bottom: 14.17);
-
+        left: 11.87, right: 19.23, top: 14.25, bottom: 14.17
+    );
 
     return Container(
       padding: isDefaultStyle() ? defaultPadding : alternatePadding,
@@ -88,8 +81,8 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
       height: 37,
       padding: EdgeInsets.all(6),
       decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.darkBlue.withOpacity(0.1)
+          shape: BoxShape.circle,
+          color: Colors.darkBlue.withOpacity(0.1)
       ),
       child: Center(
         child: SvgPicture.asset('res/drawables/ic_bank.svg', color: Colors.primaryColor,),
@@ -125,9 +118,9 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
                 child: Text(
                   name.abbreviate(2, true, includeMidDot: false),
                   style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: color),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: color),
                 ),
               ),
             ),
@@ -144,9 +137,9 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
           text1,
           textAlign: TextAlign.left,
           style: TextStyle(
-            color: Colors.textColorBlack
-              .withOpacity(0.5),
-            fontSize: 13),
+              color: Colors.textColorBlack
+                  .withOpacity(0.5),
+              fontSize: 13),
         ),
         SizedBox(
           width: 8,
@@ -154,10 +147,10 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
         Text("$tex2",
           textAlign: TextAlign.left,
           style: TextStyle(
-            color: Colors.textColorBlack
-              .withOpacity(0.5),
-            fontSize: 13,
-            fontWeight: FontWeight.w600),
+              color: Colors.textColorBlack
+                  .withOpacity(0.5),
+              fontSize: 13,
+              fontWeight: FontWeight.w600),
         ),
       ],
     );
@@ -170,22 +163,22 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
         child: Text(
           'Change',
           style: TextStyle(
-            color: widget.primaryColor ?? Colors.solidGreen,
-            fontSize: 14,
-            fontWeight: FontWeight.bold),
+              color: widget.primaryColor ?? Colors.solidGreen,
+              fontSize: 14,
+              fontWeight: FontWeight.bold),
         ),
         style: ButtonStyle(
-          minimumSize: MaterialStateProperty.all(Size(40, 0)),
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          overlayColor: MaterialStateProperty.all(
-            Colors.solidGreen.withOpacity(0.2)),
-          padding: MaterialStateProperty.all(
-            EdgeInsets.symmetric(horizontal: 8, vertical: 7)),
-          shape: MaterialStateProperty.all(
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10))),
-          backgroundColor:
-          MaterialStateProperty.all(Colors.transparent)),
+            minimumSize: MaterialStateProperty.all(Size(40, 0)),
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            overlayColor: MaterialStateProperty.all(
+                Colors.solidGreen.withOpacity(0.2)),
+            padding: MaterialStateProperty.all(
+                EdgeInsets.symmetric(horizontal: 8, vertical: 7)),
+            shape: MaterialStateProperty.all(
+                RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10))),
+            backgroundColor:
+            MaterialStateProperty.all(Colors.transparent)),
       ),
     );
 
@@ -194,9 +187,6 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
   @override
   void initState() {
     super.initState();
-  }
-
-  void refreshAccounts() {
   }
 
   @override
@@ -213,7 +203,6 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
                 if(!snapShot.hasData || snapShot.data == null){
                   return boxContainer(Container());
                 }
-                print("Setting Balances ===>> ${snapShot.data?.length}");
 
                 final List<AccountBalance?> accounts = snapShot.data ?? [];
                 final userAccounts = widget.viewModel.userAccounts;
@@ -222,7 +211,6 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
                   final userAccount = userAccounts[index];
                   final accountNumber = userAccount.customerAccount?.accountNumber;
                   final formattedBalance = userAccount.accountBalance?.availableBalance?.formatCurrency ?? "--";
-                  print("UserAccount Balances ===>> ${widget.selectedUserAccount?.id} == ${userAccount.id}");
                   return ComboItem<UserAccount>(
                       userAccount, "${userAccount.customerAccount?.accountName}",
                       subTitle: "$accountNumber - $formattedBalance",
@@ -230,13 +218,14 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
                   );
                 }).toList();
 
+                print("Behavior ===>>> $comboItems");
 
                 return SelectionCombo2<UserAccount>(
                   comboItems,
                   defaultTitle: "Select an Account",
                   titleStyle: widget.titleStyle,
                   onItemSelected: (item, i) => widget.onAccountSelected(item),
-                  titleIcon: SelectionCombo2.initialView(),
+                  titleIcon: (a) => SelectionCombo2.initialView(),
                   primaryColor: widget.primaryColor ?? Colors.primaryColor,
                   checkBoxBorderColor: widget.checkBoxBorderColor ?? Colors.primaryColor,
                   checkBoxSize: widget.checkBoxSize,
@@ -244,7 +233,6 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
                   listStyle: widget.listStyle,
                   trailingWidget: !isDefaultStyle() ? getAlternateTrailingWidget() : null,
                   isShowTrailingWhenExpanded: widget.isShowTrailingWhenExpanded,
-                  shouldPreselectFirstAccount: widget.shouldPreselectFirstAccount,
                 );
               }
           )
@@ -273,18 +261,21 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
                 ),
                 SizedBox(height: 1,),
                 StreamBuilder(
-                    stream: this.accountBalanceStream,
+                    stream: widget.viewModel.getUserAccountsBalance().map((event) {
+                      if(event.data == null) return <AccountBalance>[];
+                      return event.data!.map((e) => e.accountBalance).toList();
+                    }),
                     builder: (context, AsyncSnapshot<List<AccountBalance?>> a) {
                       final balance = (a.hasData) ? a.data?.firstOrNull?.availableBalance?.formatCurrency : "--";
                       final defaultSubtitle = Text(
                         'Balance - $balance',
                         textAlign: TextAlign.left,
                         style: widget.titleStyle ?? TextStyle(color: Colors.deepGrey, fontSize: 13, fontFamily: Styles.defaultFont, fontFamilyFallback: ["Roboto"]),)
-                        .colorText({"$balance" : Tuple(Colors.deepGrey, null)}, underline: false);
+                          .colorText({"$balance" : Tuple(Colors.deepGrey, null)}, underline: false);
 
                       return widget.listStyle == ListStyle.normal
-                        ? defaultSubtitle
-                        : getAlternateSubtitle(text1: widget.viewModel.accountNumber, tex2: balance);
+                          ? defaultSubtitle
+                          : getAlternateSubtitle(text1: widget.viewModel.accountNumber, tex2: balance);
                     })
               ],
             )
@@ -307,7 +298,6 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
 
   @override
   void dispose() {
-    balanceStreamController.close();
     super.dispose();
   }
 }

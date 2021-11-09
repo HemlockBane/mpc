@@ -44,8 +44,8 @@ class AccountServiceDelegate with NetworkResource {
     return networkBoundResource(
         shouldFetchLocal: true,
         shouldFetchFromRemote: (localData) {
-          final isBalanceSet = localData?.where((element) => element.accountBalance != null).isNotEmpty ?? false;
-          return !isBalanceSet || (useLocal == false);
+          final shouldReloadBalance = localData?.where((element) => element.accountBalance == null).isNotEmpty ?? false;
+          return shouldReloadBalance || (useLocal == false);
         },
         fetchFromLocal: () => Stream.value(UserInstance().userAccounts),
         fetchFromRemote: () => this._service.getUserAccountsWithBalance(),
@@ -62,6 +62,7 @@ class AccountServiceDelegate with NetworkResource {
         }
     );
   }
+
 
   Stream<Resource<AccountStatus>> getAccountStatus(int customerAccountId) {
     return networkBoundResource(

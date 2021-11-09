@@ -14,10 +14,12 @@ import 'package:moniepoint_flutter/app/managebeneficiaries/airtime/model/airtime
 import 'package:moniepoint_flutter/app/managebeneficiaries/airtime/model/data/airtime_beneficiary.dart';
 import 'package:moniepoint_flutter/app/devicemanagement/model/data/device_manager.dart';
 import 'package:moniepoint_flutter/core/models/file_result.dart';
+import 'package:moniepoint_flutter/core/models/list_item.dart';
 import 'package:moniepoint_flutter/core/models/services/file_management_service_delegate.dart';
 import 'package:moniepoint_flutter/core/models/transaction_status.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/payment_view_model.dart';
+import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 
 class AirtimeViewModel extends BaseViewModel with PaymentViewModel {
@@ -25,6 +27,13 @@ class AirtimeViewModel extends BaseViewModel with PaymentViewModel {
   late final AirtimeBeneficiaryServiceDelegate _beneficiaryServiceDelegate;
   late final DeviceManager _deviceManager;
   late final FileManagementServiceDelegate _fileServiceDelegate;
+
+  final List<ListDataItem<String>> amountPills = List.of([
+    ListDataItem(100.formatCurrencyWithoutLeadingZero),
+    ListDataItem(200.formatCurrencyWithoutLeadingZero),
+    ListDataItem(500.formatCurrencyWithoutLeadingZero),
+    ListDataItem(1000.formatCurrencyWithoutLeadingZero),
+  ]);
 
   PurchaseType _purchaseType = PurchaseType.AIRTIME;
   PurchaseType get purchaseType => _purchaseType;

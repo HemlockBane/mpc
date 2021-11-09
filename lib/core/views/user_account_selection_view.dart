@@ -1,9 +1,9 @@
+
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
 import 'package:moniepoint_flutter/app/airtime/views/selection_combo.dart';
 import 'package:moniepoint_flutter/app/customer/user_account.dart';
-import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
 import 'package:collection/collection.dart';
@@ -16,7 +16,7 @@ import '../colors.dart';
 import '../styles.dart';
 import '../tuple.dart';
 
-class UserAccountSelectionView extends StatelessWidget {
+class UserAccountSelectionView extends StatefulWidget {
 
   final BaseViewModel viewModel;
   final ListStyle listStyle;
@@ -28,6 +28,8 @@ class UserAccountSelectionView extends StatelessWidget {
   final bool isShowTrailingWhenExpanded;
   final ValueChanged<UserAccount?> onAccountSelected;
   final UserAccount? selectedUserAccount;
+  final bool shouldPreselectFirstAccount;
+
 
   UserAccountSelectionView(this.viewModel, {
     this.listStyle = ListStyle.normal,
@@ -38,16 +40,22 @@ class UserAccountSelectionView extends StatelessWidget {
     this.checkBoxPadding,
     this.isShowTrailingWhenExpanded = true,
     this.titleStyle,
-    this.selectedUserAccount
+    this.selectedUserAccount,
+    this.shouldPreselectFirstAccount = false
   });
 
-  bool isDefaultStyle() =>  listStyle == ListStyle.normal;
+  @override
+  State<UserAccountSelectionView> createState() => _UserAccountSelectionViewState();
+}
+
+class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
+  bool isDefaultStyle() =>  widget.listStyle == ListStyle.normal;
 
   Widget boxContainer(Widget child) {
     final defaultPadding = EdgeInsets.only(left: 16, right: 24, top: 12, bottom: 12);
     final alternatePadding = EdgeInsets.only(
-      left: 11.87, right: 19.23, top: 14.25, bottom: 14.17);
-
+        left: 11.87, right: 19.23, top: 14.25, bottom: 14.17
+    );
 
     return Container(
       padding: isDefaultStyle() ? defaultPadding : alternatePadding,
@@ -73,8 +81,8 @@ class UserAccountSelectionView extends StatelessWidget {
       height: 37,
       padding: EdgeInsets.all(6),
       decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.darkBlue.withOpacity(0.1)
+          shape: BoxShape.circle,
+          color: Colors.darkBlue.withOpacity(0.1)
       ),
       child: Center(
         child: SvgPicture.asset('res/drawables/ic_bank.svg', color: Colors.primaryColor,),
@@ -82,9 +90,8 @@ class UserAccountSelectionView extends StatelessWidget {
     );
   }
 
-
   Widget getAlternateIcon(String name){
-    final color = primaryColor ?? Colors.primaryColor;
+    final color = widget.primaryColor ?? Colors.primaryColor;
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -111,9 +118,9 @@ class UserAccountSelectionView extends StatelessWidget {
                 child: Text(
                   name.abbreviate(2, true, includeMidDot: false),
                   style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: color),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: color),
                 ),
               ),
             ),
@@ -130,9 +137,9 @@ class UserAccountSelectionView extends StatelessWidget {
           text1,
           textAlign: TextAlign.left,
           style: TextStyle(
-            color: Colors.textColorBlack
-              .withOpacity(0.5),
-            fontSize: 13),
+              color: Colors.textColorBlack
+                  .withOpacity(0.5),
+              fontSize: 13),
         ),
         SizedBox(
           width: 8,
@@ -140,15 +147,15 @@ class UserAccountSelectionView extends StatelessWidget {
         Text("$tex2",
           textAlign: TextAlign.left,
           style: TextStyle(
-            color: Colors.textColorBlack
-              .withOpacity(0.5),
-            fontSize: 13,
-            fontWeight: FontWeight.w600),
+              color: Colors.textColorBlack
+                  .withOpacity(0.5),
+              fontSize: 13,
+              fontWeight: FontWeight.w600),
         ),
       ],
     );
   }
-  
+
   Widget getAlternateTrailingWidget(){
     return IgnorePointer(
       child: TextButton(
@@ -156,42 +163,49 @@ class UserAccountSelectionView extends StatelessWidget {
         child: Text(
           'Change',
           style: TextStyle(
-            color: primaryColor ?? Colors.solidGreen,
-            fontSize: 14,
-            fontWeight: FontWeight.bold),
+              color: widget.primaryColor ?? Colors.solidGreen,
+              fontSize: 14,
+              fontWeight: FontWeight.bold),
         ),
         style: ButtonStyle(
-          minimumSize: MaterialStateProperty.all(Size(40, 0)),
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          overlayColor: MaterialStateProperty.all(
-            Colors.solidGreen.withOpacity(0.2)),
-          padding: MaterialStateProperty.all(
-            EdgeInsets.symmetric(horizontal: 8, vertical: 7)),
-          shape: MaterialStateProperty.all(
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10))),
-          backgroundColor:
-          MaterialStateProperty.all(Colors.transparent)),
+            minimumSize: MaterialStateProperty.all(Size(40, 0)),
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            overlayColor: MaterialStateProperty.all(
+                Colors.solidGreen.withOpacity(0.2)),
+            padding: MaterialStateProperty.all(
+                EdgeInsets.symmetric(horizontal: 8, vertical: 7)),
+            shape: MaterialStateProperty.all(
+                RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10))),
+            backgroundColor:
+            MaterialStateProperty.all(Colors.transparent)),
       ),
     );
 
   }
 
-
-
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-
-    if(viewModel.userAccounts.length > 1) {
+    if(widget.viewModel.userAccounts.length > 1) {
       return Flexible(
           flex:0,
           child: StreamBuilder(
-              stream: viewModel.accountsBalanceStream,
-              builder: (BuildContext context, AsyncSnapshot<Resource<List<AccountBalance?>>> snapShot) {
-                if(!snapShot.hasData || snapShot.data?.data == null) return boxContainer(Container());
-                final List<AccountBalance?> accounts = snapShot.data!.data ?? [];
-                final userAccounts = viewModel.userAccounts;
+              stream: widget.viewModel.getUserAccountsBalance().map((event) {
+                if(event.data == null) return <AccountBalance>[];
+                return event.data!.map((e) => e.accountBalance).toList();
+              }),
+              builder: (BuildContext context, AsyncSnapshot<List<AccountBalance?>> snapShot) {
+                if(!snapShot.hasData || snapShot.data == null){
+                  return boxContainer(Container());
+                }
+
+                final List<AccountBalance?> accounts = snapShot.data ?? [];
+                final userAccounts = widget.viewModel.userAccounts;
 
                 final comboItems = accounts.mapIndexed((index, element) {
                   final userAccount = userAccounts[index];
@@ -200,37 +214,38 @@ class UserAccountSelectionView extends StatelessWidget {
                   return ComboItem<UserAccount>(
                       userAccount, "${userAccount.customerAccount?.accountName}",
                       subTitle: "$accountNumber - $formattedBalance",
-                      isSelected: selectedUserAccount?.id == userAccount.id
+                      isSelected: widget.selectedUserAccount?.id == userAccount.id
                   );
                 }).toList();
 
+                print("Behavior ===>>> $comboItems");
 
                 return SelectionCombo2<UserAccount>(
                   comboItems,
                   defaultTitle: "Select an Account",
-                  titleStyle: titleStyle,
-                  onItemSelected: (item, i) => onAccountSelected(item),
-                  titleIcon: SelectionCombo2.initialView(),
-                  primaryColor: primaryColor ?? Colors.primaryColor,
-                  checkBoxBorderColor: checkBoxBorderColor ?? Colors.primaryColor,
-                  checkBoxSize: checkBoxSize,
-                  checkBoxPadding: checkBoxPadding,
-                  listStyle: listStyle,
+                  titleStyle: widget.titleStyle,
+                  onItemSelected: (item, i) => widget.onAccountSelected(item),
+                  titleIcon: (a) => SelectionCombo2.initialView(),
+                  primaryColor: widget.primaryColor ?? Colors.primaryColor,
+                  checkBoxBorderColor: widget.checkBoxBorderColor ?? Colors.primaryColor,
+                  checkBoxSize: widget.checkBoxSize,
+                  checkBoxPadding: widget.checkBoxPadding,
+                  listStyle: widget.listStyle,
                   trailingWidget: !isDefaultStyle() ? getAlternateTrailingWidget() : null,
-                  isShowTrailingWhenExpanded: isShowTrailingWhenExpanded,
+                  isShowTrailingWhenExpanded: widget.isShowTrailingWhenExpanded,
                 );
               }
           )
       );
     }
-    this.onAccountSelected.call(viewModel.userAccounts.first);
+    this.widget.onAccountSelected.call(widget.viewModel.userAccounts.first);
     return boxContainer(Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Flexible(
             flex:0,
-            child: isDefaultStyle() ? getDefaultIcon() : getAlternateIcon(viewModel.accountName)
+            child: isDefaultStyle() ? getDefaultIcon() : getAlternateIcon(widget.viewModel.accountName)
         ),
         SizedBox(width: 17,),
         Expanded(
@@ -239,33 +254,35 @@ class UserAccountSelectionView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${viewModel.accountName}',
+                  '${widget.viewModel.accountName}',
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                   style: TextStyle(fontSize: 15, color: Colors.solidDarkBlue, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 1,),
                 StreamBuilder(
-                    initialData: null,
-                    stream: viewModel.balanceStream,
-                    builder: (context, AsyncSnapshot<AccountBalance?> a) {
-                      final balance = (a.hasData) ? a.data?.availableBalance?.formatCurrency : "--";
+                    stream: widget.viewModel.getUserAccountsBalance().map((event) {
+                      if(event.data == null) return <AccountBalance>[];
+                      return event.data!.map((e) => e.accountBalance).toList();
+                    }),
+                    builder: (context, AsyncSnapshot<List<AccountBalance?>> a) {
+                      final balance = (a.hasData) ? a.data?.firstOrNull?.availableBalance?.formatCurrency : "--";
                       final defaultSubtitle = Text(
                         'Balance - $balance',
                         textAlign: TextAlign.left,
-                        style: titleStyle ?? TextStyle(color: Colors.deepGrey, fontSize: 13, fontFamily: Styles.defaultFont, fontFamilyFallback: ["Roboto"]),)
-                        .colorText({"$balance" : Tuple(Colors.deepGrey, null)}, underline: false);
+                        style: widget.titleStyle ?? TextStyle(color: Colors.deepGrey, fontSize: 13, fontFamily: Styles.defaultFont, fontFamilyFallback: ["Roboto"]),)
+                          .colorText({"$balance" : Tuple(Colors.deepGrey, null)}, underline: false);
 
-                      return listStyle == ListStyle.normal
-                        ? defaultSubtitle
-                        : getAlternateSubtitle(text1: viewModel.accountNumber, tex2: balance);
+                      return widget.listStyle == ListStyle.normal
+                          ? defaultSubtitle
+                          : getAlternateSubtitle(text1: widget.viewModel.accountNumber, tex2: balance);
                     })
               ],
             )
         ),
         SizedBox(width: 17,),
         Visibility(
-          visible: listStyle == ListStyle.normal,
+          visible: widget.listStyle == ListStyle.normal,
           child: Expanded(
               flex: 0,
               child: SvgPicture.asset(
@@ -279,6 +296,10 @@ class UserAccountSelectionView extends StatelessWidget {
     ));
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
 }
 
 enum ListStyle{normal, alternate}

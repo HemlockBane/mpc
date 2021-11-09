@@ -8,7 +8,6 @@ import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/viewmodels/system_configuration_view_model.dart';
-import 'package:moniepoint_flutter/core/views/growth_webview.dart';
 import 'package:moniepoint_flutter/core/views/moniepoint_scaffold.dart';
 import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
@@ -75,7 +74,7 @@ class _MoniepointAppContainerState extends State<_MoniepointAppContainer> with C
       navigatorObservers: [
         routeObserver, NotificationRouteObserver()
       ],
-      home: Scaffold(body: GrowthWebView()),
+      home: Scaffold(body: body),
       onGenerateRoute: Routes.generateRouteWithSettings,
       routes: Routes.buildRouteMap(_viewModel),
     );

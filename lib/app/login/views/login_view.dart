@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:math';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lottie/lottie.dart';
@@ -24,11 +23,7 @@ import 'package:moniepoint_flutter/core/utils/call_utils.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/views/otp_ussd_info_view.dart';
-import 'package:moniepoint_flutter/core/work/work_dispatcher.dart';
 import 'package:provider/provider.dart';
-
-import 'package:flutter_swipecards/flutter_swipecards.dart';
-import 'package:workmanager/workmanager.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -57,12 +52,9 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
   //TODO move this to the view model
   bool _isLoading = false;
   bool _isPasswordVisible = false;
-  bool _isFormValid = false;
 
   bool _alreadyInSessionError = false;
   BiometricHelper? _biometricHelper;
-
-  CardController controller = CardController();
 
   @override
   void initState() {
@@ -73,29 +65,6 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
     _extraRouteArguments();
     _initSavedUsername();
     _animController.forward();
-
-    // ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
-    // ScaffoldMessenger.of(context).showMaterialBanner(
-    //     MaterialBanner(
-    //         leading: SvgPicture.asset("res/drawables/ic_moniepoint_cube_alt.svg"),
-    //         content: Column(
-    //           crossAxisAlignment: CrossAxisAlignment.start,
-    //           children: [
-    //             Text("DEBIT ALERT"),
-    //             SizedBox(height: 2),
-    //             Text("500.00 from Paul Okeke")
-    //           ],
-    //         ),
-    //         actions: <Widget>[
-    //           TextButton(
-    //               onPressed: () {
-    //                 ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
-    //               },
-    //               child: Text("Dismiss")
-    //           )
-    //         ]
-    //     )
-    // );
   }
 
   void _extraRouteArguments() {
@@ -162,9 +131,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
   }
 
   void validateForm() {
-    setState(() {
-      _isFormValid = _usernameController.text.isNotEmpty && _passwordController.text.isNotEmpty;
-    });
+    _viewModel.validateForm(_usernameController.text, _passwordController.text);
   }
 
   Widget _buildMidSection(BuildContext context) {
@@ -185,23 +152,20 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
         SizedBox(height: 28,),
         Container(
           margin: EdgeInsets.only(left: 16, right: 16),
-          child: Column(
+          child: Row(
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Styles.statefulButton2(
-                      isValid: _isFormValid,
-                      padding: 20,
-                      elevation: _isFormValid && !_isLoading ? 4 : 0,
-                      onClick: () => _subscribeUiToLogin(context),
-                      text: "Login",
-                      isLoading: _isLoading,
-                    ),
-                  ),
-                  _biometricLoginButton()
-                ],
+              Expanded(
+                child: Styles.statefulButton(
+                  // isValid: _isFormValid,
+                  // padding: 20,
+                  stream: _viewModel.isFormValid,
+                  elevation: !_isLoading ? 0.6 : 0,
+                  onClick: () => _subscribeUiToLogin(context),
+                  text: "Login",
+                  isLoading: _isLoading,
+                ),
               ),
+              _biometricLoginButton()
             ],
           ),
         ),
@@ -349,7 +313,8 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
                 color: Colors.textHintColor.withOpacity(0.3),
                 size: 24,
               ),
-              focusListener: (bool) => this.setState(() {})),
+              // focusListener: (bool) => this.setState(() {})
+          ),
           SizedBox(height: 22),
           Styles.appEditText(
               controller: _passwordController,
@@ -377,7 +342,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
                 color: Colors.textHintColor.withOpacity(0.3),
                 size: 24,
               ),
-              focusListener: (bool) => this.setState(() {}),
+              // focusListener: (bool) => this.setState(() {}),
               isPassword: !_isPasswordVisible
           ),
           // SizedBox(height: 22),

@@ -5,6 +5,10 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 class GrowthWebView extends StatefulWidget {
 
+  GrowthWebView(this.url);
+
+  final String url;
+
   @override
   State<StatefulWidget> createState() => _GrowthWebView();
 
@@ -191,15 +195,29 @@ class _GrowthWebView extends State<GrowthWebView> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.lightBlueAccent,
+      height: 200,
+      clipBehavior: Clip.hardEdge,
+      decoration: BoxDecoration(
+          color: Colors.lightBlueAccent,
+          borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            offset: Offset(0, 2),
+            blurRadius: 21
+          )
+        ]
+      ),
       child: Column(
         children: [
           Expanded(
               child: Container(
-                margin: EdgeInsets.only(left: 20, right: 20,top: 200,bottom: 200),
-                height: 100,
+                clipBehavior: Clip.hardEdge,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 child: WebView(
-                  initialUrl: "data:text/html;base64,${base64Encode(const Utf8Encoder().convert(kNavigationExamplePage))}",
+                  initialUrl: widget.url,
                   javascriptMode: JavascriptMode.unrestricted,
                   navigationDelegate: (request) async {
                     print(request.url);

@@ -27,6 +27,9 @@ mixin PaymentViewModel {
   String get pin => _pin;
   String _pin = "";
 
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+
   UserAccount? _sourceAccount;
   UserAccount? get sourceAccount => _sourceAccount;
 
@@ -39,8 +42,10 @@ mixin PaymentViewModel {
   void setAmount(double amount) => this._amount = amount;
   void setPin(String pin) => this._pin = pin;
   void setLocation(Position? paymentLocation) {
-    print(paymentLocation?.latitude);
     this._paymentLocation = paymentLocation;
+  }
+  void setIsLoading(bool isLoading) {
+    this._isLoading = isLoading;
   }
 
   Location? buildLocationData() {

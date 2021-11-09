@@ -21,8 +21,8 @@ class AppNotificationService {
   final AndroidInitializationSettings _androidInitSettings = AndroidInitializationSettings("@mipmap/ic_launcher");
   final IOSInitializationSettings _iosInitializationSettings = IOSInitializationSettings();
   late final InitializationSettings _notificationInitializationSettings = InitializationSettings(
-    android: _androidInitSettings,
-    iOS: _iosInitializationSettings
+      android: _androidInitSettings,
+      iOS: _iosInitializationSettings
   );
 
   static const FCM_TOKEN = "FCM_TOKEN";
@@ -100,11 +100,11 @@ class AppNotificationService {
   void _registerDeviceToken({bool refresh = false}) {
     if(Platform.isAndroid) {
       Workmanager().registerOneOffTask(
-          "DeviceTokenRegistrationWorker.WORKER_KEY",
-          DeviceTokenRegistrationWorker.WORKER_KEY,
-          existingWorkPolicy: ExistingWorkPolicy.replace,
-          backoffPolicy: BackoffPolicy.exponential,
-          constraints: Constraints(networkType: NetworkType.connected),
+        "DeviceTokenRegistrationWorker.WORKER_KEY",
+        DeviceTokenRegistrationWorker.WORKER_KEY,
+        existingWorkPolicy: ExistingWorkPolicy.replace,
+        backoffPolicy: BackoffPolicy.exponential,
+        constraints: Constraints(networkType: NetworkType.connected),
       );
     } else if(Platform.isIOS) {
       Future.delayed(Duration(milliseconds: 5000), () {

@@ -18,8 +18,6 @@ class BillPinDialog extends StatefulWidget {
 
 class _BillPinDialog extends TransactionPinDialogState<BillPinDialog> {
 
-  bool _isLoading = false;
-
   bool _isPinValid(BillPurchaseViewModel viewModel) {
     return viewModel.pin.isNotEmpty == true && viewModel.pin.length == 4;
   }
@@ -39,7 +37,7 @@ class _BillPinDialog extends TransactionPinDialogState<BillPinDialog> {
       centerBackgroundHeight: 74,
       centerBackgroundWidth: 74,
       centerBackgroundPadding: 25,
-      enableDrag: !_isLoading,
+      enableDrag: !viewModel.isLoading,
       content: Wrap(
         children: [
           Container(
@@ -157,7 +155,7 @@ class _BillPinDialog extends TransactionPinDialogState<BillPinDialog> {
                     width: double.infinity,
                     child: Styles.statefulButton2(
                         elevation: _isPinValid(viewModel) ? 0.5 : 0,
-                        isLoading: _isLoading,
+                        isLoading: viewModel.isLoading,
                         isValid: _isPinValid(viewModel),
                         onClick: () => requestLocationAndSubscribe(),
                         text: 'Continue')),
@@ -180,14 +178,14 @@ class _BillPinDialog extends TransactionPinDialogState<BillPinDialog> {
     final viewModel = Provider.of<BillPurchaseViewModel>(context, listen: false);
     viewModel.makePayment().listen((event) {
       if(event is Loading) {
-        setState(() => _isLoading = true);
+        if(viewModel.isLoading == false) setState(() => viewModel.setIsLoading(true));
       }
       else if(event is Success) {
-        setState(() {_isLoading = false;});
+        viewModel.setIsLoading(false);
         Navigator.of(context).pop(event.data);
       }
       else if(event is Error<TransactionStatus>) {
-        setState(() {_isLoading = false;});
+        setState(() { viewModel.setIsLoading(false); });
         Navigator.of(context).pop(event);
       }
     });

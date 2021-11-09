@@ -17,13 +17,18 @@ class AccountServiceDelegate with NetworkResource {
     this._service = service;
   }
 
-  Stream<Resource<AccountBalance>> getCustomerAccountBalance(int customerId) {
+  Stream<Resource<AccountBalance>> getCustomerAccountBalance({required int customerId, bool useLocal = true}) {
     return networkBoundResource(
         shouldFetchLocal: true,
         fetchFromLocal: () {
           final userAccounts = UserInstance().userAccounts;
           final userAccount = userAccounts.where((element) => element.customerAccount?.id == customerId).firstOrNull;
           return Stream.value(userAccount?.accountBalance);
+        },
+        shouldFetchFromRemote: (localData) {
+          final userAccounts = UserInstance().userAccounts;
+          final userAccount = userAccounts.where((element) => element.customerAccount?.id == customerId).firstOrNull;
+          return userAccount?.accountBalance == null || (useLocal == false);
         },
         fetchFromRemote: () => this._service.getCustomerAccountBalance(customerId),
         saveRemoteData: (balance) async {
@@ -35,9 +40,13 @@ class AccountServiceDelegate with NetworkResource {
     );
   }
 
-  Stream<Resource<List<UserAccount>>> getUserAccountWithBalance() {
+  Stream<Resource<List<UserAccount>>> getUserAccountWithBalance({bool useLocal = true}) {
     return networkBoundResource(
         shouldFetchLocal: true,
+        shouldFetchFromRemote: (localData) {
+          final shouldReloadBalance = localData?.where((element) => element.accountBalance == null).isNotEmpty ?? false;
+          return shouldReloadBalance || (useLocal == false);
+        },
         fetchFromLocal: () => Stream.value(UserInstance().userAccounts),
         fetchFromRemote: () => this._service.getUserAccountsWithBalance(),
         saveRemoteData: (userAccounts) async {
@@ -53,6 +62,7 @@ class AccountServiceDelegate with NetworkResource {
         }
     );
   }
+
 
   Stream<Resource<AccountStatus>> getAccountStatus(int customerAccountId) {
     return networkBoundResource(

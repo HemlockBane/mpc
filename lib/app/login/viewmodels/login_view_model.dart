@@ -1,4 +1,5 @@
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -26,6 +27,9 @@ class LoginViewModel with ChangeNotifier {
 
   final List<SystemConfiguration> _systemConfigurations = [];
 
+  StreamController<bool> _isFormValidController = StreamController.broadcast();
+  Stream<bool>? get isFormValid => _isFormValidController.stream;
+
   LoginViewModel({
     LoginServiceDelegate? delegate,
     SystemConfigurationServiceDelegate? configurationServiceDelegate,
@@ -37,6 +41,13 @@ class LoginViewModel with ChangeNotifier {
     UserInstance().resetSession();
   }
 
+  void validateForm(String username, String password) {
+    if(_isFormValidController.isClosed) {
+      _isFormValidController = StreamController();
+    }
+    _isFormValidController.sink.add(username.isNotEmpty && password.isNotEmpty);
+  }
+
   Stream<Resource<User>> loginWithPassword(String username, String password) {
     LoginWithPasswordRequestBody requestBody = LoginWithPasswordRequestBody()
       ..authenticationType = AuthenticationMethod.PASSWORD
@@ -45,7 +56,7 @@ class LoginViewModel with ChangeNotifier {
       ..withVersion(BuildConfig.APP_VERSION)
       ..withDeviceId(_deviceManager.deviceId)
       // ..withDeviceId("9B234499-883D-4F4B-AAC4-F086867AEC46"/*_deviceManager.deviceId*/)
-      // ..withDeviceId("7603883eb9cd8a8c"/*_deviceManager.deviceId*/)
+      ..withDeviceId("7603883eb9cd8a8c"/*_deviceManager.deviceId*/)
       // ..withDeviceId("e4c6c4bcc9f9aedf"/*_deviceManager.deviceId*/)
       ..withDeviceName(_deviceManager.deviceName);
 
@@ -100,6 +111,12 @@ class LoginViewModel with ChangeNotifier {
     final biometricType = await _helper?.getBiometricType();
     final isEnabled = PreferenceUtil.getFingerPrintEnabled();
     return hasFingerPrint && (biometricType != BiometricType.NONE) && isEnabled;
+  }
+
+  @override
+  void dispose() {
+    _isFormValidController.close();
+    super.dispose();
   }
 
 }

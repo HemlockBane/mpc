@@ -2,12 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart' hide Colors;
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/transaction_dao.dart';
 import 'package:moniepoint_flutter/app/accounts/views/transaction_history_list_item.dart';
-import 'package:moniepoint_flutter/app/notifications/app_notification_service.dart';
 import 'package:moniepoint_flutter/app/notifications/model/data/remote_notification_message.dart';
 import 'package:moniepoint_flutter/app/notifications/model/handlers/notification_handler.dart';
 import 'package:json_annotation/json_annotation.dart';

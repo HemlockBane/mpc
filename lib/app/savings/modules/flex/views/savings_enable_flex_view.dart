@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:moniepoint_flutter/app/savings/model/data/savings_product.dart';
 import 'package:moniepoint_flutter/app/savings/savings_success_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
@@ -13,7 +14,12 @@ const String loremIpsum =
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua";
 
 class SavingsEnableFlexView extends StatelessWidget {
-  const SavingsEnableFlexView({Key? key}) : super(key: key);
+  const SavingsEnableFlexView({
+    Key? key,
+    required this.product
+  }) : super(key: key);
+
+  final SavingsProduct product;
 
   TextStyle getBoldStyle(
           {double fontSize = 32.5,
@@ -97,54 +103,21 @@ class SavingsEnableFlexView extends StatelessWidget {
                   style: getBoldStyle(),
                 ),
                 SizedBox(height: 16),
-                Text(loremIpsum,
+                Text(product.longDescription ?? "",
                     style: TextStyle(
                         fontWeight: FontWeight.w400,
                         fontSize: 14.5,
                         height: 1.5,
-                        color: Colors.textColorBlack)),
-                SizedBox(height: 24),
-                _interestRateBanner(),
-                SizedBox(height: 24),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 14, vertical: 17),
-                  child: Column(
-                    children: [
-                      _infoBannerContent(
-                          title: "Terms of Withdrawal",
-                          subtitle:
-                              "You're eligible to withdraw without\n penalties on these dates:",
-                          svgPath: "res/drawables/ic_savings_lock.svg",
-                          additionalInfo: "25th - 30th of every month"),
-                      Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Divider(
-                          color: Color(0xff29522D).withOpacity(0.29),
-                          thickness: 0.5,
-                        ),
-                      ),
-                      _infoBannerContent(
-                          title: "Penalty",
-                          subtitle:
-                              "2% penalty on the interest for\n premature/unplanned withdrawals",
-                          svgPath: "res/drawables/ic_savings_warning.svg"),
-                    ],
-                  ),
-                  decoration: BoxDecoration(
-                      color: Color(0xff244528).withOpacity(0.05),
-                      borderRadius: BorderRadius.all(Radius.circular(16))),
+                        color: Colors.textColorBlack
+                    )
                 ),
-                SizedBox(
-                  height: 27,
-                ),
+                SizedBox(height: 24),
+                _SavingsInterestView(product: product),
+                SizedBox(height: 24),
+                _SavingsRulesInfoWindow(product: product),
+                SizedBox(height: 27),
                 Styles.statefulButton(
-                    buttonStyle: Styles.primaryButtonStyle.copyWith(
-                        backgroundColor:
-                            MaterialStateProperty.all(Colors.solidGreen),
-                        textStyle: MaterialStateProperty.all(getBoldStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 16,
-                            color: Colors.white))),
+                    buttonStyle: Styles.savingsFlexButtonStyle,
                     stream: Stream.value(true),
                     onClick: () {
                       Navigator.push(
@@ -152,7 +125,7 @@ class SavingsEnableFlexView extends StatelessWidget {
                         MaterialPageRoute(
                           builder: (ctx) => SavingsSucessView(
                             primaryText: "Flex\nSavings Enabled",
-                            secondaryText: loremIpsum,
+                            secondaryText: product.longDescription ?? "",
                             content: getSuccessContent(),
                             primaryButtonText: "Setup Flex Savings",
                             primaryButtonAction: () {
@@ -166,11 +139,11 @@ class SavingsEnableFlexView extends StatelessWidget {
                         ),
                       );
                     },
-                    text: 'Enable Flex Savings'),
+                    text: 'Enable Flex Savings'
+                ),
                 SizedBox(height: 31.5),
                 GestureDetector(
-                  onTap: (){
-                  },
+                  onTap: (){},
                   child: Padding(
                     padding: const EdgeInsets.only(left: 20.0),
                     child: Row(
@@ -200,81 +173,6 @@ class SavingsEnableFlexView extends StatelessWidget {
         });
   }
 
-  Row _infoBannerContent(
-      {required String svgPath,
-      required String title,
-      required String subtitle,
-      String? additionalInfo}) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SvgPicture.asset(svgPath),
-        SizedBox(width: 16.6),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: getBoldStyle(fontSize: 13)),
-              SizedBox(height: 5),
-              Text(
-                subtitle,
-                style: TextStyle(
-                    fontSize: 12.9,
-                    height: 1.48,
-                    fontWeight: FontWeight.normal,
-                    color: Colors.textColorBlack),
-              ),
-              SizedBox(height: 5),
-              if (additionalInfo != null)
-                Text(
-                  additionalInfo,
-                  style:
-                      getBoldStyle(fontSize: 13).copyWith(letterSpacing: -0.3),
-                )
-            ],
-          ),
-        )
-      ],
-    );
-  }
-
-  Container _interestRateBanner() {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 20),
-      child: Column(
-        children: [
-          Text(
-            "Interest Rate",
-            style: getBoldStyle(fontSize: 16.8, fontWeight: FontWeight.w500),
-          ),
-          SizedBox(height: 3),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text("10.25", style: getBoldStyle(fontSize: 37.55)),
-              SizedBox(width: 2),
-              Text("%",
-                  style: getBoldStyle(
-                      fontSize: 26,
-                      color: Colors.textColorBlack.withOpacity(0.5))),
-            ],
-          ),
-          SizedBox(height: 3),
-          Text(
-            "PER ANNUM",
-            style: TextStyle(
-                color: Colors.textColorBlack,
-                fontWeight: FontWeight.normal,
-                fontSize: 10,
-                letterSpacing: 2),
-          ),
-        ],
-      ),
-      decoration: BoxDecoration(
-          color: lightGreen,
-          borderRadius: BorderRadius.all(Radius.circular(16))),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -332,3 +230,158 @@ class SavingsEnableFlexView extends StatelessWidget {
     );
   }
 }
+
+///_SavingsInterestView
+///
+///
+class _SavingsInterestView extends StatelessWidget {
+
+  _SavingsInterestView({required this.product});
+
+  final SavingsProduct product;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 20),
+      decoration: BoxDecoration(
+          color: lightGreen,
+          borderRadius: BorderRadius.all(Radius.circular(16))
+      ),
+      child: Column(
+        children: [
+          Text(
+            "Interest Rate",
+            style: TextStyle(
+                fontSize: 16.8,
+                fontWeight: FontWeight.w500,
+                color: Colors.textColorBlack
+            ),
+          ),
+          SizedBox(height: 3),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "${product.interestRate ?? "--"}",
+                  style: TextStyle(
+                      fontSize: 37.55,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.textColorBlack
+                  ),
+              ),
+              SizedBox(width: 2),
+              Text("%",
+                  style: TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.textColorBlack.withOpacity(0.5)
+                  ),
+              ),
+            ],
+          ),
+          SizedBox(height: 3),
+          Text(
+            "PER ANNUM",
+            style: TextStyle(
+                color: Colors.textColorBlack,
+                fontWeight: FontWeight.normal,
+                fontSize: 10,
+                letterSpacing: 2),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+///_SavingsRulesInfoWindow
+///
+///
+///
+class _SavingsRulesInfoWindow extends StatelessWidget {
+
+  _SavingsRulesInfoWindow({required this.product});
+
+  final SavingsProduct product;
+
+  Row _infoBannerContent({
+    required String svgPath,
+    required String title,
+    required String subtitle,
+    String? additionalInfo
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SvgPicture.asset(svgPath),
+        SizedBox(width: 16.6),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13, color: Colors.textColorBlack,
+              )),
+              SizedBox(height: 5),
+              Text(
+                subtitle,
+                style: TextStyle(
+                    fontSize: 12.9,
+                    height: 1.48,
+                    fontWeight: FontWeight.normal,
+                    color: Colors.textColorBlack),
+              ),
+              SizedBox(height: 5),
+              if (additionalInfo != null)
+                Text(
+                  additionalInfo,
+                  style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13, color: Colors.textColorBlack,
+                      letterSpacing: -0.3
+                  )
+                )
+            ],
+          ),
+        )
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 17),
+      child: Column(
+        children: [
+          _infoBannerContent(
+              title: "Terms of Withdrawal",
+              subtitle: "You're eligible to withdraw without\n penalties on these dates:",
+              svgPath: "res/drawables/ic_savings_lock.svg",
+              additionalInfo: "25th - 30th of every month"
+          ),
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Divider(
+              color: Color(0xff29522D).withOpacity(0.29),
+              thickness: 0.5,
+            ),
+          ),
+          _infoBannerContent(
+              title: "Penalty",
+              subtitle: "${product.penalties}% penalty on the interest for\n premature/unplanned withdrawals",
+              svgPath: "res/drawables/ic_savings_warning.svg"
+          ),
+        ],
+      ),
+      decoration: BoxDecoration(
+          color: Color(0xff244528).withOpacity(0.05),
+          borderRadius: BorderRadius.all(Radius.circular(16))
+      ),
+    );
+  }
+  
+}
+

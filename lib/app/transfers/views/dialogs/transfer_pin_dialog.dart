@@ -19,8 +19,6 @@ class TransferPinDialog extends StatefulWidget {
 
 class _TransferPinDialog extends TransactionPinDialogState<TransferPinDialog> {
 
-  bool _isLoading = false;
-
   bool _isPinValid(TransferViewModel viewModel) {
     return viewModel.pin.isNotEmpty == true && viewModel.pin.length == 4;
   }
@@ -40,7 +38,7 @@ class _TransferPinDialog extends TransactionPinDialogState<TransferPinDialog> {
       centerBackgroundHeight: 74,
       centerBackgroundWidth: 74,
       centerBackgroundPadding: 25,
-      enableDrag: !_isLoading,
+      enableDrag: !viewModel.isLoading,
       content: Wrap(
         children: [
           Container(
@@ -160,10 +158,12 @@ class _TransferPinDialog extends TransactionPinDialogState<TransferPinDialog> {
                     width: double.infinity,
                     child: Styles.statefulButton2(
                         elevation: _isPinValid(viewModel) ? 0.5 : 0,
-                        isLoading: _isLoading,
+                        isLoading: viewModel.isLoading,
                         isValid: _isPinValid(viewModel),
                         onClick: () => requestLocationAndSubscribe(),
-                        text: 'Continue')),
+                        text: 'Continue'
+                    )
+                ),
                 SizedBox(height: 42)
               ],
             ),
@@ -183,17 +183,16 @@ class _TransferPinDialog extends TransactionPinDialogState<TransferPinDialog> {
     final viewModel = Provider.of<TransferViewModel>(context, listen: false);
       viewModel.makeTransfer().listen((event) {
       if(event is Loading) {
-        if(_isLoading == false) setState(() => _isLoading = true);
+        if(viewModel.isLoading == false) setState(() => viewModel.setIsLoading(true));
       }
       else if(event is Success) {
         setState(() {
-          _isLoading = false;
+          viewModel.setIsLoading(false);
           Navigator.of(context).pop(event.data);
-          //Display SuccessDialog
         });
       }
       else if(event is Error<TransactionStatus>) {
-        setState(() {_isLoading = false;});
+        setState(() { viewModel.setIsLoading(false); });
         Navigator.of(context).pop(event);
       }
     });

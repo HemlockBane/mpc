@@ -42,6 +42,9 @@ class OnBoardingViewModel extends ChangeNotifier {
   String? _phoneNumberValidationKey;
   String? get phoneNumberValidationKey => _phoneNumberValidationKey;
 
+  bool _isOnboarding = false;
+  bool get isOnboarding => _isOnboarding;
+
   OnBoardingViewModel({
     OnBoardingServiceDelegate? delegate,
     CustomerValidationServiceDelegate? customerValidationDelegate,
@@ -53,6 +56,10 @@ class OnBoardingViewModel extends ChangeNotifier {
     this._locationServiceDelegate = locationServiceDelegate ?? GetIt.I<LocationServiceDelegate>();
 
     profileForm.setRequestBody(accountForm.account);
+  }
+
+  void setIsOnboarding(bool isOnboarding) {
+    this._isOnboarding = isOnboarding;
   }
 
   Stream<Resource<bool>> sendOtpToDevice() {

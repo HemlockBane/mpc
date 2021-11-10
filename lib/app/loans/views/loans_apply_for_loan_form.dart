@@ -88,7 +88,6 @@ class _ApplyForLoanViewState extends State<ApplyForLoanView> {
 
   @override
   void initState() {
-    print("initState");
     _viewModel = Provider.of<LoanRequestViewModel>(context, listen: false);
     super.initState();
   }
@@ -103,8 +102,6 @@ class _ApplyForLoanViewState extends State<ApplyForLoanView> {
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<LoanRequestViewModel>(context, listen: false);
-    print("build");
-    print("apply form: selected loan offer ${viewModel.selectedLoanOffer.toJson()}");
     return SingleChildScrollView(
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 18),
@@ -272,7 +269,7 @@ class _ApplyForLoanViewState extends State<ApplyForLoanView> {
                 checkBoxBorderColor: Color(0xffA6B6CE).withOpacity(0.95),
                 isShowTrailingWhenExpanded: false,
                 shouldPreselectFirstAccount: true,
-                selectedUserAccount: viewModel.repaymentAccount,
+                selectedUserAccount: viewModel.repaymentAccount ?? viewModel.payoutAccount,
                 onAccountSelected: (account) {
                   setState(() {
                     viewModel.setRepaymentAccount(account);

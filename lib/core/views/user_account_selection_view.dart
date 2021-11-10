@@ -90,7 +90,8 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
     );
   }
 
-  Widget getAlternateIcon(String name){
+  Widget getAlternateIcon(String? name){
+    if (name == null) return SizedBox();
     final color = widget.primaryColor ?? Colors.primaryColor;
     return Stack(
       clipBehavior: Clip.none,
@@ -201,7 +202,7 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
               }),
               builder: (BuildContext context, AsyncSnapshot<List<AccountBalance?>> snapShot) {
                 if(!snapShot.hasData || snapShot.data == null){
-                  return boxContainer(Container());
+                  return SizedBox();
                 }
 
                 final List<AccountBalance?> accounts = snapShot.data ?? [];
@@ -225,7 +226,7 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
                   defaultTitle: "Select an Account",
                   titleStyle: widget.titleStyle,
                   onItemSelected: (item, i) => widget.onAccountSelected(item),
-                  titleIcon: (a) => SelectionCombo2.initialView(),
+                  titleIcon: (a) => isDefaultStyle() ? getDefaultIcon() : getAlternateIcon(a?.customerAccount?.accountName),
                   primaryColor: widget.primaryColor ?? Colors.primaryColor,
                   checkBoxBorderColor: widget.checkBoxBorderColor ?? Colors.primaryColor,
                   checkBoxSize: widget.checkBoxSize,

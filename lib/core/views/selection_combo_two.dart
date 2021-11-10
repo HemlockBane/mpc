@@ -28,6 +28,7 @@ class SelectionCombo2<T> extends StatefulWidget {
   final bool isShowTrailingWhenExpanded;
   final TextStyle? titleStyle;
   final ListStyle listStyle;
+  final bool isExpanded;
 
 
   SelectionCombo2(this.comboItems, {
@@ -42,7 +43,8 @@ class SelectionCombo2<T> extends StatefulWidget {
     this.checkBoxPadding,
     this.isShowTrailingWhenExpanded = true,
     this.titleStyle,
-    this.listStyle = ListStyle.normal
+    this.listStyle = ListStyle.normal,
+    this.isExpanded = true
   });
 
   @override
@@ -72,7 +74,7 @@ class _SelectionCombo2<T> extends State<SelectionCombo2<T>> with SingleTickerPro
   );
 
   ComboItem<T>? _selectedCombo;
-  bool _isExpanded = false;
+  late bool _isExpanded;
   bool _showMore = false;
   int _maxThreshold = 3;
   BorderRadius? _borderRadius;
@@ -85,10 +87,13 @@ class _SelectionCombo2<T> extends State<SelectionCombo2<T>> with SingleTickerPro
 
   @override
   void initState() {
-    _borderRadius = widget.borderRadius ??  BorderRadius.circular(10);
     super.initState();
+    _borderRadius = widget.borderRadius ??  BorderRadius.circular(10);
+    _isExpanded = widget.isExpanded;
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      _setDefaultState();
+      setState(() {
+        _setDefaultState();
+      });
     });
   }
 

@@ -28,7 +28,7 @@ class UserAccountSelectionView extends StatefulWidget {
   final bool isShowTrailingWhenExpanded;
   final ValueChanged<UserAccount?> onAccountSelected;
   final UserAccount? selectedUserAccount;
-  final bool shouldPreselectFirstAccount;
+  final bool isExpanded;
 
 
   UserAccountSelectionView(this.viewModel, {
@@ -41,7 +41,7 @@ class UserAccountSelectionView extends StatefulWidget {
     this.isShowTrailingWhenExpanded = true,
     this.titleStyle,
     this.selectedUserAccount,
-    this.shouldPreselectFirstAccount = false
+    this.isExpanded = true
   });
 
   @override
@@ -234,6 +234,8 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
                   listStyle: widget.listStyle,
                   trailingWidget: !isDefaultStyle() ? getAlternateTrailingWidget() : null,
                   isShowTrailingWhenExpanded: widget.isShowTrailingWhenExpanded,
+                  isExpanded: widget.isExpanded,
+
                 );
               }
           )

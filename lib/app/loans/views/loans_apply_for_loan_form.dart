@@ -268,7 +268,7 @@ class _ApplyForLoanViewState extends State<ApplyForLoanView> {
                 checkBoxPadding: EdgeInsets.all(6.0),
                 checkBoxBorderColor: Color(0xffA6B6CE).withOpacity(0.95),
                 isShowTrailingWhenExpanded: false,
-                shouldPreselectFirstAccount: true,
+                isExpanded: false,
                 selectedUserAccount: viewModel.repaymentAccount ?? viewModel.payoutAccount,
                 onAccountSelected: (account) {
                   setState(() {

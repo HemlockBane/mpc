@@ -6,14 +6,16 @@ import 'package:moniepoint_flutter/app/billpayments/model/data/biller.dart';
 import 'package:moniepoint_flutter/app/billpayments/viewmodels/bill_purchase_view_model.dart';
 import 'package:moniepoint_flutter/app/billpayments/viewmodels/biller_view_model.dart';
 import 'package:moniepoint_flutter/app/billpayments/views/bill_view.dart';
+import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/views/empty_list_layout_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/biller_category.dart';
-import 'package:moniepoint_flutter/core/models/file_result.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/list_view_util.dart';
 import 'package:provider/provider.dart';
+
+import 'biller_logo.dart';
 
 class BillerListScreen extends StatefulWidget {
   late final GlobalKey<ScaffoldState> _scaffoldKey;
@@ -64,12 +66,12 @@ class _BillerListScreen extends State<BillerListScreen> with AutomaticKeepAliveC
               shrinkWrap: true,
               itemCount: items?.length ?? 0,
               separatorBuilder: (context, index) => Padding(
-                    padding: EdgeInsets.only(left: 16, right: 16),
-                    child: Divider(
-                      color: Colors.transparent,
-                      height: 12,
-                    ),
-                  ),
+                padding: EdgeInsets.only(left: 21, right: 21),
+                child: Divider(
+                  color: Color(0XFFBFD7E5).withOpacity(0.6),
+                  height: 1,
+                ),
+              ),
               itemBuilder: (context, index) {
                 return BillerListItem(items![index], index, (item, selectedIndex) {
                   viewModel.setBiller(item);
@@ -79,33 +81,85 @@ class _BillerListScreen extends State<BillerListScreen> with AutomaticKeepAliveC
         });
   }
 
+  Widget _mainContent(BillerCategory billCategory) {
+    final viewModel = Provider.of<BillerViewModel>(context, listen: false);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        SizedBox(height: 24,),
+        Padding(
+          padding: EdgeInsets.only(left: 16, right: 16),
+          child: Styles.appEditText(
+              padding: EdgeInsets.only(top: 20, bottom: 20),
+              startIcon: Icon(CustomFont.search, color: Colors.colorFaded),
+              hint: 'Search Biller',
+              fontSize: 13,
+              onChanged: (value) {
+              }
+          ),
+        ),
+        SizedBox(height: 23,),
+        Divider(
+          color: Color(0XFFBFD7E5).withOpacity(0.6),
+          height: 1,
+        ),
+        SizedBox(height: 18,),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Padding(
+            padding: EdgeInsets.only(left: 20),
+            child: Text(
+              "Select Biller",
+              style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16,
+                  color: Colors.textColorBlack
+              ),
+            ),
+          ),
+        ),
+        SizedBox(height: 12,),
+        Expanded(child: StreamBuilder(
+            stream: viewModel.getBillersByCategoryId(billCategory.categoryCode ?? ""),
+            builder: (BuildContext context, AsyncSnapshot<Resource<List<Biller>?>> a) {
+              return makeListView(context, a);
+            })
+        )
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final viewModel = Provider.of<BillerViewModel>(context, listen: false);
     final billCategory = ModalRoute.of(context)!.settings.arguments as BillerCategory;
-    return Container(
-      child: Column(
-        children: [
-          SizedBox(
-            height: 16,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: 16),
+        Padding(
+          padding: EdgeInsets.only(left: 20),
+          child: Text(
+            billCategory.name ?? "",
+            style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 24,
+                color: Colors.textColorBlack
+            ),
           ),
-          Divider(
-            height: 1,
-            color: Color(0XFFE0E0E0),
+        ),
+        Expanded(child: Container(
+          width: double.infinity,
+          margin: EdgeInsets.only(top: 24),
+          padding: EdgeInsets.only(top: 8),
+          clipBehavior: Clip.hardEdge,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
           ),
-          SizedBox(
-            height: 16,
-          ),
-          Expanded(
-              child: StreamBuilder(
-                  stream: viewModel.getBillersByCategoryId(billCategory.categoryCode ?? ""),
-                  builder: (BuildContext context, AsyncSnapshot<Resource<List<Biller>?>> a) {
-                    return makeListView(context, a);
-                  })
-          ),
-        ],
-      ),
+          child: _mainContent(billCategory),
+        )),
+      ],
     );
   }
 
@@ -137,93 +191,42 @@ class BillerListItem extends StatefulWidget {
 }
 
 class _BillerListItem extends State<BillerListItem> {
-
-  Stream<Resource<FileResult>>? _fileResultStream;
-  Image? _itemImage;
-
-  Widget _defaultImage() {
-    return Container(
-      width: 34,
-      height: 34,
-      padding: EdgeInsets.all(0),
-      decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.primaryColor.withOpacity(0.1)),
-      child: Center(
-        child: Container(),
-      ),
-    );
-  }
+  late final BillPurchaseViewModel viewModel;
 
   @override
   void initState() {
-    _fetchBillerLogo();
+    viewModel = Provider.of<BillPurchaseViewModel>(context, listen: false);
     super.initState();
-  }
-
-  void _fetchBillerLogo() {
-    _fileResultStream = Provider.of<BillPurchaseViewModel>(context, listen: false)
-        .getFile(widget._billBiller.logoImageUUID ?? "");
-  }
-
-  Widget initialView(BuildContext mContext) {
-    if(widget._billBiller.logoImageUUID == null) return _defaultImage();
-    return Visibility(
-      visible: widget._billBiller.logoImageUUID != null,
-      child: StreamBuilder(
-          stream: _fileResultStream,
-          builder: (mContext, AsyncSnapshot<Resource<FileResult>> snapShot) {
-            //TODO refactor to make re-usable
-            if(!snapShot.hasData || snapShot.data == null || (snapShot.data is Error && _itemImage == null)) return _defaultImage();
-            final base64 = snapShot.data?.data;
-            final base64String = base64?.base64String;
-            if((base64 == null || base64String == null || base64String.isEmpty == true) && _itemImage == null) return _defaultImage();
-            _itemImage = (_itemImage == null)
-                ? Image.memory(base64Decode(base64String!), width: 40, height: 40, errorBuilder: (_,_i,_j) {
-                  return Container();
-                })
-                : _itemImage;
-            return _itemImage!;
-          }
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) => Container(
-      decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.all(Radius.circular(13)),
-          border: Border.all(
-              color: Colors.colorPrimaryDark.withOpacity(0.1),
-              width: 0.5
-          ),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.colorPrimaryDark.withOpacity(0.1),
-                offset: Offset(0, 1),
-                blurRadius: 0.5)
-          ]),
-        margin: EdgeInsets.only(left: 16, right: 16),
+        decoration: BoxDecoration(color: Colors.white),
         child: Material(
           color: Colors.transparent,
           clipBehavior: Clip.hardEdge,
           child: InkWell(
             highlightColor: Colors.primaryColor.withOpacity(0.02),
             overlayColor: MaterialStateProperty.all(Colors.primaryColor.withOpacity(0.05)),
-            borderRadius: BorderRadius.all(Radius.circular(13)),
             onTap: () => widget._onItemClickListener?.call(widget._billBiller, widget.position),
             child: Container(
-              padding: EdgeInsets.only(top: 12, bottom: 12, left: 16, right: 16),
+              padding: EdgeInsets.only(top: 16, bottom: 16, left: 21, right: 21),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  initialView(context),
+                  BillerLogo(
+                    biller: widget._billBiller,
+                    fileStreamFn: viewModel.getFile,
+                  ),
                   SizedBox(width: 16),
                   Expanded(
                       child: Text(widget._billBiller.name ?? "",
                           style: TextStyle(
-                              fontSize: 16,
+                              fontSize: 14,
                               color: Colors.colorPrimaryDark,
-                              fontWeight: FontWeight.bold))
+                              fontWeight: FontWeight.bold
+                          )
+                      )
                   ),
                   SvgPicture.asset(
                     'res/drawables/ic_forward_anchor.svg',
@@ -235,7 +238,7 @@ class _BillerListItem extends State<BillerListItem> {
                 ],
               ),
             ),
-            ),
           ),
-        );
+        ),
+      );
 }

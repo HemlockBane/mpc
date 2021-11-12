@@ -6,6 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/bill_service_delegate.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/bill_payment_request_body.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/biller.dart';
+import 'package:moniepoint_flutter/app/billpayments/model/data/biller_category.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/biller_product.dart';
 import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/login/model/data/authentication_method.dart';
@@ -13,11 +14,13 @@ import 'package:moniepoint_flutter/app/managebeneficiaries/bills/model/data/bill
 import 'package:moniepoint_flutter/app/managebeneficiaries/bills/model/data/bill_beneficiary_delegate.dart';
 import 'package:moniepoint_flutter/app/devicemanagement/model/data/device_manager.dart';
 import 'package:moniepoint_flutter/core/models/file_result.dart';
+import 'package:moniepoint_flutter/core/models/list_item.dart';
 import 'package:moniepoint_flutter/core/models/services/file_management_service_delegate.dart';
 import 'package:moniepoint_flutter/core/models/transaction_status.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/payment_view_model.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
+import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 
 class BillPurchaseViewModel extends BaseViewModel with PaymentViewModel {
@@ -26,6 +29,8 @@ class BillPurchaseViewModel extends BaseViewModel with PaymentViewModel {
   late final BillBeneficiaryServiceDelegate _beneficiaryServiceDelegate;
   late final FileManagementServiceDelegate _fileServiceDelegate;
   late final DeviceManager _deviceManager;
+
+  final List<ListDataItem<String>> amountPills = List.generate(4, (index) => ListDataItem((5000 * (index + 1)).formatCurrencyWithoutLeadingZero));
 
   //<fieldKey, fieldError>
   StreamController<Tuple<String, String?>> _fieldErrorController = StreamController.broadcast();
@@ -36,6 +41,9 @@ class BillPurchaseViewModel extends BaseViewModel with PaymentViewModel {
 
   BillerProduct? _billerProduct;
   BillerProduct? get billerProduct => _billerProduct;
+
+  BillerCategory? _billerCategory;
+  BillerCategory? get billerCategory => _billerCategory;
 
   String? validationReference;
 
@@ -66,6 +74,10 @@ class BillPurchaseViewModel extends BaseViewModel with PaymentViewModel {
     this._biller = biller;
   }
 
+  void setBillerCategory(BillerCategory? category) {
+    this._billerCategory = category;
+  }
+
   void setBillerProduct(BillerProduct? billerProduct) {
     this._billerProduct = billerProduct;
     this._additionalFieldsMap.clear();
@@ -73,6 +85,7 @@ class BillPurchaseViewModel extends BaseViewModel with PaymentViewModel {
     _billerProduct?.additionalFieldsMap?.forEach((key, value) {
       if(value.required && key != "amount") _fieldErrorMap[key] = "";
     });
+    setAmount((_billerProduct?.amount ?? 0.00) / 100);
   }
 
   void setValidationReference(String validationReference) {
@@ -124,8 +137,7 @@ class BillPurchaseViewModel extends BaseViewModel with PaymentViewModel {
     final minimumLengthRequired = inputFieldForKey.minimumLength;
     if(isFieldRequired && keyExist && minimumLengthRequired != null && (keyValue == null || keyValue.length < minimumLengthRequired)) {
       _fieldErrorMap[key] = "${inputFieldForKey.fieldLabel} cannot be less than ${inputFieldForKey.minimumLength?.toInt()} characters";
-      _fieldErrorController.sink
-          .addError(Tuple(key, _fieldErrorMap[key]));
+      _fieldErrorController.sink.addError(Tuple(key, _fieldErrorMap[key]));
       checkValidity();
       return false;
     }

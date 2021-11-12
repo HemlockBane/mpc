@@ -1,27 +1,32 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class GrowthWebView extends StatefulWidget {
 
-  GrowthWebView(this.url);
+  GrowthWebView({Key? key, required this.url}) : super(key: key);
 
   final String url;
 
   @override
-  State<StatefulWidget> createState() => _GrowthWebView();
+  State<StatefulWidget> createState() => GrowthWebViewState();
 
 }
 
-class _GrowthWebView extends State<GrowthWebView> {
+class GrowthWebViewState extends State<GrowthWebView> with AutomaticKeepAliveClientMixin {
 
   @override
   void initState() {
+    // convertedPage = "data:text/html;base64,${base64Encode(const Utf8Encoder().convert(kNavigationExamplePage))}";
+    print("Calling WebView Set State");
     super.initState();
+    if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
   }
 
-  final String kNavigationExamplePage = '''
+  String convertedPage = "";
+  static String kNavigationExamplePage = '''
 <!DOCTYPE html>
 
 <html>
@@ -194,47 +199,77 @@ class _GrowthWebView extends State<GrowthWebView> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Container(
       height: 200,
-      clipBehavior: Clip.hardEdge,
-      decoration: BoxDecoration(
-          color: Colors.lightBlueAccent,
-          borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            offset: Offset(0, 2),
-            blurRadius: 21
-          )
-        ]
-      ),
-      child: Column(
-        children: [
-          Expanded(
-              child: Container(
-                clipBehavior: Clip.hardEdge,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: WebView(
-                  initialUrl: widget.url,
-                  javascriptMode: JavascriptMode.unrestricted,
-                  navigationDelegate: (request) async {
-                    print(request.url);
-                    return NavigationDecision.prevent;
-                  },
-                  onWebViewCreated: (controller) async {
-                    print("WebView ====> Created!!! ${await controller.currentUrl()}");
-                  },
-                  onWebResourceError: (error) {
-                    print("WebView ====> Error!!! ${error.description}");
-                  },
-                ),
-              )
-          )
-        ],
+      child: WebView(
+        initialUrl: widget.url,
+        javascriptMode: JavascriptMode.unrestricted,
+        navigationDelegate: (request) async {
+          print(request.url);
+          return NavigationDecision.prevent;
+        },
+        onProgress: (k) {
+
+        },
+        onWebViewCreated: (controller) async {
+          print("WebView ====> Created!!! ${await controller.currentUrl()}");
+        },
+        onWebResourceError: (error) {
+          print("WebView ====> Error!!! ${error.description}");
+        },
       ),
     );
+    // return Container(
+    //   key: ValueKey("ContainerColumnParentContainer"),
+    //   height: 200,
+    //   clipBehavior: Clip.hardEdge,
+    //   decoration: BoxDecoration(
+    //       color: Colors.transparent,
+    //       borderRadius: BorderRadius.circular(16),
+    //     boxShadow: [
+    //       BoxShadow(
+    //         color: Colors.grey.withOpacity(0.2),
+    //         offset: Offset(0, 2),
+    //         blurRadius: 21
+    //       )
+    //     ]
+    //   ),
+    //   child: Column(
+    //     key: ValueKey("ColumnParentContainer"),
+    //     children: [
+    //       Expanded(
+    //           key: ValueKey("ExpandedParentContainer"),
+    //           child: Container(
+    //             key: ValueKey("ParentContainer"),
+    //             clipBehavior: Clip.hardEdge,
+    //             decoration: BoxDecoration(
+    //               borderRadius: BorderRadius.circular(16),
+    //             ),
+    //             child: WebView(
+    //               key: ValueKey(widget.url),
+    //               initialUrl: convertedPage,
+    //               javascriptMode: JavascriptMode.unrestricted,
+    //               navigationDelegate: (request) async {
+    //                 print(request.url);
+    //                 return NavigationDecision.prevent;
+    //               },
+    //               onWebViewCreated: (controller) async {
+    //                 print("WebView ====> Created!!! ${await controller.currentUrl()}");
+    //               },
+    //               onWebResourceError: (error) {
+    //                 print("WebView ====> Error!!! ${error.description}");
+    //               },
+    //             ),
+    //           )
+    //       )
+    //     ],
+    //   ),
+    // );
   }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => false;
 
 }

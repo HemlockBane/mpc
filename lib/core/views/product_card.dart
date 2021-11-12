@@ -77,7 +77,7 @@ class _HeaderView extends StatelessWidget {
         children: [
           IconCurvedContainer(
               backgroundColor: Colors.savingsPrimary.withOpacity(0.08),
-              image: SvgPicture.asset("res/drawables/ic_savings_flex.svg")
+              child: SvgPicture.asset("res/drawables/ic_savings_flex.svg")
           ),
           SizedBox(height: 12),
           Expanded(

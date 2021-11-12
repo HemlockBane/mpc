@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:moniepoint_flutter/app/billpayments/viewmodels/bill_purchase_view_model.dart';
 import 'package:moniepoint_flutter/app/billpayments/views/bill_view.dart';
 import 'package:moniepoint_flutter/core/pnd_notification_banner.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
@@ -10,6 +11,7 @@ import 'package:moniepoint_flutter/app/billpayments/viewmodels/bill_category_vie
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/list_view_util.dart';
+import 'package:moniepoint_flutter/core/views/icon_curved_container.dart';
 import 'package:provider/provider.dart';
 
 class BillCategoryListScreen extends StatefulWidget {
@@ -21,8 +23,7 @@ class BillCategoryListScreen extends StatefulWidget {
   State<StatefulWidget> createState() => _BillCategoryListScreen();
 }
 
-class _BillCategoryListScreen extends State<BillCategoryListScreen>
-    with AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
+class _BillCategoryListScreen extends State<BillCategoryListScreen> with AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
   late final AnimationController _animationController;
   final List<BillerCategory> _currentItems = [];
 
@@ -57,14 +58,16 @@ class _BillCategoryListScreen extends State<BillCategoryListScreen>
               shrinkWrap: true,
               itemCount: items?.length ?? 0,
               separatorBuilder: (context, index) => Padding(
-                padding: EdgeInsets.only(left: 16, right: 16),
+                padding: EdgeInsets.only(left: 21, right: 21),
                 child: Divider(
-                  color: Colors.transparent,
-                  height: 12,
+                  color: Color(0XFFBFD7E5).withOpacity(0.6),
+                  height: 1,
                 ),
               ),
               itemBuilder: (context, index) {
                 return _BillCategoryListItem(items![index], index, (item, selectedIndex) {
+                  final viewModel = Provider.of<BillPurchaseViewModel>(context, listen: false);
+                  viewModel.setBillerCategory(item);
                   Navigator.of(context).pushNamed(BillScreen.BILL_BILLER_SCREEN, arguments: item);
                 });
               });
@@ -75,26 +78,43 @@ class _BillCategoryListScreen extends State<BillCategoryListScreen>
   Widget build(BuildContext context) {
     super.build(context);
     final viewModel = Provider.of<BillCategoryViewModel>(context, listen: false);
-    return Container(
-      child: Column(
-        children: [
-            PndNotificationBanner(
-              onBannerTap: () {
-                Navigator.of(widget._scaffoldKey.currentContext!).pushNamed(Routes.ACCOUNT_UPDATE);
-              },
-           ),
-          SizedBox(
-            height: 16,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        PndNotificationBanner(
+          onBannerTap: () {
+            Navigator.of(widget._scaffoldKey.currentContext!).pushNamed(Routes.ACCOUNT_UPDATE);
+          },
+        ),
+        SizedBox(height: 16,),
+        Padding(
+          padding: EdgeInsets.only(left: 20),
+          child: Text(
+            "Select Category",
+            style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 24,
+                color: Colors.textColorBlack
+            ),
           ),
-          Expanded(
+        ),
+        Expanded(
+            child: Container(
+              margin: EdgeInsets.only(top: 24),
+              padding: EdgeInsets.only(top: 8),
+              clipBehavior: Clip.hardEdge,
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+              ),
               child: StreamBuilder(
                   stream: viewModel.getCategories(),
                   builder: (BuildContext context, AsyncSnapshot<Resource<List<BillerCategory>?>> a) {
                     return makeListView(context, a);
-                  })
-          ),
-        ],
-      ),
+                  }),
+            )
+        ),
+      ],
     );
   }
 
@@ -117,60 +137,41 @@ class _BillCategoryListItem extends Container {
   _BillCategoryListItem(this._billCategory, this.position, this._onItemClickListener);
 
   Widget initialView(String? svg) {
-    return Container(
-      width: 34,
-      height: 34,
-      padding: EdgeInsets.all(0),
-      decoration: BoxDecoration(
-          shape: BoxShape.circle, color: Colors.primaryColor.withOpacity(0.1)
-      ),
-      child: Center(
+    return IconCurvedContainer(
+        width: 53,
+        height: 53,
+        padding: EdgeInsets.all(12),
+        backgroundColor: Colors.primaryColor.withOpacity(0.1),
         child: (svg != null)
-            ? SvgPicture.string(
-                svg,
-                width: 16,
-                height: 16,
-              )
-            : Container(),
-      ),
+            ? SvgPicture.string(svg, width: 16, height: 16,)
+            : SvgPicture.asset("")
     );
   }
 
   @override
   Widget build(BuildContext context) => Container(
-      decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.all(Radius.circular(13)),
-          border: Border.all(
-              color: Colors.colorPrimaryDark.withOpacity(0.1),
-              width: 0.5
-          ),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.colorPrimaryDark.withOpacity(0.1),
-                offset: Offset(0, 1),
-                blurRadius: 0.5)
-          ]),
-        margin: EdgeInsets.only(left: 16, right: 16),
+        decoration: BoxDecoration(color: Colors.white),
         child: Material(
           color: Colors.transparent,
           clipBehavior: Clip.hardEdge,
           child: InkWell(
             highlightColor: Colors.primaryColor.withOpacity(0.02),
             overlayColor: MaterialStateProperty.all(Colors.primaryColor.withOpacity(0.05)),
-            borderRadius: BorderRadius.all(Radius.circular(13)),
             onTap: () => _onItemClickListener?.call(_billCategory, position),
             child: Container(
-              padding: EdgeInsets.only(top: 12, bottom: 12, left: 16, right: 16),
+              padding: EdgeInsets.only(top: 16, bottom: 16, left: 21, right: 21),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   initialView(_billCategory.svgImage),
                   SizedBox(width: 16),
                   Expanded(
-                      child: Text(
-                          _billCategory.name ?? "",
-                          style: TextStyle(fontSize: 16, color: Colors.colorPrimaryDark, fontWeight: FontWeight.bold)
+                      child: Text(_billCategory.name ?? "",
+                          style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.textColorBlack,
+                              fontWeight: FontWeight.bold
+                          )
                       )
                   ),
                   SvgPicture.asset(
@@ -183,7 +184,7 @@ class _BillCategoryListItem extends Container {
                 ],
               ),
             ),
-            ),
           ),
-        );
+        ),
+      );
 }

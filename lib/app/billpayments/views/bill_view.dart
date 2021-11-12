@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart' hide Colors;
-import 'package:moniepoint_flutter/app/airtime/viewmodels/airtime_history_view_model.dart';
-import 'package:moniepoint_flutter/app/airtime/viewmodels/airtime_view_model.dart';
-import 'package:moniepoint_flutter/app/airtime/views/airtime_beneficiary_view.dart';
-import 'package:moniepoint_flutter/app/airtime/views/airtime_payment_view.dart';
-import 'package:moniepoint_flutter/app/billpayments/views/bill_history_view.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/billpayments/viewmodels/bill_category_view_model.dart';
 import 'package:moniepoint_flutter/app/billpayments/viewmodels/bill_history_view_model.dart';
 import 'package:moniepoint_flutter/app/billpayments/viewmodels/bill_purchase_view_model.dart';
@@ -11,11 +7,10 @@ import 'package:moniepoint_flutter/app/billpayments/viewmodels/biller_view_model
 import 'package:moniepoint_flutter/app/billpayments/views/bill_beneficiary_view.dart';
 import 'package:moniepoint_flutter/app/billpayments/views/bill_category_list_view.dart';
 import 'package:moniepoint_flutter/app/billpayments/views/bill_payment_view.dart';
-import 'package:moniepoint_flutter/app/transfers/views/transfer_beneficiary_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
-import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
+import 'package:moniepoint_flutter/core/views/moniepoint_scaffold.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
-import 'package:moniepoint_flutter/core/views/transaction_tab.dart';
 import 'package:provider/provider.dart';
 
 import 'biller_list_view.dart';
@@ -45,37 +40,51 @@ class _BillScreen extends State<BillScreen> {
         ChangeNotifierProvider(create: (v) => BillPurchaseViewModel()),
         ChangeNotifierProvider(create: (v) => BillHistoryViewModel()),
       ],
-      child: DefaultTabController(
-        length: 2,
-        child: Scaffold(
-          key: widget._scaffoldKey,
-          // resizeToAvoidBottomInset: false,
-          backgroundColor: Colors.backgroundWhite,
-          appBar: AppBar(
-              centerTitle: false,
-              titleSpacing: 0,
-              iconTheme: IconThemeData(color: Colors.primaryColor),
-              title: Text('Bill Payment',
-                  textAlign: TextAlign.start,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.textColorBlack
-                  )
-              ),
-              backgroundColor: Colors.backgroundWhite,
-              elevation: 0
+      child: MoniepointScaffold(
+        key: widget._scaffoldKey,
+        // resizeToAvoidBottomInset: false,
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          centerTitle: false,
+          titleSpacing: 0,
+          iconTheme: IconThemeData(color: Colors.primaryColor),
+          title: Text('Bill Payment',
+              textAlign: TextAlign.start,
+              style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.textColorBlack
+              )
           ),
-          body: SessionedWidget(
-              context: context,
-              child: Column(
-                children: [
-                  SizedBox(height: 16),
-                  Expanded(
-                    child: _BillViewNavigator(widget._scaffoldKey, widget._navigatorKey),
-                  )
-                ],
-              ),
+          backgroundColor: Color(0XFFE8EFFA).withOpacity(0.52),
+          elevation: 0,
+          actions: [
+            TextButton.icon(
+                onPressed: () => Navigator.of(context).pushNamed(Routes.BILL_HISTORY),
+                icon: SvgPicture.asset("res/drawables/ic_history.svg"),
+                label: Text(
+                  "History",
+                  style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.primaryColor
+                  ),
+                )
+            )
+          ],
+        ),
+        body: SessionedWidget(
+          context: context,
+          child: Container(
+            color: Color(0XFFE8EFFA).withOpacity(0.52),
+            child: Column(
+              children: [
+                SizedBox(height: 16),
+                Expanded(
+                  child: _BillViewNavigator(widget._scaffoldKey, widget._navigatorKey),
+                )
+              ],
+            ),
           ),
         ),
       ),

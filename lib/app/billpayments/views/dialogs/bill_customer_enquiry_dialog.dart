@@ -69,107 +69,98 @@ class _BillCustomerEnquiryDialog extends State<BillCustomerEnquiryDialog> {
   }
 
   Widget _saveBeneficiaryWidget() {
-    return Expanded(
-        flex: 0,
-        child: Container(
-          padding: EdgeInsets.only(top: 0, bottom: 0),
-          color: Colors.darkBlue.withOpacity(0.05),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('Save beneficiary?',
-                style: TextStyle(color: Colors.primaryColor, fontWeight: FontWeight.w600, fontSize: 14),
-              ),
-              SizedBox(width: 12),
-              Switch(
-                value: _saveBeneficiary,
-                onChanged: (onChanged) => setState(()=> _saveBeneficiary = onChanged) ,
-                trackColor: MaterialStateProperty.resolveWith((states) {
-                  if(states.contains(MaterialState.selected)) {
-                    return Colors.solidOrange.withOpacity(0.5);
-                  } else {
-                    return Colors.grey.withOpacity(0.5);
-                  }
-                }),
-                thumbColor: MaterialStateProperty.resolveWith((states) {
-                  if(states.contains(MaterialState.selected)) {
-                    return Colors.solidOrange;
-                  } else {
-                    return Colors.white.withOpacity(0.5);
-                  }
-                }),
-              )
-            ],
+    return Container(
+      padding: EdgeInsets.only(top: 0, bottom: 0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('Save beneficiary?',
+            style: TextStyle(color: Colors.textColorPrimary, fontWeight: FontWeight.w500, fontSize: 14),
           ),
-        )
+          SizedBox(width: 12),
+          Switch(
+            value: _saveBeneficiary,
+            onChanged: (onChanged) => setState(()=> _saveBeneficiary = onChanged) ,
+            trackColor: MaterialStateProperty.resolveWith((states) {
+              if(states.contains(MaterialState.selected)) {
+                return Colors.solidOrange.withOpacity(0.5);
+              } else {
+                return Colors.grey.withOpacity(0.5);
+              }
+            }),
+            thumbColor: MaterialStateProperty.resolveWith((states) {
+              if(states.contains(MaterialState.selected)) {
+                return Colors.solidOrange;
+              } else {
+                return Colors.white.withOpacity(0.5);
+              }
+            }),
+          )
+        ],
+      ),
     );
   }
 
   Widget _mainContent(BillValidationStatus beneficiary) {
-    return Container(
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SizedBox(height: 24),
-          Expanded(flex:0,child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SvgPicture.asset('res/drawables/ic_beneficiary.svg'),
-              SizedBox(width: 12),
-              Text('${beneficiary.validationData?.customerName}', style: TextStyle(color: Colors.solidDarkBlue, fontSize: 18, fontWeight: FontWeight.w600),)
-            ],
-          )),
-          SizedBox(height: 2),
-          Flexible(
-            child: Text(
-              '${widget._billProduct.name} - ${widget.customerIdentity}',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.deepGrey, fontSize: 14, fontFamily: Styles.defaultFont),)
-                .colorText({widget.customerIdentity : Tuple(Colors.deepGrey, null)}, underline: false),
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SizedBox(height: 18),
+        Text(
+          "Beneficiary Found",
+          style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.w700,
+              fontSize: 20
           ),
-          SizedBox(height: 24),
-          Visibility(
-              visible: widget.saveBeneficiary,
-              child: _saveBeneficiaryWidget()
-          ),
-          SizedBox(height: widget.saveBeneficiary ? 52 : 32),
-          Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    SizedBox(width: 16),
-                    Flexible(
-                        flex: 1,
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: Styles.appButton(
-                              paddingTop: 18,
-                              paddingBottom: 18,
-                              buttonStyle: Styles.greyButtonStyle,
-                              onClick: () => Navigator.of(context).pop(),
-                              text: 'Cancel',
-                              elevation: 0),
-                        )),
-                    SizedBox(width: 32),
-                    Flexible(
-                        flex: 1,
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: Styles.appButton(
-                              paddingTop: 18,
-                              paddingBottom: 18,
-                              onClick: () => onConfirm(beneficiary),
-                              text: 'Confirm',
-                              elevation: 0
-                          ),
-                        )),
-                    SizedBox(width: 16),
-                  ],
+        ),
+        SizedBox(height: 15),
+        _BeneficiaryDetailsView(
+          beneficiary: beneficiary,
+          productName: widget._billProduct.name,
+          customerIdentity: widget.customerIdentity,
+        ),
+        SizedBox(height: 16),
+        Visibility(
+            visible: widget.saveBeneficiary,
+            child: _saveBeneficiaryWidget()
+        ),
+        SizedBox(height: widget.saveBeneficiary ? 16 : 32),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SizedBox(width: 16),
+            Flexible(
+                flex: 1,
+                child: SizedBox(
+                  width: double.infinity,
+                  child: Styles.appButton(
+                      paddingTop: 18,
+                      paddingBottom: 18,
+                      buttonStyle: Styles.greyButtonStyle,
+                      onClick: () => Navigator.of(context).pop(),
+                      text: 'Cancel',
+                      elevation: 0),
                 )),
-          SizedBox(height: 12),
-        ],
-      ),
+            SizedBox(width: 32),
+            Flexible(
+                flex: 1,
+                child: SizedBox(
+                  width: double.infinity,
+                  child: Styles.appButton(
+                      paddingTop: 18,
+                      paddingBottom: 18,
+                      onClick: () => onConfirm(beneficiary),
+                      text: 'Confirm',
+                      elevation: 0
+                  ),
+                )),
+            SizedBox(width: 16),
+          ],
+        ),
+        SizedBox(height: 48),
+      ],
     );
   }
 
@@ -206,9 +197,62 @@ class _BillCustomerEnquiryDialog extends State<BillCustomerEnquiryDialog> {
           if(a.data is Error || resource == null || resource.data == null) return _handleError(a.data as Error);
           if(resource.data?.validationReference == null
               || resource.data?.validationReference?.isEmpty == true) return _handleError(Error("Biller doesn't exist", null));
-          return _mainContent(resource.data!);
+          return Wrap(children: [
+            Container(child: _mainContent(resource.data!),)
+          ]);
         },
       )
+    );
+  }
+
+}
+
+class _BeneficiaryDetailsView extends StatelessWidget {
+
+  _BeneficiaryDetailsView({
+    required this.beneficiary,
+    this.productName,
+    this.customerIdentity
+  });
+
+  final BillValidationStatus beneficiary;
+  final String? productName;
+  final String? customerIdentity;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.only(top: 17, bottom: 22),
+      margin: EdgeInsets.only(left: 41, right: 41),
+      decoration: BoxDecoration(
+          color: Colors.primaryColor.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8)
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SvgPicture.asset('res/drawables/ic_beneficiary.svg'),
+              SizedBox(width: 12),
+              Text(
+                '${beneficiary.validationData?.customerName}',
+                style: TextStyle(
+                    color: Colors.textColorBlack,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600
+                ),
+              )
+            ],
+          ),
+          SizedBox(height: 11),
+          Text(
+            '$productName - $customerIdentity',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.deepGrey, fontSize: 14, fontFamily: Styles.defaultFont),
+          ).colorText({"$customerIdentity" : Tuple(Colors.deepGrey, null)}, underline: false),
+        ],
+      ),
     );
   }
 

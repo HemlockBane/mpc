@@ -117,7 +117,7 @@ class _MoniepointAppMessengerScope extends InheritedWidget {
 ///
 class MoniepointScaffold extends StatefulWidget{
   MoniepointScaffold({
-    Key? key,
+    this.key,
     this.appBar,
     this.body,
     this.floatingActionButton,
@@ -142,6 +142,8 @@ class MoniepointScaffold extends StatefulWidget{
     this.endDrawerEnableOpenDragGesture = true,
     this.restorationId,
   });
+
+  final Key? key;
 
   /// If true, and [bottomNavigationBar] or [persistentFooterButtons]
   /// is specified, then the [body] extends to the bottom of the Scaffold,
@@ -514,7 +516,7 @@ class MoniepointScaffoldState extends State<MoniepointScaffold> with TickerProvi
     return Stack(
       children: [
         Scaffold(
-          key: widget.key,
+          // key: widget.key,
           appBar: widget.appBar,
           body: widget.body,
           drawer: widget.drawer,

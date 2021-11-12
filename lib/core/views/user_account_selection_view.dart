@@ -219,8 +219,6 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
                   );
                 }).toList();
 
-                print("Behavior ===>>> $comboItems");
-
                 return SelectionCombo2<UserAccount>(
                   comboItems,
                   defaultTitle: "Select an Account",

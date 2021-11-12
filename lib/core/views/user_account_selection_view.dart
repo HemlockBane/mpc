@@ -28,7 +28,7 @@ class UserAccountSelectionView extends StatefulWidget {
   final bool isShowTrailingWhenExpanded;
   final ValueChanged<UserAccount?> onAccountSelected;
   final UserAccount? selectedUserAccount;
-  final bool shouldPreselectFirstAccount;
+  final bool isExpanded;
 
 
   UserAccountSelectionView(this.viewModel, {
@@ -41,7 +41,7 @@ class UserAccountSelectionView extends StatefulWidget {
     this.isShowTrailingWhenExpanded = true,
     this.titleStyle,
     this.selectedUserAccount,
-    this.shouldPreselectFirstAccount = false
+    this.isExpanded = true
   });
 
   @override
@@ -90,7 +90,8 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
     );
   }
 
-  Widget getAlternateIcon(String name){
+  Widget getAlternateIcon(String? name){
+    if (name == null) return SizedBox();
     final color = widget.primaryColor ?? Colors.primaryColor;
     return Stack(
       clipBehavior: Clip.none,
@@ -201,7 +202,7 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
               }),
               builder: (BuildContext context, AsyncSnapshot<List<AccountBalance?>> snapShot) {
                 if(!snapShot.hasData || snapShot.data == null){
-                  return boxContainer(Container());
+                  return SizedBox();
                 }
 
                 final List<AccountBalance?> accounts = snapShot.data ?? [];
@@ -223,7 +224,7 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
                   defaultTitle: "Select an Account",
                   titleStyle: widget.titleStyle,
                   onItemSelected: (item, i) => widget.onAccountSelected(item),
-                  titleIcon: (a) => SelectionCombo2.initialView(),
+                  titleIcon: (a) => isDefaultStyle() ? getDefaultIcon() : getAlternateIcon(a?.customerAccount?.accountName),
                   primaryColor: widget.primaryColor ?? Colors.primaryColor,
                   checkBoxBorderColor: widget.checkBoxBorderColor ?? Colors.primaryColor,
                   checkBoxSize: widget.checkBoxSize,
@@ -231,6 +232,8 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
                   listStyle: widget.listStyle,
                   trailingWidget: !isDefaultStyle() ? getAlternateTrailingWidget() : null,
                   isShowTrailingWhenExpanded: widget.isShowTrailingWhenExpanded,
+                  isExpanded: widget.isExpanded,
+
                 );
               }
           )

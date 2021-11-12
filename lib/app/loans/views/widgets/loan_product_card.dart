@@ -1,169 +1,184 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
+import 'package:moniepoint_flutter/app/loans/models/short_term_loan_product_status.dart';
 import 'package:moniepoint_flutter/app/loans/views/loans_loan_details_view.dart';
-import 'package:moniepoint_flutter/app/loans/views/loans_product_details_view.dart';
+import 'package:moniepoint_flutter/app/loans/views/loans_advert_details_view.dart';
 import 'package:moniepoint_flutter/app/loans/views/widgets/padded_divider.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
+import 'package:moniepoint_flutter/core/status_pill.dart';
+import 'package:moniepoint_flutter/core/utils/date_util.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 
-enum LoanType { salaryAdvance, shortTerm }
 enum LoanState { ready, pending, active, overdue }
 
-
-
-
-class _StatusPill extends StatelessWidget {
-  const _StatusPill({Key? key, required this.state}) : super(key: key);
-
-  final LoanState state;
-
-  @override
-  Widget build(BuildContext context) {
-    final String stateDescription = getLoanStateDescription(state);
-    final Color stateColor = getLoanStateColor(state);
-    return Container(
-      child: Text(
-        stateDescription,
-        style: getBoldStyle(fontSize: 10, color: stateColor),
-      ),
-      padding: EdgeInsets.fromLTRB(12, 5, 10, 5),
-      decoration: BoxDecoration(
-        color: stateColor.withOpacity(0.15),
-        borderRadius: BorderRadius.all(Radius.circular(7.5))),
-    );
-  }
-}
-
-
-class LoanProductCard extends StatelessWidget {
-  const LoanProductCard({Key? key, this.loanType = LoanType.shortTerm})
-      : super(key: key);
-
-  final LoanType loanType;
-
-  Widget _buildShortTermLoanTopView({required LoanState state}) {
-    return Row(
-      children: [
-        Stack(
+Widget buildReadyShortTermLoanBottomView(
+    {required String text,
+    required VoidCallback onClick,
+    required ShortTermLoanProductStatus product}) {
+  return Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Expanded(
+        child: Row(
           children: [
-            Align(
-              child: SvgPicture.asset("res/drawables/ic_squircle_bg.svg",
-                  color: Colors.solidOrange),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Get up to", style: getNormalStyle()),
+                SizedBox(height: 5),
+                Text("${getShortTermReadyLoanMaxAmount(product)}",
+                    style: getBoldStyle(fontSize: 16.5))
+              ],
             ),
-            Positioned.fill(
-              child: Align(
-                child: Container(
-                  child: SvgPicture.asset("res/drawables/ic_loan_product.svg"),
-                ),
-              ),
-            )
+            SizedBox(width: 48),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Min. Interest", style: getNormalStyle()),
+                SizedBox(height: 5),
+                Text("${getShortTermReadyLoanMinInterest(product)}%",
+                    style: getBoldStyle(fontSize: 16.5))
+              ],
+            ),
           ],
         ),
-        SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Text(
-                "Short-term Loan",
-                style: getBoldStyle(fontSize: 14.5),
-              ),
-              SizedBox(height: 4),
-              Text('Lorem ipsum shalaye', style: getNormalStyle())
-            ],
-          ),
+      ),
+      SizedBox(width: 31),
+      _textButton(
+          text: "Apply",
+          onClick: () {
+            onClick();
+          })
+    ],
+  );
+}
+
+Widget buildReadyLoanBottomView(
+    {required String text, required VoidCallback onClick}) {
+  return Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Expanded(
+        child: Row(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Get up to", style: getNormalStyle()),
+                SizedBox(height: 5),
+                Text("N 150,000.00", style: getBoldStyle(fontSize: 16.5))
+              ],
+            ),
+            SizedBox(width: 48),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Min. Interest", style: getNormalStyle()),
+                SizedBox(height: 5),
+                Text("5.25%", style: getBoldStyle(fontSize: 16.5))
+              ],
+            ),
+          ],
         ),
-        SizedBox(width: 6),
-        _StatusPill(state: state)
-      ],
-    );
-  }
+      ),
+      SizedBox(width: 31),
+      _textButton(
+          text: "Apply",
+          onClick: () {
+            onClick();
+          })
+    ],
+  );
+}
+
+Widget _textButton({required String text, required VoidCallback onClick}) {
+  return TextButton(
+    child: Text(text, style: getBoldStyle(color: Colors.white, fontSize: 12)),
+    style: TextButton.styleFrom(backgroundColor: Colors.solidOrange),
+    onPressed: () {
+      onClick();
+    },
+  );
+}
+
+Widget _labelAndText({required String label, required String text}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(label, style: getNormalStyle(fontSize: 12)),
+      SizedBox(height: 5),
+      Text(text, style: getBoldStyle(fontSize: 13.38)),
+    ],
+  );
+}
+
+Widget buildShortTermPendingOrRunningLoanBottomView(
+    {required VoidCallback onClick,
+    required ShortTermLoanProductStatus product, required LoanState state}) {
 
 
-  Widget _buildReadyLoanBottomView(
-      {required String text, required VoidCallback onClick}) {
-    return Row(
+  final runningLoanView = Padding(
+    padding: EdgeInsets.fromLTRB(16, 0, 17, 0),
+    child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: Row(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Get up to", style: getNormalStyle()),
-                  SizedBox(height: 5),
-                  Text("N 150,000.00", style: getBoldStyle(fontSize: 16.5))
-                ],
-              ),
-              SizedBox(width: 48),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Min. Interest", style: getNormalStyle()),
-                  SizedBox(height: 5),
-                  Text("5.25%", style: getBoldStyle(fontSize: 16.5))
-                ],
-              ),
-            ],
-          ),
-        ),
-        SizedBox(width: 31),
-        _textButton(
-            text: "Apply",
-            onClick: () {
-              onClick();
-            })
-      ],
-    );
-  }
-
-  Widget _textButton({required String text, required VoidCallback onClick}) {
-    return TextButton(
-      child: Text(text, style: getBoldStyle(color: Colors.white, fontSize: 12)),
-      style: TextButton.styleFrom(backgroundColor: Colors.solidOrange),
-      onPressed: () {
-        onClick();
-      },
-    );
-  }
-
-  Widget _labelAndText({required String label, required String text}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: getNormalStyle(fontSize: 12)),
+        Text("Outstanding", style: getNormalStyle(fontSize: 12)),
         SizedBox(height: 5),
-        Text(text, style: getBoldStyle(fontSize: 13.38)),
+        Text("${getRunningLoanOutstandingAmount(product)}",
+          style: getBoldStyle(fontSize: 17)),
+        SizedBox(height: 10),
+        Row(
+          children: [
+            _labelAndText(
+              label: "Loan Amount",
+              text: "${getRunningLoanAmount(product)}"),
+            SizedBox(width: 48),
+            _labelAndText(
+              label: "Due Date", text: getDueDate(product) ?? "")
+          ],
+        ),
+        SizedBox(height: 14.2),
       ],
-    );
-  }
+    ),
+  );
 
-  Widget _buildPendingOrRunningLoanBottomView({required VoidCallback onClick}) {
-    return Column(
+  final pendingLoanView = Padding(
+    padding: EdgeInsets.fromLTRB(16, 0, 17, 0),
+    child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: EdgeInsets.fromLTRB(16, 0, 17, 0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text("Outstanding", style: getNormalStyle(fontSize: 12)),
-              SizedBox(height: 5),
-              Text("N 50,000.00", style: getBoldStyle(fontSize: 17)),
-              SizedBox(height: 10),
-              Row(
-                children: [
-                  _labelAndText(label: "Loan Amount", text: "N 50,000.00"),
-                  SizedBox(width: 48),
-                  _labelAndText(label: "Due Date", text: "2nd Jan. 2022 ")
-                ],
-              ),
-              SizedBox(height: 14.2),
-            ],
-          ),
+        Text("Request Amount", style: getNormalStyle(fontSize: 12)),
+        SizedBox(height: 5),
+        Text("${getPendingLoanRequestAmount(product)}",
+          style: getBoldStyle(fontSize: 17)),
+        SizedBox(height: 10),
+        Row(
+          children: [
+            _labelAndText(
+              label: "Interest Rate",
+              text: "${getPendingLoanInterestRate(product)}%"),
+            SizedBox(width: 48),
+            _labelAndText(
+              label: "Tenor", text: "${getPendingLoanTenor(product)} days")
+          ],
         ),
+        SizedBox(height: 14.2),
+      ],
+    ),
+  );
+
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      if (state == LoanState.pending)
+        pendingLoanView,
+      if (state == LoanState.active || state == LoanState.overdue)
+        runningLoanView,
+      if(state != LoanState.pending)
         Container(
           padding: EdgeInsets.fromLTRB(16, 4.5, 21, 10),
           child: Row(
@@ -179,7 +194,7 @@ class LoanProductCard extends StatelessWidget {
                     SizedBox(height: 10),
                     LinearPercentIndicator(
                       padding: EdgeInsets.zero,
-                      percent: 0.7,
+                      percent: getRunningLoanRepaymentProgress(product) ?? 0.0,
                       lineHeight: 8,
                       linearStrokeCap: LinearStrokeCap.roundAll,
                       progressColor: Colors.solidOrange,
@@ -210,63 +225,18 @@ class LoanProductCard extends StatelessWidget {
               border: Border.all(
                   color: Color(0xffB1881E).withOpacity(0.1), width: 0.7)),
         )
-      ],
-    );
-  }
+    ],
+  );
+}
 
-  Widget _shortTermLoanCard(BuildContext context) {
-    LoanState state = LoanState.active;
-    bool isReadyState = state == LoanState.ready;
+class SalaryAdvanceLoanCard extends StatelessWidget {
+  const SalaryAdvanceLoanCard({Key? key}) : super(key: key);
 
-    final onClickApply = () {
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (ctx) => LoanProductDetailsView()));
-    };
-
-    final onClickView = () {
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (ctx) => LoanDetailsView()));
-    };
-
-    final padding = EdgeInsets.fromLTRB(16, 15, 17, 15);
-    final runningLoanPadding = EdgeInsets.fromLTRB(16, 0, 17, 0);
-
-    return Container(
-      padding: isReadyState ? padding : EdgeInsets.only(top: 15),
-      child: Column(
-        children: [
-          Padding(
-            padding: isReadyState ? EdgeInsets.zero : runningLoanPadding,
-            child: _buildShortTermLoanTopView(state: state),
-          ),
-          _getDivider(),
-          isReadyState
-              ? _buildReadyLoanBottomView(text: "Apply", onClick: onClickApply)
-              : _buildPendingOrRunningLoanBottomView(onClick: onClickView)
-        ],
-      ),
-      decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.all(Radius.circular(16)),
-          border:
-              Border.all(color: Color(0xffB1881E).withOpacity(0.1), width: 0.7),
-          boxShadow: [
-            BoxShadow(
-                offset: Offset(0, 1),
-                blurRadius: 2,
-                color: Color(0xff165B1D).withOpacity(0.1))
-          ]),
-    );
-  }
-
-  Widget _salaryLoanCard(BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
     LoanState state = LoanState.ready;
     bool isReadyState = state == LoanState.ready;
 
-    final onClickApply = () {
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (ctx) => LoanProductDetailsView()));
-    };
 
     return Container(
       padding: EdgeInsets.only(bottom: 15),
@@ -307,7 +277,9 @@ class LoanProductCard extends StatelessWidget {
                           ],
                         ),
                       ),
-                      _StatusPill(state: state)
+                      StatusPill(
+                          statusColor: getLoanStateColor(state),
+                          statusDescription: getLoanStateDescription(state))
                     ],
                   ),
                 )
@@ -317,10 +289,10 @@ class LoanProductCard extends StatelessWidget {
           _getDivider(),
           Padding(
               padding: EdgeInsets.only(left: 18, right: 15),
-              child: _buildReadyLoanBottomView(
+              child: buildReadyLoanBottomView(
                   text: "Apply",
                   onClick: () {
-                    onClickApply();
+
                   }))
         ],
       ),
@@ -338,15 +310,219 @@ class LoanProductCard extends StatelessWidget {
       ),
     );
   }
+}
+
+class ShortTermLoanCard extends StatelessWidget {
+  const ShortTermLoanCard({Key? key, required this.product}) : super(key: key);
+
+  final ShortTermLoanProductStatus product;
 
   @override
   Widget build(BuildContext context) {
-    return loanType == LoanType.shortTerm
-        ? _shortTermLoanCard(context)
-        : _salaryLoanCard(context);
+    final isNotActive =
+        product.isProductActive != null && !product.isProductActive!;
+    if (product.isProductActive == null || isNotActive) return Container();
+
+    LoanState? state = getShortTermLoanProductState(product);
+    if(state == null) return Container();
+    bool isReadyState = state == LoanState.ready;
+
+    final onClickApply = () {
+      final args = {"loan_advert" : product.shortTermLoanAdvert};
+      Navigator.of(context).pushNamed(Routes.LOAN_ADVERT_DETAILS, arguments: args);
+    };
+
+    final onClickView = () {
+      final args = {"loan_details": product.shortTermLoanDetails};
+      Navigator.pushNamed(context, Routes.LOAN_DETAILS, arguments: args);
+    };
+
+    final padding = EdgeInsets.fromLTRB(16, 15, 17, 15);
+    final runningOrPendingLoanPadding = EdgeInsets.fromLTRB(16, 0, 17, 0);
+
+    Widget _buildShortTermLoanTopView({required LoanState? state}) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Stack(
+            children: [
+              Align(
+                child: SvgPicture.asset("res/drawables/ic_squircle_bg.svg",
+                    color: Colors.solidOrange),
+              ),
+              Positioned.fill(
+                child: Align(
+                  child: Container(
+                    child:
+                        SvgPicture.asset("res/drawables/ic_loan_product.svg"),
+                  ),
+                ),
+              )
+            ],
+          ),
+          SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(
+                  getShortTermLoanTitle(product) ?? "",
+                  style: getBoldStyle(fontSize: 14.5),
+                ),
+                SizedBox(height: 4),
+                Text(getShortTermLoanDesc(product) ?? "",
+                    style: getNormalStyle())
+              ],
+            ),
+          ),
+          SizedBox(width: 15),
+          if (state != null)
+            StatusPill(
+              statusColor: getLoanStateColor(state),
+              statusDescription: getLoanStateDescription(state),
+            )
+        ],
+      );
+    }
+
+    return Container(
+      padding: isReadyState ? padding : EdgeInsets.only(top: 15),
+      child: Column(
+        children: [
+          Padding(
+            padding:
+                isReadyState ? EdgeInsets.zero : runningOrPendingLoanPadding,
+            child: _buildShortTermLoanTopView(state: state),
+          ),
+          _getDivider(),
+          isReadyState
+              ? buildReadyShortTermLoanBottomView(
+                  product: product,
+                  text: "Apply",
+                  onClick: onClickApply,
+                )
+              : buildShortTermPendingOrRunningLoanBottomView(
+                  onClick: onClickView, product: product, state: state)
+        ],
+      ),
+      decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+          border:
+              Border.all(color: Color(0xffB1881E).withOpacity(0.1), width: 0.7),
+          boxShadow: [
+            BoxShadow(
+                offset: Offset(0, 1),
+                blurRadius: 2,
+                color: Color(0xff165B1D).withOpacity(0.1))
+          ]),
+    );
   }
 }
 
+class SalaryLoanCard extends StatelessWidget {
+  const SalaryLoanCard({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
+
+int? getPendingLoanTenor(ShortTermLoanProductStatus product){
+  return product.shortTermPendingLoanRequest?.tenor;
+}
+
+double? getPendingLoanInterestRate(ShortTermLoanProductStatus product){
+  return product.shortTermPendingLoanRequest?.interestRate?.toDouble();
+}
+
+String? getPendingLoanRequestAmount(ShortTermLoanProductStatus product){
+  return product.shortTermPendingLoanRequest?.loanAmount?.formatCurrency;
+}
+
+double? getRunningLoanRepaymentProgress(ShortTermLoanProductStatus product) {
+  if (product.shortTermLoanDetails == null ||
+      product.shortTermLoanDetails?.totalRepayment == null ||
+      product.shortTermLoanDetails?.outstandingAmount == null) return null;
+
+  final outstanding = product.shortTermLoanDetails!.outstandingAmount!;
+  final total = product.shortTermLoanDetails!.totalRepayment!;
+
+  return (total - outstanding) / total;
+}
+
+String? getDueDate(ShortTermLoanProductStatus product) {
+  if (product.shortTermLoanDetails == null ||
+      product.shortTermLoanDetails?.dueDate == null) return null;
+
+  final day = product.shortTermLoanDetails!.dueDate!.day;
+  final daySuffix = getDayOfMonthSuffix(day);
+  final formattedString =
+      DateFormat("MMM. yyyy").format(product.shortTermLoanDetails!.dueDate!);
+  return "$day$daySuffix $formattedString";
+}
+
+String? getRunningLoanAmount(ShortTermLoanProductStatus product) {
+  return product.shortTermLoanDetails?.loanAmount?.formatCurrency;
+}
+
+String? getRunningLoanOutstandingAmount(ShortTermLoanProductStatus product) {
+  return product.shortTermLoanDetails?.outstandingAmount?.formatCurrency;
+}
+
+double? getShortTermReadyLoanMinInterest(ShortTermLoanProductStatus product) {
+  return product.shortTermLoanAdvert?.minInterestRate?.toDouble();
+}
+
+String? getShortTermReadyLoanMaxAmount(ShortTermLoanProductStatus product) {
+  return product.shortTermLoanAdvert?.maxAmount?.formatCurrency;
+}
+
+String? getShortTermLoanTitle(ShortTermLoanProductStatus product) {
+  final state = getShortTermLoanProductState(product);
+  if (state == null) return null;
+
+  if (state == LoanState.ready) return product.shortTermLoanAdvert?.name;
+  if (state == LoanState.pending)
+    return product.shortTermPendingLoanRequest?.name;
+
+  return product.shortTermLoanDetails?.name;
+}
+
+String? getShortTermLoanDesc(ShortTermLoanProductStatus product) {
+  final state = getShortTermLoanProductState(product);
+  if (state == null) return null;
+
+  if (state == LoanState.ready) return product.shortTermLoanAdvert?.description;
+  if (state == LoanState.pending)
+    return product.shortTermPendingLoanRequest?.description;
+
+  return product.shortTermLoanDetails?.description;
+}
+
+LoanState? getShortTermLoanProductState(ShortTermLoanProductStatus product) {
+  if (product.status == null) return null;
+  final loanStatus = product.status;
+
+  if (loanStatus == "READY") {
+    if (product.shortTermLoanAdvert == null) return null;
+    return LoanState.ready;
+  }
+
+  if (loanStatus == "AWAITING_APPROVAL") {
+    if (product.shortTermPendingLoanRequest == null) return null;
+    return LoanState.pending;
+  }
+
+  if (product.shortTermLoanDetails == null ||
+      product.shortTermLoanDetails?.isOverdue == null) return null;
+  final isOverdue = product.shortTermLoanDetails!.isOverdue!;
+  if (!isOverdue) return LoanState.active;
+
+  return LoanState.overdue;
+}
 
 String getLoanStateDescription(LoanState state) {
   switch (state) {

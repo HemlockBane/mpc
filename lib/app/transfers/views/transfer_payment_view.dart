@@ -15,7 +15,8 @@ import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:moniepoint_flutter/core/views/user_account_selection_view.dart';
-import 'package:moniepoint_flutter/core/views/transaction_success_dialog.dart';
+import 'package:moniepoint_flutter/core/views/transaction_success_page.dart';
+import 'package:moniepoint_flutter/main.dart';
 import 'package:provider/provider.dart';
 import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
 import 'package:moniepoint_flutter/core/extensions/strings.dart';
@@ -204,7 +205,7 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
         if(isSuccessful) {
 
           final payload = SuccessPayload(
-              "Transfer Successful",
+              "Transfer Payment\nSuccessful!",
               "Your transfer was successful",
               fileName: "Transaction_Receipt_${viewModel.accountName}_${DateFormat("dd_MM_yyyy_h_m_s").format(DateTime.now())}.pdf",
               downloadTask: (result.transferBatchId != null && result.operationStatus != Constants.PENDING)
@@ -212,19 +213,14 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
                   : null
           );
 
-          showModalBottomSheet(
-              context: widget._scaffoldKey.currentContext ?? context,
-              isScrollControlled: true,
-              enableDrag: false,
-              isDismissible: false,
-              backgroundColor: Colors.transparent,
-              builder: (mContext) => TransactionSuccessDialog(
-                payload, onClick: () {
+          navigatorKey.currentState?.push(MaterialPageRoute(builder: (mContext) {
+            return TransactionSuccessPage(payload,
+                onClick: () {
                   Navigator.of(mContext).pop();
                   Navigator.of(context, rootNavigator: true)
                       .pushNamedAndRemoveUntil(Routes.DASHBOARD,  (route) => false, arguments: {});
-                })
-          );
+                });
+          }));
         } else {
           showError(
               widget._scaffoldKey.currentContext ?? context,

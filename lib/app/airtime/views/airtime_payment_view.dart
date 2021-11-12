@@ -26,12 +26,13 @@ import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:moniepoint_flutter/core/views/selection_combo_two.dart';
 import 'package:moniepoint_flutter/core/views/user_account_selection_view.dart';
-import 'package:moniepoint_flutter/core/views/transaction_success_dialog.dart';
+import 'package:moniepoint_flutter/core/views/transaction_success_page.dart';
 import 'package:provider/provider.dart';
 import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
 import 'package:moniepoint_flutter/core/extensions/strings.dart';
 import 'package:collection/collection.dart';
 
+import '../../../main.dart';
 import 'airtime_view.dart';
 
 class AirtimePaymentScreen extends StatefulWidget {
@@ -242,19 +243,14 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
                 : null
         );
 
-        showModalBottomSheet(
-            context: widget._scaffoldKey.currentContext ?? context,
-            isScrollControlled: true,
-            isDismissible: false,
-            backgroundColor: Colors.transparent,
-            builder: (mContext) =>
-                TransactionSuccessDialog(
-                    payload, onClick: () {
-                  Navigator.of(mContext).pop();
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                      AirtimeScreen.BENEFICIARY_SCREEN, (route) => false);
-                })
-        );
+        navigatorKey.currentState?.push(MaterialPageRoute(builder: (mContext) {
+          return TransactionSuccessPage(payload,
+              onClick: () {
+                Navigator.of(mContext).pop();
+                Navigator.of(context, rootNavigator: true)
+                    .pushNamedAndRemoveUntil(AirtimeScreen.BENEFICIARY_SCREEN, (route) => false);
+              });
+        }));
       } else {
         showError(
             widget._scaffoldKey.currentContext ?? context,

@@ -1,15 +1,12 @@
 
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
-import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/biller_product.dart';
 import 'package:moniepoint_flutter/app/billpayments/viewmodels/bill_purchase_view_model.dart';
 import 'package:moniepoint_flutter/app/billpayments/views/bill_view.dart';
 import 'package:moniepoint_flutter/app/billpayments/views/dialogs/bill_pin_dialog.dart';
 import 'package:moniepoint_flutter/core/views/amount_pill.dart';
-import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/constants.dart';
 import 'package:moniepoint_flutter/core/models/list_item.dart';
@@ -19,17 +16,14 @@ import 'package:moniepoint_flutter/core/payment_view_model.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
-import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
+import 'package:moniepoint_flutter/core/views/selected_transaction_recipient_view.dart';
 import 'package:moniepoint_flutter/core/views/user_account_selection_view.dart';
 import 'package:moniepoint_flutter/core/views/transaction_success_dialog.dart';
 import 'package:provider/provider.dart';
-import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
 import 'package:moniepoint_flutter/core/extensions/strings.dart';
 import 'package:collection/collection.dart';
-import 'package:moniepoint_flutter/core/utils/currency_util.dart';
-
 
 class BillPaymentScreen extends StatefulWidget {
 
@@ -44,19 +38,12 @@ class BillPaymentScreen extends StatefulWidget {
 
 class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliveClientMixin {
 
-  double _amount = 0.00;
+  late final BillPurchaseViewModel viewModel;
   ListDataItem<String>? _selectedAmountPill;
-  final List<ListDataItem<String>> amountPills = List.generate(4, (index) => ListDataItem((5000 * (index + 1)).formatCurrencyWithoutLeadingZero));
 
   @override
   initState() {
-    final viewModel = Provider.of<BillPurchaseViewModel>(context, listen: false);
-
-    if(viewModel.userAccounts.length > 1)
-      viewModel.getUserAccountsBalance().listen((event) { });
-    else
-      viewModel.getCustomerAccountBalance().listen((event) { });
-
+    this.viewModel = Provider.of<BillPurchaseViewModel>(context, listen: false);
     super.initState();
   }
 
@@ -82,103 +69,44 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
   Widget makeLabel(String label) {
     return Text(
       label,
-      style: TextStyle(color: Colors.deepGrey, fontSize: 14),
-    );
-  }
-
-  Widget boxContainer(Widget child)  {
-    return Container(
-      padding: EdgeInsets.only(left: 16, right: 24, top: 12, bottom: 12),
-      decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Color(0XFF0B3175).withOpacity(0.1), width: 0.8, style: BorderStyle.solid),
-          boxShadow: [
-            BoxShadow(
-                color: Color(0XFF0B3175).withOpacity(0.1),
-                offset: Offset(0, 1),
-                blurRadius: 1.2
-            )
-          ]
+      style: TextStyle(
+          color: Colors.textColorMainBlack,
+          fontSize: 14,
+          fontWeight: FontWeight.w500
       ),
-      child: child,
     );
-  }
-
-  Widget transferRecipient(PaymentViewModel viewModel) {
-    final beneficiary = viewModel.beneficiary;
-    return boxContainer(Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Flexible(flex:0, child: initialView(viewModel)),
-            SizedBox(width: 17,),
-            Expanded(
-                flex: 1,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${viewModel.beneficiary?.getAccountName()}',
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      style: TextStyle(fontSize: 15, color: Colors.solidDarkBlue, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 1,),
-                    Text(
-                      '${beneficiary?.getBeneficiaryProviderName()} - ${beneficiary?.getBeneficiaryDigits()}',
-                      textAlign: TextAlign.left,
-                      style: TextStyle(color: Colors.deepGrey, fontSize: 13, fontFamily: Styles.defaultFont),
-                    ).colorText({"${beneficiary?.getBeneficiaryDigits()}" : Tuple(Colors.deepGrey, null)}, underline: false)
-                  ],
-                )
-            ),
-            Expanded(
-                flex: 0,
-                child: TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text('Change',
-                    style: TextStyle(color: Colors.solidOrange, fontSize: 14, fontWeight: FontWeight.bold),
-                  ),
-                  style: ButtonStyle(
-                      minimumSize: MaterialStateProperty.all(Size(40, 0)),
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      overlayColor: MaterialStateProperty.all(Colors.solidOrange.withOpacity(0.2)),
-                      padding: MaterialStateProperty.all(EdgeInsets.symmetric(horizontal: 8, vertical: 7)),
-                      shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-                      backgroundColor: MaterialStateProperty.all(Colors.solidOrange.withOpacity(0.2))
-                  ),
-                )
-            )
-          ],
-        ));
   }
 
   Widget amountWidget() {
-    final viewModel = Provider.of<BillPurchaseViewModel>(context, listen: false);
     final isAmountFixed = viewModel.billerProduct != null && viewModel.billerProduct?.priceFixed == true;
-    this._amount = isAmountFixed ? (viewModel.billerProduct?.amount ?? 0) / 100 : this._amount;
-    viewModel.setAmount(this._amount);
-    return boxContainer(
-      PaymentAmountView((_amount * 100).toInt(), (value) {
-        this._amount = value / 100;
-        viewModel.setAmount(this._amount);
-      }, isAmountFixed: isAmountFixed)
+    final amount = viewModel.amount ?? 0;
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 26),
+      decoration: BoxDecoration(
+          color: Color(0XFF97AAC0).withOpacity(0.15),
+          borderRadius: BorderRadius.all(Radius.circular(8))
+      ),
+      child: PaymentAmountView((amount * 100).toInt(), (value) => viewModel.setAmount(value / 100),
+        isAmountFixed: isAmountFixed,
+        currencyColor: Colors.white.withOpacity(0.5),
+        textColor: Colors.textColorBlack,
+      ),
     );
   }
 
   List<Widget> generateAmountPillsWidget() {
     final pills = <Widget>[];
-    amountPills.forEachIndexed((index, element) {
+    viewModel.amountPills.forEachIndexed((index, element) {
       pills.add(Expanded(flex: 1, child: AmountPill(item: element, position: index, listener: (ListDataItem<String> item, position){
         setState(() {
           _selectedAmountPill?.isSelected = false;
           _selectedAmountPill = item;
           _selectedAmountPill?.isSelected = true;
-          this._amount = double.parse(_selectedAmountPill!.item.replaceAll(RegExp(r'[(a-z)|(A-Z)|(,₦)]'), ""));
+          final amount = double.parse(_selectedAmountPill!.item.replaceAll(RegExp(r'[(a-z)|(A-Z)|(,₦)]'), ""));
+          viewModel.setAmount(amount);
         });
       })));
-      if(index != amountPills.length -1) pills.add(SizedBox(width: 8,));
+      if(index != viewModel.amountPills.length -1) pills.add(SizedBox(width: 8,));
     });
     return pills;
   }
@@ -313,58 +241,100 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
   Widget build(BuildContext context) {
     super.build(context);
     final viewModel = Provider.of<BillPurchaseViewModel>(context, listen: false);
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      body: ScrollView(
-        child: Container(
-          color: Colors.backgroundWhite,
-          padding: EdgeInsets.only(top: 37, left: 16, right: 16),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: 16),
+        Padding(
+          padding: EdgeInsets.only(left: 20),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              makeLabel('Bill Payment Recipient'),
-              SizedBox(height: 8,),
-              transferRecipient(viewModel),
-              SizedBox(height: 24,),
-              makeLabel('Purchase From'),
-              SizedBox(height: 8,),
-              UserAccountSelectionView(
-                viewModel,
-                selectedUserAccount: viewModel.sourceAccount,
-                onAccountSelected: (account) => viewModel.setSourceAccount(account),
+              Text(
+                viewModel.biller?.name ?? "",
+                style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 24,
+                    color: Colors.textColorBlack
+                ),
               ),
-              SizedBox(height: 24,),
-              makeLabel('How much would you like to purchase? '),
-              SizedBox(height: 8,),
-              amountWidget(),
-              SizedBox(height: viewModel.billerProduct?.priceFixed == true ? 0 : 16,),
-              Visibility(
-                  visible: viewModel.billerProduct?.priceFixed != true,
-                  child: Expanded(flex:0,child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: generateAmountPillsWidget()
-                  ))
-              ),
-              SizedBox(height: 24),
-              ..._buildAdditionalFields(viewModel),
-              SizedBox(height: 16),
-              Expanded(
-                  flex: 1,
-                  child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Styles.statefulButton(
-                        stream: viewModel.isValid,
-                        onClick: subscribeUiToPin,
-                        text: 'Continue'
-                    ),
-                  )
-              ),
-              SizedBox(height: 32,),
+              Text(
+                viewModel.billerCategory?.name ?? "",
+                style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 13,
+                    color: Colors.textColorBlack.withOpacity(0.5)
+                ),
+              )
             ],
           ),
         ),
-      ),
+        Expanded(
+            child: Container(
+              margin: EdgeInsets.only(top: 24),
+              padding: EdgeInsets.only(top: 8),
+              clipBehavior: Clip.hardEdge,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+              ),
+              child: ScrollView(
+                child: Container(
+                  padding: EdgeInsets.only(top: 37, left: 16, right: 16),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      makeLabel('Beneficiary'),
+                      SizedBox(height: 8,),
+                      SelectedTransactionRecipientView(
+                        recipientName: '${viewModel.beneficiary?.getAccountName()}',
+                        providerName: '${viewModel.beneficiary?.getBeneficiaryProviderName()}',
+                        recipientDigits: '${viewModel.beneficiary?.getBeneficiaryDigits()}',
+                      ),
+                      SizedBox(height: 24,),
+                      makeLabel('Purchase From'),
+                      SizedBox(height: 8,),
+                      UserAccountSelectionView(
+                        viewModel,
+                        selectedUserAccount: viewModel.sourceAccount,
+                        onAccountSelected: (account) => setState(() {
+                          viewModel.setSourceAccount(account);
+                        }),
+                      ),
+                      SizedBox(height: 24,),
+                      makeLabel('Amount'),
+                      SizedBox(height: 8,),
+                      amountWidget(),
+                      SizedBox(height: viewModel.billerProduct?.priceFixed == true ? 0 : 16,),
+                      Visibility(
+                          visible: viewModel.billerProduct?.priceFixed != true,
+                          child: Expanded(flex:0,child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: generateAmountPillsWidget()
+                          ))
+                      ),
+                      SizedBox(height: 24),
+                      ..._buildAdditionalFields(viewModel),
+                      SizedBox(height: 16),
+                      Expanded(
+                          flex: 1,
+                          child: Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Styles.statefulButton(
+                                stream: viewModel.isValid,
+                                onClick: subscribeUiToPin,
+                                text: 'Make Payment'
+                            ),
+                          )
+                      ),
+                      SizedBox(height: 32,),
+                    ],
+                  ),
+                ),
+              ),
+            )
+        )
+      ],
     );
   }
 

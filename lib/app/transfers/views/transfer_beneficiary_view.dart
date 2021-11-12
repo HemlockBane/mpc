@@ -129,10 +129,11 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
           final sortedItems = BeneficiaryUtils.sortByFrequentlyUsed(items).take(5).toList();
           return ListView.separated(
               shrinkWrap: true,
+              padding: EdgeInsets.only(left: 20, right: 20, top: 24),
               itemCount: sortedItems.length,
               separatorBuilder: (context, index) => Padding(
-                padding: EdgeInsets.only(left: 16, right: 16),
-                child: Divider(color: Color(0XFFE0E0E0), height: 1,),
+                padding: EdgeInsets.only(left: 16, right: 16, top: 6, bottom: 5),
+                child: Divider(color: Colors.transparent, height: 0,),
               ),
               itemBuilder: (context, index) {
                 return BeneficiaryListItem(sortedItems[index], index, (beneficiary, int i) {

@@ -17,7 +17,9 @@ import 'package:moniepoint_flutter/app/airtime/viewmodels/airtime_history_detail
 import 'package:moniepoint_flutter/app/airtime/views/airtime_history_detailed_view.dart';
 import 'package:moniepoint_flutter/app/airtime/views/airtime_view.dart';
 import 'package:moniepoint_flutter/app/billpayments/viewmodels/bill_history_detail_view_model.dart';
+import 'package:moniepoint_flutter/app/billpayments/viewmodels/bill_history_view_model.dart';
 import 'package:moniepoint_flutter/app/billpayments/views/bill_history_detailed_view.dart';
+import 'package:moniepoint_flutter/app/billpayments/views/bill_history_view.dart';
 import 'package:moniepoint_flutter/app/billpayments/views/bill_view.dart';
 import 'package:moniepoint_flutter/app/branches/branch_search_view.dart';
 import 'package:moniepoint_flutter/app/branches/branches_view.dart';
@@ -75,8 +77,11 @@ class Routes {
   static const TRANSFER  = "TRANSFER";
   static const AIRTIME  = "AIRTIME";
   static const AIRTIME_DETAIL  = "AIRTIME_DETAIL";
+
   static const BILL  = "BILL";
   static const BILL_DETAIL  = "BILL_DETAIL";
+  static const BILL_HISTORY  = "BILL_HISTORY";
+
   static const TRANSFER_DETAIL  = "TRANSFER_DETAIL";
   static const ACCOUNT_TRANSACTIONS  = "ACCOUNT_TRANSACTIONS";
   static const ACCOUNT_TRANSACTIONS_DETAIL  = "ACCOUNT_TRANSACTIONS_DETAIL";
@@ -248,6 +253,13 @@ class Routes {
             builder: (_) => ChangeNotifierProvider(
               create: (_) => SingleCardViewModel(),
               child: CardDetailedView(cardId),
+            )
+        );
+      case Routes.BILL_HISTORY:
+        return MaterialPageRoute(
+            builder: (_) => ChangeNotifierProvider(
+              create: (_) => BillHistoryViewModel(),
+              child: BillHistoryScreen(),
             )
         );
       case Routes.MANAGE_CARD_CHANNELS:

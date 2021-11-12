@@ -15,12 +15,13 @@ import 'package:moniepoint_flutter/core/paging/paging_source.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/utils/list_view_util.dart';
 import 'package:moniepoint_flutter/core/views/filter_view.dart';
+import 'package:moniepoint_flutter/core/views/moniepoint_scaffold.dart';
 import 'package:provider/provider.dart';
 
 class BillHistoryScreen extends StatefulWidget {
 
-  final GlobalKey<ScaffoldState> _scaffoldKey;
-  BillHistoryScreen(this._scaffoldKey);
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
+  BillHistoryScreen();
 
   @override
   State<StatefulWidget> createState() => _BillHistoryScreen();
@@ -49,18 +50,25 @@ class _BillHistoryScreen extends State<BillHistoryScreen> with AutomaticKeepAliv
 
   Widget filterByDateButton() {
     return Align(
-      alignment: Alignment.centerRight,
+      alignment: Alignment.centerLeft,
       child: TextButton.icon(
+        icon: SvgPicture.asset('res/drawables/ic_account_filter_2.svg'),
         onPressed: () => setState(() => isInFilterMode = true ),
-        icon: SvgPicture.asset('res/drawables/ic_filter.svg'),
-        label: Text('Filter by Date', style: TextStyle(color: Colors.darkBlue, fontSize: 15, fontWeight: FontWeight.bold),),
+        label: Text(
+          'Filter',
+          style: TextStyle(
+            color: Colors.primaryColor,
+            fontSize: 12.5,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         style: ButtonStyle(
             minimumSize: MaterialStateProperty.all(Size(40, 0)),
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             overlayColor: MaterialStateProperty.all(Colors.darkBlue.withOpacity(0.2)),
-            padding: MaterialStateProperty.all(EdgeInsets.symmetric(horizontal: 28, vertical: 7)),
-            shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
-            backgroundColor: MaterialStateProperty.all(Colors.solidDarkBlue.withOpacity(0.05))
+            padding: MaterialStateProperty.all(EdgeInsets.fromLTRB(16, 7.2, 25, 7.2)),
+            shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(41))),
+            backgroundColor: MaterialStateProperty.all(Colors.primaryColor.withOpacity(0.2))
         ),
       ),
     );
@@ -88,24 +96,20 @@ class _BillHistoryScreen extends State<BillHistoryScreen> with AutomaticKeepAliv
     });
   }
 
-
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
+  Widget _makeListView() {
     return Container(
       margin: EdgeInsets.only(top: 24),
       padding: EdgeInsets.only(top: 24),
       decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+          borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(30), topRight: Radius.circular(30)),
           boxShadow: [
             BoxShadow(
                 color: Colors.darkBlue.withOpacity(0.1),
                 offset: Offset(0, 4),
-                blurRadius: 12
-            )
-          ]
-      ),
+                blurRadius: 12)
+          ]),
       child: Pager<int, BillTransaction>(
         scrollController: _scrollController,
         pagingConfig: PagingConfig(pageSize: 100, initialPageSize: 130),
@@ -123,32 +127,35 @@ class _BillHistoryScreen extends State<BillHistoryScreen> with AutomaticKeepAliv
                       child: Flexible(
                         flex: 0,
                         child: FilterLayout(
-                            widget._scaffoldKey,
+                          widget._scaffoldKey,
                           _viewModel.filterableItems,
-                            dateFilterCallback: _dateFilterDateChanged,
-                            onCancel: _onCancelFilter,
-                            isPreviouslyOpened: _isFilterOpened,
-                            onOpen: () => _isFilterOpened = true,
+                          dateFilterCallback: _dateFilterDateChanged,
+                          onCancel: _onCancelFilter,
+                          isPreviouslyOpened: _isFilterOpened,
+                          onOpen: () => _isFilterOpened = true,
                         ),
                       ),
                     ),
                     Visibility(
                       visible: !isInFilterMode,
                       child: Padding(
-                        padding: EdgeInsets.only(right: 16, bottom: 7),
+                        padding: EdgeInsets.only(left: 16, bottom: 7),
                         child: filterByDateButton(),
                       ),
                     ),
-                    SizedBox(height: 24,),
+                    SizedBox(
+                      height: 24,
+                    ),
                     Visibility(
                         visible: isEmpty,
                         child: Expanded(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              EmptyLayoutView(_viewModel.isFilteredList()
-                                  ? 'You have no bill purchase within this date range.'
-                                  : "You have no bill purchase history yet.",
+                              EmptyLayoutView(
+                                _viewModel.isFilteredList()
+                                    ? 'You have no bill purchase within this date range.'
+                                    : "You have no bill purchase history yet.",
                               )
                             ],
                           ),
@@ -162,12 +169,13 @@ class _BillHistoryScreen extends State<BillHistoryScreen> with AutomaticKeepAliv
                             children: [
                               ErrorLayoutView(
                                   error?.first ?? "",
-                                  error?.second.replaceAll("Transactions", "bill purchase history") ?? "", _retry),
-                              SizedBox(height: 50,)
+                                  error?.second.replaceAll("Transactions", "bill purchase history") ?? "",
+                                  _retry
+                              ),
+                              SizedBox(height: 50)
                             ],
                           ),
-                        )
-                    ),
+                        )),
                     Visibility(
                         visible: !isEmpty && error == null,
                         child: Flexible(
@@ -176,21 +184,68 @@ class _BillHistoryScreen extends State<BillHistoryScreen> with AutomaticKeepAliv
                                 shrinkWrap: true,
                                 itemCount: items.data.length,
                                 separatorBuilder: (context, index) => Padding(
-                                  padding: EdgeInsets.only(left: 16, right: 16),
-                                  child: Divider(color: Color(0XFFE0E0E0), height: 1,),
-                                ),
+                                      padding:
+                                          EdgeInsets.only(left: 16, right: 16),
+                                      child: Divider(
+                                        color: Color(0XFFE0E0E0),
+                                        height: 1,
+                                      ),
+                                    ),
                                 itemBuilder: (context, index) {
-                                  return BillHistoryListItem(items.data[index], index, (item, i) {
-                                    Navigator.of(context).pushNamed(Routes.BILL_DETAIL, arguments: item.historyId);
+                                  return BillHistoryListItem(
+                                      items.data[index], index, (item, i) {
+                                    Navigator.of(context).pushNamed(
+                                        Routes.BILL_DETAIL,
+                                        arguments: item.historyId);
                                   });
                                 })
-                        )
-                    )
+                        ))
                   ],
                 );
-              }
-          );
+              });
         },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    return MoniepointScaffold(
+      key: widget._scaffoldKey,
+      appBar: AppBar(
+        centerTitle: false,
+        titleSpacing: 0,
+        iconTheme: IconThemeData(color: Colors.primaryColor),
+        title: Text('Bill Payment History',
+            textAlign: TextAlign.start,
+            style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: Colors.textColorBlack
+            )
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: 16,
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 16),
+            child: Text(
+              "History",
+              style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 24,
+                  color: Colors.textColorBlack),
+            ),
+          ),
+          Expanded(child: _makeListView()),
+        ],
       ),
     );
   }

@@ -46,7 +46,6 @@ dependencies:
   flutter_launcher_icons: ^0.9.0
   flutter_spinkit: ^5.0.0
   flutter_svg: ^0.22.0
-  flutter_tindercard: ^0.2.0
   geolocator: ^7.0.3
   get_it: ^6.0.0
   google_maps_flutter: ^2.0.6
@@ -82,7 +81,6 @@ dependencies:
   percent_indicator: ^3.4.0
   jiffy: ^4.1.0
   webview_flutter: ^2.1.2
-  swipeable_card_stack: ^0.0.5
 
 dependency_overrides:
   retrofit:

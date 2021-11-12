@@ -66,11 +66,11 @@ class HistoryListShimmer extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
-                  margin: EdgeInsets.only(left: 24),
+                  margin: EdgeInsets.only(left: 16),
                   width: 120,
-                  height: 25,
+                  height: 36,
                   decoration: BoxDecoration(
-                      // color: Color(0XFFE3E8EB).withOpacity(0.5),
+                      color: Color(0XFFE3E8EB).withOpacity(0.5),
                       borderRadius: BorderRadius.all(Radius.circular(16))
                   ),
                 ),
@@ -79,7 +79,7 @@ class HistoryListShimmer extends StatelessWidget {
                   width: 120,
                   height: 24,
                   decoration: BoxDecoration(
-                      color: Color(0XFFE3E8EB).withOpacity(0.5),
+                      // color: Color(0XFFE3E8EB).withOpacity(0.5),
                       borderRadius: BorderRadius.all(Radius.circular(16))
                   ),
                 )

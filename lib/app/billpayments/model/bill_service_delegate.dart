@@ -103,7 +103,6 @@ class BillServiceDelegate with NetworkResource {
   }
 
   Stream<Resource<TransactionStatus>> makePurchase(BillPaymentRequestBody requestBody) {
-    print(jsonEncode(requestBody));
     return networkBoundResource(
         fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => _service.paySingleBill(requestBody)
@@ -139,7 +138,7 @@ class _BillHistoryMediator extends AbstractDataCollectionMediator<int, BillTrans
   final BillsDao _billsDao;
 
   FilterResults filterResult = FilterResults();
-  final List<String> _statusList = [Constants.COMPLETED, Constants.PENDING, Constants.SUCCESSFUL];
+  final List<String> _statusList = [Constants.COMPLETED, Constants.PENDING, Constants.SUCCESSFUL, Constants.FAILED];
 
   _BillHistoryMediator(this._service, this._billsDao);
 

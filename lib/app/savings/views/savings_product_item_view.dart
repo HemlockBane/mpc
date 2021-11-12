@@ -129,7 +129,7 @@ class _SavingsProductItemState extends State<SavingsProductItemView> {
               children: [
                 IconCurvedContainer(
                     backgroundColor: Colors.savingsPrimary.withOpacity(0.1),
-                    image: SvgPicture.asset("res/drawables/ic_savings_flex_2.svg", width: 24, height: 30,)
+                    child: SvgPicture.asset("res/drawables/ic_savings_flex_2.svg", width: 24, height: 30,)
                 ),
                 SizedBox(height: 8),
                 Text(
@@ -223,7 +223,7 @@ class SavingsProductItemActiveView extends StatelessWidget {
           children: [
             IconCurvedContainer(
                 backgroundColor: Colors.white.withOpacity(1),
-                image: SvgPicture.asset("res/drawables/ic_savings_flex_2.svg", width: 24, height: 30,)
+                child: SvgPicture.asset("res/drawables/ic_savings_flex_2.svg", width: 24, height: 30,)
             ),
             SizedBox(height: 8),
             Text(
@@ -334,7 +334,7 @@ class _SavingsProductShimmer extends StatelessWidget {
             Shimmer.fromColors(
                 child: IconCurvedContainer(
                     backgroundColor: Colors.grey.withOpacity(0.3),
-                    image: SvgPicture.asset("res/drawables/ic_savings_flex.svg", color: Colors.savingsPrimary.withOpacity(0.002),)
+                    child: SvgPicture.asset("res/drawables/ic_savings_flex.svg", color: Colors.savingsPrimary.withOpacity(0.002),)
                 ),
                 baseColor: Color(0XFFE3E8EB).withOpacity(0.5),
                 highlightColor: Colors.grey.withOpacity(0.3)

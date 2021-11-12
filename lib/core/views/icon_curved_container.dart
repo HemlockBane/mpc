@@ -7,14 +7,14 @@ class IconCurvedContainer extends StatelessWidget {
     this.width,
     this.height,
     required this.backgroundColor,
-    required this.image,
+    required this.child,
     this.padding = const EdgeInsets.all(6)
   });
 
   final double? width;
   final double? height;
   final Color backgroundColor;
-  final SvgPicture image;
+  final Widget child;
   final EdgeInsets padding;
 
   @override
@@ -33,7 +33,7 @@ class IconCurvedContainer extends StatelessWidget {
               left: padding.left,
               right: padding.right,
               bottom: padding.bottom,
-              child: image
+              child: child
           )
         ],
       ),

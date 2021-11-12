@@ -282,7 +282,7 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             makeLabel('Airtime/Data Recipient'),
-            SizedBox(height: 8,),
+            SizedBox(height: 8),
             transferRecipient(viewModel),
             SizedBox(height: 24,),
             Visibility(
@@ -318,7 +318,7 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
                     children: generateAmountPillsWidget()
                 ))
             ),
-            SizedBox(height: 16,),
+            SizedBox(height: 16),
             Expanded(
                 flex: 1,
                 child: Align(

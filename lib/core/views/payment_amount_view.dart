@@ -19,10 +19,12 @@ class PaymentAmountView extends StatefulWidget {
   final bool? isAmountFixed;
   final Color? currencyColor;
   final Color? textColor;
+  final double? maxAmount;
 
   PaymentAmountView(
       this._defaultAmount,
-      this._valueChanged, {this.isAmountFixed = false, this.currencyColor = Colors.primaryColor, this.textColor = Colors.solidDarkBlue});
+      this._valueChanged, {
+        this.isAmountFixed = false, this.currencyColor = Colors.primaryColor, this.textColor = Colors.solidDarkBlue, this.maxAmount});
 
   @override
   State<StatefulWidget> createState() => _PaymentAmountView();
@@ -51,6 +53,7 @@ class _PaymentAmountView extends State<PaymentAmountView> {
   Widget build(BuildContext context) {
     setDefaultValue();
 
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -69,7 +72,9 @@ class _PaymentAmountView extends State<PaymentAmountView> {
               onChanged: (v) => widget._valueChanged.call(int.parse(MoneyInputFormatter.clearCurrencyToNumberString(v))),
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
-                MoneyInputFormatter()
+                if(widget.maxAmount != null)
+                  MaxAmountFormatter(maxAmount: widget.maxAmount!),
+                MoneyInputFormatter(),
               ],
               style: TextStyle(
                   fontFamily: Styles.defaultFont,

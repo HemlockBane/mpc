@@ -16,12 +16,15 @@ class ShortTermLoanDetails {
   int? amountPaid;
   int? outstandingAmount;
   int? tenor;
-  String? dateRequested;
-  String? dueDate;
-  String? payoutAccount;
-  String? repaymentAccount;
+  DateTime? dateRequested;
+  DateTime? dueDate;
+  @JsonKey(name: "payoutAccount")
+  String? payoutAccountNumber;
+  @JsonKey(name: "repaymentAccount")
+  String? repaymentAccountNumber;
   int? overdueDays;
-  bool? overdue;
+  @JsonKey(name: "overdue")
+  bool? isOverdue;
 
   ShortTermLoanDetails({
     this.name,
@@ -37,10 +40,10 @@ class ShortTermLoanDetails {
     this.tenor,
     this.dateRequested,
     this.dueDate,
-    this.payoutAccount,
-    this.repaymentAccount,
+    this.payoutAccountNumber,
+    this.repaymentAccountNumber,
     this.overdueDays,
-    this.overdue,
+    this.isOverdue,
   });
 
   factory ShortTermLoanDetails.fromJson(Object? data) =>

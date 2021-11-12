@@ -64,8 +64,8 @@ class _FirstFlexSetupFormState extends State<FirstFlexSetupForm> with AutomaticK
   @override
   void initState() {
     _viewModel = Provider.of<FlexSetupViewModel>(context, listen: false);
-    if(_viewModel.userAccounts.length > 1) _viewModel.getUserAccountsBalance().listen((event) { });
-    else _viewModel.getCustomerAccountBalance().listen((event) { });
+    // if(_viewModel.userAccounts.length > 1) _viewModel.getUserAccountsBalance().listen((event) { });
+    // else _viewModel.getCustomerAccountBalance().listen((event) { });
     super.initState();
   }
 

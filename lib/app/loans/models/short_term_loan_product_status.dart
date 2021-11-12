@@ -11,14 +11,15 @@ class ShortTermLoanProductStatus {
   ShortTermLoanDetails? shortTermLoanDetails;
   ShortTermPendingLoanRequest? shortTermPendingLoanRequest;
   ShortTermLoanAdvert? shortTermLoanAdvert;
-  bool? productActive;
+  @JsonKey(name: "productActive")
+  bool? isProductActive;
 
   ShortTermLoanProductStatus({
     this.status,
     this.shortTermLoanDetails,
     this.shortTermPendingLoanRequest,
     this.shortTermLoanAdvert,
-    this.productActive,
+    this.isProductActive,
   });
 
   factory ShortTermLoanProductStatus.fromJson(Object? data) =>

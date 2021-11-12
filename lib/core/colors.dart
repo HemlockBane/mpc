@@ -73,4 +73,5 @@ class Colors {
   static const Color targetSavingsPrimary = const Color(0XFF2D9CDB);
   static const Color groupSavingsPrimary = const Color(0XFFF2C94C);
 
+  static const Color loanGrey = const Color(0xffBDBDBD);
 }

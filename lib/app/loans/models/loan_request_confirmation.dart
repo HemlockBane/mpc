@@ -4,6 +4,7 @@ import 'package:moniepoint_flutter/app/loans/models/available_short_term_loan_of
 import 'package:moniepoint_flutter/app/loans/models/short_term_loan_request.dart';
 import 'package:moniepoint_flutter/app/login/model/data/user.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:moniepoint_flutter/core/utils/date_util.dart';
 
 part 'loan_request_confirmation.g.dart';
 
@@ -35,7 +36,8 @@ class LoanRequestConfirmation {
     if (this.loanOffer == null || this.loanOffer?.maxPeriod == null) return null;
     final dueDateTime = DateTime.now().add(Duration(days: loanOffer!.maxPeriod!));
     final formattedDate = DateFormat("MMM. yyyy").format(dueDateTime);
-    return "${dueDateTime.day}. $formattedDate";
+    final daySuffix = getDayOfMonthSuffix(dueDateTime.day);
+    return "${dueDateTime.day}$daySuffix $formattedDate";
   }
 
   ShortTermLoanRequest getLoanRequest(){

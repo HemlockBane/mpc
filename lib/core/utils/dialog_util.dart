@@ -13,15 +13,17 @@ Future<dynamic> showError(BuildContext context,
     String primaryButtonText = "Try Again",
     String? secondaryButtonText,
       bool useTextButton = false,
+      bool displayDismissButton = true,
     VoidCallback? onSecondaryClick}) {
   return navigatorKey.currentState!.push(MaterialPageRoute(builder: (mContext) {
     return TransactionErrorPage(
-      title: title,//"Bill Payment Failed",
-      message: message ?? "",//"Unable to complete transaction at this time. Please try again later.",
+      title: title,
+      message: message ?? "",
       primaryButtonText: primaryButtonText,
       secondaryButtonText: secondaryButtonText ?? "Dismiss",
       onTryAgain: onPrimaryClick,
       onDismiss: onSecondaryClick,
+      displayDismissButton: displayDismissButton,
     );
   }));
   return showModalBottomSheet(

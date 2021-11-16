@@ -169,7 +169,7 @@ class _AccountTransactionOptionsState extends State<AccountTransactionOptions> {
       // ),
       if(_canReplayTransaction())
         _OptionItem(
-          title: "Do Again",
+          title: "Replay",
           iconBackgroundColor: Colors.primaryColor.withOpacity(0.1),
           isVisible: true,
           onItemClick: _isSharingReceipt || _isDownloadingReceipt ? null : _replayTransaction,
@@ -194,15 +194,15 @@ class _AccountTransactionOptionsState extends State<AccountTransactionOptions> {
         ),
       if(_canDownloadOrShareReceipt())
         _OptionItem(
-        title: "Share",
-        iconBackgroundColor: Colors.primaryColor.withOpacity(0.1),
-        isLoading: _isSharingReceipt,
-        icon: SvgPicture.asset(
-          "res/drawables/ic_share_receipt.svg",
-          color: _isDownloadingReceipt ? Colors.grey.withOpacity(0.4) :Colors.primaryColor
-          ,),
-        onItemClick: _isDownloadingReceipt ? null :  () => _onDownload(true),
-      ),
+          title: "Share",
+          iconBackgroundColor: Colors.primaryColor.withOpacity(0.1),
+          isLoading: _isSharingReceipt,
+          icon: SvgPicture.asset(
+            "res/drawables/ic_share_receipt.svg",
+            color: _isDownloadingReceipt ? Colors.grey.withOpacity(0.4) :Colors.primaryColor
+          ),
+          onItemClick: _isDownloadingReceipt ? null :  () => _onDownload(true),
+        ),
     ],
   );
 

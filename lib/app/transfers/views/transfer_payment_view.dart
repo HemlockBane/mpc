@@ -14,6 +14,7 @@ import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
+import 'package:moniepoint_flutter/core/views/selected_transaction_recipient_view.dart';
 import 'package:moniepoint_flutter/core/views/user_account_selection_view.dart';
 import 'package:moniepoint_flutter/core/views/transaction_success_page.dart';
 import 'package:moniepoint_flutter/main.dart';
@@ -40,14 +41,13 @@ class TransferPaymentScreen extends StatefulWidget {
 
 class _TransferPaymentScreen extends State<TransferPaymentScreen> with AutomaticKeepAliveClientMixin {
 
-  double _amount = 0.00;
+  late final TransferViewModel viewModel;
   ListDataItem<String>? _selectedAmountPill;
   final List<ListDataItem<String>> amountPills = List.generate(4, (index) => ListDataItem((5000 * (index + 1)).formatCurrencyWithoutLeadingZero));
 
   @override
   initState() {
-    this._amount = widget.defaultAmount;
-    final viewModel = Provider.of<TransferViewModel>(context, listen: false);
+    this.viewModel = Provider.of<TransferViewModel>(context, listen: false);
 
     viewModel.reset();
 
@@ -55,7 +55,7 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
 
     if(widget.defaultAmount > 0) {
       Future.delayed(Duration(milliseconds: 50), () {
-        viewModel.setAmount(this._amount);
+        viewModel.setAmount(viewModel.amount ?? widget.defaultAmount);
       });
     }
   }
@@ -82,7 +82,11 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
   Widget makeLabel(String label) {
     return Text(
       label,
-      style: TextStyle(color: Colors.deepGrey, fontSize: 14),
+      style: TextStyle(
+          color: Colors.textColorMainBlack,
+          fontSize: 14,
+          fontWeight: FontWeight.w500
+      ),
     );
   }
 
@@ -106,64 +110,18 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
     );
   }
 
-  Widget transferRecipient(PaymentViewModel viewModel) {
-    final beneficiary = viewModel.beneficiary;
-    return boxContainer(Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Flexible(flex:0, child: initialView(viewModel)),
-            SizedBox(width: 17,),
-            Expanded(
-                flex: 1,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${viewModel.beneficiary?.getAccountName()}',
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      style: TextStyle(fontSize: 15, color: Colors.solidDarkBlue, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 1,),
-                    Text(
-                      '${beneficiary?.getBeneficiaryProviderName()} - ${beneficiary?.getBeneficiaryDigits()}',
-                      textAlign: TextAlign.left,
-                      style: TextStyle(color: Colors.deepGrey, fontSize: 13, fontFamily: Styles.defaultFont),
-                    ).colorText({"${beneficiary?.getBeneficiaryDigits()}" : Tuple(Colors.deepGrey, null)}, underline: false)
-                  ],
-                )
-            ),
-            Expanded(
-                flex: 0,
-                child: TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text('Change',
-                    style: TextStyle(color: Colors.solidOrange, fontSize: 14, fontWeight: FontWeight.bold),
-                  ),
-                  style: ButtonStyle(
-                      minimumSize: MaterialStateProperty.all(Size(40, 0)),
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      overlayColor: MaterialStateProperty.all(Colors.solidOrange.withOpacity(0.2)),
-                      padding: MaterialStateProperty.all(EdgeInsets.symmetric(horizontal: 8, vertical: 7)),
-                      shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-                      backgroundColor: MaterialStateProperty.all(Colors.solidOrange.withOpacity(0.2))
-                  ),
-                )
-            )
-          ],
-        ));
-  }
-
   Widget amountWidget() {
-    final viewModel = Provider.of<TransferViewModel>(context, listen: false);
-    print("Amount Widget with amount ${this._amount}");
-    viewModel.setAmount(this._amount);
-    return boxContainer(
-      PaymentAmountView((_amount * 100).toInt(), (value) {
-        this._amount = value / 100;
-        viewModel.setAmount(this._amount);
-      })
+    final amount = viewModel.amount ?? 0;
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 26),
+      decoration: BoxDecoration(
+          color: Color(0XFF97AAC0).withOpacity(0.15),
+          borderRadius: BorderRadius.all(Radius.circular(8))
+      ),
+      child: PaymentAmountView((amount * 100).toInt(), (value) => viewModel.setAmount(value / 100),
+        currencyColor: Colors.textColorBlack.withOpacity(0.2),
+        textColor: Colors.textColorBlack,
+      ),
     );
   }
 
@@ -175,7 +133,8 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
           _selectedAmountPill?.isSelected = false;
           _selectedAmountPill = item;
           _selectedAmountPill?.isSelected = true;
-          this._amount = double.parse(_selectedAmountPill!.item.replaceAll(RegExp(r'[(a-z)|(A-Z)|(,₦)]'), ""));
+          final amount = double.parse(_selectedAmountPill!.item.replaceAll(RegExp(r'[(a-z)|(A-Z)|(,₦)]'), ""));
+          viewModel.setAmount(amount);
         });
       })));
       if(index != amountPills.length -1) pills.add(SizedBox(width: 8,));
@@ -186,8 +145,9 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
   void subscribeUiToPin() async {
     final viewModel = Provider.of<TransferViewModel>(context, listen: false);
     viewModel.setPin("");
+    final parentContext = widget._scaffoldKey.currentContext ?? context;
     dynamic result = await showModalBottomSheet(
-        context: widget._scaffoldKey.currentContext ?? context,
+        context: parentContext,
         isScrollControlled: true,
         isDismissible: false,
         backgroundColor: Colors.transparent,
@@ -213,7 +173,7 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
                   : null
           );
 
-          navigatorKey.currentState?.push(MaterialPageRoute(builder: (mContext) {
+          Navigator.of(parentContext).push(MaterialPageRoute(builder: (mContext) {
             return TransactionSuccessPage(payload,
                 onClick: () {
                   Navigator.of(mContext).pop();
@@ -253,13 +213,18 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
             children: [
               makeLabel('Transfer Recipient'),
               SizedBox(height: 8,),
-              transferRecipient(viewModel),
+              SelectedTransactionRecipientView(
+                  recipientName: '${viewModel.beneficiary?.getAccountName()}',
+                  recipientDigits: '${viewModel.beneficiary?.getBeneficiaryDigits()}',
+                  providerName: '${viewModel.beneficiary?.getBeneficiaryProviderName()}'
+              ),
               SizedBox(height: 24,),
               makeLabel('Transfer From'),
               SizedBox(height: 8,),
               UserAccountSelectionView(
                 viewModel,
                 selectedUserAccount: viewModel.sourceAccount,
+                primaryColor: Colors.primaryColor,
                 onAccountSelected: (account) => viewModel.setSourceAccount(account),
               ),
               SizedBox(height: 24,),

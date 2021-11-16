@@ -5,7 +5,8 @@ class AppMigration {
   List<Migration> getMigrations() {
       return [
         _version1To2(),
-        _version2To3()
+        _version2To3(),
+        _version3To4()
       ];
   }
 
@@ -42,6 +43,14 @@ class AppMigration {
 
       await db.execute('ALTER TABLE account_transactions ADD COLUMN location VARCHAR');
 
+      print("Ending Run Migrations.....");
+    });
+  }
+
+  Migration _version3To4() {
+    return Migration(3, 4, (db) async {
+      print("Run Migrations.....");
+      await db.execute('ALTER TABLE biller_products ADD COLUMN billerName VARCHAR');
       print("Ending Run Migrations.....");
     });
   }

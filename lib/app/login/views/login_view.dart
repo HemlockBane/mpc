@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart' hide Colors, ScrollView;
@@ -23,8 +22,6 @@ import 'package:moniepoint_flutter/core/utils/biometric_helper.dart';
 import 'package:moniepoint_flutter/core/utils/call_utils.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
-import 'package:moniepoint_flutter/core/views/custom_swipe_card.dart';
-import 'package:moniepoint_flutter/core/views/growth_webview.dart';
 import 'package:moniepoint_flutter/core/views/otp_ussd_info_view.dart';
 import 'package:provider/provider.dart';
 
@@ -55,6 +52,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
   //TODO move this to the view model
   bool _isLoading = false;
   bool _isPasswordVisible = false;
+  bool _isFormValid = false;
 
   bool _alreadyInSessionError = false;
   BiometricHelper? _biometricHelper;
@@ -134,7 +132,9 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
   }
 
   void validateForm() {
-    _viewModel.validateForm(_usernameController.text, _passwordController.text);
+    setState(() {
+      _isFormValid = _usernameController.text.isNotEmpty && _passwordController.text.isNotEmpty;
+    });
   }
 
   Widget _buildMidSection(BuildContext context) {
@@ -155,18 +155,23 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
         SizedBox(height: 28,),
         Container(
           margin: EdgeInsets.only(left: 16, right: 16),
-          child: Row(
+          child: Column(
             children: [
-              Expanded(
-                child: Styles.statefulButton(
-                  stream: _viewModel.isFormValid,
-                  elevation: !_isLoading ? 0.6 : 0,
-                  onClick: () => _subscribeUiToLogin(context),
-                  text: "Login",
-                  isLoading: _isLoading,
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Styles.statefulButton2(
+                      isValid: _isFormValid,
+                      padding: 20,
+                      elevation: _isFormValid && !_isLoading ? 4 : 0,
+                      onClick: () => _subscribeUiToLogin(context),
+                      text: "Login",
+                      isLoading: _isLoading,
+                    ),
+                  ),
+                  _biometricLoginButton()
+                ],
               ),
-              _biometricLoginButton()
             ],
           ),
         ),
@@ -314,8 +319,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
                 color: Colors.textHintColor.withOpacity(0.3),
                 size: 24,
               ),
-              // focusListener: (bool) => this.setState(() {})
-          ),
+              focusListener: (bool) => this.setState(() {})),
           SizedBox(height: 22),
           Styles.appEditText(
               controller: _passwordController,
@@ -343,7 +347,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
                 color: Colors.textHintColor.withOpacity(0.3),
                 size: 24,
               ),
-              // focusListener: (bool) => this.setState(() {}),
+              focusListener: (bool) => this.setState(() {}),
               isPassword: !_isPasswordVisible
           ),
           // SizedBox(height: 22),
@@ -372,8 +376,7 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
   }
 
   Widget _bottomUSSDWidget() {
-    Tuple<String, String> codes = OtpUssdInfoView.getUSSDDialingCodeAndPreview(
-        "Main Menu", defaultCode: "*5573#");
+    Tuple<String, String> codes = OtpUssdInfoView.getUSSDDialingCodeAndPreview("Main Menu", defaultCode: "*5573#");
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -461,52 +464,19 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
       Future.delayed(Duration(milliseconds: 150), () {
         showError(context,
           title: "Logged Out",
+          primaryButtonText: "Continue",
           message: AutoLogoutMessages[reason.second] ?? "",
           onPrimaryClick: () => Navigator.of(context).pop()
         );
       });
     }
   }
-  //
-  // final List _screenStates = [
-  //   GlobalKey<GrowthWebViewState>(),
-  //   GlobalKey<GrowthWebViewState>(),
-  //   GlobalKey<GrowthWebViewState>(),
-  // ];
 
   Widget build(BuildContext context) {
     final minHeight = MediaQuery.of(context).size.height;
-    // final items = [
-    //     GrowthWebView(key: _screenStates[0], url: "data:text/html;base64,${base64Encode(const Utf8Encoder().convert(GrowthWebViewState.kNavigationExamplePage))}",),
-    //     GrowthWebView(key: _screenStates[1], url: "data:text/html;base64,${base64Encode(const Utf8Encoder().convert(GrowthWebViewState.kNavigationExamplePage))}",),
-    //     GrowthWebView(key: _screenStates[2], url: "data:text/html;base64,${base64Encode(const Utf8Encoder().convert(GrowthWebViewState.kNavigationExamplePage))}",),
-    // ];
     return Scaffold(
-      key: UniqueKey(),
       backgroundColor: Colors.transparent,
-      body:
-      // Column(
-      //   key: UniqueKey(),
-      //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      //   children: [
-      //     Container(
-      //       height: MediaQuery.of(context).size.height * 0.6,
-      //       child: CustomSwipeCard(
-      //         swipeUp: false,
-      //         swipeDown: true,
-      //         maxWidth: MediaQuery.of(context).size.width * 0.9,
-      //         maxHeight: MediaQuery.of(context).size.width * 0.9,
-      //         minWidth: MediaQuery.of(context).size.width * 0.8,
-      //         minHeight: MediaQuery.of(context).size.width * 0.8,
-      //         totalNum: 3,
-      //         cardBuilder: (ctx, index) {
-      //           return items[index];
-      //         },
-      //       ),
-      //     )
-      //   ],
-      // ),
-      SingleChildScrollView(
+      body: SingleChildScrollView(
         child: Container(
           color: Colors.white,
           height: minHeight,

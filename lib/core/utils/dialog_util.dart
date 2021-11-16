@@ -1,17 +1,29 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/views/transaction_error_page.dart';
 
+import '../../main.dart';
 import '../views/bottom_sheet.dart';
 import '../colors.dart';
 
 Future<dynamic> showError(BuildContext context,
     {String title = "Oops! Something went wrong", String? message,
     VoidCallback? onPrimaryClick,
-    String primaryButtonText = "Continue",
+    String primaryButtonText = "Try Again",
     String? secondaryButtonText,
       bool useTextButton = false,
     VoidCallback? onSecondaryClick}) {
+  return navigatorKey.currentState!.push(MaterialPageRoute(builder: (mContext) {
+    return TransactionErrorPage(
+      title: title,//"Bill Payment Failed",
+      message: message ?? "",//"Unable to complete transaction at this time. Please try again later.",
+      primaryButtonText: primaryButtonText,
+      secondaryButtonText: secondaryButtonText ?? "Dismiss",
+      onTryAgain: onPrimaryClick,
+      onDismiss: onSecondaryClick,
+    );
+  }));
   return showModalBottomSheet(
       context: context,
       isScrollControlled: true,

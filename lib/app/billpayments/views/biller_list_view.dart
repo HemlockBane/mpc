@@ -13,6 +13,7 @@ import 'package:moniepoint_flutter/app/billpayments/model/data/biller_category.d
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/list_view_util.dart';
+import 'package:moniepoint_flutter/core/views/icon_curved_container.dart';
 import 'package:provider/provider.dart';
 
 import 'biller_logo.dart';
@@ -28,7 +29,12 @@ class BillerListScreen extends StatefulWidget {
 
 class _BillerListScreen extends State<BillerListScreen> with AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
   late final AnimationController _animationController;
+  Stream<Resource<List<Biller>>> _billerStream = Stream.empty();
+  late final BillPurchaseViewModel viewModel;
+  late final BillerViewModel billerViewModel;
   final List<Biller> _currentItems = [];
+
+  bool _isSearching = false;
 
   _BillerListScreen() {
     this._animationController = AnimationController(
@@ -38,19 +44,27 @@ class _BillerListScreen extends State<BillerListScreen> with AutomaticKeepAliveC
 
   @override
   void initState() {
-    final viewModel = Provider.of<BillPurchaseViewModel>(context, listen: false);
+    this.viewModel = Provider.of<BillPurchaseViewModel>(context, listen: false);
+    this.billerViewModel = Provider.of<BillerViewModel>(context, listen: false);
     viewModel.setBiller(null);
+    this._billerStream = billerViewModel.getBillersByCategoryId(viewModel.billerCategory?.categoryCode ?? "");
     super.initState();
   }
 
-  Widget makeListView(BuildContext context, AsyncSnapshot<Resource<List<Biller>?>> a) {
-    final viewModel = Provider.of<BillPurchaseViewModel>(context, listen: false);
+  void _searchBiller(String value) {
+    setState(() {
+      _isSearching = true;
+      final billCategory = viewModel.billerCategory;
+      _billerStream = billerViewModel.searchBiller(billCategory?.categoryCode ?? "", value);
+    });
+  }
 
+  Widget makeListView(BuildContext context, AsyncSnapshot<Resource<List<Biller>?>> a) {
     return ListViewUtil.makeListViewWithState<Biller>(
         context: context,
         snapshot: a,
         animationController: _animationController,
-        displayLocalData: false,
+        displayLocalData: _isSearching,
         currentList: _currentItems,
         emptyPlaceholder: Column(
           mainAxisSize: MainAxisSize.max,
@@ -82,7 +96,6 @@ class _BillerListScreen extends State<BillerListScreen> with AutomaticKeepAliveC
   }
 
   Widget _mainContent(BillerCategory billCategory) {
-    final viewModel = Provider.of<BillerViewModel>(context, listen: false);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -91,11 +104,10 @@ class _BillerListScreen extends State<BillerListScreen> with AutomaticKeepAliveC
           padding: EdgeInsets.only(left: 16, right: 16),
           child: Styles.appEditText(
               padding: EdgeInsets.only(top: 20, bottom: 20),
-              startIcon: Icon(CustomFont.search, color: Colors.colorFaded),
+              startIcon: Icon(CustomFont.search, color: Color(0XFF181127).withOpacity(0.4)),
               hint: 'Search Biller',
               fontSize: 13,
-              onChanged: (value) {
-              }
+              onChanged: _searchBiller
           ),
         ),
         SizedBox(height: 23,),
@@ -120,7 +132,7 @@ class _BillerListScreen extends State<BillerListScreen> with AutomaticKeepAliveC
         ),
         SizedBox(height: 12,),
         Expanded(child: StreamBuilder(
-            stream: viewModel.getBillersByCategoryId(billCategory.categoryCode ?? ""),
+            stream: _billerStream,
             builder: (BuildContext context, AsyncSnapshot<Resource<List<Biller>?>> a) {
               return makeListView(context, a);
             })
@@ -214,9 +226,16 @@ class _BillerListItem extends State<BillerListItem> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  BillerLogo(
-                    biller: widget._billBiller,
-                    fileStreamFn: viewModel.getFile,
+                  IconCurvedContainer(
+                      backgroundColor: Colors.transparent,
+                      width: 55,
+                      height: 55,
+                      child: BillerLogo(
+                        width: 55,
+                        height: 55,
+                        biller: widget._billBiller,
+                        fileStreamFn: viewModel.getFile,
+                      )
                   ),
                   SizedBox(width: 16),
                   Expanded(

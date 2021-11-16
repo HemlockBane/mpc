@@ -25,6 +25,7 @@ BillerProduct _$BillerProductFromJson(Map<String, dynamic> json) {
         (json['additionalFieldsMap'] as Map<String, dynamic>?)?.map(
       (k, e) => MapEntry(k, InputField.fromJson(e as Object)),
     ),
+    billerName: json['billerName'] as String?,
   );
 }
 
@@ -44,6 +45,7 @@ Map<String, dynamic> _$BillerProductToJson(BillerProduct instance) =>
       'maximumAmount': instance.maximumAmount,
       'identifierName': instance.identifierName,
       'additionalFieldsMap': instance.additionalFieldsMap,
+      'billerName': instance.billerName,
     };
 
 InputField _$InputFieldFromJson(Map<String, dynamic> json) {

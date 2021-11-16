@@ -27,8 +27,6 @@ class LoginViewModel with ChangeNotifier {
 
   final List<SystemConfiguration> _systemConfigurations = [];
 
-  StreamController<bool> _isFormValidController = StreamController.broadcast();
-  Stream<bool>? get isFormValid => _isFormValidController.stream;
 
   LoginViewModel({
     LoginServiceDelegate? delegate,
@@ -39,13 +37,7 @@ class LoginViewModel with ChangeNotifier {
     this._deviceManager = deviceManager ?? GetIt.I<DeviceManager>();
 
     UserInstance().resetSession();
-  }
 
-  void validateForm(String username, String password) {
-    if(_isFormValidController.isClosed) {
-      _isFormValidController = StreamController();
-    }
-    _isFormValidController.sink.add(username.isNotEmpty && password.isNotEmpty);
   }
 
   Stream<Resource<User>> loginWithPassword(String username, String password) {
@@ -54,7 +46,7 @@ class LoginViewModel with ChangeNotifier {
       ..withUsername(username)
       ..withPassword(password)
       ..withVersion(BuildConfig.APP_VERSION)
-      // ..withDeviceId(_deviceManager.deviceId)
+      ..withDeviceId(_deviceManager.deviceId)
       // ..withDeviceId("9B234499-883D-4F4B-AAC4-F086867AEC46"/*_deviceManager.deviceId*/)
       ..withDeviceId("7603883eb9cd8a8c"/*_deviceManager.deviceId*/)
       // ..withDeviceId("e4c6c4bcc9f9aedf"/*_deviceManager.deviceId*/)
@@ -67,10 +59,10 @@ class LoginViewModel with ChangeNotifier {
     final loginWithFingerprintRequestBody = LoginWithFingerprintRequestBody()
         ..authenticationType = AuthenticationMethod.FINGERPRINT
         ..withFingerprintKey(fingerPrintPassword)
-        .withDeviceId(_deviceManager.deviceId)
-        .withDeviceName(_deviceManager.deviceName)
-        .withVersion(BuildConfig.APP_VERSION)
-        .withUsername(username);
+        ..withDeviceId(_deviceManager.deviceId)
+        ..withDeviceName(_deviceManager.deviceName)
+        ..withVersion(BuildConfig.APP_VERSION)
+        ..withUsername(username);
     return doLogin(loginWithFingerprintRequestBody);
   }
 
@@ -115,7 +107,6 @@ class LoginViewModel with ChangeNotifier {
 
   @override
   void dispose() {
-    _isFormValidController.close();
     super.dispose();
   }
 

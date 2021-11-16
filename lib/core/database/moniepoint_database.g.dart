@@ -95,7 +95,7 @@ class _$AppDatabase extends AppDatabase {
   Future<sqflite.Database> open(String path, List<Migration> migrations,
       [Callback? callback]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 3,
+      version: 4,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -137,7 +137,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `biller_categories` (`id` INTEGER NOT NULL, `name` TEXT, `description` TEXT, `categoryCode` TEXT, `active` INTEGER, `svgImage` TEXT, PRIMARY KEY (`id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `biller_products` (`billerCode` TEXT, `id` INTEGER NOT NULL, `name` TEXT, `code` TEXT, `amount` REAL, `fee` REAL, `paymentCode` TEXT, `currencySymbol` TEXT, `active` INTEGER, `priceFixed` INTEGER, `minimumAmount` REAL, `maximumAmount` REAL, `identifierName` TEXT, `additionalFieldsMap` TEXT, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `biller_products` (`billerCode` TEXT, `id` INTEGER NOT NULL, `name` TEXT, `code` TEXT, `amount` REAL, `fee` REAL, `paymentCode` TEXT, `currencySymbol` TEXT, `active` INTEGER, `priceFixed` INTEGER, `minimumAmount` REAL, `maximumAmount` REAL, `identifierName` TEXT, `additionalFieldsMap` TEXT, `billerName` TEXT, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `account_transactions` (`id` INTEGER, `accountNumber` TEXT, `status` INTEGER, `transactionRef` TEXT NOT NULL, `amount` REAL, `type` TEXT, `transactionChannel` TEXT, `tags` TEXT, `narration` TEXT, `transactionDate` INTEGER NOT NULL, `runningBalance` TEXT, `balanceBefore` TEXT, `balanceAfter` TEXT, `transactionCategory` TEXT, `transactionCode` TEXT, `beneficiaryIdentifier` TEXT, `beneficiaryName` TEXT, `beneficiaryBankName` TEXT, `beneficiaryBankCode` TEXT, `senderIdentifier` TEXT, `senderName` TEXT, `senderBankName` TEXT, `senderBankCode` TEXT, `providerIdentifier` TEXT, `providerName` TEXT, `transactionIdentifier` TEXT, `merchantLocation` TEXT, `cardScheme` TEXT, `maskedPan` TEXT, `terminalID` TEXT, `disputable` INTEGER, `location` TEXT, `metaData` TEXT, `customerAccountId` INTEGER, PRIMARY KEY (`transactionRef`))');
         await database.execute(
@@ -537,7 +537,7 @@ class _$InstitutionDao extends InstitutionDao {
   @override
   Stream<List<AccountProvider>> searchPageAccountProviders(String search) {
     return _queryAdapter.queryListStream(
-        'SELECT * FROM account_providers WHERE name LIKE ?1 ORDER BY name ASC',
+        'SELECT * FROM account_providers WHERE name LIKE ?1 OR bankShortName LIKE ?1 ORDER BY name ASC',
         mapper: (Map<String, Object?> row) => AccountProvider(
             id: row['id'] as int?,
             name: row['name'] as String?,
@@ -560,7 +560,7 @@ class _$InstitutionDao extends InstitutionDao {
   Stream<List<AccountProvider>> searchAccountProviders(
       int limit, String search) {
     return _queryAdapter.queryListStream(
-        'SELECT * FROM account_providers WHERE name LIKE ?2 ORDER BY name ASC LIMIT ?1',
+        'SELECT * FROM account_providers WHERE name LIKE ?2 OR bankShortName LIKE ?2 ORDER BY name ASC LIMIT ?1',
         mapper: (Map<String, Object?> row) => AccountProvider(
             id: row['id'] as int?,
             name: row['name'] as String?,
@@ -1608,6 +1608,33 @@ class _$BillerDao extends BillerDao {
   }
 
   @override
+  Stream<List<Biller>> searchBillerByCategoryIdAndName(
+      String categoryId, String billerName) {
+    return _queryAdapter.queryListStream(
+        'SELECT * FROM billers WHERE billerCategoryCode=?1 AND name LIKE ?2',
+        mapper: (Map<String, Object?> row) => Biller(
+            billerCategoryId: row['billerCategoryId'] as String?,
+            billerCategoryCode: row['billerCategoryCode'] as String?,
+            id: row['id'] as int,
+            name: row['name'] as String?,
+            code: row['code'] as String?,
+            identifierName: row['identifierName'] as String?,
+            currencySymbol: row['currencySymbol'] as String?,
+            active: row['active'] == null ? null : (row['active'] as int) != 0,
+            collectionAccountNumber: row['collectionAccountNumber'] as String?,
+            collectionAccountName: row['collectionAccountName'] as String?,
+            collectionAccountProviderCode:
+                row['collectionAccountProviderCode'] as String?,
+            collectionAccountProviderName:
+                row['collectionAccountProviderName'] as String?,
+            svgImage: row['svgImage'] as String?,
+            logoImageUUID: row['logoImageUUID'] as String?),
+        arguments: [categoryId, billerName],
+        queryableName: 'billers',
+        isView: false);
+  }
+
+  @override
   Future<void> deleteByCategory(String categoryId) async {
     await _queryAdapter.queryNoReturn(
         'DELETE FROM billers WHERE billerCategoryCode=?1',
@@ -1739,7 +1766,8 @@ class _$BillerProductDao extends BillerProductDao {
                   'maximumAmount': item.maximumAmount,
                   'identifierName': item.identifierName,
                   'additionalFieldsMap': _additionalFieldsConverter
-                      .encode(item.additionalFieldsMap)
+                      .encode(item.additionalFieldsMap),
+                  'billerName': item.billerName
                 },
             changeListener),
         _billerProductDeletionAdapter = DeletionAdapter(
@@ -1763,7 +1791,8 @@ class _$BillerProductDao extends BillerProductDao {
                   'maximumAmount': item.maximumAmount,
                   'identifierName': item.identifierName,
                   'additionalFieldsMap': _additionalFieldsConverter
-                      .encode(item.additionalFieldsMap)
+                      .encode(item.additionalFieldsMap),
+                  'billerName': item.billerName
                 },
             changeListener);
 
@@ -1798,7 +1827,8 @@ class _$BillerProductDao extends BillerProductDao {
             maximumAmount: row['maximumAmount'] as double?,
             identifierName: row['identifierName'] as String?,
             additionalFieldsMap: _additionalFieldsConverter
-                .decode(row['additionalFieldsMap'] as String?)),
+                .decode(row['additionalFieldsMap'] as String?),
+            billerName: row['billerName'] as String?),
         arguments: [billerCode],
         queryableName: 'biller_products',
         isView: false);

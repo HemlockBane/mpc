@@ -11,7 +11,6 @@ import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/views/moniepoint_scaffold.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
-import 'package:moniepoint_flutter/core/views/transaction_success_page.dart';
 import 'package:provider/provider.dart';
 
 import 'biller_list_view.dart';
@@ -63,15 +62,18 @@ class _BillScreen extends State<BillScreen> {
             TextButton.icon(
                 onPressed: () => Navigator.of(context).pushNamed(Routes.BILL_HISTORY),
                 icon: SvgPicture.asset("res/drawables/ic_history.svg"),
-                label: Text(
-                  "History",
-                  style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.primaryColor
+                label: Padding(
+                  padding: EdgeInsets.only(right: 16),
+                  child: Text(
+                    "History",
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.primaryColor
+                    ),
                   ),
                 )
-            )
+            ),
           ],
         ),
         body: SessionedWidget(
@@ -107,12 +109,7 @@ class _BillViewNavigator extends StatelessWidget {
       case BillScreen.BILL_CATEGORY_SCREEN:
         page = ChangeNotifierProvider(
             create: (v) => BillCategoryViewModel(),
-            child: TransactionSuccessPage(
-              SuccessPayload(
-                  "Transfer Payment\nSuccessful", "Paid in full",
-                token: "12324 23232 232323 32323 2323"
-              )
-            ),
+            child: BillCategoryListScreen(_scaffoldKey),
         );
         break;
       case BillScreen.BILL_BILLER_SCREEN:

@@ -52,6 +52,10 @@ class BillerProduct  {
   @TypeConverters([AdditionalFieldsConverter])
   final Map<String, InputField>? additionalFieldsMap;
 
+
+  @JsonKey(name:"billerName")
+  final String? billerName;
+
   BillerProduct(
       {this.billerCode,
       required this.id,
@@ -66,7 +70,9 @@ class BillerProduct  {
       this.minimumAmount,
       this.maximumAmount,
       this.identifierName,
-      this.additionalFieldsMap});
+      this.additionalFieldsMap,
+      this.billerName
+      });
 
 
   factory BillerProduct.fromJson(Object? data) => _$BillerProductFromJson(data as Map<String, dynamic>);

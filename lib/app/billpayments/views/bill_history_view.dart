@@ -16,6 +16,7 @@ import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/utils/list_view_util.dart';
 import 'package:moniepoint_flutter/core/views/filter_view.dart';
 import 'package:moniepoint_flutter/core/views/moniepoint_scaffold.dart';
+import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:provider/provider.dart';
 
 class BillHistoryScreen extends StatefulWidget {
@@ -184,8 +185,7 @@ class _BillHistoryScreen extends State<BillHistoryScreen> with AutomaticKeepAliv
                                 shrinkWrap: true,
                                 itemCount: items.data.length,
                                 separatorBuilder: (context, index) => Padding(
-                                      padding:
-                                          EdgeInsets.only(left: 16, right: 16),
+                                      padding: EdgeInsets.only(left: 16, right: 16),
                                       child: Divider(
                                         color: Color(0XFFE0E0E0),
                                         height: 1,
@@ -213,6 +213,7 @@ class _BillHistoryScreen extends State<BillHistoryScreen> with AutomaticKeepAliv
     super.build(context);
     return MoniepointScaffold(
       key: widget._scaffoldKey,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         centerTitle: false,
         titleSpacing: 0,
@@ -225,27 +226,33 @@ class _BillHistoryScreen extends State<BillHistoryScreen> with AutomaticKeepAliv
                 color: Colors.textColorBlack
             )
         ),
-        backgroundColor: Colors.transparent,
+        backgroundColor: Color(0XFFE8EFFA).withOpacity(0.52),
         elevation: 0,
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            height: 16,
+      body: SessionedWidget(
+        context: context,
+        child: Container(
+          color: Color(0XFFE8EFFA).withOpacity(0.52),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: 16,
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 16),
+                child: Text(
+                  "History",
+                  style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 24,
+                      color: Colors.textColorBlack),
+                ),
+              ),
+              Expanded(child: _makeListView()),
+            ],
           ),
-          Padding(
-            padding: EdgeInsets.only(left: 16),
-            child: Text(
-              "History",
-              style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 24,
-                  color: Colors.textColorBlack),
-            ),
-          ),
-          Expanded(child: _makeListView()),
-        ],
+        ),
       ),
     );
   }

@@ -190,6 +190,7 @@ class _SelectionCombo2<T> extends State<SelectionCombo2<T>> with SingleTickerPro
         child: ListTile(
           focusColor: Colors.transparent,
           hoverColor: Colors.transparent,
+          contentPadding: EdgeInsets.only(top: 3, bottom: 3),
           leading: widget.titleIcon?.call(_selectedCombo?.value),
           title: Opacity(
             opacity: (_isExpanded) ? 0.3 : 1,
@@ -235,6 +236,7 @@ class _SelectionCombo2<T> extends State<SelectionCombo2<T>> with SingleTickerPro
 
       final listItem = ListTile(
         onTap: () => _onItemSelected(comboItem, index),
+        contentPadding: EdgeInsets.zero,
         leading: CustomCheckBox(
           height: widget.checkBoxSize?.height, width: widget.checkBoxSize?.width,
           onSelect: (v) =>_onItemSelected(comboItem, index),
@@ -278,6 +280,7 @@ class _SelectionCombo2<T> extends State<SelectionCombo2<T>> with SingleTickerPro
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: EdgeInsets.only(left: 11.87, right: 16),
       decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: _borderRadius,

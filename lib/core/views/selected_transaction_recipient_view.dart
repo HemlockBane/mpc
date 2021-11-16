@@ -22,7 +22,7 @@ class SelectedTransactionRecipientView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(left: 16, right: 12, top: 12, bottom: 12),
+      padding: EdgeInsets.only(left: 11.87, right: 8, top: 14.25, bottom: 14.17),
       decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),

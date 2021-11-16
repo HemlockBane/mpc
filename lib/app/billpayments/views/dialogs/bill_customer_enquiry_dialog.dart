@@ -31,30 +31,34 @@ class _BillCustomerEnquiryDialog extends State<BillCustomerEnquiryDialog> {
   bool hasError = false;
 
   Widget _displayLoadingState() {
-    return Container(
-      height: double.infinity,
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // SizedBox(height: 50),
-            SizedBox(
-              height: 25,
-              width: 25,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation(Colors.darkBlue),
-              ),
+    return Wrap(
+      children: [
+        Container(
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(height: 100),
+                SizedBox(
+                  height: 25,
+                  width: 25,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation(Colors.darkBlue),
+                  ),
+                ),
+                SizedBox(height: 24,),
+                Text(
+                  'Fetching Beneficiary\nDetails...',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.darkBlue, fontSize: 16, fontWeight: FontWeight.w400),
+                ),
+                SizedBox(height: 100),
+              ],
             ),
-            SizedBox(height: 24,),
-            Text(
-              'Fetching Beneficiary\nDetails...',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.darkBlue, fontSize: 16, fontWeight: FontWeight.w400),
-            )
-          ],
-        ),
-      ),
+          ),
+        )
+      ],
     );
   }
 
@@ -181,7 +185,6 @@ class _BillCustomerEnquiryDialog extends State<BillCustomerEnquiryDialog> {
   @override
   Widget build(BuildContext context) {
     return BottomSheets.makeAppBottomSheet(
-      height: widget.saveBeneficiary ? 400 : 350,
       curveBackgroundColor: Colors.white,
       centerImageBackgroundColor: Colors.primaryColor.withOpacity(0.1),
       contentBackgroundColor: Colors.white,
@@ -233,16 +236,15 @@ class _BeneficiaryDetailsView extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SvgPicture.asset('res/drawables/ic_beneficiary.svg'),
-              SizedBox(width: 12),
-              Text(
+              Flexible(child: Text(
                 '${beneficiary.validationData?.customerName}',
+                textAlign: TextAlign.center,
                 style: TextStyle(
                     color: Colors.textColorBlack,
                     fontSize: 17,
                     fontWeight: FontWeight.w600
                 ),
-              )
+              ))
             ],
           ),
           SizedBox(height: 11),

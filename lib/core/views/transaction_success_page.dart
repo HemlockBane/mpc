@@ -164,16 +164,14 @@ class _TransactionSuccessPage extends State<TransactionSuccessPage> {
             SizedBox(height: widget.successPayload.token != null ? 27 : 0,),
             _tokenView(),
             Spacer(),
-            Styles.statefulButton(
-                buttonStyle: Styles.primaryButtonStyle.copyWith(
-                    backgroundColor: MaterialStateProperty.all(Colors.solidGreen),
-                    textStyle: MaterialStateProperty.all(getBoldStyle(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 16,
-                        color: Colors.white))),
-                stream: Stream.value(true),
-                onClick: widget.onClick ?? () => Navigator.of(context).pop(),
-                text: widget.primaryButtonText
+            SizedBox(
+              width: double.infinity,
+              child: Styles.appButton(
+                  elevation: 0.3,
+                  buttonStyle: Styles.savingsFlexButtonStyle,
+                  onClick: _isLoading ? null : widget.onClick ?? () => Navigator.of(context).pop(),
+                  text: widget.primaryButtonText
+              ),
             ),
             SizedBox(height: 35),
             Visibility(
@@ -198,7 +196,7 @@ class _TransactionSuccessPage extends State<TransactionSuccessPage> {
                 )),
             Visibility(
                 visible: _isLoading,
-                child: SpinKitThreeBounce(size: 20.0, color: Colors.primaryColor.withOpacity(0.9))
+                child: SpinKitThreeBounce(size: 20.0, color: Colors.solidGreen.withOpacity(0.9))
             ),
             SizedBox(height: 56)
           ],

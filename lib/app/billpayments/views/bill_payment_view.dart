@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/biller_product.dart';
 import 'package:moniepoint_flutter/app/billpayments/viewmodels/bill_purchase_view_model.dart';
 import 'package:moniepoint_flutter/app/billpayments/views/bill_view.dart';
+import 'package:moniepoint_flutter/app/billpayments/views/biller_logo.dart';
 import 'package:moniepoint_flutter/app/billpayments/views/dialogs/bill_pin_dialog.dart';
 import 'package:moniepoint_flutter/core/views/amount_pill.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
@@ -16,16 +17,18 @@ import 'package:moniepoint_flutter/core/payment_view_model.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
+import 'package:moniepoint_flutter/core/views/icon_curved_container.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:moniepoint_flutter/core/views/selected_transaction_recipient_view.dart';
+import 'package:moniepoint_flutter/core/views/transaction_error_page.dart';
+import 'package:moniepoint_flutter/core/views/transaction_pending_page.dart';
 import 'package:moniepoint_flutter/core/views/user_account_selection_view.dart';
 import 'package:moniepoint_flutter/core/views/transaction_success_page.dart';
 import 'package:provider/provider.dart';
 import 'package:moniepoint_flutter/core/extensions/strings.dart';
 import 'package:collection/collection.dart';
 
-import '../../../main.dart';
 
 class BillPaymentScreen extends StatefulWidget {
 
@@ -90,7 +93,7 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
       ),
       child: PaymentAmountView((amount * 100).toInt(), (value) => viewModel.setAmount(value / 100),
         isAmountFixed: isAmountFixed,
-        currencyColor: Colors.white.withOpacity(0.5),
+        currencyColor: Colors.textColorBlack.withOpacity(0.2),
         textColor: Colors.textColorBlack,
       ),
     );
@@ -115,8 +118,10 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
 
   void subscribeUiToPin() async {
     final viewModel = Provider.of<BillPurchaseViewModel>(context, listen: false);
+    final parentContext = widget._scaffoldKey.currentContext ?? context;
+
     dynamic result = await showModalBottomSheet(
-        context: widget._scaffoldKey.currentContext ?? context,
+        context: parentContext,
         isScrollControlled: true,
         backgroundColor: Colors.transparent,
         builder: (context) => ChangeNotifierProvider.value(
@@ -131,7 +136,25 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
             || result.operationStatus == Constants.SUCCESSFUL;
 
         if(isSuccessful) {
-          final payload = SuccessPayload("Payment Successful",
+
+          if(result.operationStatus == Constants.PENDING) {
+            Navigator.of(widget._scaffoldKey.currentContext!).push(
+                MaterialPageRoute(builder: (mContext) {
+                  return TransactionPendingPage(
+                      title: "Bill Purchase\nPending...",
+                      message: "Your bill payment purchase is pending. "
+                          "We have set the money aside in your account pending confirmation. "
+                          "We will send you a notification when the status has been updated",
+                      onClick: () async {
+                        Navigator.of(mContext).pop();
+                        Navigator.of(context)
+                            .pushNamedAndRemoveUntil(BillScreen.BENEFICIARY_SCREEN, (route) => false);
+                      });
+                }));
+            return;
+          }
+
+          final payload = SuccessPayload("Bill Payment\nSuccessful!",
               "Your payment was successful",
               token: result.token,
               fileName: "Bill_Receipt_${viewModel.accountName}_${DateFormat("dd MM yyyy").format(DateTime.now())}.pdf",
@@ -140,11 +163,11 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
                   : null
           );
 
-          navigatorKey.currentState?.push(MaterialPageRoute(builder: (mContext) {
+          Navigator.of(parentContext).push(MaterialPageRoute(builder: (mContext) {
             return TransactionSuccessPage(payload,
                 onClick: () {
                   Navigator.of(mContext).pop();
-                  Navigator.of(context, rootNavigator: true)
+                  Navigator.of(context)
                       .pushNamedAndRemoveUntil(BillScreen.BENEFICIARY_SCREEN, (route) => false);
                 });
           }));
@@ -155,11 +178,14 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
               message: "Unable to complete transaction at this time. Please try again later."
           );
         }
-
     } else if(result is Error<TransactionStatus>) {
       showError(
           widget._scaffoldKey.currentContext ?? context,
           title: "Bill Payment Failed",
+          onPrimaryClick: () {
+            Navigator.of(context).pop();
+            subscribeUiToPin();
+          },
           message: result.message ?? ""
       );
     }
@@ -217,6 +243,7 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
                       hint: e.fieldLabel,
                       maxLines: 1,
                       fontSize: 13.4,
+                      // value: viewModel.getDefaultAdditionalFieldValue(e.key ?? ""),
                       inputType: (e.dataType == "NUMBER") ? TextInputType.numberWithOptions() : TextInputType.text,
                       onChanged: (value) => _onAdditionalFieldInputChange(viewModel, e, value)
                   );
@@ -234,6 +261,36 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
 
   void _onAdditionalFieldInputChange(BillPurchaseViewModel viewModel, InputField field, String? value) {
     viewModel.setAdditionalFieldData(field.key!, value ?? "");
+  }
+
+  Widget _productContainer() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 13, vertical: 12),
+      decoration: BoxDecoration(
+        color: Color(0XFF97A6C0).withOpacity(0.15),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Row(
+        children: [
+          IconCurvedContainer(
+              backgroundColor: Colors.textColorBlack.withOpacity(0.08),
+              child: BillerLogo(
+                  biller: viewModel.biller!,
+                  fileStreamFn: viewModel.getFile
+              ),
+          ),
+          SizedBox(width: 13),
+          Text(
+            "${viewModel.billerProduct?.name}",
+            style: TextStyle(
+              color: Color(0XFF4A4A4A),
+              fontWeight: FontWeight.w600,
+              fontSize: 17
+            ),
+          )
+        ],
+      ),
+    );
   }
 
   @override
@@ -283,6 +340,8 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      _productContainer(),
+                      SizedBox(height: 24),
                       makeLabel('Beneficiary'),
                       SizedBox(height: 8,),
                       SelectedTransactionRecipientView(

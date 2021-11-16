@@ -110,7 +110,7 @@ class _BillPinDialog extends TransactionPinDialogState<BillPinDialog> {
                       ),
                       Row(
                         children: [
-                          Column(
+                          Flexible(child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text('Beneficiary', style: TextStyle(color: Colors.solidDarkBlue, fontSize: 15)),
@@ -125,7 +125,7 @@ class _BillPinDialog extends TransactionPinDialogState<BillPinDialog> {
                                   )
                               ),
                             ],
-                          )
+                          ))
                         ],
                       )
                     ],

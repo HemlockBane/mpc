@@ -18,7 +18,6 @@ import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_s
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/models/TransactionRequestContract.dart';
-import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/pnd_notification_banner.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
@@ -151,6 +150,7 @@ class _AirtimeBeneficiaryScreen extends State<AirtimeBeneficiaryScreen> with Aut
         listView: (List<AirtimeBeneficiary>? items) {
           return ListView.separated(
               shrinkWrap: true,
+              padding: EdgeInsets.only(left: 20, right: 20, top: 24),
               itemCount: items?.length ?? 0,
               separatorBuilder: (context, index) => Padding(
                 padding: EdgeInsets.only(left: 16, right: 16),
@@ -330,7 +330,9 @@ class _AirtimeBeneficiaryScreen extends State<AirtimeBeneficiaryScreen> with Aut
                         .pushNamed(Routes.SELECT_AIRTIME_BENEFICIARY);
                     if(beneficiary is AirtimeBeneficiary) {
                       Future.delayed(Duration(milliseconds: 500), (){
-                        displayServiceProvidersDialog(beneficiary);
+                        viewModel.setBeneficiary(beneficiary);
+                        Navigator.of(context).pushNamed(AirtimeScreen.PAYMENT_SCREEN);
+                        // displayServiceProvidersDialog(beneficiary);
                       });
                     }
                   }

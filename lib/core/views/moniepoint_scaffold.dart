@@ -522,6 +522,7 @@ class MoniepointScaffoldState extends State<MoniepointScaffold> with TickerProvi
           drawer: widget.drawer,
           extendBodyBehindAppBar: widget.extendBodyBehindAppBar,
           bottomNavigationBar: widget.bottomNavigationBar,
+          backgroundColor: widget.backgroundColor,
         ),
         AnimatedPositioned(
             child: NotificationWrapper(

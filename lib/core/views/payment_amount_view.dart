@@ -57,7 +57,7 @@ class _PaymentAmountView extends State<PaymentAmountView> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        SvgPicture.asset('res/drawables/ic_naira.svg', width: 21, height: 21, color: (widget.isAmountFixed == true) ? Colors.deepGrey : widget.currencyColor,),
+        SvgPicture.asset('res/drawables/ic_naira.svg', width: 32, height: 26, color: (widget.isAmountFixed == true) ? Colors.deepGrey : widget.currencyColor,),
         SizedBox(width: 8),
         Expanded(
             child: TextFormField(
@@ -78,7 +78,7 @@ class _PaymentAmountView extends State<PaymentAmountView> {
               ],
               style: TextStyle(
                   fontFamily: Styles.defaultFont,
-                  fontSize: 28,
+                  fontSize: 38.79,
                   fontWeight: FontWeight.bold,
                   color: (widget.isAmountFixed == true) ? Colors.deepGrey : widget.textColor
               ),

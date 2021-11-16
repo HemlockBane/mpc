@@ -9,10 +9,10 @@ abstract class InstitutionDao extends MoniepointDao<AccountProvider> {
   @Query("SELECT * FROM account_providers")
   Stream<List<AccountProvider>> getAccountProviders();
 
-  @Query("SELECT * FROM account_providers WHERE name LIKE :search ORDER BY name ASC")
+  @Query("SELECT * FROM account_providers WHERE name LIKE :search OR bankShortName LIKE :search ORDER BY name ASC")
   Stream<List<AccountProvider>> searchPageAccountProviders(String search);
 
-  @Query("SELECT * FROM account_providers WHERE name LIKE :search ORDER BY name ASC LIMIT :limit")
+  @Query("SELECT * FROM account_providers WHERE name LIKE :search OR bankShortName LIKE :search ORDER BY name ASC LIMIT :limit")
   Stream<List<AccountProvider>> searchAccountProviders(int limit, String search);
 
 }

@@ -235,17 +235,19 @@ class _BeneficiaryDetailsView extends StatelessWidget {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SvgPicture.asset('res/drawables/ic_beneficiary.svg'),
               SizedBox(width: 12),
-              Text(
+              Flexible(child: Text(
                 '${beneficiary.getAccountName()}',
+                textAlign: TextAlign.center,
                 style: TextStyle(
                     color: Colors.textColorBlack,
                     fontSize: 17,
                     fontWeight: FontWeight.w600
                 ),
-              )
+              ))
             ],
           ),
           SizedBox(height: 11),

@@ -31,8 +31,8 @@ class _AirtimeHistoryDetailedView extends State<AirtimeHistoryDetailedView> {
   LatLng? _transactionLocation(AirtimeTransaction transaction) {
     print(transaction.institutionAirtime?.metaData?.location);
     return (transaction.institutionAirtime?.metaData?.location != null)
-        ? LatLng(double.tryParse(
-            transaction.institutionAirtime?.metaData?.location?.latitude ?? "0.0") ?? 0.0,
+        ? LatLng(
+            double.tryParse(transaction.institutionAirtime?.metaData?.location?.latitude ?? "0.0") ?? 0.0,
             double.tryParse(transaction.institutionAirtime?.metaData?.location?.longitude ?? "0.0") ?? 0.0
           )
         : null;

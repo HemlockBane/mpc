@@ -108,13 +108,14 @@ class AirtimeBeneficiaryListState extends BeneficiaryListState<AirtimeBeneficiar
                       Visibility(
                           visible: !isEmpty && error == null,
                           child: Expanded(child: ListView.separated(
-                            controller: _scrollController,
-                            itemCount: value.data.length,
-                            separatorBuilder: (context, index) => Padding(
+                              padding: EdgeInsets.only(left: 20, right: 20, top: 24),
+                              controller: _scrollController,
+                              itemCount: value.data.length,
+                              separatorBuilder: (context, index) => Padding(
                                   padding: EdgeInsets.only(left: 16, right: 16),
                                   child: Divider(color: Color(0XFFE0E0E0), height: 1,),
-                                ),
-                            itemBuilder: (context, index) {
+                              ),
+                              itemBuilder: (context, index) {
                               return BeneficiaryListItem(value.data[index], index, (beneficiary, int i) {
                                 if (widget.isSelectMode) Navigator.of(context).pop(beneficiary);
                                 else ManagedBeneficiaryScreen

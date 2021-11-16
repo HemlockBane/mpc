@@ -86,28 +86,28 @@ class _AccountTransactionDetailedView extends State<AccountTransactionDetailedVi
     final items = [
       _getBeneficiaryDisplayableView(transaction),
       _CardPurchaseLocationDetails(transaction: transaction),
-      _TransactionDetailViewItem(
+      TransactionDetailViewItem(
         label: "Narration",
         value: transaction.narration,
         valueTextWeight: FontWeight.w500,
       ),
-      _TransactionDetailViewItem(
+      TransactionDetailViewItem(
         label: "Transaction Date",
         value: transaction.transactionDateToString(),
         valueTextWeight: FontWeight.w600,
       ),
-      _TransactionDetailViewItem(
+      TransactionDetailViewItem(
         label: "Channel",
         value: transaction.transactionChannel,
         valueTextWeight: FontWeight.w600,
         isChannel: true,
       ),
-      _TransactionDetailViewItem(
+      TransactionDetailViewItem(
         label: "Reference",
         value: transaction.transactionRef,
         valueTextWeight: FontWeight.w400,
       ),
-      _TransactionDetailViewItem(
+      TransactionDetailViewItem(
         label: "Transaction Code",
         value: transaction.transactionCode,
         valueTextWeight: FontWeight.w400,
@@ -480,9 +480,9 @@ class _TransactionCategoryView extends StatelessWidget {
 ///
 ///
 ///
-class _TransactionDetailViewItem extends TransactionDetailDisplayable {
+class TransactionDetailViewItem extends TransactionDetailDisplayable {
 
-  _TransactionDetailViewItem({
+  TransactionDetailViewItem({
     required this.label,
     required this.value,
     this.valueTextWeight,

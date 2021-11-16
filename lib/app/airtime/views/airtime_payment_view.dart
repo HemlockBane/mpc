@@ -24,7 +24,9 @@ import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
+import 'package:moniepoint_flutter/core/views/selected_transaction_recipient_view.dart';
 import 'package:moniepoint_flutter/core/views/selection_combo_two.dart';
+import 'package:moniepoint_flutter/core/views/transaction_pending_page.dart';
 import 'package:moniepoint_flutter/core/views/user_account_selection_view.dart';
 import 'package:moniepoint_flutter/core/views/transaction_success_page.dart';
 import 'package:provider/provider.dart';
@@ -53,12 +55,14 @@ class AirtimePaymentScreen extends StatefulWidget {
 class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKeepAliveClientMixin {
 
   late final AirtimeViewModel viewModel;
-
+  late final List<ListDataItem<String>> amountPills;
   ListDataItem<String>? _selectedAmountPill;
 
   @override
   initState() {
     this.viewModel = Provider.of<AirtimeViewModel>(context, listen: false);
+    this.viewModel.setAmount(0.00);
+    this.amountPills = viewModel.amountPills;
     viewModel.setServiceProviderItem(null);
     viewModel.setSourceAccount(null);
     super.initState();
@@ -90,7 +94,11 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
   Widget makeLabel(String label) {
     return Text(
       label,
-      style: TextStyle(color: Colors.deepGrey, fontSize: 14),
+      style: TextStyle(
+          color: Colors.textColorMainBlack,
+          fontSize: 14,
+          fontWeight: FontWeight.w500
+      ),
     );
   }
 
@@ -123,76 +131,26 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
     return viewModel.beneficiary?.getAccountName() ?? "";
   }
 
-  Widget transferRecipient(PaymentViewModel viewModel) {
-    final beneficiary = viewModel.beneficiary;
-    return boxContainer(Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Flexible(flex: 0, child: initialView(viewModel)),
-        SizedBox(width: 17,),
-        Expanded(
-            flex: 1,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  displayableBeneficiaryName(viewModel),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: TextStyle(fontSize: 15,
-                      color: Colors.solidDarkBlue,
-                      fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 1,),
-                Text(
-                  '${beneficiary?.getBeneficiaryProviderName()} - ${beneficiary?.getBeneficiaryDigits()}',
-                  textAlign: TextAlign.left,
-                  style: TextStyle(color: Colors.deepGrey,
-                      fontSize: 13,
-                      fontFamily: Styles.defaultFont),
-                ).colorText({
-                  "${beneficiary?.getBeneficiaryDigits()}": Tuple(Colors.deepGrey, null)
-                }, underline: false)
-              ],
-            )
-        ),
-        Expanded(
-            flex: 0,
-            child: TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('Change',
-                style: TextStyle(color: Colors.solidOrange,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold),
-              ),
-              style: ButtonStyle(
-                  minimumSize: MaterialStateProperty.all(Size(40, 0)),
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  overlayColor: MaterialStateProperty.all(Colors.solidOrange.withOpacity(0.2)),
-                  padding: MaterialStateProperty.all(EdgeInsets.symmetric(horizontal: 8, vertical: 7)),
-                  shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-                  backgroundColor: MaterialStateProperty.all(Colors.solidOrange.withOpacity(0.2))
-              ),
-            )
-        )
-      ],
-    ));
-  }
-
   Widget amountWidget() {
     final isAmountFixed = viewModel.dataPlan != null && viewModel.dataPlan?.priceFixed == true;
     final amount = viewModel.amount ?? 0.0;
-    return boxContainer(
-        PaymentAmountView((amount * 100).toInt(), (value) {
-          viewModel.setAmount(value / 100);
-        }, isAmountFixed: isAmountFixed)
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 26),
+      decoration: BoxDecoration(
+          color: Color(0XFF97AAC0).withOpacity(0.15),
+          borderRadius: BorderRadius.all(Radius.circular(8))
+      ),
+      child: PaymentAmountView((amount * 100).toInt(), (value) => viewModel.setAmount(value / 100),
+        isAmountFixed: isAmountFixed,
+        currencyColor: Colors.textColorBlack.withOpacity(0.2),
+        textColor: Colors.textColorBlack,
+      ),
     );
   }
 
   List<Widget> generateAmountPillsWidget() {
     final pills = <Widget>[];
-    viewModel.amountPills.forEachIndexed((index, element) {
+    amountPills.forEachIndexed((index, element) {
       pills.add(Expanded(flex: 1,
           child: AmountPill(item: element, position: index, listener: (ListDataItem<String> item, position) {
             setState(() {
@@ -200,10 +158,10 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
               _selectedAmountPill = item;
               _selectedAmountPill?.isSelected = true;
               final amount = double.parse(_selectedAmountPill!.item.replaceAll(RegExp(r'[(a-z)|(A-Z)|(,₦)]'), ""));
-              viewModel.setAmount(amount / 100);
+              viewModel.setAmount(amount);
             });
           })));
-      if (index != viewModel.amountPills.length - 1) pills.add(SizedBox(width: 8,));
+      if (index != amountPills.length - 1) pills.add(SizedBox(width: 8,));
     });
     return pills;
   }
@@ -228,27 +186,42 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
           || result.operationStatus == Constants.SUCCESSFUL;
 
       if (isSuccessful) {
-        final batchId = (viewModel.purchaseType == PurchaseType.DATA) ? result
-            .customerDataTopUpId : result.customerAirtimeId;
+        final batchId = (viewModel.purchaseType == PurchaseType.DATA)
+            ? result.customerDataTopUpId
+            : result.customerAirtimeId;
 
-        final payload = SuccessPayload("Airtime Purchase Successful",
-            "Your ${describeEnum(viewModel.purchaseType)
-                .toLowerCase()} purchase was successful",
-            fileName: "Airtime_Receipt_${viewModel.accountName}_${DateFormat(
-                "dd MM yyyy").format(DateTime.now())}.pdf",
-            downloadTask: (batchId != null &&
-                result.operationStatus != Constants.PENDING &&
-                viewModel.purchaseType == PurchaseType.AIRTIME)
+        if(result.operationStatus == Constants.PENDING) {
+          Navigator.of(widget._scaffoldKey.currentContext!).push(MaterialPageRoute(builder: (mContext) {
+            return TransactionPendingPage(
+                title: "Airtime Purchase\nPending...",
+                message: "Your airtime payment purchase is pending. "
+                    "We have set the money aside in your account pending confirmation. "
+                    "We will send you a notification when the status has been updated",
+                onClick: () async {
+                  Navigator.of(mContext).pop();
+                  Navigator.of(context)
+                      .pushNamedAndRemoveUntil(AirtimeScreen.BENEFICIARY_SCREEN, (route) => false);
+                });
+          }));
+          return;
+        }
+
+        final payload = SuccessPayload("Airtime Purchase\nSuccessful",
+            "Your ${describeEnum(viewModel.purchaseType).toLowerCase()} purchase was successful",
+            fileName: "Airtime_Receipt_${viewModel.accountName}_${DateFormat("dd MM yyyy").format(DateTime.now())}.pdf",
+            downloadTask: (batchId != null
+                && result.operationStatus != Constants.PENDING
+                && viewModel.purchaseType == PurchaseType.AIRTIME)
                 ? () => viewModel.downloadReceipt(batchId)
                 : null
         );
 
-        navigatorKey.currentState?.push(MaterialPageRoute(builder: (mContext) {
+        Navigator.of(widget._scaffoldKey.currentContext!).push(MaterialPageRoute(builder: (mContext) {
           return TransactionSuccessPage(payload,
-              onClick: () {
+              onClick: () async {
                 Navigator.of(mContext).pop();
-                Navigator.of(context, rootNavigator: true)
-                    .pushNamedAndRemoveUntil(AirtimeScreen.BENEFICIARY_SCREEN, (route) => false);
+                Navigator.of(context)
+                  .pushNamedAndRemoveUntil(AirtimeScreen.BENEFICIARY_SCREEN, (route) => false);
               });
         }));
       } else {
@@ -279,7 +252,11 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
           children: [
             makeLabel('Airtime/Data Recipient'),
             SizedBox(height: 8),
-            transferRecipient(viewModel),
+            SelectedTransactionRecipientView(
+              recipientName: '${viewModel.beneficiary?.getAccountName()}',
+              providerName: '${viewModel.beneficiary?.getBeneficiaryProviderName()}',
+              recipientDigits: '${viewModel.beneficiary?.getBeneficiaryDigits()}',
+            ),
             SizedBox(height: 24,),
             Visibility(
               visible: viewModel.purchaseType == PurchaseType.DATA,

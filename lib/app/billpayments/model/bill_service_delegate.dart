@@ -61,6 +61,24 @@ class BillServiceDelegate with NetworkResource {
     );
   }
 
+  Stream<Resource<List<Biller>>> searchBillerByCategoryAndName(String categoryId, String billerName) {
+    return networkBoundResource(
+        shouldFetchLocal: true,
+        fetchFromLocal: () => _billerDao.searchBillerByCategoryIdAndName(categoryId, billerName),
+        shouldFetchFromRemote: (data) {
+          return data == null || data.isEmpty == true;
+        },
+        fetchFromRemote: () => _service.getBillersByCategory(categoryId),
+        processRemoteResponse: (response) {
+          response.data?.result?.forEach((element) { element.billerCategoryCode = categoryId; });
+        },
+        saveRemoteData: (response) async {
+          await _billerDao.deleteByCategory(categoryId);
+          await _billerDao.insertItems(response);
+        }
+    );
+  }
+
   Stream<Resource<List<Biller>>> getBillersForCategory(String categoryId) {
     return networkBoundResource(
         shouldFetchLocal: true,
@@ -132,6 +150,10 @@ class BillServiceDelegate with NetworkResource {
 
 }
 
+///_BillHistoryMediator
+///
+///
+///
 class _BillHistoryMediator extends AbstractDataCollectionMediator<int, BillTransaction> {
 
   final BillService _service;

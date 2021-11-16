@@ -11,11 +11,15 @@ class BillerLogo extends StatefulWidget {
   BillerLogo({
     Key? key,
     required this.biller,
-    required this.fileStreamFn
+    required this.fileStreamFn,
+    this.width = 40,
+    this.height = 40
   }):super(key: key);
 
   final Biller biller;
   final Stream<Resource<FileResult>> Function(String logoId) fileStreamFn;
+  final double width;
+  final double height;
 
   @override
   State<StatefulWidget> createState() => _BillerLogoState();
@@ -34,7 +38,7 @@ class _BillerLogoState extends State<BillerLogo> {
   }
 
   void _fetchBillerLogo() {
-    _fileResultStream = widget.fileStreamFn.call(widget.biller.logoImageUUID ?? "");
+    _fileResultStream = widget.fileStreamFn.call(widget.biller.logoImageUUID ?? "").asBroadcastStream();
   }
 
   Widget _defaultImage() {
@@ -62,7 +66,7 @@ class _BillerLogoState extends State<BillerLogo> {
             final base64String = base64?.base64String;
             if((base64 == null || base64String == null || base64String.isEmpty == true) && _itemImage == null) return _defaultImage();
             _itemImage = (_itemImage == null)
-                ? Image.memory(base64Decode(base64String!), width: 40, height: 40, errorBuilder: (_,_i,_j) {
+                ? Image.memory(base64Decode(base64String!), width: widget.width, height: widget.height, errorBuilder: (_,_i,_j) {
                     return Container();
                   })
                 : _itemImage;

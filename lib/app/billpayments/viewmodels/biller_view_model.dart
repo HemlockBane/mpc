@@ -18,5 +18,8 @@ class BillerViewModel extends BaseViewModel {
     return _delegate.getBillersForCategory(categoryId);
   }
 
+  Stream<Resource<List<Biller>>> searchBiller(String categoryId, String billerName) {
+    return _delegate.searchBillerByCategoryAndName(categoryId, "%$billerName%");
+  }
 
 }

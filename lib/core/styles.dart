@@ -100,6 +100,27 @@ class Styles {
       shape: MaterialStateProperty.all(
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))));
 
+  static final ButtonStyle redButtonStyleBordered = ButtonStyle(
+      textStyle: MaterialStateProperty.all(TextStyle(
+          fontSize: 15,
+          color: Colors.red,
+          fontWeight: FontWeight.w500,
+          fontFamily: Styles.defaultFont)),
+      foregroundColor: MaterialStateProperty.all(Colors.red),
+      backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
+        if (states.contains(MaterialState.disabled))
+          return Colors.red.withOpacity(0.1);
+        else if (states.contains(MaterialState.pressed))
+          return Colors.red.withOpacity(0.1);
+        else
+          return Colors.white;
+      }),
+      padding: MaterialStateProperty.all(EdgeInsets.symmetric(horizontal: 16, vertical: 16)),
+      shape: MaterialStateProperty.all(RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4),
+          side: BorderSide(color: Color(0XFFE72E2A), width: 0.8)
+      )));
+
   static final ButtonStyle greyButtonStyle = ButtonStyle(
       textStyle: MaterialStateProperty.all(TextStyle(
           fontSize: 16,

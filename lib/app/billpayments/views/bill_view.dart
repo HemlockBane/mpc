@@ -62,15 +62,18 @@ class _BillScreen extends State<BillScreen> {
             TextButton.icon(
                 onPressed: () => Navigator.of(context).pushNamed(Routes.BILL_HISTORY),
                 icon: SvgPicture.asset("res/drawables/ic_history.svg"),
-                label: Text(
-                  "History",
-                  style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.primaryColor
+                label: Padding(
+                  padding: EdgeInsets.only(right: 16),
+                  child: Text(
+                    "History",
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.primaryColor
+                    ),
                   ),
                 )
-            )
+            ),
           ],
         ),
         body: SessionedWidget(

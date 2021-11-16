@@ -109,6 +109,14 @@ class BillPurchaseViewModel extends BaseViewModel with PaymentViewModel {
     validateAdditionalFieldsForKey(key);
   }
 
+  String? getDefaultAdditionalFieldValue(String key) {
+    if (key == "emailAddress") {
+      return customer?.email;
+    }
+    if (key == "phoneNumber") return customer?.mobileNo;
+    return null;
+  }
+
   String? getFieldErrorForKey(String key) {
     return _fieldErrorMap[key];
   }

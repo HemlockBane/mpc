@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/bill_transaction.dart';
-import 'package:moniepoint_flutter/app/transfers/model/data/single_transfer_transaction.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/constants.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 import 'package:moniepoint_flutter/core/utils/time_ago.dart';
+import 'package:moniepoint_flutter/core/views/icon_curved_container.dart';
 
 class BillHistoryListItem extends Container {
 
@@ -31,6 +32,48 @@ class BillHistoryListItem extends Container {
     );
   }
 
+  static Widget transactionStatusView(BillTransaction transaction) {
+    Color bgColor = Color(0XFF6BF003);
+    Color textColor = Colors.solidGreen;
+    String? transactionStatus = transaction.institutionBill?.transactionStatus;
+    String status = "";
+
+
+    if(transactionStatus == Constants.APPROVED
+        || transactionStatus == Constants.COMPLETED) {
+      status = "SUCCESS";
+      bgColor = Color(0XFF6BF003);
+      textColor = Colors.solidGreen;
+    } else if(transactionStatus == Constants.PENDING) {
+      status = "PENDING";
+      bgColor = Color(0XFFF0BC03);
+      textColor = Colors.red;
+    } else if(transactionStatus == Constants.FAILED) {
+      status = "FAILED";
+      bgColor = Color(0XFFF00303);
+      textColor = Colors.solidOrange;
+    }
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: bgColor.withOpacity(0.14),
+          borderRadius: BorderRadius.circular(4)
+      ),
+      child: Center(
+        child: Text(
+          status,
+          style: TextStyle(
+            fontSize: 10,
+            color: textColor,
+            fontWeight: FontWeight.w700
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) => Material(
     color: Colors.transparent,
@@ -41,8 +84,17 @@ class BillHistoryListItem extends Container {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            initialView(),
-            SizedBox(width: 16),
+            IconCurvedContainer(
+                width: 50,
+                height: 50,
+                backgroundColor: Colors.deepGrey.withOpacity(0.1),
+                padding: EdgeInsets.all(1),
+                child: IconCurvedContainer(
+                    backgroundColor: Colors.white,
+                    child: initialView()
+                )
+            ),
+            SizedBox(width: 7),
             Expanded(
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -51,21 +103,28 @@ class BillHistoryListItem extends Container {
                       Text(
                           _transaction.getAmount().formatCurrency,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontSize: 17, color: Colors.solidDarkBlue, fontWeight: FontWeight.bold)
+                          style: TextStyle(fontSize: 17, color: Colors.textColorBlack, fontWeight: FontWeight.w800)
                       ),
-                      SizedBox(height: 1),
+                      SizedBox(height: 3),
                       Text(
-                          "Transfer to ${_transaction.getSinkAccountName()} | ${_transaction.bill?.billProduct?.name}",
+                          "${_transaction.bill?.billProduct?.billerName ?? ""} | ${_transaction.bill?.billProduct?.name ?? ""}",
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(fontSize: 13, color: Colors.deepGrey, fontWeight: FontWeight.normal)
                       )
                     ]
-                )),
+                )
+            ),
             SizedBox(width: 16),
-            Text(TimeAgo.formatDuration(_transaction.creationTimeStamp ?? 0),
-              style: TextStyle(
-                  color: Colors.deepGrey, fontSize: 13
-              )),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                transactionStatusView(_transaction),
+                SizedBox(height: 6),
+                Text(TimeAgo.formatDuration(_transaction.creationTimeStamp ?? 0),
+                    style: TextStyle(color: Colors.deepGrey, fontSize: 13)
+                )
+              ],
+            ),
             SizedBox(width: 2),
           ],
         ),

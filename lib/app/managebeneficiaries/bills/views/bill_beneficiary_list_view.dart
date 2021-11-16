@@ -107,6 +107,7 @@ class BillBeneficiaryState extends BeneficiaryListState<BillBeneficiaryListScree
                       Visibility(
                           visible: !isEmpty && error == null,
                           child: Expanded(child: ListView.separated(
+                              padding: EdgeInsets.only(left: 20, right: 20, top: 24),
                               controller: _scrollController,
                               itemCount: value.data.length,
                               separatorBuilder: (context, index) => Padding(

@@ -111,6 +111,7 @@ class TransferBeneficiaryListState extends BeneficiaryListState<TransferBenefici
                         child: Expanded(child: ListView.separated(
                             controller: _scrollController,
                             itemCount: value.data.length,
+                            padding: EdgeInsets.only(left: 20, right: 20, top: 24),
                             separatorBuilder: (context, index) => Padding(
                               padding: EdgeInsets.only(left: 16, right: 16),
                               child: Divider(color: Color(0XFFE0E0E0), height: 1,),

@@ -15,6 +15,7 @@ import 'package:moniepoint_flutter/core/extensions/strings.dart';
 import '../colors.dart';
 import '../styles.dart';
 import '../tuple.dart';
+import 'icon_curved_container.dart';
 
 class UserAccountSelectionView extends StatefulWidget {
 
@@ -39,7 +40,7 @@ class UserAccountSelectionView extends StatefulWidget {
     this.checkBoxSize,
     this.checkBoxPadding,
     this.isShowTrailingWhenExpanded = true,
-    this.titleStyle,
+    this.titleStyle = const TextStyle(color: Colors.textColorBlack, fontWeight: FontWeight.w700, fontSize: 15),
     this.selectedUserAccount,
     this.isExpanded = true
   });
@@ -52,13 +53,9 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
   bool isDefaultStyle() =>  widget.listStyle == ListStyle.normal;
 
   Widget boxContainer(Widget child) {
-    final defaultPadding = EdgeInsets.only(left: 16, right: 24, top: 12, bottom: 12);
-    final alternatePadding = EdgeInsets.only(
-        left: 11.87, right: 19.23, top: 14.25, bottom: 14.17
-    );
-
+    final defaultPadding = EdgeInsets.only(left: 11.87, right: 19.23, top: 14.25, bottom: 14.17);
     return Container(
-      padding: isDefaultStyle() ? defaultPadding : alternatePadding,
+      padding: defaultPadding,
       decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
@@ -91,43 +88,22 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
   }
 
   Widget getAlternateIcon(String? name){
-    if (name == null) return SizedBox();
+    if (name == null) return getDefaultIcon();
     final color = widget.primaryColor ?? Colors.primaryColor;
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        SvgPicture.asset(
-          "res/drawables/ic_m_bg.svg",
-          fit: BoxFit.cover,
-          height: 45,
-          width: 45,
-          color: color.withOpacity(0.11),
-        ),
-        Container(
-          height: 45,
-          width: 45,
-          child: Material(
-            borderRadius: BorderRadius.circular(17),
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(17),
-              overlayColor:
-              MaterialStateProperty.all(color.withOpacity(0.1)),
-              highlightColor: color.withOpacity(0.05),
-              // onTap: () => _onItemClicked(context, beneficiary),
-              child: Center(
-                child: Text(
-                  name.abbreviate(2, true, includeMidDot: false),
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: color),
-                ),
-              ),
-            ),
+    return IconCurvedContainer(
+      width: 53,
+      height: 53,
+      backgroundColor: color.withOpacity(0.1),
+      child: Center(
+        child: Text(
+          name.abbreviate(2, true, includeMidDot: false),
+          style: TextStyle(
+              fontSize: 19,
+              fontWeight: FontWeight.w700,
+              color: color
           ),
         ),
-      ],
+      ),
     );
   }
 
@@ -138,9 +114,9 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
           text1,
           textAlign: TextAlign.left,
           style: TextStyle(
-              color: Colors.textColorBlack
-                  .withOpacity(0.5),
-              fontSize: 13),
+              color: Colors.textColorBlack.withOpacity(0.5),
+              fontSize: 13
+          ),
         ),
         SizedBox(
           width: 8,
@@ -148,10 +124,10 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
         Text("$tex2",
           textAlign: TextAlign.left,
           style: TextStyle(
-              color: Colors.textColorBlack
-                  .withOpacity(0.5),
+              color: Colors.textColorBlack.withOpacity(0.5),
               fontSize: 13,
-              fontWeight: FontWeight.w600),
+              fontWeight: FontWeight.w600
+          ),
         ),
       ],
     );
@@ -224,7 +200,7 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
                   defaultTitle: "Select an Account",
                   titleStyle: widget.titleStyle,
                   onItemSelected: (item, i) => widget.onAccountSelected(item),
-                  titleIcon: (a) => isDefaultStyle() ? getDefaultIcon() : getAlternateIcon(a?.customerAccount?.accountName),
+                  titleIcon: (a) => getAlternateIcon(a?.customerAccount?.accountName),
                   primaryColor: widget.primaryColor ?? Colors.primaryColor,
                   checkBoxBorderColor: widget.checkBoxBorderColor ?? Colors.primaryColor,
                   checkBoxSize: widget.checkBoxSize,
@@ -246,7 +222,7 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
       children: [
         Flexible(
             flex:0,
-            child: isDefaultStyle() ? getDefaultIcon() : getAlternateIcon(widget.viewModel.accountName)
+            child: getAlternateIcon(widget.viewModel.accountName)
         ),
         SizedBox(width: 17,),
         Expanded(

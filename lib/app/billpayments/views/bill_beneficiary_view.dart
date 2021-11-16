@@ -12,7 +12,6 @@ import 'package:moniepoint_flutter/app/managebeneficiaries/bills/model/data/bill
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_list_item.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_shimmer_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
-import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/models/file_result.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
@@ -22,7 +21,6 @@ import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/utils/list_view_util.dart';
 import 'package:moniepoint_flutter/core/views/generic_list_placeholder.dart';
 import 'package:moniepoint_flutter/core/views/selection_combo_two.dart';
-import 'package:moniepoint_flutter/main.dart';
 import 'package:provider/provider.dart';
 
 import 'dialogs/bill_customer_enquiry_dialog.dart';
@@ -260,8 +258,9 @@ class _BillBeneficiaryScreen extends State<BillBeneficiaryScreen> with TickerPro
                             fontSize: 13,
                             onChanged: (v) => setState((){}),
                           )),
-                          SizedBox(width: 12,),
+                          SizedBox(width: 9,),
                           Styles.imageButton(
+                              padding: EdgeInsets.only(right: 24, left: 24, top: 20.5, bottom: 20.5),
                               image: SvgPicture.asset('res/drawables/ic_forward_anchor.svg', color: Colors.white,),
                               onClick: isFormValid ? () => _validateCustomerId(_customerIdController.text, true) : null,
                               disabledColor: Colors.primaryColor.withOpacity(0.5)
@@ -301,22 +300,22 @@ class _BillBeneficiaryScreen extends State<BillBeneficiaryScreen> with TickerPro
                           }),
                     )
                 ),
-                // Flexible(
-                //     flex: 1,
-                //     fit: FlexFit.loose,
-                //     child: Center(
-                //       child: TextButton(
-                //           child: Text(
-                //               'View all Beneficiaries',
-                //               style: TextStyle(
-                //                   color: Colors.solidOrange,
-                //                   fontWeight: FontWeight.bold
-                //               )
-                //           ),
-                //           onPressed: _selectBeneficiary
-                //       ),
-                //     )
-                // )
+                Flexible(
+                    flex: 1,
+                    fit: FlexFit.loose,
+                    child: Center(
+                      child: TextButton(
+                          child: Text(
+                              'View all Beneficiaries',
+                              style: TextStyle(
+                                  color: Colors.solidOrange,
+                                  fontWeight: FontWeight.bold
+                              )
+                          ),
+                          onPressed: _selectBeneficiary
+                      ),
+                    )
+                )
               ],
             ),
           ),

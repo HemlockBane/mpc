@@ -25,6 +25,9 @@ abstract class BillerDao extends MoniepointDao<Biller> {
   @Query("SELECT * FROM billers WHERE billerCategoryCode =:categoryId")
   Stream<List<Biller>> getBillersForCategory(String categoryId);
 
+  @Query("SELECT * FROM billers WHERE billerCategoryCode=:categoryId AND name LIKE :billerName")
+  Stream<List<Biller>> searchBillerByCategoryIdAndName(String categoryId, String billerName);
+
   @Query("DELETE FROM billers WHERE billerCategoryCode=:categoryId")
   Future<void> deleteByCategory(String categoryId);
 }

@@ -28,7 +28,7 @@ class AirtimeViewModel extends BaseViewModel with PaymentViewModel {
   late final DeviceManager _deviceManager;
   late final FileManagementServiceDelegate _fileServiceDelegate;
 
-  final List<ListDataItem<String>> amountPills = List.of([
+  List<ListDataItem<String>> get amountPills => List.of([
     ListDataItem(100.formatCurrencyWithoutLeadingZero),
     ListDataItem(200.formatCurrencyWithoutLeadingZero),
     ListDataItem(500.formatCurrencyWithoutLeadingZero),

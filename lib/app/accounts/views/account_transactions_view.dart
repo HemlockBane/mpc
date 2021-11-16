@@ -6,7 +6,6 @@ import 'package:flutter/material.dart' hide Colors, Page;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
-import 'package:lottie/lottie.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/accounts/viewmodels/transaction_list_view_model.dart';
@@ -199,13 +198,10 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
                 itemCount: value.data.length,
                 separatorBuilder: (context, index) => Padding(
                   padding: EdgeInsets.only(left: 24, right: 24),
-                  child: Divider(
-                    height: 1,
-                  ),
+                  child: Divider(height: 1),
                 ),
                 itemBuilder: (context, index) {
                   return TransactionHistoryListItem(value.data[index], index, (item, i) {
-                    print(userAccount?.customerAccount?.accountNumber);
                     Navigator.of(context).pushNamed(
                         Routes.ACCOUNT_TRANSACTIONS_DETAIL,
                         arguments: {"transactionRef": item.transactionRef, "accountNumber": userAccount?.customerAccount?.accountNumber});

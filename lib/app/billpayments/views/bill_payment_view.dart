@@ -21,7 +21,6 @@ import 'package:moniepoint_flutter/core/views/icon_curved_container.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:moniepoint_flutter/core/views/selected_transaction_recipient_view.dart';
-import 'package:moniepoint_flutter/core/views/transaction_error_page.dart';
 import 'package:moniepoint_flutter/core/views/transaction_pending_page.dart';
 import 'package:moniepoint_flutter/core/views/user_account_selection_view.dart';
 import 'package:moniepoint_flutter/core/views/transaction_success_page.dart';

@@ -9,9 +9,12 @@ import '../../dashboard/views/dashboard_top_menu.dart';
 
 
 class SavingsDashboardView extends StatefulWidget  {
-  SavingsDashboardView({Key? key}) : super(key: key);
+  SavingsDashboardView({
+    Key? key,
+    required GlobalKey<NavigatorState> navigatorKey
+  }) : this._navigatorKey = navigatorKey, super(key: key);
 
-  final _navigatorKey = GlobalKey<NavigatorState>();
+  final GlobalKey<NavigatorState> _navigatorKey;
 
   @override
   State<StatefulWidget> createState() => _SavingsDashboardState();
@@ -237,7 +240,7 @@ class ComingSoonView extends StatelessWidget {
                                     SizedBox(height: 11,),
                                     GestureDetector(
                                       onTap: (){
-                                        Navigator.push(context, MaterialPageRoute(builder: (ctx) => SavingsDashboardView()));
+                                        Navigator.push(context, MaterialPageRoute(builder: (ctx) => Container()));
                                       },
                                       child: Container(
                                         padding: EdgeInsets.symmetric(horizontal: 45, vertical: 10),

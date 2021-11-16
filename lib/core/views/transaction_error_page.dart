@@ -108,13 +108,14 @@ class _TransactionErrorPage extends State<TransactionErrorPage> {
                 onClick: widget.onTryAgain ?? () => Navigator.of(context).pop(true),
                 text: widget.primaryButtonText
             ),
-            SizedBox(height: 16),
-            Styles.statefulButton(
-                buttonStyle: Styles.redButtonStyleBordered,
-                stream: Stream.value(true),
-                onClick: widget.onDismiss ?? () => Navigator.of(context).pop(false),
-                text: widget.secondaryButtonText
-            ),
+            SizedBox(height: widget.displayDismissButton ? 16 : 0),
+            if (widget.displayDismissButton)
+              Styles.statefulButton(
+                  buttonStyle: Styles.redButtonStyleBordered,
+                  stream: Stream.value(true),
+                  onClick: widget.onDismiss ?? () => Navigator.of(context).pop(false),
+                  text: widget.secondaryButtonText
+              ),
             SizedBox(height: 56)
           ],
         ),

@@ -43,6 +43,7 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposableWidget, TickerProviderStateMixin {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _savingsNavigatorKey = GlobalKey<NavigatorState>();
   late DashboardViewModel _viewModel;
 
   PageController _pageController = PageController(viewportFraction: 1);
@@ -241,7 +242,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
                   LayoutBuilder(builder: (ctx, constraints) {
                     return _contentView(width, constraints.maxHeight);
                   }),
-                  SavingsDashboardView(),
+                  SavingsDashboardView(navigatorKey: _savingsNavigatorKey,),
                   LoansHomeView(),
                   MoreView()
                 ]

@@ -461,10 +461,11 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
     if (!_alreadyInSessionError) {
       _alreadyInSessionError = true;
       UserInstance().resetSession();
-      Future.delayed(Duration(milliseconds: 150), () {
+      Future.delayed(Duration(milliseconds: 150)  , () {
         showError(context,
           title: "Logged Out",
           primaryButtonText: "Continue",
+          displayDismissButton: false,
           message: AutoLogoutMessages[reason.second] ?? "",
           onPrimaryClick: () => Navigator.of(context).pop()
         );

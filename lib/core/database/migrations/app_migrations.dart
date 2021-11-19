@@ -6,7 +6,8 @@ class AppMigration {
       return [
         _version1To2(),
         _version2To3(),
-        _version3To4()
+        _version3To4(),
+        _version4To5(),
       ];
   }
 
@@ -42,16 +43,33 @@ class AppMigration {
       await db.execute('ALTER TABLE account_transactions ADD COLUMN terminalID VARCHAR');
 
       await db.execute('ALTER TABLE account_transactions ADD COLUMN location VARCHAR');
-
       print("Ending Run Migrations.....");
     });
   }
 
   Migration _version3To4() {
     return Migration(3, 4, (db) async {
-      print("Run Migrations.....");
+      print(".....Run Migrations.....");
       await db.execute('ALTER TABLE biller_products ADD COLUMN billerName VARCHAR');
-      print("Ending Run Migrations.....");
+      print(".....Ending Run Migrations.....");
+    });
+  }
+
+  Migration _version4To5() {
+    return Migration(4, 5, (db) async {
+      print(".....Run Migrations.....");
+      await db.execute('DROP TABLE bill_transactions');
+      await db.execute(
+          'CREATE TABLE IF NOT EXISTS bill_transactions ('
+            'id INTEGER PRIMARY KEY, minorAmount INTEGER, sourceAccountProviderName VARCHAR,'
+            'sourceAccountNumber VARCHAR, sourceAccountCurrencyCode VARCHAR,'
+            'transactionStatus VARCHAR, transactionTime INTEGER, customerId VARCHAR, '
+            'customerIdName VARCHAR, billerCategoryName VARCHAR, billerCategoryCode VARCHAR,'
+            'billerName VARCHAR, billerCode VARCHAR, billerLogoUUID VARCHAR, billerProductName VARCHAR,'
+            'billerProductCode VARCHAR, transactionId VARCHAR, token VARCHAR'
+          ')'
+      );
+      print(".....Ending Run Migrations.....");
     });
   }
 

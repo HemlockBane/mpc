@@ -21,19 +21,20 @@ class LoansHomeView extends StatefulWidget {
 }
 
 class _LoansHomeViewState extends State<LoansHomeView> with TickerProviderStateMixin{
+
   late final LoansHomeViewModel _loansHomeViewModel;
-  final List<dynamic> _currentItems = [];
   late final AnimationController _animationController;
-
-
+  final List<dynamic> _currentItems = [];
 
   TextStyle getBoldStyle({
     double fontSize = 24.5,
     Color color = Colors.textColorBlack,
     FontWeight fontWeight = FontWeight.w700,
-  }) =>
-    TextStyle(fontWeight: fontWeight, color: color, fontSize: fontSize);
-
+  }) => TextStyle(
+    fontWeight: fontWeight,
+    fontSize: fontSize,
+    color: color,
+  );
 
   Widget makeListView(BuildContext context, AsyncSnapshot<Resource<List<dynamic>?>> snapshot){
     return ListViewUtil.makeListViewWithState(
@@ -89,7 +90,7 @@ class _LoansHomeViewState extends State<LoansHomeView> with TickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-
+    return LoansComingSoonView();
     return SessionedWidget(
       context: context,
       child: Scaffold(

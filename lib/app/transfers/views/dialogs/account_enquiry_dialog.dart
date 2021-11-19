@@ -225,7 +225,7 @@ class _BeneficiaryDetailsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(top: 17, bottom: 22),
+      padding: EdgeInsets.only(top: 17, bottom: 22, left: 20, right: 20),
       margin: EdgeInsets.only(left: 41, right: 41),
       decoration: BoxDecoration(
         color: Colors.primaryColor.withOpacity(0.1),

@@ -4,6 +4,10 @@ import 'package:shimmer/shimmer.dart';
 
 class BeneficiaryShimmer extends StatelessWidget {
 
+  BeneficiaryShimmer({this.wrapInList = true});
+
+  final bool wrapInList;
+
   Widget _shimmerItem() {
     return Container(
       padding: EdgeInsets.only(left: 16, right: 16, top: 20, bottom: 20),
@@ -56,27 +60,29 @@ class BeneficiaryShimmer extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) => Container(
-    child:  ListView(
-      physics: NeverScrollableScrollPhysics(),
-      children: [
-        Shimmer.fromColors(
-            child: _shimmerItem(),
-            baseColor: Color(0XFFE3E8EB).withOpacity(0.5),
-            highlightColor: Colors.grey.withOpacity(0.3)
-        ),
-        Shimmer.fromColors(
-            child: _shimmerItem(),
-            baseColor: Color(0XFFE3E8EB).withOpacity(0.5),
-            highlightColor: Colors.grey.withOpacity(0.3)
-        ),
-        Shimmer.fromColors(
-            child: _shimmerItem(),
-            baseColor: Color(0XFFE3E8EB).withOpacity(0.5),
-            highlightColor: Colors.grey.withOpacity(0.3)
-        )
-      ],
-    ),
-  );
+  Widget build(BuildContext context) {
+    final children = [
+      Shimmer.fromColors(
+          child: _shimmerItem(),
+          baseColor: Color(0XFFE3E8EB).withOpacity(0.5),
+          highlightColor: Colors.grey.withOpacity(0.3)
+      ),
+      Shimmer.fromColors(
+          child: _shimmerItem(),
+          baseColor: Color(0XFFE3E8EB).withOpacity(0.5),
+          highlightColor: Colors.grey.withOpacity(0.3)
+      ),
+      Shimmer.fromColors(
+          child: _shimmerItem(),
+          baseColor: Color(0XFFE3E8EB).withOpacity(0.5),
+          highlightColor: Colors.grey.withOpacity(0.3)
+      )
+    ];
+    return Container(
+      child: (wrapInList)
+          ? ListView(physics: NeverScrollableScrollPhysics(), children: children,)
+          : Column(children: children,),
+    );
+  }
 
 }

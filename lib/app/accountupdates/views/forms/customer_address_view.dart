@@ -211,9 +211,7 @@ class _CustomerAddressScreen extends State<CustomerAddressScreen> with Automatic
             Spacer(),
             Styles.statefulButton(
                 stream: _customerAddressForm.isValid,
-                onClick: () {
-                  _viewModel.moveToNext(widget.position);
-                },
+                onClick: () => _viewModel.moveToNext(widget.position),
                 text: widget.isLast() ? 'Submit' : 'Next',
                 isLoading: false
             ),

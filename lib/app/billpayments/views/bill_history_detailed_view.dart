@@ -6,6 +6,7 @@ import 'package:moniepoint_flutter/app/accounts/views/account_transaction_detail
 import 'package:moniepoint_flutter/app/billpayments/model/data/bill_transaction.dart';
 import 'package:moniepoint_flutter/app/billpayments/viewmodels/bill_history_detail_view_model.dart';
 import 'package:moniepoint_flutter/app/billpayments/views/bill_history_list_item.dart';
+import 'package:moniepoint_flutter/app/billpayments/views/biller_logo.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/views/icon_curved_container.dart';
@@ -31,7 +32,7 @@ class _BillHistoryDetailedView extends State<BillHistoryDetailedView> {
     final items = [
       TransactionDetailViewItem(
         label: "Product",
-        value: "${transaction.bill?.billProduct?.name ?? ""}",
+        value: "${transaction.billerProductName ?? ""}",
         valueTextWeight: FontWeight.w600,
       ),
       TransactionDetailViewItem(
@@ -40,12 +41,12 @@ class _BillHistoryDetailedView extends State<BillHistoryDetailedView> {
         valueTextWeight: FontWeight.w600,
       ),
       TransactionDetailViewItem(
-        label: "${transaction.bill?.billProduct?.identifierName ?? "Customer ID"}",
-        value: "${transaction.bill?.identifier}",
+        label: "${transaction.customerIdName ?? "Customer ID"}",
+        value: "${transaction.customerId}",
         valueTextWeight: FontWeight.w600,
       ),
       TransactionDetailViewItem(
-        label: "Transaction Date  ",
+        label: "Transaction Date",
         value: "${transaction.transactionDateToString()}",
         valueTextWeight: FontWeight.w600,
       ),
@@ -66,8 +67,9 @@ class _BillHistoryDetailedView extends State<BillHistoryDetailedView> {
       return previous;
     });
 
-    if(viewItems.isNotEmpty && viewItems.lastOrNull is Divider) {
-      viewItems.removeLast();
+    if(viewItems.isNotEmpty && viewItems.lastOrNull is Padding) {
+      final parent = viewItems.lastOrNull as Padding;
+      if(parent.child is Divider) viewItems.removeLast();
     }
     return viewItems;
   }
@@ -124,12 +126,15 @@ class _BillHistoryDetailedView extends State<BillHistoryDetailedView> {
                               children: [
                                 SizedBox(width: 16),
                                 IconCurvedContainer(
-                                    backgroundColor: Colors.grey,
-                                    child: SvgPicture.asset("")
+                                    backgroundColor: Colors.white,
+                                    child: UUIDImage(
+                                      fileStreamFn: viewModel.getFile,
+                                      fileUUID: transaction.billerLogoUUID,
+                                    )
                                 ),
                                 SizedBox(width: 15),
                                 Expanded(child: Text(
-                                  "${transaction.bill?.billProduct?.billerName}",
+                                  "${transaction.billerName}",
                                   style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w600,
@@ -170,7 +175,7 @@ class _BillTokenDisplayItem extends TransactionDetailDisplayable {
 
   @override
   Widget build(BuildContext context) {
-    final token = transaction.institutionBill?.token;
+    final token = transaction.token;
     if(token == null || token.isEmpty) return SizedBox();
     return Container(
       width: double.infinity,
@@ -218,7 +223,7 @@ class _BillTokenDisplayItem extends TransactionDetailDisplayable {
 
   @override
   bool shouldDisplay() {
-    final token = this.transaction.institutionBill?.token;
+    final token = this.transaction.token;
     return token != null && token.isNotEmpty == true;
   }
 

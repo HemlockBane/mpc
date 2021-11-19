@@ -341,3 +341,18 @@ final relationships = [
   const Relationship("Nephew"),
   const Relationship("Niece"),
 ]..sort((a, b) => a.relationship.compareTo(b.relationship));
+
+
+///StringDropDownItem
+///
+///
+class StringDropDownItem extends DropDownItem {
+  final String value;
+
+  const StringDropDownItem(this.value);
+
+  @override
+  String getTitle() {
+    return value;
+  }
+}

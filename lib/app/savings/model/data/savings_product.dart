@@ -5,6 +5,8 @@ import 'package:moniepoint_flutter/core/database/type_converters.dart';
 
 part 'savings_product.g.dart';
 
+///@author Paul Okeke
+
 @Entity(tableName: "savings_products")
 @JsonSerializable()
 class SavingsProduct {

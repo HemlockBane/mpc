@@ -12,7 +12,6 @@ import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/work/ios_background_task_worker.dart';
 import 'package:workmanager/workmanager.dart';
-import 'package:collection/collection.dart';
 
 FlutterLocalNotificationsPlugin notificationPlugin = FlutterLocalNotificationsPlugin();
 

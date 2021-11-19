@@ -230,10 +230,10 @@ class _BillerListItem extends State<BillerListItem> {
                       backgroundColor: Colors.transparent,
                       width: 55,
                       height: 55,
-                      child: BillerLogo(
+                      child: UUIDImage(
                         width: 55,
                         height: 55,
-                        biller: widget._billBiller,
+                        fileUUID: widget._billBiller.logoImageUUID,
                         fileStreamFn: viewModel.getFile,
                       )
                   ),

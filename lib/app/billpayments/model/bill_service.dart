@@ -60,8 +60,11 @@ abstract class BillService {
     "client-id": BuildConfig.CLIENT_ID,
     "appVersion": BuildConfig.APP_VERSION
   })
-  @POST("history")
-  Future<ServiceResult<BillHistoryCollection>> getBillHistory(@Body() HistoryRequestBody? billHistoryRequestBody);
+  @POST("${ServiceConfig.VAS_SERVICE}api/v2/bill/history/{customerId}")
+  Future<ServiceResult<BillHistoryCollection>> getBillHistory(
+      @Path("customerId") String? customerId,
+      @Body() HistoryRequestBody? billHistoryRequestBody
+  );
 
   @Headers(<String, dynamic>{
     "Content-Type": "application/json",

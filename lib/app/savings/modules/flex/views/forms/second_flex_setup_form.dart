@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide Colors;
+import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/forms/account_update_form_view.dart';
 import 'package:moniepoint_flutter/app/airtime/views/selection_combo.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/flex_setup_viewmodel.dart';
@@ -27,15 +28,12 @@ class _SecondFlexSetupFormState extends State<SecondFlexSetupForm> with Automati
   var startDate = "Start date";
   var endDate = "End date";
 
-
-  TextStyle getBoldStyle(
-      {double fontSize = 32.5,
+  TextStyle getBoldStyle({double fontSize = 32.5,
         Color color = Colors.textColorBlack,
         FontWeight fontWeight = FontWeight.w700}) =>
       TextStyle(fontWeight: fontWeight, fontSize: fontSize, color: color);
 
-  TextStyle getNormalStyle(
-      {double fontSize = 32.5,
+  TextStyle getNormalStyle({double fontSize = 32.5,
         Color color = Colors.textColorBlack,
         FontWeight fontWeight = FontWeight.w500}) =>
       TextStyle(fontWeight: fontWeight, fontSize: fontSize, color: color);
@@ -44,15 +42,6 @@ class _SecondFlexSetupFormState extends State<SecondFlexSetupForm> with Automati
     ComboItem("Automatic", "Automatic", isSelected: true),
     ComboItem("Manual",  "Manual",),
   ]);
-
-
-  final savingsDates = List.of([
-    ComboItem("Week 1 (1st - 7th)", "Week 1;(1st - 7th)", isSelected: true),
-    ComboItem("Week 2 (8th - 14th)",  "Week 2;(8th - 14th)",),
-    ComboItem("Week 3 (15th - 21st)",  "Week 3;(15th - 21st)",),
-    ComboItem("Week 4 (22nd - 31st)",  "Week 4;(22nd - 31st)",),
-  ]);
-
 
   @override
   void initState() {
@@ -67,106 +56,6 @@ class _SecondFlexSetupFormState extends State<SecondFlexSetupForm> with Automati
     final dateInMillis = DateTime.fromMillisecondsSinceEpoch(date);
     final formattedDate = "";//Jiffy(dateInMillis).format("do [of] MMM");
     return formattedDate;
-  }
-
-
-  void displayDatePicker(BuildContext context) async {
-    final themeData = Theme.of(context);
-    final currentDate = DateTime.now();
-    // crazy hack to get last day in a month
-    final lastDateInMonth = DateTime(currentDate.year, currentDate.month + 1, 0);
-    final selectedDate = await showDateRangePicker(
-        helpText: 'Select Start and End Date',
-        context: context,
-        firstDate: DateTime(1900, 1, 1).add(Duration(days: 1)),
-        lastDate: lastDateInMonth,
-        builder: (ctx, child){
-          return Theme(
-              child: child!,
-              data: themeData.copyWith(
-                // check date range picker widget to know which colors to edit
-                  appBarTheme: themeData.appBarTheme.copyWith(backgroundColor: Colors.solidGreen),
-                  colorScheme: themeData.colorScheme.copyWith(primary: Colors.solidGreen)
-              )
-          );
-
-        }
-    );
-
-    if(selectedDate != null ) {
-      setState(() {
-        final selectedStartDate = selectedDate.start.millisecondsSinceEpoch;
-        final selectedEndDate = selectedDate.end.add(Duration(hours: 23)).millisecondsSinceEpoch;
-        startDate = getFormattedDateString(selectedStartDate);
-        endDate = getFormattedDateString(selectedEndDate);
-
-      });
-    }
-
-  }
-
-  Widget getDatePicker(){
-    //TODO: Handle flex frequency in viewmodel
-    // if flex frequency is monthly, use date range picker
-    final boldStyle = TextStyle(color: Colors.textColorBlack, fontWeight: FontWeight.w600, fontSize: 16);
-    return GestureDetector(
-      onTap: (){
-        displayDatePicker(context);
-      },
-      child: Container(
-        padding: EdgeInsets.only(left: 15, right: 19, top: 11.4, bottom: 11.4),
-        child: Row(
-          children: [
-            Icon(CustomFont.calendar, color: Color(0xffA0A7AF), size: 25.5,),
-            SizedBox(width: 10.5),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Set Date & Time", style: TextStyle(color: Colors.solidGreen, fontWeight: FontWeight.w600, fontSize: 12),),
-                  SizedBox(height: 3),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Text(startDate, style: boldStyle,),
-                          SizedBox(width: 3),
-                          Text("to", style: TextStyle(color: Colors.textColorBlack, fontWeight: FontWeight.w400, fontSize: 16),),
-                          SizedBox(width: 3),
-                          Text(endDate, style: boldStyle,),
-
-                        ],
-                      ),
-                      Text("Change", style: TextStyle(color: Colors.solidGreen, fontWeight: FontWeight.w700, fontSize: 13.3),)
-                    ],
-                  ),
-                ],
-              ),
-            )
-          ],
-        ),
-        decoration: BoxDecoration(
-          color: savingsGreen.withOpacity(0.15),
-          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-        ),
-      ),
-    );
-
-
-    // if flex frequency is weekly, use selection combo
-    return SelectionCombo<String>(
-      savingsDates.toList(), (item, index) {
-
-
-    },
-      checkBoxPosition: CheckBoxPosition.leading,
-      maxDisplayValue: 4,
-      shouldUseAlternateDecoration: true,
-      primaryColor: Colors.solidGreen,
-      backgroundColor: savingsGreen.withOpacity(0.15), horizontalPadding: 11 ,
-      isColonSeparated: true,
-    );
   }
 
   @override
@@ -199,13 +88,15 @@ class _SecondFlexSetupFormState extends State<SecondFlexSetupForm> with Automati
                 children: [
                   Container(
                     child: Text(
-                      "How frequently would you like to save?",
+                      "How will the contribution be made?",
                       style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
                     ),
                   ),
                   SizedBox(height: 12),
                   SelectionCombo<String>(
-                    savingsTypes.toList(), (item, index) {},
+                    savingsTypes.toList(), (item, index) {
+                      _viewModel.setSavingMode(item);
+                    },
                     checkBoxPosition: CheckBoxPosition.leading,
                     shouldUseAlternateDecoration: true,
                     primaryColor: Colors.solidGreen,
@@ -213,14 +104,36 @@ class _SecondFlexSetupFormState extends State<SecondFlexSetupForm> with Automati
                     horizontalPadding: 11 ,
                   ),
                   SizedBox(height: 34),
-                  Container(
-                    child: Text(
-                      "When to take contribution?",
-                      style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
-                    ),
+                  StreamBuilder(
+                      stream: _viewModel.savingModeStream,
+                      builder: (ctx, AsyncSnapshot<String?> a) {
+                        final title = (a.data == "Manual")
+                            ? "What day of the month do you want to contribute?"
+                            : "What day of the week do you want to contribute?";
+                        return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                child: Text(
+                                  title,
+                                  style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
+                                ),
+                              ),
+                              SizedBox(height: 12),
+                              StreamBuilder(
+                                stream: _viewModel.contributionWeekDayStream,
+                                builder: (ctx, AsyncSnapshot<StringDropDownItem?> a) {
+                                  return Styles.buildDropDown<StringDropDownItem>(
+                                      _viewModel.monthDays, a, (item, index) {
+                                        _viewModel.setContributionWeekDay(item);
+                                      }
+                                  );
+                                },
+                              )
+                            ]
+                        );
+                      }
                   ),
-                  SizedBox(height: 12),
-                  getDatePicker(),
                   SizedBox(height: 32),
                 ],
               ),

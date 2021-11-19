@@ -242,7 +242,7 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
                       hint: e.fieldLabel,
                       maxLines: 1,
                       fontSize: 13.4,
-                      // value: viewModel.getDefaultAdditionalFieldValue(e.key ?? ""),
+                      value: viewModel.setDefaultAdditionalFieldValue(e.key ?? ""),
                       inputType: (e.dataType == "NUMBER") ? TextInputType.numberWithOptions() : TextInputType.text,
                       onChanged: (value) => _onAdditionalFieldInputChange(viewModel, e, value)
                   );
@@ -273,20 +273,20 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
         children: [
           IconCurvedContainer(
               backgroundColor: Colors.textColorBlack.withOpacity(0.08),
-              child: BillerLogo(
-                  biller: viewModel.biller!,
+              child: UUIDImage(
+                  fileUUID: viewModel.biller?.logoImageUUID,
                   fileStreamFn: viewModel.getFile
               ),
           ),
           SizedBox(width: 13),
-          Text(
+          Flexible(child: Text(
             "${viewModel.billerProduct?.name}",
             style: TextStyle(
-              color: Color(0XFF4A4A4A),
-              fontWeight: FontWeight.w600,
-              fontSize: 17
+                color: Color(0XFF4A4A4A),
+                fontWeight: FontWeight.w600,
+                fontSize: 17
             ),
-          )
+          ))
         ],
       ),
     );
@@ -303,6 +303,7 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
         Padding(
           padding: EdgeInsets.only(left: 20),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 viewModel.biller?.name ?? "",
@@ -342,7 +343,7 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
                       _productContainer(),
                       SizedBox(height: 24),
                       makeLabel('Beneficiary'),
-                      SizedBox(height: 8,),
+                      SizedBox(height: 8),
                       SelectedTransactionRecipientView(
                         recipientName: '${viewModel.beneficiary?.getAccountName()}',
                         providerName: '${viewModel.beneficiary?.getBeneficiaryProviderName()}',

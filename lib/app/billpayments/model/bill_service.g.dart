@@ -125,25 +125,26 @@ class _BillService implements BillService {
 
   @override
   Future<ServiceResult<BillHistoryCollection>> getBillHistory(
-      billHistoryRequestBody) async {
+      customerId, billHistoryRequestBody) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     queryParameters.removeWhere((k, v) => v == null);
     final _data = <String, dynamic>{};
     _data.addAll(billHistoryRequestBody?.toJson() ?? <String, dynamic>{});
-    final _result = await _dio.fetch<Map<String, dynamic>>(
-        _setStreamType<ServiceResult<BillHistoryCollection>>(Options(
-                method: 'POST',
-                headers: <String, dynamic>{
-                  r'Content-Type': 'application/json',
-                  r'client-id': 'ANDROID',
-                  r'appVersion': '0.0.1'
-                },
-                extra: _extra,
-                contentType: 'application/json')
-            .compose(_dio.options, 'history',
-                queryParameters: queryParameters, data: _data)
-            .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final _result = await _dio.fetch<Map<String, dynamic>>(_setStreamType<
+        ServiceResult<BillHistoryCollection>>(Options(
+            method: 'POST',
+            headers: <String, dynamic>{
+              r'Content-Type': 'application/json',
+              r'client-id': 'ANDROID',
+              r'appVersion': '0.0.1'
+            },
+            extra: _extra,
+            contentType: 'application/json')
+        .compose(_dio.options,
+            'https://core-vas.monnify.development.teamapt.com/api/v2/bill/history/$customerId',
+            queryParameters: queryParameters, data: _data)
+        .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = ServiceResult<BillHistoryCollection>.fromJson(
       _result.data!,
       (json) => BillHistoryCollection.fromJson(json as Map<String, dynamic>),

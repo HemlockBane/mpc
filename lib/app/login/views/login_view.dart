@@ -222,7 +222,12 @@ class _LoginState extends State<LoginScreen> with TickerProviderStateMixin, Comp
             }
         );
       } else {
-        showError(context, title: "Login Failed!", message: event.message ?? "");
+        showError(
+            context,
+            title: "Login Failed!",
+            message: event.message ?? "",
+            displayDismissButton: false
+        );
       }
       _topAnimController.reverse(from: 0.15);
     }

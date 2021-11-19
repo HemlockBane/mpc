@@ -28,7 +28,7 @@ class TransactionErrorPage extends StatefulWidget {
     required this.message,
     this.primaryButtonText = "Try Again",
     this.secondaryButtonText = "Dismiss",
-    this.displayDismissButton = true
+    this.displayDismissButton = false
   }): super(key: key);
 
   @override
@@ -79,8 +79,7 @@ class _TransactionErrorPage extends State<TransactionErrorPage> {
                 "res/drawables/ic_info.svg",
                 color: Colors.white,
               ),
-              decoration:
-              BoxDecoration(
+              decoration: BoxDecoration(
                   color: Colors.red,
                   shape: BoxShape.circle,
                   boxShadow: [

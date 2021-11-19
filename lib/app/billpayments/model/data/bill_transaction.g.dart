@@ -8,29 +8,45 @@ part of 'bill_transaction.dart';
 
 BillTransaction _$BillTransactionFromJson(Map<String, dynamic> json) {
   return BillTransaction(
-    batchId: json['batch_id'] as int,
-    historyId: json['history_id'] as int?,
-    bill: json['bill'] == null
-        ? null
-        : BillHistoryItem.fromJson(json['bill'] as Object),
-    batchStatus: json['status'] as String?,
-    username: json['username'] as String?,
-    institutionBill: json['institutionBill'] == null
-        ? null
-        : TransactionBatch.fromJson(json['institutionBill'] as Object),
-    historyType: json['historyType'] as String?,
-    creationTimeStamp: json['creationTimeStamp'] as int?,
+    id: json['id'] as int?,
+    minorAmount: json['minorAmount'] as int?,
+    sourceAccountProviderName: json['sourceAccountProviderName'] as String?,
+    sourceAccountNumber: json['sourceAccountNumber'] as String?,
+    sourceAccountCurrencyCode: json['sourceAccountCurrencyCode'] as String?,
+    transactionStatus: json['transactionStatus'] as String?,
+    transactionTime: stringDateTime(json['transactionTime'] as String),
+    customerId: json['customerId'] as int?,
+    customerIdName: json['customerIdName'] as String?,
+    billerCategoryName: json['billerCategoryName'] as String?,
+    billerCategoryCode: json['billerCategoryCode'] as String?,
+    billerName: json['billerName'] as String?,
+    billerCode: json['billerCode'] as String?,
+    billerLogoUUID: json['billerLogoUUID'] as String?,
+    billerProductName: json['billerProductName'] as String?,
+    billerProductCode: json['billerProductCode'] as String?,
+    transactionId: json['transactionId'] as String?,
+    token: json['token'] as String?,
   );
 }
 
 Map<String, dynamic> _$BillTransactionToJson(BillTransaction instance) =>
     <String, dynamic>{
-      'username': instance.username,
-      'batch_id': instance.batchId,
-      'history_id': instance.historyId,
-      'institutionBill': instance.institutionBill,
-      'bill': instance.bill,
-      'historyType': instance.historyType,
-      'creationTimeStamp': instance.creationTimeStamp,
-      'status': instance.batchStatus,
+      'id': instance.id,
+      'minorAmount': instance.minorAmount,
+      'sourceAccountProviderName': instance.sourceAccountProviderName,
+      'sourceAccountNumber': instance.sourceAccountNumber,
+      'sourceAccountCurrencyCode': instance.sourceAccountCurrencyCode,
+      'transactionStatus': instance.transactionStatus,
+      'transactionTime': millisToString(instance.transactionTime),
+      'customerId': instance.customerId,
+      'customerIdName': instance.customerIdName,
+      'billerCategoryName': instance.billerCategoryName,
+      'billerCategoryCode': instance.billerCategoryCode,
+      'billerName': instance.billerName,
+      'billerCode': instance.billerCode,
+      'billerLogoUUID': instance.billerLogoUUID,
+      'billerProductName': instance.billerProductName,
+      'billerProductCode': instance.billerProductCode,
+      'transactionId': instance.transactionId,
+      'token': instance.token,
     };

@@ -95,7 +95,7 @@ class _$AppDatabase extends AppDatabase {
   Future<sqflite.Database> open(String path, List<Migration> migrations,
       [Callback? callback]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 4,
+      version: 5,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -129,7 +129,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `service_provider_items` (`id` INTEGER NOT NULL, `active` INTEGER, `amount` INTEGER, `code` TEXT, `currencySymbol` TEXT, `fee` REAL, `name` TEXT, `paymentCode` TEXT, `priceFixed` INTEGER, `billerId` TEXT, PRIMARY KEY (`id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `bill_transactions` (`username` TEXT, `batch_id` INTEGER NOT NULL, `history_id` INTEGER, `batch` TEXT, `history` TEXT, `historyType` TEXT, `creationTimeStamp` INTEGER, `batch_status` TEXT, PRIMARY KEY (`batch_id`, `history_id`))');
+            'CREATE TABLE IF NOT EXISTS `bill_transactions` (`id` INTEGER, `minorAmount` INTEGER, `sourceAccountProviderName` TEXT, `sourceAccountNumber` TEXT, `sourceAccountCurrencyCode` TEXT, `transactionStatus` TEXT, `transactionTime` INTEGER, `customerId` INTEGER, `customerIdName` TEXT, `billerCategoryName` TEXT, `billerCategoryCode` TEXT, `billerName` TEXT, `billerCode` TEXT, `billerLogoUUID` TEXT, `billerProductName` TEXT, `billerProductCode` TEXT, `transactionId` TEXT, `token` TEXT, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `bill_beneficiaries` (`id` INTEGER NOT NULL, `name` TEXT, `billerCode` TEXT, `billerCategoryLogo` TEXT, `biller` TEXT, `billerProducts` TEXT, `billerName` TEXT, `customerIdentity` TEXT, `frequency` INTEGER, `lastUpdated` INTEGER, PRIMARY KEY (`id`))');
         await database.execute(
@@ -1247,31 +1247,49 @@ class _$BillsDao extends BillsDao {
             database,
             'bill_transactions',
             (BillTransaction item) => <String, Object?>{
-                  'username': item.username,
-                  'batch_id': item.batchId,
-                  'history_id': item.historyId,
-                  'batch':
-                      _transactionBatchConverter.encode(item.institutionBill),
-                  'history': _billHistoryItemConverter.encode(item.bill),
-                  'historyType': item.historyType,
-                  'creationTimeStamp': item.creationTimeStamp,
-                  'batch_status': item.batchStatus
+                  'id': item.id,
+                  'minorAmount': item.minorAmount,
+                  'sourceAccountProviderName': item.sourceAccountProviderName,
+                  'sourceAccountNumber': item.sourceAccountNumber,
+                  'sourceAccountCurrencyCode': item.sourceAccountCurrencyCode,
+                  'transactionStatus': item.transactionStatus,
+                  'transactionTime': item.transactionTime,
+                  'customerId': item.customerId,
+                  'customerIdName': item.customerIdName,
+                  'billerCategoryName': item.billerCategoryName,
+                  'billerCategoryCode': item.billerCategoryCode,
+                  'billerName': item.billerName,
+                  'billerCode': item.billerCode,
+                  'billerLogoUUID': item.billerLogoUUID,
+                  'billerProductName': item.billerProductName,
+                  'billerProductCode': item.billerProductCode,
+                  'transactionId': item.transactionId,
+                  'token': item.token
                 },
             changeListener),
         _billTransactionDeletionAdapter = DeletionAdapter(
             database,
             'bill_transactions',
-            ['batch_id', 'history_id'],
+            ['id'],
             (BillTransaction item) => <String, Object?>{
-                  'username': item.username,
-                  'batch_id': item.batchId,
-                  'history_id': item.historyId,
-                  'batch':
-                      _transactionBatchConverter.encode(item.institutionBill),
-                  'history': _billHistoryItemConverter.encode(item.bill),
-                  'historyType': item.historyType,
-                  'creationTimeStamp': item.creationTimeStamp,
-                  'batch_status': item.batchStatus
+                  'id': item.id,
+                  'minorAmount': item.minorAmount,
+                  'sourceAccountProviderName': item.sourceAccountProviderName,
+                  'sourceAccountNumber': item.sourceAccountNumber,
+                  'sourceAccountCurrencyCode': item.sourceAccountCurrencyCode,
+                  'transactionStatus': item.transactionStatus,
+                  'transactionTime': item.transactionTime,
+                  'customerId': item.customerId,
+                  'customerIdName': item.customerIdName,
+                  'billerCategoryName': item.billerCategoryName,
+                  'billerCategoryCode': item.billerCategoryCode,
+                  'billerName': item.billerName,
+                  'billerCode': item.billerCode,
+                  'billerLogoUUID': item.billerLogoUUID,
+                  'billerProductName': item.billerProductName,
+                  'billerProductCode': item.billerProductCode,
+                  'transactionId': item.transactionId,
+                  'token': item.token
                 },
             changeListener);
 
@@ -1289,17 +1307,28 @@ class _$BillsDao extends BillsDao {
   Stream<List<BillTransaction>> getBillTransactions(
       int startDate, int endDate, int myOffset, int limit) {
     return _queryAdapter.queryListStream(
-        'SELECT * FROM bill_transactions WHERE (creationTimeStamp BETWEEN ?1 AND ?2) AND batch_status != "CANCELLED" ORDER BY creationTimeStamp DESC LIMIT ?4 OFFSET ?3',
+        'SELECT * FROM bill_transactions WHERE (transactionTime BETWEEN ?1 AND ?2) AND transactionStatus != "CANCELLED" ORDER BY transactionTime DESC LIMIT ?4 OFFSET ?3',
         mapper: (Map<String, Object?> row) => BillTransaction(
-            batchId: row['batch_id'] as int,
-            historyId: row['history_id'] as int?,
-            bill: _billHistoryItemConverter.decode(row['history'] as String?),
-            batchStatus: row['batch_status'] as String?,
-            username: row['username'] as String?,
-            institutionBill:
-                _transactionBatchConverter.decode(row['batch'] as String?),
-            historyType: row['historyType'] as String?,
-            creationTimeStamp: row['creationTimeStamp'] as int?),
+            id: row['id'] as int?,
+            minorAmount: row['minorAmount'] as int?,
+            sourceAccountProviderName:
+                row['sourceAccountProviderName'] as String?,
+            sourceAccountNumber: row['sourceAccountNumber'] as String?,
+            sourceAccountCurrencyCode:
+                row['sourceAccountCurrencyCode'] as String?,
+            transactionStatus: row['transactionStatus'] as String?,
+            transactionTime: row['transactionTime'] as int?,
+            customerId: row['customerId'] as int?,
+            customerIdName: row['customerIdName'] as String?,
+            billerCategoryName: row['billerCategoryName'] as String?,
+            billerCategoryCode: row['billerCategoryCode'] as String?,
+            billerName: row['billerName'] as String?,
+            billerCode: row['billerCode'] as String?,
+            billerLogoUUID: row['billerLogoUUID'] as String?,
+            billerProductName: row['billerProductName'] as String?,
+            billerProductCode: row['billerProductCode'] as String?,
+            transactionId: row['transactionId'] as String?,
+            token: row['token'] as String?),
         arguments: [startDate, endDate, myOffset, limit],
         queryableName: 'bill_transactions',
         isView: false);
@@ -1307,18 +1336,28 @@ class _$BillsDao extends BillsDao {
 
   @override
   Future<BillTransaction?> getBillTransactionById(int id) async {
-    return _queryAdapter.query(
-        'SELECT * FROM bill_transactions WHERE history_id = ?1',
+    return _queryAdapter.query('SELECT * FROM bill_transactions WHERE id = ?1',
         mapper: (Map<String, Object?> row) => BillTransaction(
-            batchId: row['batch_id'] as int,
-            historyId: row['history_id'] as int?,
-            bill: _billHistoryItemConverter.decode(row['history'] as String?),
-            batchStatus: row['batch_status'] as String?,
-            username: row['username'] as String?,
-            institutionBill:
-                _transactionBatchConverter.decode(row['batch'] as String?),
-            historyType: row['historyType'] as String?,
-            creationTimeStamp: row['creationTimeStamp'] as int?),
+            id: row['id'] as int?,
+            minorAmount: row['minorAmount'] as int?,
+            sourceAccountProviderName:
+                row['sourceAccountProviderName'] as String?,
+            sourceAccountNumber: row['sourceAccountNumber'] as String?,
+            sourceAccountCurrencyCode:
+                row['sourceAccountCurrencyCode'] as String?,
+            transactionStatus: row['transactionStatus'] as String?,
+            transactionTime: row['transactionTime'] as int?,
+            customerId: row['customerId'] as int?,
+            customerIdName: row['customerIdName'] as String?,
+            billerCategoryName: row['billerCategoryName'] as String?,
+            billerCategoryCode: row['billerCategoryCode'] as String?,
+            billerName: row['billerName'] as String?,
+            billerCode: row['billerCode'] as String?,
+            billerLogoUUID: row['billerLogoUUID'] as String?,
+            billerProductName: row['billerProductName'] as String?,
+            billerProductCode: row['billerProductCode'] as String?,
+            transactionId: row['transactionId'] as String?,
+            token: row['token'] as String?),
         arguments: [id]);
   }
 
@@ -2725,7 +2764,6 @@ final _transferHistoryItemConverter = TransferHistoryItemConverter();
 final _transactionBatchConverter = TransactionBatchConverter();
 final _airtimeHistoryItemConverter = AirtimeHistoryItemConverter();
 final _airtimeServiceProviderConverter = AirtimeServiceProviderConverter();
-final _billHistoryItemConverter = BillHistoryItemConverter();
 final _billerConverter = BillerConverter();
 final _listBillerProductConverter = ListBillerProductConverter();
 final _additionalFieldsConverter = AdditionalFieldsConverter();

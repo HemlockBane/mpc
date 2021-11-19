@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/bill_transaction.dart';
+import 'package:moniepoint_flutter/app/billpayments/views/biller_logo.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/constants.dart';
+import 'package:moniepoint_flutter/core/models/file_result.dart';
+import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 import 'package:moniepoint_flutter/core/utils/time_ago.dart';
@@ -13,8 +16,17 @@ class BillHistoryListItem extends Container {
   final BillTransaction _transaction;
   final int position;
   final OnItemClickListener<BillTransaction, int>? _onItemClickListener;
+  final Stream<Resource<FileResult>> Function(String logoId) _fileStreamFn;
 
-  BillHistoryListItem(this._transaction, this.position, this._onItemClickListener);
+  BillHistoryListItem({
+    required BillTransaction transaction,
+    required int position,
+    required onItemClickListener,
+    required Stream<Resource<FileResult>> Function(String logoId) fileStreamFn
+  }) : _transaction = transaction,
+        position = position,
+        _onItemClickListener = onItemClickListener,
+        _fileStreamFn = fileStreamFn;
 
 
   Widget initialView() {
@@ -35,7 +47,7 @@ class BillHistoryListItem extends Container {
   static Widget transactionStatusView(BillTransaction transaction) {
     Color bgColor = Color(0XFF6BF003);
     Color textColor = Colors.solidGreen;
-    String? transactionStatus = transaction.institutionBill?.transactionStatus;
+    String? transactionStatus = transaction.transactionStatus;
     String status = "";
 
 
@@ -91,7 +103,10 @@ class BillHistoryListItem extends Container {
                 padding: EdgeInsets.all(1),
                 child: IconCurvedContainer(
                     backgroundColor: Colors.white,
-                    child: initialView()
+                    child: UUIDImage(
+                      fileStreamFn: _fileStreamFn,
+                      fileUUID: _transaction.billerLogoUUID,
+                    )
                 )
             ),
             SizedBox(width: 7),
@@ -107,7 +122,7 @@ class BillHistoryListItem extends Container {
                       ),
                       SizedBox(height: 3),
                       Text(
-                          "${_transaction.bill?.billProduct?.billerName ?? ""} | ${_transaction.bill?.billProduct?.name ?? ""}",
+                          "${_transaction.billerName ?? ""} | ${_transaction.billerProductName ?? ""}",
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(fontSize: 13, color: Colors.deepGrey, fontWeight: FontWeight.normal)
                       )
@@ -120,7 +135,7 @@ class BillHistoryListItem extends Container {
               children: [
                 transactionStatusView(_transaction),
                 SizedBox(height: 6),
-                Text(TimeAgo.formatDuration(_transaction.creationTimeStamp ?? 0),
+                Text(TimeAgo.formatDuration(_transaction.transactionTime ?? 0),
                     style: TextStyle(color: Colors.deepGrey, fontSize: 13)
                 )
               ],

@@ -24,7 +24,6 @@ class FirstFlexSetupForm extends PagedForm{
 
 class _FirstFlexSetupFormState extends State<FirstFlexSetupForm> with AutomaticKeepAliveClientMixin{
   late final FlexSetupViewModel _viewModel;
-  double _amount = 0.00;
   ListDataItem<String>? _selectedAmountPill;
   final List<ListDataItem<String>> amountPills = List.generate(4, (index) => ListDataItem((5000 * (index + 1)).formatCurrencyWithoutLeadingZero));
 
@@ -41,9 +40,11 @@ class _FirstFlexSetupFormState extends State<FirstFlexSetupForm> with AutomaticK
                       _selectedAmountPill?.isSelected = false;
                       _selectedAmountPill = item;
                       _selectedAmountPill?.isSelected = true;
-                      this._amount = double.parse(_selectedAmountPill!.item.replaceAll(RegExp(r'[(a-z)|(A-Z)|(,₦)]'), ""));
+                      final amount = double.parse(_selectedAmountPill!.item.replaceAll(RegExp(r'[(a-z)|(A-Z)|(,₦)]'), ""));
+                      _viewModel.setAmount(amount);
                     });
-                  })));
+                  })
+          ));
       if(index != amountPills.length -1) pills.add(SizedBox(width: 8,));
     });
     return pills;
@@ -60,17 +61,11 @@ class _FirstFlexSetupFormState extends State<FirstFlexSetupForm> with AutomaticK
     ComboItem("Weekly",  "Weekly",),
   ]);
 
-
   @override
   void initState() {
     _viewModel = Provider.of<FlexSetupViewModel>(context, listen: false);
-    // if(_viewModel.userAccounts.length > 1) _viewModel.getUserAccountsBalance().listen((event) { });
-    // else _viewModel.getCustomerAccountBalance().listen((event) { });
     super.initState();
   }
-
-  @override
-  bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
@@ -88,22 +83,19 @@ class _FirstFlexSetupFormState extends State<FirstFlexSetupForm> with AutomaticK
           SizedBox(height: 12),
           SelectionCombo<String>(
             savingsFrequencies.toList(), (item, index) {
-
-
-          },
+              _viewModel.setFrequency(item);
+            },
             checkBoxPosition: CheckBoxPosition.leading,
             shouldUseAlternateDecoration: true,
             primaryColor: Colors.solidGreen,
             backgroundColor: savingsGreen.withOpacity(0.15),
             horizontalPadding: 11 ,
           ),
-
           SizedBox(height: 32),
           Text(
             "How much would you like to save?",
             style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
           ),
-
           SizedBox(height: 13),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 14, vertical: 26 ),
@@ -111,7 +103,9 @@ class _FirstFlexSetupFormState extends State<FirstFlexSetupForm> with AutomaticK
                 color: savingsGreen.withOpacity(0.15),
                 borderRadius: BorderRadius.all(Radius.circular(8))
             ),
-            child: PaymentAmountView((_amount * 100).toInt(), (value){},
+            child: PaymentAmountView(((_viewModel.amount ?? 0.0) * 100).toInt(), (value) {
+                _viewModel.setAmount(value / 100);
+              },
               currencyColor: Color(0xffC1C2C5).withOpacity(0.5),
               textColor: Colors.textColorBlack,
             ),
@@ -127,9 +121,10 @@ class _FirstFlexSetupFormState extends State<FirstFlexSetupForm> with AutomaticK
             style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
           ),
           SizedBox(height: 12),
-          UserAccountSelectionView(_viewModel,
-            //TODO modify for savings
+          UserAccountSelectionView(
+            _viewModel,
             onAccountSelected: (account) => _viewModel.setSourceAccount(account),
+            selectedUserAccount: _viewModel.sourceAccount,
             primaryColor: Colors.solidGreen,
             titleStyle: TextStyle(
                 fontSize: 15,
@@ -144,23 +139,20 @@ class _FirstFlexSetupFormState extends State<FirstFlexSetupForm> with AutomaticK
           ),
           SizedBox(height: 57),
           Styles.statefulButton(
-              buttonStyle: Styles.primaryButtonStyle.copyWith(
-                  backgroundColor:
-                  MaterialStateProperty.all(Colors.solidGreen),
-                  textStyle: MaterialStateProperty.all(getBoldStyle(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 15,
-                      color: Colors.white))),
-              stream: Stream.value(true),
-              onClick: () {
-                _viewModel.moveToNext(widget.position);
-              },
-              text: 'Next'),
+              buttonStyle: Styles.savingsFlexButtonStyle.copyWith(
+                textStyle: MaterialStateProperty.all(getBoldStyle(fontWeight: FontWeight.w500, fontSize: 15, color: Colors.white))
+              ),
+              stream: _viewModel.isValid,
+              onClick: () => _viewModel.moveToNext(widget.position),
+              text: 'Next'
+          ),
           SizedBox(height: 20),
-
-
         ],
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
+
 }

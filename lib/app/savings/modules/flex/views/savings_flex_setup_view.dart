@@ -80,69 +80,66 @@ class _SavingsFlexSetupViewState extends State<SavingsFlexSetupView> with Compos
     super.initState();
   }
 
+  Widget _progressBar() {
+    return FutureBuilder(
+        future: Future.delayed(Duration(milliseconds: 60), () => "done"),
+        builder: (context, snapshot) {
+          if(snapshot.connectionState != ConnectionState.done) return SizedBox();
+          // Material helps take away the yellow lines under the text
+          return Padding(
+            padding: EdgeInsets.only(right: 16),
+            child: PieProgressBar(
+              viewPager: _pageController,
+              totalItemCount: _pages.length,
+              pageTitles: getPageTitles(),
+              displayTitle: false,
+              progressColor: Colors.solidGreen,
+            ),
+          );
+        }
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: _onBackPressed,
       child: MultiProvider(
-        providers: [
-          ChangeNotifierProvider.value(value: _viewModel),
-        ],
-        child: Stack(
-          children: [
-            Scaffold(
-              backgroundColor: Color(0xffF8F8F8),
-              appBar: AppBar(
-                centerTitle: false,
-                titleSpacing: 0,
-                iconTheme: IconThemeData(color: Colors.solidGreen),
-                title: Text('General Savings',
-                  textAlign: TextAlign.start,
-                  style: TextStyle(
+        providers: [ChangeNotifierProvider.value(value: _viewModel)],
+        child: Scaffold(
+          backgroundColor: Color(0xffF8F8F8),
+          appBar: AppBar(
+            centerTitle: false,
+            titleSpacing: 0,
+            iconTheme: IconThemeData(color: Colors.solidGreen),
+            title: Text('General Savings',
+                textAlign: TextAlign.start,
+                style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: Colors.textColorBlack)),
-                backgroundColor: Colors.backgroundWhite,
-                elevation: 0
-              ),
-              body: Container(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 30),
-                    SvgPicture.asset("res/drawables/ic_savings_flex_alt.svg", height: 57, width: 57,),
-                    SizedBox(height: 25),
-                    Text(
-                      "Setup Flex",
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
-                    ),
-                    SizedBox(height: 14),
-                    Expanded(child: setupPageView(),)
-                  ],
+            backgroundColor: Color(0xffF8F8F8),
+            elevation: 0,
+            toolbarHeight: 70,
+            actions: [_progressBar()],
+          ),
+          body: Container(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 30),
+                SvgPicture.asset("res/drawables/ic_savings_flex_alt.svg", height: 57, width: 57,),
+                SizedBox(height: 25),
+                Text(
+                  "Setup Flex",
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
                 ),
-              ),
+                SizedBox(height: 14),
+                Expanded(child: setupPageView())
+              ],
             ),
-            Positioned(
-              top: 20, right: 18,
-              child: FutureBuilder(
-                future: Future.delayed(Duration(milliseconds: 60), () => "done"),
-                builder: (context, snapshot) {
-                  if(snapshot.connectionState != ConnectionState.done) return SizedBox();
-                  // Material helps take away the yellow lines under the text
-                  return Material(
-                    child: PieProgressBar(
-                      viewPager: _pageController,
-                      totalItemCount: _pages.length,
-                      pageTitles: getPageTitles(),
-                      displayTitle: false,
-                      progressColor: Colors.solidGreen,
-                    ),
-                  );
-                }
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

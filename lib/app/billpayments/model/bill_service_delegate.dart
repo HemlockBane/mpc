@@ -1,5 +1,4 @@
 
-import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
@@ -46,7 +45,7 @@ class BillServiceDelegate with NetworkResource {
     this._billerCategoryDao = billerCategoryDao;
     this._billerProductDao = billerProductDao;
 
-    remoteMediator = _BillHistoryMediator(_service, _billsDao);
+    remoteMediator = _BillHistoryMediator(_service, _billsDao, 0);
   }
 
   Stream<Resource<List<BillerCategory>>> getBillCategories() {
@@ -127,7 +126,7 @@ class BillServiceDelegate with NetworkResource {
     );
   }
 
-  PagingSource<int, BillTransaction> getBillHistory(FilterResults filterResult) {
+  PagingSource<int, BillTransaction> getBillHistory(FilterResults filterResult, int customerId) {
     return PagingSource(
         localSource: (LoadParams params) {
           final offset = params.key ?? 0;
@@ -135,7 +134,7 @@ class BillServiceDelegate with NetworkResource {
               filterResult.startDate, filterResult.endDate, offset * params.loadSize, params.loadSize,
           ).map((event) => Page(event, params.key ?? 0, event.length == params.loadSize ? offset + 1 : null));
         },
-        remoteMediator: _BillHistoryMediator(_service, _billsDao)..filterResult = filterResult
+        remoteMediator: _BillHistoryMediator(_service, _billsDao, customerId)..filterResult = filterResult
     );
   }
 
@@ -158,11 +157,16 @@ class _BillHistoryMediator extends AbstractDataCollectionMediator<int, BillTrans
 
   final BillService _service;
   final BillsDao _billsDao;
+  final int customerId;
 
   FilterResults filterResult = FilterResults();
   final List<String> _statusList = [Constants.COMPLETED, Constants.PENDING, Constants.SUCCESSFUL, Constants.FAILED];
 
-  _BillHistoryMediator(this._service, this._billsDao);
+  _BillHistoryMediator(
+      this._service,
+      this._billsDao,
+      this.customerId
+  );
 
   @override
   Future<void> clearDB(List<BillTransaction> items) async {
@@ -177,6 +181,7 @@ class _BillHistoryMediator extends AbstractDataCollectionMediator<int, BillTrans
   @override
   Future<ServiceResult<DataCollection<BillTransaction>>> serviceCall(page) {
     return _service.getBillHistory(
+        "$customerId",
         HistoryRequestBody()
           ..statuses = _statusList
           ..startDate = filterResult.startDate

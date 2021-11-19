@@ -56,7 +56,7 @@ class _BillBeneficiaryScreen extends State<BillBeneficiaryScreen> with TickerPro
   Widget makeListView(BuildContext context, AsyncSnapshot<Resource<List<BillBeneficiary>?>> a) {
     return ListViewUtil.makeListViewWithState(
         context: context,
-        loadingView: BeneficiaryShimmer(),
+        loadingView: BeneficiaryShimmer(wrapInList: false,),
         snapshot: a,
         animationController: _animationController,
         currentList: _currentItems,
@@ -170,6 +170,7 @@ class _BillBeneficiaryScreen extends State<BillBeneficiaryScreen> with TickerPro
         Padding(
           padding: EdgeInsets.only(left: 20),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 viewModel?.biller?.name ?? "",
@@ -370,7 +371,7 @@ class _BillerProductsView extends StatelessWidget {
           }).toList();
           return SelectionCombo2<BillerProduct>(data,
             onItemSelected: onItemSelected,
-            titleIcon: (item) => BillerLogo(biller: biller, fileStreamFn: fileStreamFn),
+            titleIcon: (item) => UUIDImage(fileUUID: biller.logoImageUUID, fileStreamFn: fileStreamFn),
           );
         }
     );

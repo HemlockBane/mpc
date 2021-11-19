@@ -35,7 +35,7 @@ import 'dart:async';
 part 'moniepoint_database.g.dart';
 
 @TypeConverters([ListStateConverter])
-@Database(version: 4, entities: [
+@Database(version: 5, entities: [
   Nationality,
   TransferBeneficiary,
   AccountProvider,

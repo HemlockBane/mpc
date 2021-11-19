@@ -9,6 +9,7 @@ import '../../dashboard/views/dashboard_top_menu.dart';
 
 
 class SavingsDashboardView extends StatefulWidget  {
+
   SavingsDashboardView({
     Key? key,
     required GlobalKey<NavigatorState> navigatorKey
@@ -50,6 +51,7 @@ class _SavingsDashboardState extends State<SavingsDashboardView> with AutomaticK
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    return ComingSoonView(width: 100, height: 100);
     return MultiProvider(
       providers: [ChangeNotifierProvider(create: (_) => SavingsDashboardViewModel())],
       child: WillPopScope(

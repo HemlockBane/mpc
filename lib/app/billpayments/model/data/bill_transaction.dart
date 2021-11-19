@@ -1,65 +1,59 @@
 import 'package:floor/floor.dart';
-import 'package:moniepoint_flutter/app/billpayments/model/data/bill_history_item.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/transfer_request_body.dart';
 import 'package:moniepoint_flutter/core/database/type_converters.dart';
 import 'package:moniepoint_flutter/core/models/list_item.dart';
 import 'package:moniepoint_flutter/core/models/transaction.dart';
-import 'package:moniepoint_flutter/core/models/transaction_batch.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'bill_transaction.g.dart';
 
-@Entity(tableName: "bill_transactions", primaryKeys: ['batch_id', 'history_id'])
+@Entity(tableName: "bill_transactions", primaryKeys: ['id'])
 @JsonSerializable()
 class BillTransaction extends Transaction {
 
-  String? username = "";
-
-  @ColumnInfo(name : "batch_id")
-  @JsonKey(name: "batch_id")
-  final int batchId;
-
-  @ColumnInfo(name : "history_id")
-  @JsonKey(name: "history_id")
-  final int? historyId;
-
-  @JsonKey(name:"institutionBill")
-  @ColumnInfo(name: "batch")
-  @TypeConverters([TransactionBatchConverter])
-  final TransactionBatch? institutionBill;
-
-  @JsonKey(name:"bill")
-  @ColumnInfo(name: "history")
-  @TypeConverters([BillHistoryItemConverter])
-  final BillHistoryItem? bill;
-
-  final String? historyType;
-
-  @ColumnInfo(name : "creationTimeStamp")
-  @JsonKey(name: "creationTimeStamp")
-  final int? creationTimeStamp;
-
-  @ColumnInfo(name : "batch_status")
-  @JsonKey(name: "status")
-  final String? batchStatus;
+  final int? id;
+  final int? minorAmount;
+  final String? sourceAccountProviderName;
+  final String? sourceAccountNumber;
+  final String? sourceAccountCurrencyCode;
+  final String? transactionStatus;
+  @JsonKey(name: "transactionTime", fromJson: stringDateTime, toJson: millisToString)
+  final int? transactionTime;
+  final int? customerId;
+  final String? customerIdName;
+  final String? billerCategoryName;
+  final String? billerCategoryCode;
+  final String? billerName;
+  final String? billerCode;
+  final String? billerLogoUUID;
+  final String? billerProductName;
+  final String? billerProductCode;
+  final String? transactionId;
+  final String? token;
 
   BillTransaction({
-    required this.batchId,
-    required this.historyId,
-    required this.bill,
-    this.batchStatus,
-    this.username,
-    this.institutionBill,
-    this.historyType,
-    this.creationTimeStamp
+    required this.id,
+    this.minorAmount,
+    this.sourceAccountProviderName,
+    this.sourceAccountNumber,
+    this.sourceAccountCurrencyCode,
+    this.transactionStatus,
+    this.transactionTime,
+    this.customerId,
+    this.customerIdName,
+    this.billerCategoryName,
+    this.billerCategoryCode,
+    this.billerName,
+    this.billerCode,
+    this.billerLogoUUID,
+    this.billerProductName,
+    this.billerProductCode,
+    this.transactionId,
+    this.token,
   });
 
   factory BillTransaction.fromJson(Object? data) {
     final mapData = data as Map<String, dynamic>;
-    mapData["batch_id"] = mapData["institutionBill"]["id"];
-    mapData["status"] = mapData["institutionBill"]["status"];
-    mapData["history_id"] = mapData["bill"]["id"];
-    mapData["creationTimeStamp"] = mapData["institutionBill"]["creationTimeStamp"];
     final transaction = _$BillTransactionFromJson(mapData);
     return transaction;
   }
@@ -68,17 +62,17 @@ class BillTransaction extends Transaction {
 
   @override
   double getAmount() {
-    return (bill?.minorAmount ?? 0) / 100;
+    return (minorAmount ?? 0) / 100;
   }
 
   @override
   String getBatchKey() {
-    return institutionBill?.batchKey ?? "";
+    return "";
   }
 
   @override
   String getComment() {
-    return institutionBill?.transactionName ?? "";
+    return "";
   }
 
   @override
@@ -89,17 +83,17 @@ class BillTransaction extends Transaction {
 
   @override
   String getDescription() {
-    return bill?.getRecipient() ?? "";
+    return "";
   }
 
   @override
   int getId() {
-    return institutionBill?.id ?? 0;
+    return 0;
   }
 
   @override
   int getInitiatedDate() {
-    return creationTimeStamp ?? 0;
+    return transactionTime ?? 0;
   }
 
   @override
@@ -131,12 +125,12 @@ class BillTransaction extends Transaction {
 
   @override
   String getSinkAccountName() {
-    return bill?.identifier ?? "";
+    return "";
   }
 
   @override
   String getSinkAccountNumber() {
-    return bill?.identifier ?? "";
+    return "";
   }
 
   @override
@@ -146,12 +140,12 @@ class BillTransaction extends Transaction {
 
   @override
   String getSourceAccountNumber() {
-    return institutionBill?.sourceAccountNumber ?? "";
+    return sourceAccountNumber ?? "";
   }
 
   @override
   num getTransactionDate() {
-    return institutionBill?.creationTimeStamp ?? 0;
+    return transactionTime ?? 0;
   }
 
   @override

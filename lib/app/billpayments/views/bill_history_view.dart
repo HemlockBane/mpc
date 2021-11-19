@@ -193,13 +193,16 @@ class _BillHistoryScreen extends State<BillHistoryScreen> with AutomaticKeepAliv
                                     ),
                                 itemBuilder: (context, index) {
                                   return BillHistoryListItem(
-                                      items.data[index], index, (item, i) {
-                                    Navigator.of(context).pushNamed(
-                                        Routes.BILL_DETAIL,
-                                        arguments: item.historyId);
-                                  });
+                                      transaction: items.data[index],
+                                      position: index,
+                                      onItemClickListener: (item, i) {
+                                        Navigator.of(context).pushNamed(Routes.BILL_DETAIL,arguments: item.id);
+                                      },
+                                      fileStreamFn: _viewModel.getFile
+                                  );
                                 })
-                        ))
+                        )),
+                    LoadStatesLoadingIndicator(pagingData: data)
                   ],
                 );
               });

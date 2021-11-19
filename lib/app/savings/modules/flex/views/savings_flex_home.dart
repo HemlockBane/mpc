@@ -5,7 +5,6 @@ import 'package:moniepoint_flutter/app/dashboard/views/dashboard_menu_item.dart'
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
-import 'package:share/share.dart';
 
 class SavingsFlexHomeView extends StatefulWidget {
   const SavingsFlexHomeView({Key? key}) : super(key: key);
@@ -92,7 +91,6 @@ class _SavingsFlexHomeViewState extends State<SavingsFlexHomeView> {
                       routeName: Routes.SAVINGS_FLEX_SETTINGS,
                       circleBackgroundColor: Colors.solidGreen.withOpacity(0.1),
                     ),
-
                   ],
                 )
               ],
@@ -111,8 +109,7 @@ class _SavingsFlexHomeViewState extends State<SavingsFlexHomeView> {
                      shrinkWrap: true,
                      children: [
                        for (var i = 0; i < 200; i++)
-                         ListTile(title: Text(i.toString()),)
-
+                         ListTile(title: Text(i.toString()))
                      ],
                    ),
                    IgnorePointer(

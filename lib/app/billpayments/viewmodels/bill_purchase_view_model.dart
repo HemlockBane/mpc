@@ -109,11 +109,21 @@ class BillPurchaseViewModel extends BaseViewModel with PaymentViewModel {
     validateAdditionalFieldsForKey(key);
   }
 
-  String? getDefaultAdditionalFieldValue(String key) {
-    if (key == "emailAddress") {
+  String? setDefaultAdditionalFieldValue(String key) {
+    if (key == "emailAddress" && _additionalFieldsMap[key] == null) {
+      setAdditionalFieldData(key, customer?.email ?? "");
       return customer?.email;
     }
-    if (key == "phoneNumber") return customer?.mobileNo;
+    if (key == "phoneNumber" && _additionalFieldsMap[key] == null) {
+      //TODO country code shouldn't really be hardcoded if we are to support other countries
+      if((customer?.mobileNo?.length ?? 0) > 4 && customer?.mobileNo?.substring(0, 3) == "234") {
+        final mobileNumber = customer?.mobileNo?.replaceRange(0, 3, "0");
+        setAdditionalFieldData(key, mobileNumber ?? "");
+        return mobileNumber;
+      }
+      setAdditionalFieldData(key, customer?.mobileNo ?? "");
+      return customer?.mobileNo;
+    }
     return null;
   }
 

@@ -209,7 +209,6 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
                   trailingWidget: !isDefaultStyle() ? getAlternateTrailingWidget() : null,
                   isShowTrailingWhenExpanded: widget.isShowTrailingWhenExpanded,
                   isExpanded: widget.isExpanded,
-
                 );
               }
           )
@@ -236,7 +235,7 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
                   maxLines: 1,
                   style: TextStyle(fontSize: 15, color: Colors.solidDarkBlue, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 1,),
+                SizedBox(height: 1),
                 StreamBuilder(
                     stream: widget.viewModel.getUserAccountsBalance().map((event) {
                       if(event.data == null) return <AccountBalance>[];
@@ -245,14 +244,17 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
                     builder: (context, AsyncSnapshot<List<AccountBalance?>> a) {
                       final balance = (a.hasData) ? a.data?.firstOrNull?.availableBalance?.formatCurrency : "--";
                       final defaultSubtitle = Text(
-                        'Balance - $balance',
+                        '${widget.viewModel.accountNumber} - $balance',
                         textAlign: TextAlign.left,
-                        style: widget.titleStyle ?? TextStyle(color: Colors.deepGrey, fontSize: 13, fontFamily: Styles.defaultFont, fontFamilyFallback: ["Roboto"]),)
-                          .colorText({"$balance" : Tuple(Colors.deepGrey, null)}, underline: false);
-
-                      return widget.listStyle == ListStyle.normal
-                          ? defaultSubtitle
-                          : getAlternateSubtitle(text1: widget.viewModel.accountNumber, tex2: balance);
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            color: Colors.textColorBlack.withOpacity(0.5),
+                            fontSize: 13,
+                            fontFamily: Styles.defaultFont, fontFamilyFallback: ["Roboto"]
+                        )
+                      ).colorText({"$balance" : Tuple(Colors.textColorBlack.withOpacity(0.5), null)}, underline: false);
+                      return defaultSubtitle;
                     })
               ],
             )

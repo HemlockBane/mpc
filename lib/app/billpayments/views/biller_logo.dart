@@ -6,27 +6,27 @@ import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/file_result.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 
-class BillerLogo extends StatefulWidget {
+class UUIDImage extends StatefulWidget {
 
-  BillerLogo({
+  UUIDImage({
     Key? key,
-    required this.biller,
+    required this.fileUUID,
     required this.fileStreamFn,
     this.width = 40,
     this.height = 40
   }):super(key: key);
 
-  final Biller biller;
+  final String? fileUUID;
   final Stream<Resource<FileResult>> Function(String logoId) fileStreamFn;
   final double width;
   final double height;
 
   @override
-  State<StatefulWidget> createState() => _BillerLogoState();
+  State<StatefulWidget> createState() => _UUIDImageState();
 
 }
 
-class _BillerLogoState extends State<BillerLogo> {
+class _UUIDImageState extends State<UUIDImage> {
 
   Stream<Resource<FileResult>>? _fileResultStream;
   Image? _itemImage;
@@ -38,7 +38,7 @@ class _BillerLogoState extends State<BillerLogo> {
   }
 
   void _fetchBillerLogo() {
-    _fileResultStream = widget.fileStreamFn.call(widget.biller.logoImageUUID ?? "").asBroadcastStream();
+    _fileResultStream = widget.fileStreamFn.call(widget.fileUUID ?? "").asBroadcastStream();
   }
 
   Widget _defaultImage() {
@@ -55,9 +55,9 @@ class _BillerLogoState extends State<BillerLogo> {
 
   @override
   Widget build(BuildContext context) {
-    if(widget.biller.logoImageUUID == null) return _defaultImage();
+    if(widget.fileUUID == null) return _defaultImage();
     return Visibility(
-      visible: widget.biller.logoImageUUID != null,
+      visible: widget.fileUUID != null,
       child: StreamBuilder(
           stream: _fileResultStream,
           builder: (mContext, AsyncSnapshot<Resource<FileResult>> snapShot) {

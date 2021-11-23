@@ -129,7 +129,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `service_provider_items` (`id` INTEGER NOT NULL, `active` INTEGER, `amount` INTEGER, `code` TEXT, `currencySymbol` TEXT, `fee` REAL, `name` TEXT, `paymentCode` TEXT, `priceFixed` INTEGER, `billerId` TEXT, PRIMARY KEY (`id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `bill_transactions` (`id` INTEGER, `minorAmount` INTEGER, `sourceAccountProviderName` TEXT, `sourceAccountNumber` TEXT, `sourceAccountCurrencyCode` TEXT, `transactionStatus` TEXT, `transactionTime` INTEGER, `customerId` INTEGER, `customerIdName` TEXT, `billerCategoryName` TEXT, `billerCategoryCode` TEXT, `billerName` TEXT, `billerCode` TEXT, `billerLogoUUID` TEXT, `billerProductName` TEXT, `billerProductCode` TEXT, `transactionId` TEXT, `token` TEXT, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `bill_transactions` (`id` INTEGER, `minorAmount` INTEGER, `sourceAccountProviderName` TEXT, `sourceAccountNumber` TEXT, `sourceAccountCurrencyCode` TEXT, `transactionStatus` TEXT, `transactionTime` INTEGER, `customerId` TEXT, `customerIdName` TEXT, `billerCategoryName` TEXT, `billerCategoryCode` TEXT, `billerName` TEXT, `billerCode` TEXT, `billerLogoUUID` TEXT, `billerProductName` TEXT, `billerProductCode` TEXT, `transactionId` TEXT, `token` TEXT, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `bill_beneficiaries` (`id` INTEGER NOT NULL, `name` TEXT, `billerCode` TEXT, `billerCategoryLogo` TEXT, `biller` TEXT, `billerProducts` TEXT, `billerName` TEXT, `customerIdentity` TEXT, `frequency` INTEGER, `lastUpdated` INTEGER, PRIMARY KEY (`id`))');
         await database.execute(
@@ -1318,7 +1318,7 @@ class _$BillsDao extends BillsDao {
                 row['sourceAccountCurrencyCode'] as String?,
             transactionStatus: row['transactionStatus'] as String?,
             transactionTime: row['transactionTime'] as int?,
-            customerId: row['customerId'] as int?,
+            customerId: row['customerId'] as String?,
             customerIdName: row['customerIdName'] as String?,
             billerCategoryName: row['billerCategoryName'] as String?,
             billerCategoryCode: row['billerCategoryCode'] as String?,
@@ -1347,7 +1347,7 @@ class _$BillsDao extends BillsDao {
                 row['sourceAccountCurrencyCode'] as String?,
             transactionStatus: row['transactionStatus'] as String?,
             transactionTime: row['transactionTime'] as int?,
-            customerId: row['customerId'] as int?,
+            customerId: row['customerId'] as String?,
             customerIdName: row['customerIdName'] as String?,
             billerCategoryName: row['billerCategoryName'] as String?,
             billerCategoryCode: row['billerCategoryCode'] as String?,

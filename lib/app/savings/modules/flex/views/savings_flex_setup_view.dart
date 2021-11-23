@@ -117,7 +117,8 @@ class _SavingsFlexSetupViewState extends State<SavingsFlexSetupView> with Compos
                 style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Colors.textColorBlack)),
+                    color: Colors.textColorBlack
+                )),
             backgroundColor: Color(0xffF8F8F8),
             elevation: 0,
             toolbarHeight: 70,

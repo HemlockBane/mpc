@@ -86,6 +86,7 @@ class BillPurchaseViewModel extends BaseViewModel with PaymentViewModel {
       if(value.required && key != "amount") _fieldErrorMap[key] = "";
     });
     setAmount((_billerProduct?.amount ?? 0.00) / 100);
+    this.setSourceAccount(null);
   }
 
   void setValidationReference(String validationReference) {

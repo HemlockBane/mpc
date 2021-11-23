@@ -70,17 +70,14 @@ class _SavingsProductService implements SavingsProductService {
   }
 
   @override
-  Future<ServiceResult<FlexSaving>> enableFlexSavings(
-      customerId, flexVersion) async {
+  Future<ServiceResult<FlexSaving>> enableFlexSavings(request) async {
     const _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{
-      r'customerId': customerId,
-      r'flexVersion': flexVersion
-    };
+    final queryParameters = <String, dynamic>{};
     final _data = <String, dynamic>{};
+    _data.addAll(request.toJson());
     final _result = await _dio.fetch<Map<String, dynamic>>(
         _setStreamType<ServiceResult<FlexSaving>>(Options(
-                method: 'GET',
+                method: 'POST',
                 headers: <String, dynamic>{
                   r'Content-Type': 'application/json',
                   r'client-id': 'ANDROID',

@@ -198,7 +198,7 @@ class LoansApplicationConfirmationView extends StatelessWidget {
 
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (ctx) => SavingsSucessView(
+                          builder: (ctx) => SavingsSuccessView(
                             primaryText: 'Loan Request\nawaiting approval',
                             secondaryText:
                                 'The loan request has been submitted for approval. Expect a decision very shortly',

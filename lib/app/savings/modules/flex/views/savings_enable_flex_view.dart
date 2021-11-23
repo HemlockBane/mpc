@@ -1,19 +1,27 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' hide Colors;
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/savings/model/data/savings_product.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/savings_flex_enable_viewmodel.dart';
 import 'package:moniepoint_flutter/app/savings/savings_success_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
+import 'package:provider/provider.dart';
 
 const lightGreen = Color(0xffD1E7D3);
 const double toolBarMarginTop = 37;
 const double maxDraggableTop = toolBarMarginTop * 5 + 26;
 const String loremIpsum =
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua";
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit,"
+    " sed do eiusmod tempor incididunt ut labore et dolore magna aliqua";
 
-class SavingsEnableFlexView extends StatelessWidget {
+class SavingsEnableFlexView extends StatefulWidget {
+
   const SavingsEnableFlexView({
     Key? key,
     required this.product
@@ -21,54 +29,74 @@ class SavingsEnableFlexView extends StatelessWidget {
 
   final SavingsProduct product;
 
+  @override
+  State<StatefulWidget> createState() => SavingsEnableFlexState();
+
+}
+
+class SavingsEnableFlexState extends State<SavingsEnableFlexView> {
+
+  late final SavingsFlexEnableViewModel viewModel;
+
   TextStyle getBoldStyle(
-          {double fontSize = 32.5,
-          Color color = Colors.textColorBlack,
-          FontWeight fontWeight = FontWeight.w700}) =>
+      {double fontSize = 32.5,
+        Color color = Colors.textColorBlack,
+        FontWeight fontWeight = FontWeight.w700}) =>
       TextStyle(fontWeight: fontWeight, fontSize: fontSize, color: color);
 
   TextStyle getNormalStyle(
-          {double fontSize = 32.5,
-          Color color = Colors.white,
-          FontWeight fontWeight = FontWeight.w400}) =>
+      {double fontSize = 32.5,
+        Color color = Colors.white,
+        FontWeight fontWeight = FontWeight.w400}) =>
       TextStyle(fontWeight: fontWeight, fontSize: fontSize, color: color);
 
-  Widget getSuccessContent() {
-    return Container(
-      padding: EdgeInsets.only(top: 19, bottom: 22, left: 21, right: 21),
-      decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.19),
-          borderRadius: BorderRadius.all(Radius.circular(8.0))),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            "Your Flex Savings Acc. No.",
-            style: getNormalStyle(fontSize: 14),
-          ),
-          SizedBox(height: 3),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "0011357716",
-                style: getBoldStyle(fontSize: 24, color: Colors.white),
-              ),
-              Row(
-                children: [
-                  SvgPicture.asset("res/drawables/ic_copy_2.svg"),
-                  SizedBox(width: 7),
-                  Text(
-                    "Copy",
-                    style: getNormalStyle(fontSize: 15),
-                  )
-                ],
-              )
-            ],
-          )
-        ],
+
+  @override
+  initState() {
+    viewModel = Provider.of<SavingsFlexEnableViewModel>(context, listen: false);
+    super.initState();
+  }
+
+  void _navigateToSuccessPage(String accountNumber) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (ctx) => SavingsSuccessView(
+          primaryText: "Flex\nSavings Enabled",
+          secondaryText: widget.product.longDescription ?? "",
+          content: FlexEnabledSuccessContent(accountNumber: accountNumber),
+          primaryButtonText: "Setup Flex Savings",
+          primaryButtonAction: () {
+            Navigator.pushNamed(context, Routes.SAVINGS_FLEX_SETUP);
+          },
+          secondaryButtonText: "Dismiss",
+          secondaryButtonAction: () => Navigator.pop(context),
+        ),
       ),
     );
+  }
+
+  void _subscribeUiToEnableFlex() {
+    setState(() => viewModel.setIsEnablingFlex(true));
+    viewModel.enableFlexSavings().listen((event) {
+      if(event is Loading) {
+        if(!viewModel.isEnablingFlex) {
+          setState(() => viewModel.setIsEnablingFlex(true));
+        }
+      }
+      else if(event is Success) {
+        setState(() => viewModel.setIsEnablingFlex(false));
+        _navigateToSuccessPage(event.data?.cbaAccountNuban ?? "");
+      }
+      else if(event is Error<FlexSaving>) {
+        setState(() {viewModel.setIsEnablingFlex(false);});
+        showError(
+            context,
+            title: "Failed enabling flex savings!",
+            message: event.message
+        );
+      }
+    });
   }
 
   Widget _content(context) {
@@ -103,7 +131,7 @@ class SavingsEnableFlexView extends StatelessWidget {
                   style: getBoldStyle(),
                 ),
                 SizedBox(height: 16),
-                Text(product.longDescription ?? "",
+                Text(widget.product.longDescription ?? "",
                     style: TextStyle(
                         fontWeight: FontWeight.w400,
                         fontSize: 14.5,
@@ -112,34 +140,17 @@ class SavingsEnableFlexView extends StatelessWidget {
                     )
                 ),
                 SizedBox(height: 24),
-                _SavingsInterestView(product: product),
+                _SavingsInterestView(product: widget.product),
                 SizedBox(height: 24),
-                _SavingsRulesInfoWindow(product: product),
+                _SavingsRulesInfoWindow(product: widget.product),
                 SizedBox(height: 27),
-                Styles.statefulButton(
+                Styles.statefulButton2(
                     buttonStyle: Styles.savingsFlexButtonStyle,
-                    stream: Stream.value(true),
-                    onClick: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (ctx) => SavingsSucessView(
-                            primaryText: "Flex\nSavings Enabled",
-                            secondaryText: product.longDescription ?? "",
-                            content: getSuccessContent(),
-                            primaryButtonText: "Setup Flex Savings",
-                            primaryButtonAction: () {
-                              Navigator.pushNamed(context, Routes.SAVINGS_FLEX_SETUP);
-                            },
-                            secondaryButtonText: "Dismiss",
-                            secondaryButtonAction: () {
-                              Navigator.pop(context);
-                            },
-                          ),
-                        ),
-                      );
-                    },
-                    text: 'Enable Flex Savings'
+                    isValid: true,
+                    isLoading: viewModel.isEnablingFlex,
+                    onClick: _subscribeUiToEnableFlex,
+                    text: 'Enable Flex Savings',
+                    loadingColor: Colors.savingsPrimary.withOpacity(0.5)
                 ),
                 SizedBox(height: 31.5),
                 GestureDetector(
@@ -152,7 +163,9 @@ class SavingsEnableFlexView extends StatelessWidget {
                         Text(
                           "Learn More about Flex Savings",
                           style: getBoldStyle(
-                              fontSize: 15, fontWeight: FontWeight.w600),
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600
+                          ),
                         ),
                         IconButton(
                           onPressed: null,
@@ -229,6 +242,7 @@ class SavingsEnableFlexView extends StatelessWidget {
       ),
     );
   }
+
 }
 
 ///_SavingsInterestView
@@ -263,7 +277,7 @@ class _SavingsInterestView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                "${product.interestRate ?? "--"}",
+                "${product.flexSavingScheme?.interestRate ?? "--"}",
                   style: TextStyle(
                       fontSize: 37.55,
                       fontWeight: FontWeight.w700,
@@ -287,7 +301,8 @@ class _SavingsInterestView extends StatelessWidget {
                 color: Colors.textColorBlack,
                 fontWeight: FontWeight.normal,
                 fontSize: 10,
-                letterSpacing: 2),
+                letterSpacing: 2
+            ),
           ),
         ],
       ),
@@ -383,5 +398,58 @@ class _SavingsRulesInfoWindow extends StatelessWidget {
     );
   }
   
+}
+
+class FlexEnabledSuccessContent extends StatelessWidget {
+
+  FlexEnabledSuccessContent({required this.accountNumber});
+
+  final String accountNumber;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.only(top: 19, bottom: 22, left: 21, right: 21),
+      decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.19),
+          borderRadius: BorderRadius.all(Radius.circular(8.0))),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            "Your Flex Savings Acc. No.",
+            style: TextStyle(
+                fontSize: 14, color: Colors.white, fontWeight: FontWeight.w400),
+          ),
+          SizedBox(height: 3),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                accountNumber,
+                style: TextStyle(
+                    fontSize: 24,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700),
+              ),
+              TextButton.icon(
+                  onPressed: () => Clipboard.setData(ClipboardData(text: accountNumber)),
+                  icon: SvgPicture.asset(
+                    'res/drawables/ic_copy_full.svg',
+                    color: Colors.white,
+                  ),
+                  label: Text(
+                    'Copy',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 15),
+                  ))
+            ],
+          )
+        ],
+      ),
+    );
+  }
 }
 

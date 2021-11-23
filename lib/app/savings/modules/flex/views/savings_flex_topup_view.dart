@@ -192,7 +192,7 @@ class _SavingsFlexTopupViewState extends State<SavingsFlexTopupView> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (ctx) => SavingsSucessView(
+                      builder: (ctx) => SavingsSuccessView(
                         primaryText: "Top up Successful!",
                         secondaryText: loremIpsum,
                         primaryButtonText: "Continue",

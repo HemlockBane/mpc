@@ -188,7 +188,7 @@ class LoanRepaymentConfirmationView extends StatelessWidget {
                       final secondaryText =
                           "The loan request has been submitted for approval. Expect a decision very shortly";
 
-                      final successView = SavingsSucessView(
+                      final successView = SavingsSuccessView(
                         primaryText: primaryText,
                         secondaryText: secondaryText,
                         primaryButtonText: 'Continue',

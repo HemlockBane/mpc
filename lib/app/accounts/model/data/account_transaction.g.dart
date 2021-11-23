@@ -9,7 +9,7 @@ part of 'account_transaction.dart';
 AccountTransaction _$AccountTransactionFromJson(Map<String, dynamic> json) {
   return AccountTransaction(
     id: json['id'] as int?,
-    transactionDate: stringDateTime(json['transactionDate'] as String),
+    transactionDate: stringDateTime(json['transactionDate'] as String?),
     transactionRef: json['transactionRef'] as String,
     status: json['status'] as bool?,
     amount: (json['amount'] as num?)?.toDouble(),

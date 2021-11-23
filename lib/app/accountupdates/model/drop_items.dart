@@ -347,12 +347,13 @@ final relationships = [
 ///
 ///
 class StringDropDownItem extends DropDownItem {
+  final String? title;
   final String value;
 
-  const StringDropDownItem(this.value);
+  const StringDropDownItem(this.value, {this.title});
 
   @override
   String getTitle() {
-    return value;
+    return title ?? value;
   }
 }

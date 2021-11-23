@@ -47,6 +47,9 @@ import 'package:moniepoint_flutter/app/onboarding/model/onboarding_service.dart'
 import 'package:moniepoint_flutter/app/onboarding/model/onboarding_service_delegate.dart';
 import 'package:moniepoint_flutter/app/savings/model/savings_product_service.dart';
 import 'package:moniepoint_flutter/app/savings/model/savings_product_service_delegate.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_savings_dao.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/model/flex_config_service.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/model/flex_config_service_delegate.dart';
 import 'package:moniepoint_flutter/app/securityquestion/model/security_question_delegate.dart';
 import 'package:moniepoint_flutter/app/securityquestion/model/security_question_service.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/fee_vat_config_dao.dart';
@@ -248,7 +251,15 @@ class ServiceModule {
 
     /// SavingsProductService Delegate
     GetIt.I.registerLazySingleton<SavingsProductServiceDelegate>(() {
-      return SavingsProductServiceDelegate(SavingsProductService(dio));
+      return SavingsProductServiceDelegate(
+          SavingsProductService(dio),
+          GetIt.I<FlexSavingsDao>()
+      );
+    });
+
+    /// FlexConfigServiceDelegate Delegate
+    GetIt.I.registerLazySingleton<FlexConfigServiceDelegate>(() {
+      return FlexConfigServiceDelegate(FlexConfigService(dio));
     });
 
   }

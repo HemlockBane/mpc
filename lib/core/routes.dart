@@ -60,6 +60,8 @@ import 'package:moniepoint_flutter/app/managebeneficiaries/general/managed_benef
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/views/transfer_select_beneficiary_view.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/signup_account_view.dart';
 import 'package:moniepoint_flutter/app/savings/model/data/savings_product.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/flex_setup_viewmodel.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/savings_flex_enable_viewmodel.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_enable_flex_view.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_flex_home.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_flex_settings.dart';
@@ -213,8 +215,6 @@ class Routes {
       Routes.SAVINGS_FLEX_WITHDRAW: (BuildContext context) => SavingsFlexWithdrawalView(),
       Routes.SAVINGS_FLEX_SETTINGS: (BuildContext context) => SavingsFlexSettingsView(),
       Routes.SAVINGS_FLEX_TOP_UP: (BuildContext context) => SavingsFlexTopupView(),
-      Routes.SAVINGS_FLEX_SETUP: (BuildContext context) => SavingsFlexSetupView(),
-
       Routes.LOAN_APPLICATION: (BuildContext context) => ChangeNotifierProvider(
         create: (_) => LoanRequestViewModel(),
         child: LoanApplicationView(),
@@ -399,8 +399,17 @@ class Routes {
         final product = args["product"] as SavingsProduct;
         return MaterialPageRoute(
             builder: (BuildContext context) => ChangeNotifierProvider(
-              create: (_) => AccountUpdateViewModel(),
+              create: (_) => SavingsFlexEnableViewModel(),
               child: SavingsEnableFlexView(product: product),
+            )
+        );
+      case Routes.SAVINGS_FLEX_SETUP:
+        final args = settings.arguments as Map<dynamic, dynamic>;
+        final id = args["flexSavingId"] as int?;
+        return MaterialPageRoute(
+            builder: (BuildContext context) => ChangeNotifierProvider(
+              create: (_) => FlexSetupViewModel(),
+              child: SavingsFlexSetupView(flexSavingId: id ?? 0,),
             )
         );
     }

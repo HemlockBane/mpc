@@ -6,7 +6,14 @@ import 'package:moniepoint_flutter/core/database/type_converters.dart';
 
 part 'flex_saving_config.g.dart';
 
-// @Entity(tableName: "savings_products")
+enum FlexSaveType {
+  AUTOMATIC, MANUAL
+}
+
+enum FlexSaveMode {
+  MONTHLY, WEEKLY
+}
+
 @JsonSerializable()
 class FlexSavingConfig {
   FlexSavingConfig({
@@ -20,21 +27,27 @@ class FlexSavingConfig {
     this.duration,
     this.contributionAmount,
     this.contributionAccount,
+    this.customerAccountId,
+    this.customerId,
     this.active,
+    this.customerFlexSavingId
   });
 
   final int id;
   @JsonKey(name: "createdOn", fromJson: stringDateTime, toJson: millisToString)
   final int? createdOn;
   final int? version;
-  final String? flexSaveType;
-  final String? flexSaveMode;
+  final FlexSaveType? flexSaveType;
+  final FlexSaveMode? flexSaveMode;
   final String? contributionWeekDay;
   final int? contributionMonthDay;
   final int? duration;
   final int? contributionAmount;
   final CustomerAccount? contributionAccount;
+  final int? customerAccountId;
+  final int? customerId;
   final bool? active;
+  final int? customerFlexSavingId;
 
   factory FlexSavingConfig.fromJson(Map<String, dynamic> json) => _$FlexSavingConfigFromJson(json);
 

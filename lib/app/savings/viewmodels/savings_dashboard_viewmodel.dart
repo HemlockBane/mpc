@@ -1,7 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:moniepoint_flutter/app/savings/model/data/savings_product.dart';
 import 'package:moniepoint_flutter/app/savings/model/savings_product_service_delegate.dart';
-import 'package:moniepoint_flutter/app/savings/modules/flex/model/flex_saving.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/network/service_error.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
@@ -11,6 +11,12 @@ class SavingsDashboardViewModel extends BaseViewModel {
 
   SavingsDashboardViewModel({SavingsProductServiceDelegate? productServiceDelegate}) {
     this._productServiceDelegate = productServiceDelegate ?? GetIt.I<SavingsProductServiceDelegate>();
+  }
+
+  SavingsProduct? _flexSavingsProduct;
+
+  SavingsProduct? getFlexSavingsProduct() {
+    return _flexSavingsProduct;
   }
 
   Stream<Resource<SavingsProduct>> _getFlexProduct() {
@@ -39,6 +45,7 @@ class SavingsDashboardViewModel extends BaseViewModel {
   }
 
   Stream<Resource<SavingsProduct>> _getRunningFlexSavings(SavingsProduct product)  {
+    this._flexSavingsProduct = product;
     return _productServiceDelegate.getRunningFlexSavings(customerId).map((event) {
       if(event is Loading) return Resource.loading(product.withFlexSavings(event.data));
       if(event is Error<List<FlexSaving>>) {
@@ -46,6 +53,10 @@ class SavingsDashboardViewModel extends BaseViewModel {
       }
       return Resource.success(product.withFlexSavings(event.data));
     });
+  }
+
+  Stream<Resource<List<FlexSaving>>> getFlexSavings()  {
+    return _productServiceDelegate.getRunningFlexSavings(customerId);
   }
 
 }

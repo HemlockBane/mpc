@@ -1,11 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/forms/account_update_form_view.dart';
 import 'package:moniepoint_flutter/app/airtime/views/selection_combo.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving_config.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/flex_setup_viewmodel.dart';
-import 'package:moniepoint_flutter/app/savings/savings_success_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
-import 'package:moniepoint_flutter/core/custom_fonts.dart';
+import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
@@ -25,8 +26,6 @@ class SecondFlexSetupForm extends PagedForm {
 class _SecondFlexSetupFormState extends State<SecondFlexSetupForm> with AutomaticKeepAliveClientMixin {
 
   late final FlexSetupViewModel _viewModel;
-  var startDate = "Start date";
-  var endDate = "End date";
 
   TextStyle getBoldStyle({double fontSize = 32.5,
         Color color = Colors.textColorBlack,
@@ -38,48 +37,44 @@ class _SecondFlexSetupFormState extends State<SecondFlexSetupForm> with Automati
         FontWeight fontWeight = FontWeight.w500}) =>
       TextStyle(fontWeight: fontWeight, fontSize: fontSize, color: color);
 
-  final savingsTypes = List.of([
-    ComboItem("Automatic", "Automatic", isSelected: true),
-    ComboItem("Manual",  "Manual",),
-  ]);
+  final savingsTypes = FlexSaveType.values.map((e) {
+    final title = describeEnum(e);
+    return ComboItem(e, title, isSelected: e == FlexSaveType.AUTOMATIC);
+  });
 
   @override
   void initState() {
     _viewModel = Provider.of<FlexSetupViewModel>(context, listen: false);
+    _viewModel.setContributionWeekDay(null);
+    _viewModel.setContributionMonthDay(null);
     super.initState();
   }
 
-  @override
-  bool get wantKeepAlive => true;
-
-  String getFormattedDateString(int date){
-    final dateInMillis = DateTime.fromMillisecondsSinceEpoch(date);
-    final formattedDate = "";//Jiffy(dateInMillis).format("do [of] MMM");
-    return formattedDate;
+  void _subscribeUiToCreateConfig() {
+    setState(() => _viewModel.setIsLoading(true));
+    _viewModel.createFlexConfig().listen((event) {
+      if(event is Loading) {
+        if(!_viewModel.isLoading) {
+          setState(() => _viewModel.setIsLoading(true));
+        }
+      }
+      else if(event is Success) {
+        setState(() => _viewModel.setIsLoading(false));
+      }
+      else if(event is Error<FlexSavingConfig>) {
+        setState(() {_viewModel.setIsLoading(false);});
+        showError(
+            context,
+            title: "Failed setting up\nflex savings!",
+            message: event.message
+        );
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final dialogContent = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text("Monthly Savings Account", style: getNormalStyle(fontSize: 15),),
-        SizedBox(height: 8),
-        Text("N7,000.00", style: getBoldStyle(fontSize: 20),),
-        SizedBox(height: 26),
-        Text("Interest rate", style: getNormalStyle(fontSize: 15)),
-        SizedBox(height: 8),
-        Row(
-          children: [
-            Text("10.25%", style: getBoldStyle(fontSize: 20),),
-            SizedBox(width: 4),
-            Text("p.a", style: getNormalStyle(fontSize: 18, color: Color(0xffA8ABB5)),)
-          ],
-        )
-      ],
-    );
-
     return Container(
         child: Column(
           children: [
@@ -93,9 +88,9 @@ class _SecondFlexSetupFormState extends State<SecondFlexSetupForm> with Automati
                     ),
                   ),
                   SizedBox(height: 12),
-                  SelectionCombo<String>(
+                  SelectionCombo<FlexSaveType>(
                     savingsTypes.toList(), (item, index) {
-                      _viewModel.setSavingMode(item);
+                      _viewModel.setFlexSaveType(item);
                     },
                     checkBoxPosition: CheckBoxPosition.leading,
                     shouldUseAlternateDecoration: true,
@@ -105,12 +100,15 @@ class _SecondFlexSetupFormState extends State<SecondFlexSetupForm> with Automati
                   ),
                   SizedBox(height: 34),
                   StreamBuilder(
-                      stream: _viewModel.savingModeStream,
-                      builder: (ctx, AsyncSnapshot<String?> a) {
-                        final title = (a.data == "Manual")
+                      stream: _viewModel.savingTypeStream,
+                      builder: (ctx, AsyncSnapshot<FlexSaveType?> a) {
+                        final title = (_viewModel.savingMode == FlexSaveMode.MONTHLY)
                             ? "What day of the month do you want to contribute?"
                             : "What day of the week do you want to contribute?";
-                        return Column(
+                        final dataItems = (_viewModel.savingMode == FlexSaveMode.MONTHLY)
+                            ? _viewModel.monthDays
+                            : _viewModel.weekDays;
+                    return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Container(
@@ -123,9 +121,12 @@ class _SecondFlexSetupFormState extends State<SecondFlexSetupForm> with Automati
                               StreamBuilder(
                                 stream: _viewModel.contributionWeekDayStream,
                                 builder: (ctx, AsyncSnapshot<StringDropDownItem?> a) {
-                                  return Styles.buildDropDown<StringDropDownItem>(
-                                      _viewModel.monthDays, a, (item, index) {
-                                        _viewModel.setContributionWeekDay(item);
+                                  return Styles.buildDropDown<StringDropDownItem>(dataItems, a, (item, index) {
+                                        if(_viewModel.savingMode == FlexSaveMode.MONTHLY) {
+                                          _viewModel.setContributionMonthDay(item);
+                                        } else {
+                                          _viewModel.setContributionWeekDay(item);
+                                        }
                                       }
                                   );
                                 },
@@ -144,17 +145,16 @@ class _SecondFlexSetupFormState extends State<SecondFlexSetupForm> with Automati
                   flex: 3,
                   child: Styles.statefulButton(
                       buttonStyle: Styles.primaryButtonStyle.copyWith(
-                          backgroundColor:
-                          MaterialStateProperty.all(Colors.deepGrey.withOpacity(0.3)),
+                          backgroundColor: MaterialStateProperty.all(Colors.deepGrey.withOpacity(0.3)),
                           textStyle: MaterialStateProperty.all(getBoldStyle(
                               fontWeight: FontWeight.w500,
                               fontSize: 15,
-                              color: Colors.deepGrey))),
+                              color: Colors.deepGrey
+                          ))),
                       stream: Stream.value(true),
-                      onClick: () {
-                        _viewModel.moveToPrev();
-                      },
-                      text: 'Back'),
+                      onClick: () => _viewModel.moveToPrev(),
+                      text: 'Back'
+                  ),
                 ),
                 SizedBox(width: 8),
                 Expanded(
@@ -166,31 +166,12 @@ class _SecondFlexSetupFormState extends State<SecondFlexSetupForm> with Automati
                           textStyle: MaterialStateProperty.all(getBoldStyle(
                               fontWeight: FontWeight.w500,
                               fontSize: 15,
-                              color: Colors.white))),
-                      stream: Stream.value(true),
-                      onClick: () {
-                        showConfirmation(context,
-                            primaryButtonText: "Complete Setup",
-                            primaryButtonColor: Colors.solidGreen,
-                            title: "Setup Confirmation",
-                            content: dialogContent,
-                            onPrimaryClick: (){
-                              Navigator.pop(context);
-                              Navigator.push(context,
-                                MaterialPageRoute(builder: (ctx) => SavingsSucessView(
-                                  primaryText: "Setup Complete!",
-                                  secondaryText: "loremIpsum",
-                                  primaryButtonText: "Continue",
-                                  primaryButtonAction: (){
-                                    Navigator.pushNamed(context, Routes.SAVINGS_FLEX_HOME);
-                                  },
-
-
-                                ),),
-                              );
-                            }
-                        );
-                      },
+                              color: Colors.white
+                          ))
+                      ),
+                      isLoading: _viewModel.isLoading,
+                      stream: _viewModel.isValid,
+                      onClick: _subscribeUiToCreateConfig,
                       text: 'Complete Setup'
                   ),
                 ),
@@ -201,4 +182,8 @@ class _SecondFlexSetupFormState extends State<SecondFlexSetupForm> with Automati
         )
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
+
 }

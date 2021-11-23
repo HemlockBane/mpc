@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:moniepoint_flutter/app/accountupdates/views/forms/account_update_form_view.dart';
 import 'package:moniepoint_flutter/app/airtime/views/selection_combo.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving_config.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/flex_setup_viewmodel.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/list_item.dart';
@@ -26,6 +28,10 @@ class _FirstFlexSetupFormState extends State<FirstFlexSetupForm> with AutomaticK
   late final FlexSetupViewModel _viewModel;
   ListDataItem<String>? _selectedAmountPill;
   final List<ListDataItem<String>> amountPills = List.generate(4, (index) => ListDataItem((5000 * (index + 1)).formatCurrencyWithoutLeadingZero));
+  final savingModes = FlexSaveMode.values.map((e) {
+    final title = describeEnum(e);
+    return ComboItem(e, title, isSelected: e == FlexSaveMode.MONTHLY);
+  });
 
   List<Widget> generateAmountPillsWidget() {
     final pills = <Widget>[];
@@ -56,11 +62,6 @@ class _FirstFlexSetupFormState extends State<FirstFlexSetupForm> with AutomaticK
         FontWeight fontWeight = FontWeight.w700}) =>
       TextStyle(fontWeight: fontWeight, fontSize: fontSize, color: color);
 
-  final savingsFrequencies = List.of([
-    ComboItem("Monthly", "Monthly", isSelected: true),
-    ComboItem("Weekly",  "Weekly",),
-  ]);
-
   @override
   void initState() {
     _viewModel = Provider.of<FlexSetupViewModel>(context, listen: false);
@@ -81,9 +82,9 @@ class _FirstFlexSetupFormState extends State<FirstFlexSetupForm> with AutomaticK
             ),
           ),
           SizedBox(height: 12),
-          SelectionCombo<String>(
-            savingsFrequencies.toList(), (item, index) {
-              _viewModel.setFrequency(item);
+          SelectionCombo<FlexSaveMode>(
+            savingModes.toList(), (item, index) {
+              _viewModel.setSavingMode(item);
             },
             checkBoxPosition: CheckBoxPosition.leading,
             shouldUseAlternateDecoration: true,
@@ -103,9 +104,9 @@ class _FirstFlexSetupFormState extends State<FirstFlexSetupForm> with AutomaticK
                 color: savingsGreen.withOpacity(0.15),
                 borderRadius: BorderRadius.all(Radius.circular(8))
             ),
-            child: PaymentAmountView(((_viewModel.amount ?? 0.0) * 100).toInt(), (value) {
-                _viewModel.setAmount(value / 100);
-              },
+            child: PaymentAmountView(
+              ((_viewModel.amount ?? 0.0) * 100).toInt(),
+              (value) => _viewModel.setAmount(value / 100),
               currencyColor: Color(0xffC1C2C5).withOpacity(0.5),
               textColor: Colors.textColorBlack,
             ),
@@ -140,7 +141,9 @@ class _FirstFlexSetupFormState extends State<FirstFlexSetupForm> with AutomaticK
           SizedBox(height: 57),
           Styles.statefulButton(
               buttonStyle: Styles.savingsFlexButtonStyle.copyWith(
-                textStyle: MaterialStateProperty.all(getBoldStyle(fontWeight: FontWeight.w500, fontSize: 15, color: Colors.white))
+                textStyle: MaterialStateProperty.all(
+                    getBoldStyle(fontWeight: FontWeight.w500, fontSize: 15, color: Colors.white)
+                )
               ),
               stream: _viewModel.isValid,
               onClick: () => _viewModel.moveToNext(widget.position),

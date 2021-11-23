@@ -11,6 +11,7 @@ import 'package:moniepoint_flutter/app/institutions/institution_dao.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/airtime/model/data/airtime_beneficiary_dao.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/bills/model/data/bill_beneficiary_dao.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary_dao.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_savings_dao.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/fee_vat_config_dao.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/transfer_dao.dart';
 import 'package:moniepoint_flutter/core/database/migrations/app_migrations.dart';
@@ -111,6 +112,11 @@ class DatabaseModule {
     GetIt.I.registerSingletonAsync<SchemeDao>(() async {
       final db = await GetIt.I.getAsync<AppDatabase>();
       return db.schemeDao;
+    });
+
+    GetIt.I.registerSingletonAsync<FlexSavingsDao>(() async {
+      final db = await GetIt.I.getAsync<AppDatabase>();
+      return db.flexSavingsDao;
     });
   }
 }

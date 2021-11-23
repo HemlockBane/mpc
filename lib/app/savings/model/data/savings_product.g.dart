@@ -8,9 +8,9 @@ part of 'savings_product.dart';
 
 SavingsProduct _$SavingsProductFromJson(Map<String, dynamic> json) {
   return SavingsProduct(
-    id: json['id'] as int,
-    createdOn: stringDateTime(json['createdOn'] as String),
-    lastModifiedOn: stringDateTime(json['lastModifiedOn'] as String),
+    id: json['flexSavingProductId'] as int,
+    createdOn: stringDateTime(json['createdOn'] as String?),
+    lastModifiedOn: stringDateTime(json['lastModifiedOn'] as String?),
     name: json['name'] as String?,
     shortDescription: json['shortDescription'] as String?,
     longDescription: json['longDescription'] as String?,
@@ -18,7 +18,10 @@ SavingsProduct _$SavingsProductFromJson(Map<String, dynamic> json) {
     headerImage: json['headerImage'] as String?,
     code: json['code'] as String?,
     cbaSavingsAccountSchemeCode: json['cbaSavingsAccountSchemeCode'] as String?,
-    interestRate: (json['interestRate'] as num?)?.toDouble(),
+    flexSavingScheme: json['flexSavingScheme'] == null
+        ? null
+        : FlexSavingScheme.fromJson(
+            json['flexSavingScheme'] as Map<String, dynamic>),
     penalties: json['penalties'] as int?,
     flexSavings: (json['flexSavings'] as List<dynamic>?)
         ?.map((e) => FlexSaving.fromJson(e as Map<String, dynamic>))
@@ -28,7 +31,7 @@ SavingsProduct _$SavingsProductFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$SavingsProductToJson(SavingsProduct instance) =>
     <String, dynamic>{
-      'id': instance.id,
+      'flexSavingProductId': instance.id,
       'createdOn': millisToString(instance.createdOn),
       'lastModifiedOn': millisToString(instance.lastModifiedOn),
       'name': instance.name,
@@ -38,7 +41,7 @@ Map<String, dynamic> _$SavingsProductToJson(SavingsProduct instance) =>
       'headerImage': instance.headerImage,
       'code': instance.code,
       'cbaSavingsAccountSchemeCode': instance.cbaSavingsAccountSchemeCode,
-      'interestRate': instance.interestRate,
+      'flexSavingScheme': instance.flexSavingScheme,
       'penalties': instance.penalties,
       'flexSavings': instance.flexSavings,
     };

@@ -288,7 +288,7 @@ class _SavingsFlexWithdrawalViewState extends State<SavingsFlexWithdrawalView> {
                       context,
                       MaterialPageRoute(
                         builder: (ctx) =>
-                          SavingsSucessView(
+                          SavingsSuccessView(
                             primaryText: "Withdrawal Successful!",
                             secondaryText: loremIpsum,
                             primaryButtonText: "Continue",

@@ -92,10 +92,12 @@ class _$AppDatabase extends AppDatabase {
 
   SchemeDao? _schemeDaoInstance;
 
+  FlexSavingsDao? _flexSavingsDaoInstance;
+
   Future<sqflite.Database> open(String path, List<Migration> migrations,
       [Callback? callback]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 5,
+      version: 6,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -142,6 +144,8 @@ class _$AppDatabase extends AppDatabase {
             'CREATE TABLE IF NOT EXISTS `account_transactions` (`id` INTEGER, `accountNumber` TEXT, `status` INTEGER, `transactionRef` TEXT NOT NULL, `amount` REAL, `type` TEXT, `transactionChannel` TEXT, `tags` TEXT, `narration` TEXT, `transactionDate` INTEGER NOT NULL, `runningBalance` TEXT, `balanceBefore` TEXT, `balanceAfter` TEXT, `transactionCategory` TEXT, `transactionCode` TEXT, `beneficiaryIdentifier` TEXT, `beneficiaryName` TEXT, `beneficiaryBankName` TEXT, `beneficiaryBankCode` TEXT, `senderIdentifier` TEXT, `senderName` TEXT, `senderBankName` TEXT, `senderBankCode` TEXT, `providerIdentifier` TEXT, `providerName` TEXT, `transactionIdentifier` TEXT, `merchantLocation` TEXT, `cardScheme` TEXT, `maskedPan` TEXT, `terminalID` TEXT, `disputable` INTEGER, `location` TEXT, `metaData` TEXT, `customerAccountId` INTEGER, PRIMARY KEY (`transactionRef`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `tiers` (`id` INTEGER NOT NULL, `status` TEXT, `createdOn` TEXT, `lastModifiedOn` TEXT, `code` TEXT, `name` TEXT, `classification` TEXT, `accountNumberPrefix` TEXT, `accountNumberLength` INTEGER, `allowNegativeBalance` INTEGER, `allowLien` INTEGER, `enableInstantBalanceUpdate` INTEGER, `maximumCumulativeBalance` REAL, `maximumSingleDebit` REAL, `maximumSingleCredit` REAL, `maximumDailyDebit` REAL, `maximumDailyCredit` REAL, `schemeRequirement` TEXT, `alternateSchemeRequirement` TEXT, `supportsAccountGeneration` INTEGER, PRIMARY KEY (`id`))');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `flex_savings` (`id` INTEGER NOT NULL, `createdOn` INTEGER, `flexVersion` TEXT, `cbaAccountNuban` TEXT, `flexSavingScheme` TEXT, `configCreated` INTEGER, `flexSavingConfig` TEXT, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -238,6 +242,12 @@ class _$AppDatabase extends AppDatabase {
   @override
   SchemeDao get schemeDao {
     return _schemeDaoInstance ??= _$SchemeDao(database, changeListener);
+  }
+
+  @override
+  FlexSavingsDao get flexSavingsDao {
+    return _flexSavingsDaoInstance ??=
+        _$FlexSavingsDao(database, changeListener);
   }
 }
 
@@ -2755,6 +2765,133 @@ class _$SchemeDao extends SchemeDao {
   }
 }
 
+class _$FlexSavingsDao extends FlexSavingsDao {
+  _$FlexSavingsDao(this.database, this.changeListener)
+      : _queryAdapter = QueryAdapter(database, changeListener),
+        _flexSavingInsertionAdapter = InsertionAdapter(
+            database,
+            'flex_savings',
+            (FlexSaving item) => <String, Object?>{
+                  'id': item.id,
+                  'createdOn': item.createdOn,
+                  'flexVersion': item.flexVersion,
+                  'cbaAccountNuban': item.cbaAccountNuban,
+                  'flexSavingScheme':
+                      _flexSavingSchemeConverter.encode(item.flexSavingScheme),
+                  'configCreated': item.configCreated == null
+                      ? null
+                      : (item.configCreated! ? 1 : 0),
+                  'flexSavingConfig':
+                      _flexConfigTypeConverter.encode(item.flexSavingConfig)
+                },
+            changeListener),
+        _flexSavingDeletionAdapter = DeletionAdapter(
+            database,
+            'flex_savings',
+            ['id'],
+            (FlexSaving item) => <String, Object?>{
+                  'id': item.id,
+                  'createdOn': item.createdOn,
+                  'flexVersion': item.flexVersion,
+                  'cbaAccountNuban': item.cbaAccountNuban,
+                  'flexSavingScheme':
+                      _flexSavingSchemeConverter.encode(item.flexSavingScheme),
+                  'configCreated': item.configCreated == null
+                      ? null
+                      : (item.configCreated! ? 1 : 0),
+                  'flexSavingConfig':
+                      _flexConfigTypeConverter.encode(item.flexSavingConfig)
+                },
+            changeListener);
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<FlexSaving> _flexSavingInsertionAdapter;
+
+  final DeletionAdapter<FlexSaving> _flexSavingDeletionAdapter;
+
+  @override
+  Stream<List<FlexSaving>> getFlexSavings() {
+    return _queryAdapter.queryListStream(
+        'SELECT * FROM flex_savings ORDER BY createdOn DESC',
+        mapper: (Map<String, Object?> row) => FlexSaving(
+            id: row['id'] as int,
+            createdOn: row['createdOn'] as int?,
+            flexVersion: row['flexVersion'] as String?,
+            cbaAccountNuban: row['cbaAccountNuban'] as String?,
+            flexSavingScheme: _flexSavingSchemeConverter
+                .decode(row['flexSavingScheme'] as String?),
+            flexSavingConfig: _flexConfigTypeConverter
+                .decode(row['flexSavingConfig'] as String?),
+            configCreated: row['configCreated'] == null
+                ? null
+                : (row['configCreated'] as int) != 0),
+        queryableName: 'flex_savings',
+        isView: false);
+  }
+
+  @override
+  Future<FlexSaving?> getFlexSavingById(int id) async {
+    return _queryAdapter.query('SELECT * FROM flex_savings WHERE id = ?1',
+        mapper: (Map<String, Object?> row) => FlexSaving(
+            id: row['id'] as int,
+            createdOn: row['createdOn'] as int?,
+            flexVersion: row['flexVersion'] as String?,
+            cbaAccountNuban: row['cbaAccountNuban'] as String?,
+            flexSavingScheme: _flexSavingSchemeConverter
+                .decode(row['flexSavingScheme'] as String?),
+            flexSavingConfig: _flexConfigTypeConverter
+                .decode(row['flexSavingConfig'] as String?),
+            configCreated: row['configCreated'] == null
+                ? null
+                : (row['configCreated'] as int) != 0),
+        arguments: [id]);
+  }
+
+  @override
+  Future<void> deleteAll() async {
+    await _queryAdapter.queryNoReturn('DELETE FROM flex_savings');
+  }
+
+  @override
+  Future<void> deleteOldRecords(List<int> ids) async {
+    const offset = 1;
+    final _sqliteVariablesForIds =
+        Iterable<String>.generate(ids.length, (i) => '?${i + offset}')
+            .join(',');
+    await _queryAdapter.queryNoReturn(
+        'DELETE FROM flex_savings WHERE id NOT IN(' +
+            _sqliteVariablesForIds +
+            ')',
+        arguments: [...ids]);
+  }
+
+  @override
+  Future<void> insertItem(FlexSaving item) async {
+    await _flexSavingInsertionAdapter.insert(item, OnConflictStrategy.replace);
+  }
+
+  @override
+  Future<void> insertItems(List<FlexSaving> item) async {
+    await _flexSavingInsertionAdapter.insertList(
+        item, OnConflictStrategy.replace);
+  }
+
+  @override
+  Future<void> deleteItems(List<FlexSaving> item) async {
+    await _flexSavingDeletionAdapter.deleteList(item);
+  }
+
+  @override
+  Future<void> deleteItem(FlexSaving item) async {
+    await _flexSavingDeletionAdapter.delete(item);
+  }
+}
+
 // ignore_for_file: unused_element
 final _listStateConverter = ListStateConverter();
 final _listStringConverter = ListStringConverter();
@@ -2774,3 +2911,5 @@ final _transactionMetaDataConverter = TransactionMetaDataConverter();
 final _schemeRequirementConverter = SchemeRequirementConverter();
 final _alternateSchemeRequirementConverter =
     AlternateSchemeRequirementConverter();
+final _flexSavingSchemeConverter = FlexSavingSchemeConverter();
+final _flexConfigTypeConverter = FlexConfigTypeConverter();

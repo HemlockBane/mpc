@@ -8,6 +8,7 @@ class AppMigration {
         _version2To3(),
         _version3To4(),
         _version4To5(),
+        _version5To6(),
       ];
   }
 
@@ -69,6 +70,13 @@ class AppMigration {
             'billerProductCode VARCHAR, transactionId VARCHAR, token VARCHAR'
           ')'
       );
+      print(".....Ending Run Migrations.....");
+    });
+  }
+
+  Migration _version5To6() {
+    return Migration(5, 6, (db) async {
+      print(".....Run Migrations.....");
       print(".....Ending Run Migrations.....");
     });
   }

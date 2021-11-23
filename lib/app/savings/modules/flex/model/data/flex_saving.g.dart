@@ -8,36 +8,33 @@ part of 'flex_saving.dart';
 
 FlexSaving _$FlexSavingFromJson(Map<String, dynamic> json) {
   return FlexSaving(
-    id: json['id'] as int,
-    createdOn: stringDateTime(json['createdOn'] as String),
-    version: json['version'] as int?,
+    id: json['customerFlexSavingId'] as int,
+    createdOn: stringDateTime(json['createdOn'] as String?),
     customer: json['customer'] == null
         ? null
         : Customer.fromJson(json['customer'] as Object),
     flexVersion: json['flexVersion'] as String?,
     cbaAccountNuban: json['cbaAccountNuban'] as String?,
-    interestRate: json['interestRate'] as int?,
-    totalSavings: json['totalSavings'] as int?,
-    totalAccruedInterest: json['totalAccruedInterest'] as int?,
-    totalAppliedPenalties: json['totalAppliedPenalties'] as int?,
+    flexSavingScheme: json['flexSavingScheme'] == null
+        ? null
+        : FlexSavingScheme.fromJson(
+            json['flexSavingScheme'] as Map<String, dynamic>),
     flexSavingConfig: json['flexSavingConfig'] == null
         ? null
         : FlexSavingConfig.fromJson(
             json['flexSavingConfig'] as Map<String, dynamic>),
+    configCreated: json['configCreated'] as bool?,
   );
 }
 
 Map<String, dynamic> _$FlexSavingToJson(FlexSaving instance) =>
     <String, dynamic>{
-      'id': instance.id,
+      'customerFlexSavingId': instance.id,
       'createdOn': millisToString(instance.createdOn),
-      'version': instance.version,
       'customer': instance.customer,
       'flexVersion': instance.flexVersion,
       'cbaAccountNuban': instance.cbaAccountNuban,
-      'interestRate': instance.interestRate,
-      'totalSavings': instance.totalSavings,
-      'totalAccruedInterest': instance.totalAccruedInterest,
-      'totalAppliedPenalties': instance.totalAppliedPenalties,
+      'flexSavingScheme': instance.flexSavingScheme,
+      'configCreated': instance.configCreated,
       'flexSavingConfig': instance.flexSavingConfig,
     };

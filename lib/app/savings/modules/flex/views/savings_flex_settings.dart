@@ -12,7 +12,6 @@ class SavingsFlexSettingsView extends StatefulWidget {
 class _SavingsFlexSettingsViewState extends State<SavingsFlexSettingsView> {
 
 
-
   final boldStyle = TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.textColorBlack);
   bool _isSelected = false;
 

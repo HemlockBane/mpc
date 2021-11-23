@@ -13,6 +13,8 @@ import 'package:moniepoint_flutter/app/airtime/model/data/airtime_service_provid
 import 'package:moniepoint_flutter/app/billpayments/model/data/bill_history_item.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/biller.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/biller_product.dart';
+import 'package:moniepoint_flutter/app/savings/model/data/flex_saving_scheme.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving_config.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/fee_vat_config.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/transfer_batch.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/transfer_history_item.dart';
@@ -324,9 +326,38 @@ class LocationConverter extends TypeConverter<Location?, String?>{
   }
 }
 
+class FlexConfigTypeConverter extends TypeConverter<FlexSavingConfig?, String?>{
+  @override
+  FlexSavingConfig? decode(String? databaseValue) {
+    if(databaseValue == null) return null;
+    final dynamic type = jsonDecode(databaseValue);
+    return FlexSavingConfig.fromJson(type);
+  }
+
+  @override
+  String? encode(FlexSavingConfig? value) {
+    return (value != null) ? jsonEncode(value) : null;
+  }
+}
+
+class FlexSavingSchemeConverter extends TypeConverter<FlexSavingScheme?, String?>{
+  @override
+  FlexSavingScheme? decode(String? databaseValue) {
+    if(databaseValue == null) return null;
+    final dynamic type = jsonDecode(databaseValue);
+    return FlexSavingScheme.fromJson(type);
+  }
+
+  @override
+  String? encode(FlexSavingScheme? value) {
+    return (value != null) ? jsonEncode(value) : null;
+  }
+}
 
 
-int stringDateTime(String a) {
+
+int stringDateTime(String? a) {
+  if(a == null) return 0;
   try {
     final parsedDate = DateTime.parse(a);
     if (parsedDate.isUtc && ServiceConfig.ENV == "dev") {

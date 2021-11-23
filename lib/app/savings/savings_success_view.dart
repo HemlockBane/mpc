@@ -5,8 +5,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 
-class SavingsSucessView extends StatelessWidget {
-  const SavingsSucessView(
+class SavingsSuccessView extends StatelessWidget {
+  const SavingsSuccessView(
       {Key? key,
       required this.primaryText,
       required this.secondaryText,
@@ -84,8 +84,7 @@ class SavingsSucessView extends StatelessWidget {
             if (secondaryButtonText != null && secondaryButtonAction != null)
               Styles.statefulButton(
                 buttonStyle: Styles.primaryButtonStyle.copyWith(
-                    backgroundColor:
-                        MaterialStateProperty.all(Colors.transparent),
+                    backgroundColor: MaterialStateProperty.all(Colors.transparent),
                     textStyle: MaterialStateProperty.all(getBoldStyle(
                         fontWeight: FontWeight.w400,
                         fontSize: 16,

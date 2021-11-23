@@ -1,34 +1,46 @@
 
 import 'package:moniepoint_flutter/app/savings/model/data/savings_product.dart';
 import 'package:moniepoint_flutter/app/savings/model/savings_product_service.dart';
-import 'package:moniepoint_flutter/app/savings/modules/flex/model/flex_saving.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_savings_dao.dart';
 import 'package:moniepoint_flutter/core/network/network_bound_resource.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/network/service_result.dart';
+
+import 'data/enable_flex_request_body.dart';
 
 ///@author Paul Okeke
 ///
 class SavingsProductServiceDelegate with NetworkResource {
 
   late final SavingsProductService _service;
+  late final FlexSavingsDao _flexSavingsDao;
 
-  SavingsProductServiceDelegate(SavingsProductService service) {
+  SavingsProductServiceDelegate(
+      SavingsProductService service, FlexSavingsDao flexSavingsDao) {
     this._service = service;
+    this._flexSavingsDao = flexSavingsDao;
   }
 
   Stream<Resource<SavingsProduct>> getFlexProduct() {
     return networkBoundResource(
         fetchFromLocal: () => Stream.value(null),
-        fetchFromRemote: () => Future.value(ServiceResult.fromJson(mockProduct, (json) => SavingsProduct.fromJson(json as Map<String, dynamic>)))//this._service.getFlexProduct()
+        fetchFromRemote: () => this._service.getFlexProduct()
+        // Future.value(ServiceResult.fromJson(mockProduct, (json) => SavingsProduct.fromJson(json as Map<String, dynamic>)))
     );
   }
 
   Stream<Resource<List<FlexSaving>>> getRunningFlexSavings(int customerId) {
     return networkBoundResource(
-        fetchFromLocal: () => Stream.value(null),
-        fetchFromRemote: () => Future.delayed(Duration(seconds: 5), (){
-          return ServiceResult.fromJson(mockSavingsFlex, (json) => (json as List).map((e) => FlexSaving.fromJson(e)).toList());
-        }),//this._service.getRunningFlexSavings(customerId)
+        fetchFromLocal: () => _flexSavingsDao.getFlexSavings(),
+        fetchFromRemote: () => this._service.getRunningFlexSavings(customerId),
+        saveRemoteData: (data) async {
+          await _flexSavingsDao.deleteOldRecords(data.map((e) => e.id).toList());
+          await _flexSavingsDao.insertItems(data);
+        }
+        //     Future.delayed(Duration(seconds: 5), (){
+        //   return ServiceResult.fromJson(mockSavingsFlex, (json) => (json as List).map((e) => FlexSaving.fromJson(e)).toList());
+        // }),
     );
   }
 
@@ -36,8 +48,7 @@ class SavingsProductServiceDelegate with NetworkResource {
     return networkBoundResource(
         fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => this._service.enableFlexSavings(
-            customerId,
-            "1.0.0"
+            EnableFlexRequestBody(customerId: "$customerId", flexVersion: "0.0.1")
         )
     );
   }

@@ -12,7 +12,12 @@ import 'forms/second_flex_setup_form.dart';
 
 
 class SavingsFlexSetupView extends StatefulWidget {
-  const SavingsFlexSetupView({Key? key}) : super(key: key);
+  const SavingsFlexSetupView({
+    Key? key,
+    required this.flexSavingId
+  }) : super(key: key);
+
+  final num flexSavingId;
 
   @override
   _SavingsFlexSetupViewState createState() => _SavingsFlexSetupViewState();
@@ -75,7 +80,8 @@ class _SavingsFlexSetupViewState extends State<SavingsFlexSetupView> with Compos
 
   @override
   void initState() {
-    _viewModel = FlexSetupViewModel();
+    _viewModel = Provider.of<FlexSetupViewModel>(context, listen: false);
+    _viewModel.setFlexSavingId(widget.flexSavingId);
     _registerPageChange();
     super.initState();
   }
@@ -112,12 +118,15 @@ class _SavingsFlexSetupViewState extends State<SavingsFlexSetupView> with Compos
             centerTitle: false,
             titleSpacing: 0,
             iconTheme: IconThemeData(color: Colors.solidGreen),
-            title: Text('General Savings',
+            title: Text(
+                'General Savings',
                 textAlign: TextAlign.start,
                 style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Colors.textColorBlack)),
+                    color: Colors.textColorBlack
+                )
+            ),
             backgroundColor: Color(0xffF8F8F8),
             elevation: 0,
             toolbarHeight: 70,

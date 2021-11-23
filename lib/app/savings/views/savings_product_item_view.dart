@@ -12,6 +12,8 @@ import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
 import 'package:moniepoint_flutter/main.dart';
 import 'package:shimmer/shimmer.dart';
 
+import 'savings_dasboard_view.dart';
+
 enum SavingsProductType {
   FLEX,
   TARGET,
@@ -98,7 +100,6 @@ class _SavingsProductItemState extends State<SavingsProductItemView> {
           return Text("Error Loading", style: TextStyle(fontSize: 16, color: Colors.black),);
         }
 
-        print("Hello, World !!! ==>> ${snap.data}");
         final product = snap.data?.data;
 
         this.savingsProduct = product;
@@ -153,7 +154,7 @@ class _SavingsProductItemState extends State<SavingsProductItemView> {
                 Divider(height: 0.8, color: Color(0XFF752E96).withOpacity(0.12)),
                 SizedBox(height: 8),
                 Text(
-                  "${product?.interestRate}% p.a",
+                  "${product?.flexSavingScheme?.interestRate}% p.a",
                   style: TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
@@ -285,7 +286,7 @@ class SavingsProductItemActiveView extends StatelessWidget {
                           EdgeInsets.only(right: 16, left: 16, top: 10, bottom: 10)
                       )
                   ),
-                  onPressed: () => "",
+                  onPressed: () => Navigator.of(context).pushNamed(SavingsDashboardView.FLEX_SAVINGS),
                   child: Text(
                     "View",
                     style: TextStyle(

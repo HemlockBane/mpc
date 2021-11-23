@@ -24,6 +24,8 @@ import 'package:moniepoint_flutter/app/managebeneficiaries/bills/model/data/bill
 import 'package:moniepoint_flutter/app/managebeneficiaries/bills/model/data/bill_beneficiary_dao.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary_dao.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_savings_dao.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/fee_vat_config.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/fee_vat_config_dao.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/single_transfer_transaction.dart';
@@ -35,7 +37,7 @@ import 'dart:async';
 part 'moniepoint_database.g.dart';
 
 @TypeConverters([ListStateConverter])
-@Database(version: 5, entities: [
+@Database(version: 6, entities: [
   Nationality,
   TransferBeneficiary,
   AccountProvider,
@@ -51,7 +53,8 @@ part 'moniepoint_database.g.dart';
   BillerCategory,
   BillerProduct,
   AccountTransaction,
-  Tier
+  Tier,
+  FlexSaving
 ])
 abstract class AppDatabase extends FloorDatabase {
   NationalityDao get nationalityDao;
@@ -85,4 +88,6 @@ abstract class AppDatabase extends FloorDatabase {
   TransactionDao get transactionDao;
 
   SchemeDao get schemeDao;
+
+  FlexSavingsDao get flexSavingsDao;
 }

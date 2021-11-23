@@ -1,5 +1,7 @@
 
 
+import 'dart:convert';
+
 import 'package:floor/floor.dart';
 import 'package:moniepoint_flutter/app/customer/customer.dart';
 import 'package:moniepoint_flutter/app/savings/model/data/flex_saving_scheme.dart';
@@ -39,6 +41,10 @@ class FlexSaving {
   final FlexSavingConfig? flexSavingConfig;
 
   factory FlexSaving.fromJson(Map<String, dynamic> json) {
+    // json["customer"] = null;
+    // print("Savings Config ===> ${jsonEncode(json["flexSavingConfig"])}");
+    // print("Config Created ===> ${jsonEncode(json["configCreated"])}");
+    // print(json);
     return _$FlexSavingFromJson(json);
   }
 

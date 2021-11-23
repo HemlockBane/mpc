@@ -83,6 +83,12 @@ class _SavingsFlexListViewState extends State<SavingsFlexListView> with TickerPr
         }
     );
   }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 }
 
 ///FlexSavingListItem
@@ -268,7 +274,7 @@ class _AccountNumberView extends StatelessWidget {
 ///
 ///
 ///
-class _InterestAndTotalSavingsView extends StatelessWidget{
+class _InterestAndTotalSavingsView extends StatelessWidget {
 
   _InterestAndTotalSavingsView({
     required this.interest,

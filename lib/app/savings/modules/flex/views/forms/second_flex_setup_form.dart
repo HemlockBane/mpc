@@ -7,7 +7,6 @@ import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_savi
 import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/flex_setup_viewmodel.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
-import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:provider/provider.dart';
@@ -160,17 +159,10 @@ class _SecondFlexSetupFormState extends State<SecondFlexSetupForm> with Automati
                 Expanded(
                   flex: 5,
                   child: Styles.statefulButton(
-                      buttonStyle: Styles.primaryButtonStyle.copyWith(
-                          backgroundColor:
-                          MaterialStateProperty.all(Colors.solidGreen),
-                          textStyle: MaterialStateProperty.all(getBoldStyle(
-                              fontWeight: FontWeight.w500,
-                              fontSize: 15,
-                              color: Colors.white
-                          ))
-                      ),
+                      buttonStyle: Styles.savingsFlexButtonStyle,
                       isLoading: _viewModel.isLoading,
                       stream: _viewModel.isValid,
+                      loadingColor: Colors.savingsPrimary.withOpacity(0.5),
                       onClick: _subscribeUiToCreateConfig,
                       text: 'Complete Setup'
                   ),

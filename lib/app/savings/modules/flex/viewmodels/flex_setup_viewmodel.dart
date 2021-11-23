@@ -10,7 +10,7 @@ import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 
-import 'SavingsViewModel.dart';
+import 'savings_view_model.dart';
 
 class FlexSetupViewModel extends BaseViewModel with SavingsViewModel{
 

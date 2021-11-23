@@ -33,6 +33,7 @@ class FlexSavingConfig {
     this.customerFlexSavingId
   });
 
+  @JsonKey(name: "flexSavingConfigId")
   final int id;
   @JsonKey(name: "createdOn", fromJson: stringDateTime, toJson: millisToString)
   final int? createdOn;

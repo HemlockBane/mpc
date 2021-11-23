@@ -467,6 +467,7 @@ class Styles {
     ButtonStyle? buttonStyle,
     Color? textColor,
     double? elevation = 0,
+    Color? loadingColor,
   }) {
     return Stack(
       children: [
@@ -490,7 +491,7 @@ class Styles {
             top: 16,
             bottom: 16,
             child: isLoading
-                ? SpinKitThreeBounce(size: 20.0, color: Colors.primaryColor.withOpacity(0.5))
+                ? SpinKitThreeBounce(size: 20.0, color: loadingColor ?? Colors.primaryColor.withOpacity(0.5))
                 : SizedBox())
       ],
     );

@@ -164,6 +164,11 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
   @override
   void initState() {
     super.initState();
+    if(widget.viewModel.userAccounts.length == 1) {
+      WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+        this.widget.onAccountSelected.call(widget.viewModel.userAccounts.first);
+      });
+    }
   }
 
   @override
@@ -214,7 +219,6 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
           )
       );
     }
-    this.widget.onAccountSelected.call(widget.viewModel.userAccounts.first);
     return boxContainer(Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,

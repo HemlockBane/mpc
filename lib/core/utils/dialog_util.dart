@@ -13,7 +13,7 @@ Future<dynamic> showError(BuildContext context,
     String primaryButtonText = "Try Again",
     String? secondaryButtonText,
       bool useTextButton = false,
-      bool displayDismissButton = true,
+      bool displayDismissButton = false,
     VoidCallback? onSecondaryClick}) {
   return navigatorKey.currentState!.push(MaterialPageRoute(builder: (mContext) {
     return TransactionErrorPage(

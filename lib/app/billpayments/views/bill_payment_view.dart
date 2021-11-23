@@ -48,6 +48,7 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
   @override
   initState() {
     this.viewModel = Provider.of<BillPurchaseViewModel>(context, listen: false);
+
     super.initState();
   }
 

@@ -19,7 +19,7 @@ class BillTransaction extends Transaction {
   final String? transactionStatus;
   @JsonKey(name: "transactionTime", fromJson: stringDateTime, toJson: millisToString)
   final int? transactionTime;
-  final int? customerId;
+  final String? customerId;
   final String? customerIdName;
   final String? billerCategoryName;
   final String? billerCategoryCode;

@@ -241,9 +241,7 @@ class ComingSoonView extends StatelessWidget {
                                     Text('Save money with Moniepoint\n and hit your goals & targets', style: TextStyle(color: Colors.textColorBlack, fontWeight: FontWeight.w500, fontSize: 14),),
                                     SizedBox(height: 11,),
                                     GestureDetector(
-                                      onTap: (){
-                                        Navigator.push(context, MaterialPageRoute(builder: (ctx) => Container()));
-                                      },
+                                      onTap: null,
                                       child: Container(
                                         padding: EdgeInsets.symmetric(horizontal: 45, vertical: 10),
                                         decoration: BoxDecoration(

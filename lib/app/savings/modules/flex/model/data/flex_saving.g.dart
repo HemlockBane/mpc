@@ -19,10 +19,7 @@ FlexSaving _$FlexSavingFromJson(Map<String, dynamic> json) {
         ? null
         : FlexSavingScheme.fromJson(
             json['flexSavingScheme'] as Map<String, dynamic>),
-    flexSavingConfig: json['flexSavingConfig'] == null
-        ? null
-        : FlexSavingConfig.fromJson(
-            json['flexSavingConfig'] as Map<String, dynamic>),
+    flexSavingConfigId: json['flexSavingConfigId'] as int?,
     configCreated: json['configCreated'] as bool?,
   );
 }
@@ -36,5 +33,5 @@ Map<String, dynamic> _$FlexSavingToJson(FlexSaving instance) =>
       'cbaAccountNuban': instance.cbaAccountNuban,
       'flexSavingScheme': instance.flexSavingScheme,
       'configCreated': instance.configCreated,
-      'flexSavingConfig': instance.flexSavingConfig,
+      'flexSavingConfigId': instance.flexSavingConfigId,
     };

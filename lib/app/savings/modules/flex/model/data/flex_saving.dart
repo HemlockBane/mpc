@@ -22,7 +22,7 @@ class FlexSaving {
     this.flexVersion,
     this.cbaAccountNuban,
     this.flexSavingScheme,
-    this.flexSavingConfig,
+    this.flexSavingConfigId,
     this.configCreated
   });
 
@@ -37,16 +37,9 @@ class FlexSaving {
   @TypeConverters([FlexSavingSchemeConverter])
   final FlexSavingScheme? flexSavingScheme;
   final bool? configCreated;
-  @TypeConverters([FlexConfigTypeConverter])
-  final FlexSavingConfig? flexSavingConfig;
+  final int? flexSavingConfigId;
 
-  factory FlexSaving.fromJson(Map<String, dynamic> json) {
-    // json["customer"] = null;
-    // print("Savings Config ===> ${jsonEncode(json["flexSavingConfig"])}");
-    // print("Config Created ===> ${jsonEncode(json["configCreated"])}");
-    // print(json);
-    return _$FlexSavingFromJson(json);
-  }
+  factory FlexSaving.fromJson(Map<String, dynamic> json) => _$FlexSavingFromJson(json);
 
   Map<String, dynamic> toJson() => _$FlexSavingToJson(this);
 }

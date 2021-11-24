@@ -29,7 +29,6 @@ class SavingsDashboardView extends StatefulWidget  {
 
 class _SavingsDashboardState extends State<SavingsDashboardView> with AutomaticKeepAliveClientMixin{
 
-
   Future<bool> _onBackPressed() async {
     final isPop = await widget._navigatorKey.currentState?.maybePop();
     return (isPop != null && isPop) ? Future.value(false) : Future.value(true);
@@ -56,7 +55,7 @@ class _SavingsDashboardState extends State<SavingsDashboardView> with AutomaticK
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    // return ComingSoonView(width: 100, height: 100);
+    return ComingSoonView(width: 100, height: 100);
     return MultiProvider(
       providers: [ChangeNotifierProvider(create: (_) => SavingsDashboardViewModel())],
       child: WillPopScope(
@@ -99,8 +98,9 @@ class _SavingsDashboardMenu extends StatelessWidget {
     final viewModel = Provider.of<SavingsDashboardViewModel>(context, listen: false);
     var size = MediaQuery.of(context).size;
 
-    final double itemHeight = (size.height - (kToolbarHeight + 318)) / 2;
+    final double itemHeight = (size.height - (kToolbarHeight + 10)) / 2;
     final double itemWidth = size.width / 2;
+
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -119,7 +119,7 @@ class _SavingsDashboardMenu extends StatelessWidget {
           crossAxisCount: 2,
           mainAxisSpacing: 15,
           crossAxisSpacing: 16,
-          childAspectRatio: (itemWidth / itemHeight),
+          childAspectRatio:  1 / 1.23,
           children: [
             SavingsProductItemView(
                 productType: SavingsProductType.FLEX,

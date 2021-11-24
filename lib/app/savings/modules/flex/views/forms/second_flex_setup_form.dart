@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' hide Colors;
+import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/forms/account_update_form_view.dart';
 import 'package:moniepoint_flutter/app/airtime/views/selection_combo.dart';
@@ -9,6 +9,7 @@ import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
+import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:provider/provider.dart';
 
 
@@ -71,107 +72,131 @@ class _SecondFlexSetupFormState extends State<SecondFlexSetupForm> with Automati
     });
   }
 
+  Widget _getDropDown() {
+    if(_viewModel.savingMode == FlexSaveMode.MONTHLY) {
+      return StreamBuilder(
+        key: ValueKey("monthDayStream"),
+        stream: _viewModel.contributionMonthDayStream,
+        builder: (ctx, AsyncSnapshot<StringDropDownItem?> a) {
+          return Styles.buildDropDown<StringDropDownItem>(_viewModel.monthDays, a, (item, index) {
+            if(_viewModel.savingMode == FlexSaveMode.MONTHLY) {
+              _viewModel.setContributionMonthDay(item);
+            } else {
+              _viewModel.setContributionWeekDay(item);
+            }
+          }
+          );
+        },
+      );
+    } else {
+      return StreamBuilder(
+        key: ValueKey("weekDayStream"),
+        initialData: null,
+        stream: _viewModel.contributionWeekDayStream,
+        builder: (ctx, AsyncSnapshot<StringDropDownItem?> a) {
+          return Styles.buildDropDown<StringDropDownItem>(_viewModel.weekDays, a, (item, index) {
+            if(_viewModel.savingMode == FlexSaveMode.MONTHLY) {
+              _viewModel.setContributionMonthDay(item);
+            } else {
+              _viewModel.setContributionWeekDay(item);
+            }
+          }
+          );
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Container(
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView(
+    final bottom = MediaQuery.of(context).viewPadding.bottom;
+    return ScrollView(
+      maxHeight: MediaQuery.of(context).size.height - (250 + bottom),//subtract the vertical padding
+      child: Container(
+          child: Column(
+            children: [
+              Expanded(
+                child: Column(
+                  children: [
+                    Container(
+                      child: Text(
+                        "How will the contribution be made?",
+                        style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    SelectionCombo<FlexSaveType>(
+                      savingsTypes.toList(), (item, index) {
+                        _viewModel.setFlexSaveType(item);
+                      },
+                      checkBoxPosition: CheckBoxPosition.leading,
+                      shouldUseAlternateDecoration: true,
+                      primaryColor: Colors.solidGreen,
+                      backgroundColor: savingsGreen.withOpacity(0.15),
+                      horizontalPadding: 11 ,
+                    ),
+                    SizedBox(height: 34),
+                    StreamBuilder(
+                        stream: _viewModel.savingModeStream,
+                        builder: (ctx, AsyncSnapshot<FlexSaveMode> a) {
+                          final title = (_viewModel.savingMode == FlexSaveMode.MONTHLY)
+                              ? "What day of the month do you want to contribute?"
+                              : "What day of the week do you want to contribute?";
+                          return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  child: Text(
+                                    title,
+                                    style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
+                                  ),
+                                ),
+                                SizedBox(height: 12),
+                                _getDropDown()
+                              ]
+                          );
+                        }
+                    ),
+                    SizedBox(height: 32),
+                  ],
+                ),
+              ),
+              Row(
                 children: [
-                  Container(
-                    child: Text(
-                      "How will the contribution be made?",
-                      style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
+                  Expanded(
+                    flex: 3,
+                    child: Styles.statefulButton(
+                        buttonStyle: Styles.primaryButtonStyle.copyWith(
+                            backgroundColor: MaterialStateProperty.all(Colors.deepGrey.withOpacity(0.3)),
+                            textStyle: MaterialStateProperty.all(getBoldStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 15,
+                                color: Colors.deepGrey
+                            ))),
+                        stream: Stream.value(true),
+                        onClick: () => _viewModel.moveToPrev(),
+                        text: 'Back'
                     ),
                   ),
-                  SizedBox(height: 12),
-                  SelectionCombo<FlexSaveType>(
-                    savingsTypes.toList(), (item, index) {
-                      _viewModel.setFlexSaveType(item);
-                    },
-                    checkBoxPosition: CheckBoxPosition.leading,
-                    shouldUseAlternateDecoration: true,
-                    primaryColor: Colors.solidGreen,
-                    backgroundColor: savingsGreen.withOpacity(0.15),
-                    horizontalPadding: 11 ,
+                  SizedBox(width: 8),
+                  Expanded(
+                    flex: 5,
+                    child: Styles.statefulButton(
+                        buttonStyle: Styles.savingsFlexButtonStyle,
+                        isLoading: _viewModel.isLoading,
+                        stream: _viewModel.isValid,
+                        loadingColor: Colors.savingsPrimary.withOpacity(0.5),
+                        onClick: _subscribeUiToCreateConfig,
+                        text: 'Complete Setup'
+                    ),
                   ),
-                  SizedBox(height: 34),
-                  StreamBuilder(
-                      stream: _viewModel.savingTypeStream,
-                      builder: (ctx, AsyncSnapshot<FlexSaveType?> a) {
-                        final title = (_viewModel.savingMode == FlexSaveMode.MONTHLY)
-                            ? "What day of the month do you want to contribute?"
-                            : "What day of the week do you want to contribute?";
-                        final dataItems = (_viewModel.savingMode == FlexSaveMode.MONTHLY)
-                            ? _viewModel.monthDays
-                            : _viewModel.weekDays;
-                    return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                child: Text(
-                                  title,
-                                  style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
-                                ),
-                              ),
-                              SizedBox(height: 12),
-                              StreamBuilder(
-                                stream: _viewModel.contributionWeekDayStream,
-                                builder: (ctx, AsyncSnapshot<StringDropDownItem?> a) {
-                                  return Styles.buildDropDown<StringDropDownItem>(dataItems, a, (item, index) {
-                                        if(_viewModel.savingMode == FlexSaveMode.MONTHLY) {
-                                          _viewModel.setContributionMonthDay(item);
-                                        } else {
-                                          _viewModel.setContributionWeekDay(item);
-                                        }
-                                      }
-                                  );
-                                },
-                              )
-                            ]
-                        );
-                      }
-                  ),
-                  SizedBox(height: 32),
                 ],
               ),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: Styles.statefulButton(
-                      buttonStyle: Styles.primaryButtonStyle.copyWith(
-                          backgroundColor: MaterialStateProperty.all(Colors.deepGrey.withOpacity(0.3)),
-                          textStyle: MaterialStateProperty.all(getBoldStyle(
-                              fontWeight: FontWeight.w500,
-                              fontSize: 15,
-                              color: Colors.deepGrey
-                          ))),
-                      stream: Stream.value(true),
-                      onClick: () => _viewModel.moveToPrev(),
-                      text: 'Back'
-                  ),
-                ),
-                SizedBox(width: 8),
-                Expanded(
-                  flex: 5,
-                  child: Styles.statefulButton(
-                      buttonStyle: Styles.savingsFlexButtonStyle,
-                      isLoading: _viewModel.isLoading,
-                      stream: _viewModel.isValid,
-                      loadingColor: Colors.savingsPrimary.withOpacity(0.5),
-                      onClick: _subscribeUiToCreateConfig,
-                      text: 'Complete Setup'
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 20),
-          ],
-        )
+              SizedBox(height: 20),
+            ],
+          )
+      ),
     );
   }
 

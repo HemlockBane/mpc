@@ -263,14 +263,14 @@ class SavingsProductItemActiveView extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: 6),
-                Text(
-                    "Active Savings",
+                Flexible(child: Text(
+                  "Active Savings",
                   style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white
                   ),
-                )
+                ))
               ],
             ),
             SizedBox(height: 14),

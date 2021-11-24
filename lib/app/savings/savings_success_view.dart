@@ -54,8 +54,7 @@ class SavingsSuccessView extends StatelessWidget {
               child: SvgPicture.asset(
                 "res/drawables/ic_check_mark_round_alt.svg",
               ),
-              decoration:
-                  BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+              decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle),
             ),
             SizedBox(height: 10),
             Text(

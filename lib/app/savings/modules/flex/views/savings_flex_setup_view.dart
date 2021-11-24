@@ -32,7 +32,7 @@ class _SavingsFlexSetupViewState extends State<SavingsFlexSetupView> with Compos
   final pageChangeDuration = const Duration(milliseconds: 250);
   final pageCurve = Curves.linear;
 
-  int _currentPage = 0;
+  // int _currentPage = 0;
   List<PagedForm> _pages = [];
 
   void _registerPageChange() {
@@ -41,11 +41,9 @@ class _SavingsFlexSetupViewState extends State<SavingsFlexSetupView> with Compos
       if (event.first == -1) _onBackPressed();
 
       final totalItem = _pages.length;
+      final _currentPage = _viewModel.currentPage;
       if (totalItem > 0 && _currentPage < totalItem - 1) {
         _pageController.animateToPage(_currentPage + 1, duration: pageChangeDuration, curve: pageCurve);
-      } else if(_currentPage == totalItem - 1) {
-        // submit form
-
       }
     }).disposedBy(this);
   }
@@ -57,7 +55,8 @@ class _SavingsFlexSetupViewState extends State<SavingsFlexSetupView> with Compos
       itemCount: _pages.length,
       controller: _pageController,
       onPageChanged: (page) {
-        _currentPage = page;
+        _viewModel.setCurrentPage(page);
+        _viewModel.checkValidity();
       },
       itemBuilder: (BuildContext context, int index) {
         return _pages[index % _pages.length]..bind(_pages.length, index);
@@ -66,6 +65,7 @@ class _SavingsFlexSetupViewState extends State<SavingsFlexSetupView> with Compos
   }
 
   Future<bool> _onBackPressed() async {
+    final _currentPage = _viewModel.currentPage;
     if (_currentPage != 0) {
       await _pageController.animateToPage(
         _currentPage - 1, duration: pageChangeDuration, curve: pageCurve);

@@ -9,6 +9,8 @@ import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/network/service_error.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 
+///@author Paul Okeke
+
 class SingleCardViewModel extends BaseViewModel {
 
   late final CardServiceDelegate _delegate;
@@ -18,12 +20,6 @@ class SingleCardViewModel extends BaseViewModel {
   }
 
   Stream<Resource<List<Card>>> getCards() {
-    // return Stream.value(Resource.success([
-    //   Card(id: 30,maskedPan: "514360******4198", expiryDate: "23/03", blocked: false, nameOnCard: "AAAAA Okeke", isActivated: true),
-    //   Card(id: 31,maskedPan: "506099******4323", expiryDate: "23/03", blocked: false, nameOnCard: "AAAAA Okeke", isActivated: false),
-    //   Card(id: 32,maskedPan: "406099******4323", expiryDate: "23/03", blocked: true, nameOnCard: "Ebun Oluwa", isActivated: true),
-    // ]));
-    // return Stream.value(Resource.success([]));
     return _delegate.getCards(customerId).map((event) {
       return event;
     });

@@ -145,7 +145,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `tiers` (`id` INTEGER NOT NULL, `status` TEXT, `createdOn` TEXT, `lastModifiedOn` TEXT, `code` TEXT, `name` TEXT, `classification` TEXT, `accountNumberPrefix` TEXT, `accountNumberLength` INTEGER, `allowNegativeBalance` INTEGER, `allowLien` INTEGER, `enableInstantBalanceUpdate` INTEGER, `maximumCumulativeBalance` REAL, `maximumSingleDebit` REAL, `maximumSingleCredit` REAL, `maximumDailyDebit` REAL, `maximumDailyCredit` REAL, `schemeRequirement` TEXT, `alternateSchemeRequirement` TEXT, `supportsAccountGeneration` INTEGER, PRIMARY KEY (`id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `flex_savings` (`id` INTEGER NOT NULL, `createdOn` INTEGER, `flexVersion` TEXT, `cbaAccountNuban` TEXT, `flexSavingScheme` TEXT, `configCreated` INTEGER, `flexSavingConfig` TEXT, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `flex_savings` (`id` INTEGER NOT NULL, `createdOn` INTEGER, `flexVersion` TEXT, `cbaAccountNuban` TEXT, `flexSavingScheme` TEXT, `configCreated` INTEGER, `flexSavingConfigId` INTEGER, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -2781,8 +2781,7 @@ class _$FlexSavingsDao extends FlexSavingsDao {
                   'configCreated': item.configCreated == null
                       ? null
                       : (item.configCreated! ? 1 : 0),
-                  'flexSavingConfig':
-                      _flexConfigTypeConverter.encode(item.flexSavingConfig)
+                  'flexSavingConfigId': item.flexSavingConfigId
                 },
             changeListener),
         _flexSavingDeletionAdapter = DeletionAdapter(
@@ -2799,8 +2798,7 @@ class _$FlexSavingsDao extends FlexSavingsDao {
                   'configCreated': item.configCreated == null
                       ? null
                       : (item.configCreated! ? 1 : 0),
-                  'flexSavingConfig':
-                      _flexConfigTypeConverter.encode(item.flexSavingConfig)
+                  'flexSavingConfigId': item.flexSavingConfigId
                 },
             changeListener);
 
@@ -2825,8 +2823,7 @@ class _$FlexSavingsDao extends FlexSavingsDao {
             cbaAccountNuban: row['cbaAccountNuban'] as String?,
             flexSavingScheme: _flexSavingSchemeConverter
                 .decode(row['flexSavingScheme'] as String?),
-            flexSavingConfig: _flexConfigTypeConverter
-                .decode(row['flexSavingConfig'] as String?),
+            flexSavingConfigId: row['flexSavingConfigId'] as int?,
             configCreated: row['configCreated'] == null
                 ? null
                 : (row['configCreated'] as int) != 0),
@@ -2844,8 +2841,7 @@ class _$FlexSavingsDao extends FlexSavingsDao {
             cbaAccountNuban: row['cbaAccountNuban'] as String?,
             flexSavingScheme: _flexSavingSchemeConverter
                 .decode(row['flexSavingScheme'] as String?),
-            flexSavingConfig: _flexConfigTypeConverter
-                .decode(row['flexSavingConfig'] as String?),
+            flexSavingConfigId: row['flexSavingConfigId'] as int?,
             configCreated: row['configCreated'] == null
                 ? null
                 : (row['configCreated'] as int) != 0),
@@ -2912,4 +2908,3 @@ final _schemeRequirementConverter = SchemeRequirementConverter();
 final _alternateSchemeRequirementConverter =
     AlternateSchemeRequirementConverter();
 final _flexSavingSchemeConverter = FlexSavingSchemeConverter();
-final _flexConfigTypeConverter = FlexConfigTypeConverter();

@@ -23,7 +23,6 @@ class FlexSetupViewModel extends BaseViewModel with SavingsViewModel{
   final StreamController<Tuple<int, bool>> _pageFormController = StreamController.broadcast();
   Stream<Tuple<int, bool>> get pageFormStream => _pageFormController.stream;
 
-
   final monthDays = <StringDropDownItem>[
     StringDropDownItem("1",title: "1st"),
     StringDropDownItem("2",title: "2nd"),
@@ -48,6 +47,8 @@ class FlexSetupViewModel extends BaseViewModel with SavingsViewModel{
   ];
 
   int _currentPage = 0;
+  int get currentPage => _currentPage;
+
   FlexSaveType? _savingType;
   FlexSaveMode? _savingMode;
   FlexSaveMode? get savingMode => _savingMode ?? FlexSaveMode.MONTHLY;
@@ -65,14 +66,17 @@ class FlexSetupViewModel extends BaseViewModel with SavingsViewModel{
   final _savingTypeController = StreamController<FlexSaveType>.broadcast();
   Stream<FlexSaveType> get savingTypeStream => _savingTypeController.stream;
 
-  final _contributionMonthDayController = StreamController<int>.broadcast();
-  Stream<int> get contributionMonthDayStream => _contributionMonthDayController.stream;
+  final _contributionMonthDayController = StreamController<StringDropDownItem?>.broadcast();
+  Stream<StringDropDownItem?> get contributionMonthDayStream => _contributionMonthDayController.stream;
 
   final _contributionWeekDayController = StreamController<StringDropDownItem?>.broadcast();
   Stream<StringDropDownItem?> get contributionWeekDayStream => _contributionWeekDayController.stream;
 
+  void setCurrentPage(int currentPage) {
+    this._currentPage = currentPage;
+  }
+
   void moveToNext(int currentIndex, {bool skip = false}) {
-    _currentPage = currentIndex;
     _pageFormController.sink.add(Tuple(currentIndex, skip));
   }
 
@@ -102,15 +106,15 @@ class FlexSetupViewModel extends BaseViewModel with SavingsViewModel{
 
   void setSavingMode(FlexSaveMode? savingMode) {
     _savingMode = savingMode;
+    _contributionMonthDay = null;
+    _contributionWeekDay = null;
     _savingModeController.sink.add(savingMode ?? FlexSaveMode.MONTHLY);
     checkValidity();
   }
 
   void setContributionMonthDay(StringDropDownItem? monthDay) {
     _contributionMonthDay = int.tryParse(monthDay?.value ?? "");
-    if(_contributionMonthDay != null) {
-      _contributionMonthDayController.sink.add(_contributionMonthDay ?? 0);
-    }
+    _contributionMonthDayController.sink.add(monthDay);
     checkValidity();
   }
 
@@ -121,7 +125,17 @@ class FlexSetupViewModel extends BaseViewModel with SavingsViewModel{
   }
 
   @override
-  bool validityCheck() => (this.amount ?? 0.00) >= 1 && sourceAccount != null;
+  bool validityCheck() {
+    final isFirstFormValid = (this.amount ?? 0.00) >= 1 && sourceAccount != null;
+
+    if(_currentPage == 0) return isFirstFormValid;
+
+    final isSecondFormValid = (savingMode == FlexSaveMode.MONTHLY)
+        ? _contributionMonthDay != null
+        : _contributionWeekDay != null;
+
+    return isFirstFormValid && (savingMode != null && isSecondFormValid);
+  }
 
   @override
   void setSourceAccount(UserAccount? userAccount) {

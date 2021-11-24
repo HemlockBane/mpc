@@ -135,7 +135,6 @@ class AirtimeBeneficiaryListState extends BeneficiaryListState<AirtimeBeneficiar
 
   @override
   void searchBeneficiary() {
-    print(searchValue);
     setState(() {
       _pagingSource = _viewModel?.searchAirtimeBeneficiaries(searchValue) ?? _pagingSource;
     });

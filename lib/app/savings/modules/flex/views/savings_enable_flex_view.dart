@@ -57,7 +57,7 @@ class SavingsEnableFlexState extends State<SavingsEnableFlexView> {
     super.initState();
   }
 
-  void _navigateToSuccessPage(String accountNumber) {
+  void _navigateToSuccessPage(int flexSavingId, String accountNumber) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -67,7 +67,11 @@ class SavingsEnableFlexState extends State<SavingsEnableFlexView> {
           content: FlexEnabledSuccessContent(accountNumber: accountNumber),
           primaryButtonText: "Setup Flex Savings",
           primaryButtonAction: () {
-            Navigator.pushNamed(context, Routes.SAVINGS_FLEX_SETUP);
+            Navigator.pushNamed(
+                context,
+                Routes.SAVINGS_FLEX_SETUP,
+                arguments: {"flexSavingId": flexSavingId}
+            );
           },
           secondaryButtonText: "Dismiss",
           secondaryButtonAction: () => Navigator.pop(context),
@@ -86,10 +90,13 @@ class SavingsEnableFlexState extends State<SavingsEnableFlexView> {
       }
       else if(event is Success) {
         setState(() => viewModel.setIsEnablingFlex(false));
-        _navigateToSuccessPage(event.data?.cbaAccountNuban ?? "");
+        _navigateToSuccessPage(
+            event.data?.id ?? 0,
+            event.data?.cbaAccountNuban ?? ""
+        );
       }
       else if(event is Error<FlexSaving>) {
-        setState(() {viewModel.setIsEnablingFlex(false);});
+        setState(() => viewModel.setIsEnablingFlex(false));
         showError(
             context,
             title: "Failed enabling flex savings!",

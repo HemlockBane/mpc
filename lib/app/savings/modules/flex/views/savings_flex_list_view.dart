@@ -52,12 +52,15 @@ class _SavingsFlexListViewState extends State<SavingsFlexListView> with TickerPr
               animationController: _animationController,
               currentList: _currentItems,
               listView: (List<FlexSaving>? items) {
-                return ListView.builder(
-                    physics: NeverScrollableScrollPhysics(),
+                return ListView.separated(
+                    padding: EdgeInsets.only(bottom: 180),
+                    separatorBuilder: (BuildContext context, int index) {
+                      return Padding(padding: EdgeInsets.only(top: 6.5, bottom: 6.5));
+                    },
                     itemCount: items!.length,
                     itemBuilder: (ctx, int index) {
                       return FlexSavingListItem(flexSaving: items[index], position: index);
-                    }
+                    },
                 );
               },
             ),
@@ -109,7 +112,7 @@ class FlexSavingListItem extends StatelessWidget {
     Color bgColor = Colors.savingsPrimary.withOpacity(0.15);
     Color textColor = Colors.savingsPrimary;
 
-    if(flexSaving.configCreated == false || flexSaving.flexSavingConfig == null) {
+    if(flexSaving.configCreated == false) {
       status = "Pending Setup";
       bgColor = Color(0XFF9BA6B9).withOpacity(0.15);
       textColor = Color(0XFF9BA6B9);
@@ -191,7 +194,6 @@ class FlexSavingListItem extends StatelessWidget {
           _AccountNumberView(
             accountNumber: flexSaving.cbaAccountNuban ?? "",
             onView: () {
-              print("Config Created ===> ${flexSaving.configCreated}");
               if(flexSaving.configCreated == false) {
                 navigatorKey.currentState?.pushNamed(
                     Routes.SAVINGS_FLEX_SETUP,

@@ -2,11 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:geolocator/geolocator.dart';
-import 'package:moniepoint_flutter/app/airtime/viewmodels/airtime_view_model.dart';
-import 'package:moniepoint_flutter/app/billpayments/viewmodels/bill_purchase_view_model.dart';
 import 'package:moniepoint_flutter/app/customer/user_account.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/beneficiary.dart';
-import 'package:moniepoint_flutter/app/transfers/viewmodels/transfer_view_model.dart';
 
 import 'models/transaction_meta_data.dart';
 

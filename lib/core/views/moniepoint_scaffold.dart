@@ -521,6 +521,7 @@ class MoniepointScaffoldState extends State<MoniepointScaffold> with TickerProvi
           body: widget.body,
           drawer: widget.drawer,
           extendBodyBehindAppBar: widget.extendBodyBehindAppBar,
+          extendBody: widget.extendBody,
           bottomNavigationBar: widget.bottomNavigationBar,
           backgroundColor: widget.backgroundColor,
         ),

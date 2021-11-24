@@ -3,7 +3,7 @@ import 'package:flutter/material.dart' hide Colors;
 import 'package:moniepoint_flutter/core/colors.dart';
 
 ///NotificationWrapper
-///
+///@author Paul Okeke
 ///
 class NotificationWrapper extends StatefulWidget {
 

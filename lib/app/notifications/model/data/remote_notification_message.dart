@@ -1,6 +1,8 @@
 import 'package:json_annotation/json_annotation.dart';
 part 'remote_notification_message.g.dart';
 
+///@author Paul Okeke
+///
 enum MessageType {
   DEBIT_TRANSACTION_ALERT,
   CREDIT_TRANSACTION_ALERT,

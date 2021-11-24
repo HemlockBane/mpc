@@ -125,8 +125,6 @@ class DebitCreditTransactionNotificationHandler extends NotificationHandler {
 
     print("Handling Notification!!!!!!");
 
-    ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
-
     final transactionMessage = message?.data as DebitCreditTransactionMessage?;
     final item = transactionMessage?.transactionObj;
     final currentLoggedInUser = UserInstance().getUser();
@@ -141,7 +139,7 @@ class DebitCreditTransactionNotificationHandler extends NotificationHandler {
 
       await _persistDataLocally();
 
-      await Future.delayed(Duration(milliseconds: 600));
+      await Future.delayed(Duration(milliseconds: 500));
 
       await Navigator.of(context).pushNamed(
           Routes.ACCOUNT_TRANSACTIONS_DETAIL, arguments: {

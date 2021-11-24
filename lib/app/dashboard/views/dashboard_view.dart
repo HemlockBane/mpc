@@ -228,6 +228,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
       context: context,
       child: MoniepointScaffold(
           extendBodyBehindAppBar: true,
+          extendBody: true,
           appBar: DashboardTopMenu(
             scrollController: _dashboardScrollController,
             viewModel: _viewModel,

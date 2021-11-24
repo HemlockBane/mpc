@@ -35,6 +35,8 @@ class DeviceTokenRegistrationWorker extends Worker {
       }
       else if(response is Error<bool?>) {
         PreferenceUtil.saveValue(AppNotificationService.FCM_TOKEN_REGISTERED, false);
+        //TODO when the api returns proper errors we can handle this right
+        //TODO properly handle internet connection error here
         if(response.message?.contains("internet connection") == true
             || response.message?.contains("service at this time") == true ) {
           return false;

@@ -47,7 +47,9 @@ class _DashboardBottomMenu extends State<DashboardBottomMenu> {
     return BottomAppBar(
       elevation: 0,
       child: Container(
+        clipBehavior: Clip.hardEdge,
         decoration: BoxDecoration(
+            borderRadius: BorderRadius.only(topRight: Radius.circular(24), topLeft: Radius.circular(24)),
             color: Color(0XFFF9FBFD),
             boxShadow: [
               BoxShadow(

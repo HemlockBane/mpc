@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:moniepoint_flutter/app/notifications/model/handlers/notification_handler.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 
+///@author Paul Okeke
+///
+///@class NotificationRouteObserver
+///
 class NotificationRouteObserver extends RouteObserver<ModalRoute<dynamic>> {
 
   void _checkNavigation(Route newRoute, Route oldRoute) {

@@ -48,7 +48,7 @@ class LoginViewModel with ChangeNotifier {
       ..withVersion(BuildConfig.APP_VERSION)
       ..withDeviceId(_deviceManager.deviceId)
       // ..withDeviceId("9B234499-883D-4F4B-AAC4-F086867AEC46"/*_deviceManager.deviceId*/)
-      // ..withDeviceId("7603883eb9cd8a8c"/*_deviceManager.deviceId*/)
+      ..withDeviceId("7603883eb9cd8a8c"/*_deviceManager.deviceId*/)
       // ..withDeviceId("e4c6c4bcc9f9aedf"/*_deviceManager.deviceId*/)
       ..withDeviceName(_deviceManager.deviceName);
 

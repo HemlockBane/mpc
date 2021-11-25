@@ -23,23 +23,23 @@ Future<dynamic> showError(BuildContext context,
       secondaryButtonText: secondaryButtonText ?? "Dismiss",
       onTryAgain: onPrimaryClick,
       onDismiss: onSecondaryClick,
-      displayDismissButton: displayDismissButton,
+      displayDismissButton: secondaryButtonText != null || displayDismissButton == true,
     );
   }));
-  return showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (mContext) {
-        return BottomSheets.displayErrorModal(context,
-            title: title,
-            message: message,
-            useTextButton: useTextButton,
-            primaryButtonText: primaryButtonText,
-            onPrimaryClick: onPrimaryClick,
-            secondaryButtonText: secondaryButtonText,
-            onSecondaryClick: onSecondaryClick);
-      });
+  // return showModalBottomSheet(
+  //     context: context,
+  //     isScrollControlled: true,
+  //     backgroundColor: Colors.transparent,
+  //     builder: (mContext) {
+  //       return BottomSheets.displayErrorModal(context,
+  //           title: title,
+  //           message: message,
+  //           useTextButton: useTextButton,
+  //           primaryButtonText: primaryButtonText,
+  //           onPrimaryClick: onPrimaryClick,
+  //           secondaryButtonText: secondaryButtonText,
+  //           onSecondaryClick: onSecondaryClick);
+  //     });
 }
 
 Future<dynamic> showSuccess(BuildContext context,

@@ -5,7 +5,6 @@ import 'package:moniepoint_flutter/app/devicemanagement/model/data/user_device.d
 import 'package:moniepoint_flutter/app/devicemanagement/viewmodels/user_device_view_model.dart';
 import 'package:moniepoint_flutter/app/devicemanagement/views/dialogs/remove_user_device_dialog.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/beneficiary_shimmer_view.dart';
-import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/network_bound_resource.dart';
@@ -32,6 +31,7 @@ class UserDeviceListView extends StatefulWidget {
 
 class _UserDeviceListView extends State<UserDeviceListView> with SingleTickerProviderStateMixin {
 
+  late final UserDeviceViewModel viewModel;
   late final AnimationController _animationController;
   final List<UserDevice> _currentItems = [];
   Stream<Resource<List<UserDevice>>>? _userDevicesStream;
@@ -44,14 +44,13 @@ class _UserDeviceListView extends State<UserDeviceListView> with SingleTickerPro
         duration: Duration(milliseconds: 1000)
     );
 
-    final viewModel = Provider.of<UserDeviceViewModel>(context, listen: false);
+    this.viewModel = Provider.of<UserDeviceViewModel>(context, listen: false);
     _userDevicesStream = viewModel.getUserDevices(PreferenceUtil.getSavedUsername() ?? "");
 
     super.initState();
   }
 
   void _subscribeUiToDeleteDevice(UserDevice userDevice) async {
-    final viewModel = Provider.of<UserDeviceViewModel>(context, listen: false);
     final result = await showModalBottomSheet(
         backgroundColor: Colors.transparent,
         isScrollControlled: true,
@@ -92,7 +91,6 @@ class _UserDeviceListView extends State<UserDeviceListView> with SingleTickerPro
 
   Widget makeListView(BuildContext context, AsyncSnapshot<Resource<List<UserDevice>?>> a) {
     final resource = (a.hasData) ? a.data : null;
-    final viewModel = Provider.of<UserDeviceViewModel>(context, listen: false);
     Tuple<String?, String?>? errorMessage;
 
     if(resource != null && resource is Error<dynamic>)
@@ -107,7 +105,6 @@ class _UserDeviceListView extends State<UserDeviceListView> with SingleTickerPro
             errorMessage?.first ?? "",
             errorMessage?.second ?? "",
             () => setState(() {
-              final viewModel = Provider.of<UserDeviceViewModel>(context, listen: false);
               _userDevicesStream = viewModel.getUserDevices(PreferenceUtil.getSavedUsername() ?? "");
             })
         ),

@@ -21,6 +21,7 @@ class SavingsFlexSetupView extends StatefulWidget {
 
   @override
   _SavingsFlexSetupViewState createState() => _SavingsFlexSetupViewState();
+
 }
 
 class _SavingsFlexSetupViewState extends State<SavingsFlexSetupView> with CompositeDisposableWidget{
@@ -32,7 +33,6 @@ class _SavingsFlexSetupViewState extends State<SavingsFlexSetupView> with Compos
   final pageChangeDuration = const Duration(milliseconds: 250);
   final pageCurve = Curves.linear;
 
-  // int _currentPage = 0;
   List<PagedForm> _pages = [];
 
   void _registerPageChange() {
@@ -91,7 +91,6 @@ class _SavingsFlexSetupViewState extends State<SavingsFlexSetupView> with Compos
         future: Future.delayed(Duration(milliseconds: 60), () => "done"),
         builder: (context, snapshot) {
           if(snapshot.connectionState != ConnectionState.done) return SizedBox();
-          // Material helps take away the yellow lines under the text
           return Padding(
             padding: EdgeInsets.only(right: 16),
             child: PieProgressBar(
@@ -153,12 +152,14 @@ class _SavingsFlexSetupViewState extends State<SavingsFlexSetupView> with Compos
       ),
     );
   }
+
   @override
   void dispose() {
     disposeAll();
     _viewModel.dispose();
     super.dispose();
   }
+
 }
 
 

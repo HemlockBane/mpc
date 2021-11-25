@@ -13,7 +13,7 @@ Future<dynamic> showError(BuildContext context,
     String primaryButtonText = "Try Again",
     String? secondaryButtonText,
       bool useTextButton = false,
-      bool displayDismissButton = true,
+      bool displayDismissButton = false,
     VoidCallback? onSecondaryClick}) {
   return navigatorKey.currentState!.push(MaterialPageRoute(builder: (mContext) {
     return TransactionErrorPage(
@@ -23,23 +23,9 @@ Future<dynamic> showError(BuildContext context,
       secondaryButtonText: secondaryButtonText ?? "Dismiss",
       onTryAgain: onPrimaryClick,
       onDismiss: onSecondaryClick,
-      displayDismissButton: displayDismissButton,
+      displayDismissButton: secondaryButtonText != null || displayDismissButton == true,
     );
   }));
-  return showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (mContext) {
-        return BottomSheets.displayErrorModal(context,
-            title: title,
-            message: message,
-            useTextButton: useTextButton,
-            primaryButtonText: primaryButtonText,
-            onPrimaryClick: onPrimaryClick,
-            secondaryButtonText: secondaryButtonText,
-            onSecondaryClick: onSecondaryClick);
-      });
 }
 
 Future<dynamic> showSuccess(BuildContext context,

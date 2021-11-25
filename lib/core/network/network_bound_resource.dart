@@ -259,7 +259,7 @@ Tuple<String, String> formatError(String? errorMessage, String moduleName) {
 ///
 Stream<Resource<T>> streamWithExponentialBackoff<T>({
   int retries = 3,
-  int collisions = 1,
+  int collisions = 1,//TODO make this private
   Duration delay = const Duration(seconds: 5),
   required Stream<Resource<T>> Function() stream,
 }) async* {

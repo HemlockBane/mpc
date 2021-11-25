@@ -112,7 +112,7 @@ class _BillHistoryDetailedView extends State<BillHistoryDetailedView> {
                   return Wrap(
                     children: [
                       Container(
-                        margin: EdgeInsets.only(top: 24, right: 20, left: 20),
+                        margin: EdgeInsets.only(top: 24, right: 20, left: 20, bottom: 16),
                         padding: EdgeInsets.only(top: 16),
                         decoration: BoxDecoration(
                             color: Colors.white,

@@ -15,7 +15,7 @@ BillTransaction _$BillTransactionFromJson(Map<String, dynamic> json) {
     sourceAccountCurrencyCode: json['sourceAccountCurrencyCode'] as String?,
     transactionStatus: json['transactionStatus'] as String?,
     transactionTime: stringDateTime(json['transactionTime'] as String?),
-    customerId: json['customerId'] as int?,
+    customerId: json['customerId'] as String?,
     customerIdName: json['customerIdName'] as String?,
     billerCategoryName: json['billerCategoryName'] as String?,
     billerCategoryCode: json['billerCategoryCode'] as String?,

@@ -130,7 +130,7 @@ class _CardQRCodeScannerViewState extends State<CardQRCodeScannerView> {
 
     if(value is Success<List<Card>?>) {
       final cards = value.data;
-      if(cards?.isEmpty == true) {
+      if(cards?.isEmpty == true || cards == null) {
         return showError(
             context,
             title: "Agent Confirmation Failed",
@@ -138,7 +138,7 @@ class _CardQRCodeScannerViewState extends State<CardQRCodeScannerView> {
             primaryButtonText: "Go Back to Cards"
         );
       }
-      final card = cards!.first;
+      final card = cards.first;
       Navigator.of(context).popAndPushNamed(Routes.CARD_ACTIVATION, arguments: {"id": card.id}).then((value) {
         print("What's the value after activation ==>>> ");
       });

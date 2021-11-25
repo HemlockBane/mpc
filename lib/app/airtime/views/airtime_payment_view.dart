@@ -20,7 +20,6 @@ import 'package:moniepoint_flutter/core/models/transaction_status.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/payment_view_model.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
-import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
@@ -30,11 +29,9 @@ import 'package:moniepoint_flutter/core/views/transaction_pending_page.dart';
 import 'package:moniepoint_flutter/core/views/user_account_selection_view.dart';
 import 'package:moniepoint_flutter/core/views/transaction_success_page.dart';
 import 'package:provider/provider.dart';
-import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
 import 'package:moniepoint_flutter/core/extensions/strings.dart';
 import 'package:collection/collection.dart';
 
-import '../../../main.dart';
 import 'airtime_view.dart';
 
 class AirtimePaymentScreen extends StatefulWidget {

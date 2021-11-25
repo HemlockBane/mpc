@@ -1,7 +1,4 @@
 import 'package:dio/dio.dart' hide Headers;
-import 'package:moniepoint_flutter/app/airtime/model/data/airtime_history_collection.dart';
-import 'package:moniepoint_flutter/app/airtime/model/data/airtime_purchase_request_body.dart';
-import 'package:moniepoint_flutter/app/airtime/model/data/airtime_service_provider.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/bill_history_collection.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/bill_payment_request_body.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/bill_validation_status.dart';

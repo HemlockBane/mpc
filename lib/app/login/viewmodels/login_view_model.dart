@@ -50,6 +50,7 @@ class LoginViewModel with ChangeNotifier {
       // ..withDeviceId("9B234499-883D-4F4B-AAC4-F086867AEC46"/*_deviceManager.deviceId*/)
       // ..withDeviceId("7603883eb9cd8a8c"/*_deviceManager.deviceId*/)
       // ..withDeviceId("e4c6c4bcc9f9aedf"/*_deviceManager.deviceId*/)
+      // ..withDeviceId("de961b69c51c1b85"/*_deviceManager.deviceId*/)
       ..withDeviceName(_deviceManager.deviceName);
 
     return doLogin(requestBody);

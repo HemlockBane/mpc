@@ -130,8 +130,10 @@ class BillServiceDelegate with NetworkResource {
     return PagingSource(
         localSource: (LoadParams params) {
           final offset = params.key ?? 0;
-          return _billsDao.getBillTransactions(
-              filterResult.startDate, filterResult.endDate, offset * params.loadSize, params.loadSize,
+          return _billsDao.getPageBillTransactions(
+            filterResult,
+            offset * params.loadSize,
+            params.loadSize,
           ).map((event) => Page(event, params.key ?? 0, event.length == params.loadSize ? offset + 1 : null));
         },
         remoteMediator: _BillHistoryMediator(_service, _billsDao, customerId)..filterResult = filterResult

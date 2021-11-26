@@ -20,7 +20,6 @@ import 'package:moniepoint_flutter/core/models/transaction_status.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/viewmodels/payment_view_model.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
-import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
@@ -30,11 +29,9 @@ import 'package:moniepoint_flutter/core/views/transaction_pending_page.dart';
 import 'package:moniepoint_flutter/core/views/user_account_selection_view.dart';
 import 'package:moniepoint_flutter/core/views/transaction_success_page.dart';
 import 'package:provider/provider.dart';
-import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
 import 'package:moniepoint_flutter/core/extensions/strings.dart';
 import 'package:collection/collection.dart';
 
-import '../../../main.dart';
 import 'airtime_view.dart';
 
 class AirtimePaymentScreen extends StatefulWidget {
@@ -169,6 +166,8 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
   void subscribeUiToPin() async {
     final viewModel = Provider.of<AirtimeViewModel>(context, listen: false);
     viewModel.setPin("");
+    final parentContext = widget._scaffoldKey.currentContext ?? context;
+
     dynamic result = await showModalBottomSheet(
         context: widget._scaffoldKey.currentContext ?? context,
         isScrollControlled: true,
@@ -191,18 +190,12 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
             : result.customerAirtimeId;
 
         if(result.operationStatus == Constants.PENDING) {
-          Navigator.of(widget._scaffoldKey.currentContext!).push(MaterialPageRoute(builder: (mContext) {
-            return TransactionPendingPage(
-                title: "Airtime Purchase\nPending...",
-                message: "Your airtime payment purchase is pending. "
-                    "We have set the money aside in your account pending confirmation. "
-                    "We will send you a notification when the status has been updated",
-                onClick: () async {
-                  Navigator.of(mContext).pop();
-                  Navigator.of(context)
-                      .pushNamedAndRemoveUntil(AirtimeScreen.BENEFICIARY_SCREEN, (route) => false);
-                });
-          }));
+          showTransactionPending(parentContext,
+              title: "Airtime Purchase\nPending...",
+              message: "Your airtime payment purchase is pending. "
+                  "We have set the money aside in your account pending confirmation. "
+                  "We will send you a notification when the status has been updated"
+          );
           return;
         }
 
@@ -215,15 +208,7 @@ class _AirtimePaymentScreen extends State<AirtimePaymentScreen> with AutomaticKe
                 ? () => viewModel.downloadReceipt(batchId)
                 : null
         );
-
-        Navigator.of(widget._scaffoldKey.currentContext!).push(MaterialPageRoute(builder: (mContext) {
-          return TransactionSuccessPage(payload,
-              onClick: () async {
-                Navigator.of(mContext).pop();
-                Navigator.of(context)
-                  .pushNamedAndRemoveUntil(AirtimeScreen.BENEFICIARY_SCREEN, (route) => false);
-              });
-        }));
+        showTransactionSuccess(parentContext, payload);
       } else {
         showError(
             widget._scaffoldKey.currentContext ?? context,

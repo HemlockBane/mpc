@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/biller_product.dart';
 import 'package:moniepoint_flutter/app/billpayments/viewmodels/bill_purchase_view_model.dart';
-import 'package:moniepoint_flutter/app/billpayments/views/bill_view.dart';
 import 'package:moniepoint_flutter/app/billpayments/views/biller_logo.dart';
 import 'package:moniepoint_flutter/app/billpayments/views/dialogs/bill_pin_dialog.dart';
 import 'package:moniepoint_flutter/core/views/amount_pill.dart';
@@ -21,7 +20,6 @@ import 'package:moniepoint_flutter/core/views/icon_curved_container.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:moniepoint_flutter/core/views/selected_transaction_recipient_view.dart';
-import 'package:moniepoint_flutter/core/views/transaction_pending_page.dart';
 import 'package:moniepoint_flutter/core/views/user_account_selection_view.dart';
 import 'package:moniepoint_flutter/core/views/transaction_success_page.dart';
 import 'package:provider/provider.dart';
@@ -41,14 +39,13 @@ class BillPaymentScreen extends StatefulWidget {
 }
 
 class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliveClientMixin {
-
   late final BillPurchaseViewModel viewModel;
   ListDataItem<String>? _selectedAmountPill;
 
   @override
   initState() {
     this.viewModel = Provider.of<BillPurchaseViewModel>(context, listen: false);
-
+    this.viewModel.resetAdditionalFields();
     super.initState();
   }
 
@@ -125,65 +122,47 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
         isScrollControlled: true,
         backgroundColor: Colors.transparent,
         builder: (context) => ChangeNotifierProvider.value(
-          value: viewModel,
-          child: BillPinDialog(),
-        ));
+              value: viewModel,
+              child: BillPinDialog(),
+            ));
 
-    if(result is TransactionStatus) {
-        final isSuccessful = result.operationStatus == Constants.APPROVED
-            || result.operationStatus == Constants.COMPLETED
-            || result.operationStatus == Constants.PENDING
-            || result.operationStatus == Constants.SUCCESSFUL;
+    if (result is TransactionStatus) {
+      final isSuccessful = result.operationStatus == Constants.APPROVED ||
+          result.operationStatus == Constants.COMPLETED ||
+          result.operationStatus == Constants.PENDING ||
+          result.operationStatus == Constants.SUCCESSFUL;
 
-        if(isSuccessful) {
-
-          if(result.operationStatus == Constants.PENDING) {
-            Navigator.of(widget._scaffoldKey.currentContext!).push(
-                MaterialPageRoute(builder: (mContext) {
-                  return TransactionPendingPage(
-                      title: "Bill Purchase\nPending...",
-                      message: "Your bill payment purchase is pending. "
-                          "We have set the money aside in your account pending confirmation. "
-                          "We will send you a notification when the status has been updated",
-                      onClick: () async {
-                        Navigator.of(mContext).pop();
-                        Navigator.of(context)
-                            .pushNamedAndRemoveUntil(BillScreen.BENEFICIARY_SCREEN, (route) => false);
-                      });
-                }));
-            return;
-          }
-
-          final payload = SuccessPayload("Bill Payment\nSuccessful!",
-              "Your payment was successful",
-              token: result.token,
-              fileName: "Bill_Receipt_${viewModel.accountName}_${DateFormat("dd MM yyyy").format(DateTime.now())}.pdf",
-              downloadTask: (result.customerBillId != null && result.operationStatus != Constants.PENDING)
-                  ? () => viewModel.downloadReceipt(result.customerBillId!)
-                  : null
+      if (isSuccessful) {
+        if (result.operationStatus == Constants.PENDING) {
+          showTransactionPending(parentContext,
+              title: "Bill Purchase\nPending...",
+              message: "Your bill payment purchase is pending. "
+                  "We have set the money aside in your account pending confirmation. "
+                  "We will send you a notification when the status has been updated"
           );
-
-          Navigator.of(parentContext).push(MaterialPageRoute(builder: (mContext) {
-            return TransactionSuccessPage(payload,
-                onClick: () {
-                  Navigator.of(mContext).pop();
-                  Navigator.of(context)
-                      .pushNamedAndRemoveUntil(BillScreen.BENEFICIARY_SCREEN, (route) => false);
-                });
-          }));
-        } else {
-          showError(
-              widget._scaffoldKey.currentContext ?? context,
-              title: "Bill Payment Failed",
-              message: "Unable to complete transaction at this time. Please try again later."
-          );
+          return;
         }
-    } else if(result is Error<TransactionStatus>) {
+
+        final payload = SuccessPayload(
+            "Bill Payment\nSuccessful!", "Your payment was successful",
+            token: result.token,
+            fileName: "Bill_Receipt_${viewModel.accountName}_${DateFormat("dd MM yyyy").format(DateTime.now())}.pdf",
+            downloadTask: (result.customerBillId != null && result.operationStatus != Constants.PENDING)
+                ? () => viewModel.downloadReceipt(result.customerBillId!)
+                : null);
+
+        showTransactionSuccess(parentContext, payload);
+      } else {
+        showError(
+            widget._scaffoldKey.currentContext ?? context,
+            title: "Bill Payment Failed",
+            message: "Unable to complete transaction at this time. Please try again later."
+        );
+      }
+    } else if (result is Error<TransactionStatus>) {
       showError(
           widget._scaffoldKey.currentContext ?? context,
-          title: "Bill Payment Failed",
-          onPrimaryClick: () => Navigator.of(context).pop(),
-          message: result.message ?? ""
+          title: "Bill Payment Failed", message: result.message ?? ""
       );
     }
   }

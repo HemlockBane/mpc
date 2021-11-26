@@ -169,15 +169,7 @@ class _TransferPaymentScreen extends State<TransferPaymentScreen> with Automatic
                   ? () => viewModel.downloadReceipt(result.transferBatchId!)
                   : null
           );
-
-          Navigator.of(parentContext).push(MaterialPageRoute(builder: (mContext) {
-            return TransactionSuccessPage(payload,
-                onClick: () {
-                  Navigator.of(mContext).pop();
-                  Navigator.of(context, rootNavigator: true)
-                      .pushNamedAndRemoveUntil(Routes.DASHBOARD,  (route) => false, arguments: {});
-                });
-          }));
+          showTransactionSuccess(parentContext, payload);
         } else {
           showError(
               widget._scaffoldKey.currentContext ?? context,

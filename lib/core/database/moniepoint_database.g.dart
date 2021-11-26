@@ -1314,7 +1314,7 @@ class _$BillsDao extends BillsDao {
   final DeletionAdapter<BillTransaction> _billTransactionDeletionAdapter;
 
   @override
-  Stream<List<BillTransaction>> getBillTransactions(
+  Stream<List<BillTransaction>> getBillTransactionsWithDate(
       int startDate, int endDate, int myOffset, int limit) {
     return _queryAdapter.queryListStream(
         'SELECT * FROM bill_transactions WHERE (transactionTime BETWEEN ?1 AND ?2) AND transactionStatus != "CANCELLED" ORDER BY transactionTime DESC LIMIT ?4 OFFSET ?3',
@@ -1340,6 +1340,36 @@ class _$BillsDao extends BillsDao {
             transactionId: row['transactionId'] as String?,
             token: row['token'] as String?),
         arguments: [startDate, endDate, myOffset, limit],
+        queryableName: 'bill_transactions',
+        isView: false);
+  }
+
+  @override
+  Stream<List<BillTransaction>> getBillTransactions(int myOffset, int limit) {
+    return _queryAdapter.queryListStream(
+        'SELECT * FROM bill_transactions WHERE transactionStatus != "CANCELLED" ORDER BY transactionTime DESC LIMIT ?2 OFFSET ?1',
+        mapper: (Map<String, Object?> row) => BillTransaction(
+            id: row['id'] as int?,
+            minorAmount: row['minorAmount'] as int?,
+            sourceAccountProviderName:
+                row['sourceAccountProviderName'] as String?,
+            sourceAccountNumber: row['sourceAccountNumber'] as String?,
+            sourceAccountCurrencyCode:
+                row['sourceAccountCurrencyCode'] as String?,
+            transactionStatus: row['transactionStatus'] as String?,
+            transactionTime: row['transactionTime'] as int?,
+            customerId: row['customerId'] as String?,
+            customerIdName: row['customerIdName'] as String?,
+            billerCategoryName: row['billerCategoryName'] as String?,
+            billerCategoryCode: row['billerCategoryCode'] as String?,
+            billerName: row['billerName'] as String?,
+            billerCode: row['billerCode'] as String?,
+            billerLogoUUID: row['billerLogoUUID'] as String?,
+            billerProductName: row['billerProductName'] as String?,
+            billerProductCode: row['billerProductCode'] as String?,
+            transactionId: row['transactionId'] as String?,
+            token: row['token'] as String?),
+        arguments: [myOffset, limit],
         queryableName: 'bill_transactions',
         isView: false);
   }

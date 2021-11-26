@@ -74,7 +74,7 @@ class MoniepointAppMessengerState extends State<MoniepointAppMessenger> implemen
     if(event is! PopUpNotificationData) return;
     final PopUpNotificationData eventData = event;
     final List<GrowthPopupNotification> popupNotifications = eventData.getData();
-    navigatorKey.currentState?.pushNamed(routeName);
+    // navigatorKey.currentState?.pushNamed(routeName);
   }
 
   void _updateScaffolds() {

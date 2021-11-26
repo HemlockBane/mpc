@@ -182,10 +182,7 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
       showError(
           widget._scaffoldKey.currentContext ?? context,
           title: "Bill Payment Failed",
-          onPrimaryClick: () {
-            Navigator.of(context).pop();
-            subscribeUiToPin();
-          },
+          onPrimaryClick: () => Navigator.of(context).pop(),
           message: result.message ?? ""
       );
     }

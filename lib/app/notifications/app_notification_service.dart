@@ -5,7 +5,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:moniepoint_flutter/app/notifications/model/data/remote_notification_message.dart';
-import 'package:moniepoint_flutter/app/notifications/model/device_token_registration_worker.dart';
+import 'package:moniepoint_flutter/app/notifications/model/workers/device_token_registration_worker.dart';
 import 'package:moniepoint_flutter/app/notifications/model/handlers/notification_handler.dart';
 import 'package:moniepoint_flutter/core/extensions/strings.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';

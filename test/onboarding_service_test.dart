@@ -30,7 +30,7 @@ void main() {
         true,
         TransferBeneficiary(
             accountNumber: '5000028934', accountName: 'Tolu Gbadamosi'),
-        null);
+        null, null);
 
     when(onBoardingService.getAccount(requestBody))
         .thenAnswer((realInvocation) => Future.value(mockedResponse));
@@ -86,31 +86,31 @@ void main() {
 
   group('OnBoardingViewModelTest', () {
     //The rationale behind this is to avoid rebuilding the page
-    test('Test that security questions is cached on subsequent calls', () async {
-      //Arrange
-      final securityDelegate = MockSecurityQuestionDelegate();
-      final delegate = OnBoardingServiceDelegate(MockOnBoardingService(), MockAccountCreationService());
-      final viewModel = OnBoardingViewModel(delegate: delegate, questionDelegate: securityDelegate);
-
-      final mockResponse = Resource.success(<SecurityQuestion>[
-        SecurityQuestion.fromJson({'id': 1, 'question': "Who is Paul Okeke"}),
-      ]);
-
-      when(securityDelegate.getAllQuestions())
-          .thenAnswer((_) => Stream.fromIterable([mockResponse]));
-
-      //Act
-      var value = viewModel.getSecurityQuestions();
-
-      //Assert
-      expect(value, emitsInOrder([
-        isA<Success>(),
-        emitsDone
-      ]));
-
-      await Future.delayed(Duration(seconds: 1), () => viewModel.getSecurityQuestions());
-
-      verify(securityDelegate.getAllQuestions()).called(equals(1));
-    });
+    // test('Test that security questions is cached on subsequent calls', () async {
+    //   //Arrange
+    //   final securityDelegate = MockSecurityQuestionDelegate();
+    //   final delegate = OnBoardingServiceDelegate(MockOnBoardingService(), MockAccountCreationService());
+    //   final viewModel = OnBoardingViewModel(delegate: delegate, questionDelegate: securityDelegate);
+    //
+    //   final mockResponse = Resource.success(<SecurityQuestion>[
+    //     SecurityQuestion.fromJson({'id': 1, 'question': "Who is Paul Okeke"}),
+    //   ]);
+    //
+    //   when(securityDelegate.getAllQuestions())
+    //       .thenAnswer((_) => Stream.fromIterable([mockResponse]));
+    //
+    //   //Act
+    //   var value = viewModel.getSecurityQuestions();
+    //
+    //   //Assert
+    //   expect(value, emitsInOrder([
+    //     isA<Success>(),
+    //     emitsDone
+    //   ]));
+    //
+    //   await Future.delayed(Duration(seconds: 1), () => viewModel.getSecurityQuestions());
+    //
+    //   verify(securityDelegate.getAllQuestions()).called(equals(1));
+    // });
   });
 }

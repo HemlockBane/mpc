@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:moniepoint_flutter/core/payment_view_model.dart';
+import 'package:moniepoint_flutter/core/viewmodels/payment_view_model.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 abstract class TransactionPinDialogState<T extends StatefulWidget> extends State<T> {

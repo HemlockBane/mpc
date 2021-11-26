@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
-import 'package:moniepoint_flutter/core/status_pill.dart';
+import 'package:moniepoint_flutter/core/views/status_pill.dart';
 import 'package:moniepoint_flutter/core/views/icon_curved_container.dart';
 
 class ProductCard extends StatefulWidget{

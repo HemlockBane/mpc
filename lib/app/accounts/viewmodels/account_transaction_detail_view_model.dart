@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:get_it/get_it.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
-import 'package:moniepoint_flutter/app/accounts/model/data/download_transaction_receipt_request_body.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/accounts/model/transaction_service_delegate.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/customer_service_delegate.dart';

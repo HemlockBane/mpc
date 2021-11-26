@@ -3,12 +3,10 @@ import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.d
 import 'package:moniepoint_flutter/app/accounts/model/data/transaction_history_collection.dart';
 import 'package:moniepoint_flutter/core/config/build_config.dart';
 import 'package:moniepoint_flutter/core/config/service_config.dart';
-import 'package:moniepoint_flutter/core/models/transaction.dart';
 import 'package:moniepoint_flutter/core/network/service_result.dart';
 import 'package:retrofit/dio.dart';
 import 'package:retrofit/http.dart';
 
-import 'data/download_transaction_receipt_request_body.dart';
 import 'data/export_statement_request_body.dart';
 
 part 'transaction_service.g.dart';

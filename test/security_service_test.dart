@@ -20,7 +20,7 @@ void main() {
       SecurityQuestion.fromJson({'id': 1, 'question': "Who is Paul Okeke"}),
       SecurityQuestion(2, 'who is Ayo Kolawole'),
       SecurityQuestion(3, 'who is Adrian Agho'),
-    ], null);
+    ], null, null);
 
     when(securityService.getAllQuestions())
         .thenAnswer((realInvocation) => Future.value(mockResponse));

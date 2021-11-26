@@ -3,7 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 
-import 'colors.dart';
+import '../colors.dart';
 
 class PndNotificationBanner extends StatelessWidget {
 

@@ -6,7 +6,7 @@ import 'package:moniepoint_flutter/app/loans/models/loan_request_confirmation.da
 import 'package:moniepoint_flutter/app/loans/models/short_term_loan_offers.dart';
 import 'package:moniepoint_flutter/app/loans/viewmodels/loan_transaction_viewmodel.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
-import 'package:moniepoint_flutter/core/payment_view_model.dart';
+import 'package:moniepoint_flutter/core/viewmodels/payment_view_model.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 

@@ -3,9 +3,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/alternate_scheme_requirement.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/scheme_requirement.dart';
 import 'package:moniepoint_flutter/core/database/type_converters.dart';
-import 'dart:math';
 
-import 'package:moniepoint_flutter/core/models/user_instance.dart';
 
 part 'tier.g.dart';
 

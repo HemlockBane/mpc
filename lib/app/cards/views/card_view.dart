@@ -13,7 +13,6 @@ import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/list_view_util.dart';
 import 'package:moniepoint_flutter/core/views/error_layout_view.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
-import 'package:moniepoint_flutter/main.dart';
 import 'package:provider/provider.dart';
 
 ///@author Paul Okeke
@@ -24,7 +23,7 @@ class CardScreen extends StatefulWidget {
 
 }
 
-class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin, RouteAware {
+class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   late final SingleCardViewModel _viewModel;
@@ -49,17 +48,6 @@ class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin,
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    routeObserver.subscribe(this, ModalRoute.of(context)!);
-  }
-
-  @override
-  void didPush() {
-
-  }
-
-  @override
-  void didPopNext() {
-
   }
 
   @override
@@ -109,7 +97,6 @@ class _CardScreen extends State<CardScreen> with SingleTickerProviderStateMixin,
   @override
   void dispose() {
     _animationController.dispose();
-    routeObserver.unsubscribe(this);
     super.dispose();
   }
 

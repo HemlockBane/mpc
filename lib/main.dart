@@ -3,7 +3,6 @@ import 'package:flutter/material.dart' hide Colors, Card;
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:moniepoint_flutter/app/login/viewmodels/login_view_model.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
-import 'package:moniepoint_flutter/core/config/service_config.dart';
 import 'package:moniepoint_flutter/core/di/service_module.dart';
 import 'package:moniepoint_flutter/core/di/db_module.dart';
 import 'package:moniepoint_flutter/core/mix_panel_analytics.dart';
@@ -16,12 +15,10 @@ import 'package:workmanager/workmanager.dart';
 import 'app/loans/viewmodels/loans_home_viewmodel.dart';
 import 'app/moniepoint_application.dart';
 import 'app/notifications/app_notification_service.dart';
-import 'app/savings/viewmodels/savings_dashboard_viewmodel.dart';
 import 'core/utils/biometric_helper.dart';
 
-//We need to move this to some where else
+//TODO We need to move this to some where else
 final GlobalKey<NavigatorState> navigatorKey = new GlobalKey<NavigatorState>();
-final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver();
 
 final defaultAppTheme = ThemeData(
     disabledColor: Colors.primaryColor.withOpacity(0.5),
@@ -42,7 +39,6 @@ void main() async {
     providers: [
       ChangeNotifierProvider(create: (_) => LoginViewModel()),
       ChangeNotifierProvider(create: (_) => DashboardViewModel()),
-      // ChangeNotifierProvider(create: (_) => SavingsDashboardViewModel()),
       ChangeNotifierProvider(create: (_) => LoansHomeViewModel()),
       ChangeNotifierProvider(create: (_) => SystemConfigurationViewModel()),
     ],

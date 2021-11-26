@@ -4,8 +4,8 @@ import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/work/worker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../app_notification_service.dart';
-import 'notification_service_delegate.dart';
+import '../../app_notification_service.dart';
+import '../notification_service_delegate.dart';
 
 
 class DeviceTokenRegistrationWorker extends Worker {

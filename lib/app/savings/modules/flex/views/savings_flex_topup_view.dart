@@ -6,7 +6,7 @@ import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_enable
 import 'package:moniepoint_flutter/app/savings/savings_success_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/list_item.dart';
-import 'package:moniepoint_flutter/core/savings_account_item.dart';
+import 'package:moniepoint_flutter/core/views/savings_account_item.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/views/amount_pill.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';

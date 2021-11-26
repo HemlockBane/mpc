@@ -9,6 +9,9 @@ import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/customer_service_delegate.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/data/account_upgrade_state.dart';
 import 'package:moniepoint_flutter/app/dashboard/model/slider_item.dart';
+import 'package:moniepoint_flutter/app/growth/growth_notification_data_bus.dart';
+import 'package:moniepoint_flutter/app/growth/growth_notification_data_type.dart';
+import 'package:moniepoint_flutter/app/growth/growth_notification_member.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/transfer_beneficiary_delegate.dart';
 import 'package:moniepoint_flutter/core/login_mode.dart';
@@ -22,7 +25,7 @@ import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 import 'package:collection/collection.dart';
 
-class DashboardViewModel extends BaseViewModel {
+class DashboardViewModel extends BaseViewModel implements GrowthNotificationMember {
   late final CustomerServiceDelegate _customerServiceDelegate;
   late final TransferBeneficiaryServiceDelegate _transferBeneficiaryDelegate;
   late final FileManagementServiceDelegate _fileServiceDelegate;
@@ -38,6 +41,7 @@ class DashboardViewModel extends BaseViewModel {
     this._customerServiceDelegate = customerServiceDelegate ?? GetIt.I<CustomerServiceDelegate>();
     this._transferBeneficiaryDelegate = transferBeneficiaryDelegate ?? GetIt.I<TransferBeneficiaryServiceDelegate>();
     this._fileServiceDelegate = fileServiceDelegate ?? GetIt.I<FileManagementServiceDelegate>();
+    GrowthNotificationDataBus.getInstance().subscribe(this);
   }
 
   final List<Tier> tiers = [];
@@ -126,7 +130,13 @@ class DashboardViewModel extends BaseViewModel {
   @override
   void dispose() {
     _dashboardController.close();
+    GrowthNotificationDataBus.getInstance().unsubscribe(this);
     super.dispose();
+  }
+
+  @override
+  void accept(GrowthNotificationDataType event) {
+    print(event);
   }
 }
 

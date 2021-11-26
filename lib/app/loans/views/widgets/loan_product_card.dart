@@ -7,7 +7,7 @@ import 'package:moniepoint_flutter/app/loans/views/loans_advert_details_view.dar
 import 'package:moniepoint_flutter/app/loans/views/widgets/padded_divider.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
-import 'package:moniepoint_flutter/core/status_pill.dart';
+import 'package:moniepoint_flutter/core/views/status_pill.dart';
 import 'package:moniepoint_flutter/core/utils/date_util.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';

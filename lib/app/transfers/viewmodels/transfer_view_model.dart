@@ -13,7 +13,7 @@ import 'package:moniepoint_flutter/app/devicemanagement/model/data/device_manage
 import 'package:moniepoint_flutter/core/models/transaction_status.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/network/service_error.dart';
-import 'package:moniepoint_flutter/core/payment_view_model.dart';
+import 'package:moniepoint_flutter/core/viewmodels/payment_view_model.dart';
 import 'package:moniepoint_flutter/core/utils/candidate_bank_util.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 

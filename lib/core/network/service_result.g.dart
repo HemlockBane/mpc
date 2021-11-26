@@ -16,6 +16,10 @@ ServiceResult<ResultType> _$ServiceResultFromJson<ResultType>(
     (json['errors'] as List<dynamic>?)
         ?.map((e) => ServiceError.fromJson(e as Map<String, dynamic>))
         .toList(),
+    json['notifications'] == null
+        ? null
+        : GrowthNotificationResponseBody.fromJson(
+            json['notifications'] as Object),
   );
 }
 
@@ -36,6 +40,7 @@ Map<String, dynamic> _$ServiceResultToJson<ResultType>(
   writeNotNull(
       'result', _$nullableGenericToJson(instance.result, toJsonResultType));
   val['errors'] = instance.errors;
+  val['notifications'] = instance.notifications;
   return val;
 }
 

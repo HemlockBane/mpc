@@ -71,9 +71,7 @@ class _MoniepointAppContainerState extends State<_MoniepointAppContainer> with C
       title: 'Moniepoint Customers',
       theme: defaultAppTheme,
       navigatorKey: navigatorKey,
-      navigatorObservers: [
-        routeObserver, NotificationRouteObserver()
-      ],
+      navigatorObservers: [NotificationRouteObserver()],
       home: Scaffold(body: body),
       onGenerateRoute: Routes.generateRouteWithSettings,
       routes: Routes.buildRouteMap(_viewModel),

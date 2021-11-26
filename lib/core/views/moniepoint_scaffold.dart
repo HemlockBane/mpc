@@ -2,11 +2,17 @@ import 'dart:collection';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:moniepoint_flutter/app/growth/growth_notification_data_bus.dart';
+import 'package:moniepoint_flutter/app/growth/growth_notification_data_type.dart';
+import 'package:moniepoint_flutter/app/growth/growth_notification_member.dart';
+import 'package:moniepoint_flutter/app/growth/model/data/pop_up_notification_data.dart';
+import 'package:moniepoint_flutter/app/growth/model/growth_notification.dart';
 import 'package:moniepoint_flutter/app/notifications/view/notification_wrapper.dart';
+import 'package:moniepoint_flutter/main.dart';
 
 
 ///MoniepointAppMessenger
-///
+///@author Paul Okeke
 ///
 class MoniepointAppMessenger extends StatefulWidget {
 
@@ -29,10 +35,16 @@ class MoniepointAppMessenger extends StatefulWidget {
   }
 }
 
-class MoniepointAppMessengerState extends State<MoniepointAppMessenger> {
+class MoniepointAppMessengerState extends State<MoniepointAppMessenger> implements GrowthNotificationMember {
 
   final Queue<NotificationBanner> _notificationBanners = Queue<NotificationBanner>();
   final LinkedHashSet<MoniepointScaffoldState> _moniepointScaffolds = LinkedHashSet<MoniepointScaffoldState>();
+
+  @override
+  void initState() {
+    GrowthNotificationDataBus.getInstance().subscribe(this);
+    super.initState();
+  }
 
   void showInAppNotification(NotificationBanner notificationBanner){
     if(_notificationBanners.isEmpty) {
@@ -55,6 +67,14 @@ class MoniepointAppMessengerState extends State<MoniepointAppMessenger> {
   void clearAllInAppNotification() {
     _notificationBanners.clear();
     _updateScaffolds();
+  }
+
+  @override
+  void accept(GrowthNotificationDataType event) {
+    if(event is! PopUpNotificationData) return;
+    final PopUpNotificationData eventData = event;
+    final List<GrowthPopupNotification> popupNotifications = eventData.getData();
+    navigatorKey.currentState?.pushNamed(routeName);
   }
 
   void _updateScaffolds() {
@@ -91,6 +111,12 @@ class MoniepointAppMessengerState extends State<MoniepointAppMessenger> {
     );
   }
 
+  @override
+  void dispose() {
+    GrowthNotificationDataBus.getInstance().subscribe(this);
+    super.dispose();
+  }
+
 }
 
 ///_MoniepointAppMessengerScope
@@ -115,7 +141,7 @@ class _MoniepointAppMessengerScope extends InheritedWidget {
 ///
 ///
 ///
-class MoniepointScaffold extends StatefulWidget{
+class MoniepointScaffold extends StatefulWidget {
   MoniepointScaffold({
     this.key,
     this.appBar,
@@ -479,7 +505,7 @@ class MoniepointScaffoldState extends State<MoniepointScaffold> with TickerProvi
 
   void _updateNotificationBanner() {
     if(_moniepointAppMessenger?._notificationBanners.isNotEmpty == true) {
-      //If the list as already been updated there's not point refresh
+      //If the list as already been updated there's no point refresh
       if(_moniepointAppMessenger?._notificationBanners.length == _notificationBanners.length
           && _displayNotificationWrapper == true) {
         return;
@@ -516,7 +542,6 @@ class MoniepointScaffoldState extends State<MoniepointScaffold> with TickerProvi
     return Stack(
       children: [
         Scaffold(
-          // key: widget.key,
           appBar: widget.appBar,
           body: widget.body,
           drawer: widget.drawer,

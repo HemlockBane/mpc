@@ -1,18 +1,13 @@
 
-import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:flutter/foundation.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
-import 'package:moniepoint_flutter/app/accounts/model/data/download_transaction_receipt_request_body.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/export_statement_request_body.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/transaction_dao.dart';
 import 'package:moniepoint_flutter/app/accounts/model/transaction_service.dart';
 import 'package:moniepoint_flutter/core/models/data_collection.dart';
 import 'package:moniepoint_flutter/core/models/filter_results.dart';
-import 'package:moniepoint_flutter/core/models/transaction.dart';
 import 'package:moniepoint_flutter/core/network/network_bound_resource.dart';
 import 'package:moniepoint_flutter/core/network/service_result.dart';
 import 'package:moniepoint_flutter/core/paging/helper/abstract_data_remote_mediator.dart';

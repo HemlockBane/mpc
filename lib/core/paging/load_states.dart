@@ -12,7 +12,6 @@ class LoadStates {
 
   @override
   String toString() {
-    // TODO: implement toString
     return "LoadStates(refresh=$refresh, prepend=$prepend, append=$append, " +
         "source=null, mediator=null)";
   }

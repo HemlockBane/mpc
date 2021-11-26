@@ -1,5 +1,5 @@
 
-import 'package:moniepoint_flutter/app/notifications/model/device_token_registration_worker.dart';
+import 'package:moniepoint_flutter/app/notifications/model/workers/device_token_registration_worker.dart';
 import 'package:moniepoint_flutter/app/notifications/model/notification_service.dart';
 import 'package:moniepoint_flutter/app/notifications/model/notification_service_delegate.dart';
 import 'package:moniepoint_flutter/core/di/service_module.dart';

@@ -26,6 +26,7 @@ import 'package:moniepoint_flutter/app/cards/model/card_service_delegate.dart';
 import 'package:moniepoint_flutter/app/cards/model/data/card_dao.dart';
 import 'package:moniepoint_flutter/app/devicemanagement/model/user_device_service.dart';
 import 'package:moniepoint_flutter/app/devicemanagement/model/user_device_service_delegate.dart';
+import 'package:moniepoint_flutter/app/growth/growth_notification_data_bus.dart';
 import 'package:moniepoint_flutter/app/institutions/institution_dao.dart';
 import 'package:moniepoint_flutter/app/institutions/institution_repository.dart';
 import 'package:moniepoint_flutter/app/institutions/institution_service.dart';
@@ -84,7 +85,8 @@ class ServiceModule {
     ))
       ..interceptors.addAll([
         AuthInterceptor(),
-        LoggingInterceptor()
+        LoggingInterceptor(),
+        GrowthNotificationDataBus.getInstance() as Interceptor
       ]);
     return dio;
   }

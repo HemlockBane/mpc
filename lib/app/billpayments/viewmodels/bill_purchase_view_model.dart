@@ -30,7 +30,8 @@ class BillPurchaseViewModel extends BaseViewModel with PaymentViewModel {
   late final FileManagementServiceDelegate _fileServiceDelegate;
   late final DeviceManager _deviceManager;
 
-  final List<ListDataItem<String>> amountPills = List.generate(4, (index) => ListDataItem((5000 * (index + 1)).formatCurrencyWithoutLeadingZero));
+  List<ListDataItem<String>> _amountPills = List.generate(4, (index) => ListDataItem((5000 * (index + 1)).formatCurrencyWithoutLeadingZero));
+  List<ListDataItem<String>> get amountPills => _amountPills;
 
   //<fieldKey, fieldError>
   StreamController<Tuple<String, String?>> _fieldErrorController = StreamController.broadcast();
@@ -78,15 +79,21 @@ class BillPurchaseViewModel extends BaseViewModel with PaymentViewModel {
     this._billerCategory = category;
   }
 
-  void setBillerProduct(BillerProduct? billerProduct) {
-    this._billerProduct = billerProduct;
+  void resetAdditionalFields() {
+    _amountPills = List.generate(4, (index) => ListDataItem((5000 * (index + 1)).formatCurrencyWithoutLeadingZero));
     this._additionalFieldsMap.clear();
     this._fieldErrorMap.clear();
     _billerProduct?.additionalFieldsMap?.forEach((key, value) {
       if(value.required && key != "amount") _fieldErrorMap[key] = "";
     });
-    setAmount((_billerProduct?.amount ?? 0.00) / 100);
     this.setSourceAccount(null);
+    setAmount((_billerProduct?.amount ?? 0.00) / 100);
+  }
+
+  void setBillerProduct(BillerProduct? billerProduct) {
+    this._billerProduct = billerProduct;
+   this.resetAdditionalFields();
+    setAmount((_billerProduct?.amount ?? 0.00) / 100);
   }
 
   void setValidationReference(String validationReference) {
@@ -172,7 +179,14 @@ class BillPurchaseViewModel extends BaseViewModel with PaymentViewModel {
     if(_billerProduct == null || sourceAccount == null) return false;
     final isAmountFixed = this._billerProduct?.priceFixed == true;
     final productAmount = this._billerProduct?.amount ?? 0;
-    final isAmountValid = (isAmountFixed) ? this.amount == (productAmount /100): this.amount != null && this.amount! > 0;
+    final minAmount = billerProduct?.minimumAmount ?? 0;
+    final maxAmount = billerProduct?.maximumAmount ?? 9007199254740991;
+
+    //validate amount
+    final isAmountValid = (isAmountFixed)
+        ? this.amount == (productAmount / 100)
+        : this.amount != null && (this.amount! >= minAmount && this.amount! <= maxAmount);
+
     final isFormValid = _fieldErrorMap.values.every((element) => element == null);
     return isAmountValid && isFormValid;
   }

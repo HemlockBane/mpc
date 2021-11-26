@@ -212,7 +212,12 @@ class _BillTokenDisplayItem extends TransactionDetailDisplayable {
           ),
           SizedBox(height: 6),
           TextButton.icon(
-              onPressed: () => Clipboard.setData(ClipboardData(text: token)),
+              onPressed: () {
+                Clipboard.setData(ClipboardData(text: token));
+                ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Copied to Clipboard!"))
+                );
+              },
               icon: SvgPicture.asset('res/drawables/ic_copy_full.svg', color: Colors.primaryColor,),
               label: Text('Copy', style: TextStyle(color: Colors.primaryColor, fontWeight: FontWeight.w500, fontSize: 15),)
           )

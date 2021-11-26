@@ -1,5 +1,6 @@
 import 'package:floor/floor.dart';
 import 'package:moniepoint_flutter/core/database/moniepoint_dao.dart';
+import 'package:moniepoint_flutter/core/models/filter_results.dart';
 
 import 'bill_transaction.dart';
 import 'biller.dart';
@@ -10,13 +11,30 @@ import 'biller_product.dart';
 abstract class BillsDao extends MoniepointDao<BillTransaction> {
 
   @Query('SELECT * FROM bill_transactions WHERE (transactionTime BETWEEN :startDate AND :endDate) AND transactionStatus != "CANCELLED" ORDER BY transactionTime DESC LIMIT :limit OFFSET :myOffset')
-  Stream<List<BillTransaction>> getBillTransactions(int startDate, int endDate,int myOffset, int limit);
+  Stream<List<BillTransaction>> getBillTransactionsWithDate(int startDate, int endDate, int myOffset, int limit);
+
+  @Query('SELECT * FROM bill_transactions WHERE transactionStatus != "CANCELLED" ORDER BY transactionTime DESC LIMIT :limit OFFSET :myOffset')
+  Stream<List<BillTransaction>> getBillTransactions(int myOffset, int limit);
 
   @Query("SELECT * FROM bill_transactions WHERE id = :id")
   Future<BillTransaction?> getBillTransactionById(int id);
 
   @Query('DELETE FROM bill_transactions')
   Future<void> deleteAll();
+
+  Stream<List<BillTransaction>> getPageBillTransactions(FilterResults filterResult, int myOffset, int limit) {
+    switch(filterResult.getFilterResultType()) {
+      case FilterResultType.DATE_ONLY:
+        return getBillTransactions(myOffset, limit);
+      default:
+        return getBillTransactionsWithDate(
+            filterResult.startDate,
+            filterResult.endDate,
+            myOffset,
+            limit
+        );
+    }
+  }
 
 }
 

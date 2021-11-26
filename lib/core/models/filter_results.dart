@@ -16,7 +16,7 @@ enum FilterResultType {
 class FilterResults {
 
   int startDate = 0;
-  int endDate = DateTime.now().millisecondsSinceEpoch;
+  int endDate = DateTime.now().add(Duration(days: 1)).millisecondsSinceEpoch;
   Set<TransactionChannel> channels = {};
   Set<TransactionType> types = {};
 
@@ -25,7 +25,7 @@ class FilterResults {
   factory FilterResults.defaultFilter() => FilterResults()
     ..channels = {}
     ..startDate = 0
-    ..endDate = DateTime.now().millisecondsSinceEpoch
+    ..endDate = DateTime.now().add(Duration(days: 1)).millisecondsSinceEpoch
     ..types = {};
 
 

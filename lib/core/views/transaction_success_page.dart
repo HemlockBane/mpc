@@ -10,6 +10,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/utils/download_util.dart';
+import 'package:moniepoint_flutter/main.dart';
 
 import '../colors.dart';
 import '../styles.dart';
@@ -37,6 +38,8 @@ class TransactionSuccessPage extends StatefulWidget {
 class _TransactionSuccessPage extends State<TransactionSuccessPage> {
 
   final String androidDownloadPath = "/storage/emulated/0/Download/";
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
   bool _isLoading = false;
 
   @override
@@ -104,7 +107,12 @@ class _TransactionSuccessPage extends State<TransactionSuccessPage> {
 
   Widget _copyToken() {
     return TextButton.icon(
-        onPressed: () => Clipboard.setData(ClipboardData(text: widget.successPayload.token ?? "")),
+        onPressed: () {
+          Clipboard.setData(ClipboardData(text: widget.successPayload.token ?? ""));
+          ScaffoldMessenger.of(_scaffoldKey.currentContext!).showSnackBar(
+              SnackBar(content: Text("Copied to Clipboard!"))
+          );
+        },
         icon: SvgPicture.asset('res/drawables/ic_copy_full.svg', color: Colors.primaryColor,),
         label: Text('Copy', style: TextStyle(color: Colors.primaryColor, fontWeight: FontWeight.w500, fontSize: 15),)
     );
@@ -124,84 +132,88 @@ class _TransactionSuccessPage extends State<TransactionSuccessPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Container(
-        padding: EdgeInsets.symmetric(horizontal: 25),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Spacer(),
-            Container(
-              height: 60,
-              width: 60,
-              padding: EdgeInsets.all(13),
-              child: SvgPicture.asset(
-                "res/drawables/ic_circular_check_mark.svg",
-                color: Colors.white,
-              ),
-              decoration:
-              BoxDecoration(
-                  color: Colors.solidGreen,
-                  shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Color(0XFF2EB019).withOpacity(0.38),
-                    offset: Offset(0, 8),
-                    blurRadius: 22
-                  )
-                ]
-              ),
-            ),
-            SizedBox(height: 37),
-            Text(
-              widget.successPayload.title,
-              style: getBoldStyle(color: Colors.solidGreen, fontSize: 32),
-            ),
-            SizedBox(height: 28),
-            Text(widget.successPayload.message, style: getNormalStyle(fontSize: 15)),
-            SizedBox(height: 27),
-            SizedBox(height: widget.successPayload.token != null ? 27 : 0,),
-            _tokenView(),
-            Spacer(),
-            SizedBox(
-              width: double.infinity,
-              child: Styles.appButton(
-                  elevation: 0.3,
-                  buttonStyle: Styles.savingsFlexButtonStyle,
-                  onClick: _isLoading ? null : widget.onClick ?? () => Navigator.of(context).pop(),
-                  text: widget.primaryButtonText
-              ),
-            ),
-            SizedBox(height: 35),
-            Visibility(
-                visible: !_isLoading && widget.successPayload.downloadTask != null,
-                child: GestureDetector(
-                  onTap: () => _startDownload(),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SvgPicture.asset('res/drawables/ic_share.svg', color: Colors.solidGreen),
-                      SizedBox(width: 8),
-                      Text(
-                        'Share Receipt',
-                        style: TextStyle(
-                            fontSize: 15,
-                            color: Colors.solidGreen,
-                            fontWeight: FontWeight.w700
-                        ),
-                      )
-                    ],
+    return WillPopScope(
+      onWillPop: () async => true,
+      child: Scaffold(
+          key: _scaffoldKey,
+          backgroundColor: Colors.white,
+          body: Container(
+            padding: EdgeInsets.symmetric(horizontal: 25),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Spacer(),
+                Container(
+                  height: 60,
+                  width: 60,
+                  padding: EdgeInsets.all(13),
+                  child: SvgPicture.asset(
+                    "res/drawables/ic_circular_check_mark.svg",
+                    color: Colors.white,
                   ),
-                )),
-            Visibility(
-                visible: _isLoading,
-                child: SpinKitThreeBounce(size: 20.0, color: Colors.solidGreen.withOpacity(0.9))
+                  decoration:
+                  BoxDecoration(
+                      color: Colors.solidGreen,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                            color: Color(0XFF2EB019).withOpacity(0.38),
+                            offset: Offset(0, 8),
+                            blurRadius: 22
+                        )
+                      ]
+                  ),
+                ),
+                SizedBox(height: 37),
+                Text(
+                  widget.successPayload.title,
+                  style: getBoldStyle(color: Colors.solidGreen, fontSize: 32),
+                ),
+                SizedBox(height: 28),
+                Text(widget.successPayload.message, style: getNormalStyle(fontSize: 15)),
+                SizedBox(height: 27),
+                SizedBox(height: widget.successPayload.token != null ? 27 : 0,),
+                _tokenView(),
+                Spacer(),
+                SizedBox(
+                  width: double.infinity,
+                  child: Styles.appButton(
+                      elevation: 0.3,
+                      buttonStyle: Styles.savingsFlexButtonStyle,
+                      onClick: _isLoading ? null : widget.onClick ?? () => Navigator.of(context).pop(),
+                      text: widget.primaryButtonText
+                  ),
+                ),
+                SizedBox(height: 35),
+                Visibility(
+                    visible: !_isLoading && widget.successPayload.downloadTask != null,
+                    child: GestureDetector(
+                      onTap: () => _startDownload(),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SvgPicture.asset('res/drawables/ic_share.svg', color: Colors.solidGreen),
+                          SizedBox(width: 8),
+                          Text(
+                            'Share Receipt',
+                            style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.solidGreen,
+                                fontWeight: FontWeight.w700
+                            ),
+                          )
+                        ],
+                      ),
+                    )),
+                Visibility(
+                    visible: _isLoading,
+                    child: SpinKitThreeBounce(size: 20.0, color: Colors.solidGreen.withOpacity(0.9))
+                ),
+                SizedBox(height: 56)
+              ],
             ),
-            SizedBox(height: 56)
-          ],
+          ),
         ),
-      ),
     );
   }
 

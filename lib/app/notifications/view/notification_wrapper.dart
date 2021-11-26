@@ -35,7 +35,7 @@ class _NotificationWrapperState extends State<NotificationWrapper> {
 
   void _closeOnElapsedTime() {
     if(widget.display) {
-      Future.delayed(Duration(seconds: 7), (){
+      Future.delayed(Duration(seconds: 3), (){
         if(hasInteraction) {
           hasInteraction = false;
           return _closeOnElapsedTime();

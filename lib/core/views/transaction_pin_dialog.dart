@@ -8,6 +8,12 @@ abstract class TransactionPinDialogState<T extends StatefulWidget> extends State
   PaymentViewModel getViewModel();
   void subscribeUiToPayment();
 
+  @override
+  void initState() {
+    getViewModel().setIsLoading(false);
+    super.initState();
+  }
+
   void requestLocationAndSubscribe() async {
     if(getViewModel().isLoading == true) return;
     
@@ -19,7 +25,7 @@ abstract class TransactionPinDialogState<T extends StatefulWidget> extends State
         Position? lastLocation = await Geolocator.getLastKnownPosition();
         print("Requesting location");
         if (lastLocation == null)
-          lastLocation = await Geolocator.getCurrentPosition();
+          lastLocation = await Geolocator.getCurrentPosition(timeLimit: Duration(minutes: 1));
         print("Last location $lastLocation");
         getViewModel().setLocation(lastLocation);
         subscribeUiToPayment();

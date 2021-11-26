@@ -2,8 +2,11 @@ import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/views/transaction_error_page.dart';
+import 'package:moniepoint_flutter/core/views/transaction_pending_page.dart';
+import 'package:moniepoint_flutter/core/views/transaction_success_page.dart';
 
 import '../../main.dart';
+import '../routes.dart';
 import '../views/bottom_sheet.dart';
 import '../colors.dart';
 
@@ -91,6 +94,36 @@ Future<dynamic> showInfo(BuildContext context,
         );
       });
 }
+
+Future<dynamic> showTransactionSuccess(BuildContext context, SuccessPayload payload) {
+  return Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (mContext) {
+        return TransactionSuccessPage(
+            payload,
+            onClick: () {
+              Navigator.of(mContext).pop();
+              // Navigator.of(context, rootNavigator: true).pushNamedAndRemoveUntil(Routes.DASHBOARD,  (route) => false, arguments: {});
+            });
+      }), (route) => route.settings.name == Routes.DASHBOARD);
+}
+
+
+Future<dynamic> showTransactionPending(BuildContext context, {String title = "Pending", String message = ""}) {
+  return Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (mContext) {
+        return TransactionPendingPage(
+            title: title,
+            message: message,
+            onClick: () async {
+              Navigator.of(mContext).pop();
+              // Navigator.of(context, rootNavigator: true)
+              //     .pushNamedAndRemoveUntil(Routes.DASHBOARD,  (route) => false, arguments: {});
+            });
+      }), (route) => route.settings.name == Routes.DASHBOARD);
+}
+
+
+
 
 Future<dynamic> showComingSoon(BuildContext context, {String title = "Coming Soon"}) {
   return showModalBottomSheet(

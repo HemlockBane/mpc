@@ -21,9 +21,10 @@ import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/payment_view_model.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
+import 'package:moniepoint_flutter/core/validators.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 
-class BillPurchaseViewModel extends BaseViewModel with PaymentViewModel {
+class BillPurchaseViewModel extends BaseViewModel with PaymentViewModel, Validators {
 
   late final BillServiceDelegate _delegate;
   late final BillBeneficiaryServiceDelegate _beneficiaryServiceDelegate;
@@ -163,6 +164,14 @@ class BillPurchaseViewModel extends BaseViewModel with PaymentViewModel {
     final minimumLengthRequired = inputFieldForKey.minimumLength;
     if(isFieldRequired && keyExist && minimumLengthRequired != null && (keyValue == null || keyValue.length < minimumLengthRequired)) {
       _fieldErrorMap[key] = "${inputFieldForKey.fieldLabel} cannot be less than ${inputFieldForKey.minimumLength?.toInt()} characters";
+      _fieldErrorController.sink.addError(Tuple(key, _fieldErrorMap[key]));
+      checkValidity();
+      return false;
+    }
+
+    //TODO refactor
+    if(key == "emailAddress" && !isEmailValid(keyValue)) {
+      _fieldErrorMap[key] = "Invalid ${inputFieldForKey.fieldLabel}";
       _fieldErrorController.sink.addError(Tuple(key, _fieldErrorMap[key]));
       checkValidity();
       return false;

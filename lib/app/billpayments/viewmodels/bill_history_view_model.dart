@@ -49,7 +49,7 @@ class BillHistoryViewModel extends BaseViewModel {
       element.itemCount = 0;
     });
     _filterResults.startDate = 0;
-    _filterResults.endDate = DateTime.now().add(Duration(minutes: 1)).millisecondsSinceEpoch;
+    _filterResults.endDate = DateTime.now().add(Duration(days: 1)).millisecondsSinceEpoch;
   }
 
   Stream<Resource<FileResult>> getFile(String fileUUID) {

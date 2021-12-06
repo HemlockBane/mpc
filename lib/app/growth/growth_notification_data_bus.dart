@@ -4,7 +4,11 @@ import 'package:moniepoint_flutter/app/growth/growth_notification_data_type.dart
 import 'package:moniepoint_flutter/app/growth/growth_notification_member.dart';
 import 'package:moniepoint_flutter/app/growth/model/data/dashboard_banner_data.dart';
 import 'package:moniepoint_flutter/app/growth/model/data/pop_up_notification_data.dart';
+import 'package:moniepoint_flutter/app/growth/model/data/growth_notification.dart';
+import 'package:moniepoint_flutter/app/login/model/data/user.dart';
 import 'package:moniepoint_flutter/core/network/service_result.dart';
+
+import 'model/data/growth_notification_response_body.dart';
 
 ///@author Paul Okeke
 
@@ -46,24 +50,41 @@ class _GrowthNotificationDataBusImpl extends Interceptor implements GrowthNotifi
   @override
   void publish(GrowthNotificationDataType event) {
     event.setDataBus(this);
-    this._listeners.forEach((element) => element.accept(event));
+    this._listeners.forEach((element) {
+      return element.accept(event);
+    });
   }
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    final dynamic data = response.data;
-    if(data is ServiceResult<dynamic>) {
-      final notifications = data.notifications;
+    final dynamic responseData = response.data;
 
-      if(notifications == null) return super.onResponse(response, handler);
-
-      final dashboardBanners = notifications.dashboardBanners ?? [];
-      final popNotifications = notifications.popUpNotifications ?? [];
-
-      dashboardBanners.forEach((banner) => this.publish(DashboardBannerData.of(banner)));
-      if(popNotifications.isNotEmpty) this.publish(PopUpNotificationData.of(popNotifications));
+    if(response.realUri.pathSegments.contains("login")) {
+      final ServiceResult<User> data = ServiceResult.fromJson(responseData, (json) => User.fromJson(json));
+      Future.delayed(Duration(seconds: 2), (){
+        _handleGrowthNotifications(data.growthNotifications);
+      });
+      return super.onResponse(response, handler);
     }
+
+    final ServiceResult<dynamic> data = ServiceResult.fromJson(responseData, (json) => null);
+
+    if(data is ServiceResult<dynamic>) {
+      final notifications = data.growthNotifications;
+      _handleGrowthNotifications(notifications);
+    }
+
     super.onResponse(response, handler);
+  }
+
+  void _handleGrowthNotifications(GrowthNotificationResponseBody? growthNotificationResponse) {
+    if(growthNotificationResponse == null) return;
+
+    final dashboardBanners = growthNotificationResponse.dashboardBanners ?? [];
+    final popNotifications = growthNotificationResponse.popUpNotifications ?? [];
+
+    if(dashboardBanners.isNotEmpty) this.publish(DashboardBannerData.of(dashboardBanners));
+    if(popNotifications.isNotEmpty) this.publish(PopUpNotificationData.of(popNotifications));
   }
 
 }

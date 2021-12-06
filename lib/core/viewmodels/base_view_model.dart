@@ -9,13 +9,17 @@ import 'package:moniepoint_flutter/app/customer/customer.dart';
 import 'package:moniepoint_flutter/app/customer/customer_account.dart';
 import 'package:moniepoint_flutter/app/customer/scheme_code.dart';
 import 'package:moniepoint_flutter/app/customer/user_account.dart';
+import 'package:moniepoint_flutter/app/growth/growth_notification_data_type.dart';
+import 'package:moniepoint_flutter/app/growth/growth_notification_member.dart';
+import 'package:moniepoint_flutter/app/growth/model/data/dashboard_banner_data.dart';
+import 'package:moniepoint_flutter/app/growth/model/data/growth_notification.dart';
 import 'package:moniepoint_flutter/core/models/user_instance.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/network/service_error.dart';
 import 'package:collection/collection.dart';
 
 
-abstract class BaseViewModel with ChangeNotifier {
+abstract class BaseViewModel with ChangeNotifier implements GrowthNotificationMember  {
 
   AccountServiceDelegate? accountServiceDelegate;
 
@@ -28,6 +32,16 @@ abstract class BaseViewModel with ChangeNotifier {
 
   final StreamController<Resource<List<AccountBalance?>>> _accountsBalanceController = StreamController.broadcast();
   Stream<Resource<List<AccountBalance?>>> get accountsBalanceStream => _accountsBalanceController.stream;
+
+  final StreamController<DashboardBannerData>_growthNotificationController = StreamController.broadcast();
+  Stream<DashboardBannerData> get growthNotificationStream => _growthNotificationController.stream;
+
+  @override
+  void accept(GrowthNotificationDataType event) {
+    print("We accepted the challenge here");
+    if(event is! DashboardBannerData) return;
+    _growthNotificationController.sink.add(event);
+  }
 
   Stream<Resource<AccountBalance>> getCustomerAccountBalance({int? accountId, bool useLocal = true}) {
     return accountServiceDelegate!.getCustomerAccountBalance(
@@ -168,6 +182,7 @@ abstract class BaseViewModel with ChangeNotifier {
   void dispose() {
     _balanceController.close();
     _accountsBalanceController.close();
+    _growthNotificationController.close();
     super.dispose();
   }
 

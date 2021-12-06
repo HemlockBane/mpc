@@ -27,6 +27,7 @@ import 'package:flutter/rendering.dart';
 
 import 'dashboard_more_view.dart';
 import '../../savings/views/savings_dasboard_view.dart';
+import 'dashboard_notification_component.dart';
 import 'dashboard_top_menu.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -148,6 +149,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
                     ),
                     SizedBox(height: 32),
                     DashboardMenu(_onDrawerItemClickListener),
+                    DashboardNotificationComponent(viewModel: _viewModel),
                     DashboardRecentlyPaidView(
                       beneficiaries: recentlyPaidBeneficiaries,
                       margin: EdgeInsets.only(left:16, right:16,bottom: 32, top: 32),

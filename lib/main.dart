@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart' hide Colors, Card;
+import 'package:flutter/services.dart';
 import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:moniepoint_flutter/app/login/viewmodels/login_view_model.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
@@ -47,7 +50,11 @@ void main() async {
 }
 
 Future<void> _onCreate() async {
+
   WidgetsFlutterBinding.ensureInitialized();
+  if (Platform.isAndroid) {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: [SystemUiOverlay.bottom]);
+  }
   Workmanager().initialize(workDispatcher, isInDebugMode: false);
 
   await BiometricHelper.initialize(

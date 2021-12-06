@@ -5,6 +5,7 @@ import 'package:moniepoint_flutter/app/accountupdates/views/forms/account_update
 import 'package:moniepoint_flutter/app/airtime/views/selection_combo.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving_config.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/flex_setup_viewmodel.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/views/flex_setup_confirmation.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
@@ -50,26 +51,15 @@ class _SecondFlexSetupFormState extends State<SecondFlexSetupForm> with Automati
     super.initState();
   }
 
-  void _subscribeUiToCreateConfig() {
-    setState(() => _viewModel.setIsLoading(true));
-    _viewModel.createFlexConfig().listen((event) {
-      if(event is Loading) {
-        if(!_viewModel.isLoading) {
-          setState(() => _viewModel.setIsLoading(true));
-        }
-      }
-      else if(event is Success) {
-        setState(() => _viewModel.setIsLoading(false));
-      }
-      else if(event is Error<FlexSavingConfig>) {
-        setState(() {_viewModel.setIsLoading(false);});
-        showError(
-            context,
-            title: "Failed setting up\nflex savings!",
-            message: event.message
-        );
-      }
-    });
+  void _navigateToConfirmation() {
+    Navigator.of(context).push(
+        MaterialPageRoute(
+            builder: (ctx) => ChangeNotifierProvider.value(
+              value: _viewModel,
+              child: FlexSetUpConfirmationView(),
+            )
+        )
+    );
   }
 
   Widget _getDropDown() {
@@ -187,7 +177,7 @@ class _SecondFlexSetupFormState extends State<SecondFlexSetupForm> with Automati
                         isLoading: _viewModel.isLoading,
                         stream: _viewModel.isValid,
                         loadingColor: Colors.savingsPrimary.withOpacity(0.5),
-                        onClick: _subscribeUiToCreateConfig,
+                        onClick: _navigateToConfirmation,
                         text: 'Complete Setup'
                     ),
                   ),

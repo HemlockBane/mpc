@@ -16,6 +16,7 @@ enum FlexSaveMode {
 
 @JsonSerializable()
 class FlexSavingConfig {
+
   FlexSavingConfig({
     required this.id,
     this.createdOn,
@@ -53,4 +54,5 @@ class FlexSavingConfig {
   factory FlexSavingConfig.fromJson(Map<String, dynamic> json) => _$FlexSavingConfigFromJson(json);
 
   Map<String, dynamic> toJson() => _$FlexSavingConfigToJson(this);
+
 }

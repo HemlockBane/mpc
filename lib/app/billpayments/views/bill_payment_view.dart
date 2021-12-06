@@ -124,7 +124,8 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
         builder: (context) => ChangeNotifierProvider.value(
               value: viewModel,
               child: BillPinDialog(),
-            ));
+            )
+    );
 
     if (result is TransactionStatus) {
       final isSuccessful = result.operationStatus == Constants.APPROVED ||

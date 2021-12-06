@@ -33,8 +33,6 @@ class TransferViewModel extends BaseViewModel with PaymentViewModel {
   int? _minorFee = 0;
   int? _minorVat = 0;
 
-  DateTime? _currentTransferTime;
-
   TransferViewModel({
     TransferServiceDelegate? delegate,
     TransferBeneficiaryServiceDelegate? beneficiaryServiceDelegate,

@@ -12,12 +12,16 @@ class SelectedTransactionRecipientView extends StatelessWidget {
   SelectedTransactionRecipientView({
     required this.recipientName,
     required this.recipientDigits,
-    required this.providerName
+    required this.providerName,
+    this.displayChange = true,
+    this.leadingColor = Colors.primaryColor
   });
 
   final String recipientName;
   final String providerName;
   final String recipientDigits;
+  final bool displayChange;
+  final Color leadingColor;
 
   @override
   Widget build(BuildContext context) {
@@ -42,11 +46,11 @@ class SelectedTransactionRecipientView extends StatelessWidget {
           IconCurvedContainer(
               width: 53,
               height: 53,
-              backgroundColor: Colors.primaryColor.withOpacity(0.1),
+              backgroundColor: leadingColor.withOpacity(0.1),
               child: Center(
                 child: Text(
                     recipientName.abbreviate(2, true, includeMidDot: false),
-                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.primaryColor, fontSize: 19)
+                    style: TextStyle(fontWeight: FontWeight.bold, color: leadingColor, fontSize: 19)
                 ),
               )
           ),
@@ -71,20 +75,25 @@ class SelectedTransactionRecipientView extends StatelessWidget {
                 ],
               )
           ),
-          Expanded(
-              flex: 0,
-              child: TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text('Change',
-                  style: TextStyle(color: Colors.primaryColor, fontSize: 14, fontWeight: FontWeight.w600),
-                ),
-                style: ButtonStyle(
-                  minimumSize: MaterialStateProperty.all(Size(40, 0)),
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  overlayColor: MaterialStateProperty.all(Colors.primaryColor.withOpacity(0.2)),
-                ),
-              )
-          )
+          if(displayChange)
+            Expanded(
+                flex: 0,
+                child: TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(
+                    'Change',
+                    style: TextStyle(
+                        color: Colors.primaryColor,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600),
+                  ),
+                  style: ButtonStyle(
+                    minimumSize: MaterialStateProperty.all(Size(40, 0)),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    overlayColor: MaterialStateProperty.all(
+                        Colors.primaryColor.withOpacity(0.2)),
+                  ),
+                ))
         ],
       ),
     );

@@ -19,7 +19,8 @@ class FlexSavingConfigRequestBody {
     this.contributionAmount,
     this.customerAccountId,
     this.customerId,
-    this.customerFlexSavingId
+    this.customerFlexSavingId,
+    this.name
   });
 
   final FlexSaveType? flexSaveType;
@@ -30,6 +31,7 @@ class FlexSavingConfigRequestBody {
   final int? customerAccountId;
   final int? customerId;
   final int? customerFlexSavingId;
+  final String? name;
 
   factory FlexSavingConfigRequestBody.fromJson(Map<String, dynamic> json) => _$FlexSavingConfigRequestBodyFromJson(json);
 

@@ -19,9 +19,21 @@ FlexSaving _$FlexSavingFromJson(Map<String, dynamic> json) {
         ? null
         : FlexSavingScheme.fromJson(
             json['flexSavingScheme'] as Map<String, dynamic>),
+    flexSavingInterestProfile: json['flexSavingInterestProfile'] == null
+        ? null
+        : FlexSavingInterestProfile.fromJson(
+            json['flexSavingInterestProfile'] as Map<String, dynamic>),
     flexSavingConfigId: json['flexSavingConfigId'] as int?,
     configCreated: json['configCreated'] as bool?,
-  );
+    name: json['name'] as String?,
+  )
+    ..withdrawalCount = json['withdrawalCount'] == null
+        ? null
+        : FlexWithdrawalCount.fromJson(
+            json['withdrawalCount'] as Map<String, dynamic>)
+    ..accountBalance = json['accountBalance'] == null
+        ? null
+        : AccountBalance.fromJson(json['accountBalance'] as Object);
 }
 
 Map<String, dynamic> _$FlexSavingToJson(FlexSaving instance) =>
@@ -32,6 +44,10 @@ Map<String, dynamic> _$FlexSavingToJson(FlexSaving instance) =>
       'flexVersion': instance.flexVersion,
       'cbaAccountNuban': instance.cbaAccountNuban,
       'flexSavingScheme': instance.flexSavingScheme,
+      'flexSavingInterestProfile': instance.flexSavingInterestProfile,
       'configCreated': instance.configCreated,
       'flexSavingConfigId': instance.flexSavingConfigId,
+      'name': instance.name,
+      'withdrawalCount': instance.withdrawalCount,
+      'accountBalance': instance.accountBalance,
     };

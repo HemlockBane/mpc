@@ -10,14 +10,15 @@ class FlexSavingScheme {
   FlexSavingScheme({
     required this.id,
     this.name,
-    this.interestRate,
-    this.accountSchemeCode
+    this.accountSchemeCode,
+    this.isDefault,
   });
 
   final int? id;
   final String? name;
-  final double? interestRate;
   final String? accountSchemeCode;
+  @JsonKey(name: "default")
+  final bool? isDefault;
 
   factory FlexSavingScheme.fromJson(Map<String, dynamic> json) => _$FlexSavingSchemeFromJson(json);
   Map<String, dynamic> toJson() => _$FlexSavingSchemeToJson(this);

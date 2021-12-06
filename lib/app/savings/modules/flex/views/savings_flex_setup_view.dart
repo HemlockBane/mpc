@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/forms/account_update_form_view.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/flex_setup_viewmodel.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
@@ -10,20 +11,25 @@ import 'package:provider/provider.dart';
 import 'forms/first_flex_setup_form.dart';
 import 'forms/second_flex_setup_form.dart';
 
-
+///SavingsFlexSetupView
+///
+///
 class SavingsFlexSetupView extends StatefulWidget {
   const SavingsFlexSetupView({
     Key? key,
-    required this.flexSavingId
+    required this.flexSaving
   }) : super(key: key);
 
-  final num flexSavingId;
+  final FlexSaving flexSaving;
 
   @override
   _SavingsFlexSetupViewState createState() => _SavingsFlexSetupViewState();
 
 }
 
+///_SavingsFlexSetupViewState
+///
+///
 class _SavingsFlexSetupViewState extends State<SavingsFlexSetupView> with CompositeDisposableWidget{
 
   late FlexSetupViewModel _viewModel;
@@ -81,7 +87,7 @@ class _SavingsFlexSetupViewState extends State<SavingsFlexSetupView> with Compos
   @override
   void initState() {
     _viewModel = Provider.of<FlexSetupViewModel>(context, listen: false);
-    _viewModel.setFlexSavingId(widget.flexSavingId);
+    _viewModel.setFlexSaving(widget.flexSaving);
     _registerPageChange();
     super.initState();
   }

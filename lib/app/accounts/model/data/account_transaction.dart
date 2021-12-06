@@ -204,7 +204,6 @@ class AccountTransaction extends Transaction implements ListItem {
 
   @override
   int getInitiatedDate() {
-    // TODO: implement getInitiatedDate
     return this.transactionDate;
   }
 

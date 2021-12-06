@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:moniepoint_flutter/app/savings/model/data/total_savings_balance.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/views/flex_dashboard_balance_loading_shimmer.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_flex_list_view.dart';
 import 'package:moniepoint_flutter/app/savings/viewmodels/savings_dashboard_viewmodel.dart';
 import 'package:moniepoint_flutter/app/savings/views/savings_product_item_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 import 'package:provider/provider.dart';
 
 import '../../dashboard/views/dashboard_top_menu.dart';
@@ -29,6 +33,8 @@ class SavingsDashboardView extends StatefulWidget  {
 
 class _SavingsDashboardState extends State<SavingsDashboardView> with AutomaticKeepAliveClientMixin{
 
+  late final SavingsDashboardViewModel _viewModel;
+
   Future<bool> _onBackPressed() async {
     final isPop = await widget._navigatorKey.currentState?.maybePop();
     return (isPop != null && isPop) ? Future.value(false) : Future.value(true);
@@ -49,7 +55,12 @@ class _SavingsDashboardState extends State<SavingsDashboardView> with AutomaticK
 
   @override
   void initState() {
+    _viewModel = SavingsDashboardViewModel();
     super.initState();
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+      //This really isn't an important load, so we can delay it
+      Future.delayed(Duration(seconds: 1), () => _viewModel.initialLoad());
+    });
   }
 
   @override
@@ -57,7 +68,7 @@ class _SavingsDashboardState extends State<SavingsDashboardView> with AutomaticK
     super.build(context);
     // return ComingSoonView(width: 100, height: 100);
     return MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => SavingsDashboardViewModel())],
+      providers: [ChangeNotifierProvider.value(value: _viewModel)],
       child: WillPopScope(
         onWillPop: _onBackPressed,
         child: Container(
@@ -65,12 +76,10 @@ class _SavingsDashboardState extends State<SavingsDashboardView> with AutomaticK
             cacheExtent: 500000,
             children: [
               SizedBox(height: dashboardTopMenuHeight - 40),
-              SavingsAccountCard(),
-              SizedBox(height: 29),
               LayoutBuilder(builder: (ctx, constraints) {
                 return Container(
                   width: constraints.maxWidth,
-                  height: MediaQuery.of(context).size.height - 300,
+                  height: MediaQuery.of(context).size.height - 230,
                   color: Colors.transparent,
                   child: Navigator(
                     key: widget._navigatorKey,
@@ -104,10 +113,14 @@ class _SavingsDashboardMenu extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        SavingsAccountCard(
+          dashboardBalanceFn: () => viewModel.fetchAllSavingsBalance(),
+        ),
+        SizedBox(height: 29),
         Padding(
           padding: EdgeInsets.only(left: 16, right: 16),
           child: Text(
-            "What would you like to\nsave for?",
+            "How would you like to\nsave?",
             style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
           ),
         ),
@@ -147,51 +160,95 @@ class _SavingsDashboardMenu extends StatelessWidget {
 ///SavingsAccountCard
 ///
 ///
-class SavingsAccountCard extends StatelessWidget {
-  const SavingsAccountCard({Key? key,}) : super(key: key);
+class SavingsAccountCard extends StatefulWidget {
+  const SavingsAccountCard({
+    Key? key,
+    required this.dashboardBalanceFn
+  }) : super(key: key);
+
+  final Stream<Resource<TotalSavingsBalance>> Function() dashboardBalanceFn;
+
+  @override
+  State<StatefulWidget> createState() => _SavingAccountCardState();
+
+}
+
+class _SavingAccountCardState extends  State<SavingsAccountCard> {
+
+  Stream<Resource<TotalSavingsBalance>> _savingsBalanceStream = Stream.empty();
+
+  @override
+  void initState() {
+    _savingsBalanceStream = widget.dashboardBalanceFn.call();
+    super.initState();
+  }
+
+  Widget _getAccountBalance(AsyncSnapshot<Resource<TotalSavingsBalance>> snap) {
+    if (snap.data is Loading || snap.hasData == false) {
+      return FlexDashboardBalanceLoadingShimmer(isLoading: true,);
+    } else if (snap.data is Error<TotalSavingsBalance>) {
+      return Row(
+        children: [
+          Text(
+            "Error Loading Balance",
+            style: TextStyle(
+                color: Colors.textColorBlack,
+                fontWeight: FontWeight.w800,
+                fontSize: 16.5
+            ),
+          )
+        ],
+      );
+    }
+
+    return Row(
+      children: [
+        Expanded(child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Total Savings",
+              style: TextStyle(
+                  color: Colors.textColorBlack.withOpacity(0.8),
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12.5
+              ),
+            ),
+            SizedBox(height: 4),
+            Text(
+              "${snap.data?.data?.totalSavingBalance?.formatCurrency ?? "--"}",
+              style: TextStyle(
+                  color: Colors.textColorBlack,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 23.5
+              ),
+            ),
+          ],
+        ))
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16),
       padding: EdgeInsets.symmetric(horizontal: 20.02, vertical: 34),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Total Savings",
-            style: TextStyle(color: Colors.white.withOpacity(0.8), fontWeight: FontWeight.w600, fontSize: 12.5),
-          ),
-          SizedBox(height: 5),
-          Row(
-            children: [
-              SvgPicture.asset(
-                "res/drawables/ic_naira.svg",
-                width: 20,
-                height: 17,
-                color: Colors.white,
-              ),
-              SizedBox(width: 4,),
-              Text("200,394.00",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 23.5),
-              ),
-            ],
-          )
-        ],
-      ),
       decoration: BoxDecoration(
-        color: Colors.solidGreen,
-        borderRadius: BorderRadius.all(Radius.circular(16)),
-        boxShadow: [
-          BoxShadow(
-            offset: Offset(0, 13),
-            blurRadius: 21,
-            color: Colors.savingsPrimaryShadow.withOpacity(0.2)
-          )
-        ]
+          color: Color(0XFF737E74).withOpacity(0.08),
+          borderRadius: BorderRadius.all(Radius.circular(16)),
+      ),
+      child: StreamBuilder(
+          stream: _savingsBalanceStream,
+          builder: (ctx, AsyncSnapshot<Resource<TotalSavingsBalance>> snap) {
+            return _getAccountBalance(snap);
+          }
       ),
     );
   }
+
 }
+
 
 ///ComingSoonView
 ///

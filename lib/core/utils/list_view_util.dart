@@ -100,10 +100,13 @@ class ListViewUtil {
     required Widget Function(PagingData data, bool isEmpty, Tuple<String, String>? errorMessage) listCallback
   }) {
     Tuple<String, String>? error;
+    print("Refresh State ===> ${pagingData.loadStates}.");
+
     if(pagingData.loadStates == null || pagingData.loadStates!.refresh is loadStates.Loading) {
       animationController.forward(from: 0);
       return shimmer;
     } else if(pagingData.loadStates?.refresh is loadStates.Error) {
+      print("Error on refresh.....");
       animationController.forward(from: 0);
       final errorState = pagingData.loadStates?.refresh as loadStates.Error;
       error = formatError(errorState.exception.toString(), "Transactions");

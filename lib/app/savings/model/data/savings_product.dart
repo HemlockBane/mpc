@@ -4,6 +4,8 @@ import 'package:moniepoint_flutter/app/savings/model/data/flex_saving_scheme.dar
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving.dart';
 import 'package:moniepoint_flutter/core/database/type_converters.dart';
 
+import 'flex_saving_interest_profile.dart';
+
 part 'savings_product.g.dart';
 
 ///@author Paul Okeke
@@ -24,6 +26,7 @@ class SavingsProduct {
     this.code,
     this.cbaSavingsAccountSchemeCode,
     this.flexSavingScheme,
+    this.flexSavingInterestProfile,
     this.penalties,
     this.flexSavings = const []
   });
@@ -46,6 +49,7 @@ class SavingsProduct {
   final String? code;
   final String? cbaSavingsAccountSchemeCode;
   final FlexSavingScheme? flexSavingScheme;
+  final FlexSavingInterestProfile? flexSavingInterestProfile;
   final int? penalties;
   final List<FlexSaving>? flexSavings;
 
@@ -65,7 +69,8 @@ class SavingsProduct {
       flexSavingScheme: this.flexSavingScheme,
       cbaSavingsAccountSchemeCode: this.cbaSavingsAccountSchemeCode,
       penalties: this.penalties,
-      flexSavings: flexSavings
+      flexSavings: flexSavings,
+      flexSavingInterestProfile: this.flexSavingInterestProfile
     );
   }
 

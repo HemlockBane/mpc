@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_html/shims/dart_ui_real.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:moniepoint_flutter/app/savings/model/data/total_savings_balance.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving.dart';
 import 'package:moniepoint_flutter/app/savings/viewmodels/savings_dashboard_viewmodel.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
@@ -13,6 +14,8 @@ import 'package:moniepoint_flutter/core/utils/list_view_util.dart';
 import 'package:moniepoint_flutter/core/views/icon_curved_container.dart';
 import 'package:moniepoint_flutter/main.dart';
 import 'package:provider/provider.dart';
+
+import 'flex_dashboard_balance_loading_shimmer.dart';
 
 ///@author Paul Okeke
 ///
@@ -27,11 +30,14 @@ class _SavingsFlexListViewState extends State<SavingsFlexListView> with TickerPr
   late final SavingsDashboardViewModel _viewModel;
   late final AnimationController _animationController;
   final List<FlexSaving> _currentItems = [];
+  Stream<Resource<List<FlexSaving>>> _flexSavingStream = Stream.empty();
 
 
   @override
   void initState() {
     _viewModel = Provider.of<SavingsDashboardViewModel>(context, listen: false);
+    _flexSavingStream = _viewModel.getFlexSavings();
+
     this._animationController = AnimationController(
         vsync: this,
         duration: Duration(milliseconds: 1000)
@@ -41,49 +47,60 @@ class _SavingsFlexListViewState extends State<SavingsFlexListView> with TickerPr
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-        stream: _viewModel.getFlexSavings(),
-        builder: (ctx, AsyncSnapshot<Resource<List<FlexSaving>>> snapshot) {
-          return Stack(children: [
-            ListViewUtil.makeListViewWithState(
-              displayLocalData: true,
-              context: context,
-              snapshot: snapshot,
-              animationController: _animationController,
-              currentList: _currentItems,
-              listView: (List<FlexSaving>? items) {
-                return ListView.separated(
-                    padding: EdgeInsets.only(bottom: 180),
-                    separatorBuilder: (BuildContext context, int index) {
-                      return Padding(padding: EdgeInsets.only(top: 6.5, bottom: 6.5));
+    return Column(
+      children: [
+        FlexSavingsAccountCard(
+          dashboardBalanceFn: () => _viewModel.fetchAllSavingsBalance(),
+        ),
+        SizedBox(height: 22,),
+        Expanded(child:  StreamBuilder(
+            stream: _flexSavingStream,
+            builder: (ctx, AsyncSnapshot<Resource<List<FlexSaving>>> snapshot) {
+              return Stack(children: [
+                ListViewUtil.makeListViewWithState(
+                  displayLocalData: true,
+                  context: context,
+                  snapshot: snapshot,
+                  animationController: _animationController,
+                  currentList: _currentItems,
+                  listView: (List<FlexSaving>? items) {
+                    return ListView.separated(
+                      padding: EdgeInsets.zero,
+                      separatorBuilder: (BuildContext context, int index) {
+                        return Padding(padding: EdgeInsets.only(top: 6.5, bottom: 6.5));
+                      },
+                      itemCount: items!.length,
+                      itemBuilder: (ctx, int index) {
+                        return FlexSavingListItem(
+                            flexSaving: items[index],
+                            position: index
+                        );
+                      },
+                    );
+                  },
+                ),
+                Positioned(
+                  right: 18,
+                  bottom: 50,
+                  child: FloatingActionButton(
+                    backgroundColor: Colors.solidOrange,
+                    onPressed: () {
+                      navigatorKey.currentState?.pushNamed(
+                          Routes.SAVINGS_FLEX_ENABLE,
+                          arguments: {"product": _viewModel.getFlexSavingsProduct()}
+                      );
                     },
-                    itemCount: items!.length,
-                    itemBuilder: (ctx, int index) {
-                      return FlexSavingListItem(flexSaving: items[index], position: index);
-                    },
-                );
-              },
-            ),
-            Positioned(
-              right: 18,
-              bottom: 100,
-              child: FloatingActionButton(
-                backgroundColor: Colors.solidOrange,
-                onPressed: () {
-                  navigatorKey.currentState?.pushNamed(
-                      Routes.SAVINGS_FLEX_ENABLE,
-                      arguments: {"product": _viewModel.getFlexSavingsProduct()}
-                  );
-                },
-                child: Text("+", style: TextStyle(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 24,
-                    color: Colors.white
-                ),),
-              ),
-            )
-          ],);
-        }
+                    child: Text("+", style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 24,
+                        color: Colors.white
+                    ),),
+                  ),
+                )
+              ],);
+            }
+        ))
+      ],
     );
   }
 
@@ -165,10 +182,10 @@ class FlexSavingListItem extends StatelessWidget {
                   backgroundColor: Colors.savingsPrimary.withOpacity(0.1),
                   child: SvgPicture.asset("res/drawables/ic_savings_flex_2.svg", width: 24, height: 30,)
               ),
-              SizedBox(width: 12,),
+              SizedBox(width: 12),
               Expanded(
                   child: Text(
-                    "Flex Savings ${position + 1}",
+                    "${flexSaving.name ?? "--"}",
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -187,19 +204,17 @@ class FlexSavingListItem extends StatelessWidget {
           ),
           SizedBox(height: 16,),
           _InterestAndTotalSavingsView(
-            interest: flexSaving.flexSavingScheme?.interestRate ?? 0.0,
-            totalSavings: 0.0,
+            interest: flexSaving.flexSavingInterestProfile?.interestRate ?? 0.0,
+            totalSavings: flexSaving.accountBalance?.availableBalance ?? 0.0,
           ),
           SizedBox(height: 13,),
           _AccountNumberView(
             accountNumber: flexSaving.cbaAccountNuban ?? "",
             onView: () {
-              if(flexSaving.configCreated == false) {
-                navigatorKey.currentState?.pushNamed(
-                    Routes.SAVINGS_FLEX_SETUP,
+              navigatorKey.currentState?.pushNamed(
+                  Routes.SAVINGS_FLEX_DASHBOARD,
                   arguments: {"flexSavingId" : flexSaving.id}
-                );
-              }
+              );
             },
           )
         ],
@@ -284,7 +299,7 @@ class _InterestAndTotalSavingsView extends StatelessWidget {
   });
 
   final num interest;
-  final num totalSavings;
+  final double totalSavings;
   
   Widget _label(String value) {
     return Text(
@@ -336,4 +351,120 @@ class _InterestAndTotalSavingsView extends StatelessWidget {
     );
   }
 
+}
+
+class FlexSavingsAccountCard extends StatelessWidget {
+
+  const FlexSavingsAccountCard({
+    Key? key,
+    required this.dashboardBalanceFn
+  }) : super(key: key);
+
+  final Stream<Resource<TotalSavingsBalance>> Function() dashboardBalanceFn;
+
+  Widget _getAccountBalance(AsyncSnapshot<Resource<TotalSavingsBalance>> snap) {
+    if (snap.data is Loading || snap.hasData == false) {
+      return FlexDashboardBalanceLoadingShimmer(isLoading: true,);
+    } else if (snap.data is Error<TotalSavingsBalance>) {
+      return Row(
+        children: [
+          Text(
+            "Error Loading Balance",
+            style: TextStyle(
+                color: Colors.textColorBlack,
+                fontWeight: FontWeight.w800,
+                fontSize: 16.5
+            ),
+          )
+        ],
+      );
+    }
+
+    return Row(
+      children: [
+        Expanded(child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Total Savings",
+              style: TextStyle(
+                  color: Colors.white.withOpacity(0.8),
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12.5
+              ),
+            ),
+            SizedBox(height: 4),
+            Text(
+              "${snap.data?.data?.totalFlexSavingBalance?.formatCurrency ?? "--"}",
+              style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 23.5
+              ),
+            ),
+          ],
+        ))
+      ],
+    );
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        margin: EdgeInsets.symmetric(horizontal: 16),
+        padding: EdgeInsets.symmetric(horizontal: 20.02, vertical: 34),
+        decoration: BoxDecoration(
+            color: Colors.solidGreen,
+            borderRadius: BorderRadius.all(Radius.circular(16)),
+            boxShadow: [
+              BoxShadow(
+                  offset: Offset(0, 13),
+                  blurRadius: 21,
+                  color: Colors.savingsPrimaryShadow.withOpacity(0.2))
+            ]
+        ),
+        child: StreamBuilder(
+            stream: dashboardBalanceFn.call(),
+            builder: (ctx, AsyncSnapshot<Resource<TotalSavingsBalance>> snap) {
+              return _getAccountBalance(snap);
+            }
+        ),
+        // child: Column(
+        //   crossAxisAlignment: CrossAxisAlignment.start,
+        //   children: [
+        //     Text(
+        //       "Total Savings",
+        //       style: TextStyle(
+        //           color: Colors.white.withOpacity(0.8),
+        //           fontWeight: FontWeight.w600,
+        //           fontSize: 12.5
+        //       ),
+        //     ),
+        //     SizedBox(height: 5),
+        //     Row(
+        //       children: [
+        //         SvgPicture.asset(
+        //           "res/drawables/ic_naira.svg",
+        //           width: 20,
+        //           height: 17,
+        //           color: Colors.white,
+        //         ),
+        //         SizedBox(
+        //           width: 4,
+        //         ),
+        //         Text(
+        //           "200,394.00",
+        //           style: TextStyle(
+        //               color: Colors.white,
+        //               fontWeight: FontWeight.w800,
+        //               fontSize: 23.5
+        //           ),
+        //         ),
+        //       ],
+        //     )
+        //   ],
+        // )
+    );
+  }
 }

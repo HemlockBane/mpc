@@ -6,7 +6,8 @@ import 'package:moniepoint_flutter/app/growth/growth_notification_data_bus.dart'
 import 'package:moniepoint_flutter/app/growth/growth_notification_data_type.dart';
 import 'package:moniepoint_flutter/app/growth/growth_notification_member.dart';
 import 'package:moniepoint_flutter/app/growth/model/data/pop_up_notification_data.dart';
-import 'package:moniepoint_flutter/app/growth/model/growth_notification.dart';
+import 'package:moniepoint_flutter/app/growth/model/data/growth_notification.dart';
+import 'package:moniepoint_flutter/app/growth/views/pop_up_notification_route.dart';
 import 'package:moniepoint_flutter/app/notifications/view/notification_wrapper.dart';
 import 'package:moniepoint_flutter/main.dart';
 
@@ -72,9 +73,10 @@ class MoniepointAppMessengerState extends State<MoniepointAppMessenger> implemen
   @override
   void accept(GrowthNotificationDataType event) {
     if(event is! PopUpNotificationData) return;
+    print("Pushing to start notification");
     final PopUpNotificationData eventData = event;
     final List<GrowthPopupNotification> popupNotifications = eventData.getData();
-    // navigatorKey.currentState?.pushNamed(routeName);
+    navigatorKey.currentState?.push(PopUpNotificationRoute(notificationData: eventData));
   }
 
   void _updateScaffolds() {
@@ -113,7 +115,7 @@ class MoniepointAppMessengerState extends State<MoniepointAppMessenger> implemen
 
   @override
   void dispose() {
-    GrowthNotificationDataBus.getInstance().subscribe(this);
+    GrowthNotificationDataBus.getInstance().unsubscribe(this);
     super.dispose();
   }
 

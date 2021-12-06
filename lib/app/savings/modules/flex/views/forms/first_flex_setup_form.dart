@@ -5,6 +5,7 @@ import 'package:moniepoint_flutter/app/airtime/views/selection_combo.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving_config.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/flex_setup_viewmodel.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
 import 'package:moniepoint_flutter/core/models/list_item.dart';
 import 'package:collection/collection.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
@@ -28,6 +29,8 @@ class _FirstFlexSetupFormState extends State<FirstFlexSetupForm> with AutomaticK
   late final FlexSetupViewModel _viewModel;
   ListDataItem<String>? _selectedAmountPill;
   final List<ListDataItem<String>> amountPills = List.generate(4, (index) => ListDataItem((5000 * (index + 1)).formatCurrencyWithoutLeadingZero));
+  final TextEditingController _flexSavingNameController = TextEditingController();
+
   final savingModes = FlexSaveMode.values.map((e) {
     final title = describeEnum(e);
     return ComboItem(e, title, isSelected: e == FlexSaveMode.MONTHLY);
@@ -75,6 +78,29 @@ class _FirstFlexSetupFormState extends State<FirstFlexSetupForm> with AutomaticK
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Container(
+            child: Text(
+              "Set a name for this Flex",
+              style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
+            ),
+          ),
+          SizedBox(height: 12),
+          StreamBuilder(
+              stream: _viewModel.savingNameStream,
+              builder: (context, AsyncSnapshot<String?> snapshot) {
+                return Styles.appEditText(
+                    controller: _flexSavingNameController.withDefaultValueFromStream(
+                        snapshot, _viewModel.flexSavingName
+                    ),
+                    errorText: snapshot.hasError ? snapshot.error.toString() : null,
+                    onChanged: _viewModel.setFlexSavingName,
+                    hint: 'Title',
+                    animateHint: false,
+                    fontSize: 15,
+                    fillColor: Color(0XFFA5C097).withOpacity(0.15)
+                );
+              }),
+          SizedBox(height: 32),
           Container(
             child: Text(
               "How frequently would you like to save?",

@@ -94,10 +94,12 @@ class _$AppDatabase extends AppDatabase {
 
   FlexSavingsDao? _flexSavingsDaoInstance;
 
+  FlexTransactionDao? _flexTransactionDaoInstance;
+
   Future<sqflite.Database> open(String path, List<Migration> migrations,
       [Callback? callback]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 6,
+      version: 7,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -145,7 +147,9 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `tiers` (`id` INTEGER NOT NULL, `status` TEXT, `createdOn` TEXT, `lastModifiedOn` TEXT, `code` TEXT, `name` TEXT, `classification` TEXT, `accountNumberPrefix` TEXT, `accountNumberLength` INTEGER, `allowNegativeBalance` INTEGER, `allowLien` INTEGER, `enableInstantBalanceUpdate` INTEGER, `maximumCumulativeBalance` REAL, `maximumSingleDebit` REAL, `maximumSingleCredit` REAL, `maximumDailyDebit` REAL, `maximumDailyCredit` REAL, `schemeRequirement` TEXT, `alternateSchemeRequirement` TEXT, `supportsAccountGeneration` INTEGER, PRIMARY KEY (`id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `flex_savings` (`id` INTEGER NOT NULL, `createdOn` INTEGER, `flexVersion` TEXT, `cbaAccountNuban` TEXT, `flexSavingScheme` TEXT, `configCreated` INTEGER, `flexSavingConfigId` INTEGER, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `flex_savings` (`id` INTEGER NOT NULL, `createdOn` INTEGER, `flexVersion` TEXT, `cbaAccountNuban` TEXT, `flexSavingScheme` TEXT, `flexSavingInterestProfile` TEXT, `configCreated` INTEGER, `flexSavingConfigId` INTEGER, `flexSavingName` TEXT, PRIMARY KEY (`id`))');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `flex_transactions` (`accountNumber` TEXT, `status` INTEGER, `transactionRef` TEXT NOT NULL, `amount` REAL, `type` TEXT, `transactionChannel` TEXT, `tags` TEXT, `narration` TEXT, `transactionDate` INTEGER NOT NULL, `runningBalance` TEXT, `balanceBefore` TEXT, `balanceAfter` TEXT, `transactionCategory` TEXT, `transactionCode` TEXT, `beneficiaryIdentifier` TEXT, `beneficiaryName` TEXT, `beneficiaryBankName` TEXT, `beneficiaryBankCode` TEXT, `senderIdentifier` TEXT, `senderName` TEXT, `senderBankName` TEXT, `senderBankCode` TEXT, `providerIdentifier` TEXT, `providerName` TEXT, `transactionIdentifier` TEXT, `merchantLocation` TEXT, `cardScheme` TEXT, `maskedPan` TEXT, `terminalID` TEXT, `disputable` INTEGER, `location` TEXT, `metaData` TEXT, `flexSavingId` INTEGER, PRIMARY KEY (`transactionRef`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -248,6 +252,12 @@ class _$AppDatabase extends AppDatabase {
   FlexSavingsDao get flexSavingsDao {
     return _flexSavingsDaoInstance ??=
         _$FlexSavingsDao(database, changeListener);
+  }
+
+  @override
+  FlexTransactionDao get flexTransactionDao {
+    return _flexTransactionDaoInstance ??=
+        _$FlexTransactionDao(database, changeListener);
   }
 }
 
@@ -2808,10 +2818,14 @@ class _$FlexSavingsDao extends FlexSavingsDao {
                   'cbaAccountNuban': item.cbaAccountNuban,
                   'flexSavingScheme':
                       _flexSavingSchemeConverter.encode(item.flexSavingScheme),
+                  'flexSavingInterestProfile':
+                      _flexSavingInterestProfileConverter
+                          .encode(item.flexSavingInterestProfile),
                   'configCreated': item.configCreated == null
                       ? null
                       : (item.configCreated! ? 1 : 0),
-                  'flexSavingConfigId': item.flexSavingConfigId
+                  'flexSavingConfigId': item.flexSavingConfigId,
+                  'flexSavingName': item.name
                 },
             changeListener),
         _flexSavingDeletionAdapter = DeletionAdapter(
@@ -2825,10 +2839,14 @@ class _$FlexSavingsDao extends FlexSavingsDao {
                   'cbaAccountNuban': item.cbaAccountNuban,
                   'flexSavingScheme':
                       _flexSavingSchemeConverter.encode(item.flexSavingScheme),
+                  'flexSavingInterestProfile':
+                      _flexSavingInterestProfileConverter
+                          .encode(item.flexSavingInterestProfile),
                   'configCreated': item.configCreated == null
                       ? null
                       : (item.configCreated! ? 1 : 0),
-                  'flexSavingConfigId': item.flexSavingConfigId
+                  'flexSavingConfigId': item.flexSavingConfigId,
+                  'flexSavingName': item.name
                 },
             changeListener);
 
@@ -2853,10 +2871,13 @@ class _$FlexSavingsDao extends FlexSavingsDao {
             cbaAccountNuban: row['cbaAccountNuban'] as String?,
             flexSavingScheme: _flexSavingSchemeConverter
                 .decode(row['flexSavingScheme'] as String?),
+            flexSavingInterestProfile: _flexSavingInterestProfileConverter
+                .decode(row['flexSavingInterestProfile'] as String?),
             flexSavingConfigId: row['flexSavingConfigId'] as int?,
             configCreated: row['configCreated'] == null
                 ? null
-                : (row['configCreated'] as int) != 0),
+                : (row['configCreated'] as int) != 0,
+            name: row['flexSavingName'] as String?),
         queryableName: 'flex_savings',
         isView: false);
   }
@@ -2871,10 +2892,13 @@ class _$FlexSavingsDao extends FlexSavingsDao {
             cbaAccountNuban: row['cbaAccountNuban'] as String?,
             flexSavingScheme: _flexSavingSchemeConverter
                 .decode(row['flexSavingScheme'] as String?),
+            flexSavingInterestProfile: _flexSavingInterestProfileConverter
+                .decode(row['flexSavingInterestProfile'] as String?),
             flexSavingConfigId: row['flexSavingConfigId'] as int?,
             configCreated: row['configCreated'] == null
                 ? null
-                : (row['configCreated'] as int) != 0),
+                : (row['configCreated'] as int) != 0,
+            name: row['flexSavingName'] as String?),
         arguments: [id]);
   }
 
@@ -2918,6 +2942,218 @@ class _$FlexSavingsDao extends FlexSavingsDao {
   }
 }
 
+class _$FlexTransactionDao extends FlexTransactionDao {
+  _$FlexTransactionDao(this.database, this.changeListener)
+      : _queryAdapter = QueryAdapter(database, changeListener),
+        _flexTransactionInsertionAdapter = InsertionAdapter(
+            database,
+            'flex_transactions',
+            (FlexTransaction item) => <String, Object?>{
+                  'accountNumber': item.accountNumber,
+                  'status': item.status == null ? null : (item.status! ? 1 : 0),
+                  'transactionRef': item.transactionRef,
+                  'amount': item.amount,
+                  'type': _transactionTypeConverter.encode(item.type),
+                  'transactionChannel': item.transactionChannel,
+                  'tags': item.tags,
+                  'narration': item.narration,
+                  'transactionDate': item.transactionDate,
+                  'runningBalance': item.runningBalance,
+                  'balanceBefore': item.balanceBefore,
+                  'balanceAfter': item.balanceAfter,
+                  'transactionCategory': _transactionCategoryConverter
+                      .encode(item.transactionCategory),
+                  'transactionCode': item.transactionCode,
+                  'beneficiaryIdentifier': item.beneficiaryIdentifier,
+                  'beneficiaryName': item.beneficiaryName,
+                  'beneficiaryBankName': item.beneficiaryBankName,
+                  'beneficiaryBankCode': item.beneficiaryBankCode,
+                  'senderIdentifier': item.senderIdentifier,
+                  'senderName': item.senderName,
+                  'senderBankName': item.senderBankName,
+                  'senderBankCode': item.senderBankCode,
+                  'providerIdentifier': item.providerIdentifier,
+                  'providerName': item.providerName,
+                  'transactionIdentifier': item.transactionIdentifier,
+                  'merchantLocation': item.merchantLocation,
+                  'cardScheme': item.cardScheme,
+                  'maskedPan': item.maskedPan,
+                  'terminalID': item.terminalID,
+                  'disputable': item.disputable == null
+                      ? null
+                      : (item.disputable! ? 1 : 0),
+                  'location': _locationConverter.encode(item.location),
+                  'metaData':
+                      _transactionMetaDataConverter.encode(item.metaData),
+                  'flexSavingId': item.flexSavingId
+                },
+            changeListener),
+        _flexTransactionDeletionAdapter = DeletionAdapter(
+            database,
+            'flex_transactions',
+            ['transactionRef'],
+            (FlexTransaction item) => <String, Object?>{
+                  'accountNumber': item.accountNumber,
+                  'status': item.status == null ? null : (item.status! ? 1 : 0),
+                  'transactionRef': item.transactionRef,
+                  'amount': item.amount,
+                  'type': _transactionTypeConverter.encode(item.type),
+                  'transactionChannel': item.transactionChannel,
+                  'tags': item.tags,
+                  'narration': item.narration,
+                  'transactionDate': item.transactionDate,
+                  'runningBalance': item.runningBalance,
+                  'balanceBefore': item.balanceBefore,
+                  'balanceAfter': item.balanceAfter,
+                  'transactionCategory': _transactionCategoryConverter
+                      .encode(item.transactionCategory),
+                  'transactionCode': item.transactionCode,
+                  'beneficiaryIdentifier': item.beneficiaryIdentifier,
+                  'beneficiaryName': item.beneficiaryName,
+                  'beneficiaryBankName': item.beneficiaryBankName,
+                  'beneficiaryBankCode': item.beneficiaryBankCode,
+                  'senderIdentifier': item.senderIdentifier,
+                  'senderName': item.senderName,
+                  'senderBankName': item.senderBankName,
+                  'senderBankCode': item.senderBankCode,
+                  'providerIdentifier': item.providerIdentifier,
+                  'providerName': item.providerName,
+                  'transactionIdentifier': item.transactionIdentifier,
+                  'merchantLocation': item.merchantLocation,
+                  'cardScheme': item.cardScheme,
+                  'maskedPan': item.maskedPan,
+                  'terminalID': item.terminalID,
+                  'disputable': item.disputable == null
+                      ? null
+                      : (item.disputable! ? 1 : 0),
+                  'location': _locationConverter.encode(item.location),
+                  'metaData':
+                      _transactionMetaDataConverter.encode(item.metaData),
+                  'flexSavingId': item.flexSavingId
+                },
+            changeListener);
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<FlexTransaction> _flexTransactionInsertionAdapter;
+
+  final DeletionAdapter<FlexTransaction> _flexTransactionDeletionAdapter;
+
+  @override
+  Stream<List<FlexTransaction>> getFlexTransactions(
+      int flexSavingId, int limit, int myOffset) {
+    return _queryAdapter.queryListStream(
+        'SELECT * FROM flex_transactions WHERE flexSavingId = ?1 ORDER BY transactionDate DESC LIMIT ?2 OFFSET ?3',
+        mapper: (Map<String, Object?> row) => FlexTransaction(
+            transactionDate: row['transactionDate'] as int,
+            transactionRef: row['transactionRef'] as String,
+            status: row['status'] == null ? null : (row['status'] as int) != 0,
+            amount: row['amount'] as double?,
+            accountNumber: row['accountNumber'] as String?,
+            type: _transactionTypeConverter.decode(row['type'] as String?),
+            transactionChannel: row['transactionChannel'] as String?,
+            tags: row['tags'] as String?,
+            narration: row['narration'] as String?,
+            runningBalance: row['runningBalance'] as String?,
+            balanceBefore: row['balanceBefore'] as String?,
+            balanceAfter: row['balanceAfter'] as String?,
+            metaData: _transactionMetaDataConverter
+                .decode(row['metaData'] as String?),
+            transactionCategory: _transactionCategoryConverter
+                .decode(row['transactionCategory'] as String?),
+            transactionCode: row['transactionCode'] as String?,
+            beneficiaryIdentifier: row['beneficiaryIdentifier'] as String?,
+            beneficiaryName: row['beneficiaryName'] as String?,
+            beneficiaryBankName: row['beneficiaryBankName'] as String?,
+            beneficiaryBankCode: row['beneficiaryBankCode'] as String?,
+            senderIdentifier: row['senderIdentifier'] as String?,
+            senderName: row['senderName'] as String?,
+            senderBankName: row['senderBankName'] as String?,
+            senderBankCode: row['senderBankCode'] as String?,
+            providerIdentifier: row['providerIdentifier'] as String?,
+            providerName: row['providerName'] as String?,
+            transactionIdentifier: row['transactionIdentifier'] as String?,
+            merchantLocation: row['merchantLocation'] as String?,
+            cardScheme: row['cardScheme'] as String?,
+            maskedPan: row['maskedPan'] as String?,
+            terminalID: row['terminalID'] as String?,
+            disputable: row['disputable'] == null
+                ? null
+                : (row['disputable'] as int) != 0,
+            location: _locationConverter.decode(row['location'] as String?),
+            flexSavingId: row['flexSavingId'] as int?),
+        arguments: [flexSavingId, limit, myOffset],
+        queryableName: 'flex_transactions',
+        isView: false);
+  }
+
+  @override
+  Future<FlexSaving?> getFlexTransactionByReference(
+      String transactionReference) async {
+    return _queryAdapter.query(
+        'SELECT * FROM flex_transactions WHERE transactionRef = ?1',
+        mapper: (Map<String, Object?> row) => FlexSaving(
+            id: row['id'] as int,
+            createdOn: row['createdOn'] as int?,
+            flexVersion: row['flexVersion'] as String?,
+            cbaAccountNuban: row['cbaAccountNuban'] as String?,
+            flexSavingScheme: _flexSavingSchemeConverter
+                .decode(row['flexSavingScheme'] as String?),
+            flexSavingInterestProfile: _flexSavingInterestProfileConverter
+                .decode(row['flexSavingInterestProfile'] as String?),
+            flexSavingConfigId: row['flexSavingConfigId'] as int?,
+            configCreated: row['configCreated'] == null
+                ? null
+                : (row['configCreated'] as int) != 0,
+            name: row['flexSavingName'] as String?),
+        arguments: [transactionReference]);
+  }
+
+  @override
+  Future<void> deleteAll() async {
+    await _queryAdapter.queryNoReturn('DELETE FROM flex_transactions');
+  }
+
+  @override
+  Future<void> deleteOldRecords(List<String> references) async {
+    const offset = 1;
+    final _sqliteVariablesForReferences =
+        Iterable<String>.generate(references.length, (i) => '?${i + offset}')
+            .join(',');
+    await _queryAdapter.queryNoReturn(
+        'DELETE FROM flex_transactions WHERE transactionRef NOT IN(' +
+            _sqliteVariablesForReferences +
+            ')',
+        arguments: [...references]);
+  }
+
+  @override
+  Future<void> insertItem(FlexTransaction item) async {
+    await _flexTransactionInsertionAdapter.insert(
+        item, OnConflictStrategy.replace);
+  }
+
+  @override
+  Future<void> insertItems(List<FlexTransaction> item) async {
+    await _flexTransactionInsertionAdapter.insertList(
+        item, OnConflictStrategy.replace);
+  }
+
+  @override
+  Future<void> deleteItems(List<FlexTransaction> item) async {
+    await _flexTransactionDeletionAdapter.deleteList(item);
+  }
+
+  @override
+  Future<void> deleteItem(FlexTransaction item) async {
+    await _flexTransactionDeletionAdapter.delete(item);
+  }
+}
+
 // ignore_for_file: unused_element
 final _listStateConverter = ListStateConverter();
 final _listStringConverter = ListStringConverter();
@@ -2938,3 +3174,5 @@ final _schemeRequirementConverter = SchemeRequirementConverter();
 final _alternateSchemeRequirementConverter =
     AlternateSchemeRequirementConverter();
 final _flexSavingSchemeConverter = FlexSavingSchemeConverter();
+final _flexSavingInterestProfileConverter =
+    FlexSavingInterestProfileConverter();

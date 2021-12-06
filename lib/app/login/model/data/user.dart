@@ -1,8 +1,9 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:moniepoint_flutter/app/customer/customer.dart';
 import 'package:moniepoint_flutter/app/customer/customer_account.dart';
-import 'package:moniepoint_flutter/app/login/model/data/login_prompt.dart';
 import 'package:collection/collection.dart';
+import 'package:moniepoint_flutter/app/growth/model/data/growth_notification.dart';
+import 'package:moniepoint_flutter/app/growth/model/data/growth_notification_response_body.dart';
 
 
 import 'security_flag.dart';
@@ -30,8 +31,6 @@ class User {
   List<Customer>? customers;
   String? email;
   String? username;
-  @JsonKey(name: "loginCommandPrompts")
-  List<LoginPrompt>? loginPrompts;
 
   User();
 

@@ -57,7 +57,7 @@ class SavingsEnableFlexState extends State<SavingsEnableFlexView> {
     super.initState();
   }
 
-  void _navigateToSuccessPage(int flexSavingId, String accountNumber) {
+  void _navigateToSuccessPage(FlexSaving flexSaving, String accountNumber) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -70,7 +70,7 @@ class SavingsEnableFlexState extends State<SavingsEnableFlexView> {
             Navigator.pushNamed(
                 context,
                 Routes.SAVINGS_FLEX_SETUP,
-                arguments: {"flexSavingId": flexSavingId}
+                arguments: {"flexSaving": flexSaving}
             );
           },
           secondaryButtonText: "Dismiss",
@@ -90,10 +90,15 @@ class SavingsEnableFlexState extends State<SavingsEnableFlexView> {
       }
       else if(event is Success) {
         setState(() => viewModel.setIsEnablingFlex(false));
-        _navigateToSuccessPage(
-            event.data?.id ?? 0,
-            event.data?.cbaAccountNuban ?? ""
-        );
+        if(event.data != null) {
+          _navigateToSuccessPage(event.data!, event.data?.cbaAccountNuban ?? "");
+        } else {
+          showError(
+              context,
+              title: "Failed enabling flex savings!",
+              message: "Couldn't retrieve your flex saving"
+          );
+        }
       }
       else if(event is Error<FlexSaving>) {
         setState(() => viewModel.setIsEnablingFlex(false));
@@ -284,7 +289,7 @@ class _SavingsInterestView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                "${product.flexSavingScheme?.interestRate ?? "--"}",
+                "${product.flexSavingInterestProfile?.interestRate ?? "--"}",
                   style: TextStyle(
                       fontSize: 37.55,
                       fontWeight: FontWeight.w700,

@@ -13,6 +13,7 @@ import 'package:moniepoint_flutter/app/airtime/model/data/airtime_service_provid
 import 'package:moniepoint_flutter/app/billpayments/model/data/bill_history_item.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/biller.dart';
 import 'package:moniepoint_flutter/app/billpayments/model/data/biller_product.dart';
+import 'package:moniepoint_flutter/app/savings/model/data/flex_saving_interest_profile.dart';
 import 'package:moniepoint_flutter/app/savings/model/data/flex_saving_scheme.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving_config.dart';
 import 'package:moniepoint_flutter/app/transfers/model/data/fee_vat_config.dart';
@@ -350,6 +351,20 @@ class FlexSavingSchemeConverter extends TypeConverter<FlexSavingScheme?, String?
 
   @override
   String? encode(FlexSavingScheme? value) {
+    return (value != null) ? jsonEncode(value) : null;
+  }
+}
+
+class FlexSavingInterestProfileConverter extends TypeConverter<FlexSavingInterestProfile?, String?>{
+  @override
+  FlexSavingInterestProfile? decode(String? databaseValue) {
+    if(databaseValue == null) return null;
+    final dynamic type = jsonDecode(databaseValue);
+    return FlexSavingInterestProfile.fromJson(type);
+  }
+
+  @override
+  String? encode(FlexSavingInterestProfile? value) {
     return (value != null) ? jsonEncode(value) : null;
   }
 }

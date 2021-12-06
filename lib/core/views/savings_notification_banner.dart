@@ -2,7 +2,9 @@ import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 
-enum NotificationType { info, warning }
+enum NotificationType {
+  info, warning, danger
+}
 
 class SavingsNotificationBanner extends StatelessWidget {
   const SavingsNotificationBanner({Key? key, this.notificationType = NotificationType.warning, required this.notificationString, this.notificationWidget}) : super(key: key);
@@ -44,8 +46,6 @@ class SavingsNotificationBanner extends StatelessWidget {
     if(notificationWidget != null){
       text = notificationWidget!;
     }
-
-
 
     return Container(
       decoration: BoxDecoration(

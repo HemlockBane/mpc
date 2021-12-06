@@ -1,5 +1,10 @@
+import 'dart:async';
+import 'dart:collection';
+
 import 'package:get_it/get_it.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
 import 'package:moniepoint_flutter/app/savings/model/data/savings_product.dart';
+import 'package:moniepoint_flutter/app/savings/model/data/total_savings_balance.dart';
 import 'package:moniepoint_flutter/app/savings/model/savings_product_service_delegate.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -14,6 +19,22 @@ class SavingsDashboardViewModel extends BaseViewModel {
   }
 
   SavingsProduct? _flexSavingsProduct;
+  TotalSavingsBalance? _totalSavingsBalance;
+  TotalSavingsBalance? get totalSavingsBalance => _totalSavingsBalance;
+
+  final LinkedHashMap<int, AccountBalance> _flexIdToAccountBalance = LinkedHashMap();
+
+  void initialLoad() {
+    final streams = [
+      _productServiceDelegate.getFreeWithdrawalCount()
+    ];
+    Future.wait(streams.map((e) async {
+      await for(var response in e) {
+        if(response is Success) return response.data;
+        else if(response is Error) break;
+      }
+    }));
+  }
 
   SavingsProduct? getFlexSavingsProduct() {
     return _flexSavingsProduct;
@@ -55,8 +76,36 @@ class SavingsDashboardViewModel extends BaseViewModel {
     });
   }
 
-  Stream<Resource<List<FlexSaving>>> getFlexSavings()  {
-    return _productServiceDelegate.getRunningFlexSavings(customerId);
+  Stream<Resource<List<FlexSaving>>> getFlexSavings() {
+    return _productServiceDelegate.getRunningFlexSavings(customerId).map((event) {
+      if(event is Loading || event is Success){
+        event.data?.forEach((element) {
+          element.accountBalance = _flexIdToAccountBalance[element.id];
+        });
+      }
+      return event;
+    });
   }
 
+  Stream<Resource<TotalSavingsBalance>> fetchAllSavingsBalance() {
+    if(_totalSavingsBalance != null) {
+      return Stream.value(Resource.success(_totalSavingsBalance));
+    }
+    return _productServiceDelegate.getAllBalance(customerId).map((event) {
+      if(event is Success) {
+        _totalSavingsBalance = event.data;
+
+        //Set the balance here for each flexSavingId
+        _totalSavingsBalance?.flexSavingBalanceList?.forEach((element) {
+          _flexIdToAccountBalance[element.savingAccountId!] = element.accountBalance!;
+        });
+      }
+      return event;
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 }

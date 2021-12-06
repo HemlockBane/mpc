@@ -154,7 +154,7 @@ class _SavingsProductItemState extends State<SavingsProductItemView> {
                 Divider(height: 0.8, color: Color(0XFF752E96).withOpacity(0.12)),
                 SizedBox(height: 8),
                 Text(
-                  "${product?.flexSavingScheme?.interestRate}% p.a",
+                  "${product?.flexSavingInterestProfile?.interestRate}% p.a",
                   style: TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 14,

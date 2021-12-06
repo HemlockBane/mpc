@@ -38,4 +38,10 @@ class ServiceConfig {
       ? "https://moniepoint-customer-savings-service.teamapt.com/"
       : "https://moniepoint-customer-savings-service.teamapt.com/";
 
+  static const String GROWTH_SERVICE = (ENV == "dev")
+      ? "https://moniepoint-customer-growth-service.development.teamapt.com/"
+      : (ENV == "prod")
+      ? "https://moniepoint-customer-growth-service.teamapt.com/"
+      : "https://https://moniepoint-customer-growth-service.teamapt.com/";
+
 }

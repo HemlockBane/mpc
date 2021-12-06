@@ -19,6 +19,7 @@ FlexSavingConfigRequestBody _$FlexSavingConfigRequestBodyFromJson(
     customerAccountId: json['customerAccountId'] as int?,
     customerId: json['customerId'] as int?,
     customerFlexSavingId: json['customerFlexSavingId'] as int?,
+    name: json['name'] as String?,
   );
 }
 
@@ -33,6 +34,7 @@ Map<String, dynamic> _$FlexSavingConfigRequestBodyToJson(
       'customerAccountId': instance.customerAccountId,
       'customerId': instance.customerId,
       'customerFlexSavingId': instance.customerFlexSavingId,
+      'name': instance.name,
     };
 
 K _$enumDecode<K, V>(

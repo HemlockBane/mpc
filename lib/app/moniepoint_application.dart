@@ -19,9 +19,6 @@ import 'onboarding/views/signup_account_view.dart';
 class MoniepointApp extends StatelessWidget with CompositeDisposableWidget {
   @override
   Widget build(BuildContext context) {
-    // if (Platform.isAndroid) {
-    //   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky, overlays: [SystemUiOverlay.bottom]);
-    // }
     return MoniepointAppMessenger(child: _MoniepointAppContainer());
   }
 }

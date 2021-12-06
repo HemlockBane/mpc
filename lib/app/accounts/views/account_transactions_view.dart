@@ -64,6 +64,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
 
   late final AnimationController _animationController =
       AnimationController(vsync: this, duration: Duration(milliseconds: 1000));
+
   PagingSource<int, AccountTransaction> _pagingSource = PagingSource.empty();
 
   initState() {
@@ -236,9 +237,7 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
             });
             return false;
           }
-
           return false;
-
         },
         child: DraggableScrollableSheet(
           initialChildSize: minExtent,
@@ -252,15 +251,13 @@ class _AccountTransactionScreen extends State<AccountTransactionScreen> with Tic
                 borderRadius: BorderRadius.vertical(
                   top: Radius.circular(22),
                 ),
-                border: Border.all(
-                  width: 1.0,
-                  color: Color(0xff063A4F0D).withOpacity(0.05)),
+                border: Border.all(width: 1.0, color: Color(0xff063A4F0D).withOpacity(0.05)),
                 boxShadow: showDropShadow ? [
-                BoxShadow(
-                  blurRadius: 30,
-                  offset: Offset(0, -5),
-                  color: Color(0xFFC4C4C4).withOpacity(0.5),
-                ),
+                  BoxShadow(
+                    blurRadius: 30,
+                    offset: Offset(0, -5),
+                    color: Color(0xFFC4C4C4).withOpacity(0.5),
+                  ),
                 ] : null,
               ),
               child: Pager<int, AccountTransaction>(

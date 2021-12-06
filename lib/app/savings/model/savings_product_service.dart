@@ -1,8 +1,15 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart' hide Headers;
+import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
 import 'package:moniepoint_flutter/app/savings/model/data/savings_product.dart';
+import 'package:moniepoint_flutter/app/savings/model/data/total_savings_balance.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_account_balance.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_top_up_request.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_top_up_response.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_transaction_history_collection.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_withdrawal_count.dart';
 import 'package:moniepoint_flutter/core/config/build_config.dart';
 import 'package:moniepoint_flutter/core/config/service_config.dart';
 import 'package:moniepoint_flutter/core/network/service_result.dart';
@@ -45,6 +52,69 @@ abstract class SavingsProductService {
   @POST("flex/saving/enable-flex-account")
   Future<ServiceResult<FlexSaving>> enableFlexSavings(
       @Body() EnableFlexRequestBody request
+  );
+
+  @Headers(<String, dynamic>{
+    "Content-Type": "application/json",
+    "client-id": BuildConfig.CLIENT_ID,
+    "appVersion": BuildConfig.APP_VERSION
+  })
+  @POST("flex/saving/top-up")
+  Future<ServiceResult<FlexTopUpResponse>> doFlexTopUp(
+      @Body() FlexTopUpRequest request
+  );
+
+  @Headers(<String, dynamic>{
+    "Content-Type": "application/json",
+    "client-id": BuildConfig.CLIENT_ID,
+    "appVersion": BuildConfig.APP_VERSION
+  })
+  @POST("flex/saving/withdraw")
+  Future<ServiceResult<FlexTopUpResponse>> withdraw(
+      @Body() FlexTopUpRequest request
+  );
+
+  @Headers(<String, dynamic>{
+    "Content-Type": "application/json",
+    "client-id": BuildConfig.CLIENT_ID,
+    "appVersion": BuildConfig.APP_VERSION
+  })
+  @GET("flex/saving/free-withdrawal-count")
+  Future<ServiceResult<FlexWithdrawalCount>> getFreeWithdrawalCount();
+
+  @Headers(<String, dynamic>{
+    "Content-Type": "application/json",
+    "client-id": BuildConfig.CLIENT_ID,
+    "appVersion": BuildConfig.APP_VERSION
+  })
+  @GET("flex/saving/transactions/filter")
+  Future<ServiceResult<FlexTransactionHistoryCollection>> getTransactionsFilter(
+      @Query("customerFlexSavingId") int customerFlexSavingId,
+      @Query("transactionType") String? transactionType,
+      @Query("startDate") int? startDate,
+      @Query("endDate") int? endDate,
+      @Query("page") int page,
+      @Query("pageSize") int pageSize
+  );
+
+  @Headers(<String, dynamic>{
+    "Content-Type": "application/json",
+    "client-id": BuildConfig.CLIENT_ID,
+    "appVersion": BuildConfig.APP_VERSION
+  })
+  @GET("flex/saving/get-balance")
+  Future<ServiceResult<FlexAccountBalance>> getFlexAccountBalance(
+      @Query("customerFlexSavingId") int customerFlexSavingId,
+  );
+
+  @Headers(<String, dynamic>{
+    "Content-Type": "application/json",
+    "client-id": BuildConfig.CLIENT_ID,
+    "appVersion": BuildConfig.APP_VERSION
+  })
+  @GET("${ServiceConfig.SAVINGS_SERVICE}api/v1/saving/get-all-balance")
+  Future<ServiceResult<TotalSavingsBalance>> getAllSavingsBalance(
+      @Query("customerId") int customerId,
   );
 
 }

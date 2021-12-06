@@ -139,5 +139,6 @@ const _$TransactionCategoryEnumMap = {
   TransactionCategory.DATA: 'DATA',
   TransactionCategory.CARD_LINKING: 'CARD_LINKING',
   TransactionCategory.CARD_PURCHASE: 'CARD_PURCHASE',
+  TransactionCategory.FLEX_SAVING_AUTOSAVE: 'FLEX_SAVING_AUTOSAVE',
   TransactionCategory.DEFAULT: 'DEFAULT',
 };

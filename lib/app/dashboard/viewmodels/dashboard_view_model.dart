@@ -25,7 +25,7 @@ import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 import 'package:collection/collection.dart';
 
-class DashboardViewModel extends BaseViewModel implements GrowthNotificationMember {
+class DashboardViewModel extends BaseViewModel  {
   late final CustomerServiceDelegate _customerServiceDelegate;
   late final TransferBeneficiaryServiceDelegate _transferBeneficiaryDelegate;
   late final FileManagementServiceDelegate _fileServiceDelegate;
@@ -134,10 +134,6 @@ class DashboardViewModel extends BaseViewModel implements GrowthNotificationMemb
     super.dispose();
   }
 
-  @override
-  void accept(GrowthNotificationDataType event) {
-    print(event);
-  }
 }
 
 enum DashboardState {

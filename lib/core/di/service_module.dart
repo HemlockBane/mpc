@@ -27,6 +27,8 @@ import 'package:moniepoint_flutter/app/cards/model/data/card_dao.dart';
 import 'package:moniepoint_flutter/app/devicemanagement/model/user_device_service.dart';
 import 'package:moniepoint_flutter/app/devicemanagement/model/user_device_service_delegate.dart';
 import 'package:moniepoint_flutter/app/growth/growth_notification_data_bus.dart';
+import 'package:moniepoint_flutter/app/growth/model/growth_notification_service.dart';
+import 'package:moniepoint_flutter/app/growth/model/growth_notification_service_delegate.dart';
 import 'package:moniepoint_flutter/app/institutions/institution_dao.dart';
 import 'package:moniepoint_flutter/app/institutions/institution_repository.dart';
 import 'package:moniepoint_flutter/app/institutions/institution_service.dart';
@@ -48,7 +50,8 @@ import 'package:moniepoint_flutter/app/onboarding/model/onboarding_service.dart'
 import 'package:moniepoint_flutter/app/onboarding/model/onboarding_service_delegate.dart';
 import 'package:moniepoint_flutter/app/savings/model/savings_product_service.dart';
 import 'package:moniepoint_flutter/app/savings/model/savings_product_service_delegate.dart';
-import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_savings_dao.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/model/dao/flex_savings_dao.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/model/dao/flex_transaction_dao.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/flex_config_service.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/flex_config_service_delegate.dart';
 import 'package:moniepoint_flutter/app/securityquestion/model/security_question_delegate.dart';
@@ -255,13 +258,19 @@ class ServiceModule {
     GetIt.I.registerLazySingleton<SavingsProductServiceDelegate>(() {
       return SavingsProductServiceDelegate(
           SavingsProductService(dio),
-          GetIt.I<FlexSavingsDao>()
+          GetIt.I<FlexSavingsDao>(),
+          GetIt.I<FlexTransactionDao>(),
       );
     });
 
-    /// FlexConfigServiceDelegate Delegate
+    /// FlexConfigService Delegate
     GetIt.I.registerLazySingleton<FlexConfigServiceDelegate>(() {
       return FlexConfigServiceDelegate(FlexConfigService(dio));
+    });
+
+    /// GrowthNotificationService Delegate
+    GetIt.I.registerLazySingleton<GrowthNotificationServiceDelegate>(() {
+      return GrowthNotificationServiceDelegate(GrowthNotificationService(dio));
     });
 
   }

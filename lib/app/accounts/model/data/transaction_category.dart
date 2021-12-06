@@ -5,5 +5,6 @@ enum TransactionCategory {
   DATA,
   CARD_LINKING,
   CARD_PURCHASE,
+  FLEX_SAVING_AUTOSAVE,
   DEFAULT
 }

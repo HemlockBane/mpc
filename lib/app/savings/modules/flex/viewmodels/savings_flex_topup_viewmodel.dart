@@ -8,8 +8,6 @@ import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_top_
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_top_up_response.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/savings_view_model.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
-import 'package:moniepoint_flutter/core/viewmodels/payment_view_model.dart';
-import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 
 
@@ -21,8 +19,10 @@ class SavingsFlexTopUpViewModel extends BaseViewModel with SavingsViewModel{
     this._flexProductDelegate = productServiceDelegate ?? GetIt.I<SavingsProductServiceDelegate>();
   }
 
-  Future<FlexSaving?> getFlexSaving(int flexSavingId){
-    return _flexProductDelegate.getSingleFlexSaving(flexSavingId);
+  Future<FlexSaving?> getFlexSaving(int flexSavingId) async {
+     final flexSaving = await _flexProductDelegate.getSingleFlexSaving(flexSavingId);
+     setFlexSavingAccount(flexSaving);
+     return flexSaving;
   }
 
   @override
@@ -44,9 +44,9 @@ class SavingsFlexTopUpViewModel extends BaseViewModel with SavingsViewModel{
 
   Stream<Resource<FlexTopUpResponse>> topUpFlex() {
     final request = FlexTopUpRequest()
-      ..sourceAccount = sourceAccount?.customerAccount?.accountNumber
-      ..destinationAccount = flexSavingAccount?.cbaAccountNuban
-      ..amount = ((amount ?? 0) * 100).toInt();
+      ..customerAccountId = sourceAccount?.customerAccount?.id
+      ..flexSavingAccountId = flexSavingAccount?.id
+      ..amount = amount ?? 0;
     return _flexProductDelegate.topUpFlex(request);
   }
 
@@ -54,6 +54,5 @@ class SavingsFlexTopUpViewModel extends BaseViewModel with SavingsViewModel{
   void dispose() {
     super.dispose();
   }
-
 
 }

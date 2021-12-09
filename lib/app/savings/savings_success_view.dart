@@ -92,7 +92,7 @@ class SavingsSuccessView extends StatelessWidget {
                 onClick: secondaryButtonAction!,
                 text: secondaryButtonText!,
               ),
-            SizedBox(height: secondaryButtonText != null && secondaryButtonAction != null ? 5 : 20),
+            SizedBox(height: secondaryButtonText != null && secondaryButtonAction != null ? 32 : 20),
           ],
         ),
       ),

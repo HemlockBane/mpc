@@ -2863,7 +2863,7 @@ class _$FlexSavingsDao extends FlexSavingsDao {
   @override
   Stream<List<FlexSaving>> getFlexSavings() {
     return _queryAdapter.queryListStream(
-        'SELECT * FROM flex_savings ORDER BY createdOn DESC',
+        'SELECT * FROM flex_savings ORDER BY id DESC',
         mapper: (Map<String, Object?> row) => FlexSaving(
             id: row['id'] as int,
             createdOn: row['createdOn'] as int?,

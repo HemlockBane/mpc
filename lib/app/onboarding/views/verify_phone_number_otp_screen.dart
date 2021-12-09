@@ -4,6 +4,7 @@ import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_mode
 import 'package:moniepoint_flutter/app/validation/model/data/validate_phone_otp_response.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
+import 'package:moniepoint_flutter/core/mix_panel_analytics.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
@@ -26,8 +27,9 @@ class VerifyPhoneNumberOTPScreen extends StatefulWidget {
 }
 
 class _VerifyPhoneNumberOTPScreen extends State<VerifyPhoneNumberOTPScreen> {
-  late final GlobalKey<ScaffoldState> _scaffoldKey;
+  late final OnBoardingViewModel _viewModel;
 
+  late final GlobalKey<ScaffoldState> _scaffoldKey;
   late final TextEditingController _otpController;
 
   bool _isLoading = false;
@@ -46,16 +48,23 @@ class _VerifyPhoneNumberOTPScreen extends State<VerifyPhoneNumberOTPScreen> {
 
   @override
   void initState() {
+    _viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
     _otpController = TextEditingController();
     super.initState();
+    _track("Onboarding-Phone-Number-Entered");
+  }
+
+  void _track(String key) async {
+    final mixPanel = await MixpanelManager.initAsync();
+    mixPanel.track(key, properties: {"phone": _viewModel.accountForm.account.phoneNumber});
   }
 
   void _subscribeUiToOtpValidation(BuildContext context) {
-    final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
-    viewModel.validateOtpForPhoneNumber(_otpController.text).listen((event) {
+    _viewModel.validateOtpForPhoneNumber(_otpController.text).listen((event) {
         if(event is Loading) setState(() => _isLoading = true);
         if (event is Error<ValidatePhoneOtpResponse>) {
           setState(() => _isLoading = false);
+          _track("Onboarding-Phone-Number-Verification-Failed");
           showError(
               _scaffoldKey.currentContext ?? context,
               title: "OTP Validation Failed!",
@@ -64,6 +73,7 @@ class _VerifyPhoneNumberOTPScreen extends State<VerifyPhoneNumberOTPScreen> {
         }
         if(event is Success<ValidatePhoneOtpResponse>) {
           setState(() => _isLoading = false);
+          _track("Onboarding-Phone-Number-Verified");
           Navigator.of(context).pushNamed(SignUpAccountScreen.ONBOARDING_ENTER_BVN);
         }
     });
@@ -105,7 +115,8 @@ class _VerifyPhoneNumberOTPScreen extends State<VerifyPhoneNumberOTPScreen> {
                         style: TextStyle(
                             fontWeight: FontWeight.normal,
                             color: Colors.textColorBlack,
-                            fontSize: 14)
+                            fontSize: 14
+                        )
                     ),
                     SizedBox(height: 30),
                     Styles.appEditText(
@@ -117,7 +128,8 @@ class _VerifyPhoneNumberOTPScreen extends State<VerifyPhoneNumberOTPScreen> {
                         drawablePadding: EdgeInsets.only(left: 4, right: 4),
                         controller: _otpController,
                         onChanged: (v) => _onOtpChanged(),
-                        maxLength: 6),
+                        maxLength: 6
+                    ),
                     SizedBox(height: 20),
                     OtpUssdInfoView(
                       "Onboarding Phone Number Validation OTP Mobile",

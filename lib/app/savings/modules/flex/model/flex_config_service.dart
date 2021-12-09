@@ -29,4 +29,27 @@ abstract class FlexConfigService {
       @Body() FlexSavingConfigRequestBody request
   );
 
+  @Headers(<String, dynamic>{
+    "Content-Type": "application/json",
+    "client-id": BuildConfig.CLIENT_ID,
+    "appVersion": BuildConfig.APP_VERSION
+  })
+  @POST("flex/saving/update-customer-config")
+  Future<ServiceResult<FlexSavingConfig>> updateCustomerFlexConfig(
+      @Query("existingFlexConfigId") int flexSavingConfigId,
+      @Body() FlexSavingConfigRequestBody request
+  );
+
+
+  @Headers(<String, dynamic>{
+    "Content-Type": "application/json",
+    "client-id": BuildConfig.CLIENT_ID,
+    "appVersion": BuildConfig.APP_VERSION
+  })
+  @GET("flex/saving/get-customer-config")
+  Future<ServiceResult<FlexSavingConfig>> getFlexSavingConfig(
+      @Query("flexSavingConfigId") int flexSavingConfigId,
+      );
+
+
 }

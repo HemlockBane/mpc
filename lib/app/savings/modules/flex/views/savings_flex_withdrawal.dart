@@ -101,26 +101,14 @@ class _SavingsFlexWithdrawalViewState extends State<SavingsFlexWithdrawalView> w
           )
       )
     );
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (ctx) =>
-    //         SavingsSuccessView(
-    //           primaryText: "Withdrawal Successful!",
-    //           secondaryText: loremIpsum,
-    //           primaryButtonText: "Continue",
-    //           primaryButtonAction: () {},
-    //         ),
-    //   ),
-    // );
   }
 
   Widget _displayWithdrawalNotification() {
-    final count = _viewModel.flexSaving?.withdrawalCount?.count;
+    final count = _viewModel.flexSavingAccount?.withdrawalCount?.count;
     if(count == null) return SizedBox();
     return SavingsNotificationBanner(
         notificationType: NotificationType.info,
-        notificationString: "$count Free Withdrawals remaining this month"
+        notificationString: "${_viewModel.flexSavingAccount?.withdrawalCount?.message}"
     );
   }
 
@@ -131,7 +119,7 @@ class _SavingsFlexWithdrawalViewState extends State<SavingsFlexWithdrawalView> w
     return SessionedWidget(
       context: context,
       child: Scaffold(
-        backgroundColor: Color(0xffF8F8F8),
+        backgroundColor: Colors.white,
         appBar: AppBar(
             centerTitle: false,
             titleSpacing: 0,
@@ -144,7 +132,7 @@ class _SavingsFlexWithdrawalViewState extends State<SavingsFlexWithdrawalView> w
                     color: Colors.textColorBlack
                 )
             ),
-            backgroundColor: Colors.backgroundWhite,
+            backgroundColor: Color(0XFFF5F5F5).withOpacity(0.7),
             elevation: 0
         ),
         body: FutureBuilder(
@@ -162,7 +150,8 @@ class _SavingsFlexWithdrawalViewState extends State<SavingsFlexWithdrawalView> w
             _viewModel.setFlexSavingAccount(flexSaving);
 
             return Container(
-              margin: EdgeInsets.symmetric(horizontal: 21),
+              color: Color(0XFFF5F5F5).withOpacity(0.7),
+              padding: EdgeInsets.symmetric(horizontal: 21),
               child: ScrollView(
                 maxHeight: MediaQuery.of(context).size.height - (70 + bottom),
                 child: Column(
@@ -175,7 +164,7 @@ class _SavingsFlexWithdrawalViewState extends State<SavingsFlexWithdrawalView> w
                     ),
                     SizedBox(height: 12),
                     _TotalSavingsView(flexSaving:  flexSaving,),
-                    SizedBox(height: 33),
+                    SizedBox(height: 32),
                     Text(
                       "How much would you like to withdraw?",
                       style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
@@ -187,7 +176,7 @@ class _SavingsFlexWithdrawalViewState extends State<SavingsFlexWithdrawalView> w
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: generateAmountPillsWidget(),
                     ),
-                    SizedBox(height: 26),
+                    SizedBox(height: 32),
                     Text(
                       "Withdraw to?",
                       style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
@@ -209,7 +198,7 @@ class _SavingsFlexWithdrawalViewState extends State<SavingsFlexWithdrawalView> w
                       isShowTrailingWhenExpanded: false,
                     ),
                     _displayWithdrawalNotification(),
-                    SizedBox(height: 28),
+                    SizedBox(height: 49),
                     Styles.statefulButton(
                         buttonStyle: Styles.savingsFlexButtonStyle,
                         stream: _viewModel.isValid,
@@ -265,7 +254,7 @@ class _TotalSavingsView extends StatelessWidget {
               ),
               SizedBox(height: 5),
               Text(
-                  '₦ 120,459.00',
+                  "${flexSaving.accountBalance?.availableBalance?.formatCurrency ?? "--"}",
                   textAlign: TextAlign.left,
                   style: TextStyle(
                       fontWeight: FontWeight.w700,

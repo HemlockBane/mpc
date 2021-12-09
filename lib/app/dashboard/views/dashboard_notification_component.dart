@@ -119,26 +119,35 @@ class _DashboardComponentItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final backgroundColor = _getColorFromHex(item.backgroundColor);
     return Container(
-      padding: EdgeInsets.only(left: 14.88, top: 11.29, bottom: 15.73, right: 14.63),
+      height: 117.65,
+      width: 272.22,
+      padding: EdgeInsets.only(left: 0, top: 11.29, bottom: 15.73, right: 14.63),
       decoration: BoxDecoration(
+        // color: backgroundColor.withOpacity(0.1),
         gradient: LinearGradient(
-          begin: Alignment.bottomCenter,
-          end: Alignment.topCenter,
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
             colors: [
-              Colors.white.withOpacity(0.67),
               Colors.white.withOpacity(0),
-              _getColorFromHex(item.backgroundColor).withOpacity(0.1)
-            ]
+              Colors.white.withOpacity(0.59),
+              backgroundColor.withOpacity(0.1),
+            ],
+          stops: [
+            0.79,
+            1,
+            0
+          ]
         ),
         border: Border.all(
             width: 0.7,
-            color: _getColorFromHex(item.backgroundColor).withOpacity(0.1)
+            color: backgroundColor.withOpacity(0.14)
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: _getColorFromHex(item.backgroundColor).withOpacity(0.1),
+            color: backgroundColor.withOpacity(0.1),
             offset: Offset(0, 1),
             blurRadius: 2
           )
@@ -148,22 +157,24 @@ class _DashboardComponentItem extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          if(item.image != null) Image.memory(base64Decode(item.image?.trim() ?? ""), width: 80, height: 90,
+          if(item.image != null) Image.memory(base64Decode(item.image?.trim() ?? ""), width: 80, height: 78,
               errorBuilder: (_i,_j, _k) {
-              print(_j);
-             return Image.asset("res/drawables/ic_target.png");
+             return Image.asset("res/drawables/ic_dashboard_calendar.png", width: 80, height: 78,);
           }),
           SizedBox(width: 21),
-          Center(
+          Expanded(child: Center(
             child: Text(
               item.message ?? "",
               style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
-                  color: Colors.textColorBlack.withOpacity(0.7)
+                  color: Colors.textColorBlack.withOpacity(0.7),
+                  height: 1.19,
+                  letterSpacing: -0.35
               ),
             ),
-          ),
+          )),
+          SizedBox(width: 18,),
           Align(
             alignment: Alignment.topRight,
             child: Styles.imageButton(
@@ -172,6 +183,8 @@ class _DashboardComponentItem extends StatelessWidget {
                 onClick: () => onDismiss.call(item, 0),
                 image: SvgPicture.asset(
                     "res/drawables/ic_cancel_dashboard.svg",
+                    width: 9.5,
+                    height: 9.5,
                     color: Colors.darkBlue.withOpacity(0.2)
                 )
             ),

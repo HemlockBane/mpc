@@ -21,6 +21,18 @@ class FlexSavingsDashboardViewModel extends BaseViewModel {
     this._flexProductDelegate = productServiceDelegate ?? GetIt.I<SavingsProductServiceDelegate>();
   }
 
+  void initialLoad(int flexSavingId) {
+    final streams = [
+      _flexProductDelegate.getFreeWithdrawalCount(flexSavingId)
+    ];
+    Future.wait(streams.map((e) async {
+      await for(var response in e) {
+        if(response is Success) return response.data;
+        else if(response is Error) break;
+      }
+    }));
+  }
+
   void setFlexSaving(FlexSaving flexSaving) {
     this._flexSaving = flexSaving;
   }

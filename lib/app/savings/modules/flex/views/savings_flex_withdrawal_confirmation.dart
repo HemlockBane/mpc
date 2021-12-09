@@ -4,6 +4,7 @@ import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_top_
 import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/savings_flex_withdrawal_viewmodel.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
@@ -11,6 +12,7 @@ import 'package:moniepoint_flutter/core/views/savings_notification_banner.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:moniepoint_flutter/core/views/selected_transaction_recipient_view.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
+import 'package:moniepoint_flutter/main.dart';
 import 'package:provider/provider.dart';
 
 import '../../../savings_success_view.dart';
@@ -45,6 +47,8 @@ class _FlexSavingWithdrawalConfirmationState extends State<FlexSavingWithdrawalC
         fontWeight: FontWeight.w700
     );
 
+    final currentBalance = _viewModel.flexSavingAccount?.accountBalance?.availableBalance;
+
     return [
       ListTile(
         contentPadding: EdgeInsets.only(left: 22, right: 22, top: 22, bottom: 14),
@@ -63,23 +67,24 @@ class _FlexSavingWithdrawalConfirmationState extends State<FlexSavingWithdrawalC
           ),
         ),
       ),
-      ListTile(
-        contentPadding: EdgeInsets.only(left: 22, right: 22, top: 14, bottom: 14),
-        title: Padding(
-          padding: EdgeInsets.only(bottom: 3.5),
-          child: Text(
-            "Remaining Balance",
-            style: titleStyle,
+      if(currentBalance != null)
+        ListTile(
+          contentPadding: EdgeInsets.only(left: 22, right: 22, top: 14, bottom: 14),
+          title: Padding(
+            padding: EdgeInsets.only(bottom: 3.5),
+            child: Text(
+              "Remaining Balance",
+              style: titleStyle,
+            ),
+          ),
+          subtitle: Padding(
+            padding: EdgeInsets.only(top: 3.5),
+            child: Text(
+              "${(currentBalance - (_viewModel.amount ?? 0)).formatCurrency}",
+              style: subTitleStyle,
+            ),
           ),
         ),
-        subtitle: Padding(
-          padding: EdgeInsets.only(top: 3.5),
-          child: Text(
-            "${(_viewModel.amount ?? 0).formatCurrency}",
-            style: subTitleStyle,
-          ),
-        ),
-      ),
       ListTile(
         contentPadding: EdgeInsets.only(left: 22, right: 22, top: 27, bottom: 31),
         title: Padding(
@@ -104,11 +109,11 @@ class _FlexSavingWithdrawalConfirmationState extends State<FlexSavingWithdrawalC
   }
 
   Widget _displayWithdrawalNotification() {
-    final count = _viewModel.flexSaving?.withdrawalCount?.count;
+    final count = _viewModel.flexSavingAccount?.withdrawalCount?.count;
     if(count == null) return SizedBox();
     return SavingsNotificationBanner(
         notificationType: NotificationType.info,
-        notificationString: "$count Free Withdrawals remaining this month"
+        notificationString: "${_viewModel.flexSavingAccount?.withdrawalCount?.message}"
     );
   }
 
@@ -123,16 +128,21 @@ class _FlexSavingWithdrawalConfirmationState extends State<FlexSavingWithdrawalC
       else if(event is Success) {
         setState(() {_viewModel.setIsLoading(false);});
 
-        Navigator.push(
-          context,
+        Navigator.of(context).push(
           MaterialPageRoute(
             builder: (ctx) => SavingsSuccessView(
               primaryText: "Withdrawal\nSuccessful!",
               secondaryText: "Your Flex Withdrawal was successful!",
               primaryButtonText: "Continue",
-              primaryButtonAction: () => Navigator.of(context).pop(),
+              primaryButtonAction: () {
+                navigatorKey.currentState?.pushNamedAndRemoveUntil(
+                    Routes.SAVINGS_FLEX_DASHBOARD, (route) {
+                  print("RouteName===>${route.settings.name}");
+                  return route.settings.name == Routes.FLEX_SAVINGS;
+                }, arguments: {"flexSavingId": _viewModel.flexSavingAccount?.id});
+              },
             ),
-          ),
+            ),
         );
       }
       else if(event is Error<FlexTopUpResponse>) {

@@ -79,7 +79,7 @@ class _UserAccountSelectionViewState extends State<UserAccountSelectionView> {
       padding: EdgeInsets.all(6),
       decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: Colors.darkBlue.withOpacity(0.1)
+          color: Colors.primaryColor.withOpacity(0.1)
       ),
       child: Center(
         child: SvgPicture.asset('res/drawables/ic_bank.svg', color: Colors.primaryColor,),

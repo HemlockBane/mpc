@@ -26,21 +26,25 @@ class SavingsNotificationBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = notificationType == NotificationType.warning
+    Color color = notificationType == NotificationType.warning
         ? Colors.red
         : Colors.solidYellow;
 
+    if(notificationType == NotificationType.info) {
+      color = Color(0XFF244528);
+    }
+
     final icon = notificationType == NotificationType.warning
         ? SvgPicture.asset('res/drawables/ic_info.svg',
-            width: 27, height: 27, color: color)
+            width: 27, height: 27, color: Colors.grey)
         : SvgPicture.asset('res/drawables/ic_info_italic.svg',
-            width: 24, height: 24, color: color);
+            width: 24, height: 24, color: Colors.grey);
 
 
     Widget text = Text(notificationString,
       textAlign: TextAlign.start,
       style: TextStyle(
-        fontSize: 12.6, color: color, fontWeight: FontWeight.w500)
+        fontSize: 12.6, color: Colors.textColorBlack, fontWeight: FontWeight.w500)
     );
 
     if(notificationWidget != null){
@@ -49,7 +53,7 @@ class SavingsNotificationBanner extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withOpacity(0.05),
         borderRadius: BorderRadius.all(Radius.circular(9)),
       ),
       margin: EdgeInsets.only(top: 20, bottom: 2),

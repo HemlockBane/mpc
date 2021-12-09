@@ -1,8 +1,7 @@
 import 'dart:async';
-import 'dart:collection';
 
 import 'package:get_it/get_it.dart';
-import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
+import 'package:moniepoint_flutter/app/dashboard/viewmodels/dashboard_view_model.dart';
 import 'package:moniepoint_flutter/app/savings/model/data/savings_product.dart';
 import 'package:moniepoint_flutter/app/savings/model/data/total_savings_balance.dart';
 import 'package:moniepoint_flutter/app/savings/model/savings_product_service_delegate.dart';
@@ -18,22 +17,13 @@ class SavingsDashboardViewModel extends BaseViewModel {
     this._productServiceDelegate = productServiceDelegate ?? GetIt.I<SavingsProductServiceDelegate>();
   }
 
+  StreamController<DashboardState> _dashboardStateController = StreamController.broadcast();
+  Stream<DashboardState> get dashboardUpdateStream => _dashboardStateController.stream;
+
   SavingsProduct? _flexSavingsProduct;
-  TotalSavingsBalance? _totalSavingsBalance;
-  TotalSavingsBalance? get totalSavingsBalance => _totalSavingsBalance;
 
-  final LinkedHashMap<int, AccountBalance> _flexIdToAccountBalance = LinkedHashMap();
-
-  void initialLoad() {
-    final streams = [
-      _productServiceDelegate.getFreeWithdrawalCount()
-    ];
-    Future.wait(streams.map((e) async {
-      await for(var response in e) {
-        if(response is Success) return response.data;
-        else if(response is Error) break;
-      }
-    }));
+  void update(DashboardState state) {
+    _dashboardStateController.sink.add(state);
   }
 
   SavingsProduct? getFlexSavingsProduct() {
@@ -76,29 +66,11 @@ class SavingsDashboardViewModel extends BaseViewModel {
     });
   }
 
-  Stream<Resource<List<FlexSaving>>> getFlexSavings() {
-    return _productServiceDelegate.getRunningFlexSavings(customerId).map((event) {
-      if(event is Loading || event is Success){
-        event.data?.forEach((element) {
-          element.accountBalance = _flexIdToAccountBalance[element.id];
-        });
-      }
-      return event;
-    });
-  }
-
   Stream<Resource<TotalSavingsBalance>> fetchAllSavingsBalance() {
-    if(_totalSavingsBalance != null) {
-      return Stream.value(Resource.success(_totalSavingsBalance));
-    }
     return _productServiceDelegate.getAllBalance(customerId).map((event) {
+      if(event is Success || event is Error) update(DashboardState.DONE);
       if(event is Success) {
-        _totalSavingsBalance = event.data;
-
-        //Set the balance here for each flexSavingId
-        _totalSavingsBalance?.flexSavingBalanceList?.forEach((element) {
-          _flexIdToAccountBalance[element.savingAccountId!] = element.accountBalance!;
-        });
+        _flexSavingsProduct?.totalSavingsBalance = event.data;
       }
       return event;
     });
@@ -106,6 +78,7 @@ class SavingsDashboardViewModel extends BaseViewModel {
 
   @override
   void dispose() {
+    _dashboardStateController.close();
     super.dispose();
   }
 }

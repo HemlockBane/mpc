@@ -27,7 +27,7 @@ class FlexSavingConfigRequestBody {
   final FlexSaveMode? flexSaveMode;
   final String? contributionWeekDay;
   final int? contributionMonthDay;
-  final int? contributionAmount;
+  final double? contributionAmount;
   final int? customerAccountId;
   final int? customerId;
   final int? customerFlexSavingId;

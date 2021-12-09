@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_html/shims/dart_ui_real.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:moniepoint_flutter/app/savings/model/data/savings_product.dart';
 import 'package:moniepoint_flutter/app/savings/model/data/total_savings_balance.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving.dart';
-import 'package:moniepoint_flutter/app/savings/viewmodels/savings_dashboard_viewmodel.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/flex_savings_list_view_model.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -12,6 +13,7 @@ import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 import 'package:moniepoint_flutter/core/utils/list_view_util.dart';
 import 'package:moniepoint_flutter/core/views/icon_curved_container.dart';
+import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:moniepoint_flutter/main.dart';
 import 'package:provider/provider.dart';
 
@@ -21,13 +23,19 @@ import 'flex_dashboard_balance_loading_shimmer.dart';
 ///
 class SavingsFlexListView extends StatefulWidget {
 
+  SavingsFlexListView({
+    required this.savingProduct
+  });
+
+  final SavingsProduct savingProduct;
+
   @override
   State<StatefulWidget> createState() => _SavingsFlexListViewState();
 }
 
 class _SavingsFlexListViewState extends State<SavingsFlexListView> with TickerProviderStateMixin{
 
-  late final SavingsDashboardViewModel _viewModel;
+  late final FlexSavingsListViewModel _viewModel;
   late final AnimationController _animationController;
   final List<FlexSaving> _currentItems = [];
   Stream<Resource<List<FlexSaving>>> _flexSavingStream = Stream.empty();
@@ -35,7 +43,8 @@ class _SavingsFlexListViewState extends State<SavingsFlexListView> with TickerPr
 
   @override
   void initState() {
-    _viewModel = Provider.of<SavingsDashboardViewModel>(context, listen: false);
+    _viewModel = Provider.of<FlexSavingsListViewModel>(context, listen: false);
+    _viewModel.setSavingsProduct(widget.savingProduct);
     _flexSavingStream = _viewModel.getFlexSavings();
 
     this._animationController = AnimationController(
@@ -45,62 +54,91 @@ class _SavingsFlexListViewState extends State<SavingsFlexListView> with TickerPr
     super.initState();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        FlexSavingsAccountCard(
-          dashboardBalanceFn: () => _viewModel.fetchAllSavingsBalance(),
-        ),
-        SizedBox(height: 22,),
-        Expanded(child:  StreamBuilder(
-            stream: _flexSavingStream,
-            builder: (ctx, AsyncSnapshot<Resource<List<FlexSaving>>> snapshot) {
-              return Stack(children: [
-                ListViewUtil.makeListViewWithState(
-                  displayLocalData: true,
-                  context: context,
-                  snapshot: snapshot,
-                  animationController: _animationController,
-                  currentList: _currentItems,
-                  listView: (List<FlexSaving>? items) {
-                    return ListView.separated(
-                      padding: EdgeInsets.zero,
-                      separatorBuilder: (BuildContext context, int index) {
-                        return Padding(padding: EdgeInsets.only(top: 6.5, bottom: 6.5));
-                      },
-                      itemCount: items!.length,
-                      itemBuilder: (ctx, int index) {
-                        return FlexSavingListItem(
-                            flexSaving: items[index],
-                            position: index
-                        );
-                      },
-                    );
-                  },
-                ),
-                Positioned(
-                  right: 18,
-                  bottom: 50,
-                  child: FloatingActionButton(
-                    backgroundColor: Colors.solidOrange,
-                    onPressed: () {
-                      navigatorKey.currentState?.pushNamed(
-                          Routes.SAVINGS_FLEX_ENABLE,
-                          arguments: {"product": _viewModel.getFlexSavingsProduct()}
+  Widget _makeListView() => StreamBuilder(
+          stream: _flexSavingStream,
+          builder: (ctx, AsyncSnapshot<Resource<List<FlexSaving>>> snapshot) {
+            return Stack(children: [
+              ListViewUtil.makeListViewWithState(
+                displayLocalData: true,
+                context: context,
+                snapshot: snapshot,
+                animationController: _animationController,
+                currentList: _currentItems,
+                listView: (List<FlexSaving>? items) {
+                  return ListView.separated(
+                    padding: EdgeInsets.only(bottom: 32),
+                    separatorBuilder: (BuildContext context, int index) {
+                      return Padding(
+                          padding: EdgeInsets.only(top: 6.5, bottom: 6.5));
+                    },
+                    itemCount: items!.length,
+                    itemBuilder: (ctx, int index) {
+                      return FlexSavingListItem(
+                          flexSaving: items[index],
+                          position: index
                       );
                     },
-                    child: Text("+", style: TextStyle(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 24,
-                        color: Colors.white
-                    ),),
-                  ),
+                  );
+                },
+              ),
+              Positioned(
+                right: 18,
+                bottom: 62,
+                child: FloatingActionButton(
+                  backgroundColor: Colors.solidOrange,
+                  onPressed: () {
+                    navigatorKey.currentState?.pushNamed(
+                        Routes.SAVINGS_FLEX_ENABLE,
+                        arguments: {"product": _viewModel.flexSavingsProduct}
+                    ).then((value) {
+                      print("We Are back !!!");
+                    });
+                  },
+                  child: Text("+", style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 24,
+                      color: Colors.white
+                  )),
+                ),
+              )
+            ],);
+          }
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    return SessionedWidget(
+      context: context,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+            centerTitle: false,
+            titleSpacing: 0,
+            iconTheme: IconThemeData(color: Colors.solidGreen),
+            title: Text(
+                'Flex Savings',
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.textColorBlack
                 )
-              ],);
-            }
-        ))
-      ],
+            ),
+            backgroundColor: Color(0XFFF5F5F5).withOpacity(0.7),
+            elevation: 0
+        ),
+        body: Container(
+          color: Color(0XFFF5F5F5).withOpacity(0.7),
+          child: Column(
+            children: [
+              SizedBox(height: 22,),
+              FlexSavingsAccountCard(dashboardBalanceFn: () => _viewModel.fetchAllSavingsBalance()),
+              SizedBox(height: 22,),
+              Expanded(child:  _makeListView())
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -430,41 +468,6 @@ class FlexSavingsAccountCard extends StatelessWidget {
               return _getAccountBalance(snap);
             }
         ),
-        // child: Column(
-        //   crossAxisAlignment: CrossAxisAlignment.start,
-        //   children: [
-        //     Text(
-        //       "Total Savings",
-        //       style: TextStyle(
-        //           color: Colors.white.withOpacity(0.8),
-        //           fontWeight: FontWeight.w600,
-        //           fontSize: 12.5
-        //       ),
-        //     ),
-        //     SizedBox(height: 5),
-        //     Row(
-        //       children: [
-        //         SvgPicture.asset(
-        //           "res/drawables/ic_naira.svg",
-        //           width: 20,
-        //           height: 17,
-        //           color: Colors.white,
-        //         ),
-        //         SizedBox(
-        //           width: 4,
-        //         ),
-        //         Text(
-        //           "200,394.00",
-        //           style: TextStyle(
-        //               color: Colors.white,
-        //               fontWeight: FontWeight.w800,
-        //               fontSize: 23.5
-        //           ),
-        //         ),
-        //       ],
-        //     )
-        //   ],
-        // )
     );
   }
 }

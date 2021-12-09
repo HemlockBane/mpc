@@ -19,6 +19,7 @@ class FlexSavingConfig {
 
   FlexSavingConfig({
     required this.id,
+    this.name,
     this.createdOn,
     this.version,
     this.flexSaveType,
@@ -36,6 +37,7 @@ class FlexSavingConfig {
 
   @JsonKey(name: "flexSavingConfigId")
   final int id;
+  final String? name;
   @JsonKey(name: "createdOn", fromJson: stringDateTime, toJson: millisToString)
   final int? createdOn;
   final int? version;
@@ -44,14 +46,25 @@ class FlexSavingConfig {
   final String? contributionWeekDay;
   final int? contributionMonthDay;
   final int? duration;
-  final int? contributionAmount;
+  final double? contributionAmount;
   final CustomerAccount? contributionAccount;
   final int? customerAccountId;
   final int? customerId;
   final bool? active;
   final int? customerFlexSavingId;
 
-  factory FlexSavingConfig.fromJson(Map<String, dynamic> json) => _$FlexSavingConfigFromJson(json);
+  factory FlexSavingConfig.fromJson(Map<String, dynamic> json) {
+    final map = json;
+    final monthlySavingConfigDTO = json["flexMonthlySavingConfigDTO"];
+    final weeklySavingConfigDTO = json["flexWeeklySavingConfigDTO"];
+    if(monthlySavingConfigDTO != null) {
+      map["contributionMonthDay"] = monthlySavingConfigDTO["contributionMonthDay"];
+    }
+    if(weeklySavingConfigDTO != null) {
+      map["contributionWeekDay"] = weeklySavingConfigDTO["contributionWeekDay"];
+    }
+    return _$FlexSavingConfigFromJson(json);
+  }
 
   Map<String, dynamic> toJson() => _$FlexSavingConfigToJson(this);
 

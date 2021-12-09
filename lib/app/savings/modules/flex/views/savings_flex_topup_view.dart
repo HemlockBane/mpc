@@ -7,6 +7,7 @@ import 'package:moniepoint_flutter/app/savings/savings_success_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/list_item.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/views/amount_pill.dart';
@@ -15,6 +16,7 @@ import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 import 'package:collection/collection.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:moniepoint_flutter/core/views/user_account_selection_view.dart';
+import 'package:moniepoint_flutter/main.dart';
 import 'package:provider/provider.dart';
 
 class SavingsFlexTopUpView extends StatefulWidget {
@@ -90,7 +92,13 @@ class _SavingsFlexTopUpViewState extends State<SavingsFlexTopUpView> {
               primaryText: "Top up\nSuccessful!",
               secondaryText: "Your Flex Top up was successful!",
               primaryButtonText: "Continue",
-              primaryButtonAction: () => Navigator.of(context).pop(),
+              primaryButtonAction: () {
+                navigatorKey.currentState?.pushNamedAndRemoveUntil(
+                    Routes.SAVINGS_FLEX_DASHBOARD, (route) {
+                  print("RouteName===>${route.settings.name}");
+                  return route.settings.name == Routes.FLEX_SAVINGS;
+                }, arguments: {"flexSavingId": _viewModel.flexSavingAccount?.id});
+              },
             ),
           ),
         );
@@ -121,7 +129,7 @@ class _SavingsFlexTopUpViewState extends State<SavingsFlexTopUpView> {
     return SessionedWidget(
       context: context,
       child: Scaffold(
-        backgroundColor: Color(0xffF8F8F8),
+        backgroundColor: Colors.white,
         appBar: AppBar(
             centerTitle: false,
             titleSpacing: 0,
@@ -135,7 +143,7 @@ class _SavingsFlexTopUpViewState extends State<SavingsFlexTopUpView> {
                     color: Colors.textColorBlack
                 )
             ),
-            backgroundColor: Colors.backgroundWhite,
+            backgroundColor: Color(0XFFF5F5F5).withOpacity(0.7),
             elevation: 0
         ),
         body: FutureBuilder(
@@ -147,7 +155,8 @@ class _SavingsFlexTopUpViewState extends State<SavingsFlexTopUpView> {
               _viewModel.setFlexSavingAccount(flexSaving);
 
               return Container(
-                margin: EdgeInsets.symmetric(horizontal: 21),
+                color: Color(0XFFF5F5F5).withOpacity(0.7),
+                padding: EdgeInsets.symmetric(horizontal: 21),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

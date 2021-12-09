@@ -103,7 +103,10 @@ class _FlexSetUpConfirmationViewState extends State<FlexSetUpConfirmationView> {
               primaryText: "Flex Setup\nSuccessful!",
               secondaryText: "Your Flex account has been successfully setup!",
               primaryButtonText: "Continue",
-              primaryButtonAction: () => Navigator.of(context).popUntil((route) => route.settings.name == Routes.DASHBOARD),
+              primaryButtonAction: () => Navigator.of(context).popUntil(
+                  (route) => route.settings.name == Routes.SAVINGS_FLEX_DASHBOARD
+                      || route.settings.name == Routes.DASHBOARD
+              ),
             ),
           ),
         );
@@ -166,7 +169,7 @@ class _FlexSetUpConfirmationViewState extends State<FlexSetUpConfirmationView> {
                 ),
                 SizedBox(height: 19,),
                 Text(
-                    "Setup Confirmation",
+                  "Setup Confirmation",
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
@@ -175,7 +178,7 @@ class _FlexSetUpConfirmationViewState extends State<FlexSetUpConfirmationView> {
                 ),
                 SizedBox(height: 23,),
                 Container(
-                  height: 380,
+                  height: 220,
                   decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.8),
                       borderRadius: BorderRadius.circular(8),

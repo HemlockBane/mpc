@@ -410,6 +410,7 @@ class Styles {
       {
         String? hint,
         Color? fillColor = Colors.textFieldColor,
+        Color? iconColor = Colors.primaryColor,
         TextStyle? itemStyle,
         TextStyle? buttonStyle
       }) {
@@ -440,7 +441,7 @@ class Styles {
           child: DropdownButton<T>(
               underline: Container(),
               hint: (hint != null) ? Text(hint, style: TextStyle(color: Colors.textHintColor.withOpacity(0.29)),) : null,
-              icon: Icon(CustomFont.dropDown, color: Colors.primaryColor, size: 6),
+              icon: Icon(CustomFont.dropDown, color: iconColor, size: 6),
               isExpanded: true,
               value: snapShot.data,
               onTap: () => FocusManager.instance.primaryFocus?.unfocus(),

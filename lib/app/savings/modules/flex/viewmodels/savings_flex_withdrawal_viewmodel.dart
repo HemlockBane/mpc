@@ -15,9 +15,6 @@ import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 class SavingsFlexWithdrawalViewModel extends BaseViewModel with SavingsViewModel{
   late final SavingsProductServiceDelegate _flexProductDelegate;
 
-  FlexSaving? _flexSaving;
-  FlexSaving? get flexSaving => _flexSaving;
-
   SavingsFlexWithdrawalViewModel({SavingsProductServiceDelegate? productServiceDelegate}) {
     this._flexProductDelegate = productServiceDelegate ?? GetIt.I<SavingsProductServiceDelegate>();
   }
@@ -29,7 +26,8 @@ class SavingsFlexWithdrawalViewModel extends BaseViewModel with SavingsViewModel
 
   Future<FlexSaving?> getFlexSaving(int flexSavingId) async {
     final flexSaving = await _flexProductDelegate.getSingleFlexSaving(flexSavingId);
-    await for(var response in _flexProductDelegate.getFreeWithdrawalCount()) {
+    setFlexSavingAccount(flexSaving);
+    await for(var response in _flexProductDelegate.getFreeWithdrawalCount(flexSavingId)) {
       if(response is Loading<FlexWithdrawalCount> && response.data != null) {
         flexSaving?.withWithdrawalCount(response.data);
         break;
@@ -57,9 +55,9 @@ class SavingsFlexWithdrawalViewModel extends BaseViewModel with SavingsViewModel
 
   Stream<Resource<FlexTopUpResponse>> withdraw() {
     final request = FlexTopUpRequest()
-      ..sourceAccount = flexSaving?.cbaAccountNuban
-      ..destinationAccount = sourceAccount?.customerAccount?.accountNumber
-      ..amount = ((amount ?? 0) * 100).toInt();
+      ..flexSavingAccountId = flexSavingAccount?.id
+      ..customerAccountId = sourceAccount?.customerAccount?.id
+      ..amount = amount;
     return _flexProductDelegate.withdraw(request);
   }
 

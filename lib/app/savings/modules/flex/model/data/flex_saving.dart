@@ -9,7 +9,6 @@ import 'package:moniepoint_flutter/app/savings/model/data/flex_saving_interest_p
 import 'package:moniepoint_flutter/app/savings/model/data/flex_saving_scheme.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_withdrawal_count.dart';
 
-import 'flex_saving_config.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:moniepoint_flutter/core/database/type_converters.dart';
 

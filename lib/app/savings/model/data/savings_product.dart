@@ -1,6 +1,7 @@
 import 'package:floor/floor.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:moniepoint_flutter/app/savings/model/data/flex_saving_scheme.dart';
+import 'package:moniepoint_flutter/app/savings/model/data/total_savings_balance.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving.dart';
 import 'package:moniepoint_flutter/core/database/type_converters.dart';
 
@@ -28,7 +29,8 @@ class SavingsProduct {
     this.flexSavingScheme,
     this.flexSavingInterestProfile,
     this.penalties,
-    this.flexSavings = const []
+    this.flexSavings = const [],
+    this.totalSavingsBalance
   });
 
   @PrimaryKey()
@@ -53,6 +55,9 @@ class SavingsProduct {
   final int? penalties;
   final List<FlexSaving>? flexSavings;
 
+  @ignore
+  TotalSavingsBalance? totalSavingsBalance;
+
   factory SavingsProduct.fromJson(Map<String, dynamic> json) => _$SavingsProductFromJson(json);
 
   SavingsProduct withFlexSavings(List<FlexSaving>? flexSavings) {
@@ -70,7 +75,8 @@ class SavingsProduct {
       cbaSavingsAccountSchemeCode: this.cbaSavingsAccountSchemeCode,
       penalties: this.penalties,
       flexSavings: flexSavings,
-      flexSavingInterestProfile: this.flexSavingInterestProfile
+      flexSavingInterestProfile: this.flexSavingInterestProfile,
+      totalSavingsBalance: this.totalSavingsBalance
     );
   }
 

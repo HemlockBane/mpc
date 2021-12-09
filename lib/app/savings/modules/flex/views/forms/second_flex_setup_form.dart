@@ -7,6 +7,7 @@ import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_savi
 import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/flex_setup_viewmodel.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/views/flex_setup_confirmation.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/extensions/strings.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
@@ -38,17 +39,30 @@ class _SecondFlexSetupFormState extends State<SecondFlexSetupForm> with Automati
         FontWeight fontWeight = FontWeight.w500}) =>
       TextStyle(fontWeight: fontWeight, fontSize: fontSize, color: color);
 
-  final savingsTypes = FlexSaveType.values.map((e) {
-    final title = describeEnum(e);
-    return ComboItem(e, title, isSelected: e == FlexSaveType.AUTOMATIC);
-  });
-
   @override
   void initState() {
     _viewModel = Provider.of<FlexSetupViewModel>(context, listen: false);
     _viewModel.setContributionWeekDay(null);
     _viewModel.setContributionMonthDay(null);
     super.initState();
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+      Future.delayed(Duration(milliseconds: 100), (){
+        _viewModel.setForm2Default();
+      });
+    });
+  }
+
+  List<ComboItem<FlexSaveType>> _getSavingsTypes() {
+
+    return FlexSaveType.values.map((e) {
+      final title = describeEnum(e);
+      final isSelected = (_viewModel.flexSaving?.configCreated == true)
+          ? e == _viewModel.savingType
+          : e == FlexSaveType.AUTOMATIC;
+      return ComboItem(e, title.toLowerCase().capitalizeFirstOfEach,
+          isSelected: isSelected
+      );
+    }).toList();
   }
 
   void _navigateToConfirmation() {
@@ -67,14 +81,17 @@ class _SecondFlexSetupFormState extends State<SecondFlexSetupForm> with Automati
       return StreamBuilder(
         key: ValueKey("monthDayStream"),
         stream: _viewModel.contributionMonthDayStream,
-        builder: (ctx, AsyncSnapshot<StringDropDownItem?> a) {
-          return Styles.buildDropDown<StringDropDownItem>(_viewModel.monthDays, a, (item, index) {
+        builder: (ctx, AsyncSnapshot<StringDropDownItem?> snapshot) {
+          return Styles.buildDropDown<StringDropDownItem>(
+              _viewModel.monthDays, snapshot, (item, index) {
             if(_viewModel.savingMode == FlexSaveMode.MONTHLY) {
               _viewModel.setContributionMonthDay(item);
             } else {
               _viewModel.setContributionWeekDay(item);
             }
-          }
+          },
+              fillColor: Color(0XFFA5C097).withOpacity(0.15),
+              iconColor: Colors.solidGreen
           );
         },
       );
@@ -90,7 +107,9 @@ class _SecondFlexSetupFormState extends State<SecondFlexSetupForm> with Automati
             } else {
               _viewModel.setContributionWeekDay(item);
             }
-          }
+          },
+              fillColor: Color(0XFFA5C097).withOpacity(0.15),
+              iconColor: Colors.solidGreen
           );
         },
       );
@@ -108,6 +127,7 @@ class _SecondFlexSetupFormState extends State<SecondFlexSetupForm> with Automati
             children: [
               Expanded(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
                       child: Text(
@@ -116,35 +136,53 @@ class _SecondFlexSetupFormState extends State<SecondFlexSetupForm> with Automati
                       ),
                     ),
                     SizedBox(height: 12),
-                    SelectionCombo<FlexSaveType>(
-                      savingsTypes.toList(), (item, index) {
-                        _viewModel.setFlexSaveType(item);
-                      },
-                      checkBoxPosition: CheckBoxPosition.leading,
-                      shouldUseAlternateDecoration: true,
-                      primaryColor: Colors.solidGreen,
-                      backgroundColor: savingsGreen.withOpacity(0.15),
-                      horizontalPadding: 11 ,
+                    StreamBuilder(
+                      stream: _viewModel.savingTypeStream,
+                        builder: (ctx, snapShot) {
+                          return SelectionCombo<FlexSaveType>(
+                            _getSavingsTypes(), (item, index) {
+                            _viewModel.setFlexSaveType(item);
+                          },
+                            checkBoxPosition: CheckBoxPosition.leading,
+                            shouldUseAlternateDecoration: true,
+                            primaryColor: Colors.solidGreen,
+                            backgroundColor: savingsGreen.withOpacity(0.15),
+                            horizontalPadding: 11,
+                          );
+                        }
                     ),
                     SizedBox(height: 34),
                     StreamBuilder(
                         stream: _viewModel.savingModeStream,
                         builder: (ctx, AsyncSnapshot<FlexSaveMode> a) {
-                          final title = (_viewModel.savingMode == FlexSaveMode.MONTHLY)
-                              ? "What day of the month do you want to contribute?"
-                              : "What day of the week do you want to contribute?";
-                          return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  child: Text(
-                                    title,
-                                    style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
-                                  ),
-                                ),
-                                SizedBox(height: 12),
-                                _getDropDown()
-                              ]
+                          return StreamBuilder(
+                            stream: _viewModel.savingTypeStream,
+                            builder: (cc, AsyncSnapshot<FlexSaveType> a){
+
+                              final autoTitle = (_viewModel.savingMode == FlexSaveMode.MONTHLY)
+                                  ? "What day of the month do you want to contribute?"
+                                  : "What day of the week do you want to contribute?";
+
+                              final manualTitle = (_viewModel.savingMode == FlexSaveMode.MONTHLY)
+                                  ? "Remind me to contribute on this day of the month"
+                                  : "Remind me to contribute on this day of the week";
+
+                              final isAuto = (_viewModel.savingType == FlexSaveType.AUTOMATIC);
+
+                              return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      child: Text(
+                                        (isAuto) ? autoTitle : manualTitle,
+                                        style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
+                                      ),
+                                    ),
+                                    SizedBox(height: 12),
+                                    _getDropDown()
+                                  ]
+                              );
+                            },
                           );
                         }
                     ),
@@ -183,7 +221,7 @@ class _SecondFlexSetupFormState extends State<SecondFlexSetupForm> with Automati
                   ),
                 ],
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 32),
             ],
           )
       ),

@@ -62,12 +62,14 @@ import 'package:moniepoint_flutter/app/onboarding/views/signup_account_view.dart
 import 'package:moniepoint_flutter/app/savings/model/data/savings_product.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/flex_savings_dashboard_view_model.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/flex_savings_list_view_model.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/flex_setup_viewmodel.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/savings_flex_enable_viewmodel.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/savings_flex_topup_viewmodel.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/savings_flex_withdrawal_viewmodel.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_enable_flex_view.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_flex_account_dashboard.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_flex_list_view.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_flex_settings.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_flex_setup_view.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_flex_topup_view.dart';
@@ -139,6 +141,8 @@ class Routes {
   static const SAVINGS_FLEX_TOP_UP = "SAVINGS_FLEX_TOP_UP";
   static const SAVINGS_FLEX_SETUP = "SAVINGS_FLEX_SETUP";
   static const SAVINGS_FLEX_ENABLE = "SAVINGS_FLEX_ENABLE";
+  static const FLEX_SAVINGS = "FLEX_SAVINGS";
+
 
   static const LOAN_OFFERS = "LOAN_OFFERS";
   static const LOAN_ADVERT_DETAILS = "LOAN_ADVERT_DETAILS";
@@ -215,7 +219,7 @@ class Routes {
         child: UserDeviceListView(),
       ),
 
-      // Routes.SAVINGS_FLEX_HOME: (BuildContext context) => FlexSavingsAccountDashboardView(),
+
       Routes.SAVINGS_FLEX_SETTINGS: (BuildContext context) => SavingsFlexSettingsView(),
       Routes.LOAN_APPLICATION: (BuildContext context) => ChangeNotifierProvider(
         create: (_) => LoanRequestViewModel(),
@@ -377,6 +381,15 @@ class Routes {
                   child:
                       LoanRepaymentConfirmationView(confirmation: confirmation),
                 ));
+      case Routes.FLEX_SAVINGS:
+        final args = settings.arguments as Map<dynamic, dynamic>;
+        final product = args["product"] as SavingsProduct;
+        return MaterialPageRoute(
+            settings: RouteSettings(name: Routes.FLEX_SAVINGS),
+            builder: (BuildContext context) => ChangeNotifierProvider(
+              create: (_) => FlexSavingsListViewModel(),
+              child: SavingsFlexListView(savingProduct: product),
+            ));
       case Routes.SAVINGS_FLEX_ENABLE:
         final args = settings.arguments as Map<dynamic, dynamic>;
         final product = args["product"] as SavingsProduct;
@@ -416,6 +429,7 @@ class Routes {
         final args = settings.arguments as Map<dynamic, dynamic>;
         final id = args["flexSavingId"] as int?;
         return MaterialPageRoute(
+            settings: RouteSettings(name: Routes.SAVINGS_FLEX_DASHBOARD),
             builder: (BuildContext context) => ChangeNotifierProvider(
               create: (_) => FlexSavingsDashboardViewModel(),
               child: FlexSavingsAccountDashboardView(

@@ -44,7 +44,6 @@ class _SavingsProductItemState extends State<SavingsProductItemView> {
 
   @override
   void initState() {
-    print("Rebuilding Each Item");
     itemSource = widget._viewModel.getRunningFlexSavings();
     super.initState();
   }
@@ -286,7 +285,9 @@ class SavingsProductItemActiveView extends StatelessWidget {
                           EdgeInsets.only(right: 16, left: 16, top: 10, bottom: 10)
                       )
                   ),
-                  onPressed: () => Navigator.of(context).pushNamed(SavingsDashboardView.FLEX_SAVINGS),
+                  onPressed: () => navigatorKey.currentState?.pushNamed(
+                      Routes.FLEX_SAVINGS, arguments: {"product" : product}
+                      ),
                   child: Text(
                     "View",
                     style: TextStyle(
@@ -343,7 +344,7 @@ class _SavingsProductShimmer extends StatelessWidget {
             SizedBox(height: 8),
             Shimmer.fromColors(
                 child: Container(
-                  padding: EdgeInsets.only(left: 16, right: 16, top: 12, bottom: 12),
+                  padding: EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
                   decoration: BoxDecoration(
                     color: Color(0XFFE3E8EB).withOpacity(0.5),
                   ),
@@ -354,7 +355,7 @@ class _SavingsProductShimmer extends StatelessWidget {
             SizedBox(height: 3),
             Shimmer.fromColors(
                 child: Container(
-                  padding: EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
+                  padding: EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
                   decoration: BoxDecoration(
                     color: Colors.dividerColor2.withOpacity(0.5),
                   ),
@@ -365,7 +366,7 @@ class _SavingsProductShimmer extends StatelessWidget {
             SizedBox(height: 0.5),
             Shimmer.fromColors(
                 child: Container(
-                  padding: EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
+                  padding: EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
                   decoration: BoxDecoration(
                     color: Colors.dividerColor2.withOpacity(0.5),
                   ),
@@ -378,7 +379,7 @@ class _SavingsProductShimmer extends StatelessWidget {
             SizedBox(height: 8),
             Shimmer.fromColors(
                 child: Container(
-                  padding: EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
+                  padding: EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
                   decoration: BoxDecoration(
                     color: Colors.dividerColor2.withOpacity(0.5),
                   ),
@@ -389,7 +390,7 @@ class _SavingsProductShimmer extends StatelessWidget {
             SizedBox(height: 14),
             Shimmer.fromColors(
                 child: Container(
-                  padding: EdgeInsets.only(left: 16, right: 16, top: 10, bottom: 10),
+                  padding: EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
                   decoration: BoxDecoration(
                     color: Colors.dividerColor2.withOpacity(0.5),
                   ),

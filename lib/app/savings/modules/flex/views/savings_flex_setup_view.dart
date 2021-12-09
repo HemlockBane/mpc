@@ -1,11 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/forms/account_update_form_view.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving_config.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/flex_setup_viewmodel.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
+import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/views/pie_progress_bar.dart';
+import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:provider/provider.dart';
 
 import 'forms/first_flex_setup_form.dart';
@@ -38,6 +43,9 @@ class _SavingsFlexSetupViewState extends State<SavingsFlexSetupView> with Compos
   final _pageController = PageController();
   final pageChangeDuration = const Duration(milliseconds: 250);
   final pageCurve = Curves.linear;
+
+  late Stream<Resource<FlexSavingConfig>> _flexConfigStream;
+  final Completer _progressBarCompleter = Completer();
 
   List<PagedForm> _pages = [];
 
@@ -88,13 +96,14 @@ class _SavingsFlexSetupViewState extends State<SavingsFlexSetupView> with Compos
   void initState() {
     _viewModel = Provider.of<FlexSetupViewModel>(context, listen: false);
     _viewModel.setFlexSaving(widget.flexSaving);
+    _flexConfigStream = _viewModel.getFlexSavingConfig();
     _registerPageChange();
     super.initState();
   }
 
   Widget _progressBar() {
     return FutureBuilder(
-        future: Future.delayed(Duration(milliseconds: 60), () => "done"),
+        future: _progressBarCompleter.future,
         builder: (context, snapshot) {
           if(snapshot.connectionState != ConnectionState.done) return SizedBox();
           return Padding(
@@ -117,41 +126,73 @@ class _SavingsFlexSetupViewState extends State<SavingsFlexSetupView> with Compos
       onWillPop: _onBackPressed,
       child: MultiProvider(
         providers: [ChangeNotifierProvider.value(value: _viewModel)],
-        child: Scaffold(
-          backgroundColor: Color(0xffF8F8F8),
-          appBar: AppBar(
-            centerTitle: false,
-            titleSpacing: 0,
-            iconTheme: IconThemeData(color: Colors.solidGreen),
-            title: Text(
-                'General Savings',
-                textAlign: TextAlign.start,
-                style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.textColorBlack
-                )
+        child: SessionedWidget(
+          context: context,
+          child: Scaffold(
+            backgroundColor: Colors.white,
+            appBar: AppBar(
+              centerTitle: false,
+              titleSpacing: 0,
+              iconTheme: IconThemeData(color: Colors.solidGreen),
+              title: Text(
+                  'General Savings',
+                  textAlign: TextAlign.start,
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.textColorBlack
+                  )
+              ),
+              backgroundColor: Color(0XFFF5F5F5).withOpacity(0.7),
+              elevation: 0,
+              toolbarHeight: 70,
+              actions: [_progressBar()],
             ),
-            backgroundColor: Color(0xffF8F8F8),
-            elevation: 0,
-            toolbarHeight: 70,
-            actions: [_progressBar()],
-          ),
-          body: Container(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 30),
-                SvgPicture.asset("res/drawables/ic_savings_flex_alt.svg", height: 57, width: 57,),
-                SizedBox(height: 25),
-                Text(
-                  "Setup Flex",
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
-                ),
-                SizedBox(height: 14),
-                Expanded(child: setupPageView())
-              ],
+            body: StreamBuilder(
+              stream: _flexConfigStream,
+              builder: (ctx, AsyncSnapshot<Resource<FlexSavingConfig>> snap) {
+                if(snap.data is Loading) return Container(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Center(
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation(Colors.darkBlue),
+                        ),
+                      )
+                    ],
+                  ),
+                );
+
+                final duration = (_viewModel.flexSaving?.configCreated == true)
+                    ? Duration(seconds: 1)
+                    : Duration(milliseconds: 100);
+
+                Future.delayed(duration, () {
+                  if(!_progressBarCompleter.isCompleted) {
+                    _progressBarCompleter.complete(null);
+                  }
+                });
+                return Container(
+                  color: Color(0XFFF5F5F5).withOpacity(0.7),
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 30),
+                      SvgPicture.asset("res/drawables/ic_savings_flex_alt.svg", height: 57, width: 57,),
+                      SizedBox(height: 25),
+                      Text(
+                        "Setup Flex",
+                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+                      ),
+                      SizedBox(height: 14),
+                      Expanded(child: setupPageView())
+                    ],
+                  ),
+                );
+              },
             ),
           ),
         ),

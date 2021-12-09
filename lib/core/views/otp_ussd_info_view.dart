@@ -58,7 +58,7 @@ class OtpUssdInfoView extends StatelessWidget{
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SvgPicture.asset('res/drawables/ic_info.svg'),
+          SvgPicture.asset('res/drawables/ic_info.svg', color: Colors.primaryColor,),
           SizedBox(width: 14),
           //TODO remove text "didn't get code..." - we left it here for compatibility
           Expanded(child: Text(message?.replaceAll("{}", "${codes.second}") ?? 'Didn’t get a code? Dial ${codes.second} to get an OTP',

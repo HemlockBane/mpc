@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:flutter/services.dart';
+import 'package:mixpanel_flutter/mixpanel_flutter.dart';
 import 'package:moniepoint_flutter/app/liveliness/model/data/liveliness_verification_for.dart';
 import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
 import 'package:moniepoint_flutter/app/validation/model/data/onboarding_liveliness_validation_response.dart';
+import 'package:moniepoint_flutter/core/mix_panel_analytics.dart';
 import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
@@ -28,6 +30,8 @@ class EnterBVNScreen extends StatefulWidget {
 }
 
 class _EnterBVNScreen extends State<EnterBVNScreen> {
+  late final Mixpanel _mixPanel;
+  late final OnBoardingViewModel _viewModel;
   late final GlobalKey<ScaffoldState> _scaffoldKey;
   late final TextEditingController _bvnController;
   static const BVN_LENGTH = 11;
@@ -36,24 +40,38 @@ class _EnterBVNScreen extends State<EnterBVNScreen> {
 
   @override
   void initState() {
+    _viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
     _bvnController = TextEditingController();
     super.initState();
+    initMixPanel();
+  }
+
+  void initMixPanel() async {
+    _mixPanel = await MixpanelManager.initAsync();
   }
 
   void _subscribeUiToLivelinessTest(BuildContext context) async {
-    final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
+    _mixPanel.track("Onboarding-BVN-Entered", properties: {
+      "bvn": _viewModel.accountForm.account.bvn
+    });
 
     final validationResponse = await Navigator.of(widget._scaffoldKey.currentContext ?? context)
        .pushNamed(Routes.LIVELINESS_DETECTION, arguments: {
          "verificationFor": LivelinessVerificationFor.ON_BOARDING,
-          "bvn" : viewModel.accountForm.account.bvn,
-          "phoneNumberValidationKey": viewModel.phoneNumberValidationKey
+          "bvn" : _viewModel.accountForm.account.bvn,
+          "phoneNumberValidationKey": _viewModel.phoneNumberValidationKey
        });
 
     if(validationResponse != null && validationResponse is OnboardingLivelinessValidationResponse) {
 
       if(validationResponse.phoneMismatchError != null) {
         _showGenericError("Phone Number Mismatched!", validationResponse.phoneMismatchError?.message);
+
+        _mixPanel.track("Onboarding-BVN-Verification-Failed", properties: {
+          "bvn": _viewModel.accountForm.account.bvn,
+          "message": validationResponse.phoneMismatchError?.message
+        });
+
         return;
       }
 
@@ -62,6 +80,10 @@ class _EnterBVNScreen extends State<EnterBVNScreen> {
             "Phone Number already in use",
             validationResponse.phoneNumberUniquenessError?.message
         );
+        _mixPanel.track("Onboarding-BVN-Verification-Failed", properties: {
+          "bvn": _viewModel.accountForm.account.bvn,
+          "message": validationResponse.phoneNumberUniquenessError?.message
+        });
         return;
       }
 
@@ -73,25 +95,36 @@ class _EnterBVNScreen extends State<EnterBVNScreen> {
       //If everything is successful then we need to decide our next route
       final profileSetupType = validationResponse.setupType;
 
-      viewModel.setOnboardingKey(validationResponse.onboardingKey ?? "");
+      _viewModel.setOnboardingKey(validationResponse.onboardingKey ?? "");
 
       if(profileSetupType != null) {
-        viewModel.setProfileSetupType(profileSetupType);
+        _viewModel.setProfileSetupType(profileSetupType);
       }
 
       if(profileSetupType?.type == OnBoardingType.ACCOUNT_DOES_NOT_EXIST) {
         //We navigate to account info
         Navigator.of(context).pushNamed(SignUpAccountScreen.ACCOUNT_INFO);
+        _mixPanel.track("Onboarding-BVN-Verified", properties: {"bvn": _viewModel.accountForm.account.bvn,});
       } else if(profileSetupType?.type == OnBoardingType.ACCOUNT_EXIST) {
         //We navigate to profile info
+        _mixPanel.track("Onboarding-BVN-Verified", properties: {"bvn": _viewModel.accountForm.account.bvn,});
         Navigator.of(context).pushNamed(SignUpAccountScreen.PROFILE);
       } else {
+        _mixPanel.track("Onboarding-BVN-Verification-Failed", properties: {
+          "bvn": _viewModel.accountForm.account.bvn,
+          "message": "Failed to determine account setup type"
+        });
         _showGenericError("Invalid Account Setup Type","Failed to determine account setup type");
       }
     }
   }
 
   void _showProfileExist() {
+    _mixPanel.track("Onboarding-BVN-Verification-Failed", properties: {
+      "bvn": _viewModel.accountForm.account.bvn,
+      "message": "The phone number and bvn supplied already has a profile"
+    });
+
     showModalBottomSheet(
         backgroundColor: Colors.transparent,
         context: widget._scaffoldKey.currentContext ?? context,

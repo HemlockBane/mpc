@@ -11,6 +11,7 @@ import 'package:moniepoint_flutter/app/onboarding/model/data/account_profile_res
 import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/dialogs/account_created_dialog.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/mix_panel_analytics.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/extensions/strings.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
@@ -42,6 +43,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> with Validators{
+  late final OnBoardingViewModel _viewModel;
 
   late final GlobalKey<ScaffoldState> _scaffoldKey;
   bool _isPasswordVisible  = false;
@@ -98,6 +100,14 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
       setState(() => viewModel.setIsOnboarding(false));
       final accountProfile = resource.data as AccountProfile;
 
+      final mixPanel = await MixpanelManager.initAsync();
+      mixPanel.track("OnBoarding-Profile-Created", properties: {
+        "bvn": _viewModel.accountForm.account.bvn,
+        "accountNumber": accountProfile.accountNumber,
+        "username": viewModel.profileForm.profile.username,
+        "deviceId": viewModel.profileForm.profile.deviceId
+      });
+
       showModalBottomSheet(
           isDismissible: false,
           backgroundColor: Colors.transparent,
@@ -153,18 +163,18 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
 
   @override
   void initState() {
-    final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
+    _viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
     super.initState();
-    viewModel.profileForm.initForm();
+    _viewModel.profileForm.initForm();
     _signatureController.addListener(() {
       setState(() {});
-      viewModel.profileForm.setHasSignature(_signatureController.isNotEmpty);
+      _viewModel.profileForm.setHasSignature(_signatureController.isNotEmpty);
     });
 
     //TODO Use a PostFrameCallback instead of adding our own delay
     Future.delayed(Duration(milliseconds: 500), () {
-      viewModel.profileForm.setHasSignature(false);
-      viewModel.profileForm.onEnableUssd(true);
+      _viewModel.profileForm.setHasSignature(false);
+      _viewModel.profileForm.onEnableUssd(true);
     });
   }
 

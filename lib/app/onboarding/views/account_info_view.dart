@@ -3,6 +3,7 @@ import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
 import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/signup_account_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/mix_panel_analytics.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/views/custom_check_box.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
@@ -20,17 +21,23 @@ class AccountInfoScreen extends StatefulWidget {
 }
 
 class _AccountInfoScreenState extends State<AccountInfoScreen> {
+  late final OnBoardingViewModel _viewModel;
   late final GlobalKey<ScaffoldState> _scaffoldKey;
   bool _isLoading = false;
 
   _AccountInfoScreenState(this._scaffoldKey);
 
-  void subscribeUiToOnBoard() {
+  void subscribeUiToOnBoard() async {
+    final mixPanel = await MixpanelManager.initAsync();
+    mixPanel.track("Onboarding-Account-Info-Completed", properties: {
+      "bvn": _viewModel.accountForm.account.bvn
+    });
     Navigator.of(context).pushNamed(SignUpAccountScreen.PROFILE);
   }
 
   @override
   void initState() {
+    _viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
     super.initState();
     //TODO check if nationalities has been fetched if not re-fetch
   }

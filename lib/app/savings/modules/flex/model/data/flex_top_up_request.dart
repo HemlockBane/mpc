@@ -7,13 +7,13 @@ class FlexTopUpRequest {
 
   FlexTopUpRequest({
     this.amount,
-    this.sourceAccount,
-    this.destinationAccount,
+    this.flexSavingAccountId,
+    this.customerAccountId,
   });
 
-  int? amount;
-  String? sourceAccount;
-  String? destinationAccount;
+  double? amount;
+  int? flexSavingAccountId;
+  int? customerAccountId;
 
   factory FlexTopUpRequest.fromJson(Map<String, dynamic> json) => _$FlexTopUpRequestFromJson(json);
 

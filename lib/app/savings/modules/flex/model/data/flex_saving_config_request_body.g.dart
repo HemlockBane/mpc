@@ -15,7 +15,7 @@ FlexSavingConfigRequestBody _$FlexSavingConfigRequestBodyFromJson(
         _$enumDecodeNullable(_$FlexSaveModeEnumMap, json['flexSaveMode']),
     contributionWeekDay: json['contributionWeekDay'] as String?,
     contributionMonthDay: json['contributionMonthDay'] as int?,
-    contributionAmount: json['contributionAmount'] as int?,
+    contributionAmount: (json['contributionAmount'] as num?)?.toDouble(),
     customerAccountId: json['customerAccountId'] as int?,
     customerId: json['customerId'] as int?,
     customerFlexSavingId: json['customerFlexSavingId'] as int?,

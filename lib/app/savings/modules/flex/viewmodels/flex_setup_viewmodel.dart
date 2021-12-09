@@ -12,6 +12,7 @@ import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 
 import 'savings_view_model.dart';
+import 'package:collection/collection.dart';
 
 class FlexSetupViewModel extends BaseViewModel with SavingsViewModel{
 
@@ -76,14 +77,18 @@ class FlexSetupViewModel extends BaseViewModel with SavingsViewModel{
   String? get flexSavingName => _flexSavingName;
 
   FlexSaveType? _savingType;
+  FlexSaveType? get savingType => _savingType ?? FlexSaveType.AUTOMATIC;
+
   FlexSaveMode? _savingMode;
   FlexSaveMode? get savingMode => _savingMode ?? FlexSaveMode.MONTHLY;
+
   int? _contributionMonthDay;
   String? _contributionWeekDay;
 
-  // num? _flexSavingId;
   FlexSaving? _flexSaving;
   FlexSaving? get flexSaving => _flexSaving;
+
+  FlexSavingConfig? _flexSavingConfig;
 
   bool? _isLoading;
   bool get isLoading => _isLoading ?? false;
@@ -123,6 +128,19 @@ class FlexSetupViewModel extends BaseViewModel with SavingsViewModel{
     _flexSaving = flexSaving;
   }
 
+  void setForm2Default() {
+    if(_currentPage == 1 && _flexSavingConfig != null) {
+      setFlexSaveType(_flexSavingConfig?.flexSaveType);
+      if(_flexSavingConfig?.flexSaveMode == FlexSaveMode.WEEKLY) {
+        final weekDay = weekDays.firstWhereOrNull((element) => element.value == _flexSavingConfig?.contributionWeekDay);
+        setContributionWeekDay(weekDay);
+      } else if(_flexSavingConfig?.flexSaveMode == FlexSaveMode.MONTHLY) {
+        final monthDay = monthDays.firstWhereOrNull((element) => int.tryParse(element.value) == _flexSavingConfig?.contributionMonthDay);
+        setContributionMonthDay(monthDay);
+      }
+    }
+  }
+
   @override
   void setAmount(double amount) {
     super.setAmount(amount);
@@ -145,7 +163,8 @@ class FlexSetupViewModel extends BaseViewModel with SavingsViewModel{
     _savingMode = savingMode;
     _contributionMonthDay = null;
     _contributionWeekDay = null;
-    _savingModeController.sink.add(savingMode ?? FlexSaveMode.MONTHLY);
+    print("Setting Saving Mode ===> $savingMode");
+    if(savingMode != null) _savingModeController.sink.add(savingMode);
     checkValidity();
   }
 
@@ -189,11 +208,30 @@ class FlexSetupViewModel extends BaseViewModel with SavingsViewModel{
         contributionMonthDay: _contributionMonthDay,
         customerAccountId: customerAccountId,
         customerId: customerId,
-        contributionAmount: ((amount ?? 0.0) * 100).toInt(),
+        contributionAmount: amount,
         customerFlexSavingId: _flexSaving?.id,
         name: _flexSavingName
     );
-    return this._flexConfigServiceDelegate.createFlexConfig(request);
+    return (flexSaving?.configCreated == true)
+     ? this._flexConfigServiceDelegate.updateFlexConfig(flexSaving!.flexSavingConfigId!, request)
+     : this._flexConfigServiceDelegate.createFlexConfig(request);
+  }
+
+  Stream<Resource<FlexSavingConfig>> getFlexSavingConfig  () {
+    if(flexSaving == null || flexSaving?.configCreated == false) {
+      return Stream.value(Resource.success(null));
+    }
+    return this._flexConfigServiceDelegate.getFlexSavingConfig(flexSaving!.flexSavingConfigId!).map((event) {
+      if(event is Success && event.data != null) {
+        _savingMode = event.data?.flexSaveMode;
+        setFlexSavingName(event.data?.name);
+        final amount = event.data?.contributionAmount;
+        if(amount != null) setAmount(amount);
+        _flexSavingConfig = event.data;
+        setFlexSaveType(_flexSavingConfig?.flexSaveType);
+      }
+      return event;
+    });
   }
 
   @override

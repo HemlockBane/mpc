@@ -5,6 +5,7 @@ import 'package:moniepoint_flutter/app/airtime/views/selection_combo.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving_config.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/flex_setup_viewmodel.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/extensions/strings.dart';
 import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
 import 'package:moniepoint_flutter/core/models/list_item.dart';
 import 'package:collection/collection.dart';
@@ -31,9 +32,9 @@ class _FirstFlexSetupFormState extends State<FirstFlexSetupForm> with AutomaticK
   final List<ListDataItem<String>> amountPills = List.generate(4, (index) => ListDataItem((5000 * (index + 1)).formatCurrencyWithoutLeadingZero));
   final TextEditingController _flexSavingNameController = TextEditingController();
 
-  final savingModes = FlexSaveMode.values.map((e) {
+  final _savingModes = FlexSaveMode.values.map((e) {
     final title = describeEnum(e);
-    return ComboItem(e, title, isSelected: e == FlexSaveMode.MONTHLY);
+    return ComboItem(e, title.toLowerCase().capitalizeFirstOfEach);
   });
 
   List<Widget> generateAmountPillsWidget() {
@@ -108,20 +109,43 @@ class _FirstFlexSetupFormState extends State<FirstFlexSetupForm> with AutomaticK
             ),
           ),
           SizedBox(height: 12),
-          SelectionCombo<FlexSaveMode>(
-            savingModes.toList(), (item, index) {
-              _viewModel.setSavingMode(item);
+          StreamBuilder(
+            stream: _viewModel.savingModeStream,
+            builder: (ctx, snapshot) {
+              final modes = FlexSaveMode.values.map((e) {
+                final isSelected = (_viewModel.flexSaving?.configCreated == true)
+                    ? e == _viewModel.savingMode
+                    : e == FlexSaveMode.MONTHLY;
+
+                final title = describeEnum(e);
+                print("Round Mode <<===>> $title");
+                print("Round Mode <<===>> $isSelected");
+                return ComboItem<FlexSaveMode>(
+                    e,
+                    title.toLowerCase().capitalizeFirstOfEach,
+                  isSelected: isSelected
+                );
+              }).toList();
+              return SelectionCombo<FlexSaveMode>(
+                modes, (item, index) => _viewModel.setSavingMode(item),
+                checkBoxPosition: CheckBoxPosition.leading,
+                shouldUseAlternateDecoration: true,
+                primaryColor: Colors.solidGreen,
+                backgroundColor: savingsGreen.withOpacity(0.15),
+                horizontalPadding: 11 ,
+              );
             },
-            checkBoxPosition: CheckBoxPosition.leading,
-            shouldUseAlternateDecoration: true,
-            primaryColor: Colors.solidGreen,
-            backgroundColor: savingsGreen.withOpacity(0.15),
-            horizontalPadding: 11 ,
           ),
           SizedBox(height: 32),
-          Text(
-            "How much would you like to save?",
-            style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
+          StreamBuilder(
+            stream: _viewModel.savingModeStream,
+            builder: (ctx, AsyncSnapshot<FlexSaveMode?> snapShot) {
+              final appendString = (_viewModel.savingMode == FlexSaveMode.WEEKLY) ? " per week" :" per month";
+              return Text(
+                "How much would you like to save$appendString?",
+                style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
+              );
+            },
           ),
           SizedBox(height: 13),
           Container(
@@ -175,7 +199,7 @@ class _FirstFlexSetupFormState extends State<FirstFlexSetupForm> with AutomaticK
               onClick: () => _viewModel.moveToNext(widget.position),
               text: 'Next'
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 32),
         ],
       ),
     );

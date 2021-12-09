@@ -8,15 +8,15 @@ part of 'flex_top_up_request.dart';
 
 FlexTopUpRequest _$FlexTopUpRequestFromJson(Map<String, dynamic> json) {
   return FlexTopUpRequest(
-    amount: json['amount'] as int?,
-    sourceAccount: json['sourceAccount'] as String?,
-    destinationAccount: json['destinationAccount'] as String?,
+    amount: (json['amount'] as num?)?.toDouble(),
+    flexSavingAccountId: json['flexSavingAccountId'] as int?,
+    customerAccountId: json['customerAccountId'] as int?,
   );
 }
 
 Map<String, dynamic> _$FlexTopUpRequestToJson(FlexTopUpRequest instance) =>
     <String, dynamic>{
       'amount': instance.amount,
-      'sourceAccount': instance.sourceAccount,
-      'destinationAccount': instance.destinationAccount,
+      'flexSavingAccountId': instance.flexSavingAccountId,
+      'customerAccountId': instance.customerAccountId,
     };

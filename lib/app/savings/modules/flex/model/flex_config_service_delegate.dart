@@ -21,4 +21,22 @@ class FlexConfigServiceDelegate with NetworkResource {
     );
   }
 
+  Stream<Resource<FlexSavingConfig>> updateFlexConfig(
+      int flexSavingConfigId,
+      FlexSavingConfigRequestBody request
+      ) {
+    return networkBoundResource(
+        fetchFromLocal: () => Stream.value(null),
+        fetchFromRemote: () => this._service.updateCustomerFlexConfig(flexSavingConfigId, request)
+    );
+  }
+
+  Stream<Resource<FlexSavingConfig>> getFlexSavingConfig(int flexSavingConfigId) {
+    return networkBoundResource(
+        fetchFromLocal: () => Stream.value(null),
+        fetchFromRemote: () => this._service.getFlexSavingConfig(flexSavingConfigId)
+    );
+  }
+
+
 }

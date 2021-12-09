@@ -9,6 +9,7 @@ part of 'flex_saving_config.dart';
 FlexSavingConfig _$FlexSavingConfigFromJson(Map<String, dynamic> json) {
   return FlexSavingConfig(
     id: json['flexSavingConfigId'] as int,
+    name: json['name'] as String?,
     createdOn: stringDateTime(json['createdOn'] as String?),
     version: json['version'] as int?,
     flexSaveType:
@@ -18,7 +19,7 @@ FlexSavingConfig _$FlexSavingConfigFromJson(Map<String, dynamic> json) {
     contributionWeekDay: json['contributionWeekDay'] as String?,
     contributionMonthDay: json['contributionMonthDay'] as int?,
     duration: json['duration'] as int?,
-    contributionAmount: json['contributionAmount'] as int?,
+    contributionAmount: (json['contributionAmount'] as num?)?.toDouble(),
     contributionAccount: json['contributionAccount'] == null
         ? null
         : CustomerAccount.fromJson(json['contributionAccount'] as Object),
@@ -32,6 +33,7 @@ FlexSavingConfig _$FlexSavingConfigFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$FlexSavingConfigToJson(FlexSavingConfig instance) =>
     <String, dynamic>{
       'flexSavingConfigId': instance.id,
+      'name': instance.name,
       'createdOn': millisToString(instance.createdOn),
       'version': instance.version,
       'flexSaveType': _$FlexSaveTypeEnumMap[instance.flexSaveType],

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:moniepoint_flutter/app/billpayments/views/biller_logo.dart';
 import 'package:moniepoint_flutter/app/savings/model/data/savings_product.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/savings_flex_enable_viewmodel.dart';
@@ -11,14 +12,12 @@ import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
+import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:provider/provider.dart';
 
 const lightGreen = Color(0xffD1E7D3);
 const double toolBarMarginTop = 37;
 const double maxDraggableTop = toolBarMarginTop * 5 + 26;
-const String loremIpsum =
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit,"
-    " sed do eiusmod tempor incididunt ut labore et dolore magna aliqua";
 
 class SavingsEnableFlexView extends StatefulWidget {
 
@@ -136,6 +135,7 @@ class SavingsEnableFlexState extends State<SavingsEnableFlexView> {
               ),
             ),
             child: ListView(
+              padding: EdgeInsets.zero,
               controller: draggableScrollController,
               children: [
                 Text(
@@ -164,93 +164,71 @@ class SavingsEnableFlexState extends State<SavingsEnableFlexView> {
                     text: 'Enable Flex Savings',
                     loadingColor: Colors.savingsPrimary.withOpacity(0.5)
                 ),
-                SizedBox(height: 31.5),
-                GestureDetector(
-                  onTap: (){},
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 20.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Text(
-                          "Learn More about Flex Savings",
-                          style: getBoldStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: null,
-                          icon: Icon(
-                            Icons.chevron_right,
-                            color: Colors.textColorBlack,
-                            size: 35,
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20)
+                SizedBox(height: 32),
               ],
             ),
           );
         });
   }
 
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: lightGreen,
-      body: Stack(
-        children: [
-          Positioned(
-            top: toolBarMarginTop,
-            left: 0,
-            right: 0,
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  Styles.imageButton(
-                    padding: EdgeInsets.all(9),
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(30),
-                    onClick: () => Navigator.of(context).pop(),
-                    image: SvgPicture.asset(
-                      'res/drawables/ic_back_arrow.svg',
-                      fit: BoxFit.contain,
-                      width: 19.5,
-                      height: 19.02,
-                      color: Colors.textColorBlack,
+    return SessionedWidget(
+      context: context,
+      child: Scaffold(
+        backgroundColor: lightGreen,
+        body: Stack(
+          children: [
+            Positioned(
+              top: toolBarMarginTop,
+              left: 0,
+              right: 0,
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Styles.imageButton(
+                      padding: EdgeInsets.all(9),
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(30),
+                      onClick: () => Navigator.of(context).pop(),
+                      image: SvgPicture.asset(
+                        'res/drawables/ic_back_arrow.svg',
+                        fit: BoxFit.contain,
+                        width: 19.5,
+                        height: 19.02,
+                        color: Colors.textColorBlack,
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 10),
-                  Text(
-                    "Savings",
-                    style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.textColorBlack),
-                  )
-                ],
+                    SizedBox(width: 10),
+                    Text(
+                      "Savings",
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.textColorBlack),
+                    )
+                  ],
+                ),
               ),
             ),
-          ),
-          Positioned(
-            top: 33,
-            right: 0,
-            child: Image.asset('res/drawables/savings_flex_bg.png'),
-          ),
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: _content(context),
-          )
-        ],
+            Positioned(
+              top: 33,
+              right: 0,
+              child: UUIDImage(
+                fileUUID: widget.product.headerImage,
+                fileStreamFn: (uuid) => viewModel.getFile(uuid),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: _content(context),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -424,7 +402,8 @@ class FlexEnabledSuccessContent extends StatelessWidget {
       padding: EdgeInsets.only(top: 19, bottom: 22, left: 21, right: 21),
       decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.19),
-          borderRadius: BorderRadius.all(Radius.circular(8.0))),
+          borderRadius: BorderRadius.all(Radius.circular(8.0))
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -436,26 +415,36 @@ class FlexEnabledSuccessContent extends StatelessWidget {
           SizedBox(height: 3),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
                 accountNumber,
                 style: TextStyle(
                     fontSize: 24,
                     color: Colors.white,
-                    fontWeight: FontWeight.w700),
+                    fontWeight: FontWeight.w700
+                ),
               ),
               TextButton.icon(
                   onPressed: () => Clipboard.setData(ClipboardData(text: accountNumber)),
                   icon: SvgPicture.asset(
                     'res/drawables/ic_copy_full.svg',
                     color: Colors.white,
+                    width: 20,
+                    height: 20,
+                  ),
+                  style: ButtonStyle(
+                    padding: MaterialStateProperty.all(EdgeInsets.zero),
+                    minimumSize: MaterialStateProperty.all(Size(40, 0)),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                   label: Text(
                     'Copy',
                     style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w500,
-                        fontSize: 15),
+                        fontSize: 15
+                    ),
                   ))
             ],
           )

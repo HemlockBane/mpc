@@ -28,9 +28,9 @@ class SelectionCombo<T> extends StatefulWidget {
     this.shouldUseAlternateDecoration = false,
     this.checkBoxPosition = CheckBoxPosition.trailing,
     this.horizontalPadding,
-    this.isColonSeparated = false
-
-  });
+    this.isColonSeparated = false,
+    Key? key
+  }):super(key: key);
 
   @override
   State<StatefulWidget> createState() => _SelectionCombo<T>();
@@ -277,15 +277,18 @@ class _SelectionCombo<T> extends State<SelectionCombo<T>> {
   }
 
 
-
-  initState() {
-    this.copiedList = List.from(widget.comboItems);
-    super.initState();
+  void _setDefaultSelected() {
     final defaultItem = this.copiedList.where((element) => element.isSelected).firstOrNull;
     if (defaultItem != null) {
       defaultItem.isSelected = false;
       _itemSelected(defaultItem, 0);
     }
+  }
+
+  initState() {
+    this.copiedList = List.from(widget.comboItems);
+    super.initState();
+    _setDefaultSelected();
   }
 
   @override

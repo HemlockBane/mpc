@@ -61,7 +61,8 @@ class _GrowthNotificationDataBusImpl extends Interceptor implements GrowthNotifi
 
     if(response.realUri.pathSegments.contains("login")) {
       final ServiceResult<User> data = ServiceResult.fromJson(responseData, (json) => User.fromJson(json));
-      Future.delayed(Duration(seconds: 2), (){
+      //TODO refactor, remove hard coded delay
+      Future.delayed(Duration(milliseconds: 400), (){
         _handleGrowthNotifications(data.growthNotifications);
       });
       return super.onResponse(response, handler);

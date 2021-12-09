@@ -5,7 +5,9 @@ import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart'
 import 'package:moniepoint_flutter/app/savings/model/data/savings_product.dart';
 import 'package:moniepoint_flutter/app/savings/model/data/total_savings_balance.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_account_balance.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_free_withdrawal_count_request.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving_config.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_top_up_request.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_top_up_response.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_transaction_history_collection.dart';
@@ -79,8 +81,10 @@ abstract class SavingsProductService {
     "client-id": BuildConfig.CLIENT_ID,
     "appVersion": BuildConfig.APP_VERSION
   })
-  @GET("flex/saving/free-withdrawal-count")
-  Future<ServiceResult<FlexWithdrawalCount>> getFreeWithdrawalCount();
+  @POST("flex/saving/free-withdrawal-count")
+  Future<ServiceResult<FlexWithdrawalCount>> getFreeWithdrawalCount(
+      @Body() FlexFreeWithdrawalCountRequest request
+  );
 
   @Headers(<String, dynamic>{
     "Content-Type": "application/json",
@@ -116,5 +120,7 @@ abstract class SavingsProductService {
   Future<ServiceResult<TotalSavingsBalance>> getAllSavingsBalance(
       @Query("customerId") int customerId,
   );
+
+
 
 }

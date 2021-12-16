@@ -8,13 +8,16 @@ import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_update_flag.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/data/account_upgrade_state.dart';
+import 'package:moniepoint_flutter/app/accountupdates/model/data/cba_customer_info.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
 import 'package:moniepoint_flutter/app/accountupdates/viewmodels/account_update_view_model.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/colored_linear_progress_bar.dart';
 import 'package:moniepoint_flutter/app/accountupdates/views/restriction_pages/account_status_page_icon.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
+import 'package:moniepoint_flutter/core/utils/list_view_util.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
@@ -40,11 +43,11 @@ class _AccountStatusScreenState extends State<AccountStatusScreen> {
     _viewModel.getOnBoardingSchemes(fetchFromRemote: false).listen((event) { });
     super.initState();
 
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      Future.delayed(Duration(milliseconds: 200), () {
-        _viewModel.identificationForm.restoreFormState();
-      });
-    });
+    // WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+    //   Future.delayed(Duration(milliseconds: 200), () {
+    //     _viewModel.identificationForm.restoreFormState();
+    //   });
+    // });
   }
 
   Future <Null> init() async {
@@ -74,14 +77,49 @@ class _AccountStatusScreenState extends State<AccountStatusScreen> {
   }
 
   String _getButtonTitleFromState(AccountState accountState) {
-    if(accountState == AccountState.PND) {
-      return "Fix Account";
-    }
-    if(accountState == AccountState.REQUIRE_DOCS){
-      return "Fix Account";
-    }
+    if(accountState == AccountState.PND) return "Fix Account";
+    if(accountState == AccountState.REQUIRE_DOCS) return "Fix Account";
     return "Upgrade Account";
   }
+
+  Widget _upgradeButton(AccountState accountState) {
+    if(accountState != AccountState.IN_COMPLETE
+        || accountState != AccountState.REQUIRE_DOCS
+        || accountState != AccountState.PND) {
+      return SizedBox.shrink();
+    }
+    return SizedBox(
+      width: double.infinity,
+      child: Styles.appButton(
+          elevation: 0.3,
+          onClick: () => Navigator.of(context).popAndPushNamed(Routes.ACCOUNT_UPDATE),
+          text: _getButtonTitleFromState(accountState),
+          textStyle: TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 15,
+              color: Colors.white
+          )
+      ),
+    );
+  }
+
+  Widget _dismissButton() => Flexible(
+      flex: 0,
+      fit: FlexFit.tight,
+      child: Column(
+        children: [
+          Center(
+              child: TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(
+                    "Dismiss",
+                    style: TextStyle(
+                        color: Colors.primaryColor,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600),
+                  )))
+        ],
+      ));
 
   Widget _contentView(AccountState accountState) => SingleChildScrollView(
     child: Container(
@@ -115,47 +153,11 @@ class _AccountStatusScreenState extends State<AccountStatusScreen> {
             currentTier: getCurrentTier(),
             checkMarkIcon: _checkMarkIcon,
             accountState: accountState,
+            customerInfoStreamCallback: () => _viewModel.getCustomerInfo().asBroadcastStream(),
           ),
           SizedBox(height: 25),
-          Visibility(
-            visible: accountState == AccountState.IN_COMPLETE
-                || accountState == AccountState.REQUIRE_DOCS
-                || accountState == AccountState.PND,
-              child: SizedBox(
-                width: double.infinity,
-                child: Styles.appButton(
-                    elevation: 0.3,
-                    onClick: () => Navigator.of(context).popAndPushNamed(Routes.ACCOUNT_UPDATE),
-                    text: _getButtonTitleFromState(accountState),
-                    textStyle: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 15,
-                        color: Colors.white
-                    )
-                ),
-              )
-          ),
-          Flexible(
-              flex: 0,
-              fit: FlexFit.tight,
-              child: Column(
-                children: [
-                  Center(
-                      child: TextButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          child: Text(
-                            "Dismiss",
-                            style: TextStyle(
-                                color: Colors.primaryColor,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600
-                            ),
-                          )
-                      )
-                  )
-                ],
-              )
-          )
+          _upgradeButton(accountState),
+          _dismissButton()
         ],
       ),
     ),
@@ -203,13 +205,15 @@ class _AccountStatusContainer extends StatelessWidget {
     required this.tiers,
     required this.checkMarkIcon,
     required this.currentTier,
-    required this.accountState
+    required this.accountState,
+    required this.customerInfoStreamCallback
   });
 
   final List<Tier> tiers;
   final ui.Image? checkMarkIcon;
   final Tier? currentTier;
   final AccountState accountState;
+  final Stream<Resource<CBACustomerInfo>> Function() customerInfoStreamCallback;
 
   @override
   Widget build(BuildContext context) {
@@ -240,7 +244,7 @@ class _AccountStatusContainer extends StatelessWidget {
             ),
             _AccountLimitView(currentTier: currentTier),
             Divider(height: 1, color: Colors.primaryColor.withOpacity(0.2 ),),
-            _AccountStatusDetails()
+            _AccountStatusDetails(customerInfoStreamCallback : customerInfoStreamCallback)
           ]
       )
     );
@@ -405,90 +409,137 @@ class _AccountLimitView extends StatelessWidget {
 ///
 class _AccountStatusDetails extends StatefulWidget {
 
+  _AccountStatusDetails({
+    required this.customerInfoStreamCallback
+  });
+  final Stream<Resource<CBACustomerInfo>> Function() customerInfoStreamCallback;
+
   @override
   State<StatefulWidget> createState() => _AccountStatusDetailsState();
 
 }
 
-class _AccountStatusDetailsState extends State<_AccountStatusDetails> {
+///_AccountStatusDetailsState
+///
+class _AccountStatusDetailsState extends State<_AccountStatusDetails>
+    with SingleTickerProviderStateMixin {
+
+  Stream<Resource<CBACustomerInfo>> _customerInfoStream = Stream.empty();
+  late final AnimationController _animationController;
+
+  CBACustomerInfo? _cbaCustomerInfo;
 
   int _currentDisplayedIndex = -1;
 
   @override
+  void initState() {
+    _customerInfoStream = widget.customerInfoStreamCallback.call();
+    this._animationController = AnimationController(
+        vsync: this, duration: Duration(milliseconds: 1000)
+    );
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(top: 18, left: 19, right: 19),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Account Details",
-            style: TextStyle(
-              color: Colors.darkBlue,
-              fontWeight: FontWeight.w500,
-              fontSize: 14
+    return StreamBuilder(
+        stream: _customerInfoStream,
+        builder: (ctx, AsyncSnapshot<Resource<CBACustomerInfo>> snapshot) {
+
+          if(!snapshot.hasData || snapshot.data is Loading) {
+            _animationController.forward(from: 0);
+            return ListViewUtil.defaultLoadingView(_animationController);
+          }
+
+          if(snapshot.data is Error) return SizedBox.shrink();
+
+          _cbaCustomerInfo = snapshot.data?.data;
+
+          return Container(
+            padding: EdgeInsets.only(top: 18, left: 19, right: 19),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Account Details",
+                  style: TextStyle(
+                      color: Colors.darkBlue,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14
+                  ),
+                ),
+                SizedBox(height: 12),
+                ExpansionPanelList(
+                  elevation: 0,
+                  dividerColor: Colors.primaryColor.withOpacity(0.22),
+                  expansionCallback: (index, bool isOpen) {
+                    _currentDisplayedIndex = (isOpen) ? index : -1;
+                    if(_currentDisplayedIndex == -1 && !isOpen) {
+                      _currentDisplayedIndex = index;
+                    } else {
+                      _currentDisplayedIndex = -1;
+                    }
+                    setState(() => {});
+                  },
+                  children: [
+                    ExpansionPanel(
+                        isExpanded: _currentDisplayedIndex == 0,
+                        headerBuilder: (a, isOpen) {
+                          return  _PanelHeader(
+                            title: "Additional Info",
+                            icon: SvgPicture.asset("res/drawables/ic_add.svg"),
+                          );
+                        },
+                        body: Align(
+                          alignment: Alignment.centerLeft,
+                          child: _AdditionalInfoDetailsView(info: _cbaCustomerInfo!,),
+                        )
+                    ),
+                    ExpansionPanel(
+                        isExpanded: _currentDisplayedIndex == 1,
+                        headerBuilder: (a, isOpen) {
+                          return _PanelHeader(
+                            title: "Address",
+                            icon: SvgPicture.asset("res/drawables/ic_location.svg"),
+                          );
+                        },
+                        body: Align(
+                          alignment: Alignment.centerLeft,
+                          child: _AddressDetailsView(info: _cbaCustomerInfo!,),
+                        )
+                    ),
+                    ExpansionPanel(
+                        isExpanded: _currentDisplayedIndex == 2,
+                        headerBuilder: (a, isOpen) {
+                          return _PanelHeader(
+                            title: "Identification",
+                            icon: SvgPicture.asset("res/drawables/ic_bank_number_input.svg", color: Colors.primaryColor,),
+                          );
+                        },
+                        body: Align(
+                          alignment: Alignment.centerLeft,
+                          child: _IdentificationDetailsView(info: _cbaCustomerInfo!,),
+                        )
+                    ),
+                    ExpansionPanel(
+                        isExpanded: _currentDisplayedIndex == 3,
+                        headerBuilder: (a, isOpen) {
+                          return _PanelHeader(
+                            title: "Next Of Kin",
+                            icon: SvgPicture.asset("res/drawables/ic_two_user.svg"),
+                          );
+                        },
+                        body: Align(
+                          alignment: Alignment.centerLeft,
+                          child: _NextOfKinDetailsView(info: _cbaCustomerInfo!,),
+                        )
+                    )
+                  ],
+                ),
+              ],
             ),
-          ),
-          SizedBox(height: 12),
-          ExpansionPanelList(
-            elevation: 0,
-            dividerColor: Colors.primaryColor.withOpacity(0.22),
-            expansionCallback: (index, bool isOpen) {
-              _currentDisplayedIndex = (isOpen) ? index : -1;
-              if(_currentDisplayedIndex == -1 && !isOpen) {
-                _currentDisplayedIndex = index;
-              } else {
-                _currentDisplayedIndex = -1;
-              }
-              setState(() => {});
-            },
-            children: [
-              ExpansionPanel(
-                  isExpanded: _currentDisplayedIndex == 0,
-                  headerBuilder: (a, isOpen) {
-                     return  _PanelHeader(
-                       title: "Additional Info",
-                       icon: SvgPicture.asset("res/drawables/ic_add.svg"),
-                     );
-                  },
-                  body: Container(height: 10)
-              ),
-              ExpansionPanel(
-                  isExpanded: _currentDisplayedIndex == 1,
-                  headerBuilder: (a, isOpen) {
-                    return _PanelHeader(
-                      title: "Address",
-                      icon: SvgPicture.asset("res/drawables/ic_location.svg"),
-                    );
-                  },
-                  body: Container(height: 10)
-              ),
-              ExpansionPanel(
-                  isExpanded: _currentDisplayedIndex == 2,
-                  headerBuilder: (a, isOpen) {
-                    return _PanelHeader(
-                      title: "Identification",
-                      icon: SvgPicture.asset("res/drawables/ic_bank_number_input.svg", color: Colors.primaryColor,),
-                    );
-                  },
-                  body: _IdentificationDetailsView()
-              ),
-              ExpansionPanel(
-                  isExpanded: _currentDisplayedIndex == 3,
-                  headerBuilder: (a, isOpen) {
-                    return _PanelHeader(
-                      title: "Next Of Kin",
-                      icon: SvgPicture.asset("res/drawables/ic_two_user.svg"),
-                    );
-                  },
-                  body: Container(
-                    height: 100,
-                  )
-              )
-            ],
-          ),
-        ],
-      ),
+          );
+        }
     );
   }
 
@@ -570,37 +621,233 @@ class _FormContentBlock extends StatelessWidget {
 
 }
 
-class _IdentificationDetailsView extends StatelessWidget {
+class _AdditionalInfoDetailsView extends StatelessWidget {
 
-  _IdentificationDetailsView();
+  _AdditionalInfoDetailsView({
+    required this.info
+  });
+
+  final CBACustomerInfo info;
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
+    final additionalInfo = info;
+    return Container(
+      margin: EdgeInsets.only(left: 40, right: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              _FormContentBlock(
+                  title: "Title",
+                  value: additionalInfo.title ?? "Not Yet Supplied"
+              ),
+              SizedBox(width: 63),
+              _FormContentBlock(
+                  title: "Marital Status",
+                  value: additionalInfo.maritalStatus ?? "Not Yet Supplied"
+              ),
+            ],
+          ),
+          SizedBox(height: 19),
+          _FormContentBlock(
+              title: "Religion",
+              value: additionalInfo.religion ?? "Not Yet Supplied"
+          ),
+          SizedBox(height: 19),
+          Row(
+            children: [
+              _FormContentBlock(
+                  title: "Nationality",
+                  value: additionalInfo.nationality ?? "Not Yet Supplied"
+              ),
+              SizedBox(width: 63),
+              _FormContentBlock(
+                  title: "State of Origin",
+                  value: additionalInfo.stateOfOrigin ?? "Not Yet Supplied"
+              ),
+            ],
+          ),
+          SizedBox(height: 19),
+          _FormContentBlock(
+              title: "Local Govt. Area",
+              value: additionalInfo.localGovernmentOfOrigin ?? "Not Yet Supplied"
+          ),
+          SizedBox(height: 19),
+          _FormContentBlock(
+              title: "Employment Status",
+              value: additionalInfo.employmentStatus ?? "Not Yet Supplied"
+          ),
+        ],
+      ),
+    );
+  }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        StreamBuilder(
-            stream: viewModel.identificationForm.idTypeStream,
-            builder: (ctx, AsyncSnapshot<IdentificationType?> snapshot) {
-              return _FormContentBlock(
-                  title: "Identification Type",
-                  value: snapshot.data?.idType ?? "Not Yet Supplied"
-              );
-            }
-        ),
-        SizedBox(height: 19),
-        _FormContentBlock(
-            title: "Identification No.",
-            value: "--"
-        ),
-        SizedBox(height: 19),
-        _FormContentBlock(
-            title: "Issue Date",
-            value: "--"
-        ),
-      ],
+}
+
+///_AddressDetailsView
+///
+class _AddressDetailsView extends StatelessWidget {
+
+  _AddressDetailsView({
+    required this.info
+  });
+
+  final CBACustomerInfo info;
+
+  @override
+  Widget build(BuildContext context) {
+    final addressInfo = info.residentialAddress;
+    return Container(
+      margin: EdgeInsets.only(left: 40, right: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _FormContentBlock(
+              title: "Home Address",
+              value: addressInfo?["addressLineOne"] ?? "Not Yet Supplied"
+          ),
+          SizedBox(height: 19),
+          Row(
+            children: [
+              _FormContentBlock(
+                  title: "State",
+                  value: addressInfo?["state"] ?? "Not Yet Supplied"
+              ),
+              SizedBox(width: 63),
+              _FormContentBlock(
+                  title: "City",
+                  value: addressInfo?["city"] ?? "Not Yet Supplied"
+              ),
+            ],
+          ),
+          SizedBox(height: 19),
+          _FormContentBlock(
+              title: "Local Govt.",
+              value: addressInfo?["localGovernment"] ?? "Not Yet Supplied"
+          ),
+        ],
+      ),
+    );
+  }
+
+}
+
+///_IdentificationDetailsView
+///
+class _IdentificationDetailsView extends StatelessWidget {
+
+  _IdentificationDetailsView({
+    required this.info
+  });
+
+  final CBACustomerInfo info;
+
+  @override
+  Widget build(BuildContext context) {
+    // final viewModel = Provider.of<AccountUpdateViewModel>(context, listen: false);
+    final identificationInfo = info.identificationInfo;
+
+    return Container(
+      margin: EdgeInsets.only(left: 40, right: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _FormContentBlock(
+              title: "Identification Type",
+              value: identificationInfo?["identificationType"] ?? "Not Yet Supplied"
+          ),
+          SizedBox(height: 19),
+          _FormContentBlock(
+              title: "Identification No.",
+              value: identificationInfo?["registrationNumber"] ?? "Not Identification No"
+          ),
+          SizedBox(height: 19),
+          Row(
+            children: [
+              _FormContentBlock(
+                  title: "Issue Date",
+                  value: identificationInfo?["issueDate"] ?? "Not Identification No"
+              ),
+              SizedBox(width: 63,),
+              _FormContentBlock(
+                  title: "Expiry Date",
+                  value: identificationInfo?["expiryDate"] ?? "Not Identification No"
+              )
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+}
+
+///_NextOfKinDetailsView
+///
+class _NextOfKinDetailsView extends StatelessWidget {
+
+  _NextOfKinDetailsView({
+    required this.info
+  });
+
+  final CBACustomerInfo info;
+
+  @override
+  Widget build(BuildContext context) {
+    final nextOfKinInfo = info.nextOfKin;
+
+    return Container(
+      margin: EdgeInsets.only(left: 40, right: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _FormContentBlock(
+              title: "Full Name",
+              value: nextOfKinInfo?["fullName"] ?? "Not Yet Supplied"
+          ),
+          SizedBox(height: 19),
+          _FormContentBlock(
+              title: "Relationship",
+              value: nextOfKinInfo?["relationship"] ?? "Not Yet Supplied"
+          ),
+          SizedBox(height: 19),
+          _FormContentBlock(
+              title: "Date Of Birth",
+              value: nextOfKinInfo?["dateOfBirth"] ?? "Not Yet Supplied"
+          ),
+          SizedBox(height: 19),
+          _FormContentBlock(
+              title: "phoneNumber",
+              value: nextOfKinInfo?["phoneNumber"] ?? "Not Yet Supplied"
+          ),
+          SizedBox(height: 19),
+          _FormContentBlock(
+              title: "Address",
+              value: nextOfKinInfo?["addressLineOne"] ?? "Not Yet Supplied"
+          ),
+          SizedBox(height: 19),
+          Row(
+            children: [
+              _FormContentBlock(
+                  title: "State",
+                  value: nextOfKinInfo?["state"] ?? "Not Yet Supplied"
+              ),
+              SizedBox(width: 63,),
+              _FormContentBlock(
+                  title: "City",
+                  value: nextOfKinInfo?["city"] ?? "Not Yet Supplied"
+              )
+            ],
+          ),
+          SizedBox(height: 19),
+          _FormContentBlock(
+              title: "Local Govt.",
+              value: nextOfKinInfo?["localGovernment"] ?? "Not Yet Supplied"
+          ),
+        ],
+      ),
     );
   }
 

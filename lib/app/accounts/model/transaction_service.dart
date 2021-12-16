@@ -51,4 +51,14 @@ abstract class TransactionService {
     @Body() AccountTransaction requestBody
   );
 
+  @Headers(<String, dynamic>{
+    "client-id": BuildConfig.CLIENT_ID,
+    "appVersion": BuildConfig.APP_VERSION
+  })
+  @GET("by-reference")
+  @DioResponseType(ResponseType.stream)
+  Future<ServiceResult<AccountTransaction>> getTransactionByReference(
+      @Query("reference") String? transactionReference,
+  );
+
 }

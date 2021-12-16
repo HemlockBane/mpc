@@ -122,7 +122,7 @@ class ProfileForm with ChangeNotifier, Validators {
   bool _isPinValid({bool displayError = false}) {
     final pin = _requestBody.pin;
     final isValid = pin != null && pin.isNotEmpty && pin.length >= 4;
-    if(isValid) FocusManager.instance.primaryFocus?.unfocus();
+    if(isValid && displayError) FocusManager.instance.primaryFocus?.unfocus();
     if (displayError && !isValid) _pinInputController.sink.addError("Invalid PIN");
     return isValid;
   }
@@ -138,7 +138,7 @@ class ProfileForm with ChangeNotifier, Validators {
     if(requestBody.createUssdPin == false) return true;
     final pin = requestBody.ussdPin;
     final isValid = pin != null && pin.isNotEmpty && pin.length >= 4;
-    if (isValid) FocusManager.instance.primaryFocus?.unfocus();
+    if (isValid && displayError) FocusManager.instance.primaryFocus?.unfocus();
     if (displayError && !isValid) _ussdPinInputController.sink.addError("Invalid PIN");
     return isValid;
   }

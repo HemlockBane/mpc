@@ -18,8 +18,8 @@ class UUIDImage extends StatefulWidget {
 
   final String? fileUUID;
   final Stream<Resource<FileResult>> Function(String logoId) fileStreamFn;
-  final double width;
-  final double height;
+  final double? width;
+  final double? height;
 
   @override
   State<StatefulWidget> createState() => _UUIDImageState();

@@ -23,6 +23,7 @@ import 'package:moniepoint_flutter/core/utils/list_view_util.dart';
 import 'package:moniepoint_flutter/core/views/empty_list_layout_view.dart';
 import 'package:moniepoint_flutter/core/views/error_layout_view.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
+import 'package:moniepoint_flutter/main.dart';
 import 'package:provider/provider.dart';
 import 'package:share/share.dart';
 
@@ -54,11 +55,16 @@ class _FlexSavingsAccountDashboardViewState extends State<FlexSavingsAccountDash
   );
 
   PagingSource<int, FlexTransaction> _pagingSource = PagingSource.empty();
+  Stream<Resource<FlexAccountBalance>> _balanceStream = Stream.empty();
+  Future<FlexSaving?> _flexSavingFuture = Future.value(null);
 
   @override
   void initState() {
     _viewModel = Provider.of<FlexSavingsDashboardViewModel>(context, listen: false);
     _pagingSource = _viewModel.getPageFlexTransactions(widget.flexSavingId);
+    _balanceStream = _viewModel.getFlexAccountBalance(widget.flexSavingId);
+    _flexSavingFuture = _viewModel.getFlexSaving(widget.flexSavingId);
+
     super.initState();
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
       //This really isn't an important load, so we can delay it
@@ -67,7 +73,7 @@ class _FlexSavingsAccountDashboardViewState extends State<FlexSavingsAccountDash
   }
 
   void onItemClick(String routeName, int position){
-    if(routeName == Routes.SAVINGS_FLEX_SETTINGS){
+    if(routeName == Routes.SAVINGS_FLEX_SETTINGS) {
       Navigator.of(context).pushNamed(
           Routes.SAVINGS_FLEX_SETUP,
           arguments: {"flexSaving": _viewModel.flexSaving}
@@ -78,13 +84,21 @@ class _FlexSavingsAccountDashboardViewState extends State<FlexSavingsAccountDash
       });
       return;
     }
-    Navigator.of(context).pushNamed(
+
+    navigatorKey.currentState?.pushNamed(
         routeName,
         arguments: {"flexSavingId": _viewModel.flexSaving?.id}
     ).then((value) {
       setState(() {
         _pagingSource = _viewModel.getPageFlexTransactions(widget.flexSavingId);
       });
+    });
+  }
+
+  void _reloadDashboard() {
+    setState(() {
+      _pagingSource = _viewModel.getPageFlexTransactions(widget.flexSavingId);
+      _flexSavingFuture = _viewModel.getFlexSaving(widget.flexSavingId);
     });
   }
 
@@ -177,7 +191,7 @@ class _FlexSavingsAccountDashboardViewState extends State<FlexSavingsAccountDash
             elevation: 0
         ),
         body: FutureBuilder(
-            future: _viewModel.getFlexSaving(widget.flexSavingId),
+            future: _flexSavingFuture,
             builder: (ctx, AsyncSnapshot<FlexSaving?> snap) {
               final FlexSaving? flexSaving = snap.data;
 
@@ -202,7 +216,8 @@ class _FlexSavingsAccountDashboardViewState extends State<FlexSavingsAccountDash
                           SizedBox(height: 25),
                           FlexDashboardSavingsCard(
                             flexSaving: flexSaving,
-                            balanceStream: _viewModel.getFlexAccountBalance(flexSaving.id),
+                            balanceStream: _balanceStream,
+                            reload: _reloadDashboard
                           ),
                           SizedBox(height: 30),
                           FlexAccountMenu(onItemClick: onItemClick)
@@ -387,11 +402,13 @@ class FlexDashboardSavingsCard extends StatefulWidget {
   FlexDashboardSavingsCard({
     Key? key,
     required this.flexSaving,
-    required this.balanceStream
+    required this.balanceStream,
+    this.reload
   }) : super(key: key);
 
   final FlexSaving flexSaving;
   final Stream<Resource<FlexAccountBalance>> balanceStream;
+  final Function()? reload;
 
 
   @override
@@ -480,7 +497,9 @@ class _FlexDashboardSavingCardState extends State<FlexDashboardSavingsCard> {
                 context,
                 Routes.SAVINGS_FLEX_SETUP,
                 arguments: {"flexSaving": flexSaving}
-            );
+            ).then((value) {
+              widget.reload?.call();
+            });
           },
           borderRadius: BorderRadius.circular(9),
           child: Container(

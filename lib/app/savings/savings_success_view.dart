@@ -39,63 +39,66 @@ class SavingsSuccessView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color(0xff198724),
-      body: Container(
-        padding: EdgeInsets.symmetric(horizontal: 25),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Spacer(),
-            Container(
-              height: 60,
-              width: 60,
-              padding: EdgeInsets.all(10),
-              child: SvgPicture.asset(
-                "res/drawables/ic_check_mark_round_alt.svg",
-              ),
-              decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+    return WillPopScope(
+      onWillPop: () async => true,
+        child: Scaffold(
+          backgroundColor: Color(0xff198724),
+          body: Container(
+            padding: EdgeInsets.symmetric(horizontal: 25),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Spacer(),
+                Container(
+                  height: 60,
+                  width: 60,
+                  padding: EdgeInsets.all(10),
+                  child: SvgPicture.asset(
+                    "res/drawables/ic_check_mark_round_alt.svg",
+                  ),
+                  decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  primaryText,
+                  style: getBoldStyle(color: Colors.white, fontSize: 32),
+                ),
+                SizedBox(height: 10),
+                Text(secondaryText, style: getNormalStyle(fontSize: 15)),
+                if (content != null) SizedBox(height: 20),
+                if (content != null) content!,
+                Spacer(),
+                Styles.statefulButton(
+                    buttonStyle: Styles.primaryButtonStyle.copyWith(
+                        backgroundColor: MaterialStateProperty.all(
+                            Color(0xff115718).withOpacity(0.61)),
+                        textStyle: MaterialStateProperty.all(getBoldStyle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 16,
+                            color: Colors.white))),
+                    stream: Stream.value(true),
+                    onClick: primaryButtonAction,
+                    text: primaryButtonText),
+                SizedBox(height: 50),
+                if (secondaryButtonText != null && secondaryButtonAction != null)
+                  SizedBox(height: 10),
+                if (secondaryButtonText != null && secondaryButtonAction != null)
+                  Styles.statefulButton(
+                    buttonStyle: Styles.primaryButtonStyle.copyWith(
+                        backgroundColor: MaterialStateProperty.all(Colors.transparent),
+                        textStyle: MaterialStateProperty.all(getBoldStyle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 16,
+                            color: Colors.white))),
+                    stream: Stream.value(true),
+                    onClick: secondaryButtonAction!,
+                    text: secondaryButtonText!,
+                  ),
+                SizedBox(height: secondaryButtonText != null && secondaryButtonAction != null ? 32 : 20),
+              ],
             ),
-            SizedBox(height: 10),
-            Text(
-              primaryText,
-              style: getBoldStyle(color: Colors.white, fontSize: 32),
-            ),
-            SizedBox(height: 10),
-            Text(secondaryText, style: getNormalStyle(fontSize: 15)),
-            if (content != null) SizedBox(height: 20),
-            if (content != null) content!,
-            Spacer(),
-            Styles.statefulButton(
-                buttonStyle: Styles.primaryButtonStyle.copyWith(
-                    backgroundColor: MaterialStateProperty.all(
-                        Color(0xff115718).withOpacity(0.61)),
-                    textStyle: MaterialStateProperty.all(getBoldStyle(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 16,
-                        color: Colors.white))),
-                stream: Stream.value(true),
-                onClick: primaryButtonAction,
-                text: primaryButtonText),
-            SizedBox(height: 50),
-            if (secondaryButtonText != null && secondaryButtonAction != null)
-              SizedBox(height: 10),
-            if (secondaryButtonText != null && secondaryButtonAction != null)
-              Styles.statefulButton(
-                buttonStyle: Styles.primaryButtonStyle.copyWith(
-                    backgroundColor: MaterialStateProperty.all(Colors.transparent),
-                    textStyle: MaterialStateProperty.all(getBoldStyle(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 16,
-                        color: Colors.white))),
-                stream: Stream.value(true),
-                onClick: secondaryButtonAction!,
-                text: secondaryButtonText!,
-              ),
-            SizedBox(height: secondaryButtonText != null && secondaryButtonAction != null ? 32 : 20),
-          ],
+          ),
         ),
-      ),
     );
   }
 }

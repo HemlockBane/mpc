@@ -1,5 +1,3 @@
-import 'package:moniepoint_flutter/core/models/transaction.dart';
-
 class TransactionRequestContract {
 
   final dynamic intent;

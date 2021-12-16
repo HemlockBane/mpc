@@ -1,5 +1,4 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' hide Colors;
+import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_top_up_response.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/savings_flex_topup_viewmodel.dart';
@@ -14,9 +13,11 @@ import 'package:moniepoint_flutter/core/views/amount_pill.dart';
 import 'package:moniepoint_flutter/core/views/payment_amount_view.dart';
 import 'package:moniepoint_flutter/core/utils/currency_util.dart';
 import 'package:collection/collection.dart';
+import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:moniepoint_flutter/core/views/user_account_selection_view.dart';
 import 'package:moniepoint_flutter/main.dart';
+import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:provider/provider.dart';
 
 class SavingsFlexTopUpView extends StatefulWidget {
@@ -157,64 +158,66 @@ class _SavingsFlexTopUpViewState extends State<SavingsFlexTopUpView> {
               return Container(
                 color: Color(0XFFF5F5F5).withOpacity(0.7),
                 padding: EdgeInsets.symmetric(horizontal: 21),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 30),
-                    Text(
-                      "Top up Flex Savings",
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
-                    ),
-                    SizedBox(height: 26),
-                    Text(
-                      "How much would you like to save?",
-                      style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
-                    ),
-                    SizedBox(height: 13),
-                    _amountWidget(),
-                    SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: generateAmountPillsWidget(),
-                    ),
-                    SizedBox(height: 26),
-                    Text(
-                      "Top up from?",
-                      style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
-                    ),
-                    SizedBox(height: 12),
-                    UserAccountSelectionView(_viewModel,
-                      primaryColor: Colors.solidGreen,
-                      checkBoxSize: Size(40, 40),
-                      selectedUserAccount: _viewModel.sourceAccount,
-                      onAccountSelected: (account) => _viewModel.setSourceAccount(account),
-                      titleStyle: TextStyle(
-                          fontSize: 15,
-                          color: Colors.textColorBlack,
-                          fontWeight: FontWeight.bold
-                      ),
-                      listStyle: ListStyle.alternate,
-                      checkBoxPadding: EdgeInsets.all(6.0),
-                      checkBoxBorderColor: Color(0xffA6B6CE).withOpacity(0.95),
-                      isShowTrailingWhenExpanded: false,
-                    ),
-                    Spacer(),
-                    Styles.statefulButton(
-                        buttonStyle: Styles.savingsFlexButtonStyle.copyWith(
-                            textStyle: MaterialStateProperty.all(getBoldStyle(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 15,
-                                color: Colors.white)
-                            )
-                        ),
-                        isLoading: _viewModel.isLoading,
-                        stream: _viewModel.isValid,
-                        loadingColor: Colors.savingsPrimary.withOpacity(0.5),
-                        onClick: _subscribeUiToTopUp,
-                        text: 'Top Up'
-                    ),
-                    SizedBox(height: 32,),
-                  ],
+                child: ScrollView(
+                   child: Column(
+                     crossAxisAlignment: CrossAxisAlignment.start,
+                     children: [
+                       SizedBox(height: 30),
+                       Text(
+                         "Top up Flex Savings",
+                         style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+                       ),
+                       SizedBox(height: 26),
+                       Text(
+                         "How much would you like to save?",
+                         style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
+                       ),
+                       SizedBox(height: 13),
+                       _amountWidget(),
+                       SizedBox(height: 16),
+                       Row(
+                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                         children: generateAmountPillsWidget(),
+                       ),
+                       SizedBox(height: 26),
+                       Text(
+                         "Top up from?",
+                         style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w500),
+                       ),
+                       SizedBox(height: 12),
+                       UserAccountSelectionView(_viewModel,
+                         primaryColor: Colors.solidGreen,
+                         checkBoxSize: Size(40, 40),
+                         selectedUserAccount: _viewModel.sourceAccount,
+                         onAccountSelected: (account) => _viewModel.setSourceAccount(account),
+                         titleStyle: TextStyle(
+                             fontSize: 15,
+                             color: Colors.textColorBlack,
+                             fontWeight: FontWeight.bold
+                         ),
+                         listStyle: ListStyle.alternate,
+                         checkBoxPadding: EdgeInsets.all(6.0),
+                         checkBoxBorderColor: Color(0xffA6B6CE).withOpacity(0.95),
+                         isShowTrailingWhenExpanded: false,
+                       ),
+                       Spacer(),
+                       Styles.statefulButton(
+                           buttonStyle: Styles.savingsFlexButtonStyle.copyWith(
+                               textStyle: MaterialStateProperty.all(getBoldStyle(
+                                   fontWeight: FontWeight.w500,
+                                   fontSize: 15,
+                                   color: Colors.white)
+                               )
+                           ),
+                           isLoading: _viewModel.isLoading,
+                           stream: _viewModel.isValid,
+                           loadingColor: Colors.savingsPrimary.withOpacity(0.5),
+                           onClick: _subscribeUiToTopUp,
+                           text: 'Top Up'
+                       ),
+                       SizedBox(height: 32,),
+                     ],
+                   ),
                 ),
               );
             }

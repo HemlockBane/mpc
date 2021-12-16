@@ -15,7 +15,7 @@ import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:moniepoint_flutter/main.dart';
 import 'package:provider/provider.dart';
 
-import '../../../savings_success_view.dart';
+import '../../../../savings_success_view.dart';
 
 class FlexSavingWithdrawalConfirmationView extends StatefulWidget {
 

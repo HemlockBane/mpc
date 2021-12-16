@@ -21,10 +21,8 @@ class SavingsDashboardView extends StatefulWidget  {
 
   SavingsDashboardView({
     Key? key,
-    required GlobalKey<NavigatorState> navigatorKey
-  }) : this._navigatorKey = navigatorKey, super(key: key);
+  }) : super(key: key);
 
-  final GlobalKey<NavigatorState> _navigatorKey;
 
   @override
   State<StatefulWidget> createState() => _SavingsDashboardState();
@@ -34,21 +32,6 @@ class SavingsDashboardView extends StatefulWidget  {
 class _SavingsDashboardState extends State<SavingsDashboardView> with AutomaticKeepAliveClientMixin{
 
   late final SavingsDashboardViewModel _viewModel;
-
-  Future<bool> _onBackPressed() async {
-    final isPop = await widget._navigatorKey.currentState?.maybePop();
-    return (isPop != null && isPop) ? Future.value(false) : Future.value(true);
-  }
-
-  Route _generateRoute(RouteSettings settings, BuildContext context) {
-    Widget page = Container();
-    switch(settings.name) {
-      case SavingsDashboardView.SAVINGS_DASHBOARD:
-        page = _SavingsDashboardMenu();
-        break;
-    }
-    return MaterialPageRoute(builder: (context) => page, settings: settings);
-  }
 
   @override
   void initState() {
@@ -62,39 +45,32 @@ class _SavingsDashboardState extends State<SavingsDashboardView> with AutomaticK
     // return ComingSoonView(width: 100, height: 100);
     return MultiProvider(
       providers: [ChangeNotifierProvider.value(value: _viewModel)],
-      child: WillPopScope(
-        onWillPop: _onBackPressed,
-        child: RefreshIndicator(
-          displacement: 80,
-          onRefresh: () async {
-            _viewModel.update(DashboardState.REFRESHING);
-            await for (var value in _viewModel.dashboardUpdateStream) {
-              await Future.delayed(Duration(milliseconds: 100));
-              if (value != DashboardState.DONE) return;
-              return null;
-            }
+      child: RefreshIndicator(
+        displacement: 80,
+        onRefresh: () async {
+          _viewModel.update(DashboardState.REFRESHING);
+          await for (var value in _viewModel.dashboardUpdateStream) {
+            await Future.delayed(Duration(milliseconds: 100));
+            if (value != DashboardState.DONE) return;
             return null;
-          },
-          child: Container(
-              child: ListView(
-                cacheExtent: 500000,
-                children: [
-                  SizedBox(height: dashboardTopMenuHeight - 40),
-                  LayoutBuilder(builder: (ctx, constraints) {
-                    return Container(
-                      width: constraints.maxWidth,
-                      height: MediaQuery.of(context).size.height - 0,
-                      color: Colors.transparent,
-                      child: Navigator(
-                        key: widget._navigatorKey,
-                        initialRoute: SavingsDashboardView.SAVINGS_DASHBOARD,
-                        onGenerateRoute: (settings) => _generateRoute(settings, context),
-                      ),
-                    );
-                  }),
-                ],
-              ),
-            ),
+          }
+          return null;
+        },
+        child: Container(
+          child: ListView(
+            cacheExtent: 500000,
+            children: [
+              SizedBox(height: dashboardTopMenuHeight - 40),
+              LayoutBuilder(builder: (ctx, constraints) {
+                return Container(
+                  width: constraints.maxWidth,
+                  height: MediaQuery.of(context).size.height - 0,
+                  color: Colors.transparent,
+                  child: _SavingsDashboardMenu(),
+                );
+              }),
+            ],
+          ),
         ),
       ),
     );
@@ -140,7 +116,8 @@ class _SavingsDashboardMenu extends StatelessWidget {
                 itemBuilder: (ctx, index) {
                   return SavingsProductItemView(
                       productType: SavingsProductType.FLEX,
-                      viewModel: viewModel);
+                      viewModel: viewModel
+                  );
                 }))
       ],
     );

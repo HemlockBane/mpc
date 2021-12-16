@@ -110,7 +110,7 @@ class SavingsProductServiceDelegate with NetworkResource {
     return networkBoundResource(
         shouldFetchLocal: true,
         fetchFromLocal: () {
-          final data = PreferenceUtil.getDataForLoggedInUser(FLEX_WITHDRAWAL_COUNT_KEY);
+          final data = PreferenceUtil.getDataForLoggedInUser("${flexSavingId}_$FLEX_WITHDRAWAL_COUNT_KEY");
           if(data == null) return Stream.value(null);
           return Stream.value(FlexWithdrawalCount.fromJson(data));
         },
@@ -118,7 +118,7 @@ class SavingsProductServiceDelegate with NetworkResource {
             FlexFreeWithdrawalCountRequest(flexSavingsAccountId: flexSavingId)
         ),
         saveRemoteData: (data) async {
-          PreferenceUtil.saveDataForLoggedInUser(FLEX_WITHDRAWAL_COUNT_KEY, data);
+          PreferenceUtil.saveDataForLoggedInUser("${flexSavingId}_$FLEX_WITHDRAWAL_COUNT_KEY", data);
         }
     );
   }

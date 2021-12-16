@@ -180,7 +180,6 @@ class Routes {
         create: (_) => ContactsViewModel(),
         child: ContactScreen(),
       ),
-      Routes.BILL: (BuildContext context) => BillScreen(),
       Routes.BILL_DETAIL: (BuildContext context) => ChangeNotifierProvider(
         create: (_) => BillHistoryDetailViewModel(),
         child: BillHistoryDetailedView(),
@@ -253,9 +252,16 @@ class Routes {
             ? settings.arguments as TransactionRequestContract?
             : null;
         return MaterialPageRoute(
-            builder: (_) =>
-                AirtimeScreen(transactionRequestContract: contract));
-      case Routes.LIVELINESS_DETECTION:
+            builder: (_) => AirtimeScreen(transactionRequestContract: contract)
+        );
+    case Routes.BILL:
+      final contract = (settings.arguments is TransactionRequestContract)
+          ? settings.arguments as TransactionRequestContract?
+          : null;
+      return MaterialPageRoute(
+          builder: (_) => BillScreen(transactionRequestContract: contract)
+      );
+    case Routes.LIVELINESS_DETECTION:
         return MaterialPageRoute(
             builder: (_) => ChangeNotifierProvider(
                   create: (_) => LivelinessVerificationViewModel(),
@@ -336,7 +342,8 @@ class Routes {
             builder: (BuildContext context) => ChangeNotifierProvider(
                   create: (_) => AccountUpdateViewModel(),
                   child: AccountStatusScreen(),
-                ));
+                )
+        );
       case Routes.LOAN_ADVERT_DETAILS:
         final args = settings.arguments as Map<dynamic, dynamic>;
         final loanAdvert = args["loan_advert"] as ShortTermLoanAdvert?;

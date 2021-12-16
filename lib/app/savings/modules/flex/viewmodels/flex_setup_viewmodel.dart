@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:get_it/get_it.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
 import 'package:moniepoint_flutter/app/customer/user_account.dart';
+import 'package:moniepoint_flutter/app/savings/model/savings_product_service_delegate.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving_config.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving_config_request_body.dart';
@@ -17,9 +18,14 @@ import 'package:collection/collection.dart';
 class FlexSetupViewModel extends BaseViewModel with SavingsViewModel{
 
   late final FlexConfigServiceDelegate _flexConfigServiceDelegate;
+  late final SavingsProductServiceDelegate _productServiceDelegate;
 
-  FlexSetupViewModel({FlexConfigServiceDelegate? flexConfigServiceDelegate}) {
+  FlexSetupViewModel({
+    FlexConfigServiceDelegate? flexConfigServiceDelegate,
+    SavingsProductServiceDelegate? productServiceDelegate
+  }) {
     this._flexConfigServiceDelegate = flexConfigServiceDelegate ?? GetIt.I<FlexConfigServiceDelegate>();
+    this._productServiceDelegate = productServiceDelegate ?? GetIt.I<SavingsProductServiceDelegate>();
   }
 
   final StreamController<Tuple<int, bool>> _pageFormController = StreamController.broadcast();
@@ -163,7 +169,6 @@ class FlexSetupViewModel extends BaseViewModel with SavingsViewModel{
     _savingMode = savingMode;
     _contributionMonthDay = null;
     _contributionWeekDay = null;
-    print("Setting Saving Mode ===> $savingMode");
     if(savingMode != null) _savingModeController.sink.add(savingMode);
     checkValidity();
   }
@@ -200,7 +205,7 @@ class FlexSetupViewModel extends BaseViewModel with SavingsViewModel{
     this.checkValidity();
   }
 
-  Stream<Resource<FlexSavingConfig>> createFlexConfig() {
+  Stream<Resource<FlexSavingConfig>> createFlexConfig() async* {
     final request = FlexSavingConfigRequestBody(
         flexSaveMode: _savingMode,
         flexSaveType: _savingType,
@@ -212,9 +217,20 @@ class FlexSetupViewModel extends BaseViewModel with SavingsViewModel{
         customerFlexSavingId: _flexSaving?.id,
         name: _flexSavingName
     );
-    return (flexSaving?.configCreated == true)
+
+    final stream =  (flexSaving?.configCreated == true)
      ? this._flexConfigServiceDelegate.updateFlexConfig(flexSaving!.flexSavingConfigId!, request)
      : this._flexConfigServiceDelegate.createFlexConfig(request);
+
+    await for (var response in stream) {
+      if(response is Loading || response is Error) yield response;
+      if(response is Success) {
+        yield* this._productServiceDelegate.getRunningFlexSavings(customerId).map((event) {
+          if(event is Loading)   return Resource.loading(null);
+          return response;
+        });
+      }
+    }
   }
 
   Stream<Resource<FlexSavingConfig>> getFlexSavingConfig  () {

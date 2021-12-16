@@ -160,7 +160,6 @@ class _BillBeneficiaryScreen extends State<BillBeneficiaryScreen> with TickerPro
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return  Column(

@@ -231,7 +231,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
                   LayoutBuilder(builder: (ctx, constraints) {
                     return _contentView(width, constraints.maxHeight);
                   }),
-                  SavingsDashboardView(navigatorKey: _savingsNavigatorKey,),
+                  SavingsDashboardView(),
                   LoansHomeView(),
                   MoreView()
                 ]

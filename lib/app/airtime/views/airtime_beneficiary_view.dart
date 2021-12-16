@@ -4,6 +4,7 @@ import 'package:flutter/material.dart' hide ScrollView, Colors;
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/transaction_category.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_purchase_type.dart';
 import 'package:moniepoint_flutter/app/airtime/model/data/airtime_service_provider.dart';
 import 'package:moniepoint_flutter/app/airtime/viewmodels/airtime_view_model.dart';
@@ -74,10 +75,10 @@ class _AirtimeBeneficiaryScreen extends State<AirtimeBeneficiaryScreen> with Aut
   }
 
   void _handleContract() {
-    if(widget.transactionRequestContract == null) return;
     //handle contract
     final contract = widget.transactionRequestContract;
     if(contract == null) return;
+
     if(contract.requestType == TransactionRequestContractType.REPLAY) {
       final transaction = contract.intent;
       final viewModel = Provider.of<AirtimeViewModel>(context, listen: false);
@@ -92,6 +93,11 @@ class _AirtimeBeneficiaryScreen extends State<AirtimeBeneficiaryScreen> with Aut
             billerId: (transaction).providerIdentifier
           )
       );
+
+      if(transaction.transactionCategory == TransactionCategory.DATA){
+        viewModel.setPurchaseType(PurchaseType.DATA);
+        viewModel.setDefaultDataItemCode(transaction.providerIdentifier);
+      }
 
       viewModel.setBeneficiary(mBeneficiary);
       Future.delayed(Duration(milliseconds: 500), () {

@@ -59,15 +59,13 @@ class _DashboardNotificationComponent extends State<DashboardNotificationCompone
                 ),
                 SizedBox(height: 9.71),
                 Expanded(child: ListView.separated(
+                  cacheExtent: 9999999999,
                   padding: EdgeInsets.only(bottom: 8),
                   scrollDirection: Axis.horizontal,
                   itemCount: data.length,
                   separatorBuilder: (ctx, index) => Padding(padding: EdgeInsets.only(left: 9, right: 9)),
                   itemBuilder: (ctx, index) {
                     final item = data[index];
-                    print("Somebody Sec =====>>>>${item.section}");
-                    print("Somebody ID =====>>>>${item.id}");
-                    print("Somebody key =====>>>>${item.initiativeKey}");
                     return _DashboardComponentItem(
                       item: data[index],
                       position: index,

@@ -196,24 +196,6 @@ class _TransferBeneficiaryScreen extends State<TransferBeneficiaryScreen> with A
     }
   }
 
-  // void _extraArguments(Object? obj){
-  //   //TODO use enums to represent the key names
-  //   if(obj == null || obj is! Map) return;
-  //
-  //   final replay = obj["replay"];
-  //   if(replay != null && replay is Map) {
-  //     final provider = AccountProvider()
-  //       ..bankCode = replay["bankCode"]
-  //       ..name = replay["bankName"];
-  //     final beneficiary = TransferBeneficiary(id:0, accountName: "", accountNumber: replay["accountNumber"]);
-  //     Future.delayed(Duration(milliseconds: 200), (){
-  //       doNameEnquiry(provider, beneficiary, withDefaultAmount: replay["amount"]);
-  //     });
-  //   }
-  //
-
-  // }
-
   @override
   Widget build(BuildContext context) {
     super.build(context);

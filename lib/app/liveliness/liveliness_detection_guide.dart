@@ -143,7 +143,7 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
     if(motionEvent.eventType == CameraMotionEvent.FirstCaptureEvent) {
       _firstCaptureEvent = motionEvent;
     }
-    if(motionEvent.eventType == CameraMotionEvent.MotionDetectedEvent) {
+    if(motionEvent.eventType == CameraMotionEvent.MotionDetectedEvent && _firstCaptureEvent != null) {
       _motionDetectedEvent = motionEvent;
       _eventTimer?.cancel();
       _validateLiveliness();
@@ -211,6 +211,7 @@ class _LivelinessDetectionGuide extends State<LivelinessDetectionGuide> with Tic
         title: title,
         primaryButtonText: "Try Again",
         onPrimaryClick: (){
+          print("This is where we tried again");
           Navigator.of(context).pop(true);
           _restartCapture();
         }

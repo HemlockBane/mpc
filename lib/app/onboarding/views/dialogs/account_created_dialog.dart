@@ -115,6 +115,9 @@ class _AccountCreatedDialog extends State<AccountCreatedDialog> with CompositeDi
                             TextButton.icon(
                                 onPressed: () {
                                   Clipboard.setData(ClipboardData(text:widget.accountProfile.accountNumber  ?? ""));
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text("Copied to Clipboard!"))
+                                  );
                                 },
                                 icon: SvgPicture.asset("res/drawables/ic_copy_full.svg", color: Colors.primaryColor,),
                                 label: Text(

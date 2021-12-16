@@ -8,6 +8,7 @@ import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/customer_service_delegate.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/data/account_update.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/data/address_info.dart';
+import 'package:moniepoint_flutter/app/accountupdates/model/data/cba_customer_info.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/data/customer_detail_info.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/drop_items.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/forms/additional_info_form.dart';
@@ -93,6 +94,10 @@ class AccountUpdateViewModel extends BaseViewModel {
     });
   }
 
+  Stream<Resource<CBACustomerInfo>> getCustomerInfo() {
+    return _customerServiceDelegate.getCustomerInfo(customerId);
+  }
+
   AccountUpdate _buildAccountUpdateRequest() {
     var customerDetailInfo = (_additionalInfoForm.isInitialized) ? additionalInfoForm.customerInfo : null;
 
@@ -129,8 +134,6 @@ class AccountUpdateViewModel extends BaseViewModel {
   void setIsLoading(bool isLoading) {
     this._loadingStateController.sink.add(isLoading);
   }
-
-
 
   Stream<Resource<Tier>> checkCustomerEligibility({AccountUpdate? accountUpdate, bool updateStatus = false}) async* {
     final mAccountUpdate = accountUpdate ?? _buildAccountUpdateRequest();

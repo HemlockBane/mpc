@@ -117,7 +117,7 @@ class AccountStatusRequirementState extends State<AccountStatusRequirementView> 
 
   @override
   Widget build(BuildContext context) {
-    if(widget.userAccount == null) return SizedBox();
+    if(widget.userAccount == null) return SizedBox.shrink();
     return Container(
       padding: EdgeInsets.only(left: 18, right: 18, bottom: 8),
       decoration: BoxDecoration(
@@ -168,7 +168,7 @@ class _AccountRequirementItemView extends StatelessWidget {
   final _AccountRequirementItem item;
 
   Widget displayVerifiedState() {
-    if(item.isVerified == null) return SizedBox();
+    if(item.isVerified == null) return SizedBox.shrink();
 
     if(item.isVerified == true) {
       return SvgPicture.asset("res/drawables/ic_circular_check_mark.svg", width: 26, height: 26,);
@@ -178,7 +178,7 @@ class _AccountRequirementItemView extends StatelessWidget {
   }
 
   Widget _displaySubTitleTwo() {
-    if (item.subTitleTwo == null) return SizedBox();
+    if (item.subTitleTwo == null) return SizedBox.shrink();
     //Text within curl braces are used to determine text that should be bold
     //We only accept only one of this pattern as required.
     final openBracketIndex = item.subTitleTwo!.indexOf("{");

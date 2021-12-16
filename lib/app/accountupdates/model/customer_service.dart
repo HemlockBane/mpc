@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart' hide Headers;
 import 'package:moniepoint_flutter/app/accounts/model/data/tier.dart';
 import 'package:moniepoint_flutter/app/accountupdates/model/data/account_update.dart';
+import 'package:moniepoint_flutter/app/accountupdates/model/data/cba_customer_info.dart';
 import 'package:moniepoint_flutter/core/config/build_config.dart';
 import 'package:moniepoint_flutter/core/config/service_config.dart';
 import 'package:moniepoint_flutter/core/models/file_uuid.dart';
@@ -40,6 +41,14 @@ abstract class CustomerService {
   })
   @POST("customer-scheme/eligible")
   Future<ServiceResult<Tier>> checkCustomerEligibility(@Query("customerId") int customerId, @Body() AccountUpdate accountUpdateRequest);
+
+  @Headers(<String, dynamic>{
+    "Content-Type": "application/json",
+    "client-id": BuildConfig.CLIENT_ID,
+    "appVersion": BuildConfig.APP_VERSION
+  })
+  @GET("cba-info")
+  Future<ServiceResult<CBACustomerInfo>> getCustomerInfo(@Query("customerId") int customerId);
 
   @Headers(<String, dynamic>{
     "Content-Type": "application/json",

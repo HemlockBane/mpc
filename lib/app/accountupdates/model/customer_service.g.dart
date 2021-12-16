@@ -97,6 +97,31 @@ class _CustomerService implements CustomerService {
   }
 
   @override
+  Future<ServiceResult<CBACustomerInfo>> getCustomerInfo(customerId) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{r'customerId': customerId};
+    final _data = <String, dynamic>{};
+    final _result = await _dio.fetch<Map<String, dynamic>>(
+        _setStreamType<ServiceResult<CBACustomerInfo>>(Options(
+                method: 'GET',
+                headers: <String, dynamic>{
+                  r'Content-Type': 'application/json',
+                  r'client-id': 'ANDROID',
+                  r'appVersion': '0.0.1'
+                },
+                extra: _extra,
+                contentType: 'application/json')
+            .compose(_dio.options, 'cba-info',
+                queryParameters: queryParameters, data: _data)
+            .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = ServiceResult<CBACustomerInfo>.fromJson(
+      _result.data!,
+      (json) => CBACustomerInfo.fromJson(json as Map<String, dynamic>),
+    );
+    return value;
+  }
+
+  @override
   Future<ServiceResult<FileUUID>> uploadDocument(selfieImage) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};

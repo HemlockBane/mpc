@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:moniepoint_flutter/app/growth/model/data/pop_up_notification_data.dart';
 import 'package:moniepoint_flutter/app/growth/model/data/growth_notification.dart';
+import 'package:moniepoint_flutter/app/growth/model/interpreter/navigation_interpreter.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
+import 'package:moniepoint_flutter/main.dart';
 import 'package:swipeable_card_stack/swipe_controller.dart';
 import 'package:swipeable_card_stack/swipeable_card_stack.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -88,6 +91,9 @@ class _PopUpNotificationPage extends StatelessWidget {
 
 }
 
+///_PopUpCard
+///
+///
 class _PopUpCard extends StatefulWidget {
 
   _PopUpCard({
@@ -101,6 +107,9 @@ class _PopUpCard extends StatefulWidget {
   State<StatefulWidget> createState()  => _PopUpCardState(growthPopupNotification);
 }
 
+///_PopUpCardState
+///
+///
 class _PopUpCardState extends State<_PopUpCard> {
 
   _PopUpCardState(this.growthPopupNotification);
@@ -126,6 +135,12 @@ class _PopUpCardState extends State<_PopUpCard> {
       ),
       child: WebView(
         initialUrl: _htmlBase64,
+        navigationDelegate: (a) {
+          // NavigationInterpreter.interpret(a.url);
+          print("This is us trying to navigate");
+          // navigatorKey.currentState?.pushNamed(Routes.ACCOUNT_STATUS);
+          return NavigationDecision.prevent;
+        },
       ),
     );
   }

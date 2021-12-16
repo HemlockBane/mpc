@@ -37,6 +37,9 @@ class AirtimeViewModel extends BaseViewModel with PaymentViewModel {
   PurchaseType _purchaseType = PurchaseType.AIRTIME;
   PurchaseType get purchaseType => _purchaseType;
 
+  String? _dataPlanItemCode;
+  String? get dataPlanItemCode => _dataPlanItemCode;
+
   AirtimeServiceProviderItem? _dataPlan;
   AirtimeServiceProviderItem? get dataPlan => _dataPlan;
 
@@ -63,12 +66,22 @@ class AirtimeViewModel extends BaseViewModel with PaymentViewModel {
       if((event is Success || event is Loading) && (_dataProviderItems.isEmpty && event.data?.isNotEmpty == true)) {
         _dataProviderItems.clear();
         _dataProviderItems.addAll(event.data ?? []);
+        //pre-select the default dataProviderItem for data
+        if (_dataPlanItemCode != null) {
+          for (var i = 0; i < _dataProviderItems.length; i++) {
+            if (_dataProviderItems[i].code == _dataPlanItemCode) {
+              setServiceProviderItem(_dataProviderItems[i]);
+              break;
+            }
+          }
+        }
       }
       return event;
     });
   }
 
   void setPurchaseType(PurchaseType purchaseType) => this._purchaseType = purchaseType;
+  void setDefaultDataItemCode(String? itemCode) => this._dataPlanItemCode = itemCode;
   void setServiceProviderItem(AirtimeServiceProviderItem? item) {
     this._dataPlan = item;
     checkValidity();

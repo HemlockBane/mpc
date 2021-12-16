@@ -25,8 +25,17 @@ class SavingsFlexEnableViewModel extends BaseViewModel {
     this._fileManagementServiceDelegate = fileManagementServiceDelegate ?? GetIt.I<FileManagementServiceDelegate>();
   }
 
-  Stream<Resource<FlexSaving>> enableFlexSavings() {
-    return this._productServiceDelegate.enableFlexSaving(customerId);
+  Stream<Resource<FlexSaving>> enableFlexSavings() async* {
+    final stream = this._productServiceDelegate.enableFlexSaving(customerId);
+    await for (var response in stream) {
+      if(response is Loading || response is Error) yield response;
+      if(response is Success) {
+        yield* this._productServiceDelegate.getRunningFlexSavings(customerId).map((event) {
+          if(event is Loading) return Resource.loading(null);
+          return response;
+        });
+      }
+    }
   }
 
   void setIsEnablingFlex(bool isEnablingFlex) {

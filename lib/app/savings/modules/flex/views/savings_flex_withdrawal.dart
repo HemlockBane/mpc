@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart' hide Colors, ScrollView;
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/savings_flex_withdrawal_viewmodel.dart';
-import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_flex_withdrawal_confirmation.dart';
-import 'package:moniepoint_flutter/app/savings/savings_success_view.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/views/forms/savings_flex_withdrawal_confirmation.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/list_item.dart';
 import 'package:moniepoint_flutter/core/utils/list_view_util.dart';
@@ -19,6 +18,7 @@ import 'package:provider/provider.dart';
 
 
 class SavingsFlexWithdrawalView extends StatefulWidget {
+
   const SavingsFlexWithdrawalView({
     Key? key,
     required this.flexSavingId
@@ -34,7 +34,8 @@ class SavingsFlexWithdrawalView extends StatefulWidget {
 ///_SavingsFlexWithdrawalViewState
 ///
 ///
-class _SavingsFlexWithdrawalViewState extends State<SavingsFlexWithdrawalView> with SingleTickerProviderStateMixin{
+class _SavingsFlexWithdrawalViewState extends State<SavingsFlexWithdrawalView>
+    with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin{
 
   late final AnimationController _animationController;
   late final SavingsFlexWithdrawalViewModel _viewModel;
@@ -79,18 +80,21 @@ class _SavingsFlexWithdrawalViewState extends State<SavingsFlexWithdrawalView> w
     super.initState();
   }
 
-  Widget _amountWidget() => Container(
-    padding: EdgeInsets.symmetric(horizontal: 14, vertical: 26),
-    decoration: BoxDecoration(
-        color: Color(0xffA5C097).withOpacity(0.15),
-        borderRadius: BorderRadius.all(Radius.circular(8))),
-    child: PaymentAmountView((_viewModel.amount! * 100).toInt(), (value) {
+  Widget _amountWidget() {
+    final amount = _viewModel.amount ?? 0;
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 26),
+      decoration: BoxDecoration(
+          color: Color(0xffA5C097).withOpacity(0.15),
+          borderRadius: BorderRadius.all(Radius.circular(8))),
+      child: PaymentAmountView((amount * 100).toInt(), (value) {
         _viewModel.setAmount(value / 100);
       },
-      currencyColor: Color(0xffC1C2C5).withOpacity(0.5),
-      textColor: Colors.textColorBlack,
-    ),
-  );
+        currencyColor: Color(0xffC1C2C5).withOpacity(0.5),
+        textColor: Colors.textColorBlack,
+      ),
+    );
+  }
 
   void _navigateToConfirmation() {
     Navigator.of(context).push(
@@ -105,7 +109,7 @@ class _SavingsFlexWithdrawalViewState extends State<SavingsFlexWithdrawalView> w
 
   Widget _displayWithdrawalNotification() {
     final count = _viewModel.flexSavingAccount?.withdrawalCount?.count;
-    if(count == null) return SizedBox();
+    if(count == null) return SizedBox.shrink();
     return SavingsNotificationBanner(
         notificationType: NotificationType.info,
         notificationString: "${_viewModel.flexSavingAccount?.withdrawalCount?.message}"
@@ -114,11 +118,11 @@ class _SavingsFlexWithdrawalViewState extends State<SavingsFlexWithdrawalView> w
 
   @override
   Widget build(BuildContext context) {
-    final bottom = MediaQuery.of(context).viewPadding.bottom;
-
+    super.build(context);
     return SessionedWidget(
       context: context,
       child: Scaffold(
+        resizeToAvoidBottomInset: true,
         backgroundColor: Colors.white,
         appBar: AppBar(
             centerTitle: false,
@@ -145,7 +149,7 @@ class _SavingsFlexWithdrawalViewState extends State<SavingsFlexWithdrawalView> w
               return ListViewUtil.defaultLoadingView(_animationController);
             }
 
-            if(snap.hasData == false || flexSaving == null) return Container();
+            if(snap.hasData == false || flexSaving == null) return SizedBox.shrink();
 
             _viewModel.setFlexSavingAccount(flexSaving);
 
@@ -153,7 +157,7 @@ class _SavingsFlexWithdrawalViewState extends State<SavingsFlexWithdrawalView> w
               color: Color(0XFFF5F5F5).withOpacity(0.7),
               padding: EdgeInsets.symmetric(horizontal: 21),
               child: ScrollView(
-                maxHeight: MediaQuery.of(context).size.height - (70 + bottom),
+                // maxHeight: MediaQuery.of(context).size.height - (70 + bottom),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -221,6 +225,10 @@ class _SavingsFlexWithdrawalViewState extends State<SavingsFlexWithdrawalView> w
     _animationController.dispose();
     super.dispose();
   }
+
+  @override
+  bool get wantKeepAlive => true;
+
 }
 
 ///_TotalSavingsView

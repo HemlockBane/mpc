@@ -168,7 +168,7 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
     }
   }
 
-  List<Widget> _buildAdditionalFields(BillPurchaseViewModel viewModel) {
+  List<Widget> _buildAdditionalFields() {
     List<InputField> fieldList = [];
     final additionalFields = viewModel.billerProduct?.additionalFieldsMap;
     if(additionalFields == null) return [];
@@ -222,7 +222,7 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
                       fontSize: 13.4,
                       value: viewModel.setDefaultAdditionalFieldValue(e.key ?? ""),
                       inputType: (e.dataType == "NUMBER") ? TextInputType.numberWithOptions() : TextInputType.text,
-                      onChanged: (value) => _onAdditionalFieldInputChange(viewModel, e, value)
+                      onChanged: (value) => _onAdditionalFieldInputChange(e, value)
                   );
                 }
             )
@@ -236,7 +236,7 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
     }).toList();
   }
 
-  void _onAdditionalFieldInputChange(BillPurchaseViewModel viewModel, InputField field, String? value) {
+  void _onAdditionalFieldInputChange(InputField field, String? value) {
     viewModel.setAdditionalFieldData(field.key!, value ?? "");
   }
 
@@ -273,7 +273,6 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final viewModel = Provider.of<BillPurchaseViewModel>(context, listen: false);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -350,7 +349,7 @@ class _BillPaymentScreen extends State<BillPaymentScreen> with AutomaticKeepAliv
                           ))
                       ),
                       SizedBox(height: 24),
-                      ..._buildAdditionalFields(viewModel),
+                      ..._buildAdditionalFields(),
                       SizedBox(height: 16),
                       Expanded(
                           flex: 1,

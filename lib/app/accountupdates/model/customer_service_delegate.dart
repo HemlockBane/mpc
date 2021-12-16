@@ -8,6 +8,8 @@ import 'package:moniepoint_flutter/core/models/file_uuid.dart';
 import 'package:moniepoint_flutter/core/network/network_bound_resource.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 
+import 'data/cba_customer_info.dart';
+
 class CustomerServiceDelegate with NetworkResource {
   late final CustomerService _service;
   late final SchemeDao _schemeDao;
@@ -51,6 +53,13 @@ class CustomerServiceDelegate with NetworkResource {
     return networkBoundResource(
         fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => this._service.uploadDocument(file)
+    );
+  }
+
+  Stream<Resource<CBACustomerInfo>> getCustomerInfo(int customerId) {
+    return networkBoundResource(
+        fetchFromLocal: () => Stream.value(null),
+        fetchFromRemote: () => this._service.getCustomerInfo(customerId)
     );
   }
 }

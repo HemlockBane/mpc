@@ -36,8 +36,6 @@ class _ValidPasswordChecker extends State<ValidPasswordChecker> with Validators{
   Widget build(BuildContext context) {
     final passwordErrors = validatePasswordWithMessage(widget.password).second;
 
-    print(widget.password);
-
     final hasLowerCase = _isValidForKey(passwordErrors, "valid password");
     final hasUpperCase = _isValidForKey(passwordErrors, "uppercase");
     final hasSpecialCase = _isValidForKey(passwordErrors, "special");

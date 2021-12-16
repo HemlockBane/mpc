@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:moniepoint_flutter/app/accounts/model/data/account_transaction.dart';
 import 'package:moniepoint_flutter/app/billpayments/viewmodels/bill_category_view_model.dart';
 import 'package:moniepoint_flutter/app/billpayments/viewmodels/bill_history_view_model.dart';
 import 'package:moniepoint_flutter/app/billpayments/viewmodels/bill_purchase_view_model.dart';
@@ -8,6 +9,7 @@ import 'package:moniepoint_flutter/app/billpayments/views/bill_beneficiary_view.
 import 'package:moniepoint_flutter/app/billpayments/views/bill_category_list_view.dart';
 import 'package:moniepoint_flutter/app/billpayments/views/bill_payment_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/models/TransactionRequestContract.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/views/moniepoint_scaffold.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
@@ -25,14 +27,36 @@ class BillScreen extends StatefulWidget {
   static const BENEFICIARY_SCREEN = "bill_beneficiary";
   static const PAYMENT_SCREEN = "payment";
 
-  BillScreen();
+  BillScreen({this.transactionRequestContract});
+
+  final TransactionRequestContract? transactionRequestContract;
 
   @override
   State<StatefulWidget> createState() => _BillScreen();
 
 }
 
+///_BillScreen
+///
 class _BillScreen extends State<BillScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+    _handleContract();
+  }
+
+  void _handleContract() {
+    final contract = widget.transactionRequestContract;
+    if(contract == null) return;
+    if(contract.requestType == TransactionRequestContractType.REPLAY){
+      final transaction = contract.intent;
+      if(transaction is AccountTransaction) {
+        //TODO
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(

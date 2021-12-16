@@ -42,8 +42,19 @@ class TransactionServiceDelegate with NetworkResource {
     );
   }
 
-  Future<AccountTransaction?> getSingleAccountTransaction(String transactionRef){
-    return _transactionDao.getTransactionByRef(transactionRef);
+  Future<AccountTransaction?> getSingleAccountTransaction(String transactionRef) async {
+    final localTransaction = await _transactionDao.getTransactionByRef(transactionRef);
+    if(localTransaction == null) {
+      try {
+        final response = await _service.getTransactionByReference(transactionRef);
+        final transaction = response.result;
+        await _transactionDao.insertItem(transaction!);
+        return transaction;
+      } catch(e) {
+        return localTransaction;
+      }
+    }
+    return localTransaction;
   }
 
   Stream<Uint8List> exportStatement(ExportStatementRequestBody requestBody) async* {

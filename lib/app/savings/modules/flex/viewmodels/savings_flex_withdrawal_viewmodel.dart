@@ -21,7 +21,9 @@ class SavingsFlexWithdrawalViewModel extends BaseViewModel with SavingsViewModel
 
   @override
   bool validityCheck() {
-    return (this.amount ?? 0.00) >= 1 && sourceAccount != null && flexSavingAccount != null;
+    final amount = (this.amount ?? 0.00);
+    return (amount >= 1 && amount <= (flexSavingAccount?.accountBalance?.availableBalance ?? 0))
+        && sourceAccount != null && flexSavingAccount != null;
   }
 
   Future<FlexSaving?> getFlexSaving(int flexSavingId) async {

@@ -37,19 +37,6 @@ class SavingsEnableFlexState extends State<SavingsEnableFlexView> {
 
   late final SavingsFlexEnableViewModel viewModel;
 
-  TextStyle getBoldStyle(
-      {double fontSize = 32.5,
-        Color color = Colors.textColorBlack,
-        FontWeight fontWeight = FontWeight.w700}) =>
-      TextStyle(fontWeight: fontWeight, fontSize: fontSize, color: color);
-
-  TextStyle getNormalStyle(
-      {double fontSize = 32.5,
-        Color color = Colors.white,
-        FontWeight fontWeight = FontWeight.w400}) =>
-      TextStyle(fontWeight: fontWeight, fontSize: fontSize, color: color);
-
-
   @override
   initState() {
     viewModel = Provider.of<SavingsFlexEnableViewModel>(context, listen: false);
@@ -140,7 +127,11 @@ class SavingsEnableFlexState extends State<SavingsEnableFlexView> {
               children: [
                 Text(
                   "Flex Savings",
-                  style: getBoldStyle(),
+                  style: TextStyle(
+                    fontSize: 32.5,
+                    color: Colors.textColorBlack,
+                    fontWeight: FontWeight.w700
+                  ),
                 ),
                 SizedBox(height: 16),
                 Text(widget.product.longDescription ?? "",
@@ -218,6 +209,8 @@ class SavingsEnableFlexState extends State<SavingsEnableFlexView> {
               child: UUIDImage(
                 fileUUID: widget.product.headerImage,
                 fileStreamFn: (uuid) => viewModel.getFile(uuid),
+                height: null,
+                width: null,
               ),
             ),
             Positioned(
@@ -426,7 +419,12 @@ class FlexEnabledSuccessContent extends StatelessWidget {
                 ),
               ),
               TextButton.icon(
-                  onPressed: () => Clipboard.setData(ClipboardData(text: accountNumber)),
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: accountNumber));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Copied to Clipboard!"))
+                    );
+                  },
                   icon: SvgPicture.asset(
                     'res/drawables/ic_copy_full.svg',
                     color: Colors.white,

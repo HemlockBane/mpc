@@ -32,11 +32,6 @@ class _FirstFlexSetupFormState extends State<FirstFlexSetupForm> with AutomaticK
   final List<ListDataItem<String>> amountPills = List.generate(4, (index) => ListDataItem((5000 * (index + 1)).formatCurrencyWithoutLeadingZero));
   final TextEditingController _flexSavingNameController = TextEditingController();
 
-  final _savingModes = FlexSaveMode.values.map((e) {
-    final title = describeEnum(e);
-    return ComboItem(e, title.toLowerCase().capitalizeFirstOfEach);
-  });
-
   List<Widget> generateAmountPillsWidget() {
     final pills = <Widget>[];
     amountPills.forEachIndexed((index, element) {
@@ -118,8 +113,6 @@ class _FirstFlexSetupFormState extends State<FirstFlexSetupForm> with AutomaticK
                     : e == FlexSaveMode.MONTHLY;
 
                 final title = describeEnum(e);
-                print("Round Mode <<===>> $title");
-                print("Round Mode <<===>> $isSelected");
                 return ComboItem<FlexSaveMode>(
                     e,
                     title.toLowerCase().capitalizeFirstOfEach,

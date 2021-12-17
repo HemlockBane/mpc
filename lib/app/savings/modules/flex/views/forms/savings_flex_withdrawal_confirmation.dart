@@ -137,7 +137,6 @@ class _FlexSavingWithdrawalConfirmationState extends State<FlexSavingWithdrawalC
               primaryButtonAction: () {
                 navigatorKey.currentState?.pushNamedAndRemoveUntil(
                     Routes.SAVINGS_FLEX_DASHBOARD, (route) {
-                  print("RouteName===>${route.settings.name}");
                   return route.settings.name == Routes.FLEX_SAVINGS;
                 }, arguments: {"flexSavingId": _viewModel.flexSavingAccount?.id});
               },

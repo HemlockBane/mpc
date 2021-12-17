@@ -12,7 +12,6 @@ import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
 import 'package:moniepoint_flutter/main.dart';
 import 'package:shimmer/shimmer.dart';
 
-import 'savings_dasboard_view.dart';
 
 enum SavingsProductType {
   FLEX,

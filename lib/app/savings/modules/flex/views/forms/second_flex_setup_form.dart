@@ -5,7 +5,7 @@ import 'package:moniepoint_flutter/app/accountupdates/views/forms/account_update
 import 'package:moniepoint_flutter/app/airtime/views/selection_combo.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving_config.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/flex_setup_viewmodel.dart';
-import 'package:moniepoint_flutter/app/savings/modules/flex/views/flex_setup_confirmation.dart';
+import 'package:moniepoint_flutter/app/savings/modules/flex/views/forms/flex_setup_confirmation.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/extensions/strings.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -47,7 +47,7 @@ class _SecondFlexSetupFormState extends State<SecondFlexSetupForm> with Automati
     super.initState();
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
       Future.delayed(Duration(milliseconds: 100), (){
-        _viewModel.setForm2Default();
+        _viewModel.resetFormToDefault();
       });
     });
   }

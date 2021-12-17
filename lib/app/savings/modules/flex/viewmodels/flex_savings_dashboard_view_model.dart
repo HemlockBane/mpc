@@ -1,5 +1,4 @@
 import 'package:get_it/get_it.dart';
-import 'package:moniepoint_flutter/app/accounts/model/data/account_balance.dart';
 import 'package:moniepoint_flutter/app/savings/model/savings_product_service_delegate.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_account_balance.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving.dart';

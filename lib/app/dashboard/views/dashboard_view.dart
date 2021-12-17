@@ -26,7 +26,7 @@ import 'dashboard_account_card.dart';
 import 'package:flutter/rendering.dart';
 
 import 'dashboard_more_view.dart';
-import '../../savings/views/savings_dasboard_view.dart';
+import '../../savings/views/savings_dashboard_view.dart';
 import 'dashboard_notification_component.dart';
 import 'dashboard_top_menu.dart';
 

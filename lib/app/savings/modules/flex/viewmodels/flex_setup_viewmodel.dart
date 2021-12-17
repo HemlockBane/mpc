@@ -134,7 +134,7 @@ class FlexSetupViewModel extends BaseViewModel with SavingsViewModel{
     _flexSaving = flexSaving;
   }
 
-  void setForm2Default() {
+  void resetFormToDefault() {
     if(_currentPage == 1 && _flexSavingConfig != null) {
       setFlexSaveType(_flexSavingConfig?.flexSaveType);
       if(_flexSavingConfig?.flexSaveMode == FlexSaveMode.WEEKLY) {
@@ -226,7 +226,7 @@ class FlexSetupViewModel extends BaseViewModel with SavingsViewModel{
       if(response is Loading || response is Error) yield response;
       if(response is Success) {
         yield* this._productServiceDelegate.getRunningFlexSavings(customerId).map((event) {
-          if(event is Loading)   return Resource.loading(null);
+          if(event is Loading) return Resource.loading(null);
           return response;
         });
       }

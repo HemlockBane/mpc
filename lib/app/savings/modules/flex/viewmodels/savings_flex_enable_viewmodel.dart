@@ -8,7 +8,8 @@ import 'package:moniepoint_flutter/core/models/services/file_management_service_
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 
-
+///SavingsFlexEnableViewModel
+///
 class SavingsFlexEnableViewModel extends BaseViewModel {
 
   late final SavingsProductServiceDelegate _productServiceDelegate;

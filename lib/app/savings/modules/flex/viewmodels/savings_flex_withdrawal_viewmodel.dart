@@ -11,7 +11,6 @@ import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/savings_v
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 
-
 class SavingsFlexWithdrawalViewModel extends BaseViewModel with SavingsViewModel{
   late final SavingsProductServiceDelegate _flexProductDelegate;
 
@@ -67,6 +66,5 @@ class SavingsFlexWithdrawalViewModel extends BaseViewModel with SavingsViewModel
   void dispose() {
     super.dispose();
   }
-
 
 }

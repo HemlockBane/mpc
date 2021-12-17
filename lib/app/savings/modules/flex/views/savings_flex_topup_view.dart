@@ -17,7 +17,6 @@ import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:moniepoint_flutter/core/views/user_account_selection_view.dart';
 import 'package:moniepoint_flutter/main.dart';
-import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:provider/provider.dart';
 
 class SavingsFlexTopUpView extends StatefulWidget {
@@ -153,7 +152,6 @@ class _SavingsFlexTopUpViewState extends State<SavingsFlexTopUpView> {
               final FlexSaving? flexSaving = snap.data;
 
               if(snap.hasData == false || flexSaving == null) return Container();
-              _viewModel.setFlexSavingAccount(flexSaving);
 
               return Container(
                 color: Color(0XFFF5F5F5).withOpacity(0.7),

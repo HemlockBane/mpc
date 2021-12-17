@@ -10,7 +10,8 @@ import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/savings_v
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 
-
+///SavingsFlexTopUpViewModel
+///
 class SavingsFlexTopUpViewModel extends BaseViewModel with SavingsViewModel{
 
   late final SavingsProductServiceDelegate _flexProductDelegate;

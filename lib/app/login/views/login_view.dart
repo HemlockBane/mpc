@@ -573,34 +573,6 @@ class _LoginTopMenuView extends Stack {
   @override
   List<Widget> get children => _contentView();
 
-  Widget makeTextWithIcon(
-      {required String src,
-        required String text,
-        VoidCallback? onClick,
-        required double width,
-        required double height,
-        double spacing = 4}) {
-    return GestureDetector(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SvgPicture.asset(
-            src,
-            fit: BoxFit.contain,
-            width: width,
-            height: height,
-          ),
-          SizedBox(height: spacing),
-          Text(text,
-              style: TextStyle(fontFamily: Styles.defaultFont, fontSize: 12, color: Colors.white)
-          )
-        ],
-      ),
-      onTap: onClick,
-    );
-  }
-
   List<Widget> _contentView() {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
@@ -637,7 +609,7 @@ class _LoginTopMenuView extends Stack {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              makeTextWithIcon(
+              Styles.makeTextWithIcon(
                   text: "Support",
                   src: "res/drawables/ic_support_v2.svg",
                   spacing: 5,
@@ -646,13 +618,14 @@ class _LoginTopMenuView extends Stack {
                   onClick: () => Navigator.of(context).pushNamed(Routes.SUPPORT)
               ),
               SizedBox(width: 18),
-              makeTextWithIcon(
+              Styles.makeTextWithIcon(
                   text: "Branches",
                   spacing: 0.2,
                   width: 22,
                   height: 26,
                   src: "res/drawables/ic_branches.svg",
-                  onClick: () => Navigator.of(context).pushNamed(Routes.BRANCHES))
+                  onClick: () => Navigator.of(context).pushNamed(Routes.BRANCHES)
+              )
             ],
           ),
         ),

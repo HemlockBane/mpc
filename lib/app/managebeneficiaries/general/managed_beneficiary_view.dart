@@ -8,7 +8,6 @@ import 'package:moniepoint_flutter/app/managebeneficiaries/general/remove_benefi
 import 'package:moniepoint_flutter/app/managebeneficiaries/general/remove_beneficiary_view_model.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/viewmodels/transfer_beneficiary_view_model.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/views/transfer_beneficiary_list_view.dart';
-import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/custom_fonts.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -99,6 +98,112 @@ class _ManagedBeneficiaryScreen extends State<ManagedBeneficiaryScreen> {
     }
   }
 
+  Widget _listSection(BuildContext mContext) {
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+      ),
+      child: Column(
+        children: [
+          SizedBox(height: 24),
+          TransactionTab(tabBar: TabBar(
+            isScrollable: true,
+            padding: EdgeInsets.zero,
+            labelPadding: EdgeInsets.only(left: 4, right: 4, bottom: 0, top: 0),
+            indicatorPadding: EdgeInsets.only(left: 0, right: 0, bottom: 1, top: 0),
+            overlayColor: MaterialStateProperty.all(Colors.transparent),
+            indicatorSize: TabBarIndicatorSize.label,
+            indicator: BoxDecoration(
+                borderRadius: BorderRadius.circular(50),
+                color: Colors.primaryColor.withOpacity(0.1)
+            ),
+            unselectedLabelColor: Colors.black,
+            indicatorColor: Colors.primaryColor.withOpacity(0.13),
+            labelColor: Colors.primaryColor,
+            tabs: [
+              Tab(
+                child: Container(
+                  width: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Text("Transfer"),
+                  ),
+                ),
+              ),
+              Tab(
+                child: Container(
+                  width: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Text("Airtime"),
+                  ),
+                ),
+              ),
+              Tab(
+                child: Container(
+                  width: 60,
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Text("Bills"),
+                  ),
+                ),
+              )
+            ],
+          )),
+          SizedBox(height: 21),
+          Divider(
+            color: Colors.black.withOpacity(0.1),
+            height: 0.8,
+          ),
+          SizedBox(height: 22),
+          Flexible(
+              flex: 0,
+              child: Padding(
+                padding: EdgeInsets.only(left: 16, right: 16),
+                child: Styles.appEditText(
+                    fillColor: Color(0XFF97A6C0).withOpacity(0.2),
+                    controller: _searchController,
+                    padding: EdgeInsets.only(top: 20, bottom: 20),
+                    startIcon: Icon(CustomFont.search, color: Colors.black.withOpacity(0.3)),
+                    hint: 'Search Beneficiary',
+                    fontSize: 13,
+                    onChanged: (value) {
+                      final currentIndex = DefaultTabController.of(mContext)?.index;
+                      _updateSearch(currentIndex ?? 0, value);
+                    }
+                ),
+              )
+          ),
+          SizedBox(height: 16,),
+          Expanded(
+              child: TabBarView(
+                  children: [
+                    TransferBeneficiaryListScreen(key: _transferBeneficiaryState,scaffoldKey: this._scaffoldKey, isSelectMode: false,),
+                    AirtimeBeneficiaryListScreen(key:_airtimeBeneficiaryState,scaffoldKey: this._scaffoldKey, isSelectMode: false,),
+                    BillBeneficiaryListScreen(key:_billBeneficiaryState,scaffoldKey: this._scaffoldKey, isSelectMode: false,)
+                  ]
+              )
+          )
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -114,70 +219,63 @@ class _ManagedBeneficiaryScreen extends State<ManagedBeneficiaryScreen> {
               child: Builder(builder: (BuildContext mContext) {
                 _registerTabController(DefaultTabController.of(mContext));
                 return Scaffold(
-                  backgroundColor: Colors.backgroundWhite,
                   key: _scaffoldKey,
+                  backgroundColor: Colors.white,
+                  extendBodyBehindAppBar: true,
                   appBar: AppBar(
                       centerTitle: false,
-                      titleSpacing: -12,
+                      titleSpacing: 0,
                       iconTheme: IconThemeData(color: Colors.primaryColor),
-                      title: Text('Manage Beneficiaries',
+                      title: Text('Settings',
                           textAlign: TextAlign.start,
                           style: TextStyle(
-                              color: Colors.darkBlue,
-                              fontFamily: Styles.defaultFont,
-                              fontSize: 17
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.textColorBlack
                           )
                       ),
-                      backgroundColor: Colors.backgroundWhite,
+                      backgroundColor: Colors.backgroundWhite.withOpacity(0.05),
                       elevation: 0
                   ),
-                  body: Column(
-                    children: [
-                      SizedBox(height: 16),
-                      TransactionTab(
-                          TabBar(
-                            indicator: BoxDecoration(
-                                borderRadius: BorderRadius.circular(50),
-                                color: Colors.primaryColor
+                  body: Container(
+                    padding: EdgeInsets.only(top: 120),
+                    decoration: BoxDecoration(
+                        color: Colors.backgroundWhite,
+                        image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: AssetImage("res/drawables/ic_app_new_bg.png")
+                        )
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(left: 16),
+                          child: Text(
+                            "Manage\nBeneficiaries",
+                            style: TextStyle(
+                                color: Colors.textColorBlack,
+                                fontSize: 24,
+                                fontWeight: FontWeight.w700
                             ),
-                            unselectedLabelColor: Color(0XFF8030424C),
-                            tabs: [
-                              Tab(text: "Transfer"),
-                              Tab(text: "Airtime"),
-                              Tab(text: "Bill Payment")
-                            ],
                           ),
-                          Colors.tabBackground.withOpacity(0.16)
-                      ),
-                      SizedBox(height: 24),
-                      Flexible(
-                          flex: 0,
-                          child: Padding(
-                            padding: EdgeInsets.only(left: 16, right: 16),
-                            child: Styles.appEditText(
-                                controller: _searchController,
-                                padding: EdgeInsets.only(top: 20, bottom: 20),
-                                startIcon: Icon(CustomFont.search, color: Colors.colorFaded),
-                                hint: 'Search Beneficiary',
-                                fontSize: 13,
-                                onChanged: (value) {
-                                  final currentIndex = DefaultTabController.of(mContext)?.index;
-                                  _updateSearch(currentIndex ?? 0, value);
-                                }
+                        ),
+                        SizedBox(height: 2),
+                        Padding(
+                          padding: EdgeInsets.only(left: 16),
+                          child: Text(
+                            "Customize your Moniepoint experience",
+                            style: TextStyle(
+                              color: Colors.textColorBlack.withOpacity(0.5),
+                              fontWeight: FontWeight.w500,
+                              fontSize: 12,
                             ),
-                          )
-                      ),
-                      SizedBox(height: 16,),
-                      Expanded(
-                          child: TabBarView(
-                              children: [
-                                TransferBeneficiaryListScreen(key: _transferBeneficiaryState,scaffoldKey: this._scaffoldKey, isSelectMode: false,),
-                                AirtimeBeneficiaryListScreen(key:_airtimeBeneficiaryState,scaffoldKey: this._scaffoldKey, isSelectMode: false,),
-                                BillBeneficiaryListScreen(key:_billBeneficiaryState,scaffoldKey: this._scaffoldKey, isSelectMode: false,)
-                              ]
-                          )
-                      )
-                    ],
+                          ),
+                        ),
+                        SizedBox(height: 26),
+                        Expanded(child: _listSection(mContext))
+                      ],
+                    ),
                   ),
                 );
               }))

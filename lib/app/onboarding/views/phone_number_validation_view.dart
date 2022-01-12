@@ -46,7 +46,8 @@ class _PhoneNumberValidationScreen extends State<PhoneNumberValidationScreen> {
       }
     });
   }
-  void _fetchNationalities()  {
+
+  void _fetchNationalities() {
     final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
     if(viewModel.nationalities.isEmpty) viewModel.fetchCountries().listen((event) { });
   }

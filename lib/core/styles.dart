@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/DropDownItem.dart';
 
@@ -126,7 +127,8 @@ class Styles {
           fontSize: 16,
           color: Colors.deepGrey,
           fontWeight: FontWeight.w500,
-          fontFamily: Styles.defaultFont)),
+          fontFamily: Styles.defaultFont)
+      ),
       foregroundColor: MaterialStateProperty.all(Colors.deepGrey),
       backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
         if (states.contains(MaterialState.disabled))
@@ -140,6 +142,26 @@ class Styles {
           EdgeInsets.symmetric(horizontal: 16, vertical: 16)),
       shape: MaterialStateProperty.all(
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))));
+
+  static final ButtonStyle lightGreyButtonStyle = ButtonStyle(
+      textStyle: MaterialStateProperty.all(TextStyle(
+          fontSize: 16,
+          color: Colors.deepGrey,
+          fontWeight: FontWeight.w500,
+          fontFamily: Styles.defaultFont)
+      ),
+      foregroundColor: MaterialStateProperty.all(Colors.deepGrey),
+      backgroundColor: MaterialStateProperty.resolveWith<Color>((states) {
+        if (states.contains(MaterialState.disabled))
+          return Colors.deepGrey.withOpacity(0.3);
+        else if (states.contains(MaterialState.pressed))
+          return Colors.deepGrey.withOpacity(0.3);
+        else
+          return Colors.deepGrey.withOpacity(0.1);
+      }),
+      padding: MaterialStateProperty.all(EdgeInsets.symmetric(horizontal: 16, vertical: 16)),
+      shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)))
+  );
 
   static final ButtonStyle savingsFlexButtonStyle = ButtonStyle(
       textStyle: MaterialStateProperty.all(TextStyle(
@@ -493,7 +515,8 @@ class Styles {
             bottom: 16,
             child: isLoading
                 ? SpinKitThreeBounce(size: 20.0, color: loadingColor ?? Colors.primaryColor.withOpacity(0.5))
-                : SizedBox())
+                : SizedBox()
+        )
       ],
     );
   }
@@ -547,6 +570,34 @@ class Styles {
         color: color,
         letterSpacing: letterSpacing ?? defaultStyle?.letterSpacing,
         fontFamily: "Inter");
+  }
+
+  static Widget makeTextWithIcon(
+      {required String src,
+        required String text,
+        VoidCallback? onClick,
+        required double width,
+        required double height,
+        double spacing = 4}) {
+    return GestureDetector(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SvgPicture.asset(
+            src,
+            fit: BoxFit.contain,
+            width: width,
+            height: height,
+          ),
+          SizedBox(height: spacing),
+          Text(text,
+              style: TextStyle(fontFamily: Styles.defaultFont, fontSize: 12, color: Colors.white)
+          )
+        ],
+      ),
+      onTap: onClick,
+    );
   }
 }
 

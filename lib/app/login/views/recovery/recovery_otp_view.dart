@@ -15,6 +15,7 @@ import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/views/otp_ussd_info_view.dart';
+import 'package:moniepoint_flutter/core/views/pin_entry.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:provider/provider.dart';
 
@@ -219,18 +220,12 @@ class _RecoveryOtpView extends State<RecoveryOtpView> {
                               fontSize: 16,
                               fontWeight: FontWeight.normal)),
                       SizedBox(height: 30),
-                      Styles.appEditText(
-                          controller: _otpController,
-                          hint: 'Enter OTP',
-                          inputType: TextInputType.number,
-                          inputFormats: [
-                            LengthLimitingTextInputFormatter(6),
-                            FilteringTextInputFormatter.digitsOnly
-                          ],
-                          onChanged: (v) => _onOtpChanged(),
-                          animateHint: true,
-                          maxLength: 6,
-                          startIcon: Icon(CustomFont.numberInput, color:Colors.textFieldIcon.withOpacity(0.2))
+                      Padding(
+                        padding: EdgeInsets.only(left: 0, right: 0),
+                        child: PinEntry(onChange: (v) {
+                          _otpController.text = v;
+                          _onOtpChanged();
+                        }, numEntries: 6),
                       ),
                       SizedBox(height: 32),
                       OtpUssdInfoView(

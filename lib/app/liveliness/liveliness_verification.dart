@@ -32,6 +32,7 @@ class _LivelinessVerification extends State<LivelinessVerification> {
   LivelinessDetector? _livelinessDetector;
   Future<void>? _initializedLiveliness;
 
+  //TODO take this guy out
   Dialog _entryDialog() {
     return Dialog(
       backgroundColor: Colors.transparent,

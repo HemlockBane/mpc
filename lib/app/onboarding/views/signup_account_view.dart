@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart' hide Colors;
-import 'package:flutter/services.dart';
 import 'package:moniepoint_flutter/app/onboarding/viewmodel/onboarding_view_model.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/enter_bvn_screen.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/verify_phone_number_otp_screen.dart';
@@ -46,50 +45,36 @@ class SignUpAccountScreen extends StatelessWidget  {
     return MaterialPageRoute(builder: (context) => page, settings: settings);
   }
 
-  Future<bool> _onBackPressed() async {
-    final isPop = await _navigatorKey.currentState?.maybePop();
-    return (isPop != null && isPop) ? Future.value(false) : Future.value(true);
-  }
-
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [ChangeNotifierProvider(create: (_) => OnBoardingViewModel()),],
-      child: WillPopScope(
-        onWillPop: _onBackPressed,
-        child: Scaffold(
-          resizeToAvoidBottomInset: false,
-          key: _scaffoldKey,
-          appBar: AppBar(
-              titleSpacing: -10,
-              leading: IconButton(
-                icon: Icon(Icons.arrow_back),
-                onPressed: () async {
-                  final canPop = await _onBackPressed();
-                  print("OnPressedValue is $canPop");
-                  if(canPop) {
-                    SystemNavigator.pop();
-                  }
-                },
-              ),
-              title: Text(
-                  "Getting Started",
-                  style: TextStyle(
-                      color: Colors.textColorBlack,
-                      fontFamily: Styles.defaultFont,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 17
-                  )
-              ),
-              elevation: 0,
-              backgroundColor: Colors.white,
-              iconTheme: IconThemeData(color: Colors.primaryColor)
-          ),
-          body: Navigator(
-            key: _navigatorKey,
-            initialRoute: ONBOARDING_PHONE_NUMBER_VALIDATION,
-            onGenerateRoute: _generateRoute,
-          ),
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        key: _scaffoldKey,
+        appBar: AppBar(
+            titleSpacing: -10,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () async => Navigator.of(context).pop(),
+            ),
+            title: Text(
+                "Getting Started",
+                style: TextStyle(
+                    color: Colors.textColorBlack,
+                    fontFamily: Styles.defaultFont,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 17
+                )
+            ),
+            elevation: 0,
+            backgroundColor: Colors.white,
+            iconTheme: IconThemeData(color: Colors.primaryColor)
+        ),
+        body: Navigator(
+          key: _navigatorKey,
+          initialRoute: ONBOARDING_PHONE_NUMBER_VALIDATION,
+          onGenerateRoute: _generateRoute,
         ),
       ),
     );

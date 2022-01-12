@@ -59,7 +59,7 @@ class _DashboardScreenState extends State<DashboardScreen> with CompositeDisposa
           context: context,
           builder: (mContext) {
             return ChangeNotifierProvider(
-                create: (_) => FingerPrintAlertViewModel(),
+                create: (_) => LoginMethodViewModel(),
                 child: FingerPrintAlertDialog()
             );
           });

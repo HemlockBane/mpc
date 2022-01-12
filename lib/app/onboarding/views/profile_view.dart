@@ -20,6 +20,7 @@ import 'package:moniepoint_flutter/core/utils/call_utils.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/validators.dart';
 import 'package:moniepoint_flutter/core/views/custom_check_box.dart';
+import 'package:moniepoint_flutter/core/views/pin_entry.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:moniepoint_flutter/core/views/valid_password_checker.dart';
 import 'package:path/path.dart' hide context;
@@ -30,6 +31,7 @@ import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
 import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:signature/signature.dart';
 import '../username_validation_state.dart';
+import 'account_created_view.dart';
 
 class ProfileScreen extends StatefulWidget {
   late final GlobalKey<ScaffoldState> _scaffoldKey;
@@ -47,8 +49,8 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
 
   late final GlobalKey<ScaffoldState> _scaffoldKey;
   bool _isPasswordVisible  = false;
-  bool _isPinVisible  = false;
-  bool _isUssdVisible  = false;
+  // bool _isPinVisible  = false;
+  // bool _isUssdVisible  = false;
   // bool _isLoading = false;
   bool _isSignatureEnabled = false;
   bool _displayPasswordStrength = false;
@@ -72,28 +74,6 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
     );
   }
 
-  Widget getPinToggleIcon(BuildContext context) {
-    return IconButton(
-        icon: Icon(this._isPinVisible ? Icons.visibility : Icons.visibility_off, color:  Color(0XFF999999)),
-        onPressed: () {
-          setState(() {
-            this._isPinVisible = !_isPinVisible;
-          });
-        }
-    );
-  }
-
-  Widget getUssdToggleIcon(BuildContext context) {
-    return IconButton(
-        icon: Icon(this._isUssdVisible ? Icons.visibility : Icons.visibility_off, color:  Color(0XFF999999)),
-        onPressed: () {
-          setState(() {
-            this._isUssdVisible = !_isUssdVisible;
-          });
-        }
-    );
-  }
-
   void handleCreationResponse(Resource<AccountProfile> resource) async {
     final viewModel = Provider.of<OnBoardingViewModel>(context, listen: false);
     if(resource is Success<AccountProfile>) {
@@ -108,21 +88,17 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
         "deviceId": viewModel.profileForm.profile.deviceId
       });
 
-      showModalBottomSheet(
-          isDismissible: false,
-          backgroundColor: Colors.transparent,
-          context: widget._scaffoldKey.currentContext ?? context,
-          builder: (mContext) {
-            return ChangeNotifierProvider(
-                create: (_) => LoginViewModel(),
-                child: AccountCreatedDialog(
-                    accountProfile,
-                    viewModel.profileForm.profile.username ?? "",
-                    viewModel.profileForm.profile.password ?? ""
-                ),
-            );
-          }
-      );
+      Navigator.of(widget._scaffoldKey.currentContext ?? context).push(MaterialPageRoute(
+          builder: (_) => ChangeNotifierProvider(
+            create: (_) => LoginViewModel(),
+            child: AccountCreatedView(
+                accountProfile: accountProfile,
+                username: viewModel.profileForm.profile.username ?? "",
+                password: viewModel.profileForm.profile.password ?? ""
+            ),
+          )
+      ));
+
     } else if(resource is Error<AccountProfile>) {
       setState(() => viewModel.setIsOnboarding(false));
       showError(
@@ -143,6 +119,7 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
     if(viewModel.isOnboarding == true) return;
 
     setState(() { viewModel.setIsOnboarding(true); });
+
     if (await Permission.storage.request().isGranted) {
       final bytes = await _signatureController.toPngBytes();
       Directory dir = await getTemporaryDirectory();
@@ -176,169 +153,6 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
       _viewModel.profileForm.setHasSignature(false);
       _viewModel.profileForm.onEnableUssd(true);
     });
-  }
-
-  void _showTermsAndConditionModal(String title, String content) {
-    showModalBottomSheet(
-        context: _scaffoldKey.currentContext ?? context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (context) {
-          return BottomSheets.makeAppBottomSheet(
-              centerImageBackgroundColor: Colors.primaryColor.withOpacity(0.1),
-              centerImageRes: 'res/drawables/ic_terms_and_condition.svg',
-              contentBackgroundColor: Colors.white,
-              centerImageWidth: 45,
-              centerImageHeight: 45,
-              centerBackgroundPadding: 13,
-              content: Stack(
-                children: [
-                  Positioned(
-                      top: 20,
-                      right: 0,
-                      left: 0,
-                      child: Text(title,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.textColorPrimary,
-                          ))
-                  ),
-                  Positioned(
-                      top: 66,
-                      right: 16,
-                      left: 16,
-                      child: Divider(
-                        height: 4,
-                        color: Colors.colorFaded,
-                      )
-                  ),
-                  Positioned(
-                      top: 70,
-                      bottom: 40,
-                      right: 0.0,
-                      left: 0.0,
-                      child: SingleChildScrollView(
-                        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-                        child: Container(
-                          child: Html(
-                              data: content,
-                              onLinkTap: (String? url, RenderContext context, Map<String, String> attributes, _){
-                                if(url != null) openUrl(url);
-                              },
-                          )//Text(Strings.terms_and_condition),
-                        ),
-                      )
-                  ),
-                  Positioned(
-                      bottom: 32,
-                      right: 16,
-                      left: 16,
-                      child: Divider(
-                        height: 4,
-                        color: Colors.colorFaded,
-                      )
-                  ),
-                ],
-              ));
-        });
-  }
-
-  Widget _buildTermsLayout() {
-    final txt = 'By signing up you agree to our\nTerms & Conditions and Privacy Policy.';
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-      decoration: BoxDecoration(
-          color: Colors.primaryColor.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8)),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SvgPicture.asset('res/drawables/ic_info.svg'),
-          SizedBox(width: 14),
-          Expanded(
-              child: Text(txt,
-                      style: TextStyle(
-                          color: Colors.textColorBlack,
-                          fontFamily: Styles.defaultFont,
-                          fontSize: 18)
-              ).colorText({
-                "Terms & Conditions": Tuple(Colors.primaryColor, () => _showTermsAndConditionModal("Terms & Conditions", Strings.terms_and_condition)),
-                "Privacy Policy": Tuple(Colors.primaryColor, () => _showTermsAndConditionModal("Privacy Policy", Strings.privacy_policy)),
-              }, bold: true, boldType: 1))
-        ],
-      ),
-    );
-  }
-
-  Widget _signatureView() {
-    return Stack(
-      children: [
-        Container(
-          clipBehavior: Clip.antiAliasWithSaveLayer,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              border: _isSignatureEnabled == false ? null :Border.all(color: Colors.deepGrey.withOpacity(0.29), width: 1.0)),
-          child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Signature(
-                height: 200,
-                controller: _signatureController,
-                backgroundColor: Colors.white,
-              )),
-        ),
-        Visibility(
-          visible: _isSignatureEnabled == false,
-          child: Container(
-              height: 200,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                      color: Colors.deepGrey.withOpacity(0.29), width: 1.0))
-          ),
-        ),
-        Visibility(
-            visible: _isSignatureEnabled == false,
-            child: Container(
-              padding: EdgeInsets.only(top: 16, bottom: 16, right: 8, left: 8),
-              width: double.infinity,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SvgPicture.asset('res/drawables/ic_signature.svg', color: Colors.colorFaded.withOpacity(0.1),),
-                  SizedBox(height: 30,),
-                  TextButton(
-                      onPressed: () async {
-                        setState(() {
-                          _isSignatureEnabled = true;
-                        });
-                      },
-                      child: Text('Tap to add your Signature',
-                        style: TextStyle(color: Colors.primaryColor, fontWeight: FontWeight.w600),
-                      )
-                  )
-                ],
-              ),
-            )
-        ),
-        Positioned(
-            right: 16,
-            top: 8,
-            child: Opacity(
-              opacity: _signatureController.isEmpty ? 0 : 1,
-              child: TextButton(
-                  child: Text('CLEAR',
-                      style: TextStyle(fontWeight: FontWeight.w400, color: Colors.deepGrey, fontSize: 14)),
-                  onPressed: () {
-                    _signatureController.clear();
-                  }),
-            ))
-      ],
-    );
   }
 
   Widget? _getUsernameIconForValidationStatus(UsernameValidationStatus? status) {
@@ -456,18 +270,9 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
         StreamBuilder(
             stream: viewModel.profileForm.pinInputStream,
             builder: (context, snapshot) {
-              return Styles.appEditText(
-                  hint: 'Set Transaction PIN',
-                  onChanged: viewModel.profileForm.onPinChanged,
-                  errorText: snapshot.hasError ? snapshot.error.toString() : null,
-                  animateHint: true,
-                  maxLength: 4,
-                  textInputAction: TextInputAction.done,
-                  inputType: TextInputType.number,
-                  inputFormats: [FilteringTextInputFormatter.digitsOnly],
-                  drawablePadding: EdgeInsets.only(left: 4, right: 4),
-                  endIcon: getPinToggleIcon(context),
-                  isPassword: !_isPinVisible
+              return PinEntry(
+                  onChange: viewModel.profileForm.onPinChanged,
+                  numEntries: 4
               );
             }),
         SizedBox(height: 24),
@@ -501,18 +306,9 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
                         child: StreamBuilder(
                             stream: viewModel.profileForm.ussdPinInputStream,
                             builder: (context, snapshot) {
-                              return Styles.appEditText(
-                                  hint: 'USSD PIN',
-                                  maxLength: 4,
-                                  inputType: TextInputType.number,
-                                  textInputAction: TextInputAction.done,
-                                  inputFormats: [FilteringTextInputFormatter.digitsOnly],
-                                  onChanged: viewModel.profileForm.onUssdPinChanged,
-                                  errorText: snapshot.hasError ? snapshot.error.toString() : null,
-                                  animateHint: true,
-                                  drawablePadding: EdgeInsets.only(left: 4, right: 4),
-                                  endIcon: getUssdToggleIcon(context),
-                                  isPassword: !_isUssdVisible
+                              return PinEntry(
+                                  onChange: viewModel.profileForm.onUssdPinChanged,
+                                  numEntries: 4
                               );
                             })
                     )
@@ -522,9 +318,9 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
           ),
         ),
         SizedBox(height: 41),
-        _signatureView(),
+        ProfileSignatureView(signatureController: _signatureController,),
         SizedBox(height: 44),
-        _buildTermsLayout(),
+        TermsAndConditionLayout(parentContext: _scaffoldKey.currentContext!),
         SizedBox(height: 26),
         Spacer(),
         Styles.statefulButton(
@@ -553,6 +349,225 @@ class _ProfileScreenState extends State<ProfileScreen> with Validators{
   void dispose() {
     _passwordController.dispose();
     super.dispose();
+  }
+
+}
+
+
+///
+///ProfileSignatureView
+///
+class ProfileSignatureView extends StatefulWidget {
+
+  ProfileSignatureView({
+    required this.signatureController
+  });
+
+  final SignatureController signatureController;
+
+  @override
+  State<StatefulWidget> createState() => _ProfileSignatureViewState();
+
+}
+
+///
+///_ProfileSignatureViewState
+///
+class _ProfileSignatureViewState extends State<ProfileSignatureView> {
+
+  bool _isSignatureEnabled = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return  Stack(
+      children: [
+        Container(
+          clipBehavior: Clip.antiAliasWithSaveLayer,
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: _isSignatureEnabled == false
+                  ? null
+                  : Border.all(color: Colors.deepGrey.withOpacity(0.29), width: 1.0)
+          ),
+          child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Signature(
+                height: 200,
+                controller: widget.signatureController,
+                backgroundColor: Colors.white,
+              )),
+        ),
+        Visibility(
+          visible: _isSignatureEnabled == false,
+          child: Container(
+              height: 200,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                      color: Colors.deepGrey.withOpacity(0.29), width: 1.0))
+          ),
+        ),
+        Visibility(
+            visible: _isSignatureEnabled == false,
+            child: Container(
+              padding: EdgeInsets.only(top: 16, bottom: 16, right: 8, left: 8),
+              width: double.infinity,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SvgPicture.asset('res/drawables/ic_signature.svg', color: Colors.colorFaded.withOpacity(0.1),),
+                  SizedBox(height: 30,),
+                  TextButton(
+                      onPressed: () async {
+                        setState(() {
+                          _isSignatureEnabled = true;
+                        });
+                      },
+                      child: Text('Tap to add your Signature',
+                        style: TextStyle(color: Colors.primaryColor, fontWeight: FontWeight.w600),
+                      )
+                  )
+                ],
+              ),
+            )
+        ),
+        Positioned(
+            right: 16,
+            top: 8,
+            child: Opacity(
+              opacity: widget.signatureController.isEmpty ? 0 : 1,
+              child: TextButton(
+                  child: Text(
+                      'CLEAR',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w400,
+                          color: Colors.deepGrey,
+                          fontSize: 14
+                      )),
+                  onPressed: () {
+                    widget.signatureController.clear();
+                  }),
+            ))
+      ],
+    );
+  }
+
+}
+
+///TermsAndConditionLayout
+///
+class TermsAndConditionLayout extends StatelessWidget {
+
+  TermsAndConditionLayout({
+    required this.parentContext
+  });
+
+  final BuildContext parentContext;
+
+  late final Map<String, Tuple<Color, Function()>> _termsAndPrivacyMap = {
+    "Terms & Conditions": Tuple(
+        Colors.primaryColor, () =>
+        _showTermsAndConditionModal("Terms & Conditions", Strings.terms_and_condition)
+    ),
+    "Privacy Policy": Tuple(
+        Colors.primaryColor, () =>
+        _showTermsAndConditionModal("Privacy Policy", Strings.privacy_policy)
+    ),
+  };
+
+  void _showTermsAndConditionModal(String title, String content) {
+    showModalBottomSheet(
+        context: parentContext,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) {
+          return BottomSheets.makeAppBottomSheet(
+              centerImageBackgroundColor: Colors.primaryColor.withOpacity(0.1),
+              centerImageRes: 'res/drawables/ic_terms_and_condition.svg',
+              contentBackgroundColor: Colors.white,
+              centerImageWidth: 45,
+              centerImageHeight: 45,
+              centerBackgroundPadding: 13,
+              content: Stack(
+                children: [
+                  Positioned(
+                      top: 20,
+                      right: 0,
+                      left: 0,
+                      child: Text(title,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.textColorPrimary,
+                          ))
+                  ),
+                  Positioned(
+                      top: 66,
+                      right: 16,
+                      left: 16,
+                      child: Divider(
+                        height: 4,
+                        color: Colors.colorFaded,
+                      )
+                  ),
+                  Positioned(
+                      top: 70,
+                      bottom: 40,
+                      right: 0.0,
+                      left: 0.0,
+                      child: SingleChildScrollView(
+                        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                        child: Container(
+                            child: Html(
+                              data: content,
+                              onLinkTap: (String? url, RenderContext context, Map<String, String> attributes, _){
+                                if(url != null) openUrl(url);
+                              },
+                            )//Text(Strings.terms_and_condition),
+                        ),
+                      )
+                  ),
+                  Positioned(
+                      bottom: 32,
+                      right: 16,
+                      left: 16,
+                      child: Divider(
+                        height: 4,
+                        color: Colors.colorFaded,
+                      )
+                  ),
+                ],
+              ));
+        });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final txt = 'By signing up you agree to our\nTerms & Conditions and Privacy Policy.';
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+      decoration: BoxDecoration(
+          color: Colors.primaryColor.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8)),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SvgPicture.asset('res/drawables/ic_info.svg'),
+          SizedBox(width: 14),
+          Expanded(
+              child: Text(txt,
+                  style: TextStyle(
+                      color: Colors.textColorBlack,
+                      fontFamily: Styles.defaultFont,
+                      fontSize: 18)
+              ).colorText(_termsAndPrivacyMap, bold: true, boldType: 1))
+        ],
+      ),
+    );
   }
 
 }

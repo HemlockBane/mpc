@@ -14,8 +14,9 @@ import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/views/otp_ussd_info_view.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:provider/provider.dart';
-
 import 'signup_account_view.dart';
+
+///@author Paul Okeke
 
 class EnterBVNScreen extends StatefulWidget {
   late final GlobalKey<ScaffoldState> _scaffoldKey;
@@ -216,12 +217,25 @@ class _EnterBVNScreen extends State<EnterBVNScreen> {
                 ),
               ),
             ),
-            Styles.statefulButton(
-                stream: viewModel.accountForm.isBankVerificationNumberValid,
-                elevation: 0,
-                onClick: () => _subscribeUiToLivelinessTest(context),
-                text: 'Next',
-                isLoading: false,
+            Row(
+              children: [
+                Styles.appButton(
+                    elevation: 0,
+                    onClick: () => Navigator.of(context).pop(),
+                    text: "Back",
+                    buttonStyle: Styles.lightGreyButtonStyle
+                ),
+                SizedBox(width: 13),
+                Expanded(
+                    child: Styles.statefulButton(
+                      stream: viewModel.accountForm.isBankVerificationNumberValid,
+                      elevation: 0,
+                      onClick: () => _subscribeUiToLivelinessTest(context),
+                      text: 'Next',
+                      isLoading: false,
+                    )
+                )
+              ],
             ),
           ],
         ),

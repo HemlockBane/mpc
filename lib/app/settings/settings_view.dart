@@ -19,6 +19,9 @@ import 'package:moniepoint_flutter/core/views/finger_print_alert_dialog.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:provider/provider.dart';
 
+///
+///@author Paul Okeke
+///
 class SettingsScreen extends StatefulWidget {
 
   @override
@@ -31,95 +34,152 @@ class _SettingsScreen extends State<SettingsScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
   void _onChangePassword() async {
-    dynamic result = await showModalBottomSheet(
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        context: _scaffoldKey.currentContext ?? context,
-        builder: (context) => ChangeNotifierProvider(
-          create:(_) => ChangePasswordViewModel(),
-          child: ChangePasswordDialog(),
-        )
-    );
-    if(result is Error<bool>) {
-      await showError(
-          _scaffoldKey.currentContext ?? context,
-          title: "Password Change Failed!",
-          message: result.message
-      );
-    } else if(result is bool && result == true) {
-      _displaySuccessMessage("Password Changed", "Password was updated successfully");
-    }
+    Navigator.of(context).pushNamed(Routes.SETTINGS_CHANGE_PASSWORD);
   }
 
   void _onChangePin() async {
-    dynamic result = await showModalBottomSheet(
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        context: _scaffoldKey.currentContext ?? context,
-        builder: (context) => ChangeNotifierProvider(
-          create:(_) => ChangePinViewModel(),
-          child: ChangePinDialog(),
-        )
-    );
-    if(result is Error<bool>) {
-      showError(
-          _scaffoldKey.currentContext ?? context,
-          title: "PIN Change Failed!",
-          message: result.message
-      );
-    } else if(result is bool && result == true) {
-      _displaySuccessMessage("Pin Changed", "Transaction PIN was updated successfully");
-    }
+    Navigator.of(context).pushNamed(Routes.SETTINGS_CHANGE_PIN);
   }
 
   void _openLoginMethods() async {
-    dynamic result = await showModalBottomSheet(
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        context: _scaffoldKey.currentContext ?? context,
-        builder: (mContext) => LoginMethodsDialog()
-    );
-
-    print(result);
-
-    if(result is bool && result){
-      final fingerprintResult = await showModalBottomSheet(
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-          context: _scaffoldKey.currentContext ?? context,
-          builder: (mContext) => ChangeNotifierProvider(
-              create: (_) => FingerPrintAlertViewModel(),
-              child: FingerPrintAlertDialog(),
-          )
-      );
-      if (fingerprintResult != null && fingerprintResult is bool) {
-        showSuccess(
-            context,
-            title: "Fingerprint setup",
-            message: "Fingerprint Setup successfully"
-        );
-      }
-    }
+    Navigator.of(context).pushNamed(Routes.SETTINGS_CHANGE_LOGIN_METHOD);
   }
 
-  void _displaySuccessMessage(String title, String message) {
-    showSuccess(
-        _scaffoldKey.currentContext ?? context,
-        title: title,
-        message: message,
-        onPrimaryClick: () {
-          Navigator.of(_scaffoldKey.currentContext ?? context).pop();
-        }
+  Widget _listView() {
+    final bool isFingerPrintEnabled = PreferenceUtil.getFingerPrintEnabled();
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            SizedBox(height: 16),
+            ListTile(
+                title: Text('Login Methods',
+                    style: TextStyle(
+                        color: Colors.textColorMainBlack,
+                        fontSize: 16,
+                        fontWeight: FontWeight.normal)
+                ),
+                onTap: _openLoginMethods,
+                trailing:
+                SvgPicture.asset('res/drawables/ic_forward_anchor.svg'),
+                subtitle: Text('Password Enabled, Fingerprint ${(isFingerPrintEnabled) ? "Enabled" : "Disabled"}',
+                    style: TextStyle(
+                        color: Colors.deepGrey,
+                        fontSize: 14,
+                        fontWeight: FontWeight.normal)
+                )
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: 16, right: 16),
+              child: Divider(
+                height: 1,
+                color: Colors.dashboardDivider.withOpacity(0.2),
+              ),
+            ),
+            ListTile(
+              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+              title: Text('Change Password',
+                  style: TextStyle(
+                      color: Colors.textColorMainBlack,
+                      fontSize: 16,
+                      fontWeight: FontWeight.normal)),
+              onTap: _onChangePassword,
+              trailing: SvgPicture.asset('res/drawables/ic_forward_anchor.svg'),
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: 16, right: 16),
+              child: Divider(
+                height: 1,
+                color: Colors.dashboardDivider.withOpacity(0.2),
+              ),
+            ),
+            ListTile(
+              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+              title: Text('Change Transaction PIN',
+                  style: TextStyle(
+                      color: Colors.textColorMainBlack,
+                      fontSize: 16,
+                      fontWeight: FontWeight.normal)),
+              onTap: _onChangePin,
+              trailing: SvgPicture.asset('res/drawables/ic_forward_anchor.svg'),
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: 16, right: 16),
+              child: Divider(
+                height: 1,
+                color: Colors.dashboardDivider.withOpacity(0.2),
+              ),
+            ),
+            ListTile(
+              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+              title: Text('Manage Beneficiaries',
+                  style: TextStyle(
+                      color: Colors.textColorMainBlack,
+                      fontSize: 16,
+                      fontWeight: FontWeight.normal)),
+              onTap: () => Navigator.of(context).pushNamed(Routes.MANAGED_BENEFICIARIES),
+              trailing: SvgPicture.asset('res/drawables/ic_forward_anchor.svg'),
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: 16, right: 16),
+              child: Divider(
+                height: 1,
+                color: Colors.dashboardDivider.withOpacity(0.2),
+              ),
+            ),
+            ListTile(
+              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+              title: Text('Registered Devices',
+                  style: TextStyle(
+                      color: Colors.textColorMainBlack,
+                      fontSize: 16,
+                      fontWeight: FontWeight.normal
+                  )
+              ),
+              onTap: () => Navigator.of(context).pushNamed(Routes.REGISTERED_DEVICES),
+              trailing: SvgPicture.asset('res/drawables/ic_forward_anchor.svg'),
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: 16, right: 16),
+              child: Divider(
+                height: 1,
+                color: Colors.dashboardDivider.withOpacity(0.2),
+              ),
+            ),
+            ListTile(
+                title: Text('App Version',
+                    style: TextStyle(
+                        color: Colors.textColorMainBlack,
+                        fontSize: 16,
+                        fontWeight: FontWeight.normal
+                    )),
+                trailing: null,
+                subtitle: Text("v ${BuildConfig.APP_VERSION}",
+                    style: TextStyle(
+                        color: Colors.deepGrey,
+                        fontSize: 14,
+                        fontWeight: FontWeight.normal
+                    )
+                )
+            ),
+          ],
+        ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool isFingerPrintEnabled = PreferenceUtil.getFingerPrintEnabled();
-
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Colors.backgroundWhite,
+      backgroundColor: Colors.white,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
           centerTitle: false,
           titleSpacing: 0,
@@ -132,120 +192,48 @@ class _SettingsScreen extends State<SettingsScreen> {
                 color: Colors.textColorBlack
               )
           ),
-          backgroundColor: Colors.backgroundWhite,
+          backgroundColor: Colors.backgroundWhite.withOpacity(0.05),
           elevation: 0
       ),
       body: SessionedWidget(
           context: context,
-          child: SingleChildScrollView(
+          child: Container(
+            padding: EdgeInsets.only(top: 120),
+            decoration: BoxDecoration(
+                color: Colors.backgroundWhite,
+                image: DecorationImage(
+                    fit: BoxFit.cover,
+                    image: AssetImage("res/drawables/ic_app_new_bg.png")
+                )
+            ),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 16),
-                ListTile(
-                    title: Text('Login Methods',
-                        style: TextStyle(
-                            color: Colors.textColorMainBlack,
-                            fontSize: 16,
-                            fontWeight: FontWeight.normal)),
-                    onTap: _openLoginMethods,
-                    trailing:
-                    SvgPicture.asset('res/drawables/ic_forward_anchor.svg'),
-                    subtitle: Text('Password Enabled, Fingerprint ${(isFingerPrintEnabled) ? "Enabled" : "Disabled"}',
-                        style: TextStyle(
-                            color: Colors.deepGrey,
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal))),
                 Padding(
-                  padding: EdgeInsets.only(left: 16, right: 16),
-                  child: Divider(
-                    height: 1,
-                    color: Colors.dashboardDivider.withOpacity(0.2),
+                  padding: EdgeInsets.only(left: 16),
+                  child: Text(
+                    "Manage Settings",
+                    style: TextStyle(
+                      color: Colors.textColorBlack,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700
+                    ),
                   ),
                 ),
-                ListTile(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 7),
-                  title: Text('Change Password',
-                      style: TextStyle(
-                          color: Colors.textColorMainBlack,
-                          fontSize: 16,
-                          fontWeight: FontWeight.normal)),
-                  onTap: _onChangePassword,
-                  trailing: SvgPicture.asset('res/drawables/ic_forward_anchor.svg'),
-                ),
+                SizedBox(height: 2),
                 Padding(
-                  padding: EdgeInsets.only(left: 16, right: 16),
-                  child: Divider(
-                    height: 1,
-                    color: Colors.dashboardDivider.withOpacity(0.2),
+                  padding: EdgeInsets.only(left: 16),
+                  child: Text(
+                    "Customize your Moniepoint experience",
+                    style: TextStyle(
+                      color: Colors.textColorBlack.withOpacity(0.5),
+                      fontWeight: FontWeight.w500,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
-                ListTile(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 7),
-                  title: Text('Change Transaction PIN',
-                      style: TextStyle(
-                          color: Colors.textColorMainBlack,
-                          fontSize: 16,
-                          fontWeight: FontWeight.normal)),
-                  onTap: _onChangePin,
-                  trailing: SvgPicture.asset('res/drawables/ic_forward_anchor.svg'),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: 16, right: 16),
-                  child: Divider(
-                    height: 1,
-                    color: Colors.dashboardDivider.withOpacity(0.2),
-                  ),
-                ),
-                ListTile(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 7),
-                  title: Text('Manage Beneficiaries',
-                      style: TextStyle(
-                          color: Colors.textColorMainBlack,
-                          fontSize: 16,
-                          fontWeight: FontWeight.normal)),
-                  onTap: () => Navigator.of(context).pushNamed(Routes.MANAGED_BENEFICIARIES),
-                  trailing: SvgPicture.asset('res/drawables/ic_forward_anchor.svg'),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: 16, right: 16),
-                  child: Divider(
-                    height: 1,
-                    color: Colors.dashboardDivider.withOpacity(0.2),
-                  ),
-                ),
-                ListTile(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 7),
-                  title: Text('Registered Devices',
-                      style: TextStyle(
-                          color: Colors.textColorMainBlack,
-                          fontSize: 16,
-                          fontWeight: FontWeight.normal)),
-                  onTap: () => Navigator.of(context).pushNamed(Routes.REGISTERED_DEVICES),
-                  trailing: SvgPicture.asset('res/drawables/ic_forward_anchor.svg'),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: 16, right: 16),
-                  child: Divider(
-                    height: 1,
-                    color: Colors.dashboardDivider.withOpacity(0.2),
-                  ),
-                ),
-                ListTile(
-                    title: Text('App Version',
-                        style: TextStyle(
-                            color: Colors.textColorMainBlack,
-                            fontSize: 16,
-                            fontWeight: FontWeight.normal
-                        )),
-                    trailing: null,
-                    subtitle: Text("v ${BuildConfig.APP_VERSION}",
-                        style: TextStyle(
-                            color: Colors.deepGrey,
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal
-                        )
-                    )
-                ),
+                SizedBox(height: 21),
+                Expanded(child: _listView())
               ],
             ),
           ),

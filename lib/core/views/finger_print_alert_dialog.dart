@@ -34,7 +34,7 @@ class _FingerPrintAlertDialog extends State<FingerPrintAlertDialog> {
   }
 
   void _subscribeUiToSetFingerPrint() async {
-    final viewModel = Provider.of<FingerPrintAlertViewModel>(context, listen: false);
+    final viewModel = Provider.of<LoginMethodViewModel>(context, listen: false);
 
     Function? subscription;
     await biometricHelper?.getBiometricType();

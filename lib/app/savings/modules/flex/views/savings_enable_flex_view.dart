@@ -8,6 +8,7 @@ import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_savi
 import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/savings_flex_enable_viewmodel.dart';
 import 'package:moniepoint_flutter/app/savings/savings_success_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
@@ -19,6 +20,9 @@ const lightGreen = Color(0xffD1E7D3);
 const double toolBarMarginTop = 37;
 const double maxDraggableTop = toolBarMarginTop * 5 + 26;
 
+///
+///@author Paul Okeke
+///
 class SavingsEnableFlexView extends StatefulWidget {
 
   const SavingsEnableFlexView({
@@ -33,7 +37,7 @@ class SavingsEnableFlexView extends StatefulWidget {
 
 }
 
-class SavingsEnableFlexState extends State<SavingsEnableFlexView> {
+class SavingsEnableFlexState extends State<SavingsEnableFlexView> with CompositeDisposableWidget {
 
   late final SavingsFlexEnableViewModel viewModel;
 
@@ -44,8 +48,8 @@ class SavingsEnableFlexState extends State<SavingsEnableFlexView> {
   }
 
   void _navigateToSuccessPage(FlexSaving flexSaving, String accountNumber) {
-    Navigator.push(
-      context,
+    Navigator.of(context).pop();
+    Navigator.of(context).push(
       MaterialPageRoute(
         builder: (ctx) => SavingsSuccessView(
           primaryText: "Flex\nSavings Enabled",
@@ -53,14 +57,13 @@ class SavingsEnableFlexState extends State<SavingsEnableFlexView> {
           content: FlexEnabledSuccessContent(accountNumber: accountNumber),
           primaryButtonText: "Setup Flex Savings",
           primaryButtonAction: () {
-            Navigator.pushNamed(
-                context,
+            Navigator.of(ctx).pushNamed(
                 Routes.SAVINGS_FLEX_SETUP,
                 arguments: {"flexSaving": flexSaving}
             );
           },
           secondaryButtonText: "Dismiss",
-          secondaryButtonAction: () => Navigator.pop(context),
+          secondaryButtonAction: () => Navigator.pop(ctx),
         ),
       ),
     );
@@ -75,16 +78,18 @@ class SavingsEnableFlexState extends State<SavingsEnableFlexView> {
         }
       }
       else if(event is Success) {
-        setState(() => viewModel.setIsEnablingFlex(false));
-        if(event.data != null) {
-          _navigateToSuccessPage(event.data!, event.data?.cbaAccountNuban ?? "");
-        } else {
-          showError(
-              context,
-              title: "Failed enabling flex savings!",
-              message: "Couldn't retrieve your flex saving"
-          );
-        }
+        viewModel.setIsEnablingFlex(false);
+        setState(() {
+          if(event.data != null) {
+            _navigateToSuccessPage(event.data!, event.data?.cbaAccountNuban ?? "");
+          } else {
+            showError(
+                context,
+                title: "Failed enabling flex savings!",
+                message: "Couldn't retrieve your flex saving"
+            );
+          }
+        });
       }
       else if(event is Error<FlexSaving>) {
         setState(() => viewModel.setIsEnablingFlex(false));
@@ -94,7 +99,7 @@ class SavingsEnableFlexState extends State<SavingsEnableFlexView> {
             message: event.message
         );
       }
-    });
+    }).disposedBy(this);
   }
 
   Widget _content(context) {
@@ -224,6 +229,12 @@ class SavingsEnableFlexState extends State<SavingsEnableFlexView> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    disposeAll();
+    super.dispose();
   }
 
 }

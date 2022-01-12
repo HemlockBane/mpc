@@ -22,6 +22,9 @@ import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
 
+///
+///@author Paul Okeke
+///
 class UserDeviceListView extends StatefulWidget {
 
   @override
@@ -115,6 +118,7 @@ class _UserDeviceListView extends State<UserDeviceListView> with SingleTickerPro
         currentList: _currentItems,
         listView: (List<UserDevice>? items) {
           return ListView.separated(
+              padding: EdgeInsets.zero,
               shrinkWrap: true,
               itemCount: items?.length ?? 0,
               separatorBuilder: (context, index) => Padding(
@@ -136,8 +140,9 @@ class _UserDeviceListView extends State<UserDeviceListView> with SingleTickerPro
     return SessionedWidget(
         context: context,
         child: Scaffold(
+          extendBodyBehindAppBar: true,
           appBar: AppBar(
-              leadingWidth: 69,
+              // leadingWidth: 69,
               centerTitle: false,
               titleSpacing: 0,
               iconTheme: IconThemeData(color: Colors.primaryColor),
@@ -149,33 +154,68 @@ class _UserDeviceListView extends State<UserDeviceListView> with SingleTickerPro
                     color: Colors.textColorBlack
                   )
               ),
-              backgroundColor: Colors.backgroundWhite,
+              backgroundColor: Colors.backgroundWhite.withOpacity(0.05),
               elevation: 0
           ),
-          body: Column(
-            children: [
-              Expanded(child: Container(
-                width: double.infinity,
-                height: double.infinity,
-                padding: EdgeInsets.only(top: 6),
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
-                    boxShadow: [
-                      BoxShadow(
-                          color: Colors.darkBlue.withOpacity(0.1),
-                          offset: Offset(0, 4),
-                          blurRadius: 12
-                      )
-                    ]
+          body: Container(
+            padding: EdgeInsets.only(top: 120),
+            decoration: BoxDecoration(
+                color: Colors.backgroundWhite,
+                image: DecorationImage(
+                    fit: BoxFit.cover,
+                    image: AssetImage("res/drawables/ic_app_new_bg.png")
+                )
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(left: 16),
+                  child: Text(
+                    "Registered Devices",
+                    style: TextStyle(
+                        color: Colors.textColorBlack,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700
+                    ),
+                  ),
                 ),
-                child: StreamBuilder(
-                    stream: _userDevicesStream ,
-                    builder: (BuildContext context, AsyncSnapshot<Resource<List<UserDevice>?>> a) {
-                      return makeListView(context, a);
-                    }),
-              ))
-            ],
+                SizedBox(height: 2),
+                Padding(
+                  padding: EdgeInsets.only(left: 16),
+                  child: Text(
+                    "Customize your moniepoint experience",
+                    style: TextStyle(
+                      color: Colors.textColorBlack.withOpacity(0.5),
+                      fontWeight: FontWeight.w500,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 21),
+                Expanded(child: Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  padding: EdgeInsets.only(top: 6),
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+                      boxShadow: [
+                        BoxShadow(
+                            color: Colors.darkBlue.withOpacity(0.1),
+                            offset: Offset(0, 4),
+                            blurRadius: 12
+                        )
+                      ]
+                  ),
+                  child: StreamBuilder(
+                      stream: _userDevicesStream ,
+                      builder: (BuildContext context, AsyncSnapshot<Resource<List<UserDevice>?>> a) {
+                        return makeListView(context, a);
+                      }),
+                ))
+              ],
+            ),
           ),
         ),
     );
@@ -252,7 +292,11 @@ class _UserDeviceListItem extends StatelessWidget{
                                 _userDevice.name ?? "--",
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
-                                style: TextStyle(fontSize: 16, color: Colors.darkBlue, fontWeight: FontWeight.bold)
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w600
+                                )
                             )),
                             SizedBox(width: 8,),
                             Visibility(

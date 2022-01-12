@@ -19,6 +19,8 @@ import 'package:moniepoint_flutter/core/views/user_account_selection_view.dart';
 import 'package:moniepoint_flutter/main.dart';
 import 'package:provider/provider.dart';
 
+///@author Paul Okeke
+
 class SavingsFlexTopUpView extends StatefulWidget {
 
   const SavingsFlexTopUpView({
@@ -39,8 +41,7 @@ class _SavingsFlexTopUpViewState extends State<SavingsFlexTopUpView> {
   ListDataItem<String>? _selectedAmountPill;
   final List<ListDataItem<String>> amountPills = List.generate(4, (index) => ListDataItem((5000 * (index + 1)).formatCurrencyWithoutLeadingZero));
 
-  TextStyle getBoldStyle(
-    {double fontSize = 32.5,
+  TextStyle getBoldStyle({double fontSize = 32.5,
       Color color = Colors.textColorBlack,
       FontWeight fontWeight = FontWeight.w700}) =>
     TextStyle(fontWeight: fontWeight, fontSize: fontSize, color: color);
@@ -76,14 +77,14 @@ class _SavingsFlexTopUpViewState extends State<SavingsFlexTopUpView> {
 
   void _subscribeUiToTopUp(){
     if(_viewModel.isLoading) return;
-    setState(() {_viewModel.setIsLoading(true);});
+    setState(() => _viewModel.setIsLoading(true));
 
     _viewModel.topUpFlex().listen((event) {
       if(event is Loading) {
         if(_viewModel.isLoading == false) setState(() => _viewModel.setIsLoading(true));
       }
       else if(event is Success) {
-        setState(() {_viewModel.setIsLoading(false);});
+        setState(() => _viewModel.setIsLoading(false));
         
         Navigator.push(
           context,
@@ -104,7 +105,7 @@ class _SavingsFlexTopUpViewState extends State<SavingsFlexTopUpView> {
         );
       }
       else if(event is Error<FlexTopUpResponse>) {
-        setState(() { _viewModel.setIsLoading(false); });
+        setState(() => _viewModel.setIsLoading(false));
         showError(context, title: "Top up Failed!", message: event.message);
       }
     });

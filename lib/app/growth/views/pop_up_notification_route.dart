@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:moniepoint_flutter/app/growth/model/data/notification_status_type.dart';
 import 'package:moniepoint_flutter/app/growth/model/data/pop_up_notification_data.dart';
 import 'package:moniepoint_flutter/app/growth/model/data/growth_notification.dart';
 import 'package:moniepoint_flutter/app/growth/model/interpreter/navigation_interpreter.dart';
@@ -13,6 +14,8 @@ import 'package:swipeable_card_stack/swipeable_card_stack.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 ///PopUpNotificationRoute
+///
+///@author Paul Okeke
 ///
 class PopUpNotificationRoute<T> extends PopupRoute<T> {
 
@@ -29,7 +32,7 @@ class PopUpNotificationRoute<T> extends PopupRoute<T> {
   bool get barrierDismissible => true;
 
   @override
-  String? get barrierLabel => "test";
+  String? get barrierLabel => "_PopUpNotificationRoute_";
 
   @override
   Widget buildPage(BuildContext context,
@@ -49,7 +52,22 @@ class _PopUpNotificationPage extends StatelessWidget {
   
   final SwipeableCardSectionController _cardController = SwipeableCardSectionController();
   final PopUpNotificationData notificationData;
+  final ValueNotifier<GrowthPopupNotification?> _notificationDataNotifier = ValueNotifier(null);
 
+  void _onCardSwipe(BuildContext context, List<_PopUpCard> popUpCards,  int index) {
+    if(index == popUpCards.length - 1) {
+      Future.delayed(Duration(milliseconds: 1000), (){
+        Navigator.of(context).pop();
+      });
+    }
+    final notification = popUpCards[index].growthPopupNotification;
+    notificationData.update(NotificationStatusType.CLOSE, notification);
+    if(index < popUpCards.length - 1) {
+      final nextNotification = popUpCards[index + 1].growthPopupNotification;
+      notificationData.update(NotificationStatusType.SEEN, nextNotification);
+      _notificationDataNotifier.value = nextNotification;
+    }
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -57,7 +75,8 @@ class _PopUpNotificationPage extends StatelessWidget {
         key: GlobalObjectKey(e),
         growthPopupNotification: e
     )).toList();
-
+    //TODO there's got to be a better way for this
+    notificationData.update(NotificationStatusType.SEEN, notificationData.getData().first);
     return Stack(
       children: [
         Column(
@@ -70,20 +89,25 @@ class _PopUpNotificationPage extends StatelessWidget {
               cardController: _cardController,
               context: context,
               items: popUpCards,
-              onCardSwiped: (dir, index, widget) {
-                if(index == popUpCards.length - 1) {
-                  Future.delayed(Duration(milliseconds: 1000), (){
-                    Navigator.of(context).pop();
-                  });
-                }
-              },
+              onCardSwiped: (dir, index, widget) => _onCardSwipe(context, popUpCards, index),
               enableSwipeUp: false,
               enableSwipeDown: true,
             )
           ],
         ),
         IgnorePointer(
-          child: Lottie.asset("res/drawables/confetti.json", height: MediaQuery.of(context).size.height),
+          child: ValueListenableBuilder(
+              valueListenable: _notificationDataNotifier,
+              child: Lottie.asset(
+                  "res/drawables/confetti.json",
+                  height: MediaQuery.of(context).size.height
+              ),
+              builder: (ctx, GrowthPopupNotification? value, child) {
+                return (value?.celebration == true && child != null)
+                    ? child
+                    : SizedBox.shrink();
+              }
+          ),
         ),
       ],
     );

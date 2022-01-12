@@ -111,92 +111,67 @@ class _SupportScreen extends State<SupportScreen> {
     return Scaffold(
       backgroundColor: Colors.backgroundWhite,
       appBar: AppBar(
+        centerTitle: false,
+        titleSpacing: -3,
+        iconTheme: IconThemeData(color: Colors.primaryColor),
+        title: Text(
+          'Support',
+          textAlign: TextAlign.start,
+          style: TextStyle(
+            color: Colors.darkBlue,
+            fontFamily: Styles.defaultFont,
+            fontSize: 16,
+          ),
+        ),
         backgroundColor: Colors.backgroundWhite,
         elevation: 0,
-        leading: Container(),
       ),
       body: ScrollView(
         child: Container(
-          child: Stack(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Container(
-                  width: width,
-                  height: height * 0.27,
-                  child: SvgPicture.asset(
-                    "res/drawables/support_bg.svg",
-                    fit: BoxFit.fill,
-                  ),
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(top: height * 0.81),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Reach us on social media',
-                          style: TextStyle(
-                            color: Colors.textColorBlack,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 17,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 10),
-                    _buildSocialMediaIcons(viewModel),
-                  ],
-                ),
-              ),
-              Container(
+              SizedBox(height: 40),
+              Expanded(child: Container(
+                margin: EdgeInsets.only(left: 20, right: 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    AppBar(
-                      centerTitle: false,
-                      titleSpacing: -3,
-                      iconTheme: IconThemeData(color: Colors.primaryColor),
-                      title: Text(
-                        'Support',
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                          color: Colors.darkBlue,
-                          fontFamily: Styles.defaultFont,
-                          fontSize: 16,
-                        ),
-                      ),
-                      backgroundColor: Colors.backgroundWhite,
-                      elevation: 0,
+                    SizedBox(height: 20),
+                    Text(
+                      "We're here for you.",
+                      style: TextStyle(
+                          color: Colors.textColorBlack,
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold),
                     ),
-                    Container(
-                      margin: EdgeInsets.only(left: 20, right: 20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: 20),
-                          Text(
-                            "We're here for you.",
-                            style: TextStyle(
-                                color: Colors.textColorBlack,
-                                fontSize: 26,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(height: 20),
-                          Text(
-                            'Got a problem? Reach us via any of our \nsupport channels below.',
-                            style: TextStyle(
-                                color: Colors.textColorBlack, fontSize: 15),
-                          ),
-                          SizedBox(height: 42),
-                          SupportContactView(systemConfigStream: viewModel.systemConfigStream,),
-                        ],
-                      ),
-                    )
+                    SizedBox(height: 20),
+                    Text(
+                      'Got a problem? Reach us via any of our \nsupport channels below.',
+                      style: TextStyle(
+                          color: Colors.textColorBlack, fontSize: 15),
+                    ),
+                    SizedBox(height: 60),
+                    SupportContactView(systemConfigStream: viewModel.systemConfigStream,),
                   ],
+                ),
+              )),
+              Container(
+                padding: EdgeInsets.only(top: 17, bottom: 40),
+                margin: EdgeInsets.only(left: 20, right: 20),
+                decoration: BoxDecoration(
+                  border: Border(top: BorderSide(color: Colors.solidDarkBlue.withOpacity(0.12), width: 0.8))
+                ),
+                child: SupportItem(
+                    imageRes: 'res/drawables/ic_virtual_card_web.svg',
+                    title: "Visit our website",
+                    subTitle: TextButton(
+                        onPressed: () => openUrl("https://api.whatsapp.com/send?phone="),
+                        child: Text(
+                          "Open Website",
+                          style: SupportContactView.linkStyle,
+                        )
+                    )
                 ),
               )
             ],

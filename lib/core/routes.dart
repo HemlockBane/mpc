@@ -52,6 +52,7 @@ import 'package:moniepoint_flutter/app/loans/views/loans_loan_repayment_view.dar
 import 'package:moniepoint_flutter/app/loans/views/loans_advert_details_view.dart';
 import 'package:moniepoint_flutter/app/loans/views/loans_repayment_confirmation_view.dart';
 import 'package:moniepoint_flutter/app/login/views/login_view.dart';
+import 'package:moniepoint_flutter/app/login/views/login_view_2.dart';
 import 'package:moniepoint_flutter/app/login/views/recovery/recovery_controller_screen.dart';
 import 'package:moniepoint_flutter/app/login/views/support_view.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/airtime/views/airtime_select_beneficiary_view.dart';
@@ -70,17 +71,21 @@ import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/savings_f
 import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_enable_flex_view.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_flex_account_dashboard.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_flex_list_view.dart';
-import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_flex_settings.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_flex_setup_view.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_flex_topup_view.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/views/savings_flex_withdrawal.dart';
-import 'package:moniepoint_flutter/app/savings/views/savings_product_item_view.dart';
+import 'package:moniepoint_flutter/app/settings/dialogs/change_password_dialog.dart';
+import 'package:moniepoint_flutter/app/settings/dialogs/change_pin_dialog.dart';
+import 'package:moniepoint_flutter/app/settings/dialogs/login_methods_dialog.dart';
 import 'package:moniepoint_flutter/app/settings/settings_view.dart';
 import 'package:moniepoint_flutter/app/transfers/viewmodels/transfer_detail_view_model.dart';
 import 'package:moniepoint_flutter/app/transfers/views/transfer_detailed_view.dart';
 import 'package:moniepoint_flutter/app/transfers/views/transfer_view.dart';
+import 'package:moniepoint_flutter/app/usermanagement/viewmodels/change_password_view_model.dart';
+import 'package:moniepoint_flutter/app/usermanagement/viewmodels/change_pin_view_model.dart';
 import 'package:moniepoint_flutter/core/models/TransactionRequestContract.dart';
 import 'package:moniepoint_flutter/core/viewmodels/contacts_view_model.dart';
+import 'package:moniepoint_flutter/core/viewmodels/finger_print_alert_view_model.dart';
 import 'package:moniepoint_flutter/core/viewmodels/system_configuration_view_model.dart';
 import 'package:moniepoint_flutter/core/views/contacts_view.dart';
 import 'package:provider/provider.dart';
@@ -134,6 +139,9 @@ class Routes {
   static const ACCOUNT_UPGRADE_REQUIRED_STATE  = "ACCOUNT_UPGRADE_REQUIRED_STATE";
   static const ACCOUNT_STATUS  = "ACCOUNT_STATUS";
 
+  static const SETTINGS_CHANGE_PASSWORD  = "SETTINGS_CHANGE_PASSWORD";
+  static const SETTINGS_CHANGE_PIN  = "SETTINGS_CHANGE_PIN";
+  static const SETTINGS_CHANGE_LOGIN_METHOD  = "SETTINGS_CHANGE_LOGIN_METHOD";
 
   static const SAVINGS_FLEX_DASHBOARD = "SAVINGS_FLEX_ACCOUNT_DASHBOARD";
   static const SAVINGS_FLEX_WITHDRAW = "SAVINGS_FLEX_WITHDRAW";
@@ -162,7 +170,7 @@ class Routes {
 
   static Map<String, WidgetBuilder> buildRouteMap(SystemConfigurationViewModel systemConfigurationViewModel) {
     return {
-      '/login': (BuildContext context) => LoginScreen(),
+      '/login': (BuildContext context) => LoginView2(),
       '/sign-up': (BuildContext context) => SignUpAccountScreen(),
       Routes.REGISTER_NEW_ACCOUNT: (BuildContext context) => Scaffold(body: SignUpAccountScreen()),
       Routes.ACCOUNT_RECOVERY: (BuildContext context) => Scaffold(body: RecoveryControllerScreen()),
@@ -219,7 +227,6 @@ class Routes {
       ),
 
 
-      Routes.SAVINGS_FLEX_SETTINGS: (BuildContext context) => SavingsFlexSettingsView(),
       Routes.LOAN_APPLICATION: (BuildContext context) => ChangeNotifierProvider(
         create: (_) => LoanRequestViewModel(),
         child: LoanApplicationView(),
@@ -230,6 +237,27 @@ class Routes {
 
   static MaterialPageRoute? generateRouteWithSettings(RouteSettings settings) {
     switch (settings.name) {
+      case Routes.SETTINGS_CHANGE_PASSWORD:
+        return MaterialPageRoute(
+          builder: (_) => ChangeNotifierProvider(
+            create:(_) => ChangePasswordViewModel(),
+            child: ChangePasswordDialog(),
+          ),
+        );
+      case Routes.SETTINGS_CHANGE_PIN:
+        return MaterialPageRoute(
+          builder: (_) => ChangeNotifierProvider(
+            create:(_) => ChangePinViewModel(),
+            child: ChangePinDialog(),
+          ),
+        );
+      case Routes.SETTINGS_CHANGE_LOGIN_METHOD:
+        return MaterialPageRoute(
+          builder: (_) => ChangeNotifierProvider(
+            create:(_) => LoginMethodViewModel(),
+            child: LoginMethodsDialog(),
+          ),
+        );
       case Routes.ACCOUNT_TRANSACTIONS:
         final userAccountId = (settings.arguments as Map?)?["userAccountId"];
         return MaterialPageRoute(

@@ -8,11 +8,11 @@ import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/utils/biometric_helper.dart';
 import 'package:moniepoint_flutter/core/viewmodels/base_view_model.dart';
 
-class FingerPrintAlertViewModel extends BaseViewModel {
+class LoginMethodViewModel extends BaseViewModel {
   late final UserManagementServiceDelegate _delegate;
   late final DeviceManager _deviceManager;
 
-  FingerPrintAlertViewModel({UserManagementServiceDelegate? delegate, DeviceManager? deviceManager}) {
+  LoginMethodViewModel({UserManagementServiceDelegate? delegate, DeviceManager? deviceManager}) {
     this._delegate = delegate ?? GetIt.I<UserManagementServiceDelegate>();
     this._deviceManager = deviceManager ?? GetIt.I<DeviceManager>();
   }

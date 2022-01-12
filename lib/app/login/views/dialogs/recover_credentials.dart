@@ -5,6 +5,23 @@ import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 
 class RecoverCredentialsDialogLayout {
+
+  static Widget _getLeadingIcon(String iconRes) {
+    return Container(
+      width: 46,
+      height: 46,
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+          color: Colors.primaryColor.withOpacity(0.1),
+          shape: BoxShape.circle
+      ),
+      child: SvgPicture.asset(
+        iconRes,
+        color: Colors.primaryColor,
+      ),
+    );
+  }
+
   static Widget getLayout(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -16,15 +33,16 @@ class RecoverCredentialsDialogLayout {
           style: TextStyle(
               color: Colors.textColorBlack,
               fontWeight: FontWeight.bold,
-              fontSize: 22),
+              fontSize: 20),
         )),
         SizedBox(height: 30),
         ListTile(
+          leading: _getLeadingIcon('res/drawables/ic_user.svg'),
           contentPadding: EdgeInsets.only(left: 24, right: 24),
-          title: Text('Recover Username',
+          title: Text('Forgot Username',
               style: TextStyle(
                   color: Colors.textColorBlack,
-                  fontSize: 18,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600
               )
           ),
@@ -37,14 +55,15 @@ class RecoverCredentialsDialogLayout {
           height: 0.8,
           color: Color(0XFF055072).withOpacity(0.1),
           width: double.infinity,
-          margin: EdgeInsets.only(left: 24, right: 24, top: 6, bottom: 6),
+          margin: EdgeInsets.only(left: 86, right: 24, top: 6, bottom: 6),
         ),
         ListTile(
+          leading: _getLeadingIcon('res/drawables/ic_savings_lock.svg'),
           contentPadding: EdgeInsets.only(left: 24, right: 24),
-          title: Text('Recover Password',
+          title: Text('Forgot Password',
               style: TextStyle(
                   color: Colors.textColorBlack,
-                  fontSize: 18,
+                  fontSize: 14,
                   fontWeight: FontWeight.w600
               )
           ),

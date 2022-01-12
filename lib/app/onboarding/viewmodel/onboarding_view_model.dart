@@ -11,7 +11,6 @@ import 'package:moniepoint_flutter/app/securityquestion/model/data/security_ques
 import 'package:moniepoint_flutter/app/validation/model/customer_validation_service_delegate.dart';
 import 'package:moniepoint_flutter/app/validation/model/data/onboarding_liveliness_validation_response.dart';
 import 'package:moniepoint_flutter/app/validation/model/data/validate_phone_otp_response.dart';
-import 'package:moniepoint_flutter/app/devicemanagement/model/data/device_manager.dart';
 import 'package:moniepoint_flutter/core/models/file_uuid.dart';
 import 'package:moniepoint_flutter/core/models/services/location_service_delegate.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
@@ -27,7 +26,6 @@ class OnBoardingViewModel extends ChangeNotifier {
   late OnBoardingServiceDelegate _delegate;
   late CustomerValidationServiceDelegate _customerValidationDelegate;
   late final LocationServiceDelegate _locationServiceDelegate;
-  late DeviceManager _deviceManager;
 
   final List<SecurityQuestion> _securityQuestions = [];
   final List<Nationality> nationalities = [];
@@ -48,11 +46,9 @@ class OnBoardingViewModel extends ChangeNotifier {
   OnBoardingViewModel({
     OnBoardingServiceDelegate? delegate,
     CustomerValidationServiceDelegate? customerValidationDelegate,
-    LocationServiceDelegate? locationServiceDelegate,
-    DeviceManager? deviceManager}) {
+    LocationServiceDelegate? locationServiceDelegate}) {
     this._delegate = delegate ?? GetIt.I<OnBoardingServiceDelegate>();
     this._customerValidationDelegate = customerValidationDelegate ?? GetIt.I<CustomerValidationServiceDelegate>();
-    this._deviceManager = deviceManager ?? GetIt.I<DeviceManager>();
     this._locationServiceDelegate = locationServiceDelegate ?? GetIt.I<LocationServiceDelegate>();
 
     profileForm.setRequestBody(accountForm.account);

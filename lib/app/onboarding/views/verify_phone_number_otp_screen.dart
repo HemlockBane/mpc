@@ -9,6 +9,7 @@ import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/views/otp_ussd_info_view.dart';
+import 'package:moniepoint_flutter/core/views/pin_entry.dart';
 import 'package:moniepoint_flutter/core/views/scroll_view.dart';
 import 'package:provider/provider.dart';
 
@@ -119,16 +120,12 @@ class _VerifyPhoneNumberOTPScreen extends State<VerifyPhoneNumberOTPScreen> {
                         )
                     ),
                     SizedBox(height: 30),
-                    Styles.appEditText(
-                        hint: 'Enter 6-Digit Code',
-                        animateHint: true,
-                        inputType: TextInputType.number,
-                        inputFormats: [FilteringTextInputFormatter.digitsOnly],
-                        startIcon: Icon(CustomFont.numberInput, color: Colors.textFieldIcon.withOpacity(0.2), size: 24),
-                        drawablePadding: EdgeInsets.only(left: 4, right: 4),
-                        controller: _otpController,
-                        onChanged: (v) => _onOtpChanged(),
-                        maxLength: 6
+                    Padding(
+                      padding: EdgeInsets.only(left: 0, right: 0),
+                      child: PinEntry(onChange: (v) {
+                        _otpController.text = v;
+                        _onOtpChanged();
+                      }, numEntries: 6),
                     ),
                     SizedBox(height: 20),
                     OtpUssdInfoView(
@@ -141,12 +138,25 @@ class _VerifyPhoneNumberOTPScreen extends State<VerifyPhoneNumberOTPScreen> {
                 ),
               ),
             ),
-            Styles.statefulButton2(
-                elevation: 0,
-                onClick: () => _subscribeUiToOtpValidation(context),
-                text: 'Next',
-                isLoading: _isLoading,
-                isValid:  _isOtpValid && !_isLoading
+            Row(
+              children: [
+                Styles.appButton(
+                    elevation: 0,
+                    onClick: () => Navigator.of(context).pop(),
+                    text: "Back",
+                    buttonStyle: Styles.lightGreyButtonStyle
+                ),
+                SizedBox(width: 13),
+                Expanded(
+                    child: Styles.statefulButton2(
+                        elevation: 0,
+                        onClick: () => _subscribeUiToOtpValidation(context),
+                        text: 'Next',
+                        isLoading: _isLoading,
+                        isValid:  _isOtpValid && !_isLoading
+                    )
+                )
+              ],
             ),
           ],
         ),

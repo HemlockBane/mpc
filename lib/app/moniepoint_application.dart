@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:moniepoint_flutter/app/notifications/view/notification_route_observer.dart';
+import 'package:moniepoint_flutter/app/onboarding/views/welcome_screen.dart';
 import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
@@ -13,9 +14,14 @@ import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../main.dart';
+import 'login/views/biometric_login_screen.dart';
 import 'login/views/login_view.dart';
+import 'login/views/login_view_2.dart';
 import 'onboarding/views/signup_account_view.dart';
 
+///
+///@author Paul Okeke
+///
 class MoniepointApp extends StatelessWidget with CompositeDisposableWidget {
   @override
   Widget build(BuildContext context) {
@@ -61,7 +67,9 @@ class _MoniepointAppContainerState extends State<_MoniepointAppContainer> with C
   Widget build(BuildContext context) {
     String? savedUsername = PreferenceUtil.getSavedUsername();
 
-    Widget body = (savedUsername == null || savedUsername.isEmpty) ? SignUpAccountScreen() : LoginScreen();
+    Widget body = (savedUsername == null || savedUsername.isEmpty)
+        ? WelcomeScreen()
+        : BiometricLoginScreen();
 
     return MaterialApp(
       restorationScopeId: "root",

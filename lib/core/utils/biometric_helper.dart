@@ -15,6 +15,9 @@ class BiometricHelper {
   static const _platform = const MethodChannel('moniepoint.flutter.dev/biometric');
   static const _eventChannel = const EventChannel('moniepoint.flutter.dev/biometric_auth');
 
+  static const LoginAuthType = "Login";
+  static const SetUpAuthType = "SetUp";
+
   static BiometricHelper? _biometricHelper;
 
   BiometricHelper();

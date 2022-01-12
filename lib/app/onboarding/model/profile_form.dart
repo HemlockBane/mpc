@@ -65,7 +65,6 @@ class ProfileForm with ChangeNotifier, Validators {
     if(setupType.hasEmail == false) formStreams.add(emailStream);
 
     this._isValid = Rx.combineLatest(formStreams, (values) {
-      print(values);
       return _isUsernameValid(displayError: false)
           && _isPasswordValid(displayError: false)
           && _isPinValid(displayError: false)

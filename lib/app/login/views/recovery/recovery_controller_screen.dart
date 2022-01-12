@@ -73,7 +73,6 @@ class _RecoveryControllerScreen extends State<RecoveryControllerScreen> with Res
   }
 
   String determineInitialRoute(RecoveryMode mode) {
-    print("The Index Value => ${_index.value}");
     if(mode == RecoveryMode.USERNAME_RECOVERY) {
       _index.value = describeEnum(RecoveryMode.USERNAME_RECOVERY);
       return "username";
@@ -100,7 +99,15 @@ class _RecoveryControllerScreen extends State<RecoveryControllerScreen> with Res
             resizeToAvoidBottomInset: false,
             key: widget._scaffoldKey,
             appBar: AppBar(
-                title: Text('Recover Username', style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),),
+                centerTitle: false,
+                titleSpacing: -3,
+                title: Text(
+                  mode == RecoveryMode.USERNAME_RECOVERY ? 'Recover Username' : "Recover Password",
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.textColorBlack
+                ),),
                 elevation: 0,
                 backgroundColor: Colors.transparent,
                 iconTheme: IconThemeData(color: Colors.primaryColor)

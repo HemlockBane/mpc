@@ -205,7 +205,7 @@ class FlexSetupViewModel extends BaseViewModel with SavingsViewModel{
     this.checkValidity();
   }
 
-  Stream<Resource<FlexSavingConfig>> createFlexConfig() async* {
+  Stream<Resource<FlexSavingConfig>> createOrUpdateFlexConfig() async* {
     final request = FlexSavingConfigRequestBody(
         flexSaveMode: _savingMode,
         flexSaveType: _savingType,
@@ -229,6 +229,7 @@ class FlexSetupViewModel extends BaseViewModel with SavingsViewModel{
           if(event is Loading) return Resource.loading(null);
           return response;
         });
+        break;
       }
     }
   }

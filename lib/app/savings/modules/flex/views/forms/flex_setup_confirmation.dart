@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/model/data/flex_saving_config.dart';
 import 'package:moniepoint_flutter/app/savings/modules/flex/viewmodels/flex_setup_viewmodel.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
 import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
@@ -23,7 +24,7 @@ class FlexSetUpConfirmationView extends StatefulWidget {
 
 }
 
-class _FlexSetUpConfirmationViewState extends State<FlexSetUpConfirmationView> {
+class _FlexSetUpConfirmationViewState extends State<FlexSetUpConfirmationView> with CompositeDisposableWidget {
 
   late final FlexSetupViewModel _viewModel;
 
@@ -88,25 +89,26 @@ class _FlexSetUpConfirmationViewState extends State<FlexSetUpConfirmationView> {
     if(_viewModel.isLoading == true) return;
 
     setState(() => _viewModel.setIsLoading(true));
-    _viewModel.createFlexConfig().listen((event) {
+    _viewModel.createOrUpdateFlexConfig().listen((event) {
       if(event is Loading) {
         if(!_viewModel.isLoading) {
           setState(() => _viewModel.setIsLoading(true));
         }
       }
       else if(event is Success) {
-        setState(() => _viewModel.setIsLoading(false));
-        Navigator.push(
-          context,
+        _viewModel.setIsLoading(false);
+        Navigator.of(context).push(
           MaterialPageRoute(
             builder: (ctx) => SavingsSuccessView(
               primaryText: "Flex Setup\nSuccessful!",
               secondaryText: "Your Flex account has been successfully setup!",
               primaryButtonText: "Continue",
-              primaryButtonAction: () => Navigator.of(context).popUntil(
-                  (route) => route.settings.name == Routes.SAVINGS_FLEX_DASHBOARD
-                      || route.settings.name == Routes.DASHBOARD
-              ),
+              primaryButtonAction: () {
+                Navigator.of(ctx).popUntil(
+                        (route) => route.settings.name == Routes.SAVINGS_FLEX_DASHBOARD
+                        || route.settings.name == Routes.DASHBOARD
+                );
+              },
             ),
           ),
         );
@@ -119,7 +121,7 @@ class _FlexSetUpConfirmationViewState extends State<FlexSetUpConfirmationView> {
             message: event.message
         );
       }
-    });
+    }).disposedBy(this);
   }
 
   @override
@@ -222,6 +224,12 @@ class _FlexSetUpConfirmationViewState extends State<FlexSetUpConfirmationView> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    disposeAll();
+    super.dispose();
   }
 
 }

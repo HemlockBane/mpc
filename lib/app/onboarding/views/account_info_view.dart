@@ -143,12 +143,12 @@ class _AccountInfoScreenState extends State<AccountInfoScreen> {
   @override
   Widget build(BuildContext context) {
     return ScrollView(
-        maxHeight: MediaQuery.of(context).size.height - 64,//subtract the vertical padding
-      child : Container(
-          padding: EdgeInsets.symmetric(vertical: 32, horizontal: 20),
-          color: Colors.white,
-          child : _buildMain(context)
-      )
+        maxHeight: MediaQuery.of(context).size.height - 64, //subtract the vertical padding
+        child: Container(
+            padding: EdgeInsets.symmetric(vertical: 32, horizontal: 20),
+            color: Colors.white,
+            child: _buildMain(context)
+        )
     );
   }
 }

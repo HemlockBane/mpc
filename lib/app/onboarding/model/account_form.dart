@@ -139,7 +139,7 @@ class AccountForm with ChangeNotifier, Validators{
     if (displayError && !isValid) {
       _genderController.sink.addError(
           (_requestBody.gender == null)
-              ? 'Email address is required'
+              ? 'Gender is required'
               : 'Invalid Gender');//never
     }
     return isValid;

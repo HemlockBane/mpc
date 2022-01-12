@@ -16,8 +16,9 @@ import 'package:provider/provider.dart';
 import 'forms/first_flex_setup_form.dart';
 import 'forms/second_flex_setup_form.dart';
 
-///SavingsFlexSetupView
 ///
+///SavingsFlexSetupView
+///@author Paul Okeke
 ///
 class SavingsFlexSetupView extends StatefulWidget {
   const SavingsFlexSetupView({

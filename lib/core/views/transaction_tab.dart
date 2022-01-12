@@ -2,23 +2,24 @@ import 'package:flutter/material.dart';
 
 class TransactionTab extends Container implements PreferredSizeWidget {
 
-  TransactionTab(this._tabBar, this._color);
+  TransactionTab({
+    required this.tabBar,
+    this.margin = const EdgeInsets.only(left: 12, right: 16)
+  });
 
-  final TabBar _tabBar;
-  final Color _color;
+  final TabBar tabBar;
+  final EdgeInsets margin;
 
   @override
-  Size get preferredSize => _tabBar.preferredSize;
+  Size get preferredSize => tabBar.preferredSize;
 
   @override
-  Widget build(BuildContext context) => Container(
-    margin: EdgeInsets.only(right: 16, left: 16),
-    height: 40,
-    decoration: BoxDecoration(
-      color: _color,
-      borderRadius: BorderRadius.circular(50)
+  Widget build(BuildContext context) => Align(
+    alignment: Alignment.centerLeft,
+    child: Padding(
+      padding: this.margin,
+      child: tabBar,
     ),
-    child: _tabBar,
   );
 
 

@@ -5,18 +5,23 @@ import 'package:moniepoint_flutter/app/login/views/support_shimmer_view.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/models/system_configuration.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
-import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/tuple.dart';
 import 'package:moniepoint_flutter/core/utils/call_utils.dart';
-import 'package:moniepoint_flutter/core/extensions/text_utils.dart';
 import 'package:collection/collection.dart';
 
+///@author Paul Okeke
 
 class SupportContactView extends StatelessWidget {
 
   SupportContactView({required this.systemConfigStream});
 
   final Stream<Resource<List<SystemConfiguration>>> systemConfigStream;
+
+  static const TextStyle linkStyle = const TextStyle(
+    fontWeight: FontWeight.w500,
+    fontSize: 14,
+    color: Colors.primaryColor
+  );
 
   Map<String, Tuple<Color, Function()>> _makeSupportLinks(String value, Function(String value) fn) {
     final Map<String, Tuple<Color, Function()>> initialValue =  {};
@@ -28,48 +33,53 @@ class SupportContactView extends StatelessWidget {
 
   List<Widget> _makeSupportItemList(List<SystemConfiguration> systemConfigurations) {
     final List<Widget> widgets = [];
-    final textStyle = TextStyle(
-        color: Colors.primaryColor,
-        fontFamily: Styles.defaultFont,
-        fontSize: 15,
-        fontWeight: FontWeight.w600
-    );
-
     systemConfigurations.forEach((e) {
       if (e.key == "support.email") {
-        final emailItem = _SupportItem(
+        final emailItem = SupportItem(
             title: "Send us an Email",
             imageRes: 'res/drawables/ic_support_message_filled.svg',
-            subTitle:  Text(e.value ?? "", style: textStyle).colorText(_makeSupportLinks(e.value ?? "", (value) => openUrl(Uri(
-                scheme: "mailto",
-                path: "$value",
-                queryParameters: {
-                  'subject': 'Hello Moniepoint',
-                  'body':"Good day"
-                }).toString())
-            ), bold: false
+            subTitle: TextButton(
+                onPressed: () => openUrl(Uri(
+                    scheme: "mailto",
+                    path: "${e.value}",
+                    queryParameters: {
+                      'subject': 'Hello Moniepoint',
+                      'body':"Good day"
+                    }).toString()),
+                child: Text(
+                  "Send Email",
+                  style: linkStyle,
+                )
             )
         );
         widgets.add(emailItem);
       }
       if (e.key == "support.phone") {
-        final phoneItem = _SupportItem(
+        final phoneItem = SupportItem(
             title: "Give us a call",
             imageRes:'res/drawables/ic_support_phone.svg',
-            subTitle:Text(e.value ?? "", style: textStyle).colorText(
-                _makeSupportLinks(e.value ?? "", (value) => openUrl("tel:$value")),
-                bold: false
-            ));
+            subTitle: TextButton(
+                onPressed: () => openUrl("tel:${e.value}"),
+                child: Text(
+                  "Call Support",
+                  style: linkStyle,
+                )
+            ),
+        );
         widgets.insert(0, phoneItem);
       }
       if (e.key == "support.whatsapp") {
-        final phoneItem = _SupportItem(
+        final phoneItem = SupportItem(
             title:"Chat on Whatsapp",
             imageRes:'res/drawables/ic_support_whatsapp_filled.svg',
-            subTitle: Text(e.value ?? "", style: textStyle).colorText(
-                _makeSupportLinks(e.value ?? "", (value) => openUrl("https://api.whatsapp.com/send?phone=$value")),
-                bold: false
-            ));
+            subTitle: TextButton(
+                onPressed: () => openUrl("https://api.whatsapp.com/send?phone=${e.value}"),
+                child: Text(
+                  "Send Message",
+                  style: linkStyle,
+                )
+            )
+        );
         widgets.insert(1, phoneItem);
       }
     });
@@ -88,19 +98,7 @@ class SupportContactView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 21),
-      decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(width: 0.7, color: Color(0XFF0357EE).withOpacity(0.1)),
-          boxShadow: [
-            BoxShadow(
-                color: Color(0XFF0E4FB1).withOpacity(0.12),
-                offset: Offset(0,1),
-                blurRadius: 2
-            )
-          ]
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
       child: StreamBuilder(
         stream: systemConfigStream,
         builder: (context, AsyncSnapshot<Resource<List<SystemConfiguration>>> a) {
@@ -121,9 +119,9 @@ class SupportContactView extends StatelessWidget {
 ///
 ///
 ///
-class _SupportItem extends StatelessWidget {
+class SupportItem extends StatelessWidget {
 
-  _SupportItem({
+  SupportItem({
     required this.title,
     required this.imageRes,
     required this.subTitle
@@ -151,20 +149,15 @@ class _SupportItem extends StatelessWidget {
           ),
         ),
         SizedBox(width: 20,),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title,
-              style: TextStyle(
-                color: Colors.darkBlue.withOpacity(0.5),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600
-              ),
-            ),
-            SizedBox(height: 6,),
-            subTitle
-          ],
-        )
+        Text(title,
+          style: TextStyle(
+              color: Colors.darkBlue,
+              fontSize: 14,
+              fontWeight: FontWeight.w600
+          ),
+        ),
+        Spacer(),
+        subTitle
       ],
     );
   }

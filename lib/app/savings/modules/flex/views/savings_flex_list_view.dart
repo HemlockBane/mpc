@@ -252,7 +252,9 @@ class FlexSavingListItem extends StatelessWidget {
               navigatorKey.currentState?.pushNamed(
                   Routes.SAVINGS_FLEX_DASHBOARD,
                   arguments: {"flexSavingId" : flexSaving.id}
-              );
+              ).then((value) {
+                print("Sometimes we are faced with greater problems!!!");
+              });
             },
           )
         ],
@@ -459,7 +461,8 @@ class FlexSavingsAccountCard extends StatelessWidget {
               BoxShadow(
                   offset: Offset(0, 13),
                   blurRadius: 21,
-                  color: Colors.savingsPrimaryShadow.withOpacity(0.2))
+                  color: Colors.savingsPrimaryShadow.withOpacity(0.2)
+              )
             ]
         ),
         child: StreamBuilder(

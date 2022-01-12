@@ -10,8 +10,6 @@ import 'package:moniepoint_flutter/app/accountupdates/model/customer_service_del
 import 'package:moniepoint_flutter/app/accountupdates/model/data/account_upgrade_state.dart';
 import 'package:moniepoint_flutter/app/dashboard/model/slider_item.dart';
 import 'package:moniepoint_flutter/app/growth/growth_notification_data_bus.dart';
-import 'package:moniepoint_flutter/app/growth/growth_notification_data_type.dart';
-import 'package:moniepoint_flutter/app/growth/growth_notification_member.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/data/transfer_beneficiary.dart';
 import 'package:moniepoint_flutter/app/managebeneficiaries/transfer/model/transfer_beneficiary_delegate.dart';
 import 'package:moniepoint_flutter/core/login_mode.dart';
@@ -108,8 +106,7 @@ class DashboardViewModel extends BaseViewModel  {
   }
 
   Future<Tuple<bool, BiometricType>> shouldRequestFingerPrintSetup() async {
-    final fingerprintRequestCount =
-        PreferenceUtil.getFingerprintRequestCounter();
+    final fingerprintRequestCount = PreferenceUtil.getFingerprintRequestCounter();
     //We should only request 3 times from the dashboard
     if (fingerprintRequestCount >= 2 ||
         PreferenceUtil.getLoginMode() == LoginMode.ONE_TIME) {
@@ -119,8 +116,7 @@ class DashboardViewModel extends BaseViewModel  {
     final biometricType = await biometricHelper.getBiometricType();
     final hasFingerprintPassword = (await biometricHelper.getFingerprintPassword()) != null;
 
-    final shouldRequest =
-        biometricType != BiometricType.NONE && !hasFingerprintPassword;
+    final shouldRequest = biometricType != BiometricType.NONE && !hasFingerprintPassword;
     if (shouldRequest) {
       PreferenceUtil.setFingerprintRequestCounter(fingerprintRequestCount + 1);
     }

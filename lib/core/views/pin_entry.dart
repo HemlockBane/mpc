@@ -88,7 +88,6 @@ class _PinEntryState extends State<PinEntry> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      // color: Colors.white,
       padding: EdgeInsets.only(left: 12, right: 12, top: 4.5, bottom: 4.5),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),

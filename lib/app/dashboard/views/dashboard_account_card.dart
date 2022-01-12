@@ -17,8 +17,10 @@ import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/styles.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
+import 'package:moniepoint_flutter/core/views/CustomExpansionPanelList.dart';
 import 'package:moniepoint_flutter/core/views/dots_indicator.dart';
 import 'package:moniepoint_flutter/core/views/expandable_page_view.dart';
+import 'package:moniepoint_flutter/main.dart';
 import 'package:provider/provider.dart';
 import 'package:share/share.dart';
 import 'package:shimmer/shimmer.dart';
@@ -162,11 +164,6 @@ class DashboardAccountItemState extends State<DashboardAccountItem>
     _viewModel.update(DashboardState.REFRESHING);
   }
 
-  void _navigateToFixAccount() async {
-    await AccountUpgradeRouteDelegate.navigateToAccountUpgrade(context, userAccount);
-    _viewModel.update(DashboardState.ACCOUNT_STATUS_UPDATED);
-  }
-
   onItemTap() async {
 
     final mixpanel = await MixpanelManager.initAsync();
@@ -174,23 +171,23 @@ class DashboardAccountItemState extends State<DashboardAccountItem>
 
     if(accountState == AccountState.IN_COMPLETE) return _navigateToAccountTransactions();
 
-    if(accountState != AccountState.COMPLETED) {
-      //First determine if we are to pop the error
-      final returnValue = await Navigator.of(context).push(
-          AccountRestrictionRoute(
-              builder: (mContext) => widget.copyWith(balanceStream: Stream.value(_balanceData!)),
-              userAccount: userAccount,
-              accountState: accountState
-          )
-      );
-
-      //it's either going to ask us to fix it or view transactions
-      if(returnValue != null && returnValue is String) {
-        if(returnValue == "VIEW_TRANSACTIONS") _navigateToAccountTransactions();
-        else if(returnValue == "FIX") _navigateToFixAccount();
-      }
-      return;
-    }
+    // if(accountState != AccountState.COMPLETED) {
+    //   //First determine if we are to pop the error
+    //   final returnValue = await Navigator.of(context).push(
+    //       AccountRestrictionRoute(
+    //           builder: (mContext) => widget.copyWith(balanceStream: Stream.value(_balanceData!)),
+    //           userAccount: userAccount,
+    //           accountState: accountState
+    //       )
+    //   );
+    //
+    //   //it's either going to ask us to fix it or view transactions
+    //   if(returnValue != null && returnValue is String) {
+    //     if(returnValue == "VIEW_TRANSACTIONS") _navigateToAccountTransactions();
+    //     else if(returnValue == "FIX") _navigateToFixAccount();
+    //   }
+    //   return;
+    // }
 
     _navigateToAccountTransactions();
   }
@@ -241,7 +238,7 @@ class DashboardAccountItemState extends State<DashboardAccountItem>
       _balanceContainer(snapshot),
       Align(
         alignment: Alignment(0.0, -1.015),
-        child: _DashboardAccountType(userAccount.customerAccount?.accountType ?? "SAVINGS")
+        child: _DashboardAccountType(userAccount.customerAccount?.accountType ?? "PERSONAL")
       ),
     ],
   );
@@ -610,9 +607,11 @@ class _AccountCardErrorView extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() => _AccountCardErrorState();
+
 }
 
 class _AccountCardErrorState extends State<_AccountCardErrorView> with SingleTickerProviderStateMixin {
+
   late final AnimationController _controller = AnimationController(
     duration: const Duration(milliseconds: 500),
     vsync: this,
@@ -625,6 +624,8 @@ class _AccountCardErrorState extends State<_AccountCardErrorView> with SingleTic
     parent: _controller,
     curve: Curves.elasticIn,
   ));
+
+  bool _isAccountStatusPanelOpen = false;
 
   @override
   initState() {
@@ -678,6 +679,11 @@ class _AccountCardErrorState extends State<_AccountCardErrorView> with SingleTic
     return false;
   }
 
+  // void _navigateToFixAccount() async {
+  //   await AccountUpgradeRouteDelegate.navigateToAccountUpgrade(context, userAccount);
+  //   _viewModel.update(DashboardState.ACCOUNT_STATUS_UPDATED);
+  // }
+
   Widget _mainButton() => Container(
     margin: widget.margin,
     decoration: BoxDecoration(
@@ -692,20 +698,76 @@ class _AccountCardErrorState extends State<_AccountCardErrorView> with SingleTic
           onTap: null,
         child: Container(
           padding: EdgeInsets.only(left: 13, right: 30, top: 9, bottom: 9),
-          child: Row(
+          child: CustomExpansionPanelList(
+            expandedHeaderPadding: EdgeInsets.all(0),
+            expansionCallback: (index, bool isOpen) {
+              _isAccountStatusPanelOpen = (!isOpen) ? index == 0 : false;
+              setState(() {});
+            },
+            elevation: 0,
             children: [
-              icon,
-              SizedBox(width: 9,),
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 12.5,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600
-                ),
-              ),
-              Spacer(),
-              SvgPicture.asset("res/drawables/ic_forward_anchor.svg", color: Colors.white,),
+              CustomExpansionPanel(
+                  backgroundColor: Colors.transparent,
+                  isExpanded: _isAccountStatusPanelOpen,
+                  canTapOnHeader: false,
+                  headerBuilder: (a, b) {
+                    return Row(
+                      children: [
+                        icon,
+                        SizedBox(width: 9,),
+                        Text(
+                          title,
+                          style: TextStyle(
+                              fontSize: 12.5,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                  body: Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(left: 24, right: 24),
+                        child: Text(
+                          _AccountRestrictionPage.makePageData(widget.accountState).pageDescription,
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w400,
+                              fontSize: 12
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 12),
+                      Padding(
+                        padding: EdgeInsets.only(left: 24, right: 24),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: Styles.appButton(
+                              elevation: 0,
+                              onClick: () => "",
+                              text: "Fix This",
+                              padding: 12,
+                              buttonStyle: Styles.whiteButtonStyle.copyWith(
+                                textStyle: MaterialStateProperty.all(TextStyle(color: Colors.white)),
+                                foregroundColor: MaterialStateProperty.all(Colors.white),
+                                backgroundColor: MaterialStateProperty.all(Colors.white.withOpacity(0.14))
+                              )
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      TextButton(
+                          onPressed: () => navigatorKey.currentState?.pushNamed(Routes.ACCOUNT_TRANSACTIONS),
+                          child: Text(
+                            "View Transactions",
+                            style: TextStyle(color: Colors.white),
+                          )
+                      )
+                    ],
+                  )
+              )
             ],
           ),
         ),

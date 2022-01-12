@@ -1,4 +1,3 @@
-import 'dart:collection';
 
 import 'package:get_it/get_it.dart';
 import 'package:moniepoint_flutter/app/savings/model/data/savings_product.dart';

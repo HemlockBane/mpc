@@ -1,23 +1,11 @@
 
 import 'package:flutter/material.dart' hide Colors;
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:moniepoint_flutter/app/settings/dialogs/change_password_dialog.dart';
-import 'package:moniepoint_flutter/app/settings/dialogs/change_pin_dialog.dart';
-import 'package:moniepoint_flutter/app/settings/dialogs/login_methods_dialog.dart';
-import 'package:moniepoint_flutter/app/usermanagement/viewmodels/change_password_view_model.dart';
-import 'package:moniepoint_flutter/app/usermanagement/viewmodels/change_pin_view_model.dart';
-import 'package:moniepoint_flutter/core/views/bottom_sheet.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/config/build_config.dart';
-import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
-import 'package:moniepoint_flutter/core/styles.dart';
-import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
-import 'package:moniepoint_flutter/core/viewmodels/finger_print_alert_view_model.dart';
-import 'package:moniepoint_flutter/core/views/finger_print_alert_dialog.dart';
 import 'package:moniepoint_flutter/core/views/sessioned_widget.dart';
-import 'package:provider/provider.dart';
 
 ///
 ///@author Paul Okeke
@@ -39,6 +27,10 @@ class _SettingsScreen extends State<SettingsScreen> {
 
   void _onChangePin() async {
     Navigator.of(context).pushNamed(Routes.SETTINGS_CHANGE_PIN);
+  }
+
+  void _onResetPin() async {
+    Navigator.of(context).pushNamed(Routes.SETTINGS_RESET_PIN);
   }
 
   void _openLoginMethods() async {
@@ -107,6 +99,23 @@ class _SettingsScreen extends State<SettingsScreen> {
                       fontSize: 16,
                       fontWeight: FontWeight.normal)),
               onTap: _onChangePin,
+              trailing: SvgPicture.asset('res/drawables/ic_forward_anchor.svg'),
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: 16, right: 16),
+              child: Divider(
+                height: 1,
+                color: Colors.dashboardDivider.withOpacity(0.2),
+              ),
+            ),
+            ListTile(
+              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+              title: Text('Reset Transaction PIN',
+                  style: TextStyle(
+                      color: Colors.textColorMainBlack,
+                      fontSize: 16,
+                      fontWeight: FontWeight.normal)),
+              onTap: _onResetPin,
               trailing: SvgPicture.asset('res/drawables/ic_forward_anchor.svg'),
             ),
             Padding(

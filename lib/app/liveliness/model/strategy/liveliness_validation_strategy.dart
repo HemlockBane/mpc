@@ -5,6 +5,7 @@ import 'package:moniepoint_flutter/app/liveliness/model/data/liveliness_verifica
 import 'package:moniepoint_flutter/app/liveliness/viewmodels/liveliness_verification_viewmodel.dart';
 import 'package:moniepoint_flutter/app/login/model/device_liveliness_validation_strategy.dart';
 import 'package:moniepoint_flutter/app/login/model/recovery_liveliness_validation_strategy.dart';
+import 'package:moniepoint_flutter/app/usermanagement/model/strategy/reset_pin_validation_strategy.dart';
 
 import 'onboarding_liveliness_validation_strategy.dart';
 
@@ -41,9 +42,11 @@ abstract class LivelinessValidationStrategy<T extends LivelinessValidationRespon
       case LivelinessVerificationFor.CARD_ACTIVATION:
         strategy = CardActivationLivelinessValidationStrategy(viewModel, arguments);
         break;
+      case LivelinessVerificationFor.PIN_RESET:
+        strategy = ResetPinValidationStrategy(viewModel, arguments);
+        break;
       default:
         strategy = OnboardingLivelinessValidationStrategy(viewModel, arguments);
-
     }
 
     return strategy as LivelinessValidationStrategy<T>;

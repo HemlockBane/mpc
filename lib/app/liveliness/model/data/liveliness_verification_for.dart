@@ -5,4 +5,5 @@ enum LivelinessVerificationFor{
   REGISTER_DEVICE,
   CARD_LINKING,
   CARD_ACTIVATION,
+  PIN_RESET,
 }

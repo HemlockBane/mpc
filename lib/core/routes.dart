@@ -83,11 +83,13 @@ import 'package:moniepoint_flutter/app/transfers/views/transfer_detailed_view.da
 import 'package:moniepoint_flutter/app/transfers/views/transfer_view.dart';
 import 'package:moniepoint_flutter/app/usermanagement/viewmodels/change_password_view_model.dart';
 import 'package:moniepoint_flutter/app/usermanagement/viewmodels/change_pin_view_model.dart';
+import 'package:moniepoint_flutter/app/usermanagement/viewmodels/reset_pin_view_model.dart';
 import 'package:moniepoint_flutter/core/models/TransactionRequestContract.dart';
 import 'package:moniepoint_flutter/core/viewmodels/contacts_view_model.dart';
 import 'package:moniepoint_flutter/core/viewmodels/finger_print_alert_view_model.dart';
 import 'package:moniepoint_flutter/core/viewmodels/system_configuration_view_model.dart';
 import 'package:moniepoint_flutter/core/views/contacts_view.dart';
+import 'package:moniepoint_flutter/app/settings/dialogs/reset_pin_otp_screen.dart';
 import 'package:provider/provider.dart';
 
 class Routes {
@@ -141,6 +143,7 @@ class Routes {
 
   static const SETTINGS_CHANGE_PASSWORD  = "SETTINGS_CHANGE_PASSWORD";
   static const SETTINGS_CHANGE_PIN  = "SETTINGS_CHANGE_PIN";
+  static const SETTINGS_RESET_PIN  = "SETTINGS_RESET_PIN";
   static const SETTINGS_CHANGE_LOGIN_METHOD  = "SETTINGS_CHANGE_LOGIN_METHOD";
 
   static const SAVINGS_FLEX_DASHBOARD = "SAVINGS_FLEX_ACCOUNT_DASHBOARD";
@@ -249,6 +252,13 @@ class Routes {
           builder: (_) => ChangeNotifierProvider(
             create:(_) => ChangePinViewModel(),
             child: ChangePinDialog(),
+          ),
+        );
+      case Routes.SETTINGS_RESET_PIN:
+        return MaterialPageRoute(
+          builder: (_) => ChangeNotifierProvider(
+            create:(_) => ResetPinViewModel(),
+            child: ResetPinOtpScreen(),
           ),
         );
       case Routes.SETTINGS_CHANGE_LOGIN_METHOD:

@@ -1,17 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart' hide Colors;
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:moniepoint_flutter/app/login/viewmodels/login_view_model.dart';
-import 'package:moniepoint_flutter/app/login/views/login_response_observer.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/network/response_observer.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/utils/biometric_helper.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
-import 'package:provider/provider.dart';
 
 ///
 ///@author Paul Okeke
@@ -21,13 +17,15 @@ class BiometricLoginScreen extends StatefulWidget {
   BiometricLoginScreen({
     required this.responseObserver,
     required this.fingerPrintAction,
-    this.pageDescription,
+    this.pageDescription = "",
+    this.pageActionText = "",
     this.authType = BiometricHelper.LoginAuthType
   });
 
   final ResponseObserver<Resource<dynamic>> responseObserver;
   final Function(String key, String password) fingerPrintAction;
-  final String? pageDescription;
+  final String pageDescription;
+  final String pageActionText;
   final String authType;
 
   @override
@@ -45,35 +43,51 @@ class _BiometricLoginScreenState extends State<BiometricLoginScreen> {
 
   @override
   void initState() {
+    _biometricHelper = BiometricHelper.getInstance();
     super.initState();
     widget.responseObserver.addStateListener(_responseStateListener);
     WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      _startFingerPrintLoginProcess();
+      _startAuthProcess();
     });
   }
 
-  void _startFingerPrintLoginProcess() async {
+  void _startAuthProcess() async {
     final biometricType = await _biometricHelper?.getBiometricType();
-    final hasFingerPrint = (await _biometricHelper?.getFingerprintPassword()) != null;
-    if (biometricType != BiometricType.NONE) {
-      if (PreferenceUtil.getFingerPrintEnabled() && hasFingerPrint) {
-        Function? subscription;
-        subscription = _biometricHelper?.authenticate(
-            authType: widget.authType, authenticationCallback: (key, msg) {
-          if (key != null) {
-            widget.fingerPrintAction(
-                key, PreferenceUtil.getAuthFingerprintUsername() ?? "");
-            subscription?.call();
-          }
-        });
-      }
-    } else {
-      //ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(value.second ?? "")));
+    if (biometricType == BiometricType.NONE) {
+      //TODO
+      return;
+    }
+    if(widget.authType == BiometricHelper.LoginAuthType) {
+      _startFingerPrintLoginProcess();
+    } else if (widget.authType == BiometricHelper.SetUpAuthType) {
+      _authenticate();
     }
   }
 
+  void _startFingerPrintLoginProcess() async {
+    final hasFingerPrint = (await _biometricHelper?.getFingerprintPassword()) != null;
+    if (PreferenceUtil.getFingerPrintEnabled() && hasFingerPrint) {
+      _authenticate();
+    }
+  }
+
+  void _authenticate() async {
+    await _biometricHelper?.getBiometricType();
+    Function? subscription;
+    subscription = _biometricHelper?.authenticate(authType: widget.authType, authenticationCallback: (key, msg) {
+      if (key != null) {
+        widget.fingerPrintAction(key, PreferenceUtil.getAuthFingerprintUsername() ?? "");
+        subscription?.call();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("An Error occurred authenticating with biometrics"))
+        );
+      }
+    });
+  }
+
   Widget biometricStateWidget() {
-    if (widget.responseObserver.responseState == ResponseState.LOADING) {
+    if (widget.responseObserver.responseState != ResponseState.LOADING) {
       return Platform.isAndroid
           ? SvgPicture.asset('res/drawables/ic_finger_print.svg')
           : SvgPicture.asset(
@@ -123,7 +137,7 @@ class _BiometricLoginScreenState extends State<BiometricLoginScreen> {
               ),
               SizedBox(height: 20,),
               Text(
-                "Welcome back,\n${PreferenceUtil.getSavedUsername()}",
+                widget.pageDescription,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     fontSize: 24,
@@ -133,7 +147,7 @@ class _BiometricLoginScreenState extends State<BiometricLoginScreen> {
               ),
               Spacer(),
               Text(
-                "Fingerprint Unlock",
+                widget.pageActionText,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,

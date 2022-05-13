@@ -1,12 +1,12 @@
-import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:moniepoint_flutter/app/login/views/login_response_observer.dart';
 import 'package:moniepoint_flutter/app/notifications/view/notification_route_observer.dart';
 import 'package:moniepoint_flutter/app/onboarding/views/welcome_screen.dart';
 import 'package:moniepoint_flutter/core/extensions/composite_disposable_widget.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/routes.dart';
+import 'package:moniepoint_flutter/core/utils/biometric_helper.dart';
 import 'package:moniepoint_flutter/core/utils/preference_util.dart';
 import 'package:moniepoint_flutter/core/viewmodels/system_configuration_view_model.dart';
 import 'package:moniepoint_flutter/core/views/moniepoint_scaffold.dart';
@@ -14,10 +14,8 @@ import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../main.dart';
-import 'login/views/biometric_login_screen.dart';
+import 'login/viewmodels/login_view_model.dart';
 import 'login/views/login_view.dart';
-import 'login/views/login_view_2.dart';
-import 'onboarding/views/signup_account_view.dart';
 
 ///
 ///@author Paul Okeke
@@ -49,7 +47,6 @@ class _MoniepointAppContainerState extends State<_MoniepointAppContainer> with C
         viewModel.getSystemConfigurations(),
         viewModel.getUSSDConfiguration(), (a, b) {}
     ).listen((event) {
-      print("Fetching System Configuration!!!");
       if(event is Success || event is Error) {
         disposeAll();
       }
@@ -63,13 +60,28 @@ class _MoniepointAppContainerState extends State<_MoniepointAppContainer> with C
     super.initState();
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Future<Widget> _mainBody() async {
     String? savedUsername = PreferenceUtil.getSavedUsername();
 
-    Widget body = (savedUsername == null || savedUsername.isEmpty)
-        ? WelcomeScreen()
-        : BiometricLoginScreen();
+    if(savedUsername == null || savedUsername.isEmpty) return WelcomeScreen();
+
+    final loginViewModel = Provider.of<LoginViewModel>(context, listen: false);
+    final biometricHelper = BiometricHelper.getInstance();
+    final canLoginWithBiometric = await loginViewModel.canLoginWithBiometric(biometricHelper);
+
+    if(canLoginWithBiometric) {
+      final LoginResponseObserver responseObserver = LoginResponseObserver(
+          context: context,
+          viewModel: loginViewModel
+      );
+      return BiometricLoginButton.getBiometricLoginScreen(loginViewModel, responseObserver);
+    }
+
+    return LoginView();
+  }
+
+  @override
+  Widget build(BuildContext context) {
 
     return MaterialApp(
       restorationScopeId: "root",
@@ -77,7 +89,16 @@ class _MoniepointAppContainerState extends State<_MoniepointAppContainer> with C
       theme: defaultAppTheme,
       navigatorKey: navigatorKey,
       navigatorObservers: [NotificationRouteObserver()],
-      home: Scaffold(body: body),
+      home: Scaffold(
+          body: FutureBuilder(
+              future: _mainBody(),
+              builder: (ctx, AsyncSnapshot<Widget> value) {
+                return value.connectionState != ConnectionState.done
+                    ? SizedBox.shrink()
+                    : value.data!;
+              }
+          )
+      ),
       onGenerateRoute: Routes.generateRouteWithSettings,
       routes: Routes.buildRouteMap(_viewModel),
     );

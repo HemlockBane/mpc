@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:get_it/get_it.dart';
-import 'package:moniepoint_flutter/app/usermanagement/model/data/change_password_request_body.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/data/change_pin_request_body.dart';
 import 'package:moniepoint_flutter/app/usermanagement/model/usermanagement_service_delegate.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';

@@ -48,4 +48,6 @@ android/livelinessdetector-debug/
 
 
 /android/key.properties
+.fvm/flutter_sdk
+*.g.dart
 

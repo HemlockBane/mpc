@@ -11,6 +11,10 @@ import 'package:moniepoint_flutter/core/network/network_bound_resource.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/app/onboarding/model/data/otp.dart';
 
+import 'data/reset_otp_validation_response.dart';
+import 'data/reset_pin_liveliness_validation_response.dart';
+import 'data/reset_pin_response.dart';
+
 
 class UserManagementServiceDelegate with NetworkResource {
   late final UserManagementService _service;
@@ -96,6 +100,42 @@ class UserManagementServiceDelegate with NetworkResource {
     return networkBoundResource(
         fetchFromLocal: () => Stream.value(null),
         fetchFromRemote: () => this._service.changeTransactionPin(requestBody)
+    );
+  }
+
+  Stream<Resource<OTP?>> triggerOtpForPinReset() {
+    return networkBoundResource(
+        fetchFromLocal: () => Stream.value(null),
+        fetchFromRemote: () => this._service.triggerOtpForPinReset()
+    );
+  }
+
+  Stream<Resource<ResetOtpValidationResponse>> validateOtpForPinReset(String otp) {
+    return networkBoundResource(
+        fetchFromLocal: () => Stream.value(null),
+        fetchFromRemote: () => this._service.validateOtpForPinReset({
+          "otp": otp
+        })
+    );
+  }
+
+  Stream<Resource<ResetPinLivelinessValidationResponse?>>
+      validateLivelinessForPinReset(
+          File firstCapture, File secondCapture, String key) {
+    return networkBoundResource(
+        fetchFromLocal: () => Stream.value(null),
+        fetchFromRemote: () => this
+            ._service
+            .validateLivelinessForPinReset(firstCapture, secondCapture, key));
+  }
+
+  Stream<Resource<ResetPINResponse?>> resetPin(String pin, String livelinessKey) {
+    return networkBoundResource(
+        fetchFromLocal: () => Stream.value(null),
+        fetchFromRemote: () => this._service.resetTransactionPin({
+          "livelinessValidationKey": livelinessKey,
+          "pin": pin
+        })
     );
   }
 

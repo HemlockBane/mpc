@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:moniepoint_flutter/app/login/views/biometric_login_screen.dart';
 import 'package:moniepoint_flutter/core/network/resource.dart';
 import 'package:moniepoint_flutter/core/network/response_observer.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
 import 'package:moniepoint_flutter/core/viewmodels/finger_print_alert_view_model.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
@@ -33,36 +34,50 @@ class _LoginMethodDialog extends State<LoginMethodsDialog> {
     final fingerprintPassword = await biometricHelper.getFingerprintPassword();
 
     if(value && fingerprintPassword == null) {
-      final responseObserver = LoginMethodResponseObserver(
-          context: context, biometricType: _biometricType
-      );
-      Navigator.of(context).push(
-          MaterialPageRoute(
-              builder: (_) => ChangeNotifierProvider.value(
-                value: _viewModel,
-                child: BiometricLoginScreen(
-                  responseObserver: responseObserver,
-                  fingerPrintAction: (key, _) {
-                    _viewModel.setFingerprint(key).listen(responseObserver.observe);
-                  },
-                  authType: BiometricHelper.SetUpAuthType,
-                ),
-              )
-          )
-      ).then((value) {
-        if (value != null && value is bool) {
-          showSuccess(
-              context,
-              title: "Fingerprint setup",
-              message: "Fingerprint Setup successfully"
-          );
-        }
-      });
+      _navigateToBiometricScreen();
     } else {
       setState(() {
         PreferenceUtil.setFingerPrintEnabled(value);
       });
     }
+  }
+
+  void _navigateToBiometricScreen(){
+    final responseObserver = LoginMethodResponseObserver(
+        context: context, biometricType: _biometricType
+    );
+
+    String biometricTypeText = "";
+    if (_biometricType == BiometricType.FINGER_PRINT) {
+      biometricTypeText = "Fingerprint";
+    } else if (_biometricType == BiometricType.FACE_ID) {
+      biometricTypeText = "Face ID";
+    }
+
+    Navigator.of(context).push(
+        MaterialPageRoute(
+            builder: (_) => ChangeNotifierProvider.value(
+              value: _viewModel,
+              child: BiometricLoginScreen(
+                responseObserver: responseObserver,
+                pageDescription: "Enable $biometricTypeText\nLogin",
+                pageActionText: "Setup",
+                fingerPrintAction: (key, _) {
+                  _viewModel.setFingerprint(key).listen(responseObserver.observe);
+                },
+                authType: BiometricHelper.SetUpAuthType,
+              ),
+            )
+        )
+    ).then((value) {
+      if (value != null && value is bool) {
+        showSuccess(
+            context,
+            title: "$biometricTypeText setup",
+            message: "$biometricTypeText Setup successfully"
+        );
+      }
+    });
   }
 
   void _initializeState() async {
@@ -229,10 +244,9 @@ class _LoginMethodDialog extends State<LoginMethodsDialog> {
 
 class LoginMethodResponseObserver extends ResponseObserver<Resource<bool>> {
 
-  LoginMethodResponseObserver({
-      required BuildContext context,
-      required this.biometricType
-  }): super(context: context);
+  LoginMethodResponseObserver(
+      {required BuildContext context, required this.biometricType})
+      : super(context: context);
 
   final BiometricType? biometricType;
 
@@ -257,9 +271,13 @@ class LoginMethodResponseObserver extends ResponseObserver<Resource<bool>> {
       showError(
           navigatorKey.currentContext!,
           title: actionTitle,
-          message: event.message
+          message: event.message,
+          onPrimaryClick: () {
+            Navigator.of(context).popUntil((route) {
+              return route.settings.name == Routes.SETTINGS_CHANGE_LOGIN_METHOD;
+            });
+          }
       );
     }
   }
-
 }

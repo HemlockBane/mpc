@@ -27,12 +27,13 @@ class LoginResponseObserver extends ResponseObserver<Resource<User>>{
   void observe(Resource<User> event) {
     if (event is Loading) {
       viewModel.isLoggingIn = true;
-      setState?.call();
+      updateResponseState(ResponseState.LOADING);
     }
     if (event is Error<User>) {
       viewModel.isLoggingIn = false;
       setState?.call();
       passwordController?.clear();
+      updateResponseState(ResponseState.ERROR);
 
       if (event.message?.contains("version") == true) {
         showInfo(
@@ -57,6 +58,7 @@ class LoginResponseObserver extends ResponseObserver<Resource<User>>{
     if (event is Success<User>) {
       viewModel.isLoggingIn = false;
       passwordController?.clear();
+      updateResponseState(ResponseState.SUCCESS);
       PreferenceUtil.setLoginMode(LoginMode.FULL_ACCESS);
       PreferenceUtil.saveLoggedInUser(event.data!);
       PreferenceUtil.saveUsername(event.data?.username ?? "");

@@ -1,3 +1,11 @@
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file("local.properties")
+if(localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
 buildscript {
     ext.kotlin_version = '1.6.10'
     repositories {
@@ -22,7 +30,7 @@ allprojects {
             name "GitLab"
             credentials(HttpHeaderCredentials) {
                 name = 'Private-Token'
-                value = 'QZsU7hhAheopz8wkpwaa'
+                value = localProperties['gitlab.token']
             }
             authentication {
                 header(HttpHeaderAuthentication)

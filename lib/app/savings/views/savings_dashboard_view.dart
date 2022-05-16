@@ -42,38 +42,38 @@ class _SavingsDashboardState extends State<SavingsDashboardView> with AutomaticK
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    // return ComingSoonView(width: 100, height: 100);
-    return MultiProvider(
-      providers: [ChangeNotifierProvider.value(value: _viewModel)],
-      child: RefreshIndicator(
-        displacement: 80,
-        onRefresh: () async {
-          _viewModel.update(DashboardState.REFRESHING);
-          await for (var value in _viewModel.dashboardUpdateStream) {
-            await Future.delayed(Duration(milliseconds: 100));
-            if (value != DashboardState.DONE) return;
-            return null;
-          }
-          return null;
-        },
-        child: Container(
-          child: ListView(
-            cacheExtent: 500000,
-            children: [
-              SizedBox(height: dashboardTopMenuHeight - 40),
-              LayoutBuilder(builder: (ctx, constraints) {
-                return Container(
-                  width: constraints.maxWidth,
-                  height: MediaQuery.of(context).size.height - 0,
-                  color: Colors.transparent,
-                  child: _SavingsDashboardMenu(),
-                );
-              }),
-            ],
-          ),
-        ),
-      ),
-    );
+    return ComingSoonView(width: 100, height: 100);
+    // return MultiProvider(
+    //   providers: [ChangeNotifierProvider.value(value: _viewModel)],
+    //   child: RefreshIndicator(
+    //     displacement: 80,
+    //     onRefresh: () async {
+    //       _viewModel.update(DashboardState.REFRESHING);
+    //       await for (var value in _viewModel.dashboardUpdateStream) {
+    //         await Future.delayed(Duration(milliseconds: 100));
+    //         if (value != DashboardState.DONE) return;
+    //         return null;
+    //       }
+    //       return null;
+    //     },
+    //     child: Container(
+    //       child: ListView(
+    //         cacheExtent: 500000,
+    //         children: [
+    //           SizedBox(height: dashboardTopMenuHeight - 40),
+    //           LayoutBuilder(builder: (ctx, constraints) {
+    //             return Container(
+    //               width: constraints.maxWidth,
+    //               height: MediaQuery.of(context).size.height - 0,
+    //               color: Colors.transparent,
+    //               child: _SavingsDashboardMenu(),
+    //             );
+    //           }),
+    //         ],
+    //       ),
+    //     ),
+    //   ),
+    // );
   }
 
   @override
@@ -229,96 +229,96 @@ class _SavingAccountCardState extends  State<SavingsAccountCard> {
 ///ComingSoonView
 ///
 ///
-// class ComingSoonView extends StatelessWidget {
-//   const ComingSoonView({
-//     Key? key,
-//     required this.width,
-//     required this.height,
-//   }) : super(key: key);
-//
-//   final double width;
-//   final double height;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       padding: EdgeInsets.symmetric(horizontal: 16),
-//       width: width,
-//       color: Color(0XFFF0FAEB),
-//       child: Container(
-//         height: height,
-//         margin: EdgeInsets.symmetric(horizontal: 20),
-//         child: Column(
-//           children: [
-//             SizedBox(height: dashboardTopMenuHeight),
-//             Expanded(
-//               child: Container(
-//                 // color: Colors.red,
-//                 child: Column(
-//                   mainAxisAlignment: MainAxisAlignment.center,
-//                   children: [
-//                     LayoutBuilder(
-//                       builder: (ctx, constraints){
-//                         return Container(
-//                           // color: Colors.backgroundTwo,
-//                           child: Stack(
-//                             overflow: Overflow.visible,
-//                             children: [
-//                               Container(
-//                                 padding: EdgeInsets.symmetric(horizontal: 26),
-//                                 decoration: BoxDecoration(
-//                                   color: Color(0xFF1EB12D).withOpacity(0.1),
-//                                   borderRadius: BorderRadius.all(Radius.circular(17.8)),
-//                                   boxShadow: [
-//                                     BoxShadow(color: Color(0xff1F0E4FB).withOpacity(0.12), offset: Offset(0, 1.12), blurRadius: 2.23)
-//                                   ]
-//                                 ),
-//                                 child: Column(
-//                                   crossAxisAlignment: CrossAxisAlignment.center,
-//                                   mainAxisSize: MainAxisSize.min,
-//                                   children: [
-//                                     SizedBox(height: 90,),
-//                                     Text('A better way\nto save money', textAlign: TextAlign.center, style: TextStyle(color: Color(0xFF1EB12D), fontWeight: FontWeight.w700, fontSize: 19.5),),
-//                                     SizedBox(height: 11,),
-//                                     Text('Save money with Moniepoint\n and hit your goals & targets', style: TextStyle(color: Colors.textColorBlack, fontWeight: FontWeight.w500, fontSize: 14),),
-//                                     SizedBox(height: 11,),
-//                                     GestureDetector(
-//                                       onTap: null,
-//                                       child: Container(
-//                                         padding: EdgeInsets.symmetric(horizontal: 45, vertical: 10),
-//                                         decoration: BoxDecoration(
-//                                           borderRadius: BorderRadius.all(Radius.circular(4.0)),
-//                                           color: Color(0xff4F577A5A),
-//                                         ),
-//                                         child: Text("Coming Soon", textAlign: TextAlign.center,
-//                                           style: TextStyle(color: Color(0xff698C6C), fontSize: 16, fontWeight: FontWeight.w500
-//                                           ),
-//                                         ),
-//                                       ),
-//                                     ),
-//                                     SizedBox(height: 30,),
-//
-//                                   ],
-//                                 ),
-//                               ),
-//                               Positioned(
-//                                 top: -51, left: 0, right: 10,
-//                                 child: Container(
-//                                   // color: Colors.black,
-//                                   child: Image.asset("res/drawables/ic_savings_target.png", height: 165, width: 165,)),
-//                               ),
-//                             ],
-//                           ),
-//                         );
-//                       },
-//                     ),
-//                   ],
-//                 )
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
+class ComingSoonView extends StatelessWidget {
+  const ComingSoonView({
+    Key? key,
+    required this.width,
+    required this.height,
+  }) : super(key: key);
+
+  final double width;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      width: width,
+      color: Color(0XFFF0FAEB),
+      child: Container(
+        height: height,
+        margin: EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          children: [
+            SizedBox(height: dashboardTopMenuHeight),
+            Expanded(
+              child: Container(
+                // color: Colors.red,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    LayoutBuilder(
+                      builder: (ctx, constraints){
+                        return Container(
+                          // color: Colors.backgroundTwo,
+                          child: Stack(
+                            overflow: Overflow.visible,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 26),
+                                decoration: BoxDecoration(
+                                  color: Color(0xFF1EB12D).withOpacity(0.1),
+                                  borderRadius: BorderRadius.all(Radius.circular(17.8)),
+                                  boxShadow: [
+                                    BoxShadow(color: Color(0xff1F0E4FB).withOpacity(0.12), offset: Offset(0, 1.12), blurRadius: 2.23)
+                                  ]
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    SizedBox(height: 90,),
+                                    Text('A better way\nto save money', textAlign: TextAlign.center, style: TextStyle(color: Color(0xFF1EB12D), fontWeight: FontWeight.w700, fontSize: 19.5),),
+                                    SizedBox(height: 11,),
+                                    Text('Save money with Moniepoint\n and hit your goals & targets', style: TextStyle(color: Colors.textColorBlack, fontWeight: FontWeight.w500, fontSize: 14),),
+                                    SizedBox(height: 11,),
+                                    GestureDetector(
+                                      onTap: null,
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 45, vertical: 10),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.all(Radius.circular(4.0)),
+                                          color: Color(0xff4F577A5A),
+                                        ),
+                                        child: Text("Coming Soon", textAlign: TextAlign.center,
+                                          style: TextStyle(color: Color(0xff698C6C), fontSize: 16, fontWeight: FontWeight.w500
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 30,),
+
+                                  ],
+                                ),
+                              ),
+                              Positioned(
+                                top: -51, left: 0, right: 10,
+                                child: Container(
+                                  // color: Colors.black,
+                                  child: Image.asset("res/drawables/ic_savings_target.png", height: 165, width: 165,)),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                )
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

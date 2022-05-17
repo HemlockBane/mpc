@@ -98,6 +98,9 @@ class _LoginBoxState extends State<_LoginBox> with CompositeDisposableWidget {
   late final LoginViewModel _viewModel;
   late final LoginResponseObserver _loginResponseObserver;
 
+  bool _isPasswordVisible = false;
+
+
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -219,25 +222,25 @@ class _LoginBoxState extends State<_LoginBox> with CompositeDisposableWidget {
                     drawablePadding: EdgeInsets.only(left: 4, right: 4),
                     fontSize: 15,
                     padding: EdgeInsets.only(top: 22, bottom: 22),
-                    // endIcon: IconButton(
-                    //     icon: Icon(
-                    //         this._isPasswordVisible
-                    //             ? Icons.visibility
-                    //             : Icons.visibility_off,
-                    //         color: Colors.textHintColor.withOpacity(0.3)
-                    //     ),
-                    //     onPressed: () {
-                    //       setState(() {
-                    //         //this._isPasswordVisible = !_isPasswordVisible;
-                    //       });
-                    //     }),
+                    endIcon: IconButton(
+                        icon: Icon(
+                            this._isPasswordVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: Colors.textHintColor.withOpacity(0.3)
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            this._isPasswordVisible = !_isPasswordVisible;
+                          });
+                        }),
                     startIcon: Icon(
                       CustomIcons2.password,
                       color: Colors.textHintColor.withOpacity(0.3),
                       size: 24,
                     ),
                     focusListener: (bool) => this.setState(() {}),
-                    isPassword: false//!_isPasswordVisible
+                    isPassword: !_isPasswordVisible
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,

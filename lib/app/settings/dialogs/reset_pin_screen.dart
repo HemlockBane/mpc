@@ -2,7 +2,9 @@ import 'package:flutter/material.dart' hide Colors;
 import 'package:moniepoint_flutter/app/usermanagement/model/data/reset_pin_response.dart';
 import 'package:moniepoint_flutter/app/usermanagement/viewmodels/reset_pin_view_model.dart';
 import 'package:moniepoint_flutter/core/colors.dart';
+import 'package:moniepoint_flutter/core/routes.dart';
 import 'package:moniepoint_flutter/core/utils/dialog_util.dart';
+import 'package:moniepoint_flutter/main.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/network/resource.dart';
@@ -34,7 +36,7 @@ class _ResetPinScreenState extends State<ResetPinScreen> {
             title: "Pin Reset",
             message: "Transaction PIN was reset successfully",
             onPrimaryClick: () {
-              Navigator.of(context).pop();
+              navigatorKey.currentState?.popUntil(ModalRoute.withName(Routes.SETTINGS));
             }
         );
       }
